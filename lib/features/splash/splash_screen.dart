@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../routing/app_route_name.dart';
@@ -17,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/splash_video.mp4')
+    _controller = VideoPlayerController.asset(AppImage.png.splash)
       ..initialize().then((_) {
         setState(() {});
         _controller.play();

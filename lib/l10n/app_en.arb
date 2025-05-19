@@ -21,5 +21,26 @@
   "termsAndConditions": "terms & conditions",
   "and": " and ",
   "privacyPolicy": "Privacy policy",
-  "iAgree": "I Agree"
+  "iAgree": "I Agree",
+  "otpVerification":"OTP Verification",
+  "enterOtpSendNumber":"Enter the code sent to ",
+  "verifyCode":"Verify Code",
+  "resend":"Resend",
+  "bookShipment": "Book Shipment",
+  "ourValueAddedServices":"Our Value Added Services",
+  "buyFastTag": "Buy FASTag",
+  "enDan":"En-Dhan Card",
+  "gps":"GPS",
+  "instantLoan": "Instant Loan",
+  "kavach": "KAVACH",
+  "insurance":"Insurance",
+  "loginSuccessful": "LOGIN SUCCESSFUL",
+  "loginSuccessfulSubHeading":"Now you can explore the rates\nand post loads",
+  "home":"Home",
+  "loads": "Loads",
+  "support": "Support"
+
+
+
+
 }

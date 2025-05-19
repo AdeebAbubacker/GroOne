@@ -4,11 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 import '../../../utils/app_application_bar.dart';
+import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
-import '../../../utils/customButton.dart';
 import '../bloc/role_bloc.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
@@ -22,7 +24,7 @@ class ChooseRoleScreen extends StatelessWidget {
 
         actions: [
           Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
-          SizedBox(width: 30.h),
+         30.width,
         ],
       ),
       body: SingleChildScrollView(
@@ -36,15 +38,11 @@ class ChooseRoleScreen extends StatelessWidget {
 
                   spacing: 10.h,
                   children: [
-                    SizedBox(height: 30.h),
+                30.height,
 
                     Text(
                       context.appText.chooseRoleText,
-                      style: TextStyle(
-                        color: AppColors.textBlackColor,
-                        fontSize: 20.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: AppTextStyle.textBlackColors20w400
                     ),
                     chooseRoleTile(
                       isSelected: state.index == 0 ? true : false,
@@ -90,15 +88,20 @@ class ChooseRoleScreen extends StatelessWidget {
                       },
                       imageString: AppImage.png.fleet,
                     ),
-                    SizedBox(height: 5.h),
-                    CustomButton(
-                      buttonText: context.appText.next,
-                      disable: true,
-                      onClick: () {
+                     5.height,
+                    AppButton(title:context.appText.next,
+
+                      onPressed:() {
                         context.push(AppRouteName.login);
-                      },
-                    ),
-                    SizedBox(height: 25.h),
+                      } ,),
+                    // CustomButton(
+                    //   buttonText: context.appText.next,
+                    //   disable: true,
+                    //   onClick: () {
+                    //     context.push(AppRouteName.login);
+                    //   },
+                    // ),
+             25.height,
 
                     Center(child: Image.asset(AppImage.png.hinduja)),
                   ],
@@ -164,24 +167,15 @@ class ChooseRoleScreen extends StatelessWidget {
                       ? Text(
                         text2,
 
-                        style: TextStyle(
-                          color: AppColors.textGreyColor,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      )
+                        style: AppTextStyle.textGreyColor14w300)
                       : null,
               title: Row(
                 children: [
-                  SizedBox(width: 60.w),
+                60.width,
                   Expanded(
                     child: Text(
                       text1,
-                      style: TextStyle(
-                        color: AppColors.textBlackColor,
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyle.textBlackColor18w500
                     ),
                   ),
                 ],

@@ -4,6 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../core/localization_bloc/localization_bloc.dart';
 import '../../../core/localization_bloc/localization_event.dart';
 import '../../../routing/app_route_name.dart';
@@ -27,7 +30,7 @@ class ChooseLanguageScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                SizedBox(height: 30.h),
+              30.height,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -43,19 +46,10 @@ class ChooseLanguageScreen extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: context.appText.choosePreferredLanguage,
-                        style: TextStyle(
-                          color: AppColors.textBlackColor,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                        style: AppTextStyle.textBlackColors20w400,),
                       TextSpan(
                         text: " ${context.appText.language}",
-                        style: TextStyle(
-                          color: AppColors.textBlackColor,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style:AppTextStyle.textBlackColor20w500
                       ),
                     ],
                   ),
@@ -99,20 +93,20 @@ class ChooseLanguageScreen extends StatelessWidget {
                 Expanded(child: SizedBox.shrink()),
                 Text(
                   context.appText.chooseLanguage,
-                  style: TextStyle(
-                    color: AppColors.textDarkGreyColor,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style: AppTextStyle.textDarkGreyColor14w400
                 ),
+                AppButton(title:context.appText.next,
 
-                CustomButton(
-                  buttonText: context.appText.next,
-                  disable: true,
-                  onClick: () {
-                   context.push(AppRouteName.chooseRoleScreen);
-                  },
-                ),
+                  onPressed:() {
+                     context.push(AppRouteName.chooseRoleScreen);
+                    } ,),
+             //   CustomButton(
+                //   buttonText: context.appText.next,
+                //   disable: true,
+                //   onClick: () {
+                //    context.push(AppRouteName.chooseRoleScreen);
+                //   },
+                // ),
                 Expanded(child: SizedBox.shrink()),
               ],
             ),
@@ -167,20 +161,12 @@ class ChooseLanguageScreen extends StatelessWidget {
                   ? Text(
                     text2,
 
-                    style: TextStyle(
-                      color: AppColors.textGreyColor,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: AppTextStyle.textGreyColor14w400
                   )
                   : null,
           title: Text(
             text1,
-            style: TextStyle(
-              color: AppColors.textBlackColor,
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTextStyle.textBlackColor20w500
           ),
           trailing: Image.asset(width: 78.w, height: 50.h, imageString),
         ),

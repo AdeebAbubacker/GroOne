@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
@@ -16,6 +16,7 @@ import 'multi_bloc.dart';
 
 
 void main() async {
+
   SystemChrome.setSystemUIOverlayStyle(
 
     SystemUiOverlayStyle(
@@ -44,6 +45,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    appContext=context;
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);

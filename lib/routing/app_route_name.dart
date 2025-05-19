@@ -5,9 +5,12 @@ class AppRouteName{
   static const String signIn = "/signIn";
   static const String splash = "/splash";
   static const String home = "/home";
+  static const String homeScreenLoadProvider = "/home_screen_load_provider";
   static const String login = "/login";
   static const String securityHome = "/securityHome";
+  static const String bottomNavigation = "/bottomNavigation";
   static const String notFound = "/notFound";
+  static const String otpVerificationScreen = "/otpVerificationScreen";
   static const String chooseLanguage = "/chooseLanguage";
   static const String chooseRoleScreen = "/chooseRoleScreen";
 

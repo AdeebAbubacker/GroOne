@@ -16,7 +16,8 @@ class AppColors {
   static const Color textDarkGreyColor = Color(0xFF575757);
   static const textGreyColor=Color(0xFF909090);
   static const buttonDisableColor=Color(0xFFA7A7A7);
-
+  static const backGroundBlue=Color(0xFFF8F9FF);
+  static const greenColor=Color(0xFF027A48);
   static final Color disableColor = Color(0xFFB8B8B8);
 ///====>>>>>>>>>>>>>>>>>>>>>>>>>>>
   static const Color primaryTextColor = Color(0xff292D32);

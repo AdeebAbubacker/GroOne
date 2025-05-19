@@ -2,8 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
+import '../../../routing/app_route_name.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
@@ -39,26 +43,18 @@ class _LoginScreenState extends State<LoginScreen> {
               spacing: 10.h,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 30.h),
+                  30.height,
 
                 Text(
                   context.appText.loginSingUp,
-                  style: TextStyle(
-                    color: AppColors.textBlackColor,
-                    fontSize: 30.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppTextStyle.textBlackColor30w500
                 ),
-                SizedBox(height: 20.h),
+          20.height,
                 Text(
                   context.appText.enterMobileNumber,
-                  style: TextStyle(
-                    color: AppColors.textBlackColor,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  style:AppTextStyle. textBlackColor18w400
                 ),
-                SizedBox(height: 20.h),
+                  20.height,
                 Row(
                   spacing: 5.w,
                   children: [
@@ -81,16 +77,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Text(
                             "+91",
-                            style: TextStyle(
-                              color: AppColors.textBlackColor,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w400,
-                            ),
+                            style: AppTextStyle.textBlackColor16w400
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(width: 1.w),
+               1.width,
                     Expanded(
                       child: Container(
                         height: 44.h,
@@ -123,36 +115,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20.h),
+              20.height,
                 CustomButton(
                   buttonText: context.appText.getOtp,
                   disable: true,
                   onClick: () {
-                    //Get.toNamed(ScreensNames.loginScreen);
+                   context.push(AppRouteName.otpVerificationScreen);
                   },
                 ),
 
-                SizedBox(height: 20.h),
+                20.height,
                 RichText(
                   textAlign: TextAlign.start,
                   text: TextSpan(
-                    style: TextStyle(color: Colors.black, fontSize: 16.sp),
+
                     children: [
                       TextSpan(
                         text: context.appText.agree,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: AppTextStyle.blackColor14w400
                       ),
                       TextSpan(
                         text: context.appText.termsAndConditions,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.primaryColor,
-                          decoration: TextDecoration.underline,
-                        ),
+                        style: AppTextStyle.primaryColor14w400UnderLine,
                         recognizer:
                             TapGestureRecognizer()
                               ..onTap = () {
@@ -162,19 +146,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextSpan(
                         text: context.appText.and,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        style: AppTextStyle.blackColor14w400
                       ),
                       TextSpan(
                         text: context.appText.privacyPolicy,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.primaryColor,
-                          decoration: TextDecoration.underline,
-                        ),
+                        style: AppTextStyle.primaryColor14w400UnderLine,
                         recognizer:
                             TapGestureRecognizer()
                               ..onTap = () {
@@ -185,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 1.h),
+            1.height,
                 Row(
                   children: [
                     GestureDetector(
@@ -210,14 +186,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : const SizedBox(),
                       ),
                     ),
-                    SizedBox(width: 5.w),
+                     5.width,
                     Text(
                       context.appText.iAgree,
-                      style: TextStyle(
-                        color: AppColors.textBlackColor,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style:AppTextStyle.textBlackColor12w400
                     ),
                   ],
                 ),

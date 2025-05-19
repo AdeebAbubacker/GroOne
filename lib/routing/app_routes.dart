@@ -6,9 +6,12 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
 
+import '../features/bottom_navigation/view/bottom_navigation.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
+import '../features/load_provider/home/view/home_screen_load_provider.dart';
 import '../features/login/view/login_screen.dart';
+import '../features/otp_verification/view/otp_verification_screen.dart';
 
 class AppRoutes{
   AppRoutes._();
@@ -33,6 +36,16 @@ class AppRoutes{
         builder: (BuildContext context, GoRouterState state) {
           return  HomeScreen();
         },
+      ),   GoRoute(
+        path: AppRouteName.homeScreenLoadProvider,
+        builder: (BuildContext context, GoRouterState state) {
+          return  HomeScreenLoadProvider();
+        },
+      ),  GoRoute(
+        path: AppRouteName.bottomNavigation,
+        builder: (BuildContext context, GoRouterState state) {
+          return  BottomNavigation();
+        },
       ),  GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
@@ -47,6 +60,12 @@ class AppRoutes{
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
           return  ChooseRoleScreen();
+        },
+      ),
+GoRoute(
+        path: AppRouteName.otpVerificationScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return  OtpVerificationScreen();
         },
       ),
 
