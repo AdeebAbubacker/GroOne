@@ -9,7 +9,7 @@ class AppTextStyle{
   // H1
   static TextStyle h1 = GoogleFonts.poppins(fontWeight:  FontWeight.bold, color: AppColors.primaryTextColor, fontSize: 35);
   static TextStyle h1w700 = h1.copyWith(fontWeight:  FontWeight.w700);
-  static TextStyle h1w600 = h1.copyWith(fontWeight:  FontWeight.w600);
+  static TextStyle h1w600 = h1.copyWith(fontWeight:  FontWeight.w600,);
   static TextStyle h1BlackColor = h1.copyWith(color: Colors.black);
   static TextStyle h1PrimaryColor = h1.copyWith(color: AppColors.primaryColor);
 

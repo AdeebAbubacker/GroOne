@@ -4,10 +4,23 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color primaryColor = Color(0xffFECB00);
-  static const Color secondaryColor =  Color(0xff4D4D4D);
+  static const Color primaryColor =Color(0xFF003CFF);
 
+
+
+  ///prabhat
+
+
+  static const Color borderDisableColor=Color(0xFF9D9D9D);
+  static const Color textBlackColor = Color(0xFF2B2B2B);
+  static const Color textDarkGreyColor = Color(0xFF575757);
+  static const textGreyColor=Color(0xFF909090);
+  static const buttonDisableColor=Color(0xFFA7A7A7);
+
+  static final Color disableColor = Color(0xFFB8B8B8);
+///====>>>>>>>>>>>>>>>>>>>>>>>>>>>
   static const Color primaryTextColor = Color(0xff292D32);
+  static const Color secondaryColor = Color(0xff4D4D4D);
   static const Color greyTextColor = Color(0xff64748B);
   static const Color textFieldFillColor = Color(0xffF8FAFC);
   static const Color searchFillColor = Color(0xffF2F2F3);
@@ -32,7 +45,9 @@ class AppColors {
   static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
   static final Color lightGreyIconBackgroundColor = Colors.grey.shade200;
   static const Color lightGreyColor = Color(0xffF8FAFC);
-  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
+  static Color extraLightBackgroundGray = CupertinoColors
+      .extraLightBackgroundGray
+      .withOpacity(0.5);
   static const Color darkGreyColor = Color(0xff838383);
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);
@@ -41,7 +56,6 @@ class AppColors {
   static const Color darkDividerColor = Color(0xff707070);
   static const Color deActiveButtonColor = Color(0xffe3e3e8);
   static final Color shimmerBaseColor = Colors.grey.shade100;
-  static final Color disableColor = Colors.grey.shade50;
   static const Color shimmerHighlightColor = Colors.white10;
 
   static const Color chipBackgroundColor = Color(0xFFF4F0E9);
@@ -54,8 +68,12 @@ class AppColors {
   }
 
   static ColorFilter svg(Color color) {
-    return  ColorFilter.mode(color, BlendMode.srcIn);
+    return ColorFilter.mode(color, BlendMode.srcIn);
   }
 
-  static List<Color> buttonGradientColor = [primaryColor.withAlpha(450), primaryColor, primaryColor];
+  static List<Color> buttonGradientColor = [
+    primaryColor.withAlpha(450),
+    primaryColor,
+    primaryColor,
+  ];
 }

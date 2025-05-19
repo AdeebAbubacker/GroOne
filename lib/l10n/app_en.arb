@@ -1,5 +1,25 @@
 {
   "@@locale": "en",
-
-  "appName": "Gro One"
+  "appName": "Gro One",
+  "next": "Next",
+  "chooseLanguage": "You can also change the language later on",
+  "choosePreferredLanguage": "Choose Your Preferred",
+  "language": "Language",
+  "chooseRoleText": "What do you use this app for?",
+  "lpTextHeading": "I am a Load Provider",
+  "lpText": "I have commodities to be transported",
+  "vpTextHeading": "I am a Truck Provider",
+  "vpText": "I can provide trucks for loads",
+  "vpLpHeading": "I do both",
+  "vpLp": "I have trucks and commodities",
+  "fleetHeading": "I Require Fleet Products",
+  "fleet": "I want value added services for my fleet",
+  "getOtp": "Get OTP",
+  "enterMobileNumber": "Enter your mobile number to continue.",
+  "loginSingUp": "Login / Sign up",
+  "agree": "By Logging in, you agree to GRO’s ",
+  "termsAndConditions": "terms & conditions",
+  "and": " and ",
+  "privacyPolicy": "Privacy policy",
+  "iAgree": "I Agree"
 }

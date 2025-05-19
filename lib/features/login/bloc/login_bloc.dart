@@ -1,0 +1,23 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+part 'login_event.dart';
+
+part 'login_state.dart';
+
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  LoginBloc() : super(const LoginState()) {
+    on<ChangeIndex>(_onChangeIndex);
+
+  }
+  _onChangeIndex(ChangeIndex event, Emitter<LoginState> emit) async {
+
+    emit(
+      state.copyWith(
+        status: LoginStatus.isSuccess,
+        counter:  event.index,
+      ),
+    );
+  }
+}
