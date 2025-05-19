@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gro_one_app/features/load_provider/home/view/home_screen_load_provider.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
+ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_image.dart';
+import '../../lp_home/view/home_screen_load_provider.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});
@@ -16,7 +17,7 @@ class BottomNavigation extends StatefulWidget {
 class _BottomNavigationState extends State<BottomNavigation> {
   final List<Widget> pages = [
     HomeScreenLoadProvider(),
-    Center(child: Text('Loads')),
+    LpLoadsScreen(),
     Center(child: Text('Support')),
   ];
 

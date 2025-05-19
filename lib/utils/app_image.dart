@@ -12,7 +12,10 @@ class PngImages {
   static const String _pngImageBasePath = "assets/images/png/";
   ///Prabhat======================+>
   final String appIcon = "${_pngImageBasePath}appIcon.png";
+  final String noShipment = "${_pngImageBasePath}noShipmentFound.png";
+  final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";
+  final String filter = "${_pngImageBasePath}filter.png";
   final String tamilLanguage = "${_pngImageBasePath}tamilLanguage.png";
   final String hindiLanguage = "${_pngImageBasePath}hindiLanguage.png";
   final String lp = "${_pngImageBasePath}lp.png";

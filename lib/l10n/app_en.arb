@@ -38,7 +38,17 @@
   "loginSuccessfulSubHeading":"Now you can explore the rates\nand post loads",
   "home":"Home",
   "loads": "Loads",
-  "support": "Support"
+  "support": "Support",
+  "source": "Source",
+  "selectPickUpPoint":"Select pickup point",
+  "destination":"Destination",
+  "selectDestination":"Select destination",
+  "upComingShipment": "Upcoming shipments",
+  "postLoad": "Post Load",
+  "kyc":  "KYC",
+  "your": "Your",
+  "stillPending": "verification is still Pending"
+
 
 
 

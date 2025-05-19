@@ -12,8 +12,11 @@ class AppColors {
 
 
   static const Color borderDisableColor=Color(0xFF9D9D9D);
+  static const Color appRedColor=Color(0xFFF9D1D3);
+  static const Color primaryDarkColor=Color(0xFF0369A1);
   static const Color textBlackColor = Color(0xFF2B2B2B);
   static const Color textDarkGreyColor = Color(0xFF575757);
+  static const Color orangeTextColor = Color(0xFFEA7144);
   static const textGreyColor=Color(0xFF909090);
   static const buttonDisableColor=Color(0xFFA7A7A7);
   static const backGroundBlue=Color(0xFFF8F9FF);
