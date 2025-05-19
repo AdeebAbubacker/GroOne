@@ -9,6 +9,7 @@ class AppRouteName{
   static const String login = "/login";
   static const String securityHome = "/securityHome";
   static const String bottomNavigation = "/bottomNavigation";
+  static const String vpBottomNavigationBar = "/vpBottomNavigationBar";
   static const String notFound = "/notFound";
   static const String otpVerificationScreen = "/otpVerificationScreen";
   static const String chooseLanguage = "/chooseLanguage";

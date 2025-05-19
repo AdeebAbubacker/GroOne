@@ -6,11 +6,6 @@ class AppColors {
 
   static const Color primaryColor =Color(0xFF003CFF);
 
-
-
-  ///prabhat
-
-
   static const Color borderDisableColor=Color(0xFF9D9D9D);
   static const Color textBlackColor = Color(0xFF2B2B2B);
   static const Color textDarkGreyColor = Color(0xFF575757);
@@ -19,7 +14,7 @@ class AppColors {
   static const backGroundBlue=Color(0xFFF8F9FF);
   static const greenColor=Color(0xFF027A48);
   static final Color disableColor = Color(0xFFB8B8B8);
-///====>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
   static const Color primaryTextColor = Color(0xff292D32);
   static const Color secondaryColor = Color(0xff4D4D4D);
   static const Color greyTextColor = Color(0xff64748B);
@@ -28,13 +23,13 @@ class AppColors {
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
 
   static const Color scaffoldBackgroundColor = Color(0xffFCFCFC);
-  static const Color appBarBackgroundColor = Color(0xffFCFCFC);
+  static const Color appBarBackgroundColor = Colors.white;
 
   static const Color primaryButtonColor = primaryColor;
   static const Color secondaryButtonColor = Color(0xff222831);
 
   static const Color activeGreenColor = CupertinoColors.activeGreen;
-  static const Color lightPrimaryColor = Color(0xffFFFAE5);
+  static const Color lightPrimaryColor = Color(0xffDFE6FF);
   static const Color extraLightPrimaryColor = Color(0xffFFFFCF2);
   static const Color activeBlueColor = CupertinoColors.activeBlue;
   static const Color greyIconColor = Colors.black38;
@@ -46,9 +41,7 @@ class AppColors {
   static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
   static final Color lightGreyIconBackgroundColor = Colors.grey.shade200;
   static const Color lightGreyColor = Color(0xffF8FAFC);
-  static Color extraLightBackgroundGray = CupertinoColors
-      .extraLightBackgroundGray
-      .withOpacity(0.5);
+  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
   static const Color darkGreyColor = Color(0xff838383);
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);

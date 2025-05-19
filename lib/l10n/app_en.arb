@@ -38,7 +38,11 @@
   "loginSuccessfulSubHeading":"Now you can explore the rates\nand post loads",
   "home":"Home",
   "loads": "Loads",
-  "support": "Support"
+  "support": "Support",
+  "kyc": "KYC",
+  "recentAddedLoad": "Recent Added Load",
+  "accept" : "Accept",
+  "seeMore" : "See more"
 
 
 

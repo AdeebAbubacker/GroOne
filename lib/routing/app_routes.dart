@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
-
 import '../features/bottom_navigation/view/bottom_navigation.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
@@ -13,7 +13,7 @@ import '../features/load_provider/home/view/home_screen_load_provider.dart';
 import '../features/login/view/login_screen.dart';
 import '../features/otp_verification/view/otp_verification_screen.dart';
 
-class AppRoutes{
+class AppRoutes {
   AppRoutes._();
 
   static final GoRouter router = GoRouter(
@@ -26,7 +26,7 @@ class AppRoutes{
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
-          return  SplashScreen();
+          return SplashScreen();
         },
       ),
 
@@ -34,44 +34,53 @@ class AppRoutes{
       GoRoute(
         path: AppRouteName.home,
         builder: (BuildContext context, GoRouterState state) {
-          return  HomeScreen();
+          return HomeScreen();
         },
-      ),   GoRoute(
+      ),
+
+      // VP Bottom Navigation bar
+      GoRoute(
+        path: AppRouteName.vpBottomNavigationBar,
+        builder: (BuildContext context, GoRouterState state) {
+          return VPBottomNavigationBar();
+        },
+      ),
+      GoRoute(
         path: AppRouteName.homeScreenLoadProvider,
         builder: (BuildContext context, GoRouterState state) {
-          return  HomeScreenLoadProvider();
+          return HomeScreenLoadProvider();
         },
-      ),  GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.bottomNavigation,
         builder: (BuildContext context, GoRouterState state) {
-          return  BottomNavigation();
+          return BottomNavigation();
         },
-      ),  GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          return  LoginScreen();
+          return LoginScreen();
         },
-      ), GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.chooseLanguage,
         builder: (BuildContext context, GoRouterState state) {
-          return  ChooseLanguageScreen();
+          return ChooseLanguageScreen();
         },
-      ), GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return  ChooseRoleScreen();
+          return ChooseRoleScreen();
         },
       ),
-GoRoute(
+      GoRoute(
         path: AppRouteName.otpVerificationScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return  OtpVerificationScreen();
+          return OtpVerificationScreen();
         },
       ),
-
-
-
-
 
       // Default Screen
       GoRoute(
@@ -80,9 +89,6 @@ GoRoute(
           return const DefaultScreen();
         },
       ),
-
     ],
   );
-
-
 }

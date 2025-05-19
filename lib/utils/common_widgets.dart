@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -255,20 +256,12 @@ Widget appLoader() {
 //   return Container();
 // }
 
-/// Banner Error Widget
-Widget bannerErrorWidget(BuildContext context){
+Widget kycWidget(){
   return Container(
-    color: AppColors.extraLightBackgroundGray,
-    width: double.infinity,
-    height: commonBannerHeight,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(AppIcons.svg.infoCircleOutline, width: 30, colorFilter: AppColors.svg(AppColors.greyIconColor)),
-        5.height,
-        Text(AppString.error.somethingWentWrong, style: AppTextStyle.body3GreyColor)
-      ],
-    ),
+    height: 40.h,
+    width: 40.w,
+    alignment: Alignment.center,
+    decoration: commonContainerDecoration(color: Colors.redAccent.shade100, borderRadius: BorderRadius.circular(100)),
+    child: Text("KYC", style: AppTextStyle.h6WhiteColor).paddingAll(5),
   );
 }

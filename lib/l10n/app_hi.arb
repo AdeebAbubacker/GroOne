@@ -38,5 +38,10 @@
   "loginSuccessfulSubHeading": "अब आप दरें देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं",
   "home": "होम",
   "loads": "लोड्स",
-  "support": "सहायता"
+  "support": "सहायता",
+  "kyc": "KYC",
+  "recentAddedLoad": "हाल ही में जोड़ा गया लोड",
+  "accept" : "स्वीकार करना",
+  "seeMore" : "और देखें"
+
 }
