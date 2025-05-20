@@ -27,10 +27,12 @@ class AppButtonStyle {
   );
 
   /// Edit
-  static ButtonStyle editButton = primary.copyWith(
+  static ButtonStyle primaryTextButton = primary.copyWith(
       elevation: WidgetStateProperty.all(0),
       padding: WidgetStateProperty.all(EdgeInsets.zero),
-      fixedSize: WidgetStateProperty.all(const Size(80, 25)));
+      fixedSize: WidgetStateProperty.all(const Size(80, 25)),
+      shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)))
+  );
 
   /// Secondary
   static ButtonStyle secondary = ElevatedButton.styleFrom(
@@ -51,8 +53,8 @@ class AppButtonStyle {
       backgroundColor: Colors.white,
       elevation: 0.0,
       fixedSize: Size(MediaQuery.of(appContext).size.width, commonButtonHeight),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonButtonRadius)),
-      side: const BorderSide(color: AppColors.secondaryColor, width: 1.5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonOutlineButtonRadius)),
+      side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
   );
 
   static ButtonStyle logout = ElevatedButton.styleFrom(

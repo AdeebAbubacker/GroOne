@@ -39,13 +39,7 @@
   "home": "होम",
   "loads": "लोड्स",
   "support": "सहायता",
-  "source": "स्रोत",
-  "selectPickUpPoint": "पिकअप स्थान चुनें",
-  "destination": "गंतव्य",
-  "selectDestination": "गंतव्य चुनें",
-  "upComingShipment": "आगामी शिपमेंट्स",
-  "postLoad": "लोड पोस्ट करें",
-  "kyc": "केवाईसी",
-  "your": "आपका",
-  "stillPending": "सत्यापन अभी भी लंबित है"
+  "recentAddedLoad": "हाल ही में जोड़ा गया लोड",
+  "accept" : "स्वीकार करना",
+  "seeMore" : "और देखें"
 }

@@ -16,10 +16,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ElevatedButton(
-
-
       onPressed: isLoading == true ? (){} : (){
         commonHapticFeedback();
         onPressed?.call();
@@ -31,7 +28,8 @@ class AppButton extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: textStyle ?? (style == AppButtonStyle.secondary ? AppTextStyle.buttonWhiteTextColor.copyWith(inherit: true) : AppTextStyle.button.copyWith(inherit: true)),
+        style: textStyle
+            ?? (style == AppButtonStyle.outline ? AppTextStyle.buttonPrimaryColorTextColor : AppTextStyle.buttonWhiteTextColor),
       ),
     );
   }

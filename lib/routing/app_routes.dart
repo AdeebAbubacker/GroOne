@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
-
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
 import '../features/load_provider/bottom_navigation/view/bottom_navigation.dart';
@@ -42,7 +42,16 @@ class AppRoutes{
         builder: (BuildContext context, GoRouterState state) {
           return  HomeScreen();
         },
-      ),   GoRoute(
+      ),
+
+      // VP Bottom Navigation bar
+      GoRoute(
+        path: AppRouteName.vpBottomNavigationBar,
+        builder: (BuildContext context, GoRouterState state) {
+          return VPBottomNavigationBar();
+        },
+      ),
+      GoRoute(
         path: AppRouteName.homeScreenLoadProvider,
         builder: (BuildContext context, GoRouterState state) {
           return  HomeScreenLoadProvider();

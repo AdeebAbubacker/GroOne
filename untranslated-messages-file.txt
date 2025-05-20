@@ -1,10 +1,19 @@
 {
   "hi": [
+    "source",
+    "selectPickUpPoint",
+    "destination",
+    "selectDestination",
+    "upComingShipment",
+    "postLoad",
+    "your",
+    "stillPending",
     "allTrips",
     "activeTrips",
     "upcomingTrips",
     "completed",
-    "profile"
+    "profile",
+    "kyc"
   ],
 
   "ta": [

@@ -8,21 +8,17 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
-
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'multi_bloc.dart';
 
 
-
 void main() async {
-
   SystemChrome.setSystemUIOverlayStyle(
-
     SystemUiOverlayStyle(
-      statusBarColor: Colors.black, // change to your desired color
+      statusBarColor: Colors.black,
       statusBarIconBrightness:
-      Brightness.dark, // use Brightness.dark if your background is light
+      Brightness.dark,
     ),
   );
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,9 +36,8 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+
 class _MyAppState extends State<MyApp> {
-
-
   @override
   Widget build(BuildContext context) {
     appContext=context;
@@ -54,8 +49,6 @@ class _MyAppState extends State<MyApp> {
           MediaQuery.of(context).size.width,
           MediaQuery.of(context).size.height,
         ),
-
-        // iPhone X size (example)
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
@@ -63,13 +56,10 @@ class _MyAppState extends State<MyApp> {
             builder: (context, state) {
             return MultiBlocWrapper(
               child: MaterialApp.router(
-
                 locale: state.locale,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
-
                 title: "Gro One",
                 debugShowCheckedModeBanner: false,
-
                 supportedLocales: L10n.all,
                 theme: AppThemeStyle.appTheme,
                 routerConfig: AppRoutes.router,
