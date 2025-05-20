@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_text_style.dart';
@@ -55,25 +56,32 @@ centerTitle: true,
           child:Text("Blue Membership ID: B12345",style: AppTextStyle.whiteColor14w400,),
         ),
         Container(
+          margin: EdgeInsets.symmetric(horizontal: 20.w,vertical: 10.h),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 10),
-                child: Row(
-                  children: [
-                    Image.asset(AppImage.png.appIcon,height: 20.h,width: 20.w,),Text("Profile"),Expanded(child: SizedBox.shrink()),Icon(Icons.arrow_forward_ios)
-                  ],
-                ),
-              )
+
             ],
           ),
         )
       ],
     ),
+    );
+  }
+  profileWidget({required String imageString, required String text, }){
+    return  Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          Image.asset(AppImage.png.appIcon,height: 20.h,width: 20.w,),
+          10.width,
+          Text("Profile"),Expanded(child: SizedBox.shrink()),
+          Icon(Icons.arrow_forward_ios)
+        ],
+      ),
     );
   }
 }

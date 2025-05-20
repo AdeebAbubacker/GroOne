@@ -91,24 +91,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               child: Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
 Image.asset(AppImage.png.alertTriangle,height: 24.h,width: 24.w,),
-              10.width,Expanded(
-                child: RichText(textAlign: TextAlign.center,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: context.appText.your,
-                            style: AppTextStyle.textDarkGreyColor14w500,),
-                          TextSpan(
-                              text: " ${context.appText.kyc} ",
-                              style:AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)
-                          ),
-                          TextSpan(
-                            text: context.appText.stillPending,
-                            style: AppTextStyle.textDarkGreyColor14w500,),
-                        ],
-                      ),
+              10.width,RichText(textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: context.appText.your,
+                          style: AppTextStyle.textDarkGreyColor14w500,),
+                        TextSpan(
+                            text: " ${context.appText.kyc} ",
+                            style:AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)
+                        ),
+                        TextSpan(
+                          text: context.appText.stillPending,
+                          style: AppTextStyle.textDarkGreyColor14w500,),
+                      ],
                     ),
-              ),
+                  ),
                 ],
               ),
             ),
