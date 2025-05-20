@@ -3,6 +3,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/active_trips/ac
 import 'package:gro_one_app/features/load_provider/lp_loads/view/all_trip/all_trips.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/completed/completed.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/upcoming/upcoming_trips.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
 import '../../../../utils/app_colors.dart';
@@ -25,11 +26,11 @@ class LpLoadsScreen extends StatelessWidget {
           children: [
             TabBar(indicatorSize: TabBarIndicatorSize.tab,
               indicatorWeight: 3,
-              tabs: const [
-                Tab(text: 'All Trips',),
-                Tab(text: 'Active trips'),
-                Tab(text: 'Upcoming'),
-                Tab(text: 'Completed'),
+              tabs:   [
+                Tab(text:context.appText.allTrips ,),
+                Tab(text: context.appText.activeTrips ),
+                Tab(text: context.appText.upcomingTrips ),
+                Tab(text: context.appText.completed ),
               ],
               indicatorColor: AppColors.primaryColor,
              // indicatorWeight: 2,

@@ -47,7 +47,12 @@
   "postLoad": "Post Load",
   "kyc":  "KYC",
   "your": "Your",
-  "stillPending": "verification is still Pending"
+  "stillPending": "verification is still Pending",
+  "allTrips": "All Trips",
+  "activeTrips": "Active Trips",
+  "upcomingTrips": "Upcoming",
+  "completed": "Completed",
+  "profile": "Profile"
 
 
 

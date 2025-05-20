@@ -4,6 +4,7 @@ class AppRouteName{
   static const String intro = "/intro";
   static const String signIn = "/signIn";
   static const String splash = "/splash";
+  static const String lpProfile = "/lpProfile";
   static const String home = "/home";
   static const String homeScreenLoadProvider = "/home_screen_load_provider";
   static const String login = "/login";

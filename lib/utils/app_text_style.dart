@@ -8,11 +8,23 @@ class AppTextStyle {
   AppTextStyle._();
 
   ///----Prabhat---
+
   static TextStyle textBlackColor20w500 = TextStyle(
     color: AppColors.textBlackColor,
     fontSize: 20.sp,
     fontWeight: FontWeight.w500,
-  );static TextStyle greenColor20w700 = TextStyle(
+  );
+
+  static TextStyle blackColor15w500 = TextStyle(
+    color: AppColors.black,
+    fontSize: 15.sp,
+    fontWeight: FontWeight.w500,
+  );static TextStyle whiteColor14w400 = TextStyle(
+    color: AppColors.white,
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w400,
+  );
+  static TextStyle greenColor20w700 = TextStyle(
     fontWeight: FontWeight.w700,
     color: AppColors.greenColor,
     fontSize: 20.sp,
@@ -20,7 +32,11 @@ class AppTextStyle {
     color: AppColors.primaryColor,
     fontSize: 16.sp,
     fontWeight: FontWeight.w900,
-  );static TextStyle blackColor14w400 = TextStyle(
+  );
+  static TextStyle primaryColor12w400 =primaryColor16w900.copyWith(fontSize: 12.sp,fontWeight: FontWeight.w400);
+  static TextStyle primaryColor16w400 =primaryColor12w400.copyWith(fontSize: 16.sp,);
+
+  static TextStyle blackColor14w400 = TextStyle(
     color: Colors.black,
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
@@ -65,10 +81,13 @@ class AppTextStyle {
     fontSize: 14.sp,
     fontWeight: FontWeight.w400,
   ); static TextStyle textDarkGreyColor14w500= textDarkGreyColor14w400.copyWith(fontWeight: FontWeight.w500);
+ static TextStyle textDarkGreyColor12w400= textDarkGreyColor14w400.copyWith(fontSize:12.h);
   static TextStyle textGreyColor14w300 = textGreyColor14w400.copyWith(
     fontWeight: FontWeight.w300,
   ); static TextStyle textGreyColor12w400 = textGreyColor14w400.copyWith(
    fontSize: 12.sp
+  );static TextStyle textGreyColor10w400 = textGreyColor14w400.copyWith(
+   fontSize: 10.sp
   );
   static TextStyle textBlackColors20w400 = textBlackColor20w500.copyWith(
     fontWeight: FontWeight.w400,

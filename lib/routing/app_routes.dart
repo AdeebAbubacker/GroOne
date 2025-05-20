@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
@@ -27,6 +28,11 @@ class AppRoutes{
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
           return  SplashScreen();
+        },
+      ), GoRoute(
+        path: AppRouteName.lpProfile,
+        builder: (BuildContext context, GoRouterState state) {
+          return  LpProfileScreen();
         },
       ),
 

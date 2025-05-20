@@ -1,1 +1,17 @@
-{}
+{
+  "hi": [
+    "allTrips",
+    "activeTrips",
+    "upcomingTrips",
+    "completed",
+    "profile"
+  ],
+
+  "ta": [
+    "allTrips",
+    "activeTrips",
+    "upcomingTrips",
+    "completed",
+    "profile"
+  ]
+}

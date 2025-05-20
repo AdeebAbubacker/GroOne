@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -46,6 +48,27 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),5.width,
+          InkWell(
+            onTap: (){
+              context.push(AppRouteName.lpProfile);
+            },
+            child: Container(  height: 36.h,
+
+              width: 36.w,
+              padding: EdgeInsets.all(4), // Border width
+              decoration: BoxDecoration(
+                color: Colors.blue, // Border color
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                AppImage.png.appIcon, // Replace with your image path
+
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
