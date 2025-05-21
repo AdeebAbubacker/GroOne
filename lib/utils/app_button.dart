@@ -11,8 +11,9 @@ class AppButton extends StatelessWidget {
   final TextStyle? textStyle;
   final ButtonStyle? style;
   final bool? isLoading;
+  final  bool disableButton;
 
-  const AppButton({super.key, this.onPressed, this.isLoading = false, required this.title, this.textStyle,  this.style,});
+  const AppButton({super.key, this.onPressed, this.isLoading = false, required this.title, this.textStyle,  this.style,this.disableButton=false,});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class AppButton extends StatelessWidget {
         commonHapticFeedback();
         onPressed?.call();
       },
-      style: isLoading == true ? AppButtonStyle.disableButton :  (style ?? AppButtonStyle.primary),
+      style: isLoading == true ? AppButtonStyle.disableButton : disableButton?AppButtonStyle.disableButton: (style ?? AppButtonStyle.primary),
       child: isLoading == true
           ? const CupertinoActivityIndicator()
           : Text(title.capitalize,

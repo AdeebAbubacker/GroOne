@@ -12,6 +12,17 @@ class PngImages {
   static const String _pngImageBasePath = "assets/images/png/";
   ///Prabhat======================+>
   final String appIcon = "${_pngImageBasePath}appIcon.png";
+  final String settings = "${_pngImageBasePath}settings.png";
+  final String document = "${_pngImageBasePath}document.png";
+  final String privacy = "${_pngImageBasePath}privacy.png";
+  final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
+  final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";
+  final String support = "${_pngImageBasePath}support.png";
+  final String logOut = "${_pngImageBasePath}logOut.png";
+  final String pendingTransaction = "${_pngImageBasePath}pendingTransaction.png";
+  final String completedTransaction = "${_pngImageBasePath}completedTransaction.png";
+  final String transaction = "${_pngImageBasePath}transaction.png";
+  final String user = "${_pngImageBasePath}user.png";
   final String noShipment = "${_pngImageBasePath}noShipmentFound.png";
   final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";

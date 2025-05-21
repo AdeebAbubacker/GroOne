@@ -89,7 +89,7 @@ class OtpVerificationScreen extends StatelessWidget {
                     );
                     Future.delayed(const Duration(seconds: 2),(){
                       Navigator.pop(context);
-                    context.push(AppRouteName.bottomNavigation);
+                    context.push(AppRouteName.lpBottomNavigation);
                     });
 
                   },

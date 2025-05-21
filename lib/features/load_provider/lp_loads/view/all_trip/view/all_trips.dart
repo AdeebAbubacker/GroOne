@@ -7,8 +7,8 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
-import '../../../../../utils/app_progress_bar.dart';
-import '../../../../../utils/common_widgets.dart';
+import '../../../../../../utils/app_progress_bar.dart';
+import '../../../../../../utils/common_widgets.dart';
 
 class AllTrips extends StatelessWidget {
   const AllTrips({super.key});

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -37,17 +39,23 @@ valueAddedService(BuildContext context) {
               valueAddedServiceWidget(
                 title: context.appText.buyFastTag,
                 imageString: AppImage.png.buyFastTag,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.buyFastag);
+                },
               ),
               valueAddedServiceWidget(
                 title: context.appText.enDan,
                 imageString: AppImage.png.enDhan,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.enDhanCard);
+                },
               ),
               valueAddedServiceWidget(
                 title: context.appText.gps,
                 imageString: AppImage.png.gps,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.gps);
+                },
               ),
             ],
           ),
@@ -58,17 +66,23 @@ valueAddedService(BuildContext context) {
               valueAddedServiceWidget(
                 title: context.appText.instantLoan,
                 imageString: AppImage.png.insuranceLoan,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.instantLoan);
+                },
               ),
               valueAddedServiceWidget(
                 title: context.appText.insurance,
                 imageString: AppImage.png.insurance,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.insurance);
+                },
               ),
               valueAddedServiceWidget(
                 title: context.appText.kavach,
                 imageString: AppImage.png.kavach,
-                onClick: () {},
+                onClick: () {
+                  context.push(AppRouteName.kavach);
+                },
               ),
             ],
           ),

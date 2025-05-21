@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/kavach/view/kavach_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -9,12 +15,19 @@ import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
-import '../features/load_provider/bottom_navigation/view/bottom_navigation.dart';
+import '../features/load_provider/home/validate_memo/view/lp_validate_memo.dart';
+import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
+import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
+import '../features/load_provider/lp_profile/view/my_account/edit_my_account/view/lp_edit_my_account.dart';
+import '../features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
+import '../features/load_provider/lp_profile/view/setting/view/lp_setting.dart';
+import '../features/load_provider/lp_profile/view/support/view/lp_support.dart';
+import '../features/load_provider/lp_profile/view/transaction/view/lp_transaction.dart';
 import '../features/login/view/login_screen.dart';
 import '../features/otp_verification/view/otp_verification_screen.dart';
 
-class AppRoutes{
+class AppRoutes {
   AppRoutes._();
 
   static final GoRouter router = GoRouter(
@@ -22,17 +35,91 @@ class AppRoutes{
     initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
-
       // Splash
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
-          return  SplashScreen();
+          return SplashScreen();
         },
-      ), GoRoute(
+      ),
+
+      GoRoute(
+        path: AppRouteName.lpSupport,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpSupport();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.buyFastag,
+        builder: (BuildContext context, GoRouterState state) {
+          return BuyFasTagScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.enDhanCard,
+        builder: (BuildContext context, GoRouterState state) {
+          return EnDhanCard();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.gps,
+        builder: (BuildContext context, GoRouterState state) {
+          return GpsScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.instantLoan,
+        builder: (BuildContext context, GoRouterState state) {
+          return InstantLoanScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.lpValidateMemo,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpValidateMemo();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.insurance,
+        builder: (BuildContext context, GoRouterState state) {
+          return InsuranceScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.kavach,
+        builder: (BuildContext context, GoRouterState state) {
+          return KavachScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.lpTransaction,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpTransaction();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.lpSetting,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpSetting();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.lpMyAccount,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpMyAccount();
+        },
+      ),
+      GoRoute(
         path: AppRouteName.lpProfile,
         builder: (BuildContext context, GoRouterState state) {
-          return  LpProfileScreen();
+          return LpProfileScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.lpEditMyAccount,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpEditMyAccount();
         },
       ),
 
@@ -40,7 +127,7 @@ class AppRoutes{
       GoRoute(
         path: AppRouteName.home,
         builder: (BuildContext context, GoRouterState state) {
-          return  HomeScreen();
+          return HomeScreen();
         },
       ),
 
@@ -54,39 +141,45 @@ class AppRoutes{
       GoRoute(
         path: AppRouteName.homeScreenLoadProvider,
         builder: (BuildContext context, GoRouterState state) {
-          return  HomeScreenLoadProvider();
+          return HomeScreenLoadProvider();
         },
-      ),  GoRoute(
-        path: AppRouteName.bottomNavigation,
+      ),
+      GoRoute(
+        path: AppRouteName.lpBottomNavigation,
         builder: (BuildContext context, GoRouterState state) {
-          return  BottomNavigation();
+          return LpBottomNavigation();
         },
-      ),  GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          return  LoginScreen();
+          return LoginScreen();
         },
-      ), GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.chooseLanguage,
         builder: (BuildContext context, GoRouterState state) {
-          return  ChooseLanguageScreen();
+          return ChooseLanguageScreen();
         },
-      ), GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return  ChooseRoleScreen();
+          return ChooseRoleScreen();
         },
       ),
-GoRoute(
+      GoRoute(
+        path: AppRouteName.lpPayNowAndTrackLoad,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpPayNowAndTrackLoad();
+        },
+      ),
+      GoRoute(
         path: AppRouteName.otpVerificationScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return  OtpVerificationScreen();
+          return OtpVerificationScreen();
         },
       ),
-
-
-
-
 
       // Default Screen
       GoRoute(
@@ -95,9 +188,6 @@ GoRoute(
           return const DefaultScreen();
         },
       ),
-
     ],
   );
-
-
 }

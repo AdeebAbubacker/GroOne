@@ -5,8 +5,18 @@ class AppColors {
   AppColors._();
 
   static const Color primaryColor =Color(0xFF003CFF);
+  static const Color textBlackDetailColor =Color(0xFF090909);
+  static const Color textGreyDetailColor =Color(0xFF545759);
 
   static const Color borderDisableColor=Color(0xFF9D9D9D);
+  static const Color lightBlackColor=Color(0xFF515151);
+  static const Color veryLightGreyColor=Color(0xFF646464);
+  static const Color backgroundColor=Color(0xFFF7F8FA);
+  static const Color lightPurpleColor=Color(0xFFE8DAFF);
+  static const Color purpleColor=Color(0xFF6929C4);
+  static const Color textRed=Color(0xFFA2191F);
+  static const Color textGreen=Color(0xFF0E6027);
+  static const Color boxGreen=Color(0xFFA7F0BB);
   static const Color appRedColor=Color(0xFFF9D1D3);
   static const Color primaryDarkColor=Color(0xFF0369A1);
   static const Color textBlackColor = Color(0xFF2B2B2B);
@@ -15,6 +25,7 @@ class AppColors {
   static const Color textDarkGreyColor = Color(0xFF575757);
   static const Color orangeTextColor = Color(0xFFEA7144);
   static const textGreyColor=Color(0xFF909090);
+  static const dividerColor=Color(0xFFC9C9C9);
   static const buttonDisableColor=Color(0xFFA7A7A7);
   static const backGroundBlue=Color(0xFFF8F9FF);
   static const greenColor=Color(0xFF027A48);
@@ -50,7 +61,6 @@ class AppColors {
   static const Color darkGreyColor = Color(0xff838383);
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);
-  static const Color dividerColor = CupertinoColors.opaqueSeparator;
   static const Color lightDividerColor = Colors.black12;
   static const Color darkDividerColor = Color(0xff707070);
   static const Color deActiveButtonColor = Color(0xffe3e3e8);
