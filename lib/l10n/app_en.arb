@@ -42,7 +42,49 @@
   "kyc": "KYC",
   "recentAddedLoad": "Recent Added Load",
   "accept" : "Accept",
-  "seeMore" : "See more"
+  "seeMore" : "See more",
+  "availableLoads" : "Available Loads",
+  "filter" : "Filter",
+  "thisFieldIsRequired" : "This filed is required",
+  "vehicleType" : "Vehicle type",
+  "selectVehicleType" : "Select Vehicle type",
+  "lane" : "Lane",
+  "selectLaneType" : "Select lane type",
+  "roadType" : "Road Type",
+  "selectRoadType" : "Select road type",
+  "cancel" : "Cancel",
+  "apply" : "Apply",
+  "tripTracking" : "Trip Tracking",
+  "allTrip" : "All Trip",
+  "activeTrips" : "Active trips",
+  "upcoming" : "Upcoming",
+  "completed" : "Completed",
+
+  "createAccount" : "Create Account",
+  "name" : "Name",
+  "phoneNumber" : "Mobile Number",
+  "businessName" : "Business Details",
+  "companyName": "Company Name",
+  "truckType" : "Truck Type",
+  "ownedTrucks" : "Owned Trucks",
+  "attachedTrucks" : "Attached Trucks",
+  "preferredLanes" : "Preferred Lanes",
+  "businessProof" : "Business Proof",
+  "uploadRC" : "Upload RC (for 1 Truck)",
+  "uploadDocument" : "Upload document",
+  "aadhaarNumber" : "Aadhaar Number(optional)",
+  "aadhaarHint" : "xxxx xxxx xxxx",
+  "submit" : "Submit",
+
+  "kavach" : "KAVACH",
+  "benefitsOfKavach" : "Benefits of KAVACH",
+  "benefitsOfKavachHeading1" : "No Unfair Blame for Fuel Loss",
+  "benefitsOfKavachHeading2" : "Prevents Delay from Theft Investigations",
+  "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
+  "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
+  "kavachModels" : "KAVACH Models"
+
+
 
 
 

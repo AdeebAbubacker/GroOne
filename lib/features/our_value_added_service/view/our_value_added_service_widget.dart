@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_benefits_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -68,7 +70,9 @@ valueAddedService(BuildContext context) {
               valueAddedServiceWidget(
                 title: context.appText.kavach,
                 imageString: AppImage.png.kavach,
-                onClick: () {},
+                onClick: () {
+                  Navigator.of(context).push(commonRoute(KavachBenefitsScreen()));
+                },
               ),
             ],
           ),

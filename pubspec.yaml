@@ -99,8 +99,10 @@ dependencies:
 
   # Localization
   flutter_localization: ^0.2.0
+
   #otp text field
   flutter_otp_text_field: ^1.5.1+1
+
   # create responsive_framework
   flutter_screenutil: ^5.9.3
 

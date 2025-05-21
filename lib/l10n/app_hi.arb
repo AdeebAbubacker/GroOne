@@ -42,6 +42,51 @@
   "kyc": "KYC",
   "recentAddedLoad": "हाल ही में जोड़ा गया लोड",
   "accept" : "स्वीकार करना",
-  "seeMore" : "और देखें"
+  "seeMore" : "और देखें",
+  "availableLoads" : "उपलब्ध भार",
+  "filter" : "फ़िल्टर",
+  "thisFieldIsRequired" : "यह फ़ील्ड आवश्यक है",
+  "vehicleType" : "वाहन प्रकार",
+  "selectVehicleType" : "वाहन प्रकार का चयन करें",
+  "lane" : "लेन",
+  "selectLaneType" : "लेन प्रकार का चयन करें",
+  "roadType" : "सड़क प्रकार",
+  "selectRoadType" : "सड़क प्रकार का चयन करें",
+  "cancel" : "रद्द करना",
+  "apply" : "आवेदन करना",
+  "tripTracking" : "ट्रिप ट्रैकिंग",
+  "allTrip" : "सभी यात्रा",
+  "activeTrips" : "सक्रिय यात्राएँ",
+  "upcoming" : "आगामी",
+  "completed" : "पुरा होना।",
+
+  "createAccount" : "Create Account",
+  "name" : "Name",
+  "phoneNumber" : "Mobile Number",
+  "businessName" : "Business Details",
+  "companyName": "Company Name",
+  "truckType" : "Truck Type",
+  "ownedTrucks" : "Owned Trucks",
+  "attachedTrucks" : "Attached Trucks",
+  "preferredLanes" : "Preferred Lanes",
+  "businessProof" : "Business Proof",
+  "uploadRC" : "Upload RC (for 1 Truck)",
+  "uploadDocument" : "Upload document",
+  "aadhaarNumber" : "Aadhaar Number(optional)",
+  "aadhaarHint" : "xxxx xxxx xxxx",
+  "submit" : "Submit",
+
+  "kavach" : "KAVACH",
+  "benefitsOfKavach" : "Benefits of KAVACH",
+  "benefitsOfKavachHeading1" : "No Unfair Blame for Fuel Loss",
+  "benefitsOfKavachHeading2" : "Prevents Delay from Theft Investigations",
+  "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
+  "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
+  "kavachModels" : "KAVACH Models"
+
+
+
+
+
 
 }

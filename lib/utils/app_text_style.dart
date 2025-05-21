@@ -109,6 +109,7 @@ class AppTextStyle {
   static TextStyle body1GreyColor = body1.copyWith(color: AppColors.greyTextColor);
   static TextStyle body1BlackColor = body1.copyWith(color: Colors.black);
   static TextStyle body1WhiteColor = body1.copyWith(color: Colors.white);
+  static TextStyle body1PrimaryColor = body1.copyWith(color: AppColors.primaryColor);
 
   // Body 2
   static TextStyle body2 = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 16);
@@ -128,7 +129,7 @@ class AppTextStyle {
   static TextStyle body4WhiteColor = body4.copyWith(color: Colors.white);
 
   // Body
-  static TextStyle body = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 14);
+  static TextStyle body = GoogleFonts.ubuntu(color: AppColors.primaryTextColor);
   static TextStyle bodyGreyColor = body.copyWith(color: AppColors.greyTextColor);
   static TextStyle bodyWhiteColor = body.copyWith(color: Colors.white);
 

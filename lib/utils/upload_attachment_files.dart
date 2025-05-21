@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -19,8 +20,9 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 @immutable
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
-  final bool? isSingleImage;
-  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleImage = false});
+  final bool? isSingleFile;
+  final String? title;
+  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title});
 
   @override
   State<UploadAttachmentFiles> createState() => _UploadAttachmentFilesState();
@@ -37,7 +39,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppString.label.attachment, style: AppTextStyle.textFiled),
+                Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
                 Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
                 10.height,
                 MasonryGridView.builder(
@@ -47,11 +49,11 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   padding: EdgeInsets.zero,
-                  gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-                  itemCount: !widget.isSingleImage! ? (widget.multiFilesList.length + 1) : widget.multiFilesList.length,
+                  gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1),
+                  itemCount: !widget.isSingleFile! ? (widget.multiFilesList.length + 1) : widget.multiFilesList.length,
                   itemBuilder: (ctx, index) {
 
-                    if (widget.multiFilesList.length == index && !widget.isSingleImage!) {
+                    if (widget.multiFilesList.length == index && !widget.isSingleFile!) {
                       if (widget.multiFilesList.length <= 7) {
                         return GestureDetector(
                           onTap: !isFile ? () {
@@ -94,10 +96,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                       } else {
                         return 0.width;
                       }
-
-
                 } else {
-
                   return Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     elevation: 1.0,
@@ -267,13 +266,23 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                       radius:  const Radius.circular(12),
                       borderType: BorderType.RRect,
                       child: Container(
-                        height: 160,
+                        height: 70,
                         alignment: Alignment.center,
-                        child: isFile ? Text(AppString.label.loading, style: AppTextStyle.body2) :  SvgPicture.asset(AppIcons.svg.galleryAdd, colorFilter: AppColors.svg(AppColors.greyIconColor),),
+                        child: isFile
+                            ? Text(AppString.label.loading, style: AppTextStyle.body2)
+                            :  Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                                Text(context.appText.uploadDocument, style: AppTextStyle.body2GreyColor),
+                                10.width,
+                                SvgPicture.asset(AppIcons.svg.documentUpload, width: 20, colorFilter: AppColors.svg(AppColors.greyIconColor)),
+                              ],
+                            ),
                       ),
                     ),
                   ),
-                   const Expanded(child: SizedBox(width: 50))
+                   // const Expanded(child: SizedBox(width: 50))
                 ],
               ),
             ),
