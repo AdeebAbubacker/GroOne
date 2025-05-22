@@ -355,4 +355,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get needHelp => 'Need Help?';
+
+  @override
+  String get enter => 'Enter';
 }

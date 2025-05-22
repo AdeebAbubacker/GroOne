@@ -3,6 +3,7 @@ import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -50,6 +51,24 @@ class _KavachModelsScreenState extends State<KavachModelsScreen> {
         ],
       ),
     );
+  }
+
+  Widget buildSearchBarAndFilterWidget(){
+    return Row(
+        children: [
+          // AppSearchBar(searchController: searchController).expand(),
+          //
+          // 15.width,
+          //
+          // AppIconButton(
+          //   onPressed: (){
+          //     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
+          //   },
+          //   style: AppButtonStyle.primaryIconButtonStyle,
+          //   icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+          // )
+        ],
+      );
   }
 
   Widget buildBuyButtonWidget(){

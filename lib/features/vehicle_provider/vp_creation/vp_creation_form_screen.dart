@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/widgets/multi_picker_selection.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -43,7 +44,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             buildNameAndPhoneNumberWidget(),
             30.height,
 
-            buildBusinessDetailsWidget(),
+            buildBusinessDetailsWidget(context),
             30.height,
 
             buildBusinessProofWidget(),
@@ -64,7 +65,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
           controller: nameTextController,
-          labelText: context.appText.appName,
+          labelText: context.appText.name,
+          hintText: "${context.appText.enter} ${context.appText.name}",
         ),
         20.height,
 
@@ -76,6 +78,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           maxLength: 10,
           inputFormatters: [phoneNumberInputFormatter],
           decoration: commonInputDecoration(
+            hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
             prefixIcon: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               mainAxisSize: MainAxisSize.min,
@@ -84,7 +87,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 10.width,
                 Text("+91", style: AppTextStyle.textBlackColor16w400),
               ],
-            ).paddingOnly(left: 20),
+            ).paddingOnly(left: 20, right: 5),
           ),
         )
       ],
@@ -92,19 +95,24 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
   // Business Details
-  Widget buildBusinessDetailsWidget(){
+  Widget buildBusinessDetailsWidget(BuildContext context){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(context.appText.businessName, style: AppTextStyle.body1PrimaryColor),
         20.height,
 
-        // Business Name
+        // Company Name
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
           controller: companyNameTextController,
           labelText: context.appText.companyName,
+          hintText: "${context.appText.enter} ${context.appText.companyName}",
         ),
+        20.height,
+
+        // TrucK Type
+        MultiPickerSelection(labelText: context.appText.truckType, hintText: ""),
         20.height,
 
         // Owned Truck
@@ -112,6 +120,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           validator: (value)=> Validator.fieldRequired(value),
           controller: ownedTruckTextController,
           labelText: context.appText.ownedTrucks,
+          hintText: "${context.appText.enter} ${context.appText.ownedTrucks}",
         ),
         20.height,
 
@@ -120,7 +129,12 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           validator: (value)=> Validator.fieldRequired(value),
           controller: attachedTruckTextController,
           labelText: context.appText.attachedTrucks,
+          hintText: "${context.appText.enter} ${context.appText.attachedTrucks}",
         ),
+        20.height,
+
+        // TrucK Type
+        MultiPickerSelection(labelText: context.appText.preferredLanes, hintText: ""),
       ],
     );
   }
@@ -133,7 +147,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         Text(context.appText.businessProof, style: AppTextStyle.body1PrimaryColor),
         20.height,
 
-        UploadAttachmentFiles(multiFilesList: multiFilesList),
+        UploadAttachmentFiles(
+          multiFilesList: multiFilesList,
+          title: context.appText.uploadRC,
+          isSingleFile: true,
+        ),
         20.height,
 
         // Aadhaar Number

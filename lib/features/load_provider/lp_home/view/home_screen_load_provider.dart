@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
@@ -28,13 +31,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         //backgroundColor: Colors.transparent,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: Image.asset(
-            AppImage.png.appIcon,
-            height: 33.h,
-            width: 75.w,
-            scale: 1,
+        leading: InkWell(
+          onTap: (){
+            Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Image.asset(
+              AppImage.png.appIcon,
+              height: 33.h,
+              width: 75.w,
+              scale: 1,
+            ),
           ),
         ),
         toolbarHeight: 50.h,

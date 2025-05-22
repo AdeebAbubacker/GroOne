@@ -792,6 +792,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Need Help?'**
   String get needHelp;
+
+  /// No description provided for @enter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get enter;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -267,86 +267,49 @@ class ImagePickerFrom {
 }
 
 /// Multiple File Picker
-Future<List<PlatformFile>?> pickMultipleFile<T>(
-    {required BuildContext context, required String type}) async {
+Future<List<Map<String, dynamic>>?> pickMultipleFile<T>() async {
   try {
-    var result = await FilePicker.platform.pickFiles(allowMultiple: true, withData: true, withReadStream: true);
+    var result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      withData: true,
+      withReadStream: true,
+    );
+
     if (result != null && result.files.isNotEmpty) {
-      if (type.toString().contains("add")) {
-        for (var i = 0; i < result.files.length; i++) {
-          if (result.files[i].extension.toString().contains("jpg") ||
-              result.files[i].extension.toString().contains("jpeg") ||
-              result.files[i].extension.toString().contains("gif") ||
-              result.files[i].extension.toString().contains("bmp") ||
-              result.files[i].extension.toString().contains("pdf") ||
-              result.files[i].extension.toString().contains("png") ||
-              result.files[i].extension.toString().contains("PNG") ||
-              result.files[i].extension.toString().contains("doc") ||
-              result.files[i].extension.toString().contains("mp4") ||
-              result.files[i].extension.toString().contains("HEVC") ||
-              result.files[i].extension.toString().contains("H.264") ||
-              result.files[i].extension.toString().contains("MOV") ||
-              result.files[i].extension.toString().contains("HEIC") ||
-              result.files[i].extension.toString().contains("mp3") ||
-              result.files[i].extension.toString().contains("docx") ||
-              result.files[i].extension.toString().contains("txt") ||
-              result.files[i].extension.toString().contains("xls") ||
-              result.files[i].extension.toString().contains("xlsx") ||
-              result.files[i].extension.toString().contains("ods") ||
-              result.files[i].extension.toString().contains("zip") ||
-              result.files[i].extension.toString().contains("rar") ||
-              result.files[i].extension.toString().contains("xml")) {
-            return result.files;
-          } else {
-            if (context.mounted) {
-              //ToastMessage.alert(message: "Invalid file format");
-            }
-            break;
-          }
-        }
-      } else {
-        for (var i = 0; i < result.files.length;) {
-          if (result.files[i].extension.toString().contains("jpg") ||
-              result.files[i].extension.toString().contains("jpeg") ||
-              result.files[i].extension.toString().contains("gif") ||
-              result.files[i].extension.toString().contains("bmp") ||
-              result.files[i].extension.toString().contains("pdf") ||
-              result.files[i].extension.toString().contains("png") ||
-              result.files[i].extension.toString().contains("PNG") ||
-              result.files[i].extension.toString().contains("doc") ||
-              result.files[i].extension.toString().contains("mp4") ||
-              result.files[i].extension.toString().contains("HEVC") ||
-              result.files[i].extension.toString().contains("H.264") ||
-              result.files[i].extension.toString().contains("MOV") ||
-              result.files[i].extension.toString().contains("HEIC") ||
-              result.files[i].extension.toString().contains("mp3") ||
-              result.files[i].extension.toString().contains("xml") ||
-              result.files[i].extension.toString().contains("txt") ||
-              result.files[i].extension.toString().contains("xls") ||
-              result.files[i].extension.toString().contains("xlsx") ||
-              result.files[i].extension.toString().contains("ods") ||
-              result.files[i].extension.toString().contains("zip") ||
-              result.files[i].extension.toString().contains("rar") ||
-              result.files[i].extension.toString().contains("docx")) {
-            return result.files;
-          } else {
-            if (context.mounted) {
-             // ToastMessage.alert(message: "Invalid file format");
-            }
-            break;
-          }
+      final List<Map<String, dynamic>> validFiles = [];
+
+      for (var file in result.files) {
+        final extension = file.extension?.toLowerCase() ?? '';
+        final allowedExtensions = [
+          "jpg", "jpeg", "gif", "bmp", "pdf", "png", "doc", "mp4",
+          "hevc", "h.264", "mov", "heic", "mp3", "docx", "txt",
+          "xls", "xlsx", "ods", "zip", "rar", "xml"
+        ];
+
+        if (allowedExtensions.contains(extension)) {
+          validFiles.add({
+            "fileName": file.name,
+            "path": file.path ?? "",
+            "extension": extension,
+            "dateTime": DateTime.now().toString(),
+          });
+        } else {
+          ToastMessages.alert(message: "Invalid file format: ${file.name}");
+          return null;
         }
       }
+
+      return validFiles;
     } else {
-      if (context.mounted) {
-       // ToastMessage.alert(message: "No files has been selected");
-      }
+      ToastMessages.alert(message: "No files have been selected");
     }
   } catch (e) {
-    debugPrint("File Picker error $e");
+    debugPrint("File Picker error: $e");
   }
+
   return null;
 }
+
 
 // /// Error Image
 // String getErrorImage({required ErrorType errorType}){
@@ -374,7 +337,6 @@ Future<List<PlatformFile>?> pickMultipleFile<T>(
 
 /// Get Error Msg
 String getErrorMsg({required ErrorType errorType}) {
-  print(errorType);
   switch (errorType) {
     case NotFoundError _:
       return AppString.errorType.notFound;

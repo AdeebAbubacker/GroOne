@@ -153,7 +153,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get allTrips => 'அனைத்து பயணங்கள்';
 
   @override
-  String get activeTrips => 'செயலில் பயணங்கள்';
+  String get activeTrips => 'செயலில் உள்ள பயணங்கள்';
 
   @override
   String get upcomingTrips => 'வரவிருக்கும் பயணங்கள்';
@@ -355,4 +355,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get needHelp => 'Need Help?';
+
+  @override
+  String get enter => 'Enter';
 }

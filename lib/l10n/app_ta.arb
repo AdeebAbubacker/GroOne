@@ -32,7 +32,6 @@
   "enDan": "என்-தன் கார்ட்",
   "gps": "ஜிபிஎஸ்",
   "instantLoan": "உடனடி கடன்",
-  "kavach": "கவசம்",
   "insurance": "காப்பீடு",
   "loginSuccessful": "உள்நுழைவு வெற்றிகரமாக முடிந்தது",
   "loginSuccessfulSubHeading": "இப்போது நீங்கள் விகிதங்களைப் பார்க்கலாம்\nமற்றும் சரக்குகளை இடக்கலாம்",
@@ -53,9 +52,6 @@
   "completed": "முடிந்தது",
   "profile": "சுயவிவரம்",
   "kyc": "KYC",
-  "recentAddedLoad": "சமீபத்தில் சேர்க்கப்பட்ட சரக்கு",
-  "accept": "ஏற்கவும்",
-  "seeMore": "மேலும் காண்க",
   "myAccount": "என் கணக்கு",
   "recentAddedLoad": "சமீபத்திய கூடுதல் சுமை",
   "accept" : "ஏற்றுக்கொள்",
@@ -73,9 +69,7 @@
   "apply" : "விண்ணப்பிக்கவும்",
   "tripTracking" : "பயண கண்காணிப்பு",
   "allTrip" : "அனைத்து பயணம்",
-  "activeTrips" : "செயலில் பயணங்கள்",
   "upcoming" : "வரவிருக்கும்",
-  "completed" : "முடிந்தது",
 
   "createAccount" : "Create Account",
   "name" : "Name",
@@ -100,7 +94,8 @@
   "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
   "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
   "kavachModels" : "KAVACH Models",
-  "buyNow" : "Buy Now"
+  "buyNow" : "Buy Now",
+  "enter" : "Enter"
 
 
 

@@ -127,6 +127,8 @@
   "memo": "Memo",
   "verifyAdvance": "Verify Advance",
   "advancePayment": "Advance payment",
-  "needHelp": "Need Help?"
+  "needHelp": "Need Help?",
+
+  "enter" : "Enter"
 
 }
