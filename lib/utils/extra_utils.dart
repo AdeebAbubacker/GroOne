@@ -213,10 +213,10 @@ child,
   );
 }
 
-statusButtonWidget({required Color statusBackgroundColor,required Color statusTextColor,required String statusText}){
+statusButtonWidget({required Color statusBackgroundColor,required Color statusTextColor,required String statusText,EdgeInsetsGeometry? margin}){
   return Container(
     height: 24.h,
-    margin: EdgeInsets.only(top: 17.h),
+    margin: margin??EdgeInsets.only(top: 17.h),
     padding: EdgeInsets.symmetric(horizontal: 15.w),
     decoration: BoxDecoration(
       color: statusBackgroundColor,

@@ -31,12 +31,14 @@ class AppTextField extends StatelessWidget {
   final int? maxLines;
   final bool? obscureText;
   final bool? ignorePointers;
+  final TextStyle? labelTextStyle;
   final int? maxLength;
   final Iterable<String>? autofillHints;
   final TextInputAction? textInputAction;
   const AppTextField(
       {super.key,
       this.controller,
+        this.labelTextStyle,
       this.decoration,
       this.onTap,
       this.onTextFieldTap,
@@ -65,7 +67,7 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style: AppTextStyle.body3),
+        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle?? AppTextStyle.body3),
         if (labelText != null) 6.height,
         InkWell(
           onTap: onTap ?? () {},

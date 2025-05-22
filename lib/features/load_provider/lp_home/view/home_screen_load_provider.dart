@@ -180,7 +180,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       "GD12456",
                       style: AppTextStyle.blackColor16w400,
                     ),
-                    trailing: Container(
+                    trailing:
+
+
+
+
+                    Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 30.w,
                         vertical: 5.h,
@@ -291,7 +296,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     context.appText.advancePayment,
                     style: AppTextStyle.darkDividerColor16w400,
                   ),
-                  const SizedBox(height: 20),
+               20.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children:
@@ -397,14 +402,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         bookShipmentWidget(
                           heading: context.appText.source,
                           subHeading: context.appText.selectPickUpPoint,
-                          onClick: () {},
+                          onClick: () {
+                            context.push(AppRouteName.lpSelectPickPointScreen);
+                          },
                         ),
 
                         Divider(color: AppColors.disableColor, thickness: 0.5),
                         bookShipmentWidget(
                           heading: context.appText.destination,
                           subHeading: context.appText.selectDestination,
-                          onClick: () {},
+                          onClick: () {
+                            context.push(AppRouteName.lpSelectPickPointScreen);
+                          },
                         ),
                       ],
                     ),
