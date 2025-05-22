@@ -39,6 +39,19 @@
   "home":"Home",
   "loads": "Loads",
   "support": "Support",
+  "source": "Source",
+  "selectPickUpPoint": "Select pickup point",
+  "destination": "Destination",
+  "selectDestination": "Select destination",
+  "upComingShipment": "Upcoming shipments",
+  "postLoad": "Post Load",
+  "your": "Your",
+  "stillPending": "verification is still Pending",
+  "allTrips": "All Trips",
+  "activeTrips": "Active Trips",
+  "upcomingTrips": "Upcoming",
+  "completed": "Completed",
+  "profile": "Profile",
   "kyc": "KYC",
   "recentAddedLoad": "Recent Added Load",
   "accept" : "Accept",
@@ -56,9 +69,9 @@
   "apply" : "Apply",
   "tripTracking" : "Trip Tracking",
   "allTrip" : "All Trip",
-  "activeTrips" : "Active trips",
+  "kavachModels" : "KAVACH Models",
   "upcoming" : "Upcoming",
-  "completed" : "Completed",
+
 
   "createAccount" : "Create Account",
   "name" : "Name",
@@ -76,18 +89,44 @@
   "aadhaarHint" : "xxxx xxxx xxxx",
   "submit" : "Submit",
 
-  "kavach" : "KAVACH",
+
   "benefitsOfKavach" : "Benefits of KAVACH",
   "benefitsOfKavachHeading1" : "No Unfair Blame for Fuel Loss",
   "benefitsOfKavachHeading2" : "Prevents Delay from Theft Investigations",
   "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
   "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
-  "kavachModels" : "KAVACH Models",
-  "buyNow" : "Buy Now"
+
+  "buyNow" : "Buy Now",
 
 
 
+  "myAccount": "My Account",
 
 
+  "edit": "Edit",
+  "personalDetails": "Personal Details",
+
+  "mobileNumber": "Mobile Number",
+  "accountDetails": "Account Details",
+  "blueMembershipId": "Blue Membership ID",
+  "accountType": "Account Type",
+  "registrationData": "Registration Date",
+  "kycStatus": "KYC Status",
+  "companyDetails": "Company Details",
+
+  "gst": "GSTIN",
+  "transactions": "Transactions",
+  "settings": "Settings",
+  "logOut": "Log Out",
+  "updateChanges": "Update Changes",
+  "pending": "Pending",
+  "all": "All",
+  "idNumber": "ID Number",
+  "validateMemo": "Validate Memo",
+  "iAgreeTripToGo": "I agree trip to Gro",
+  "memo": "Memo",
+  "verifyAdvance": "Verify Advance",
+  "advancePayment": "Advance payment",
+  "needHelp": "Need Help?"
 
 }

@@ -19,14 +19,30 @@ class AppDropdown extends StatelessWidget {
   final Function(String?)? onChanged;
   final void Function()? onTap;
   final String? Function(String?)? onSaved;
-  const AppDropdown({super.key, this.labelText, this.hintText, this.currentFocus, this.nextFocus, this.decoration, this.prefixIcon, required this.dropdownValue, required this.dropDownList, this.validator, this.onChanged, this.onSaved, this.onTap});
+
+  const AppDropdown({
+    super.key,
+    this.labelText,
+    this.hintText,
+    this.currentFocus,
+    this.nextFocus,
+    this.decoration,
+    this.prefixIcon,
+    required this.dropdownValue,
+    required this.dropDownList,
+    this.validator,
+    this.onChanged,
+    this.onSaved,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style: AppTextStyle.body3),
+        if (labelText != null)
+          Text(" ${labelText.capitalizeFirst}", style: AppTextStyle.body3),
         if (labelText != null) 6.height,
         DropdownButtonHideUnderline(
           child: DropdownButtonFormField<String>(
@@ -38,7 +54,13 @@ class AppDropdown extends StatelessWidget {
             borderRadius: BorderRadius.circular(commonRadius),
             value: dropdownValue,
             style: AppTextStyle.textFiled,
-            hint: hintText != null ? Text(hintText.capitalizeFirst, style: AppTextStyle.textFieldHint) : null,
+            hint:
+                hintText != null
+                    ? Text(
+                      hintText.capitalizeFirst,
+                      style: AppTextStyle.textFieldHint,
+                    )
+                    : null,
             items: dropDownList,
             onChanged: onChanged!,
             onTap: onTap,

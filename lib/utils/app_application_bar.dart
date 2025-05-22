@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -55,6 +56,11 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: getWidget(),
       actions: actions,
       bottom: bottom,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.teal, // Set status bar color
+        statusBarIconBrightness: Brightness.dark, // For Android
+        statusBarBrightness: Brightness.light, // For iOS
+      ),
       toolbarHeight: toolbarHeight ?? kToolbarHeight,
     );
   }

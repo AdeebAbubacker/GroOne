@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 class AppButton extends StatelessWidget {
@@ -13,8 +11,9 @@ class AppButton extends StatelessWidget {
   final TextStyle? textStyle;
   final ButtonStyle? style;
   final bool? isLoading;
+  final  bool disableButton;
 
-  const AppButton({super.key, this.onPressed, this.isLoading = false, required this.title, this.textStyle,  this.style,});
+  const AppButton({super.key, this.onPressed, this.isLoading = false, required this.title, this.textStyle,  this.style,this.disableButton=false,});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,7 @@ class AppButton extends StatelessWidget {
         commonHapticFeedback();
         onPressed?.call();
       },
-      style: isLoading == true ? AppButtonStyle.disableButton :  (style ?? AppButtonStyle.primary),
+      style: isLoading == true ? AppButtonStyle.disableButton : disableButton?AppButtonStyle.disableButton: (style ?? AppButtonStyle.primary),
       child: isLoading == true
           ? const CupertinoActivityIndicator()
           : Text(title.capitalize,

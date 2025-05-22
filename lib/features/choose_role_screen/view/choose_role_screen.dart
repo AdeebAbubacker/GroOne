@@ -32,80 +32,78 @@ class ChooseRoleScreen extends StatelessWidget {
           builder: (context, state) {
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 18.0.h, horizontal: 20.w),
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-                  spacing: 10.h,
-                  children: [
-                30.height,
+                spacing: 10.h,
+                children: [
+              30.height,
 
-                    Text(
-                      context.appText.chooseRoleText,
-                      style: AppTextStyle.textBlackColors20w400
-                    ),
-                    chooseRoleTile(
-                      isSelected: state.index == 0 ? true : false,
-                      text1: context.appText.lpTextHeading,
-                      text2: context.appText.lpText,
-                      onTap: () {
-                        context.read<RoleBloc>().add(
-                          const ChangeIndex(index: 0),
-                        );
-                      },
-                      imageString: AppImage.png.lp,
-                    ),
-                    chooseRoleTile(
-                      isSelected: state.index == 1 ? true : false,
-                      text1: context.appText.vpTextHeading,
-                      text2: context.appText.vpText,
-                      onTap: () {
-                        context.read<RoleBloc>().add(
-                          const ChangeIndex(index: 1),
-                        );
-                      },
-                      imageString: AppImage.png.vp,
-                    ),
-                    chooseRoleTile(
-                      isSelected: state.index == 2 ? true : false,
-                      text1: context.appText.vpLpHeading,
-                      text2: context.appText.vpLp,
-                      onTap: () {
-                        context.read<RoleBloc>().add(
-                          const ChangeIndex(index: 2),
-                        );
-                      },
-                      imageString: AppImage.png.lpVp,
-                    ),
-                    chooseRoleTile(
-                      isSelected: state.index == 3 ? true : false,
-                      text1: context.appText.fleetHeading,
-                      text2: context.appText.fleet,
-                      onTap: () {
-                        context.read<RoleBloc>().add(
-                          const ChangeIndex(index: 3),
-                        );
-                      },
-                      imageString: AppImage.png.fleet,
-                    ),
-                     5.height,
-                    AppButton(title:context.appText.next,
+                  Text(
+                    context.appText.chooseRoleText,
+                    style: AppTextStyle.textBlackColors20w400
+                  ),
+                  chooseRoleTile(
+                    isSelected: state.index == 0 ? true : false,
+                    text1: context.appText.lpTextHeading,
+                    text2: context.appText.lpText,
+                    onTap: () {
+                      context.read<RoleBloc>().add(
+                        const ChangeIndex(index: 0),
+                      );
+                    },
+                    imageString: AppImage.png.lp,
+                  ),
+                  chooseRoleTile(
+                    isSelected: state.index == 1 ? true : false,
+                    text1: context.appText.vpTextHeading,
+                    text2: context.appText.vpText,
+                    onTap: () {
+                      context.read<RoleBloc>().add(
+                        const ChangeIndex(index: 1),
+                      );
+                    },
+                    imageString: AppImage.png.vp,
+                  ),
+                  chooseRoleTile(
+                    isSelected: state.index == 2 ? true : false,
+                    text1: context.appText.vpLpHeading,
+                    text2: context.appText.vpLp,
+                    onTap: () {
+                      context.read<RoleBloc>().add(
+                        const ChangeIndex(index: 2),
+                      );
+                    },
+                    imageString: AppImage.png.lpVp,
+                  ),
+                  chooseRoleTile(
+                    isSelected: state.index == 3 ? true : false,
+                    text1: context.appText.fleetHeading,
+                    text2: context.appText.fleet,
+                    onTap: () {
+                      context.read<RoleBloc>().add(
+                        const ChangeIndex(index: 3),
+                      );
+                    },
+                    imageString: AppImage.png.fleet,
+                  ),
+                   5.height,
+                  AppButton(title:context.appText.next,
 
-                      onPressed:() {
-                        context.push(AppRouteName.login);
-                      } ,),
-                    // CustomButton(
-                    //   buttonText: context.appText.next,
-                    //   disable: true,
-                    //   onClick: () {
-                    //     context.push(AppRouteName.login);
-                    //   },
-                    // ),
-             25.height,
+                    onPressed:() {
+                      context.push(AppRouteName.login);
+                    } ,),
+                  // CustomButton(
+                  //   buttonText: context.appText.next,
+                  //   disable: true,
+                  //   onClick: () {
+                  //     context.push(AppRouteName.login);
+                  //   },
+                  // ),
+                           25.height,
 
-                    Center(child: Image.asset(AppImage.png.hinduja)),
-                  ],
-                ),
+                  Center(child: Image.asset(AppImage.png.hinduja)),
+                ],
               ),
             );
           },
