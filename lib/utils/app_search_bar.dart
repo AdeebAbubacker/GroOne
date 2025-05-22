@@ -58,7 +58,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
           color:  AppColors.searchFillColor,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(5),
           boxShadow:  [
             if(widget.shadow == true)
               const BoxShadow(
@@ -71,7 +71,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
       ),
       child: Row(
         children: [
-          SvgPicture.asset(AppIcons.svg.search, width: 20),
+          SvgPicture.asset(AppIcons.svg.search, width: 18, colorFilter: AppColors.svg(AppColors.primaryColor),),
           10.width,
           Expanded(
             child: TextFormField(

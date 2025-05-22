@@ -23,6 +23,7 @@ Route createRoute(Widget screen) {
   );
 }
 
+
 Route commonRoute(Widget screen, {bool isForward = false, bool nativeMode = false}){
   if(isAndroid){
     if(isForward){

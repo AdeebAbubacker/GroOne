@@ -53,7 +53,7 @@ class AppButtonStyle {
       backgroundColor: Colors.white,
       elevation: 0.0,
       fixedSize: Size(MediaQuery.of(appContext).size.width, commonButtonHeight),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonOutlineButtonRadius)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonButtonRadius)),
       side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
   );
 
@@ -74,7 +74,29 @@ class AppButtonStyle {
     surfaceTintColor: AppColors.lightGreyColor,
     splashFactory: NoSplash.splashFactory,
     backgroundColor: AppColors.lightGreyIconBackgroundColor,
+    fixedSize: Size(50, 50),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+    side: const BorderSide(color: AppColors.borderColor, width: 1),
+  );
+
+  static ButtonStyle circularIconButtonStyle = IconButton.styleFrom(
+    enableFeedback: true,
+    surfaceTintColor: AppColors.lightGreyColor,
+    splashFactory: NoSplash.splashFactory,
+    backgroundColor: AppColors.lightGreyIconBackgroundColor,
+    fixedSize: Size(40, 40),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+    side: const BorderSide(color: AppColors.borderColor, width: 1),
+  );
+
+  static ButtonStyle circularPrimaryColorIconButtonStyle = IconButton.styleFrom(
+    enableFeedback: true,
+    surfaceTintColor: AppColors.primaryColor,
+    splashFactory: NoSplash.splashFactory,
+    backgroundColor:  AppColors.primaryColor,
+    fixedSize: Size(40, 40),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+    side: const BorderSide(color: AppColors.borderColor, width: 1),
   );
 
   static ButtonStyle primaryIconButtonStyleWithWhiteBackground = IconButton.styleFrom(
@@ -82,7 +104,8 @@ class AppButtonStyle {
     surfaceTintColor: AppColors.lightGreyColor,
     splashFactory: NoSplash.splashFactory,
     backgroundColor: Colors.white,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+    side: const BorderSide(color: AppColors.primaryColor, width: 1),
   );
 
   /// Active Icon Button

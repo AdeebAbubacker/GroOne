@@ -33,7 +33,7 @@ class AppColors {
 
   static const Color primaryTextColor = Color(0xff292D32);
   static const Color secondaryColor = Color(0xff4D4D4D);
-  static const Color greyTextColor = Color(0xff64748B);
+  static const Color greyTextColor = Colors.black38;
   static const Color textFieldFillColor = Color(0xffF8FAFC);
   static const Color searchFillColor = Color(0xffF2F2F3);
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
@@ -45,7 +45,7 @@ class AppColors {
   static const Color secondaryButtonColor = Color(0xff222831);
 
   static const Color activeGreenColor = CupertinoColors.activeGreen;
-  static const Color lightPrimaryColor = Color(0xffDFE6FF);
+  static const Color lightPrimaryColor = Color(0xffD6EEFB);
   static const Color extraLightPrimaryColor = Color(0xffFFFFCF2);
   static const Color activeBlueColor = CupertinoColors.activeBlue;
   static const Color greyIconColor = Colors.black38;

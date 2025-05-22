@@ -50,8 +50,8 @@ class PngImages {
   final String kavach = "${_pngImageBasePath}kavach.png";
   final String splash = "${_pngImageBasePath}splash_video.mp4";
 
-  ///Prabhat======================+>
 
+  // Base
   final String appLogoPng = "${_pngImageBasePath}appLogo.png";
   final String signInHeader = "${_pngImageBasePath}signInHeader.png";
   final String userProfileError = "${_pngImageBasePath}userPlaceHolder.png";
@@ -59,13 +59,21 @@ class PngImages {
   final String femalePlaceHolder = "${_pngImageBasePath}femalePlaceHolder.png";
   final String malePlaceholder = "${_pngImageBasePath}malePlaceHolder.png";
   final String brokenImage = "${_pngImageBasePath}brokenImage.png";
+
+  // App
+  final String kavachProduct = "${_pngImageBasePath}kavach_product.png";
+  final String kavachModel = "${_pngImageBasePath}kavach_model.png";
+  final String groBanner = "${_pngImageBasePath}gro_banner.png";
+  final String truck = "${_pngImageBasePath}truck.png";
+
+
 }
 
 class SvgImages {
   static const String _svgImageBasePath = "assets/images/svg/";
   final String appLogo = "${_svgImageBasePath}appLogo.svg";
   final String noSearchFound = "${_svgImageBasePath}searchNotFound.svg";
-  final String intro1 = "${_svgImageBasePath}intro1.svg";
+  final String groBanner = "${_svgImageBasePath}gro_banner.svg";
 }
 
 class JpgImage {
