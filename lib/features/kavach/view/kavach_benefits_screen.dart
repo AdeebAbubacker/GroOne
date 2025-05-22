@@ -11,6 +11,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -31,7 +32,7 @@ class KavachBenefitsScreen extends StatelessWidget {
         title: context.appText.kavach,
       actions: [
         AppIconButton(
-            onPressed: ()=> Navigator.of(context).push(commonRoute(KavachModelsScreen(), isForward: true)),
+            onPressed: ()=> Navigator.of(context).push(commonRoute(KavachModelsScreen())),
             icon: Icon(Icons.add, color: Colors.white),
             style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
         ),
@@ -46,7 +47,6 @@ class KavachBenefitsScreen extends StatelessWidget {
   // Body
   Widget buildBodyWidget(BuildContext context){
     return SafeArea(
-      minimum: EdgeInsets.only(top: 20, left: 20, right: 20),
       bottom: false,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,7 +60,18 @@ class KavachBenefitsScreen extends StatelessWidget {
   }
 
   Widget buildKavachProductImageWidget(){
-    return Image.asset(AppImage.png.kavachProduct, width: 180);
+    return Container(
+      width: double.infinity,
+        height: 200,
+        color: AppColors.lightPrimaryColor,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Image.asset(AppImage.png.truck, width: 150),
+            Image.asset(AppImage.png.kavachProduct, width: 70).paddingOnly(top: 80, right: 140),
+          ],
+        ),
+    );
   }
 
 
@@ -103,11 +114,11 @@ class KavachBenefitsScreen extends StatelessWidget {
         20.height,
         innerUIWidget(icon: AppIcons.png.insightGraph, title: context.appText.benefitsOfKavachHeading1, subTitle: context.appText.benefitsOfKavachSubHeading1),
       ],
-    );
+    ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }
 
   Widget buildGroBannerImageWidget(){
-    return SvgPicture.asset(AppImage.svg.groBanner);
+    return Image.asset(AppImage.png.groBanner);
   }
 
 }

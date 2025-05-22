@@ -35,7 +35,7 @@ class PngImages {
   final String splash = "${_pngImageBasePath}splash_video.mp4";
 
 
-  // Core
+  // Base
   final String appLogoPng = "${_pngImageBasePath}appLogo.png";
   final String signInHeader = "${_pngImageBasePath}signInHeader.png";
   final String userProfileError = "${_pngImageBasePath}userPlaceHolder.png";
@@ -44,9 +44,11 @@ class PngImages {
   final String malePlaceholder = "${_pngImageBasePath}malePlaceHolder.png";
   final String brokenImage = "${_pngImageBasePath}brokenImage.png";
 
-  // App Image
+  // App
   final String kavachProduct = "${_pngImageBasePath}kavach_product.png";
   final String kavachModel = "${_pngImageBasePath}kavach_model.png";
+  final String groBanner = "${_pngImageBasePath}gro_banner.png";
+  final String truck = "${_pngImageBasePath}truck.png";
 
 
 }
