@@ -141,7 +141,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   upComingShipment() {
     return Container(
-      color: AppColors.backgroundColor,
+      color: AppColors.white,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
         child: Column(

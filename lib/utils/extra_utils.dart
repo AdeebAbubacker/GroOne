@@ -213,7 +213,26 @@ child,
   );
 }
 
+statusButtonWidget({required Color statusBackgroundColor,required Color statusTextColor,required String statusText}){
+  return Container(
+    height: 24.h,
+    margin: EdgeInsets.only(top: 17.h),
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    decoration: BoxDecoration(
+      color: statusBackgroundColor,
 
+      borderRadius: BorderRadius.circular(40),
+    ),
+    child: Center(
+      child: Text(
+        statusText,
+        style: AppTextStyle.whiteColor14w400.copyWith(
+          color: statusTextColor,
+        ),
+      ),
+    ),
+  );
+}
 
 draggableSheet({required List<Widget> child}){
   return  DraggableScrollableSheet(

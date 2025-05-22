@@ -19,6 +19,7 @@ import '../features/load_provider/home/validate_memo/view/lp_validate_memo.dart'
 import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
 import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
+import '../features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import '../features/load_provider/lp_profile/view/my_account/edit_my_account/view/lp_edit_my_account.dart';
 import '../features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
 import '../features/load_provider/lp_profile/view/setting/view/lp_setting.dart';
@@ -83,6 +84,11 @@ class AppRoutes {
         path: AppRouteName.insurance,
         builder: (BuildContext context, GoRouterState state) {
           return InsuranceScreen();
+        },
+      ),   GoRoute(
+        path: AppRouteName.lpPayNowScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpPayNowScreen();
         },
       ),
       GoRoute(

@@ -14,6 +14,7 @@ class PngImages {
   final String appIcon = "${_pngImageBasePath}appIcon.png";
   final String settings = "${_pngImageBasePath}settings.png";
   final String document = "${_pngImageBasePath}document.png";
+  final String doc = "${_pngImageBasePath}doc.png";
   final String privacy = "${_pngImageBasePath}privacy.png";
   final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
   final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-
+import 'package:timeline_tile/timeline_tile.dart';
 import '../../../../../utils/app_image.dart';
 
 class LpPayNowAndTrackLoad extends StatelessWidget {
@@ -121,54 +123,151 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
                 statusText: "Yet To Assign",
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                child1: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     15.height,
-                    Text("Ashok Leyland - Boss 1920",style: AppTextStyle.lightBlackColor14w500,),
+                    Text(
+                      "Ashok Leyland - Boss 1920",
+                      style: AppTextStyle.lightBlackColor14w500,
+                    ),
                     5.height,
-                    Text("TN02 UY4356",style: AppTextStyle.primaryColor14w700,)
+                    Text("TN02 UY4356", style: AppTextStyle.primaryColor14w700),
                   ],
-                )
+                ),
               ),
               tileWidget(
                 headingText: "Driver Details",
                 statusText: "Yet To Assign",
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      15.height,
-                      Text("Dinesh Kumar",style: AppTextStyle.lightBlackColor14w500,),
-                      5.height,
-                      Text("+91 9876543210",style: AppTextStyle.primaryColor14w700,)
-                    ],
-                  )
+                child1: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    15.height,
+                    Text(
+                      "Dinesh Kumar",
+                      style: AppTextStyle.lightBlackColor14w500,
+                    ),
+                    5.height,
+                    Text(
+                      "+91 9876543210",
+                      style: AppTextStyle.primaryColor14w700,
+                    ),
+                  ],
+                ),
               ),
               tileWidget(
                 headingText: "Payment Details",
                 statusText: "Pending",
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
-                child: Column(spacing: 5.h,
+                child1: Column(
+                  spacing: 5.h,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     15.height,
                     Text(
                       context.appText.advancePayment,
                       style: AppTextStyle.darkDividerColor16w400,
-                    ), Text(
+                    ),
+                    Text(
                       "80% advance",
                       style: AppTextStyle.darkDividerColor16w400,
                     ),
                     Text(
                       '₹12000',
-                      style: AppTextStyle.textBlackColor26w700.copyWith(fontSize: 20.sp),
+                      style: AppTextStyle.textBlackColor26w700.copyWith(
+                        fontSize: 20.sp,
+                      ),
                     ),
-                   AppButton(title: "Pay Now")
-
                   ],
-                )
+                ),
+                child2: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 5.h,
+                  children: [
+                    15.height,
+                    AppButton(title: "Pay Now",
+                    onPressed: (){
+                      context.push(AppRouteName.lpPayNowScreen);
+                    },),
+                    10.height,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Balance Payment",
+                            style: AppTextStyle.darkDividerColor16w400,
+                          ),
+                        ),
+                        statusButtonWidget(statusBackgroundColor: AppColors.appRedColor, statusTextColor: AppColors.textRed, statusText: "Pending")
+
+                      ],
+                    ),
+                    Text(
+                      '₹4000',
+                      style: AppTextStyle.textBlackColor26w700.copyWith(
+                        fontSize: 20.sp,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              tileWidget(
+                headingText: "Trip Documents",
+                statusText: "",
+                statusTextColor: AppColors.textRed,
+                statusBackgroundColor: AppColors.appRedColor,
+                child2: Container(margin: EdgeInsets.only(top: 10.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: Center(
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      trailing: Icon(
+                        Icons.file_download_outlined,
+                        color: AppColors.primaryColor,
+                      ),
+                      leading: Image.asset(
+                        AppImage.png.doc,
+                        height: 24.h,
+                        width: 24.w,
+                      ),
+                      title: Text(
+                        "Memo.PDF",
+                        style: AppTextStyle.textBlackColor12w400,
+                      ),
+                      subtitle: Text(
+                        "07-12-2024 | 02:52 pm",
+                        style: AppTextStyle.textGreyColor10w400,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              tileWidget(
+                headingText: "Tracking",
+                statusText: "",
+                statusTextColor: AppColors.textRed,
+                statusBackgroundColor: AppColors.appRedColor,
+               child2: Column(
+                 children: [
+
+                   TimelinePage(),
+                   AppButton(title: "Back to Home",onPressed: (){
+                     context.pop();
+                   },),
+                 ],
+               )
+
+              ),
+
+              20.height,
             ],
           ),
         ],
@@ -181,36 +280,31 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
     required String statusText,
     required Color statusTextColor,
     required Color statusBackgroundColor,
-      Widget? child,
+    bool showStatus = true,
+    Widget? child1,
+    Widget? child2,
   }) {
     return Container(
       color: AppColors.white,
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(headingText, style: AppTextStyle.textBlackColor18w500),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(child: child??const SizedBox()), Container(
-                height: 24.h,
-                padding: EdgeInsets.symmetric(horizontal: 10.w,),
-                decoration: BoxDecoration(
-                  color: statusBackgroundColor,
-
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Center(
-                  child: Text(
-                    statusText,
-                    style: AppTextStyle.whiteColor14w400.copyWith(
-                      color: statusTextColor,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          )
+          child1 != null
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: child1 ?? const SizedBox()),
+                  showStatus
+                      ? statusButtonWidget(statusBackgroundColor: statusBackgroundColor, statusTextColor: statusTextColor, statusText: statusText)
+                      : const SizedBox(),
+                ],
+              )
+              : const SizedBox(),
+          child2 ?? const SizedBox(),
         ],
       ),
     );
@@ -240,3 +334,99 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+class TimelinePage extends StatelessWidget {
+  final List<TimelineEvent> events = [
+    TimelineEvent("In Transit", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Kanchipuram", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Vellore", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached Hosur", "03 Jan 2023 | 02:45 pm"),
+    TimelineEvent("Reached White Field", "03 Jan 2023 | 02:45 pm"),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: events.length,
+      shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        final event = events[index];
+        return TimelineTile(
+          axis: TimelineAxis.vertical,
+          alignment: TimelineAlign.start,
+          lineXY: 0.1,
+          isFirst: index == 0,
+          isLast: index == events.length - 1,
+          indicatorStyle: IndicatorStyle(indicatorXY: 0.4,
+            width: 20,
+            color: index <= 2 ? Colors.white : AppColors.primaryDarkColor,
+            // borderStyle: BorderStyle.solid,
+            indicator: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: index <= 2 ? Colors.white : AppColors.primaryDarkColor,
+                border: Border.all(color: AppColors.primaryDarkColor, width: 2),
+
+              ),
+              child: index<=2?Icon(Icons.circle,size: 12,color: AppColors.primaryDarkColor,):const SizedBox(),
+            ),
+          ),
+          beforeLineStyle: LineStyle(
+            color: AppColors.black,
+            thickness: 1.5,
+          ),
+          afterLineStyle: LineStyle(
+            color: AppColors.black,
+            thickness: 1.5,
+          ),
+
+          endChild: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event.title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  event.time,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+
+
+
+
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class TimelineEvent {
+  final String title;
+  final String time;
+
+  TimelineEvent(this.title, this.time);
+}
+

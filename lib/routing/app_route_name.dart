@@ -10,6 +10,7 @@ class AppRouteName{
   static const String gps = "/gps";
   static const String instantLoan = "/instantLoad";
   static const String insurance = "/insurance";
+  static const String lpPayNowScreen = "/lpPayNowScreen";
   static const String kavach = "/kavach";
   static const String lpValidateMemo = "/lpValidateMemo";
   static const String lpProfile = "/lpProfile";
