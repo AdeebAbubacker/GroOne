@@ -195,6 +195,7 @@ class AppTextStyle {
   );
   static TextStyle h4GreyColor = h4.copyWith(color: AppColors.greyTextColor);
   static TextStyle h4WhiteColor = h4.copyWith(color: Colors.white);
+  static TextStyle h4PrimaryColor = h4.copyWith(color: AppColors.primaryColor);
 
   // H3
   static TextStyle h5 = GoogleFonts.ubuntu(
@@ -232,6 +233,7 @@ class AppTextStyle {
   );
   static TextStyle body1BlackColor = body1.copyWith(color: Colors.black);
   static TextStyle body1WhiteColor = body1.copyWith(color: Colors.white);
+  static TextStyle body1PrimaryColor = body1.copyWith(color: AppColors.primaryColor);
 
   // Body 2
   static TextStyle body2 = GoogleFonts.ubuntu(

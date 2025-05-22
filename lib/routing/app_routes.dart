@@ -91,12 +91,7 @@ class AppRoutes {
           return LpPayNowScreen();
         },
       ),
-      GoRoute(
-        path: AppRouteName.kavach,
-        builder: (BuildContext context, GoRouterState state) {
-          return KavachScreen();
-        },
-      ),
+
       GoRoute(
         path: AppRouteName.lpTransaction,
         builder: (BuildContext context, GoRouterState state) {

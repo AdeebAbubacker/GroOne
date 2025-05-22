@@ -82,9 +82,7 @@ valueAddedService(BuildContext context) {
               valueAddedServiceWidget(
                 title: context.appText.kavach,
                 imageString: AppImage.png.kavach,
-                onClick: () {
-                  context.push(AppRouteName.kavach);
-                },
+
                 onClick: () {
                   Navigator.of(context).push(commonRoute(KavachBenefitsScreen()));
                 },

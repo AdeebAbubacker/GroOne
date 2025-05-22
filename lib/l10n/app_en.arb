@@ -69,9 +69,9 @@
   "apply" : "Apply",
   "tripTracking" : "Trip Tracking",
   "allTrip" : "All Trip",
-  "activeTrips" : "Active trips",
+  "kavachModels" : "KAVACH Models",
   "upcoming" : "Upcoming",
-  "completed" : "Completed",
+
 
   "createAccount" : "Create Account",
   "name" : "Name",
@@ -89,24 +89,23 @@
   "aadhaarHint" : "xxxx xxxx xxxx",
   "submit" : "Submit",
 
-  "kavach" : "KAVACH",
+
   "benefitsOfKavach" : "Benefits of KAVACH",
   "benefitsOfKavachHeading1" : "No Unfair Blame for Fuel Loss",
   "benefitsOfKavachHeading2" : "Prevents Delay from Theft Investigations",
   "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
   "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
-  "kavachModels" : "KAVACH Models",
-  "buyNow" : "Buy Now"
+
+  "buyNow" : "Buy Now",
 
 
-  "accept": "Accept",
-  "seeMore": "See more",
+
   "myAccount": "My Account",
 
 
   "edit": "Edit",
   "personalDetails": "Personal Details",
-  "name": "Name",
+
   "mobileNumber": "Mobile Number",
   "accountDetails": "Account Details",
   "blueMembershipId": "Blue Membership ID",
@@ -114,7 +113,7 @@
   "registrationData": "Registration Date",
   "kycStatus": "KYC Status",
   "companyDetails": "Company Details",
-  "companyName": "Company Name",
+
   "gst": "GSTIN",
   "transactions": "Transactions",
   "settings": "Settings",
