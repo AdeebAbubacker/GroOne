@@ -126,13 +126,52 @@ class AppLocalizationsHi extends AppLocalizations {
   String get support => 'सहायता';
 
   @override
-  String get kyc => 'KYC';
+  String get source => 'स्रोत';
+
+  @override
+  String get selectPickUpPoint => 'पिकअप बिंदु चुनें';
+
+  @override
+  String get destination => 'गंतव्य';
+
+  @override
+  String get selectDestination => 'गंतव्य चुनें';
+
+  @override
+  String get upComingShipment => 'आगामी शिपमेंट';
+
+  @override
+  String get postLoad => 'लोड पोस्ट करें';
+
+  @override
+  String get your => 'आपका';
+
+  @override
+  String get stillPending => 'सत्यापन अभी लंबित है';
+
+  @override
+  String get allTrips => 'सभी यात्राएं';
+
+  @override
+  String get activeTrips => 'सक्रिय यात्राएँ';
+
+  @override
+  String get upcomingTrips => 'आगामी';
+
+  @override
+  String get completed => 'पुरा होना।';
+
+  @override
+  String get profile => 'प्रोफ़ाइल';
+
+  @override
+  String get kyc => 'केवाईसी';
 
   @override
   String get recentAddedLoad => 'हाल ही में जोड़ा गया लोड';
 
   @override
-  String get accept => 'स्वीकार करना';
+  String get accept => 'स्वीकार करें';
 
   @override
   String get seeMore => 'और देखें';
@@ -177,13 +216,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get allTrip => 'सभी यात्रा';
 
   @override
-  String get activeTrips => 'सक्रिय यात्राएँ';
+  String get kavachModels => 'KAVACH Models';
 
   @override
   String get upcoming => 'आगामी';
-
-  @override
-  String get completed => 'पुरा होना।';
 
   @override
   String get createAccount => 'Create Account';
@@ -246,8 +282,77 @@ class AppLocalizationsHi extends AppLocalizations {
   String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
 
   @override
-  String get kavachModels => 'KAVACH Models';
+  String get buyNow => 'Buy Now';
 
   @override
-  String get buyNow => 'Buy Now';
+  String get myAccount => 'मेरा खाता';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get personalDetails => 'Personal Details';
+
+  @override
+  String get mobileNumber => 'Mobile Number';
+
+  @override
+  String get accountDetails => 'Account Details';
+
+  @override
+  String get blueMembershipId => 'Blue Membership ID';
+
+  @override
+  String get accountType => 'Account Type';
+
+  @override
+  String get registrationData => 'Registration Date';
+
+  @override
+  String get kycStatus => 'KYC Status';
+
+  @override
+  String get companyDetails => 'Company Details';
+
+  @override
+  String get gst => 'GSTIN';
+
+  @override
+  String get transactions => 'Transactions';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get logOut => 'Log Out';
+
+  @override
+  String get updateChanges => 'Update Changes';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get idNumber => 'ID Number';
+
+  @override
+  String get validateMemo => 'Validate Memo';
+
+  @override
+  String get iAgreeTripToGo => 'I agree trip to Gro';
+
+  @override
+  String get memo => 'Memo';
+
+  @override
+  String get verifyAdvance => 'Verify Advance';
+
+  @override
+  String get advancePayment => 'Advance payment';
+
+  @override
+  String get needHelp => 'Need Help?';
 }

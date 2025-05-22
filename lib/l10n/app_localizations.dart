@@ -331,6 +331,84 @@ abstract class AppLocalizations {
   /// **'Support'**
   String get support;
 
+  /// No description provided for @source.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get source;
+
+  /// No description provided for @selectPickUpPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select pickup point'**
+  String get selectPickUpPoint;
+
+  /// No description provided for @destination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get destination;
+
+  /// No description provided for @selectDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Select destination'**
+  String get selectDestination;
+
+  /// No description provided for @upComingShipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming shipments'**
+  String get upComingShipment;
+
+  /// No description provided for @postLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Load'**
+  String get postLoad;
+
+  /// No description provided for @your.
+  ///
+  /// In en, this message translates to:
+  /// **'Your'**
+  String get your;
+
+  /// No description provided for @stillPending.
+  ///
+  /// In en, this message translates to:
+  /// **'verification is still Pending'**
+  String get stillPending;
+
+  /// No description provided for @allTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'All Trips'**
+  String get allTrips;
+
+  /// No description provided for @activeTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Trips'**
+  String get activeTrips;
+
+  /// No description provided for @upcomingTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcomingTrips;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
   /// No description provided for @kyc.
   ///
   /// In en, this message translates to:
@@ -433,23 +511,17 @@ abstract class AppLocalizations {
   /// **'All Trip'**
   String get allTrip;
 
-  /// No description provided for @activeTrips.
+  /// No description provided for @kavachModels.
   ///
   /// In en, this message translates to:
-  /// **'Active trips'**
-  String get activeTrips;
+  /// **'KAVACH Models'**
+  String get kavachModels;
 
   /// No description provided for @upcoming.
   ///
   /// In en, this message translates to:
   /// **'Upcoming'**
   String get upcoming;
-
-  /// No description provided for @completed.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed'**
-  String get completed;
 
   /// No description provided for @createAccount.
   ///
@@ -571,17 +643,155 @@ abstract class AppLocalizations {
   /// **'Keeps drivers on schedule by avoiding time lost to fuel theft issues.'**
   String get benefitsOfKavachSubHeading2;
 
-  /// No description provided for @kavachModels.
-  ///
-  /// In en, this message translates to:
-  /// **'KAVACH Models'**
-  String get kavachModels;
-
   /// No description provided for @buyNow.
   ///
   /// In en, this message translates to:
   /// **'Buy Now'**
   String get buyNow;
+
+  /// No description provided for @myAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'My Account'**
+  String get myAccount;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @personalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Details'**
+  String get personalDetails;
+
+  /// No description provided for @mobileNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get mobileNumber;
+
+  /// No description provided for @accountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Details'**
+  String get accountDetails;
+
+  /// No description provided for @blueMembershipId.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue Membership ID'**
+  String get blueMembershipId;
+
+  /// No description provided for @accountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Type'**
+  String get accountType;
+
+  /// No description provided for @registrationData.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration Date'**
+  String get registrationData;
+
+  /// No description provided for @kycStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'KYC Status'**
+  String get kycStatus;
+
+  /// No description provided for @companyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Details'**
+  String get companyDetails;
+
+  /// No description provided for @gst.
+  ///
+  /// In en, this message translates to:
+  /// **'GSTIN'**
+  String get gst;
+
+  /// No description provided for @transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get transactions;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logOut;
+
+  /// No description provided for @updateChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Changes'**
+  String get updateChanges;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @idNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'ID Number'**
+  String get idNumber;
+
+  /// No description provided for @validateMemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate Memo'**
+  String get validateMemo;
+
+  /// No description provided for @iAgreeTripToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree trip to Gro'**
+  String get iAgreeTripToGo;
+
+  /// No description provided for @memo.
+  ///
+  /// In en, this message translates to:
+  /// **'Memo'**
+  String get memo;
+
+  /// No description provided for @verifyAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Advance'**
+  String get verifyAdvance;
+
+  /// No description provided for @advancePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance payment'**
+  String get advancePayment;
+
+  /// No description provided for @needHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Need Help?'**
+  String get needHelp;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -126,6 +126,45 @@ class AppLocalizationsTa extends AppLocalizations {
   String get support => 'ஆதரவு';
 
   @override
+  String get source => 'மூலம்';
+
+  @override
+  String get selectPickUpPoint => 'எடுக்குமிடத்தை தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get destination => 'சேருமிடம்';
+
+  @override
+  String get selectDestination => 'சேருமிடத்தை தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get upComingShipment => 'வரவிருக்கும் சரக்குகள்';
+
+  @override
+  String get postLoad => 'சரக்கை பதிவேற்று';
+
+  @override
+  String get your => 'உங்கள்';
+
+  @override
+  String get stillPending => 'சரிபார்ப்பு இன்னும் நிலுவையிலுள்ளது';
+
+  @override
+  String get allTrips => 'அனைத்து பயணங்கள்';
+
+  @override
+  String get activeTrips => 'செயலில் பயணங்கள்';
+
+  @override
+  String get upcomingTrips => 'வரவிருக்கும் பயணங்கள்';
+
+  @override
+  String get completed => 'முடிந்தது';
+
+  @override
+  String get profile => 'சுயவிவரம்';
+
+  @override
   String get kyc => 'KYC';
 
   @override
@@ -177,13 +216,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get allTrip => 'அனைத்து பயணம்';
 
   @override
-  String get activeTrips => 'செயலில் பயணங்கள்';
+  String get kavachModels => 'KAVACH Models';
 
   @override
   String get upcoming => 'வரவிருக்கும்';
-
-  @override
-  String get completed => 'முடிந்தது';
 
   @override
   String get createAccount => 'Create Account';
@@ -246,8 +282,77 @@ class AppLocalizationsTa extends AppLocalizations {
   String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
 
   @override
-  String get kavachModels => 'KAVACH Models';
+  String get buyNow => 'Buy Now';
 
   @override
-  String get buyNow => 'Buy Now';
+  String get myAccount => 'என் கணக்கு';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get personalDetails => 'Personal Details';
+
+  @override
+  String get mobileNumber => 'Mobile Number';
+
+  @override
+  String get accountDetails => 'Account Details';
+
+  @override
+  String get blueMembershipId => 'Blue Membership ID';
+
+  @override
+  String get accountType => 'Account Type';
+
+  @override
+  String get registrationData => 'Registration Date';
+
+  @override
+  String get kycStatus => 'KYC Status';
+
+  @override
+  String get companyDetails => 'Company Details';
+
+  @override
+  String get gst => 'GSTIN';
+
+  @override
+  String get transactions => 'Transactions';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get logOut => 'Log Out';
+
+  @override
+  String get updateChanges => 'Update Changes';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get idNumber => 'ID Number';
+
+  @override
+  String get validateMemo => 'Validate Memo';
+
+  @override
+  String get iAgreeTripToGo => 'I agree trip to Gro';
+
+  @override
+  String get memo => 'Memo';
+
+  @override
+  String get verifyAdvance => 'Verify Advance';
+
+  @override
+  String get advancePayment => 'Advance payment';
+
+  @override
+  String get needHelp => 'Need Help?';
 }
