@@ -28,7 +28,7 @@ class PngImages {
   final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";
   final String filter = "${_pngImageBasePath}filter.png";
-  final String truck = "${_pngImageBasePath}truck.png";
+
   final String tamilLanguage = "${_pngImageBasePath}tamilLanguage.png";
   final String hindiLanguage = "${_pngImageBasePath}hindiLanguage.png";
   final String lp = "${_pngImageBasePath}lp.png";

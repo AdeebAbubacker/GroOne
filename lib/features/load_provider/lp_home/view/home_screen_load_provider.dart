@@ -30,11 +30,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         //backgroundColor: Colors.transparent,
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Image.asset(
-            AppImage.png.appIcon,
-            height: 33.h,
-            width: 75.w,
-            scale: 1,
+          child: InkWell(
+            onTap: (){
+              context.push(AppRouteName.vpBottomNavigationBar);
+            },
+            child: Image.asset(
+              AppImage.png.appIcon,
+              height: 33.h,
+              width: 75.w,
+              scale: 1,
+            ),
           ),
         ),
         toolbarHeight: 50.h,

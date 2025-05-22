@@ -7,7 +7,7 @@ import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/v
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/kavach/view/kavach_screen.dart';
+
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -91,12 +91,7 @@ class AppRoutes {
           return LpPayNowScreen();
         },
       ),
-      GoRoute(
-        path: AppRouteName.kavach,
-        builder: (BuildContext context, GoRouterState state) {
-          return KavachScreen();
-        },
-      ),
+
       GoRoute(
         path: AppRouteName.lpTransaction,
         builder: (BuildContext context, GoRouterState state) {

@@ -32,7 +32,7 @@
   "enDan":"En-Dhan Card",
   "gps":"GPS",
   "instantLoan": "Instant Loan",
-  "kavach": "KAVACH",
+
   "insurance":"Insurance",
   "loginSuccessful": "LOGIN SUCCESSFUL",
   "loginSuccessfulSubHeading":"Now you can explore the rates\nand post loads",
@@ -50,12 +50,12 @@
   "allTrips": "All Trips",
   "activeTrips": "Active Trips",
   "upcomingTrips": "Upcoming",
-  "completed": "Completed",
+
   "profile": "Profile",
   "kyc": "KYC",
   "recentAddedLoad": "Recent Added Load",
   "accept" : "Accept",
-  "seeMore" : "See more",
+
   "availableLoads" : "Available Loads",
   "filter" : "Filter",
   "thisFieldIsRequired" : "This filed is required",
@@ -69,7 +69,7 @@
   "apply" : "Apply",
   "tripTracking" : "Trip Tracking",
   "allTrip" : "All Trip",
-  "activeTrips" : "Active trips",
+
   "upcoming" : "Upcoming",
   "completed" : "Completed",
 
@@ -96,17 +96,17 @@
   "benefitsOfKavachSubHeading1" : "KAVACH protects drivers from being wrongly accused of fuel theft.",
   "benefitsOfKavachSubHeading2" : "Keeps drivers on schedule by avoiding time lost to fuel theft issues.",
   "kavachModels" : "KAVACH Models",
-  "buyNow" : "Buy Now"
+  "buyNow" : "Buy Now",
 
 
-  "accept": "Accept",
+
   "seeMore": "See more",
   "myAccount": "My Account",
 
 
   "edit": "Edit",
   "personalDetails": "Personal Details",
-  "name": "Name",
+
   "mobileNumber": "Mobile Number",
   "accountDetails": "Account Details",
   "blueMembershipId": "Blue Membership ID",
@@ -114,7 +114,7 @@
   "registrationData": "Registration Date",
   "kycStatus": "KYC Status",
   "companyDetails": "Company Details",
-  "companyName": "Company Name",
+
   "gst": "GSTIN",
   "transactions": "Transactions",
   "settings": "Settings",
