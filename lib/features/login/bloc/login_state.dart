@@ -19,3 +19,19 @@ class LoginState extends Equatable {
   @override
   List<Object?> get props => [index, status];
 }
+
+class LogInInitial extends LoginState {}
+
+class LogInLoading extends LoginState {}
+
+
+class LogInSuccess extends LoginState {
+  final LoginApiResponseModel loginApiResponseModel;
+  LogInSuccess(this.loginApiResponseModel);
+}
+
+
+class LogInError extends LoginState {
+  final ErrorType errorType;
+  LogInError(this.errorType);
+}

@@ -4,6 +4,8 @@ import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.d
 
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/login/bloc/login_bloc.dart';
+import 'features/otp_verification/bloc/otp_bloc.dart';
 
 
 class MultiBlocWrapper extends StatelessWidget {
@@ -17,6 +19,8 @@ class MultiBlocWrapper extends StatelessWidget {
       providers: [
         BlocProvider<LanguageBloc>(create: (_) => locator<LanguageBloc>()),
         BlocProvider<RoleBloc>(create: (_) => locator<RoleBloc>()),
+        BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
+        BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
        ],
       child: child,
     );

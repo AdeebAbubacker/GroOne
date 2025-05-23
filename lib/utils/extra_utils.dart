@@ -14,7 +14,7 @@ String maskPhoneNumber(String phoneNumber) {
     return 'Invalid number';
   }
 
-  return '+91 ${phoneNumber.substring(0, 3)}xx xxx${phoneNumber.substring(8)}';
+  return '+91 ${phoneNumber.substring(0, 3)}xx xx${phoneNumber.substring(7, 10)}';
 }
 
 Widget customCheckbox({
@@ -57,32 +57,39 @@ void showSuccessDialog(
     context: context,
     barrierDismissible: false, // Dismiss only with button if needed
     builder: (BuildContext context) {
-      return Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0),
-          child: InkWell(
-            onTap: onTap ?? () {},
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                20.height,
-                Image.asset(AppImage.png.successGif),
-                SizedBox(height: 50.h),
-                Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.greenColor20w700,
-                ),
-                30.height,
-                Text(
-                  subheading,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black54),
-                ),
-                12.height,
-              ],
+      return WillPopScope(
+        onWillPop: () async {
+          return true;
+        },
+        child: Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            child: InkWell(
+              onTap: onTap ?? () {},
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  20.height,
+                  Image.asset(AppImage.png.successGif),
+                  SizedBox(height: 50.h),
+                  Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.greenColor20w700,
+                  ),
+                  30.height,
+                  Text(
+                    subheading,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                  12.height,
+                ],
+              ),
             ),
           ),
         ),
@@ -212,11 +219,25 @@ showCustomDialogue({
   );
 }
 
+translateWiget({required Function() onTap}) {
+  return InkWell(
+    onTap: onTap,
+    child: Image.asset(AppImage.png.translateImage, width: 23.w, height: 23.h),
+  );
+}
+
+customerSupportWidget({required Function() onTap}) {
+  return InkWell(
+    onTap: onTap,
+    child: Image.asset(AppImage.png.customerSupport, width: 32.w, height: 32.h),
+  );
+}
+
 showAlertDialogue({
   required BuildContext context,
   required Widget child,
   required GestureTapCallback onClickYesButton,
-    bool hideButtonButtons=false,
+  bool hideButtonButtons = false,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -231,29 +252,34 @@ showAlertDialogue({
 
           20.height,
           // Buttons
-          hideButtonButtons?const SizedBox()  : Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // No Button
-              Expanded(
-                child: normalButton(
-                  buttonText: "No",
-                  onTap: () {
-                    context.pop();
-                  },
-                ),
-              ),
-              16.width,
+          hideButtonButtons
+              ? const SizedBox()
+              : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // No Button
+                  Expanded(
+                    child: normalButton(
+                      buttonText: "No",
+                      onTap: () {
+                        context.pop();
+                      },
+                    ),
+                  ),
+                  16.width,
 
-              // Yes Button
-              Expanded(
-                child: SizedBox(
-                  height: 32.h,
-                  child: AppButton(onPressed: onClickYesButton, title: "Yes"),
-                ),
+                  // Yes Button
+                  Expanded(
+                    child: SizedBox(
+                      height: 32.h,
+                      child: AppButton(
+                        onPressed: onClickYesButton,
+                        title: "Yes",
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
         ],
       ),
     ),
@@ -299,6 +325,71 @@ draggableSheet({required List<Widget> child}) {
         child: SingleChildScrollView(
           controller: scrollController,
           child: Column(spacing: 10.h, children: child),
+        ),
+      );
+    },
+  );
+}
+
+void showCustomerCareBottomSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (_) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    icon: Icon(Icons.clear),
+                  ),
+                ],
+              ),
+              Image.asset(
+                AppImage.png.customerSupportImage,
+                height: 237.h,
+                width: 237.w,
+              ),
+              Text(
+                "Call Customer Support",
+                textAlign: TextAlign.center,
+                style: AppTextStyle.textBlackColor20w500,
+              ),
+              15.height,
+              Text(
+                "For immediate support, talk to our team now.",
+                textAlign: TextAlign.center,
+                style: AppTextStyle.textGreyDetailColor12w400,
+              ),
+              15.height,
+              AppButton(
+                title: "Call Now",
+                onPressed: () {
+                  context.pop();
+                },
+              ),
+              15.height,
+            ],
+          ),
         ),
       );
     },

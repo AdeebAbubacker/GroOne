@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
@@ -18,6 +20,7 @@ import '../features/choose_role_screen/view/choose_role_screen.dart';
 import '../features/kyc/view/kyc_screen.dart';
 import '../features/load_provider/home/validate_memo/view/lp_validate_memo.dart';
 import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
+import '../features/load_provider/lp_create_account/view/lp_create_account.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
 import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
 import '../features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
@@ -189,11 +192,21 @@ GoRoute(
         builder: (BuildContext context, GoRouterState state) {
           return LpPayNowAndTrackLoad();
         },
+      ), GoRoute(
+        path: AppRouteName.lpCreateAccount,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpCreateAccount();
+        },
       ),
       GoRoute(
         path: AppRouteName.otpVerificationScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return OtpVerificationScreen();
+          final data = state.extra! as Map<String, dynamic>;
+          final String mobileNumber = data["mobileNumber"];
+          final String otp = data["otp"];
+          final String roleId = data["roleId"];
+
+          return OtpVerificationScreen(otp:otp ,mobileNumber: mobileNumber,roleId:roleId);
         },
       ),
 

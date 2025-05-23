@@ -27,6 +27,7 @@ class AppRouteName{
   static const String vpBottomNavigationBar = "/vpBottomNavigationBar";
   static const String notFound = "/notFound";
   static const String otpVerificationScreen = "/otpVerificationScreen";
+  static const String lpCreateAccount = "/lpCreateAccount";
   static const String chooseLanguage = "/chooseLanguage";
   static const String chooseRoleScreen = "/chooseRoleScreen";
   static const String lpPayNowAndTrackLoad = "/lpPayNowAndTrackLoad";

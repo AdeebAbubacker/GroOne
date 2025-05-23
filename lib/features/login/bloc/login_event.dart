@@ -8,6 +8,10 @@ sealed class LoginEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class LoginInRequested extends LoginEvent {
+  final LoginApiRequest apiRequest;
+  const LoginInRequested({required this.apiRequest});
+}
 
 class ChangeIndex extends LoginEvent{
   final int index;

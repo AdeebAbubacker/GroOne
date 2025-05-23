@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
@@ -26,40 +25,30 @@ class ApiService {
   }
 
 
-  // Header
+  /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
-    final username = dotenv.env["API_BASIC_AUTH_USERNAME"];
-    final password = dotenv.env["API_BASIC_AUTH_PASSWORD"];
-
-    if (username == null || password == null) {
-      throw Exception("Missing API credentials in environment variables");
-    }
-
-    final basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
-
-    return {
+       return {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
-      'Authorization': basicAuth,
     };
   }
 
 
-  // Clear Cache
+  /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
     await _cacheManager.clearAll();
   }
 
 
-  // Generate Cache
+  /// Generate Cache
   Future<String> _generateCacheKey(String url, Map<String, dynamic>? queryParams) async {
     var queryParamsString = queryParams != null ? base64.encode(utf8.encode(json.encode(queryParams))) : "";
     return "$url-$queryParamsString";
   }
 
 
-  // Get
+  /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken}) async {
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url,n\,QueryParams : $queryParams");
     try {
@@ -89,7 +78,7 @@ class ApiService {
   }
 
 
-  // Post
+  /// Post
   Future<Result<dynamic>> post(String url, {dynamic body,  Map<String, dynamic>? queryParams }) async {
     Object prettyBodyString;
     if(queryParams != null){
@@ -118,6 +107,40 @@ class ApiService {
   }
 
 
+  /// Put
+  Future<Result<dynamic>> put(String url, {dynamic body, Map<String, dynamic>? queryParams}) async {
+    Object prettyBodyString;
+    if (queryParams != null) {
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
+    } else {
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
+    }
+    CustomLog.debug(this, "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString");
+    try {
+      if (!HasInternetConnection.isInternet) {
+        return Error(InternetNetworkError());
+      }
+      final response = await _dio.put(
+        url,
+        data: body,
+        queryParameters: queryParams,
+        options: Options(
+          headers: await _getHeaders(),
+          sendTimeout: _timeout.inMilliseconds,
+          receiveTimeout: _timeout.inMilliseconds,
+        ),
+      );
+      return _handleBodyResponse(response);
+    } on DioError catch (dioError) {
+      return _handleDioError(dioError);
+    } catch (exception) {
+      CustomLog.error(this, "Generic HTTP call error", exception);
+      return Error(GenericError());
+    }
+  }
+
+
+
   // Delete
   Future<Result<dynamic>> delete(String url) async {
     CustomLog.debug(this, "Method: Delete, URL: $url");
@@ -125,7 +148,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-
       final response = await _dio.delete(url,
         options: Options(
           headers: await _getHeaders(),
@@ -150,10 +172,8 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-
       final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
       CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString");
-
       FormData formData = FormData();
 
       // Handling file upload (single or multiple)
@@ -184,12 +204,10 @@ class ApiService {
       }else{
 
       }
-
       // Adding extra form fields if provided
       if (fields != null && fields.isNotEmpty) {
         formData.fields.addAll(fields.entries);
       }
-
       final response = await _dio.post(
         url,
         data: formData,
@@ -199,7 +217,6 @@ class ApiService {
           receiveTimeout: _timeout.inMilliseconds,
         ),
       );
-
       return _handleBodyResponse(response);
     } on DioError catch (dioError) {
       return _handleDioError(dioError);
@@ -210,9 +227,7 @@ class ApiService {
   }
 
 
-
-
-  // Handle Body Response
+  /// Handle Body Response
   Result<dynamic> _handleBodyResponse(Response response) {
     final prettyBodyString = const JsonEncoder.withIndent('  ').convert(response.data);
     CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: $prettyBodyString");
@@ -229,7 +244,7 @@ class ApiService {
   }
 
 
-  // Handel HTTP Error
+  /// Handel HTTP Error
   Result<dynamic> _handleHttpError(Response? response) {
     switch (response?.statusCode) {
       case 400:
@@ -251,7 +266,7 @@ class ApiService {
   }
 
 
-  // Handle Dio Error
+  /// Handle Dio Error
   Result<dynamic> _handleDioError(DioError error) {
     CustomLog.error(this, "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}", error);
     switch (error.type) {
@@ -266,7 +281,7 @@ class ApiService {
     }
   }
 
-  // Json to Query Params
+  /// Json to Query Params
   String jsonToQueryParams(Map<String, dynamic> json) {
     String stringQueryParams = "";
     try {
@@ -282,6 +297,7 @@ class ApiService {
     }
   }
 
+  ///
   String decodeQueryParams(String queryString) {
     return Uri.splitQueryString(queryString).entries.map((e) {
       final key = e.key;
@@ -291,12 +307,12 @@ class ApiService {
   }
 
 
-  // Get Response Result Status
+  /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
-    if (result[STATUS] == true) {
+    if (result[SUCCESS] == true) {
       final data = fromJson(result);
       return Success(data);
-    } else if (result[STATUS] == false) {
+    } else if (result[SUCCESS] == false) {
       return Error(ErrorWithMessage(message: result[MESSAGE]));
     } else {
       return Error(ResponseStatusFailed());

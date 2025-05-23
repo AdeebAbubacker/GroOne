@@ -18,10 +18,10 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: isLoading == true ? (){} : (){
+      onPressed: !disableButton?isLoading == true ? (){} : (){
         commonHapticFeedback();
         onPressed?.call();
-      },
+      }:null,
       style: isLoading == true ? AppButtonStyle.disableButton : disableButton?AppButtonStyle.disableButton: (style ?? AppButtonStyle.primary),
       child: isLoading == true
           ? const CupertinoActivityIndicator()

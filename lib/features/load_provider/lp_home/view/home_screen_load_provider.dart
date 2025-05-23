@@ -30,9 +30,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool checkBoxBool = false;
 
   void _showKycBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showBottomSheet(
       context: context,
-      isScrollControlled: true,
+
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -40,7 +40,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         return StatefulBuilder(
           builder: (context1, setStateBuilder) {
             return Container(
-              height: 320.h,
+
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: const BorderRadius.only(
@@ -51,109 +51,111 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textAlign: TextAlign.left,
-                      "Verify Your KYC",
-                      style: AppTextStyle.textBlackColor20w500,
-                    ),
-                    15.height,
-
-                    AppTextField(
-                      decoration: commonInputDecoration(
-                        hintText: "xxxx xxxx 9123",
-                        fillColor: AppColors.white,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        textAlign: TextAlign.left,
+                        "Verify Your KYC",
+                        style: AppTextStyle.textBlackColor20w500,
                       ),
-                      keyboardType: TextInputType.number,
+                      15.height,
 
-                      labelText: "Enter Aadhar Card Number",
-                      labelTextStyle: AppTextStyle.textBlackColor16w400,
-                    ),
+                      AppTextField(
+                        decoration: commonInputDecoration(
+                          hintText: "xxxx xxxx 9123",
+                          fillColor: AppColors.white,
+                        ),
+                        keyboardType: TextInputType.number,
 
-                    20.height,
-                    customCheckbox(
-                      context: context,
-                      text: context.appText.iAgree,
-                      onTap: () {
-                        checkBoxBool = !checkBoxBool;
-                        setStateBuilder(() {});
-                      },
-                      selected: checkBoxBool,
-                    ),
-                    20.height,
-                    AppButton(
-                      title: "Verify Aadhar",
-                      onPressed: () {
-                        context.pop();
-                        context.push(AppRouteName.kycScreen).then((v){
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            // Dismiss only with button if needed
-                            builder: (BuildContext context) {
-                              return showAlertDialogue(hideButtonButtons: true,
-                                context: context,
-                                onClickYesButton: () {},
-                                child: Column(
-                                  spacing: 20.h,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: GestureDetector(
-                                        onTap: () => Navigator.of(context).pop(),
-                                        child: const Icon(Icons.close, size: 24),
-                                      ),
-                                    ),
+                        labelText: "Enter Aadhar Card Number",
+                        labelTextStyle: AppTextStyle.textBlackColor16w400,
+                      ),
 
-                                    // Illustration
-                                    Image.asset(
-                                      AppImage.png.blueMembership,
-                                      // replace with your image asset
-                                      height: 150,
-                                    ),
-
-                                    // Title
-                                    const Text(
-                                      "Blue membership ID\ngenerated Successfully",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-
-                                    // Subtitle
-                                    const Text(
-                                      "Start exploring premium load\noptions today",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        });
-                      },
-                    ),
-                    Center(
-                      child: TextButton(
+                      20.height,
+                      customCheckbox(
+                        context: context,
+                        text: context.appText.iAgree,
+                        onTap: () {
+                          checkBoxBool = !checkBoxBool;
+                          setStateBuilder(() {});
+                        },
+                        selected: checkBoxBool,
+                      ),
+                      20.height,
+                      AppButton(
+                        title: "Verify Aadhar",
                         onPressed: () {
                           context.pop();
+                          context.push(AppRouteName.kycScreen).then((v){
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              // Dismiss only with button if needed
+                              builder: (BuildContext context) {
+                                return showAlertDialogue(hideButtonButtons: true,
+                                  context: context,
+                                  onClickYesButton: () {},
+                                  child: Column(
+                                    spacing: 20.h,
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: GestureDetector(
+                                          onTap: () => Navigator.of(context).pop(),
+                                          child: const Icon(Icons.close, size: 24),
+                                        ),
+                                      ),
+
+                                      // Illustration
+                                      Image.asset(
+                                        AppImage.png.blueMembership,
+                                        // replace with your image asset
+                                        height: 150,
+                                      ),
+
+                                      // Title
+                                      const Text(
+                                        "Blue membership ID\ngenerated Successfully",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
+                                      // Subtitle
+                                      const Text(
+                                        "Start exploring premium load\noptions today",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          });
                         },
-                        child: Text(
-                          "I’ll do it later",
-                          style: AppTextStyle.primaryColor16w400.copyWith(
-                            decoration: TextDecoration.underline,
+                      ),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: Text(
+                            "I’ll do it later",
+                            style: AppTextStyle.primaryColor16w400.copyWith(
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );

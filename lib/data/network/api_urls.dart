@@ -9,12 +9,14 @@ class ApiUrls {
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
   static String get _path => "/api";
   static String get _v1 => "/v1";
+  static String get _auth => "/auth";
   static String get _vp => "/vp";
   static String get _lp => "/lp";
   static String get _customer => "/customer";
 
   // Base URL
   static String get _baseUrl => "$_fetchUrl$_path$_v1$_customer";
+  static String get _baseUrlWithAuth => "$_fetchUrl$_path$_v1$_auth$_customer";
   static String  baseUrl = _baseUrl;
 
   // VP Endpoints
@@ -22,6 +24,8 @@ class ApiUrls {
 
   // LP Endpoints
   static String  createLpAccount = "$baseUrl$_lp/3";
+  static String  login = "$_baseUrlWithAuth/login";
+  static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
 
 
 }

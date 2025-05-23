@@ -11,6 +11,12 @@ import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../features/choose_role_screen/bloc/role_bloc.dart';
+import '../features/login/bloc/login_bloc.dart';
+import '../features/login/repository/login_repository.dart';
+import '../features/login/service/login_service.dart';
+import '../features/otp_verification/bloc/otp_bloc.dart';
+import '../features/otp_verification/repository/otp_repository.dart';
+import '../features/otp_verification/service/otp_service.dart';
 
 var locator = GetIt.instance;
 
@@ -34,16 +40,22 @@ void initLocator() {
 
     // Service
     locator.registerLazySingleton(() => SignInService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
+    locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
 
 
     // Repository
     locator.registerLazySingleton(() => SignInRepository(locator<SignInService>()));
+    locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
+    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>()));
 
 
     // Bloc
     locator.registerFactory(() => SignInBloc(locator<SignInRepository>()));
     locator.registerFactory(() => LanguageBloc());
     locator.registerFactory(() => RoleBloc());
+    locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
+    locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

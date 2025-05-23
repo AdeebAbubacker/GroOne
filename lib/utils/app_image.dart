@@ -12,6 +12,9 @@ class PngImages {
   static const String _pngImageBasePath = "assets/images/png/";
   ///Prabhat======================+>
   final String appIcon = "${_pngImageBasePath}appIcon.png";
+  final String translateImage = "${_pngImageBasePath}translateImage.png";
+  final String customerSupportImage = "${_pngImageBasePath}customerSupportImage.png";
+  final String customerSupport = "${_pngImageBasePath}customerSupport.png";
   final String blueMembership = "${_pngImageBasePath}blueMembership.jpeg";
   final String cards = "${_pngImageBasePath}cards.png";
   final String upi = "${_pngImageBasePath}upi.png";

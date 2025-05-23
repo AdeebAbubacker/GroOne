@@ -13,6 +13,7 @@ import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
+import '../../../utils/extra_utils.dart';
 import '../bloc/role_bloc.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
@@ -25,6 +26,13 @@ class ChooseRoleScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
 
         actions: [
+          translateWiget(onTap: (){}),    20.width,
+          customerSupportWidget(onTap: (){
+
+            showCustomerCareBottomSheet(context);
+
+          }),
+          20.width,
           Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
           30.width,
         ],
