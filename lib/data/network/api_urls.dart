@@ -14,14 +14,17 @@ class ApiUrls {
   static String get _customer => "/customer";
 
   // Base URL
-  static String get _baseUrl => "$_fetchUrl$_path$_v1$_customer";
+  static String get _baseUrl => "$_fetchUrl$_path$_v1";
   static String  baseUrl = _baseUrl;
 
+  // Common Api
+  static String  upload = "$baseUrl/upload";
+
   // VP Endpoints
-  static String  createVpAccount = "$baseUrl$_vp/4";
+  static String  createVpAccount = "$baseUrl$_customer$_vp/4";
 
   // LP Endpoints
-  static String  createLpAccount = "$baseUrl$_lp/3";
+ static String  createLpAccount = "$baseUrl$_customer$_lp/3";
 
 
 }

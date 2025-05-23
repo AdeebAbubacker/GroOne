@@ -822,6 +822,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'*Excluding GST'**
   String get excludingGST;
+
+  /// No description provided for @pinCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Pincode'**
+  String get pinCode;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

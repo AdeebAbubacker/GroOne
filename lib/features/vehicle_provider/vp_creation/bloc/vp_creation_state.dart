@@ -1,6 +1,5 @@
 part of 'vp_creation_bloc.dart';
 
-@immutable
 sealed class VpCreationState {}
 
 class VpCreationInitial extends VpCreationState {}
@@ -8,8 +7,8 @@ class VpCreationInitial extends VpCreationState {}
 class VpCreationLoading extends VpCreationState {}
 
 class VpCreationSuccess extends VpCreationState {
-  final SignInModel signInModel;
-  VpCreationSuccess(this.signInModel);
+  final VpCreationModel vpCreationModel;
+  VpCreationSuccess(this.vpCreationModel);
 }
 
 class VpCreationError extends VpCreationState {

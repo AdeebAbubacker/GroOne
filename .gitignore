@@ -34,8 +34,7 @@ migrate_working_dir/
 /build/
 /dart_tool/
 .pubspec.lock
-.idea
-
+.idea/
 
 # Symbolication related
 app.*.symbols

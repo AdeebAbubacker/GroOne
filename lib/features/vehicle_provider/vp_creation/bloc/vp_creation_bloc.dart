@@ -1,10 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/sign_in/api_request/sign_in_api_request.dart';
-import 'package:gro_one_app/features/sign_in/model/sign_in_model.dart';
-import 'package:gro_one_app/features/sign_in/repository/sign_in_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
-import 'package:meta/meta.dart';
 
 part 'vp_creation_event.dart';
 part 'vp_creation_state.dart';
@@ -16,7 +14,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     on<VpCreationRequested>((event, emit) async {
       emit(VpCreationLoading());
       Result result = await _repository.requestSignIn(event.apiRequest);
-      if (result is Success<SignInModel>) {
+      if (result is Success<VpCreationModel>) {
         emit(VpCreationSuccess(result.value));
       } else if (result is Error) {
         emit(VpCreationError(result.type));

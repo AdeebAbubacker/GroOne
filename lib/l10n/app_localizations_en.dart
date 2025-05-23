@@ -370,4 +370,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get excludingGST => '*Excluding GST';
+
+  @override
+  String get pinCode => 'Pincode';
 }
