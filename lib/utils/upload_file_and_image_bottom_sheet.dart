@@ -19,8 +19,17 @@ class UploadFileAndImageBottomSheet extends StatefulWidget {
 
 class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottomSheet> {
 
-  var exitIcons = [AppIcons.svg.camera, AppIcons.svg.gallery];
-  var exitNames = [AppString.label.fromCamera, AppString.label.fromGallery];
+  final List<String> icons = [
+    AppIcons.svg.camera,
+    AppIcons.svg.gallery,
+    AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
+  ];
+
+  final List<String> labels = [
+    AppString.label.fromCamera,
+    AppString.label.fromGallery,
+    "File"
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -43,25 +52,23 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
           20.height,
           Column(
             children: [
-              for (var i = 0; i < exitIcons.length; i++) ...[
+              for (var i = 0; i < icons.length; i++) ...[
                 InkWell(
                   onTap: () async {
                     if (i == 0) {
-                      // final status = await Permission.camera.request();
-                      //  print(status);
-                      //  if (status.isGranted) {
-                      await ImagePickerFrom.fromCamera().then((value) => Navigator.of(context).pop(value));
-                      //  }else{
-                      // openAppSettings();
-                      // }
+                      final result = await ImagePickerFrom.fromCamera();
+                      if(!context.mounted) return;
+                      if (result != null) Navigator.of(context).pop(result);
+                    } else if (i == 1) {
+                      final result = await ImagePickerFrom.fromGallery();
+                      if(!context.mounted) return;
+                      if (result != null) Navigator.of(context).pop(result);
                     } else {
-                      // final status = await Permission.storage.request();
-                      // if (status.isGranted) {
-                      // } else {
-                      //   openAppSettings();
-                      // }
-                      ImagePickerFrom.fromGallery().then((value) => Navigator.of(context).pop(value));
-
+                      final files = await pickMultipleFile();
+                      if(!context.mounted) return;
+                      if (files != null && files.isNotEmpty) {
+                        Navigator.of(context).pop(files);
+                      }
                     }
                   },
                   child: SizedBox(
@@ -69,19 +76,15 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
                     child: Row(
                       children: [
                         10.width,
-                        SvgPicture.asset(exitIcons[i], colorFilter : AppColors.svg(AppColors.greyIconColor)),
+                        SvgPicture.asset(icons[i], colorFilter : AppColors.svg(AppColors.greyIconColor)),
                         20.width,
-                        Text(exitNames[i].toString(), style: AppTextStyle.body2)
+                        Text(labels[i].toString(), style: AppTextStyle.body2)
                       ],
                     ),
                   ),
                 ),
-                if (i != exitIcons.length - 1)
-                  const Divider(
-                      color: AppColors.dividerColor,
-                      indent: 55,
-                      thickness: 0.5,
-                  ),
+                if (i != icons.length - 1)
+                  const Divider(color: AppColors.dividerColor, indent: 55, thickness: 0.5),
               ],
             ],
           ),

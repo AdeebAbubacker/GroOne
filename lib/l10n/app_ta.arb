@@ -51,6 +51,62 @@
   "upcomingTrips": "வரவிருப்பவை",
   "profile": "சுயவிவரம்",
   "kyc": "KYC",
+  "myAccount": "என் கணக்கு",
+  "recentAddedLoad": "சமீபத்திய கூடுதல் சுமை",
+  "accept" : "ஏற்றுக்கொள்",
+  "seeMore" : "மேலும் காண்க",
+  "availableLoads" : "கிடைக்கும் சுமைகள்",
+  "filter" : "வடிகட்டி",
+  "thisFieldIsRequired" : "இந்த புலம் தேவை",
+  "vehicleType" : "வாகன வகை",
+  "selectVehicleType" : "வாகன வகையைத் தேர்ந்தெடுக்கவும்",
+  "lane" : "சந்து",
+  "selectLaneType" : "பாதை வகையைத் தேர்ந்தெடுக்கவும்",
+  "roadType" : "சாலை வகை",
+  "selectRoadType" : "சாலை வகையைத் தேர்ந்தெடுக்கவும்",
+  "cancel" : "ரத்துசெய்",
+  "apply" : "விண்ணப்பிக்கவும்",
+  "tripTracking" : "பயண கண்காணிப்பு",
+  "allTrip" : "அனைத்து பயணம்",
+  "upcoming" : "வரவிருக்கும்",
+
+  "createAccount": "கணக்கு உருவாக்கவும்",
+  "name": "பெயர்",
+  "phoneNumber": "மொபைல் எண்",
+  "businessName": "வணிக விவரங்கள்",
+  "companyName": "நிறுவனத்தின் பெயர்",
+  "truckType": "டிரக் வகை",
+  "ownedTrucks": "உரிமையுள்ள டிரக்குகள்",
+  "attachedTrucks": "இணைக்கப்பட்ட டிரக்குகள்",
+  "preferredLanes": "விருப்ப பாதைகள்",
+  "businessProof": "வணிக சான்று",
+  "uploadRC": "RC பதிவேற்றம் செய்யவும் (1 டிரக்கிற்காக)",
+  "uploadDocument": "ஆவணத்தை பதிவேற்றுக",
+  "aadhaarNumber": "ஆதார் எண் (விருப்பமானது)",
+  "aadhaarHint": "xxxx xxxx xxxx",
+  "submit": "சமர்ப்பிக்கவும்",
+  "selectTruckType" : "டிரக் வகையைத் தேர்ந்தெடுக்கவும்",
+
+
+  "kavach" : "கவசம்",
+  "benefitsOfKavach" : "கவாக்கின் நன்மைகள்",
+  "benefitsOfKavachHeading1": "எந்த அநியாயமான குற்றச்சாட்டும் இல்லை எரிபொருள் இழப்புக்கு",
+  "benefitsOfKavachHeading2": "திருட்டு விசாரணைகளால் ஏற்படும் தாமதத்தைத் தவிர்க்கிறது",
+  "benefitsOfKavachSubHeading1": "KAVACH, எரிபொருள் திருட்டில் தவறாக குற்றம் சாட்டப்படுவதை வாகன ஓட்டிகளை பாதுகாக்கிறது.",
+  "benefitsOfKavachSubHeading2": "எரிபொருள் திருட்டு பிரச்சனைகளால் நேரம் வீணாவதை தவிர்த்து ஓட்டுநர்களை திட்டமிட்டு இயங்கச் செய்கிறது.",
+  "kavachModels" : "கவச மாதிரிகள்",
+  "buyNow" : "இப்போது வாங்க",
+  "enter" : "உள்ளிடவும்",
+  "sortBy" : "வரிசைப்படுத்தவும்",
+  "models" : "மாதிரிகள்",
+  "excludingGST" :"*ஜிஎஸ்டி தவிர"
+
+
+
+
+
+
+
   "recentAddedLoad": "சமீபத்தில் சேர்க்கப்பட்ட சரக்கு",
   "accept": "ஏற்கவும்",
   "availableLoads": "கிடைக்கும் சரக்குகள்",

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/aadhaar_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
@@ -31,7 +34,53 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final attachedTruckTextController = TextEditingController();
   final aadhaarNumberTextController = TextEditingController();
 
+  String? truckTypeDropDownValue;
+  String? preferredLanesDropDownValue;
+
   List<dynamic> multiFilesList = [];
+
+  final List<String> truckTypeList = [
+    'Open Truck',
+    'Close Truck'
+  ];
+
+  final List<String> preferredLanesList = [
+    'Chennai - Mumbai',
+    'Chennai -  Pune',
+    'Chennai - Delhi',
+    'Chennai - Bangalore',
+    'Mumbai - Hyderabad',
+    'Mumbai - Chennai',
+    'Mumbai - Pune',
+    'Mumbai - Delhi',
+    'Mumbai - Bangalore',
+  ];
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() {
+    CustomLog.debug(this, ApiUrls.baseUrl);
+    CustomLog.debug(this, ApiUrls.createLpAccount);
+    CustomLog.debug(this, ApiUrls.createVpAccount);
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {
+
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +92,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             buildNameAndPhoneNumberWidget(),
             30.height,
 
-            buildBusinessDetailsWidget(),
+            buildBusinessDetailsWidget(context),
             30.height,
 
             buildBusinessProofWidget(),
@@ -64,7 +113,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
           controller: nameTextController,
-          labelText: context.appText.appName,
+          labelText: context.appText.name,
+          hintText: "${context.appText.enter} ${context.appText.name}",
         ),
         20.height,
 
@@ -76,6 +126,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           maxLength: 10,
           inputFormatters: [phoneNumberInputFormatter],
           decoration: commonInputDecoration(
+            hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
             prefixIcon: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               mainAxisSize: MainAxisSize.min,
@@ -84,7 +135,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 10.width,
                 Text("+91", style: AppTextStyle.textBlackColor16w400),
               ],
-            ).paddingOnly(left: 20),
+            ).paddingOnly(left: 20, right: 5),
           ),
         )
       ],
@@ -92,19 +143,38 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
   // Business Details
-  Widget buildBusinessDetailsWidget(){
+  Widget buildBusinessDetailsWidget(BuildContext context){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(context.appText.businessName, style: AppTextStyle.body1PrimaryColor),
         20.height,
 
-        // Business Name
+        // Company Name
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
           controller: companyNameTextController,
           labelText: context.appText.companyName,
+          hintText: "${context.appText.enter} ${context.appText.companyName}",
         ),
+        20.height,
+
+        // TrucK Type
+        AppDropdown(
+          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.truckType),
+          labelText: context.appText.truckType,
+          hintText: context.appText.selectTruckType,
+          dropdownValue: truckTypeDropDownValue,
+          decoration: commonInputDecoration(),
+          dropDownList: truckTypeList.map((e) => DropdownMenuItem(
+            value: e,
+            child: Text(e, style: AppTextStyle.body),
+          )).toList(),
+          onChanged: (onChangeValue) {
+            truckTypeDropDownValue = onChangeValue;
+          },
+        ),
+        //MultiPickerSelection(labelText: context.appText.truckType, hintText: ""),
         20.height,
 
         // Owned Truck
@@ -112,6 +182,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           validator: (value)=> Validator.fieldRequired(value),
           controller: ownedTruckTextController,
           labelText: context.appText.ownedTrucks,
+          hintText: "${context.appText.enter} ${context.appText.ownedTrucks}",
         ),
         20.height,
 
@@ -120,7 +191,26 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           validator: (value)=> Validator.fieldRequired(value),
           controller: attachedTruckTextController,
           labelText: context.appText.attachedTrucks,
+          hintText: "${context.appText.enter} ${context.appText.attachedTrucks}",
         ),
+        20.height,
+
+        // Preferred Lane
+        AppDropdown(
+          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.preferredLanes),
+          labelText: context.appText.preferredLanes,
+          hintText: context.appText.selectLaneType,
+          dropdownValue: preferredLanesDropDownValue,
+          decoration: commonInputDecoration(),
+          dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
+            value: e,
+            child: Text(e, style: AppTextStyle.body),
+          )).toList(),
+          onChanged: (onChangeValue) {
+            preferredLanesDropDownValue = onChangeValue;
+          },
+        ),
+       // MultiPickerSelection(labelText: context.appText.preferredLanes, hintText: ""),
       ],
     );
   }
@@ -133,7 +223,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         Text(context.appText.businessProof, style: AppTextStyle.body1PrimaryColor),
         20.height,
 
-        UploadAttachmentFiles(multiFilesList: multiFilesList),
+        UploadAttachmentFiles(
+          multiFilesList: multiFilesList,
+          title: context.appText.uploadRC,
+          isSingleFile: true,
+        ),
         20.height,
 
         // Aadhaar Number

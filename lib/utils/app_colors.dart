@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color primaryColor =Color(0xFF003CFF);
   static const Color textBlackDetailColor =Color(0xFF090909);
   static const Color textGreyDetailColor =Color(0xFF545759);
 
@@ -32,55 +31,74 @@ class AppColors {
   static const greenColor=Color(0xFF027A48);
   static final Color disableColor = Color(0xFFB8B8B8);
 
-  static const Color primaryTextColor = Color(0xff292D32);
+  // Root Color
+  static const Color primaryColor =Color(0xFF003CFF);
   static const Color secondaryColor = Color(0xff4D4D4D);
-  static const Color greyTextColor = Colors.black38;
-  static const Color textFieldFillColor = Color(0xffF8FAFC);
-  static const Color searchFillColor = Color(0xffF2F2F3);
-  static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
-
-  static const Color scaffoldBackgroundColor = Color(0xffFCFCFC);
-  static const Color appBarBackgroundColor = Colors.white;
-
-  static const Color primaryButtonColor = primaryColor;
-  static const Color secondaryButtonColor = Color(0xff222831);
-
-  static const Color activeGreenColor = CupertinoColors.activeGreen;
   static const Color lightPrimaryColor = Color(0xffD6EEFB);
   static const Color extraLightPrimaryColor = Color(0xffFFFFCF2);
-  static const Color activeBlueColor = CupertinoColors.activeBlue;
-  static const Color greyIconColor = Colors.black38;
-  static const Color lightGreyIconColor = Colors.black26;
-  static const Color defaultIconTint = Colors.white;
-  static const Color iconColor = Color(0xff606060);
+
+  // Text Color
+  static const Color primaryTextColor = Color(0xff292D32);
+  static const Color greyTextColor = Colors.black38;
   static const Color lightGreyTextColor = Color(0xff606060);
+  static const Color textFieldFillColor = Color(0xffF8FAFC);
+  static const Color searchFillColor = Colors.white;
+  static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;
-  static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
-  static final Color lightGreyIconBackgroundColor = Colors.grey.shade200;
-  static const Color lightGreyColor = Color(0xffF8FAFC);
-  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
-  static const Color darkGreyColor = Color(0xff838383);
+
+  // Body & Appbar color
+  static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
+  static const Color appBarBackgroundColor = Colors.white;
+
+  // Button Color
+  static const Color primaryButtonColor = primaryColor;
+  static const Color secondaryButtonColor = Color(0xff222831);
+  static const Color deActiveButtonColor = Color(0xffe3e3e8);
+
+  // Border and Shadow Color
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);
   static const Color lightDividerColor = Colors.black12;
   static const Color darkDividerColor = Color(0xff707070);
-  static const Color deActiveButtonColor = Color(0xffe3e3e8);
+
+  // Shimmer Color
   static final Color shimmerBaseColor = Colors.grey.shade100;
   static const Color shimmerHighlightColor = Colors.white10;
 
+  // Icon Color
+  static const Color iconColor = Color(0xff606060);
+  static const Color defaultIconTint = Colors.white;
+  static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
+  static const Color lightGreyIconColor = Colors.black26;
+  static final Color lightGreyIconBackgroundColor = Colors.grey.shade200;
+  static const Color greyIconColor = Colors.black38;
+
+  // Activity Color
+  static const Color activeGreenColor = CupertinoColors.activeGreen;
+  static const Color activeBlueColor = CupertinoColors.activeBlue;
+  static const Color activeRedColor = CupertinoColors.systemRed;
+
+  // Others Colors
+  static const Color lightGreyColor = Color(0xffF8FAFC);
+  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
+  static const Color darkGreyColor = Color(0xff838383);
   static const Color chipBackgroundColor = Color(0xFFF4F0E9);
   static const Color textColor = Color(0xFF512B15);
   static const Color titleTextColor = Color(0xFF5A6474);
   static const Color blueColor = Color(0xFF0A4DFF);
+  static const Color uploadedDocBgColor = Color(0xFFF2F5FF);
+
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }
 
+  // SVG Colors shortcut
   static ColorFilter svg(Color color) {
     return ColorFilter.mode(color, BlendMode.srcIn);
   }
 
+  // Gradient Color
   static List<Color> buttonGradientColor = [
     primaryColor.withAlpha(450),
     primaryColor,

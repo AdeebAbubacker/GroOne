@@ -240,7 +240,7 @@ Widget docsGridDesign(String docType) {
 }
 
 Widget iconsGridDesign(icon) {
-  return Icon(icon, color: icon == CupertinoIcons.photo_on_rectangle ? AppColors.greyIconColor : AppColors.greyIconColor, size: 20);
+  return Icon(icon, color: AppColors.primaryColor, size: 20);
 }
 
 /// App Loader
