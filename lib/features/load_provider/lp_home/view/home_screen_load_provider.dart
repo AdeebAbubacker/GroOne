@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
@@ -44,23 +45,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         ),
         toolbarHeight: 50.h,
         actions: [
-          Container(
-            height: 36.h,
-            width: 36.w,
-            decoration: BoxDecoration(
-              color: Colors.redAccent.shade100,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Center(
-              child: Text(
-                context.appText.kyc,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
+          kycWidget(onTap: () {
+
+          },),
           5.width,
           InkWell(
             onTap: () {

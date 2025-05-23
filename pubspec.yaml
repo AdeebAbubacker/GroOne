@@ -111,6 +111,14 @@ dependencies:
   equatable: ^2.0.7
   dotted_line: ^3.2.3
   timeline_tile: ^2.0.0
+  google_maps_flutter: ^2.12.2
+  flutter_map_animations:
+  flutter_polyline_points: ^2.0.0
+  location: ^8.0.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^11.0.0
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
