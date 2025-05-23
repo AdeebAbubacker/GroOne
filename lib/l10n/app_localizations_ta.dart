@@ -267,6 +267,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get submit => 'சமர்ப்பிக்கவும்';
 
   @override
+  String get selectTruckType => 'டிரக் வகையைத் தேர்ந்தெடுக்கவும்';
+
+  @override
   String get benefitsOfKavach => 'கவாக்கின் நன்மைகள்';
 
   @override

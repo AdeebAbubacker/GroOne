@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/widgets/multi_picker_selection.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/aadhaar_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
@@ -32,7 +34,53 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final attachedTruckTextController = TextEditingController();
   final aadhaarNumberTextController = TextEditingController();
 
+  String? truckTypeDropDownValue;
+  String? preferredLanesDropDownValue;
+
   List<dynamic> multiFilesList = [];
+
+  final List<String> truckTypeList = [
+    'Open Truck',
+    'Close Truck'
+  ];
+
+  final List<String> preferredLanesList = [
+    'Chennai - Mumbai',
+    'Chennai -  Pune',
+    'Chennai - Delhi',
+    'Chennai - Bangalore',
+    'Mumbai - Hyderabad',
+    'Mumbai - Chennai',
+    'Mumbai - Pune',
+    'Mumbai - Delhi',
+    'Mumbai - Bangalore',
+  ];
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() {
+    CustomLog.debug(this, ApiUrls.baseUrl);
+    CustomLog.debug(this, ApiUrls.createLpAccount);
+    CustomLog.debug(this, ApiUrls.createVpAccount);
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {
+
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +160,21 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // TrucK Type
-        MultiPickerSelection(labelText: context.appText.truckType, hintText: ""),
+        AppDropdown(
+          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.truckType),
+          labelText: context.appText.truckType,
+          hintText: context.appText.selectTruckType,
+          dropdownValue: truckTypeDropDownValue,
+          decoration: commonInputDecoration(),
+          dropDownList: truckTypeList.map((e) => DropdownMenuItem(
+            value: e,
+            child: Text(e, style: AppTextStyle.body),
+          )).toList(),
+          onChanged: (onChangeValue) {
+            truckTypeDropDownValue = onChangeValue;
+          },
+        ),
+        //MultiPickerSelection(labelText: context.appText.truckType, hintText: ""),
         20.height,
 
         // Owned Truck
@@ -133,8 +195,22 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         ),
         20.height,
 
-        // TrucK Type
-        MultiPickerSelection(labelText: context.appText.preferredLanes, hintText: ""),
+        // Preferred Lane
+        AppDropdown(
+          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.preferredLanes),
+          labelText: context.appText.preferredLanes,
+          hintText: context.appText.selectLaneType,
+          dropdownValue: preferredLanesDropDownValue,
+          decoration: commonInputDecoration(),
+          dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
+            value: e,
+            child: Text(e, style: AppTextStyle.body),
+          )).toList(),
+          onChanged: (onChangeValue) {
+            preferredLanesDropDownValue = onChangeValue;
+          },
+        ),
+       // MultiPickerSelection(labelText: context.appText.preferredLanes, hintText: ""),
       ],
     );
   }

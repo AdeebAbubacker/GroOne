@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/vp_creation_form_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';

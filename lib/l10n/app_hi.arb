@@ -83,6 +83,8 @@
   "aadhaarNumber": "आधार संख्या (वैकल्पिक)",
   "aadhaarHint": "xxxx xxxx xxxx",
   "submit": "जमा करें",
+  "selectTruckType" : "டிரக் வகையைத் தேர்ந்தெடுக்கவும்",
+
 
   "kavach": "कावाच",
   "benefitsOfKavach": "कावाच के लाभ",

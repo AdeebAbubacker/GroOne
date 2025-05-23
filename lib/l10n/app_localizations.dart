@@ -613,6 +613,12 @@ abstract class AppLocalizations {
   /// **'Submit'**
   String get submit;
 
+  /// No description provided for @selectTruckType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select truck type'**
+  String get selectTruckType;
+
   /// No description provided for @benefitsOfKavach.
   ///
   /// In en, this message translates to:

@@ -267,6 +267,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submit => 'Submit';
 
   @override
+  String get selectTruckType => 'Select truck type';
+
+  @override
   String get benefitsOfKavach => 'Benefits of KAVACH';
 
   @override

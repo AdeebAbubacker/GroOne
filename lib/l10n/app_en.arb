@@ -88,6 +88,7 @@
   "aadhaarNumber" : "Aadhaar Number(optional)",
   "aadhaarHint" : "xxxx xxxx xxxx",
   "submit" : "Submit",
+  "selectTruckType" : "Select truck type",
 
 
   "benefitsOfKavach" : "Benefits of KAVACH",

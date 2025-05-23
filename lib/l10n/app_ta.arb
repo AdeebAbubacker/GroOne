@@ -86,6 +86,8 @@
   "aadhaarNumber": "ஆதார் எண் (விருப்பமானது)",
   "aadhaarHint": "xxxx xxxx xxxx",
   "submit": "சமர்ப்பிக்கவும்",
+  "selectTruckType" : "டிரக் வகையைத் தேர்ந்தெடுக்கவும்",
+
 
   "kavach" : "கவசம்",
   "benefitsOfKavach" : "கவாக்கின் நன்மைகள்",

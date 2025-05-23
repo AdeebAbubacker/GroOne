@@ -267,6 +267,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get submit => 'जमा करें';
 
   @override
+  String get selectTruckType => 'டிரக் வகையைத் தேர்ந்தெடுக்கவும்';
+
+  @override
   String get benefitsOfKavach => 'कावाच के लाभ';
 
   @override

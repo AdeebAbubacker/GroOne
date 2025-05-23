@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -88,11 +90,17 @@ class ChooseRoleScreen extends StatelessWidget {
                     imageString: AppImage.png.fleet,
                   ),
                    5.height,
-                  AppButton(title:context.appText.next,
-
+                  AppButton(
+                    title:context.appText.next,
                     onPressed:() {
-                      context.push(AppRouteName.login);
-                    } ,),
+                      if(state.index == 0){
+                        context.push(AppRouteName.login);
+                      }
+                      if(state.index == 1){
+                        Navigator.push(context, commonRoute(const VpCreationFormScreen(), isForward: true));
+                      }
+                    },
+                  ),
                   // CustomButton(
                   //   buttonText: context.appText.next,
                   //   disable: true,
