@@ -41,12 +41,12 @@ class AppColors {
   static const Color greyTextColor = Colors.black38;
   static const Color lightGreyTextColor = Color(0xff606060);
   static const Color textFieldFillColor = Color(0xffF8FAFC);
-  static const Color searchFillColor = Color(0xffF2F2F3);
+  static const Color searchFillColor = Colors.white;
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;
 
   // Body & Appbar color
-  static const Color scaffoldBackgroundColor = Color(0xffFCFCFC);
+  static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
   static const Color appBarBackgroundColor = Colors.white;
 
   // Button Color

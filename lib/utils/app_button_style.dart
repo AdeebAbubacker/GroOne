@@ -71,9 +71,9 @@ class AppButtonStyle {
   /// Icon Button
   static ButtonStyle primaryIconButtonStyle = IconButton.styleFrom(
     enableFeedback: true,
-    surfaceTintColor: AppColors.lightGreyColor,
+    surfaceTintColor: Colors.white,
     splashFactory: NoSplash.splashFactory,
-    backgroundColor: AppColors.lightGreyIconBackgroundColor,
+    backgroundColor: Colors.white,
     fixedSize: Size(50, 50),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
     side: const BorderSide(color: AppColors.borderColor, width: 1),

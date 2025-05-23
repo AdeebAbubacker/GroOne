@@ -46,6 +46,7 @@ class SvgIcons {
   final String filter = "${_svgBasePath}filterOutline.svg";
   final String edit = "${_svgBasePath}edit_outline.svg";
   final String delete = "${_svgBasePath}trash.svg";
+  final String infOutline = "${_svgBasePath}infoCircleOutline.svg";
 
 }
 

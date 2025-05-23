@@ -34,12 +34,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context){
     return CommonAppBar(
       isLeading: false,
-      leading:  InkWell(
-        onTap: (){
-          Navigator.of(context).push(commonRoute(VpCreationFormScreen()));
-        },
-        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-      ),
+      leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         kycWidget().paddingRight(commonSafeAreaPadding),
       ],

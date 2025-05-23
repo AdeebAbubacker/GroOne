@@ -105,7 +105,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get instantLoan => 'तत्काल ऋण';
 
   @override
-  String get kavach => 'KAVACH';
+  String get kavach => 'कावाच';
 
   @override
   String get insurance => 'बीमा';
@@ -216,73 +216,73 @@ class AppLocalizationsHi extends AppLocalizations {
   String get allTrip => 'सभी यात्रा';
 
   @override
-  String get kavachModels => 'KAVACH Models';
+  String get kavachModels => 'कावाच मॉडल';
 
   @override
   String get upcoming => 'आगामी';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'खाता बनाएं';
 
   @override
-  String get name => 'Name';
+  String get name => 'नाम';
 
   @override
-  String get phoneNumber => 'Mobile Number';
+  String get phoneNumber => 'मोबाइल नंबर';
 
   @override
-  String get businessName => 'Business Details';
+  String get businessName => 'व्यवसाय विवरण';
 
   @override
-  String get companyName => 'Company Name';
+  String get companyName => 'कंपनी का नाम';
 
   @override
-  String get truckType => 'Truck Type';
+  String get truckType => 'ट्रक का प्रकार';
 
   @override
-  String get ownedTrucks => 'Owned Trucks';
+  String get ownedTrucks => 'स्वामित्व वाले ट्रक';
 
   @override
-  String get attachedTrucks => 'Attached Trucks';
+  String get attachedTrucks => 'संलग्न ट्रक';
 
   @override
-  String get preferredLanes => 'Preferred Lanes';
+  String get preferredLanes => 'पसंदीदा मार्ग';
 
   @override
-  String get businessProof => 'Business Proof';
+  String get businessProof => 'व्यवसाय प्रमाण';
 
   @override
-  String get uploadRC => 'Upload RC (for 1 Truck)';
+  String get uploadRC => 'आरसी अपलोड करें (1 ट्रक के लिए)';
 
   @override
-  String get uploadDocument => 'Upload document';
+  String get uploadDocument => 'दस्तावेज़ अपलोड करें';
 
   @override
-  String get aadhaarNumber => 'Aadhaar Number(optional)';
+  String get aadhaarNumber => 'आधार संख्या (वैकल्पिक)';
 
   @override
   String get aadhaarHint => 'xxxx xxxx xxxx';
 
   @override
-  String get submit => 'Submit';
+  String get submit => 'जमा करें';
 
   @override
-  String get benefitsOfKavach => 'Benefits of KAVACH';
+  String get benefitsOfKavach => 'कावाच के लाभ';
 
   @override
-  String get benefitsOfKavachHeading1 => 'No Unfair Blame for Fuel Loss';
+  String get benefitsOfKavachHeading1 => 'ईंधन की हानि पर कोई अनुचित दोष नहीं';
 
   @override
-  String get benefitsOfKavachHeading2 => 'Prevents Delay from Theft Investigations';
+  String get benefitsOfKavachHeading2 => 'चोरी की जांच से होने वाली देरी से बचाव';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'KAVACH protects drivers from being wrongly accused of fuel theft.';
+  String get benefitsOfKavachSubHeading1 => 'कावाच ड्राइवरों को ईंधन चोरी का गलत आरोप लगने से बचाता है।';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
+  String get benefitsOfKavachSubHeading2 => 'ईंधन चोरी की समस्याओं में समय बर्बाद होने से बचाकर ड्राइवरों को समय पर रखता है।';
 
   @override
-  String get buyNow => 'Buy Now';
+  String get buyNow => 'अभी खरीदें';
 
   @override
   String get myAccount => 'मेरा खाता';
@@ -358,4 +358,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get enter => 'Enter';
+
+  @override
+  String get sortBy => 'इसके अनुसार क्रमबद्ध करेंy';
+
+  @override
+  String get models => 'मॉडल';
+
+  @override
+  String get excludingGST => '*जीएसटी को छोड़कर';
 }

@@ -105,7 +105,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get instantLoan => 'உடனடி கடன்';
 
   @override
-  String get kavach => 'KAVACH';
+  String get kavach => 'கவசம்';
 
   @override
   String get insurance => 'காப்பீடு';
@@ -216,73 +216,73 @@ class AppLocalizationsTa extends AppLocalizations {
   String get allTrip => 'அனைத்து பயணம்';
 
   @override
-  String get kavachModels => 'KAVACH Models';
+  String get kavachModels => 'கவச மாதிரிகள்';
 
   @override
   String get upcoming => 'வரவிருக்கும்';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'கணக்கு உருவாக்கவும்';
 
   @override
-  String get name => 'Name';
+  String get name => 'பெயர்';
 
   @override
-  String get phoneNumber => 'Mobile Number';
+  String get phoneNumber => 'மொபைல் எண்';
 
   @override
-  String get businessName => 'Business Details';
+  String get businessName => 'வணிக விவரங்கள்';
 
   @override
-  String get companyName => 'Company Name';
+  String get companyName => 'நிறுவனத்தின் பெயர்';
 
   @override
-  String get truckType => 'Truck Type';
+  String get truckType => 'டிரக் வகை';
 
   @override
-  String get ownedTrucks => 'Owned Trucks';
+  String get ownedTrucks => 'உரிமையுள்ள டிரக்குகள்';
 
   @override
-  String get attachedTrucks => 'Attached Trucks';
+  String get attachedTrucks => 'இணைக்கப்பட்ட டிரக்குகள்';
 
   @override
-  String get preferredLanes => 'Preferred Lanes';
+  String get preferredLanes => 'விருப்ப பாதைகள்';
 
   @override
-  String get businessProof => 'Business Proof';
+  String get businessProof => 'வணிக சான்று';
 
   @override
-  String get uploadRC => 'Upload RC (for 1 Truck)';
+  String get uploadRC => 'RC பதிவேற்றம் செய்யவும் (1 டிரக்கிற்காக)';
 
   @override
-  String get uploadDocument => 'Upload document';
+  String get uploadDocument => 'ஆவணத்தை பதிவேற்றுக';
 
   @override
-  String get aadhaarNumber => 'Aadhaar Number(optional)';
+  String get aadhaarNumber => 'ஆதார் எண் (விருப்பமானது)';
 
   @override
   String get aadhaarHint => 'xxxx xxxx xxxx';
 
   @override
-  String get submit => 'Submit';
+  String get submit => 'சமர்ப்பிக்கவும்';
 
   @override
-  String get benefitsOfKavach => 'Benefits of KAVACH';
+  String get benefitsOfKavach => 'கவாக்கின் நன்மைகள்';
 
   @override
-  String get benefitsOfKavachHeading1 => 'No Unfair Blame for Fuel Loss';
+  String get benefitsOfKavachHeading1 => 'எந்த அநியாயமான குற்றச்சாட்டும் இல்லை எரிபொருள் இழப்புக்கு';
 
   @override
-  String get benefitsOfKavachHeading2 => 'Prevents Delay from Theft Investigations';
+  String get benefitsOfKavachHeading2 => 'திருட்டு விசாரணைகளால் ஏற்படும் தாமதத்தைத் தவிர்க்கிறது';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'KAVACH protects drivers from being wrongly accused of fuel theft.';
+  String get benefitsOfKavachSubHeading1 => 'KAVACH, எரிபொருள் திருட்டில் தவறாக குற்றம் சாட்டப்படுவதை வாகன ஓட்டிகளை பாதுகாக்கிறது.';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
+  String get benefitsOfKavachSubHeading2 => 'எரிபொருள் திருட்டு பிரச்சனைகளால் நேரம் வீணாவதை தவிர்த்து ஓட்டுநர்களை திட்டமிட்டு இயங்கச் செய்கிறது.';
 
   @override
-  String get buyNow => 'Buy Now';
+  String get buyNow => 'இப்போது வாங்க';
 
   @override
   String get myAccount => 'என் கணக்கு';
@@ -357,5 +357,14 @@ class AppLocalizationsTa extends AppLocalizations {
   String get needHelp => 'Need Help?';
 
   @override
-  String get enter => 'Enter';
+  String get enter => 'உள்ளிடவும்';
+
+  @override
+  String get sortBy => 'வரிசைப்படுத்தவும்';
+
+  @override
+  String get models => 'மாதிரிகள்';
+
+  @override
+  String get excludingGST => '*ஜிஎஸ்டி தவிர';
 }

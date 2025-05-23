@@ -358,4 +358,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enter => 'Enter';
+
+  @override
+  String get sortBy => 'Sort By';
+
+  @override
+  String get models => 'Models';
+
+  @override
+  String get excludingGST => '*Excluding GST';
 }
