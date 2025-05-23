@@ -12,9 +12,15 @@ class PngImages {
   static const String _pngImageBasePath = "assets/images/png/";
   ///Prabhat======================+>
   final String appIcon = "${_pngImageBasePath}appIcon.png";
+  final String blueMembership = "${_pngImageBasePath}blueMembership.jpeg";
+  final String cards = "${_pngImageBasePath}cards.png";
+  final String upi = "${_pngImageBasePath}upi.png";
+  final String netBanking = "${_pngImageBasePath}netBanking.png";
+  final String bankImage = "${_pngImageBasePath}bankImage.png";
   final String settings = "${_pngImageBasePath}settings.png";
   final String document = "${_pngImageBasePath}document.png";
   final String doc = "${_pngImageBasePath}doc.png";
+  final String truck = "${_pngImageBasePath}truck.png";
   final String privacy = "${_pngImageBasePath}privacy.png";
   final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
   final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";
@@ -28,7 +34,7 @@ class PngImages {
   final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";
   final String filter = "${_pngImageBasePath}filter.png";
-  final String truck = "${_pngImageBasePath}truck.png";
+
   final String tamilLanguage = "${_pngImageBasePath}tamilLanguage.png";
   final String hindiLanguage = "${_pngImageBasePath}hindiLanguage.png";
   final String lp = "${_pngImageBasePath}lp.png";

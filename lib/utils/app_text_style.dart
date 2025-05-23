@@ -97,6 +97,9 @@ class AppTextStyle {
   ); static TextStyle textBlackColor26w700 = textBlackColor20w500.copyWith(
     fontSize: 26.sp,
     fontWeight: FontWeight.w700
+  );static TextStyle textBlackColor15w700 = textBlackColor26w700.copyWith(
+    fontSize: 15.sp,
+
   );
   static TextStyle textBlackColor18w400 = textBlackColor20w500.copyWith(
     fontSize: 18.sp,

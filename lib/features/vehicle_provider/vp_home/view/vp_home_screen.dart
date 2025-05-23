@@ -41,7 +41,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       ),
       actions: [
-        kycWidget().paddingRight(commonSafeAreaPadding),
+        kycWidget(onTap: () {  }).paddingRight(commonSafeAreaPadding),
       ],
     );
   }

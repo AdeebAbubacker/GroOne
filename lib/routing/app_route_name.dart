@@ -11,6 +11,8 @@ class AppRouteName{
   static const String instantLoan = "/instantLoad";
   static const String insurance = "/insurance";
   static const String lpPayNowScreen = "/lpPayNowScreen";
+  static const String lpSelectPickPointScreen = "/lpSelectPickPointScreen";
+  static const String kycScreen = "/kycScreen";
 
   static const String lpValidateMemo = "/lpValidateMemo";
   static const String lpProfile = "/lpProfile";

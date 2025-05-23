@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../routing/app_route_name.dart';
 import '../../../utils/app_application_bar.dart';
@@ -14,16 +15,23 @@ import '../../../utils/app_image.dart';
 import '../../../utils/customButton.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key});
-
+  LoginScreen({super.key,required this.roleId});
+final int roleId;
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   FocusNode focusNode = FocusNode();
-  TextEditingController phoneNumber=TextEditingController();
+  TextEditingController phoneNumber = TextEditingController();
+  bool checkBoxBool = false;
+@override
+  void initState() {
 
+  debugPrint("Role Id ${widget.roleId}");
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,18 +51,18 @@ class _LoginScreenState extends State<LoginScreen> {
               spacing: 10.h,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                  30.height,
+                30.height,
 
                 Text(
                   context.appText.loginSingUp,
-                  style: AppTextStyle.textBlackColor30w500
+                  style: AppTextStyle.textBlackColor30w500,
                 ),
-          20.height,
+                20.height,
                 Text(
                   context.appText.enterMobileNumber,
-                  style:AppTextStyle. textBlackColor18w400
+                  style: AppTextStyle.textBlackColor18w400,
                 ),
-                  20.height,
+                20.height,
                 Row(
                   spacing: 5.w,
                   children: [
@@ -75,14 +83,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: 27.w,
                             AppImage.png.flag,
                           ),
-                          Text(
-                            "+91",
-                            style: AppTextStyle.textBlackColor16w400
-                          ),
+                          Text("+91", style: AppTextStyle.textBlackColor16w400),
                         ],
                       ),
                     ),
-               1.width,
+                    1.width,
                     Expanded(
                       child: Container(
                         height: 44.h,
@@ -98,9 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextFormField(
                           focusNode: focusNode,
                           onChanged: (va) {
-
                             if (va.length == 10) {
-                            focusNode.unfocus();
+                              focusNode.unfocus();
                             }
                           },
                           inputFormatters: [
@@ -108,19 +112,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             LengthLimitingTextInputFormatter(10),
                           ],
                           keyboardType: TextInputType.number,
-                          controller:  phoneNumber,
+                          controller: phoneNumber,
                           decoration: InputDecoration(border: InputBorder.none),
                         ),
                       ),
                     ),
                   ],
                 ),
-              20.height,
+                20.height,
                 CustomButton(
                   buttonText: context.appText.getOtp,
                   disable: true,
                   onClick: () {
-                   context.push(AppRouteName.otpVerificationScreen);
+                    context.push(AppRouteName.otpVerificationScreen);
                   },
                 ),
 
@@ -128,11 +132,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 RichText(
                   textAlign: TextAlign.start,
                   text: TextSpan(
-
                     children: [
                       TextSpan(
                         text: context.appText.agree,
-                        style: AppTextStyle.blackColor14w400
+                        style: AppTextStyle.blackColor14w400,
                       ),
                       TextSpan(
                         text: context.appText.termsAndConditions,
@@ -146,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextSpan(
                         text: context.appText.and,
-                        style: AppTextStyle.blackColor14w400
+                        style: AppTextStyle.blackColor14w400,
                       ),
                       TextSpan(
                         text: context.appText.privacyPolicy,
@@ -161,37 +164,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-            1.height,
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        // controller.termsAgree.value =
-                        //     !controller.termsAgree.value;
-                        // controller.update();
-                      },
-                      child: Container(
-                        height: 17.h,
-                        width: 17.w,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1.5,
-                          ),
-                        ),
-                        child:
-                            true
-                                ? Center(child: Icon(Icons.check, size: 13.h))
-                                : const SizedBox(),
-                      ),
-                    ),
-                     5.width,
-                    Text(
-                      context.appText.iAgree,
-                      style:AppTextStyle.textBlackColor12w400
-                    ),
-                  ],
+                1.height,
+                customCheckbox(
+                  context: context,
+                  text: context.appText.iAgree,
+                  onTap: () {
+                    checkBoxBool = !checkBoxBool;
+                    setState(() {});
+                  },
+                  selected: checkBoxBool,
                 ),
               ],
             ),

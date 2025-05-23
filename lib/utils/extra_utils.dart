@@ -17,11 +17,41 @@ String maskPhoneNumber(String phoneNumber) {
   return '+91 ${phoneNumber.substring(0, 3)}xx xxx${phoneNumber.substring(8)}';
 }
 
+Widget customCheckbox({
+  required BuildContext context,
+  required,
+  required String text,
+  required Function() onTap,
+  required bool selected,
+}) {
+  return Row(
+    children: [
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 17.h,
+          width: 17.w,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(color: AppColors.primaryColor, width: 1.5),
+          ),
+          child:
+              selected
+                  ? Center(child: Icon(Icons.check, size: 13.h))
+                  : const SizedBox(),
+        ),
+      ),
+      5.width,
+      Text(text, style: AppTextStyle.textBlackColor12w400),
+    ],
+  );
+}
+
 void showSuccessDialog(
   BuildContext context, {
   required String text,
   required String subheading,
-    GestureTapCallback? onTap,
+  GestureTapCallback? onTap,
 }) {
   showDialog(
     context: context,
@@ -32,7 +62,8 @@ void showSuccessDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24.0),
-          child: InkWell(onTap: onTap??(){},
+          child: InkWell(
+            onTap: onTap ?? () {},
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -60,8 +91,8 @@ void showSuccessDialog(
   );
 }
 
-headingText({required String text,TextStyle? appStyle}) {
-  return Text(text, style: appStyle??AppTextStyle.textBlackDetailColor16w500);
+headingText({required String text, TextStyle? appStyle}) {
+  return Text(text, style: appStyle ?? AppTextStyle.textBlackDetailColor16w500);
 }
 
 dividerWidget() {
@@ -146,63 +177,79 @@ normalButton({
   );
 }
 
-showCustomDialogue({required BuildContext context,required Widget child,  Widget? child2,GestureTapCallback? onClickButton,required String buttonText,bool disableButton=false})
-{
-  return Dialog(backgroundColor: AppColors.white,
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20)),
+showCustomDialogue({
+  required BuildContext context,
+  required Widget child,
+  Widget? child2,
+  GestureTapCallback? onClickButton,
+  required String buttonText,
+  bool disableButton = false,
+}) {
+  return Dialog(
+    backgroundColor: AppColors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     child: Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-         child,
-        30.height,
-          AppButton(disableButton: disableButton,title: buttonText,onPressed:onClickButton?? () {
-          // Handle verify action here
-          Navigator.pop(context);
-    },),
-          child2??const SizedBox()
+          child,
+          30.height,
+          AppButton(
+            disableButton: disableButton,
+            title: buttonText,
+            onPressed:
+                onClickButton ??
+                () {
+                  // Handle verify action here
+                  Navigator.pop(context);
+                },
+          ),
+          child2 ?? const SizedBox(),
         ],
       ),
     ),
   );
 }
 
-
-showAlertDialogue({required BuildContext context,required Widget child,required GestureTapCallback onClickYesButton}){
-  return Dialog(backgroundColor: AppColors.white,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(24.0),
-    ),
+showAlertDialogue({
+  required BuildContext context,
+  required Widget child,
+  required GestureTapCallback onClickYesButton,
+    bool hideButtonButtons=false,
+}) {
+  return Dialog(
+    backgroundColor: AppColors.white,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
     child: Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Close button
+          child,
 
-child,
-
-20.height,
+          20.height,
           // Buttons
-          Row(
+          hideButtonButtons?const SizedBox()  : Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // No Button
               Expanded(
-                child: normalButton(buttonText: "No", onTap: (){context.pop();})
+                child: normalButton(
+                  buttonText: "No",
+                  onTap: () {
+                    context.pop();
+                  },
+                ),
               ),
-           16.width,
+              16.width,
 
               // Yes Button
               Expanded(
-                child: SizedBox(  height: 32.h,
-                  child: AppButton(
-                    onPressed: onClickYesButton,
-
-                    title:  "Yes",
-                  ),
+                child: SizedBox(
+                  height: 32.h,
+                  child: AppButton(onPressed: onClickYesButton, title: "Yes"),
                 ),
               ),
             ],
@@ -213,10 +260,15 @@ child,
   );
 }
 
-statusButtonWidget({required Color statusBackgroundColor,required Color statusTextColor,required String statusText}){
+statusButtonWidget({
+  required Color statusBackgroundColor,
+  required Color statusTextColor,
+  required String statusText,
+  EdgeInsetsGeometry? margin,
+}) {
   return Container(
     height: 24.h,
-    margin: EdgeInsets.only(top: 17.h),
+    margin: margin ?? EdgeInsets.only(top: 17.h),
     padding: EdgeInsets.symmetric(horizontal: 15.w),
     decoration: BoxDecoration(
       color: statusBackgroundColor,
@@ -226,34 +278,28 @@ statusButtonWidget({required Color statusBackgroundColor,required Color statusTe
     child: Center(
       child: Text(
         statusText,
-        style: AppTextStyle.whiteColor14w400.copyWith(
-          color: statusTextColor,
-        ),
+        style: AppTextStyle.whiteColor14w400.copyWith(color: statusTextColor),
       ),
     ),
   );
 }
 
-draggableSheet({required List<Widget> child}){
-  return  DraggableScrollableSheet(
-    initialChildSize: 0.45.h,  // 10% of screen
-    minChildSize: 0.45.h,      // Minimum size
-    maxChildSize:1.h,      // Maximum size
+draggableSheet({required List<Widget> child}) {
+  return DraggableScrollableSheet(
+    initialChildSize: 0.45.h, // 10% of screen
+    minChildSize: 0.45.h, // Minimum size
+    maxChildSize: 1.h, // Maximum size
     builder: (context, scrollController) {
       return Container(
         decoration: BoxDecoration(
           color: AppColors.backgroundColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          boxShadow: [
-            BoxShadow(blurRadius: 20, color: Colors.black26),
-          ],
+          boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)],
         ),
         child: SingleChildScrollView(
           controller: scrollController,
-          child: Column(spacing: 10.h,
-            children: child,
-          ),
-        )
+          child: Column(spacing: 10.h, children: child),
+        ),
       );
     },
   );

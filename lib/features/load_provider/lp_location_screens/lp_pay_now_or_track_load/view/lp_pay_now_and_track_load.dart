@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -12,8 +14,56 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import '../../../../../utils/app_image.dart';
 
-class LpPayNowAndTrackLoad extends StatelessWidget {
+class LpPayNowAndTrackLoad extends StatefulWidget {
   const LpPayNowAndTrackLoad({super.key});
+
+  @override
+  State<LpPayNowAndTrackLoad> createState() => _LpPayNowAndTrackLoadState();
+}
+
+class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
+
+  late GoogleMapController mapController;
+  final LatLng _bengaluru = LatLng(26.8467, 80.9462);
+  final LatLng _chennai = LatLng(28.6139, 77.2090);
+  Set<Polyline> _polylines = {};
+  List<LatLng> polylineCoordinates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getRoute();
+  }
+
+  void _getRoute() async {
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleApiKey: 'AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY',
+      request: PolylineRequest(
+          origin: PointLatLng(_bengaluru.latitude, _bengaluru.longitude),
+          destination: PointLatLng(_chennai.latitude, _chennai.longitude),
+          mode: TravelMode.driving)
+
+
+
+    );
+
+    if (result.points.isNotEmpty) {
+      polylineCoordinates = result.points
+          .map((e) => LatLng(e.latitude, e.longitude))
+          .toList();
+
+      setState(() {
+        _polylines.add(
+          Polyline(
+            polylineId: PolylineId('route'),
+            color: Colors.blue,
+            width: 5,
+            points: polylineCoordinates,
+          ),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +71,18 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
       appBar: CommonAppBar(title: "Banglore - Chennai"),
       body: Stack(
         children: [
-          Center(child: Text("Map  View")),
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _bengaluru,
+              zoom: 7.5,
+            ),
+            markers: {
+              Marker(markerId: MarkerId('start'), position: _bengaluru),
+              Marker(markerId: MarkerId('end'), position: _chennai),
+            },
+            polylines: _polylines,
+            onMapCreated: (controller) => mapController = controller,
+          ),
           draggableSheet(
             child: [
               Container(
@@ -189,9 +250,9 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
                   children: [
                     15.height,
                     AppButton(title: "Pay Now",
-                    onPressed: (){
-                      context.push(AppRouteName.lpPayNowScreen);
-                    },),
+                      onPressed: () {
+                        context.push(AppRouteName.lpPayNowScreen);
+                      },),
                     10.height,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,7 +263,10 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
                             style: AppTextStyle.darkDividerColor16w400,
                           ),
                         ),
-                        statusButtonWidget(statusBackgroundColor: AppColors.appRedColor, statusTextColor: AppColors.textRed, statusText: "Pending")
+                        statusButtonWidget(
+                            statusBackgroundColor: AppColors.appRedColor,
+                            statusTextColor: AppColors.textRed,
+                            statusText: "Pending")
 
                       ],
                     ),
@@ -251,19 +315,19 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
                 ),
               ),
               tileWidget(
-                headingText: "Tracking",
-                statusText: "",
-                statusTextColor: AppColors.textRed,
-                statusBackgroundColor: AppColors.appRedColor,
-               child2: Column(
-                 children: [
+                  headingText: "Tracking",
+                  statusText: "",
+                  statusTextColor: AppColors.textRed,
+                  statusBackgroundColor: AppColors.appRedColor,
+                  child2: Column(
+                    children: [
 
-                   TimelinePage(),
-                   AppButton(title: "Back to Home",onPressed: (){
-                     context.pop();
-                   },),
-                 ],
-               )
+                      TimelinePage(),
+                      AppButton(title: "Back to Home", onPressed: () {
+                        context.pop();
+                      },),
+                    ],
+                  )
 
               ),
 
@@ -294,15 +358,18 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
           Text(headingText, style: AppTextStyle.textBlackColor18w500),
           child1 != null
               ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: child1 ?? const SizedBox()),
-                  showStatus
-                      ? statusButtonWidget(statusBackgroundColor: statusBackgroundColor, statusTextColor: statusTextColor, statusText: statusText)
-                      : const SizedBox(),
-                ],
-              )
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: child1 ?? const SizedBox()),
+              showStatus
+                  ? statusButtonWidget(
+                  statusBackgroundColor: statusBackgroundColor,
+                  statusTextColor: statusTextColor,
+                  statusText: statusText)
+                  : const SizedBox(),
+            ],
+          )
               : const SizedBox(),
           child2 ?? const SizedBox(),
         ],
@@ -336,11 +403,6 @@ class LpPayNowAndTrackLoad extends StatelessWidget {
 }
 
 
-
-
-
-
-
 class TimelinePage extends StatelessWidget {
   final List<TimelineEvent> events = [
     TimelineEvent("In Transit", "03 Jan 2023 | 02:45 pm"),
@@ -361,7 +423,7 @@ class TimelinePage extends StatelessWidget {
     return ListView.builder(
       itemCount: events.length,
       shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
+      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         final event = events[index];
         return TimelineTile(
@@ -381,7 +443,10 @@ class TimelinePage extends StatelessWidget {
                 border: Border.all(color: AppColors.primaryDarkColor, width: 2),
 
               ),
-              child: index<=2?Icon(Icons.circle,size: 12,color: AppColors.primaryDarkColor,):const SizedBox(),
+              child: index <= 2
+                  ? Icon(
+                Icons.circle, size: 12, color: AppColors.primaryDarkColor,)
+                  : const SizedBox(),
             ),
           ),
           beforeLineStyle: LineStyle(
@@ -410,8 +475,6 @@ class TimelinePage extends StatelessWidget {
                   event.time,
                   style: TextStyle(color: Colors.grey[600]),
                 ),
-
-
 
 
               ],

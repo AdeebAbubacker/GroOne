@@ -24,7 +24,7 @@ class ChooseRoleScreen extends StatelessWidget {
 
         actions: [
           Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
-         30.width,
+          30.width,
         ],
       ),
       body: SingleChildScrollView(
@@ -37,20 +37,18 @@ class ChooseRoleScreen extends StatelessWidget {
 
                 spacing: 10.h,
                 children: [
-              30.height,
+                  30.height,
 
                   Text(
                     context.appText.chooseRoleText,
-                    style: AppTextStyle.textBlackColors20w400
+                    style: AppTextStyle.textBlackColors20w400,
                   ),
                   chooseRoleTile(
                     isSelected: state.index == 0 ? true : false,
                     text1: context.appText.lpTextHeading,
                     text2: context.appText.lpText,
                     onTap: () {
-                      context.read<RoleBloc>().add(
-                        const ChangeIndex(index: 0),
-                      );
+                      context.read<RoleBloc>().add(const ChangeIndex(index: 0));
                     },
                     imageString: AppImage.png.lp,
                   ),
@@ -59,9 +57,7 @@ class ChooseRoleScreen extends StatelessWidget {
                     text1: context.appText.vpTextHeading,
                     text2: context.appText.vpText,
                     onTap: () {
-                      context.read<RoleBloc>().add(
-                        const ChangeIndex(index: 1),
-                      );
+                      context.read<RoleBloc>().add(const ChangeIndex(index: 1));
                     },
                     imageString: AppImage.png.vp,
                   ),
@@ -70,9 +66,7 @@ class ChooseRoleScreen extends StatelessWidget {
                     text1: context.appText.vpLpHeading,
                     text2: context.appText.vpLp,
                     onTap: () {
-                      context.read<RoleBloc>().add(
-                        const ChangeIndex(index: 2),
-                      );
+                      context.read<RoleBloc>().add(const ChangeIndex(index: 2));
                     },
                     imageString: AppImage.png.lpVp,
                   ),
@@ -81,26 +75,23 @@ class ChooseRoleScreen extends StatelessWidget {
                     text1: context.appText.fleetHeading,
                     text2: context.appText.fleet,
                     onTap: () {
-                      context.read<RoleBloc>().add(
-                        const ChangeIndex(index: 3),
-                      );
+                      context.read<RoleBloc>().add(const ChangeIndex(index: 3));
                     },
                     imageString: AppImage.png.fleet,
                   ),
-                   5.height,
-                  AppButton(title:context.appText.next,
+                  5.height,
+                  AppButton(
+                    title: context.appText.next,
 
-                    onPressed:() {
-                      context.push(AppRouteName.login);
-                    } ,),
-                  // CustomButton(
-                  //   buttonText: context.appText.next,
-                  //   disable: true,
-                  //   onClick: () {
-                  //     context.push(AppRouteName.login);
-                  //   },
-                  // ),
-                           25.height,
+                    onPressed: () {
+                      context.push(
+                        AppRouteName.login,
+                        extra:"${state.index + 1}",
+                      );
+                    },
+                  ),
+
+                  25.height,
 
                   Center(child: Image.asset(AppImage.png.hinduja)),
                 ],
@@ -162,18 +153,15 @@ class ChooseRoleScreen extends StatelessWidget {
               ),
               subtitle:
                   text2.isNotEmpty
-                      ? Text(
-                        text2,
-
-                        style: AppTextStyle.textGreyColor14w300)
+                      ? Text(text2, style: AppTextStyle.textGreyColor14w300)
                       : null,
               title: Row(
                 children: [
-                60.width,
+                  60.width,
                   Expanded(
                     child: Text(
                       text1,
-                      style: AppTextStyle.textBlackColor18w500
+                      style: AppTextStyle.textBlackColor18w500,
                     ),
                   ),
                 ],

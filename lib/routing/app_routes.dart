@@ -7,7 +7,7 @@ import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/v
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/kavach/view/kavach_screen.dart';
+
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -15,10 +15,12 @@ import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
+import '../features/kyc/view/kyc_screen.dart';
 import '../features/load_provider/home/validate_memo/view/lp_validate_memo.dart';
 import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
 import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
+import '../features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import '../features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import '../features/load_provider/lp_profile/view/my_account/edit_my_account/view/lp_edit_my_account.dart';
 import '../features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
@@ -41,6 +43,12 @@ class AppRoutes {
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
           return SplashScreen();
+        },
+      ),
+GoRoute(
+        path: AppRouteName.kycScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return KycScreen();
         },
       ),
 
@@ -96,6 +104,11 @@ class AppRoutes {
         path: AppRouteName.lpTransaction,
         builder: (BuildContext context, GoRouterState state) {
           return LpTransaction();
+        },
+      ),  GoRoute(
+        path: AppRouteName.lpSelectPickPointScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return LpSelectPickPointScreen();
         },
       ),
       GoRoute(
@@ -154,7 +167,9 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          return LoginScreen();
+          final role = "${state.extra}" ;
+
+          return LoginScreen(roleId: int.parse(role!),);
         },
       ),
       GoRoute(

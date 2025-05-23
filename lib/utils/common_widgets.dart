@@ -256,12 +256,14 @@ Widget appLoader() {
 //   return Container();
 // }
 
-Widget kycWidget(){
-  return Container(
-    height: 40.h,
-    width: 40.w,
-    alignment: Alignment.center,
-    decoration: commonContainerDecoration(color: Colors.redAccent.shade100, borderRadius: BorderRadius.circular(100)),
-    child: Text("KYC", style: AppTextStyle.h6WhiteColor).paddingAll(5),
+Widget kycWidget({required Function() onTap}){
+  return InkWell(onTap: onTap,
+    child: Container(
+      height: 40.h,
+      width: 40.w,
+      alignment: Alignment.center,
+      decoration: commonContainerDecoration(color: Colors.redAccent.shade100, borderRadius: BorderRadius.circular(100)),
+      child: Text("KYC", style: AppTextStyle.h6WhiteColor).paddingAll(5),
+    ),
   );
 }

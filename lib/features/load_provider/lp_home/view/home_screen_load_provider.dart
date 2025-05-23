@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
@@ -12,6 +13,7 @@ import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_dropdown2.dart';
 import '../../../../utils/app_image.dart';
+import '../../../../utils/app_text_field.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
@@ -22,6 +24,142 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
+  bool checkBoxBool = false;
+
+  void _showKycBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context1, setStateBuilder) {
+            return Container(
+              height: 320.h,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      textAlign: TextAlign.left,
+                      "Verify Your KYC",
+                      style: AppTextStyle.textBlackColor20w500,
+                    ),
+                    15.height,
+
+                    AppTextField(
+                      decoration: commonInputDecoration(
+                        hintText: "xxxx xxxx 9123",
+                        fillColor: AppColors.white,
+                      ),
+                      keyboardType: TextInputType.number,
+
+                      labelText: "Enter Aadhar Card Number",
+                      labelTextStyle: AppTextStyle.textBlackColor16w400,
+                    ),
+
+                    20.height,
+                    customCheckbox(
+                      context: context,
+                      text: context.appText.iAgree,
+                      onTap: () {
+                        checkBoxBool = !checkBoxBool;
+                        setStateBuilder(() {});
+                      },
+                      selected: checkBoxBool,
+                    ),
+                    20.height,
+                    AppButton(
+                      title: "Verify Aadhar",
+                      onPressed: () {
+                        context.pop();
+                        context.push(AppRouteName.kycScreen).then((v){
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            // Dismiss only with button if needed
+                            builder: (BuildContext context) {
+                              return showAlertDialogue(hideButtonButtons: true,
+                                context: context,
+                                onClickYesButton: () {},
+                                child: Column(
+                                  spacing: 20.h,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: GestureDetector(
+                                        onTap: () => Navigator.of(context).pop(),
+                                        child: const Icon(Icons.close, size: 24),
+                                      ),
+                                    ),
+
+                                    // Illustration
+                                    Image.asset(
+                                      AppImage.png.blueMembership,
+                                      // replace with your image asset
+                                      height: 150,
+                                    ),
+
+                                    // Title
+                                    const Text(
+                                      "Blue membership ID\ngenerated Successfully",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+
+                                    // Subtitle
+                                    const Text(
+                                      "Start exploring premium load\noptions today",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        });
+                      },
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: Text(
+                          "I’ll do it later",
+                          style: AppTextStyle.primaryColor16w400.copyWith(
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,31 +168,24 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         //backgroundColor: Colors.transparent,
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
-          child: Image.asset(
-            AppImage.png.appIcon,
-            height: 33.h,
-            width: 75.w,
-            scale: 1,
+          child: InkWell(
+            onTap: () {
+              context.push(AppRouteName.vpBottomNavigationBar);
+            },
+            child: Image.asset(
+              AppImage.png.appIcon,
+              height: 33.h,
+              width: 75.w,
+              scale: 1,
+            ),
           ),
         ),
         toolbarHeight: 50.h,
         actions: [
-          Container(
-            height: 36.h,
-            width: 36.w,
-            decoration: BoxDecoration(
-              color: Colors.redAccent.shade100,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Center(
-              child: Text(
-                context.appText.kyc,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          kycWidget(
+            onTap: () {
+              _showKycBottomSheet(context);
+            },
           ),
           5.width,
           InkWell(
@@ -234,7 +365,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           normalButton(
                             buttonText: "Pay Now",
                             onTap: () {
-                               context.push(AppRouteName.lpPayNowAndTrackLoad);
+                              context.push(AppRouteName.lpPayNowAndTrackLoad);
                             },
                             buttonWidth: 143.w,
                           ),
@@ -247,13 +378,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           ),
                         ],
                       )
-                      : Padding(padding:EdgeInsets.symmetric(horizontal: 10.w),child:normalButton(
-                        buttonText: context.appText.iAgreeTripToGo,
-                        onTap: () {
-                          showAdvanceDialogue(context: context);
-                        },
-
-                      )),
+                      : Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                        child: normalButton(
+                          buttonText: context.appText.iAgreeTripToGo,
+                          onTap: () {
+                            showAdvanceDialogue(context: context);
+                          },
+                        ),
+                      ),
                   5.height,
                 ],
               ),
@@ -286,7 +419,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     context.appText.advancePayment,
                     style: AppTextStyle.darkDividerColor16w400,
                   ),
-                  const SizedBox(height: 20),
+                  20.height,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children:
@@ -342,9 +475,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 context.pop();
                 context.push(AppRouteName.lpValidateMemo).then((value) {
                   memoDone = true;
-                 setState(() {
-
-                 });
+                  setState(() {});
                 });
               },
               buttonText: context.appText.verifyAdvance,
@@ -392,14 +523,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         bookShipmentWidget(
                           heading: context.appText.source,
                           subHeading: context.appText.selectPickUpPoint,
-                          onClick: () {},
+                          onClick: () {
+                            context.push(AppRouteName.lpSelectPickPointScreen);
+                          },
                         ),
 
                         Divider(color: AppColors.disableColor, thickness: 0.5),
                         bookShipmentWidget(
                           heading: context.appText.destination,
                           subHeading: context.appText.selectDestination,
-                          onClick: () {},
+                          onClick: () {
+                            context.push(AppRouteName.lpSelectPickPointScreen);
+                          },
                         ),
                       ],
                     ),
@@ -487,48 +622,50 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           barrierDismissible: false,
                           // Dismiss only with button if needed
                           builder: (BuildContext context) {
-                            return showAlertDialogue(context: context,
-                                onClickYesButton: (){},
-                                child: Column(
-                              spacing: 20.h,
-                              children: [
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: GestureDetector(
-                                    onTap: () => Navigator.of(context).pop(),
-                                    child: const Icon(Icons.close, size: 24),
+                            return showAlertDialogue(
+                              context: context,
+                              onClickYesButton: () {},
+                              child: Column(
+                                spacing: 20.h,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: GestureDetector(
+                                      onTap: () => Navigator.of(context).pop(),
+                                      child: const Icon(Icons.close, size: 24),
+                                    ),
                                   ),
-                                ),
 
+                                  // Illustration
+                                  Image.asset(
+                                    AppImage.png.markAsFavourite,
+                                    // replace with your image asset
+                                    height: 150,
+                                  ),
 
+                                  // Title
+                                  const Text(
+                                    "Mark as Favourite",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
 
-                                // Illustration
-                                Image.asset(
-                                  AppImage.png.markAsFavourite, // replace with your image asset
-                                  height: 150,
-                                ),
-
-
-
-                                // Title
-                                const Text(
-                                  "Mark as Favourite",
-                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                ),
-
-
-
-                                // Subtitle
-                                const Text(
-                                  "Do you want mark as Favorite this load?",
-                                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ));
+                                  // Subtitle
+                                  const Text(
+                                    "Do you want mark as Favorite this load?",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                         );
-
                       },
                     ),
                   ),
