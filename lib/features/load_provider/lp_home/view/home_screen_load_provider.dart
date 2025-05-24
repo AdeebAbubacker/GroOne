@@ -679,9 +679,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       },
                     ),
                   ),
+
                 ],
               ),
             ),
+            5.height,
+            InkWell(onTap: (){
+              showCustomerCareBottomSheet(context);
+            },child: Center(child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine,))),
+            5.height,
           ],
         ),
       ),
@@ -727,10 +733,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     {'label': 'Bottles', 'icon': Icons.wine_bar},
   ];
   final List<Map<String, dynamic>> truck = [
-    {'label': 'Open - 20ft SXL', 'icon': Icons.grass},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.inventory_2},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.local_drink},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.fireplace},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.wine_bar},
+    {'label': 'Open - 20ft SXL1', 'icon': Icons.grass},
+    {'label': 'Open - 20ft SXL2', 'icon': Icons.inventory_2},
+    {'label': 'Open - 20ft SXL3', 'icon': Icons.local_drink},
+    {'label': 'Open - 20ft SXL4', 'icon': Icons.fireplace},
+    {'label': 'Open - 20ft SXL5', 'icon': Icons.wine_bar},
   ];
 }
