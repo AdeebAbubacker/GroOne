@@ -105,17 +105,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       body: BlocConsumer(
         bloc: otpBloc,
         listener: (context, state) async {
-          if(state is OtpResendSuccess){
+          if (state is OtpResendSuccess) {
             otpString = "";
-            ToastMessages.success(
-              message:state.loginApiResponseModel.message,
-            );
+            ToastMessages.success(message: state.loginApiResponseModel.message);
           }
           if (state is OtpSuccess) {
-
-
             if (state.otpResponse.data.user.tempflg) {
-
               context.push(AppRouteName.lpCreateAccount);
             } else {
               showSuccessDialog(
@@ -133,7 +128,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             ToastMessages.error(
               message: getErrorMsg(errorType: state.errorType),
             );
-          }setState(() {});
+          }
+          setState(() {});
         },
         builder: (context, state) {
           final isLoading = state is OtpLoading;
@@ -149,7 +145,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   spacing: 10.h,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    50.height,
+                    30.height,
                     Text(
                       context.appText.otpVerification,
                       style: AppTextStyle.textBlackColor30w500,
@@ -234,7 +230,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                         child: Center(
                           child:
-          isLoadingResend?SizedBox(height: 20.h,width: 20.w,child: CircularProgressIndicator(color: AppColors.primaryColor,)): _isButtonEnabled
+                              isLoadingResend
+                                  ? SizedBox(
+                                    height: 20.h,
+                                    width: 20.w,
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  )
+                                  : _isButtonEnabled
                                   ? Text(
                                     context.appText.resend,
                                     style: AppTextStyle.primaryColor16w900,

@@ -30,7 +30,6 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
       }
     });
 
-
     on<OtpResendRequested>((event, emit) async {
       emit(OtpResendLoading());
       Result result = await _repository.resendOtp(event.apiRequest);
@@ -44,12 +43,6 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
       }
     });
 
-
-
     ;
   }
-
-
-
-
 }

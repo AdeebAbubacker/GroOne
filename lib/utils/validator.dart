@@ -65,7 +65,17 @@ class Validator {
     }
     return null;
   }
+  static String? pincode(String? value) {
+    String pattern = r'^\d{4,6}$'; // Matches 4 to 6 digit numbers (common for many countries)
+    RegExp regExp = RegExp(pattern);
 
+    if (value == null || value.isEmpty) {
+      return 'Please enter pincode';
+    } else if (!regExp.hasMatch(value)) {
+      return 'Please enter a valid pincode';
+    }
+    return null;
+  }
 
 
 }
