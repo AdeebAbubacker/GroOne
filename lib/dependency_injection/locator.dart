@@ -7,6 +7,9 @@ import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.d
 import 'package:gro_one_app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:gro_one_app/features/sign_in/repository/sign_in_repository.dart';
 import 'package:gro_one_app/features/sign_in/service/sign_in_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -42,12 +45,14 @@ void initLocator() {
     locator.registerLazySingleton(() => SignInService(locator<ApiService>()));
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
+    locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
 
 
     // Repository
     locator.registerLazySingleton(() => SignInRepository(locator<SignInService>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>()));
+    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>()));
 
 
     // Bloc
@@ -56,6 +61,7 @@ void initLocator() {
     locator.registerFactory(() => RoleBloc());
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
+    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

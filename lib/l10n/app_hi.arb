@@ -100,6 +100,7 @@
   "enter" : "Enter",
   "sortBy" : "इसके अनुसार क्रमबद्ध करेंy",
   "models" : "मॉडल",
-  "excludingGST" :"*जीएसटी को छोड़कर"
+  "excludingGST" :"*जीएसटी को छोड़कर",
+  "pinCode" : "पिनकोड"
 
 }

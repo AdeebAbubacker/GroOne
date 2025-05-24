@@ -7,7 +7,9 @@ import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/l10n/app_localizations.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
+import 'package:gro_one_app/service/hasInternet/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
@@ -39,6 +41,19 @@ class MyApp extends StatefulWidget {
 
 
 class _MyAppState extends State<MyApp> {
+
+
+  @override
+  void initState() {
+    initFun();
+    super.initState();
+  }
+
+  initFun()=> addPostFrameCallback(() async {
+    await HasInternetConnection().checkConnectivity();
+    // await authRepo.signOut();
+  });
+
   @override
   Widget build(BuildContext context) {
     appContext=context;

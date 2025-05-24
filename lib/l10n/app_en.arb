@@ -133,6 +133,7 @@
   "enter" : "Enter",
   "sortBy" : "Sort By",
   "models" : "Models",
-  "excludingGST" :"*Excluding GST"
+  "excludingGST" :"*Excluding GST",
+  "pinCode" : "Pincode"
 
 }
