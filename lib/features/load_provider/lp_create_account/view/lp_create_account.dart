@@ -13,6 +13,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
@@ -100,8 +101,8 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 context.push(AppRouteName.lpBottomNavigation);
               },
               context,
-              text: "Account created Successfully",
-              subheading: "Now you can explore the rates\nand post loads",
+              text: context.appText.accountCreatedSuccessfully,
+              subheading: context.appText.accountCreatedSuccessfullySubHeading,
             );
           } else if (state is LpCreateError) {
             ToastMessages.error(
@@ -126,7 +127,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                     children: [
                       20.height,
                       Text(
-                        "Create your account",
+                        context.appText.createYourAccount,
                         style: AppTextStyle.textBlackColor30w500,
                       ),
                       10.height,
@@ -135,7 +136,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                       10.height,
                       AppButton(
                         isLoading: isLoading,
-                        title: "Continue",
+                        title:appContext.appText.continueText,
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             lpCreateBloc.add(
@@ -174,7 +175,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   createFormWidget() {
     return Form(
       key: _formKey,
-      child: Column(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 15.h,
         children: [
           AppTextField(
@@ -244,10 +245,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppDropdown(
             validator:
                 (value) =>
-                    Validator.fieldRequired(value, fieldName: "Company Type"),
-            labelText: "Company Type",
+                    Validator.fieldRequired(value, fieldName:appContext.appText.companyType),
+            labelText: appContext.appText.companyType,
             labelTextStyle: AppTextStyle.textBlackColor18w400,
-            hintText: "Select Company Type",
+            hintText: "${appContext.appText.select} ${appContext.appText.companyType}",
             dropdownValue: companyTypeDropDownValue,
             decoration: commonInputDecoration(fillColor: Colors.white),
             dropDownList:
@@ -266,12 +267,13 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           ),
           AppTextField(
             validator: (value) => Validator.pincode(value),
-            controller: pincode,   keyboardType: TextInputType.number,
+            controller: pincode,
+            keyboardType: TextInputType.number,
             decoration: commonInputDecoration(
               fillColor: AppColors.white,
-              hintText: "${context.appText.enter} pincode",
+              hintText: "${context.appText.enter} ${appContext.appText.pinCode}",
             ),
-            labelText: "Pincode",
+            labelText: appContext.appText.pinCode,
             labelTextStyle: AppTextStyle.textBlackColor18w400,
           ),
         ],

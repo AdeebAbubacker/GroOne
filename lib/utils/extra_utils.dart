@@ -242,6 +242,7 @@ showAlertDialogue({
   required Widget child,
   required GestureTapCallback onClickYesButton,
   bool hideButtonButtons = false,
+  String? yesButtonText ,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -278,7 +279,7 @@ showAlertDialogue({
                       height: 32.h,
                       child: AppButton(
                         onPressed: onClickYesButton,
-                        title: "Yes",
+                        title: yesButtonText??"Yes",
                       ),
                     ),
                   ),
