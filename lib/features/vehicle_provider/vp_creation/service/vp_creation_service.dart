@@ -10,9 +10,9 @@ class VpCreationService {
   final ApiService _apiService;
   VpCreationService(this._apiService);
 
-  Future<Result<VpCreationModel>> fetchVpCreationData(VpCreationApiRequest request) async {
+  Future<Result<VpCreationModel>> fetchVpCreationData(VpCreationApiRequest request,{required String id}) async {
     try {
-      final url = ApiUrls.createVpAccount;
+      final url = ApiUrls.createVpAccount+id;
       final result = await _apiService.put(url, body: request.toJson());
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> VpCreationModel.fromJson(data));

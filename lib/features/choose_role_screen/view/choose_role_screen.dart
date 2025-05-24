@@ -95,14 +95,10 @@ class ChooseRoleScreen extends StatelessWidget {
 
                     onPressed: () {
 
-                      if(state.index == 0){
+
                         context.push( AppRouteName.login,
-                        extra:"${state.index + 1}",
-                      );
-                      }
-                      if(state.index == 1){
-                      Navigator.push(context, commonRoute(const VpCreationFormScreen(), isForward: true));
-                      }
+                        extra:"${state.index + 1}");
+
                     },
                   ),
 

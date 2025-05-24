@@ -8,9 +8,9 @@ class VpCreationRepository {
   final VpCreationService _vpCreationService;
   VpCreationRepository(this._vpCreationService);
 
-  Future<Result<VpCreationModel>> requestSignIn(VpCreationApiRequest request) async {
+  Future<Result<VpCreationModel>> requestSignIn(VpCreationApiRequest request,{required String id}) async {
     try {
-      return await _vpCreationService.fetchVpCreationData(request);
+      return await _vpCreationService.fetchVpCreationData(request,id: id);
     } catch (e) {
       CustomLog.error(this, "Failed to request vp creation", e);
       return Error(ErrorWithMessage(message: e.toString()));

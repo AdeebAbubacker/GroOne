@@ -4,5 +4,6 @@ sealed class VpCreationEvent {}
 
 class VpCreationRequested extends VpCreationEvent {
   final VpCreationApiRequest apiRequest;
-  VpCreationRequested({required this.apiRequest});
+  final String id;
+  VpCreationRequested({required this.apiRequest,required this.id});
 }

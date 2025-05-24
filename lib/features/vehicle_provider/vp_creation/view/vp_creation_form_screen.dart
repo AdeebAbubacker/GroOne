@@ -27,7 +27,8 @@ import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
 class VpCreationFormScreen extends StatefulWidget {
-  const VpCreationFormScreen({super.key});
+  final String id;
+  const VpCreationFormScreen({super.key,required this.id});
 
   @override
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
@@ -284,7 +285,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         }
       },
       builder: (context, state) {
+
         final isLoading = state is VpCreationLoading;
+
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
@@ -299,7 +302,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 attachedTrucks: attachedTruckTextController.text,
                 preferredLanes: preferredLanesDropDownValue,
               );
-              vpCreationBloc.add(VpCreationRequested(apiRequest: request));
+              vpCreationBloc.add(VpCreationRequested(apiRequest: request,id: widget.id));
             }
           },
         );

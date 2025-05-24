@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/otp_request.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -20,6 +21,7 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/customButton.dart';
 import '../../../utils/extra_utils.dart';
@@ -111,7 +113,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           }
           if (state is OtpSuccess) {
             if (state.otpResponse.data.user.tempflg) {
-              context.push(AppRouteName.lpCreateAccount);
+              if (int.parse(widget.roleId) == 1) {
+                context.push(AppRouteName.lpCreateAccount);
+              } else if (int.parse(widget.roleId) == 2) {
+                Navigator.push(
+                  context,
+                  commonRoute(  VpCreationFormScreen(id:state.otpResponse.data.user.id.toString(),), isForward: true),
+                );
+              }
             } else {
               showSuccessDialog(
                 onTap: () {
