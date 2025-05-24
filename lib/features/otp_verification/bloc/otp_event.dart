@@ -11,7 +11,7 @@ sealed class OtpEvent extends Equatable {
 class OtpRequested extends OtpEvent {
   final OtpRequest apiRequest;
 
-  const OtpRequested({required this.apiRequest});
+    const OtpRequested({required this.apiRequest});
 }
 
 class OtpResendRequested extends OtpEvent {

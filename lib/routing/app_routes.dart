@@ -195,7 +195,10 @@ GoRoute(
       ), GoRoute(
         path: AppRouteName.lpCreateAccount,
         builder: (BuildContext context, GoRouterState state) {
-          return LpCreateAccount();
+          final data = state.extra! as Map<String, dynamic>;
+          final String id = data["id"];
+          debugPrint("LpCreateAccount $id");
+          return LpCreateAccount(id: id,);
         },
       ),
       GoRoute(

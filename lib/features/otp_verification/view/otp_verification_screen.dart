@@ -114,7 +114,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           if (state is OtpSuccess) {
             if (state.otpResponse.data.user.tempflg) {
               if (int.parse(widget.roleId) == 1) {
-                context.push(AppRouteName.lpCreateAccount);
+                context.push(AppRouteName.lpCreateAccount,extra: {"id":state.otpResponse.data.user.id.toString()});
               } else if (int.parse(widget.roleId) == 2) {
                 Navigator.push(
                   context,

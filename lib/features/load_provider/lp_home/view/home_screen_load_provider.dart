@@ -40,7 +40,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         return StatefulBuilder(
           builder: (context1, setStateBuilder) {
             return Container(
-
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: const BorderRadius.only(
@@ -88,13 +87,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         title: "Verify Aadhar",
                         onPressed: () {
                           context.pop();
-                          context.push(AppRouteName.kycScreen).then((v){
+                          context.push(AppRouteName.kycScreen).then((v) {
                             showDialog(
                               context: context,
                               barrierDismissible: false,
                               // Dismiss only with button if needed
                               builder: (BuildContext context) {
-                                return showAlertDialogue(hideButtonButtons: true,
+                                return showAlertDialogue(
+                                  hideButtonButtons: true,
                                   context: context,
                                   onClickYesButton: () {},
                                   child: Column(
@@ -103,8 +103,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                       Align(
                                         alignment: Alignment.topRight,
                                         child: GestureDetector(
-                                          onTap: () => Navigator.of(context).pop(),
-                                          child: const Icon(Icons.close, size: 24),
+                                          onTap:
+                                              () => Navigator.of(context).pop(),
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 24,
+                                          ),
                                         ),
                                       ),
 
@@ -172,7 +176,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       appBar: CommonAppBar(
         //backgroundColor: Colors.transparent,
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
           },
           child: Padding(
@@ -226,51 +230,52 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             5.height,
-            valueAddedService(context),
+            keyStatusWidget(),
             5.height,
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              color: AppColors.appRedColor,
-              height: 42.h,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppImage.png.alertTriangle,
-                    height: 24.h,
-                    width: 24.w,
-                  ),
-                  10.width,
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: context.appText.your,
-                          style: AppTextStyle.textDarkGreyColor14w500,
-                        ),
-                        TextSpan(
-                          text: " ${context.appText.kyc} ",
-                          style: AppTextStyle.textDarkGreyColor14w500.copyWith(
-                            color: AppColors.orangeTextColor,
-                          ),
-                        ),
-                        TextSpan(
-                          text: context.appText.stillPending,
-                          style: AppTextStyle.textDarkGreyColor14w500,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             bookShipmentSection(),
             5.height,
+            valueAddedService(context),
             upComingShipment(),
             30.height,
           ],
         ),
+      ),
+    );
+  }
+
+  keyStatusWidget() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      color: AppColors.appRedColor,
+      height: 42.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(AppImage.png.alertTriangle, height: 24.h, width: 24.w),
+          10.width,
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: context.appText.your,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+                TextSpan(
+                  text: " ${context.appText.kyc} ",
+                  style: AppTextStyle.textDarkGreyColor14w500.copyWith(
+                    color: AppColors.orangeTextColor,
+                  ),
+                ),
+                TextSpan(
+                  text: context.appText.stillPending,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

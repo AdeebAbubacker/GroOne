@@ -16,14 +16,11 @@ class OtpService {
 
   Future<Result<OtpResponse>> sendOtp(OtpRequest request) async {
     try {
-      final result = await _apiService.post(
-        ApiUrls.login,
-        body: request,
-      );
+      final result = await _apiService.post(ApiUrls.login, body: request);
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => OtpResponse.fromJson(data),
+          (data) => OtpResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -34,16 +31,17 @@ class OtpService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  } Future<Result<LoginApiResponseModel>> resendOtp(LoginApiRequest request) async {
+  }
+
+  Future<Result<LoginApiResponseModel>> resendOtp(
+    LoginApiRequest request,
+  ) async {
     try {
-      final result = await _apiService.post(
-        ApiUrls.resendOtp,
-        body: request,
-      );
+      final result = await _apiService.post(ApiUrls.resendOtp, body: request);
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => LoginApiResponseModel.fromJson(data),
+          (data) => LoginApiResponseModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);

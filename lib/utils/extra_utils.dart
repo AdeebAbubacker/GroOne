@@ -59,36 +59,40 @@ void showSuccessDialog(
     builder: (BuildContext context) {
       return WillPopScope(
         onWillPop: () async {
-          return true;
+          return false;
         },
-        child: Dialog(
+        child: AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: InkWell(
-              onTap: onTap ?? () {},
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  20.height,
-                  Image.asset(AppImage.png.successGif),
-                  SizedBox(height: 50.h),
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.greenColor20w700,
-                  ),
-                  30.height,
-                  Text(
-                    subheading,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                  12.height,
-                ],
+          contentPadding: EdgeInsets.zero, // Optional: remove default padding
+          content: SizedBox(
+            width: 500.w,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: InkWell(
+                onTap: onTap ?? () {},
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    20.height,
+                    Image.asset(AppImage.png.successGif),
+                    SizedBox(height: 50.h),
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.greenColor20w700,
+                    ),
+                    30.height,
+                    Text(
+                      subheading,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    12.height,
+                  ],
+                ),
               ),
             ),
           ),
