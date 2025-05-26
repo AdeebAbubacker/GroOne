@@ -32,132 +32,146 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   void _showKycBottomSheet(BuildContext context) {
     showBottomSheet(
       context: context,
-
+backgroundColor: Colors.transparent,
+elevation:10 ,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) {
         return StatefulBuilder(
           builder: (context1, setStateBuilder) {
-            return Container(
-
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        textAlign: TextAlign.left,
-                        "Verify Your KYC",
-                        style: AppTextStyle.textBlackColor20w500,
-                      ),
-                      15.height,
-
-                      AppTextField(
-                        decoration: commonInputDecoration(
-                          hintText: "xxxx xxxx 9123",
-                          fillColor: AppColors.white,
-                        ),
-                        keyboardType: TextInputType.number,
-
-                        labelText: "Enter Aadhar Card Number",
-                        labelTextStyle: AppTextStyle.textBlackColor16w400,
+            return Stack(
+              children: [
+                Container(height: double.infinity,color:AppColors.textBlackColor.withOpacity(0.4),),
+                Positioned(
+                  bottom: 0,left: 0,right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
 
-                      20.height,
-                      customCheckbox(
-                        context: context,
-                        text: context.appText.iAgree,
-                        onTap: () {
-                          checkBoxBool = !checkBoxBool;
-                          setStateBuilder(() {});
-                        },
-                        selected: checkBoxBool,
-                      ),
-                      20.height,
-                      AppButton(
-                        title: "Verify Aadhar",
-                        onPressed: () {
-                          context.pop();
-                          context.push(AppRouteName.kycScreen).then((v){
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              // Dismiss only with button if needed
-                              builder: (BuildContext context) {
-                                return showAlertDialogue(hideButtonButtons: true,
-                                  context: context,
-                                  onClickYesButton: () {},
-                                  child: Column(
-                                    spacing: 20.h,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.topRight,
-                                        child: GestureDetector(
-                                          onTap: () => Navigator.of(context).pop(),
-                                          child: const Icon(Icons.close, size: 24),
-                                        ),
-                                      ),
+                    ),
 
-                                      // Illustration
-                                      Image.asset(
-                                        AppImage.png.blueMembership,
-                                        // replace with your image asset
-                                        height: 150,
-                                      ),
-
-                                      // Title
-                                      const Text(
-                                        "Blue membership ID\ngenerated Successfully",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-
-                                      // Subtitle
-                                      const Text(
-                                        "Start exploring premium load\noptions today",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          });
-                        },
-                      ),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: Text(
-                            "I’ll do it later",
-                            style: AppTextStyle.primaryColor16w400.copyWith(
-                              decoration: TextDecoration.underline,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              textAlign: TextAlign.left,
+                              "Verify Your KYC",
+                              style: AppTextStyle.textBlackColor20w500,
                             ),
-                          ),
+                            15.height,
+
+                            AppTextField(
+                              decoration: commonInputDecoration(
+                                hintText: "xxxx xxxx 9123",
+                                fillColor: AppColors.white,
+                              ),
+                              keyboardType: TextInputType.number,
+
+                              labelText: "Enter Aadhar Card Number",
+                              labelTextStyle: AppTextStyle.textBlackColor16w400,
+                            ),
+
+                            20.height,
+                            customCheckbox(
+                              context: context,
+                              text: context.appText.iAgree,
+                              onTap: () {
+                                checkBoxBool = !checkBoxBool;
+                                setStateBuilder(() {});
+                              },
+                              selected: checkBoxBool,
+                            ),
+                            20.height,
+                            AppButton(
+                              title: "Verify Aadhar",
+                              onPressed: () {
+                                context.pop();
+                                context.push(AppRouteName.kycScreen).then((v) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    // Dismiss only with button if needed
+                                    builder: (BuildContext context) {
+                                      return showAlertDialogue(
+                                        hideButtonButtons: true,
+                                        context: context,
+                                        onClickYesButton: () {},
+                                        child: Column(
+                                          spacing: 20.h,
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.topRight,
+                                              child: GestureDetector(
+                                                onTap:
+                                                    () => Navigator.of(context).pop(),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
+
+                                            // Illustration
+                                            Image.asset(
+                                              AppImage.png.blueMembership,
+                                              // replace with your image asset
+                                              height: 150,
+                                            ),
+
+                                            // Title
+                                            const Text(
+                                              "Blue membership ID\ngenerated Successfully",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            // Subtitle
+                                            const Text(
+                                              "Start exploring premium load\noptions today",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                });
+                              },
+                            ),
+                            Center(
+                              child: TextButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                child: Text(
+                                  "I’ll do it later",
+                                  style: AppTextStyle.primaryColor16w400.copyWith(
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             );
           },
         );
@@ -172,7 +186,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       appBar: CommonAppBar(
         //backgroundColor: Colors.transparent,
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
           },
           child: Padding(
@@ -226,51 +240,52 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             5.height,
-            valueAddedService(context),
+            keyStatusWidget(),
             5.height,
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              color: AppColors.appRedColor,
-              height: 42.h,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppImage.png.alertTriangle,
-                    height: 24.h,
-                    width: 24.w,
-                  ),
-                  10.width,
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: context.appText.your,
-                          style: AppTextStyle.textDarkGreyColor14w500,
-                        ),
-                        TextSpan(
-                          text: " ${context.appText.kyc} ",
-                          style: AppTextStyle.textDarkGreyColor14w500.copyWith(
-                            color: AppColors.orangeTextColor,
-                          ),
-                        ),
-                        TextSpan(
-                          text: context.appText.stillPending,
-                          style: AppTextStyle.textDarkGreyColor14w500,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             bookShipmentSection(),
             5.height,
+            valueAddedService(context),
             upComingShipment(),
             30.height,
           ],
         ),
+      ),
+    );
+  }
+
+  keyStatusWidget() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      color: AppColors.appRedColor,
+      height: 42.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(AppImage.png.alertTriangle, height: 24.h, width: 24.w),
+          10.width,
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: context.appText.your,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+                TextSpan(
+                  text: " ${context.appText.kyc} ",
+                  style: AppTextStyle.textDarkGreyColor14w500.copyWith(
+                    color: AppColors.orangeTextColor,
+                  ),
+                ),
+                TextSpan(
+                  text: context.appText.stillPending,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -674,9 +689,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       },
                     ),
                   ),
+
                 ],
               ),
             ),
+            5.height,
+            InkWell(onTap: (){
+              showCustomerCareBottomSheet(context);
+            },child: Center(child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine,))),
+            5.height,
           ],
         ),
       ),
@@ -722,10 +743,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     {'label': 'Bottles', 'icon': Icons.wine_bar},
   ];
   final List<Map<String, dynamic>> truck = [
-    {'label': 'Open - 20ft SXL', 'icon': Icons.grass},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.inventory_2},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.local_drink},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.fireplace},
-    {'label': 'Open - 20ft SXL', 'icon': Icons.wine_bar},
+    {'label': 'Open - 20ft SXL1', 'icon': Icons.grass},
+    {'label': 'Open - 20ft SXL2', 'icon': Icons.inventory_2},
+    {'label': 'Open - 20ft SXL3', 'icon': Icons.local_drink},
+    {'label': 'Open - 20ft SXL4', 'icon': Icons.fireplace},
+    {'label': 'Open - 20ft SXL5', 'icon': Icons.wine_bar},
   ];
 }

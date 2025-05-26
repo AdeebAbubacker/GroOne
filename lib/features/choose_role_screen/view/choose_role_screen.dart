@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -26,7 +27,11 @@ class ChooseRoleScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
 
         actions: [
-          translateWiget(onTap: (){}),    20.width,
+          translateWiget(onTap: (){
+
+            Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true,)));
+
+          }),    20.width,
           customerSupportWidget(onTap: (){
 
             showCustomerCareBottomSheet(context);

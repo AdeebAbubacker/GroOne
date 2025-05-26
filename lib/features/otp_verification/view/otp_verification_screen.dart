@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/otp_request.dart';
@@ -23,9 +22,9 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
-import '../../../utils/customButton.dart';
 import '../../../utils/extra_utils.dart';
 import '../../../utils/toast_messages.dart';
+import '../../choose_language_screen/view/choose_language_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({
@@ -92,7 +91,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         backgroundColor: Colors.transparent,
 
         actions: [
-          translateWiget(onTap: () {}),
+          translateWiget(
+            onTap: () {
+              Navigator.push(
+                context,
+                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
+              );
+            },
+          ),
           20.width,
           customerSupportWidget(
             onTap: () {
@@ -114,11 +120,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           if (state is OtpSuccess) {
             if (state.otpResponse.data.user.tempflg) {
               if (int.parse(widget.roleId) == 1) {
-                context.push(AppRouteName.lpCreateAccount);
+                context.push(
+                  AppRouteName.lpCreateAccount,
+                  extra: {"id": state.otpResponse.data.user.id.toString()},
+                );
               } else if (int.parse(widget.roleId) == 2) {
                 Navigator.push(
                   context,
-                  commonRoute(  VpCreationFormScreen(id:state.otpResponse.data.user.id.toString(),), isForward: true),
+                  commonRoute(
+                    VpCreationFormScreen(
+                      id: state.otpResponse.data.user.id.toString(),
+                    ),
+                    isForward: true,
+                  ),
                 );
               }
             } else {
@@ -162,13 +176,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     20.height,
                     Row(
                       children: [
+
                         Expanded(
                           child: Text(
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.start,
                             context.appText.enterOtpSendNumber,
                             style: AppTextStyle.textBlackColor18w400,
                           ),
                         ),
+
                         Text(
                           maskPhoneNumber(widget.mobileNumber),
                           style: AppTextStyle.primaryColor18w400UnderLine
@@ -262,7 +278,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                               AppTextStyle.primaryColor16w900,
                                         ),
                                         TextSpan(
-                                          text: '  in  ',
+                                          text: context.appText.inText,
                                           style: TextStyle(color: Colors.grey),
                                         ),
                                         TextSpan(
@@ -270,7 +286,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                           style: TextStyle(color: Colors.green),
                                         ),
                                         TextSpan(
-                                          text: ' seconds',
+                                          text: context.appText.second,
                                           style: TextStyle(color: Colors.grey),
                                         ),
                                       ],

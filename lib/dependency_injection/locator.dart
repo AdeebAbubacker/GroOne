@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
 import 'package:gro_one_app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:gro_one_app/features/sign_in/repository/sign_in_repository.dart';
 import 'package:gro_one_app/features/sign_in/service/sign_in_service.dart';
@@ -14,6 +16,7 @@ import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../features/choose_role_screen/bloc/role_bloc.dart';
+import '../features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import '../features/login/bloc/login_bloc.dart';
 import '../features/login/repository/login_repository.dart';
 import '../features/login/service/login_service.dart';
@@ -46,6 +49,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
 
 
     // Repository
@@ -53,6 +57,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>()));
+    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
 
 
     // Bloc
@@ -62,6 +67,7 @@ void initLocator() {
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
     locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

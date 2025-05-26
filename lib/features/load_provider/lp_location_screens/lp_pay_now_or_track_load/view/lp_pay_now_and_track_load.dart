@@ -22,7 +22,6 @@ class LpPayNowAndTrackLoad extends StatefulWidget {
 }
 
 class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
-
   late GoogleMapController mapController;
   final LatLng _bengaluru = LatLng(26.8467, 80.9462);
   final LatLng _chennai = LatLng(28.6139, 77.2090);
@@ -37,20 +36,18 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
 
   void _getRoute() async {
     PolylinePoints polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(googleApiKey: 'AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY',
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      googleApiKey: 'AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY',
       request: PolylineRequest(
-          origin: PointLatLng(_bengaluru.latitude, _bengaluru.longitude),
-          destination: PointLatLng(_chennai.latitude, _chennai.longitude),
-          mode: TravelMode.driving)
-
-
-
+        origin: PointLatLng(_bengaluru.latitude, _bengaluru.longitude),
+        destination: PointLatLng(_chennai.latitude, _chennai.longitude),
+        mode: TravelMode.driving,
+      ),
     );
 
     if (result.points.isNotEmpty) {
-      polylineCoordinates = result.points
-          .map((e) => LatLng(e.latitude, e.longitude))
-          .toList();
+      polylineCoordinates =
+          result.points.map((e) => LatLng(e.latitude, e.longitude)).toList();
 
       setState(() {
         _polylines.add(
@@ -249,10 +246,12 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
                   spacing: 5.h,
                   children: [
                     15.height,
-                    AppButton(title: "Pay Now",
+                    AppButton(
+                      title: "Pay Now",
                       onPressed: () {
                         context.push(AppRouteName.lpPayNowScreen);
-                      },),
+                      },
+                    ),
                     10.height,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -264,10 +263,10 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
                           ),
                         ),
                         statusButtonWidget(
-                            statusBackgroundColor: AppColors.appRedColor,
-                            statusTextColor: AppColors.textRed,
-                            statusText: "Pending")
-
+                          statusBackgroundColor: AppColors.appRedColor,
+                          statusTextColor: AppColors.textRed,
+                          statusText: "Pending",
+                        ),
                       ],
                     ),
                     Text(
@@ -284,7 +283,8 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
                 statusText: "",
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
-                child2: Container(margin: EdgeInsets.only(top: 10.h),
+                child2: Container(
+                  margin: EdgeInsets.only(top: 10.h),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundColor,
                     borderRadius: BorderRadius.circular(8),
@@ -315,20 +315,21 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
                 ),
               ),
               tileWidget(
-                  headingText: "Tracking",
-                  statusText: "",
-                  statusTextColor: AppColors.textRed,
-                  statusBackgroundColor: AppColors.appRedColor,
-                  child2: Column(
-                    children: [
-
-                      TimelinePage(),
-                      AppButton(title: "Back to Home", onPressed: () {
+                headingText: "Tracking",
+                statusText: "",
+                statusTextColor: AppColors.textRed,
+                statusBackgroundColor: AppColors.appRedColor,
+                child2: Column(
+                  children: [
+                    TimelinePage(),
+                    AppButton(
+                      title: "Back to Home",
+                      onPressed: () {
                         context.pop();
-                      },),
-                    ],
-                  )
-
+                      },
+                    ),
+                  ],
+                ),
               ),
 
               20.height,
@@ -358,18 +359,19 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
           Text(headingText, style: AppTextStyle.textBlackColor18w500),
           child1 != null
               ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: child1 ?? const SizedBox()),
-              showStatus
-                  ? statusButtonWidget(
-                  statusBackgroundColor: statusBackgroundColor,
-                  statusTextColor: statusTextColor,
-                  statusText: statusText)
-                  : const SizedBox(),
-            ],
-          )
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: child1 ?? const SizedBox()),
+                  showStatus
+                      ? statusButtonWidget(
+                        statusBackgroundColor: statusBackgroundColor,
+                        statusTextColor: statusTextColor,
+                        statusText: statusText,
+                      )
+                      : const SizedBox(),
+                ],
+              )
               : const SizedBox(),
           child2 ?? const SizedBox(),
         ],
@@ -402,7 +404,6 @@ class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
   }
 }
 
-
 class TimelinePage extends StatelessWidget {
   final List<TimelineEvent> events = [
     TimelineEvent("In Transit", "03 Jan 2023 | 02:45 pm"),
@@ -432,7 +433,8 @@ class TimelinePage extends StatelessWidget {
           lineXY: 0.1,
           isFirst: index == 0,
           isLast: index == events.length - 1,
-          indicatorStyle: IndicatorStyle(indicatorXY: 0.4,
+          indicatorStyle: IndicatorStyle(
+            indicatorXY: 0.4,
             width: 20,
             color: index <= 2 ? Colors.white : AppColors.primaryDarkColor,
             // borderStyle: BorderStyle.solid,
@@ -441,22 +443,19 @@ class TimelinePage extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: index <= 2 ? Colors.white : AppColors.primaryDarkColor,
                 border: Border.all(color: AppColors.primaryDarkColor, width: 2),
-
               ),
-              child: index <= 2
-                  ? Icon(
-                Icons.circle, size: 12, color: AppColors.primaryDarkColor,)
-                  : const SizedBox(),
+              child:
+                  index <= 2
+                      ? Icon(
+                        Icons.circle,
+                        size: 12,
+                        color: AppColors.primaryDarkColor,
+                      )
+                      : const SizedBox(),
             ),
           ),
-          beforeLineStyle: LineStyle(
-            color: AppColors.black,
-            thickness: 1.5,
-          ),
-          afterLineStyle: LineStyle(
-            color: AppColors.black,
-            thickness: 1.5,
-          ),
+          beforeLineStyle: LineStyle(color: AppColors.black, thickness: 1.5),
+          afterLineStyle: LineStyle(color: AppColors.black, thickness: 1.5),
 
           endChild: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -465,18 +464,10 @@ class TimelinePage extends StatelessWidget {
               children: [
                 Text(
                   event.title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 SizedBox(height: 4),
-                Text(
-                  event.time,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-
-
+                Text(event.time, style: TextStyle(color: Colors.grey[600])),
               ],
             ),
           ),
@@ -492,4 +483,3 @@ class TimelineEvent {
 
   TimelineEvent(this.title, this.time);
 }
-

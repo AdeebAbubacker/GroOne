@@ -42,7 +42,5 @@ class OtpBloc extends Bloc<OtpEvent, OtpState> {
         emit(OtpError(GenericError()));
       }
     });
-
-    ;
   }
 }

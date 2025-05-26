@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/customButton.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -14,7 +15,7 @@ String maskPhoneNumber(String phoneNumber) {
     return 'Invalid number';
   }
 
-  return '+91 ${phoneNumber.substring(0, 3)}xx xx${phoneNumber.substring(7, 10)}';
+  return '+91 ${phoneNumber.substring(0, 3)}XX XX${phoneNumber.substring(7, 10)}';
 }
 
 Widget customCheckbox({
@@ -59,36 +60,40 @@ void showSuccessDialog(
     builder: (BuildContext context) {
       return WillPopScope(
         onWillPop: () async {
-          return true;
+          return false;
         },
-        child: Dialog(
+        child: AlertDialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
-            child: InkWell(
-              onTap: onTap ?? () {},
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  20.height,
-                  Image.asset(AppImage.png.successGif),
-                  SizedBox(height: 50.h),
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.greenColor20w700,
-                  ),
-                  30.height,
-                  Text(
-                    subheading,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                  12.height,
-                ],
+          contentPadding: EdgeInsets.zero, // Optional: remove default padding
+          content: SizedBox(
+            width: 500.w,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: InkWell(
+                onTap: onTap ?? () {},
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    20.height,
+                    Image.asset(AppImage.png.successGif),
+                    SizedBox(height: 50.h),
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.greenColor20w700,
+                    ),
+                    30.height,
+                    Text(
+                      subheading,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    12.height,
+                  ],
+                ),
               ),
             ),
           ),
@@ -238,6 +243,7 @@ showAlertDialogue({
   required Widget child,
   required GestureTapCallback onClickYesButton,
   bool hideButtonButtons = false,
+  String? yesButtonText ,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -274,7 +280,7 @@ showAlertDialogue({
                       height: 32.h,
                       child: AppButton(
                         onPressed: onClickYesButton,
-                        title: "Yes",
+                        title: yesButtonText??"Yes",
                       ),
                     ),
                   ),
@@ -383,8 +389,11 @@ void showCustomerCareBottomSheet(BuildContext context) {
               15.height,
               AppButton(
                 title: "Call Now",
-                onPressed: () {
+                onPressed: () async {
+
                   context.pop();
+                await  callRedirect("10090-0008-2345");
+
                 },
               ),
               15.height,

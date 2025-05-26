@@ -15,7 +15,7 @@ class ApiUrls {
   static String get _customer => "/customer";
 
   // Base URL
-  static String get _baseUrl => "$_fetchUrl$_path$_v1$_customer";
+  static String get _baseUrl => "$_fetchUrl$_path$_v1";
   static String get _baseUrlWithAuth => "$_fetchUrl$_path$_v1$_auth$_customer";
   //static String get _baseUrl => "$_fetchUrl$_path$_v1";
   static String  baseUrl = _baseUrl;
@@ -24,11 +24,12 @@ class ApiUrls {
   static String  upload = "$baseUrl/upload";
 
   // VP Endpoints
-  static String  createVpAccount = "$baseUrl$_vp/";
+  static String  createVpAccount = "$baseUrl$_customer$_vp/";
 
   // LP Endpoints
-  static String  createLpAccount = "$baseUrl$_lp/3";
+  static String  createLpAccount = "$baseUrl$_customer$_lp/";
   static String  login = "$_baseUrlWithAuth/login";
+  static String  companyType = "$baseUrl/company-type";
   static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
 
 

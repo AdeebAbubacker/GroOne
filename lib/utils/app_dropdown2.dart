@@ -16,6 +16,7 @@ class AppDropdown extends StatelessWidget {
   final List dataList;
   @override
   Widget build(BuildContext context) {
+    debugPrint("selected Text $selectedText");
     return Column(
       children: [
         InkWell(onTap: onTab,
@@ -48,30 +49,48 @@ class AppDropdown extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.borderDisableColor, width: 0.6.w),
               borderRadius: BorderRadius.circular(8),
-              color: AppColors.backGroundBlue,
+
             ),
-            child: ListView.builder(
+            child: GridView.builder(
               itemCount: dataList.length,
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // 3 items per row
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio:1.3, // Adjust for item width/height
+              ),
               itemBuilder: (context, index) {
-                var image=dataList[index];
-                return InkWell(onTap: () => onSelect(index),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
+                var image = dataList[index];
+                return InkWell(
+                  onTap: () => onSelect(index),
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color:  selectedText==image['label']?AppColors.primaryColor:AppColors.primaryDarkColor,width: selectedText==image['label']?2: 0.8),
+                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.backgroundColor,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(image['icon'], color: AppColors.primaryDarkColor,),
-
-                        10.width,
-                        Text(image['label'],style: AppTextStyle.textBlackColor14w400,),
-                        Expanded(child: SizedBox.shrink()),
-
+                        Icon(image['icon'], color: selectedText==image['label']?AppColors.primaryDarkColor: AppColors.primaryDarkColor,size: 30,),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            image['label'],
+                            style: selectedText==image['label']?AppTextStyle.primaryColor14w700:AppTextStyle.textBlackColor14w400,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 );
-              },)
+              },
+            )
+
         ):const SizedBox(),
       ],
     );

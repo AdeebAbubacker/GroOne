@@ -22,13 +22,13 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
   final List<String> icons = [
     AppIcons.svg.camera,
     AppIcons.svg.gallery,
-    AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
+    //AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
   ];
 
   final List<String> labels = [
     AppString.label.fromCamera,
     AppString.label.fromGallery,
-    "File"
+  //  "File"
   ];
 
   @override

@@ -38,7 +38,8 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    initialLocation: AppRouteName.splash,
+   // initialLocation: AppRouteName.lpBottomNavigation,
+   initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
@@ -48,7 +49,7 @@ class AppRoutes {
           return SplashScreen();
         },
       ),
-GoRoute(
+      GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
           return KycScreen();
@@ -96,7 +97,8 @@ GoRoute(
         builder: (BuildContext context, GoRouterState state) {
           return InsuranceScreen();
         },
-      ),   GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.lpPayNowScreen,
         builder: (BuildContext context, GoRouterState state) {
           return LpPayNowScreen();
@@ -108,7 +110,8 @@ GoRoute(
         builder: (BuildContext context, GoRouterState state) {
           return LpTransaction();
         },
-      ),  GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.lpSelectPickPointScreen,
         builder: (BuildContext context, GoRouterState state) {
           return LpSelectPickPointScreen();
@@ -170,9 +173,9 @@ GoRoute(
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          final role = "${state.extra}" ;
+          final role = "${state.extra}";
 
-          return LoginScreen(roleId: int.parse(role!),);
+          return LoginScreen(roleId: int.parse(role!));
         },
       ),
       GoRoute(
@@ -192,10 +195,14 @@ GoRoute(
         builder: (BuildContext context, GoRouterState state) {
           return LpPayNowAndTrackLoad();
         },
-      ), GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.lpCreateAccount,
         builder: (BuildContext context, GoRouterState state) {
-          return LpCreateAccount();
+          final data = state.extra! as Map<String, dynamic>;
+          final String id = data["id"];
+
+          return LpCreateAccount(id: id);
         },
       ),
       GoRoute(
@@ -206,7 +213,11 @@ GoRoute(
           final String otp = data["otp"];
           final String roleId = data["roleId"];
 
-          return OtpVerificationScreen(otp:otp ,mobileNumber: mobileNumber,roleId:roleId);
+          return OtpVerificationScreen(
+            otp: otp,
+            mobileNumber: mobileNumber,
+            roleId: roleId,
+          );
         },
       ),
 

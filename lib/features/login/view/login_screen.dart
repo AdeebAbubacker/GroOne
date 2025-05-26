@@ -18,9 +18,11 @@ import '../../../service/hasInternet/has_internet_connection.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/customButton.dart';
 import '../../../utils/toast_messages.dart';
+import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -59,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.transparent,
 
         actions: [
-          translateWiget(onTap: () {}),
+          translateWiget(onTap: () {   Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true,)));}),
           20.width,
           customerSupportWidget(
             onTap: () {
