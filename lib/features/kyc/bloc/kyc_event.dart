@@ -25,8 +25,14 @@ class VerifyTanRequested extends KycEvent {
   final VerifyTanRequest apiRequest;
 
   VerifyTanRequested({required this.apiRequest});
-}class VerifyPanRequested extends KycEvent {
+}
+
+class VerifyPanRequested extends KycEvent {
   final VerifyPanRequest apiRequest;
 
   VerifyPanRequested({required this.apiRequest});
+}class UploadFileRequested extends KycEvent {
+  final File file;
+
+  UploadFileRequested({required this.file});
 }

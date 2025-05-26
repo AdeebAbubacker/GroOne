@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -17,6 +20,8 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/toast_messages.dart';
+import '../../../utils/upload_attachment_files.dart';
+import '../../vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import '../api_request/verify_pan_request.dart';
 import '../api_request/verify_tan_request.dart';
 
@@ -48,48 +53,50 @@ class _KycScreenState extends State<KycScreen> {
   bool verifiedTan = false;
   final FocusNode _panNode = FocusNode();
   bool verifiedPan = false;
-nodeManage(){
-  _gstNode.addListener(() {
-    if (_gstNode.hasFocus) {
-    } else {
-      kycBloc.add(
-        VerifyGstRequested(
-          apiRequest: VerifyGstRequest(gst: "27AABCM9984D1Z4", force: false),
-        ),
-      );
-    }
-  });
-  _tanNode.addListener(() {
-    if (_tanNode.hasFocus) {
-      print('Field 1 focused');
-    } else {
-      kycBloc.add(
-        VerifyTanRequested(
-          apiRequest: VerifyTanRequest(tan: "PNEM19000C", force: false),
-        ),
-      );
-    }
-  });
 
-  _panNode.addListener(() {
-    if (_panNode.hasFocus) {
-      print('Field 2 focused');
-    } else {
-      kycBloc.add(
-        VerifyPanRequested(
-          apiRequest: VerifyPanRequest(pan: "AABCM9984D", force: false),
-        ),
-      );
-    }
-  });
-}
+  nodeManage() {
+    _gstNode.addListener(() {
+      if (_gstNode.hasFocus) {
+      } else {
+        kycBloc.add(
+          VerifyGstRequested(
+            apiRequest: VerifyGstRequest(gst: "27AABCM9984D1Z4", force: false),
+          ),
+        );
+      }
+    });
+    _tanNode.addListener(() {
+      if (_tanNode.hasFocus) {
+        print('Field 1 focused');
+      } else {
+        kycBloc.add(
+          VerifyTanRequested(
+            apiRequest: VerifyTanRequest(tan: "PNEM19000C", force: false),
+          ),
+        );
+      }
+    });
+
+    _panNode.addListener(() {
+      if (_panNode.hasFocus) {
+        print('Field 2 focused');
+      } else {
+        kycBloc.add(
+          VerifyPanRequested(
+            apiRequest: VerifyPanRequest(pan: "AABCM9984D", force: false),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     nodeManage();
     addharNumber.text = widget.addharNumber;
-
   }
+
   @override
   void dispose() {
     _panNode.dispose();
@@ -244,7 +251,7 @@ nodeManage(){
                       ),
                     ],
                   ),
-
+                  upload(),
                   10.height,
                   AppButton(
                     title: "Submit",
@@ -267,6 +274,50 @@ nodeManage(){
           ),
         ),
       ),
+    );
+  }
+
+  List<dynamic> multiFilesList = [];
+
+  upload() {
+    return BlocConsumer<KycBloc, KycState>(
+      bloc: kycBloc,
+      listener: (context, state) {
+        if (state is UploadFileSuccess) {
+          ToastMessages.success(message: "File uploaded successfully");
+        } else if (state is AddharOtpError) {
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        }
+      },
+      builder: (BuildContext context, KycState state) {
+        return UploadAttachmentFiles(
+          multiFilesList: multiFilesList,
+
+          isSingleFile: true,
+          thenUploadFileToSever: () {
+            if (multiFilesList.isNotEmpty) {
+              kycBloc.add(
+                UploadFileRequested(file: File(multiFilesList.first['path'])),
+              );
+              if (state is UploadFileSuccess) {
+                if (state.uploadFileModel.data != null &&
+                    state.uploadFileModel.data!.url.isNotEmpty) {
+                  multiFilesList.first['path'] =
+                      state.uploadFileModel.data!.url;
+                } else {
+                  multiFilesList.clear();
+                }
+              }
+              if (state is AddharOtpError) {
+                multiFilesList.clear();
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
+              }
+            }
+          },
+        );
+      },
     );
   }
 

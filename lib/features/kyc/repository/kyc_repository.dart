@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
+import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
 
 import '../../../data/model/result.dart';
@@ -61,6 +64,14 @@ class KycRepository {
       return await _kycService.verifyPan(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+  Future<Result<UploadFileModel>> getUploadData(File file) async {
+    try {
+      return await _kycService.fetchUploadFileData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload rc truck data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

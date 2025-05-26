@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
@@ -5,6 +7,7 @@ import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.d
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
+import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import '../../../../data/model/result.dart';
 import '../api_request/verify_pan_request.dart';
 import '../api_request/verify_tan_request.dart';
@@ -78,6 +81,19 @@ class KycBloc extends Bloc<KycEvent, KycState> {
 
       if (result is Success<VerifyPanResponse>) {
         emit(VerifyPanSuccess(result.value));
+      } else if (result is Error) {
+        emit(AddharOtpError(result.type));
+      } else {
+        emit(AddharOtpError(GenericError()));
+      }
+    });
+
+
+    on<UploadFileRequested>((event, emit) async {
+      emit(UploadFileLoading());
+      Result result = await _kycRepository.getUploadData(event.file);
+      if (result is Success<UploadFileModel>) {
+        emit(UploadFileSuccess(result.value));
       } else if (result is Error) {
         emit(AddharOtpError(result.type));
       } else {

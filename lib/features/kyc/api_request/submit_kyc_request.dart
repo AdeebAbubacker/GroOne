@@ -1,5 +1,5 @@
-class SubmitKycResponse {
-  SubmitKycResponse({
+class SubmitKycRequest {
+  SubmitKycRequest({
     required this.aadhar,
     required this.isAadhar,
     required this.pan,
@@ -43,8 +43,8 @@ class SubmitKycResponse {
   final String branchName;
   final String ifscCode;
 
-  factory SubmitKycResponse.fromJson(Map<String, dynamic> json){
-    return SubmitKycResponse(
+  factory SubmitKycRequest.fromJson(Map<String, dynamic> json){
+    return SubmitKycRequest(
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",
