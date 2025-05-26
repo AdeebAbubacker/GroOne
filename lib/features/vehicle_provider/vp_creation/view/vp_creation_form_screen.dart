@@ -26,6 +26,8 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
+import '../../../../utils/extra_utils.dart';
+
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
   const VpCreationFormScreen({super.key,required this.id});
@@ -278,8 +280,21 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
       bloc: vpCreationBloc,
       listener: (context, state) {
         if (state is VpCreationSuccess) {
-          var data = state.vpCreationModel.data;
-          addPostFrameCallback(() => context.go(AppRouteName.vpBottomNavigationBar));
+
+          addPostFrameCallback(() {
+            showSuccessDialog(
+              onTap: () {
+                addPostFrameCallback(() => context.go(AppRouteName.vpBottomNavigationBar));
+              },
+              context,
+              text: context.appText.accountCreatedSuccessfully,
+              subheading: context.appText.accountCreatedSuccessfullySubHeading,
+            );
+          });
+
+
+
+
         } else if (state is VpCreationError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }

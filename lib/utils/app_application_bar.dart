@@ -57,7 +57,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       bottom: bottom,
       systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.teal, // Set status bar color
+        statusBarColor: Colors.white, // Set status bar color
         statusBarIconBrightness: Brightness.dark, // For Android
         statusBarBrightness: Brightness.light, // For iOS
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/customButton.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
@@ -14,7 +15,7 @@ String maskPhoneNumber(String phoneNumber) {
     return 'Invalid number';
   }
 
-  return '+91 ${phoneNumber.substring(0, 3)}xx xx${phoneNumber.substring(7, 10)}';
+  return '+91 ${phoneNumber.substring(0, 3)}XX XX${phoneNumber.substring(7, 10)}';
 }
 
 Widget customCheckbox({
@@ -388,8 +389,11 @@ void showCustomerCareBottomSheet(BuildContext context) {
               15.height,
               AppButton(
                 title: "Call Now",
-                onPressed: () {
+                onPressed: () async {
+
                   context.pop();
+                await  callRedirect("10090-0008-2345");
+
                 },
               ),
               15.height,

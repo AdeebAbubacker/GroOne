@@ -16,13 +16,7 @@ import 'multi_bloc.dart';
 
 
 void main() async {
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.black,
-      statusBarIconBrightness:
-      Brightness.dark,
-    ),
-  );
+
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
   runApp(BlocProvider(
@@ -55,6 +49,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness:
+        Brightness.dark,
+      ),
+    );
     appContext=context;
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,

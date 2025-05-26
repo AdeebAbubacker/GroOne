@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -6,14 +7,13 @@ import 'package:gro_one_app/features/load_provider/lp_create_account/api_request
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
 
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
@@ -25,6 +25,7 @@ import '../../../../utils/extra_utils.dart';
 import '../../../../utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import '../../../../utils/toast_messages.dart';
 import '../../../../utils/validator.dart';
+import '../../../choose_language_screen/view/choose_language_screen.dart';
 import '../model/lp_company_type_response.dart';
 
 class LpCreateAccount extends StatefulWidget {
@@ -75,7 +76,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
         actions: [
           translateWiget(
             onTap: () {
-              lpCreateBloc.add(LpCompanyTypeRequested());
+              Navigator.push(
+                context,
+                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
+              );
             },
           ),
           20.width,
@@ -136,7 +140,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                       10.height,
                       AppButton(
                         isLoading: isLoading,
-                        title:appContext.appText.continueText,
+                        title: "Continue",
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             lpCreateBloc.add(
@@ -220,7 +224,9 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   validator: (value) => Validator.phone(value),
                   controller: phoneNumberTextController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [phoneNumberInputFormatter],
+                  inputFormatters: [phoneNumberInputFormatter,
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),],
                   decoration: commonInputDecoration(
                     fillColor: AppColors.white,
                     hintText:
@@ -245,10 +251,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppDropdown(
             validator:
                 (value) =>
-                    Validator.fieldRequired(value, fieldName:appContext.appText.companyType),
-            labelText: appContext.appText.companyType,
+                    Validator.fieldRequired(value, fieldName: "Company Type"),
+            labelText: "Company Type",
             labelTextStyle: AppTextStyle.textBlackColor18w400,
-            hintText: "${appContext.appText.select} ${appContext.appText.companyType}",
+            hintText: "Select Company Type",
             dropdownValue: companyTypeDropDownValue,
             decoration: commonInputDecoration(fillColor: Colors.white),
             dropDownList:
@@ -267,13 +273,14 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           ),
           AppTextField(
             validator: (value) => Validator.pincode(value),
-            controller: pincode,
+            controller: pincode,inputFormatters: [  FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(6),],
             keyboardType: TextInputType.number,
             decoration: commonInputDecoration(
               fillColor: AppColors.white,
-              hintText: "${context.appText.enter} ${appContext.appText.pinCode}",
+              hintText: "${context.appText.enter} pincode",
             ),
-            labelText: appContext.appText.pinCode,
+            labelText: "Pincode",
             labelTextStyle: AppTextStyle.textBlackColor18w400,
           ),
         ],
