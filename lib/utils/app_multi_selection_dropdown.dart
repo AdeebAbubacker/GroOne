@@ -60,6 +60,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
             hintText: hintText ?? '',
             hintStyle: AppTextStyle.textFieldHint,
             prefixIcon: prefixIcon,
+            backgroundColor: AppColors.textFieldFillColor,
             border: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.borderColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
             focusedBorder: OutlineInputBorder(borderSide:  BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
           ),

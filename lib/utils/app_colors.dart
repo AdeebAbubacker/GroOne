@@ -41,7 +41,7 @@ class AppColors {
   static const Color primaryTextColor = Color(0xff292D32);
   static const Color greyTextColor = Colors.black38;
   static const Color lightGreyTextColor = Color(0xff606060);
-  static const Color textFieldFillColor = Color(0xffF8FAFC);
+  static const Color textFieldFillColor = Colors.white;
   static const Color searchFillColor = Colors.white;
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;

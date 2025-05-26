@@ -14,6 +14,7 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -325,10 +326,11 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
               child: DottedBorder(
                 color:  Colors.black12,
                 strokeWidth: 1.5,
-                radius:  const Radius.circular(12),
+                radius:  const Radius.circular(commonTexFieldRadius),
                 borderType: BorderType.RRect,
                 child: Container(
                   height: documentHeight,
+                  color: AppColors.textFieldFillColor,
                   alignment: Alignment.center,
                   child: isFile
                       ? Text(AppString.label.loading, style: AppTextStyle.body2)
