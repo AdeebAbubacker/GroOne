@@ -67,8 +67,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
@@ -160,7 +160,7 @@ abstract class AppLocalizations {
   /// No description provided for @vpLpHeading.
   ///
   /// In en, this message translates to:
-  /// **'I do both'**
+  /// **'Both Load & Truck Provider'**
   String get vpLpHeading;
 
   /// No description provided for @vpLp.
@@ -172,7 +172,7 @@ abstract class AppLocalizations {
   /// No description provided for @fleetHeading.
   ///
   /// In en, this message translates to:
-  /// **'I Require Fleet Products'**
+  /// **'Require Fleet Products'**
   String get fleetHeading;
 
   /// No description provided for @fleet.
@@ -250,7 +250,7 @@ abstract class AppLocalizations {
   /// No description provided for @resend.
   ///
   /// In en, this message translates to:
-  /// **'Resend'**
+  /// **'Resend Code'**
   String get resend;
 
   /// No description provided for @bookShipment.
@@ -828,6 +828,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pincode'**
   String get pinCode;
+
+  /// No description provided for @accountCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created Successfully'**
+  String get accountCreatedSuccessfully;
+
+  /// No description provided for @accountCreatedSuccessfullySubHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Now you can explore the rates\nand post loads'**
+  String get accountCreatedSuccessfullySubHeading;
+
+  /// No description provided for @createYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get createYourAccount;
+
+  /// No description provided for @companyType.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Type'**
+  String get companyType;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
+  /// No description provided for @continueText.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueText;
+
+  /// No description provided for @inText.
+  ///
+  /// In en, this message translates to:
+  /// **'  in  '**
+  String get inText;
+
+  /// No description provided for @second.
+  ///
+  /// In en, this message translates to:
+  /// **' seconds'**
+  String get second;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

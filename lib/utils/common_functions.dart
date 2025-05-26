@@ -267,48 +267,57 @@ class ImagePickerFrom {
 }
 
 /// Multiple File Picker
-Future<List<Map<String, dynamic>>?> pickMultipleFile<T>() async {
+Future<Map?> pickMultipleFiles<T>() async {
   try {
-    var result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
       withData: true,
       withReadStream: true,
     );
 
-    if (result != null && result.files.isNotEmpty) {
-      final List<Map<String, dynamic>> validFiles = [];
+    if (result == null || result.files.isEmpty) {
+      ToastMessages.alert(message: "No files have been selected");
+      return null;
+    }
 
-      for (var file in result.files) {
-        final extension = file.extension?.toLowerCase() ?? '';
-        final allowedExtensions = [
-          "jpg", "jpeg", "gif", "bmp", "pdf", "png", "doc", "mp4",
-          "hevc", "h.264", "mov", "heic", "mp3", "docx", "txt",
-          "xls", "xlsx", "ods", "zip", "rar", "xml"
-        ];
+    final allowedExtensions = <String>{
+      "jpg", "jpeg", "gif", "bmp", "pdf", "png", "doc", "docx", "txt",
+      "xls", "xlsx", "ods", "zip", "rar", "xml", "mp4", "hevc",
+      "h.264", "mov", "heic", "mp3"
+    };
 
-        if (allowedExtensions.contains(extension)) {
-          validFiles.add({
-            "fileName": file.name,
-            "path": file.path ?? "",
-            "extension": extension,
-            "dateTime": DateTime.now().toString(),
-          });
-        } else {
-          ToastMessages.alert(message: "Invalid file format: ${file.name}");
-          return null;
-        }
+    var validFiles = {};
+
+    for (final file in result.files) {
+      final extension = file.extension?.toLowerCase() ?? '';
+      final path = file.path;
+
+      if (!allowedExtensions.contains(extension)) {
+        ToastMessages.alert(message: "Invalid file format: ${file.name}");
+        return null;
       }
 
-      return validFiles;
-    } else {
-      ToastMessages.alert(message: "No files have been selected");
+      if (path == null || path.isEmpty) {
+        ToastMessages.alert(message: "Invalid file path for: ${file.name}");
+        return null;
+      }
+
+      validFiles = {
+        "fileName": file.name,
+        "path": path,
+        "extension": extension,
+        "dateTime": DateTime.now().toString(),
+      };
     }
+
+    return validFiles;
   } catch (e) {
     debugPrint("File Picker error: $e");
+    ToastMessages.alert(message: "An error occurred while picking files");
+    return null;
   }
-
-  return null;
 }
+
 
 
 // /// Error Image

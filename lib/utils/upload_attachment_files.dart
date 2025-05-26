@@ -24,7 +24,8 @@ class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
   final String? title;
-  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title});
+  final Function? thenUploadFileToSever;
+  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever});
 
   @override
   State<UploadAttachmentFiles> createState() => _UploadAttachmentFilesState();
@@ -34,6 +35,14 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
 
   bool isFile = false;
   final double documentHeight = 70;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +76,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                                 isFile = true;
                                 widget.multiFilesList.add(value);
                                 isFile = false;
+                                widget.thenUploadFileToSever?.call();
                                 debugPrint("Add new : $value");
                               } else {
                                 isFile = false;
@@ -294,6 +304,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                       if (value.length <= 8) {
                         isFile = false;
                         widget.multiFilesList.add(value);
+                        widget.thenUploadFileToSever?.call();
                       } else {
                         isFile = false;
                       }

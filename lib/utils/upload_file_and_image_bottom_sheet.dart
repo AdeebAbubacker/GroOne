@@ -22,13 +22,13 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
   final List<String> icons = [
     AppIcons.svg.camera,
     AppIcons.svg.gallery,
-    //AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
+    AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
   ];
 
   final List<String> labels = [
     AppString.label.fromCamera,
     AppString.label.fromGallery,
-  //  "File"
+    AppString.label.fromFile,
   ];
 
   @override
@@ -44,9 +44,7 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(AppString.label.selectImageFrom, style: AppTextStyle.appBar),
-              IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.clear_rounded))
+              IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.clear_rounded))
             ],
           ),
           20.height,
@@ -64,7 +62,7 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
                       if(!context.mounted) return;
                       if (result != null) Navigator.of(context).pop(result);
                     } else {
-                      final files = await pickMultipleFile();
+                      final files = await pickMultipleFiles();
                       if(!context.mounted) return;
                       if (files != null && files.isNotEmpty) {
                         Navigator.of(context).pop(files);

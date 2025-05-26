@@ -166,7 +166,7 @@ class ApiService {
   }
 
 
-  // Multi parts
+  /// Multi parts
   Future<Result<dynamic>> multipart(String url, dynamic files, {Map<String, String>? fields, String? pathName}) async {
     try {
       if (!HasInternetConnection.isInternet) {
@@ -179,6 +179,7 @@ class ApiService {
       // Handling file upload (single or multiple)
       if (files != null) {
         if (files is List<File>) {
+
           for (var file in files) {
             if (await file.exists()) {
               formData.files.add(MapEntry(
@@ -189,7 +190,9 @@ class ApiService {
               CustomLog.debug(this, "File not found: ${file.path}");
             }
           }
+
         } else if (files is File) {
+
           if (await files.exists()) {
             formData.files.add(MapEntry(
               pathName ?? "file",
@@ -198,6 +201,7 @@ class ApiService {
           } else {
             CustomLog.debug(this, "File not found: ${files.path}");
           }
+
         } else {
           return Error(ErrorWithMessage(message: "Invalid file type provided."));
         }
