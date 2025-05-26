@@ -51,6 +51,7 @@ class AppLabelText {
   final String addMoreOption = "Add More Option";
   final String fromCamera = "Camera";
   final String fromGallery = "Gallery";
+  final String fromFile = "File";
   final String selectImageFrom = "Select image from?";
   final String name = "Name";
   final String back = "Go Back";

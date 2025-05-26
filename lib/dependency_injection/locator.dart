@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_create_account/service/cre
 import 'package:gro_one_app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:gro_one_app/features/sign_in/repository/sign_in_repository.dart';
 import 'package:gro_one_app/features/sign_in/service/sign_in_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
@@ -72,6 +73,7 @@ void initLocator() {
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
     locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
     locator.registerFactory(() => KycBloc(locator<KycRepository>()));
 

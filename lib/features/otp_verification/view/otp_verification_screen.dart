@@ -126,15 +126,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   extra: {"id": state.otpResponse.data.user.id.toString()},
                 );
               } else if (int.parse(widget.roleId) == 2) {
-                Navigator.push(
-                  context,
-                  commonRoute(
-                    VpCreationFormScreen(
-                      id: state.otpResponse.data.user.id.toString(),
-                    ),
-                    isForward: true,
-                  ),
-                );
+                Navigator.push(context, commonRoute(VpCreationFormScreen(id: state.otpResponse.data.user.id.toString()), isForward: true),);
               }
             } else {
               showSuccessDialog(
