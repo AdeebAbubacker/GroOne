@@ -52,9 +52,13 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-                Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
-                10.height,
+
+                if (widget.title != null)...[
+                  Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
+                  Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+                  10.height,
+                ],
+
                 MasonryGridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 5.0,
