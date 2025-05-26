@@ -16,7 +16,8 @@ class LpCreateService {
   Future<Result<CreateResponse>> lpRegister(
     CreateRequest request, {
     required String id,
-  }) async {
+  }) async
+  {
     try {
       final result = await _apiService.put(
         ApiUrls.createLpAccount + id,
