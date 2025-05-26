@@ -12,43 +12,43 @@ class AppLocalizationsHi extends AppLocalizations {
   String get appName => 'ग्रो वन';
 
   @override
-  String get next => 'अगला';
+  String get next => 'आगे';
 
   @override
   String get chooseLanguage => 'आप बाद में भी भाषा बदल सकते हैं';
 
   @override
-  String get choosePreferredLanguage => 'अपना पसंदीदा चुनें';
+  String get choosePreferredLanguage => 'अपनी पसंदीदा भाषा चुनें';
 
   @override
   String get language => 'भाषा';
 
   @override
-  String get chooseRoleText => 'आप इस ऐप का उपयोग किसलिए करते हैं?';
+  String get chooseRoleText => 'आप इस ऐप का उपयोग किस लिए करते हैं?';
 
   @override
-  String get lpTextHeading => 'मैं एक लोड प्रदाता हूँ';
+  String get lpTextHeading => 'मैं एक लोड प्रदाता हूं';
 
   @override
-  String get lpText => 'मेरे पास परिवहन के लिए वस्तुएँ हैं';
+  String get lpText => 'मेरे पास परिवहन के लिए वस्तुएं हैं';
 
   @override
-  String get vpTextHeading => 'मैं ट्रक प्रदाता हूँ';
+  String get vpTextHeading => 'मैं एक ट्रक प्रदाता हूं';
 
   @override
-  String get vpText => 'मैं माल के लिए ट्रक प्रदान कर सकता हूँ';
+  String get vpText => 'मैं लोड के लिए ट्रक प्रदान कर सकता हूं';
 
   @override
-  String get vpLpHeading => 'मैं दोनों करता हूँ';
+  String get vpLpHeading => 'लोड और ट्रक दोनों प्रदाता';
 
   @override
-  String get vpLp => 'मेरे पास ट्रक और वस्तुएँ दोनों हैं';
+  String get vpLp => 'मेरे पास ट्रक और वस्तुएं दोनों हैं';
 
   @override
-  String get fleetHeading => 'मुझे फ्लीट उत्पादों की आवश्यकता है';
+  String get fleetHeading => 'फ्लीट सेवाओं की आवश्यकता है';
 
   @override
-  String get fleet => 'मैं अपनी फ्लीट के लिए मूल्य वर्धित सेवाएँ चाहता हूँ';
+  String get fleet => 'मैं अपने फ्लीट के लिए वैल्यू एडेड सेवाएं चाहता हूं';
 
   @override
   String get getOtp => 'ओटीपी प्राप्त करें';
@@ -60,10 +60,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loginSingUp => 'लॉगिन / साइन अप';
 
   @override
-  String get agree => 'लॉगिन करके, आप GRO की सहमति देते हैं ';
+  String get agree => 'लॉगिन करके, आप ग्रो के ';
 
   @override
-  String get termsAndConditions => 'नियम और शर्तें';
+  String get termsAndConditions => 'नियम और शर्तों';
 
   @override
   String get and => ' और ';
@@ -72,7 +72,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get privacyPolicy => 'गोपनीयता नीति';
 
   @override
-  String get iAgree => 'मैं सहमत हूँ';
+  String get iAgree => 'मैं सहमत हूं';
 
   @override
   String get otpVerification => 'ओटीपी सत्यापन';
@@ -84,19 +84,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get verifyCode => 'कोड सत्यापित करें';
 
   @override
-  String get resend => 'पुनः भेजें';
+  String get resend => 'कोड दोबारा भेजें';
 
   @override
   String get bookShipment => 'शिपमेंट बुक करें';
 
   @override
-  String get ourValueAddedServices => 'हमारी वैल्यू ऐडेड सेवाएँ';
+  String get ourValueAddedServices => 'हमारी वैल्यू एडेड सेवाएं';
 
   @override
-  String get buyFastTag => 'FASTag खरीदें';
+  String get buyFastTag => 'फास्टैग खरीदें';
 
   @override
-  String get enDan => 'एन्-धन कार्ड';
+  String get enDan => 'एन-धन कार्ड';
 
   @override
   String get gps => 'जीपीएस';
@@ -105,7 +105,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get instantLoan => 'तत्काल ऋण';
 
   @override
-  String get kavach => 'कावाच';
+  String get kavach => 'कवच';
 
   @override
   String get insurance => 'बीमा';
@@ -114,7 +114,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loginSuccessful => 'लॉगिन सफल';
 
   @override
-  String get loginSuccessfulSubHeading => 'अब आप दरें देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
+  String get loginSuccessfulSubHeading => 'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
 
   @override
   String get home => 'होम';
@@ -129,7 +129,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get source => 'स्रोत';
 
   @override
-  String get selectPickUpPoint => 'पिकअप बिंदु चुनें';
+  String get selectPickUpPoint => 'पिकअप प्वाइंट चुनें';
 
   @override
   String get destination => 'गंतव्य';
@@ -153,16 +153,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get allTrips => 'सभी यात्राएं';
 
   @override
-  String get activeTrips => 'सक्रिय यात्राएँ';
+  String get activeTrips => 'सक्रिय यात्राएं';
 
   @override
   String get upcomingTrips => 'आगामी';
 
   @override
-  String get completed => 'पुरा होना।';
+  String get completed => 'पूर्ण';
 
   @override
-  String get profile => 'प्रोफ़ाइल';
+  String get profile => 'प्रोफाइल';
 
   @override
   String get kyc => 'केवाईसी';
@@ -177,7 +177,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get seeMore => 'और देखें';
 
   @override
-  String get availableLoads => 'उपलब्ध भार';
+  String get availableLoads => 'उपलब्ध लोड्स';
 
   @override
   String get filter => 'फ़िल्टर';
@@ -189,34 +189,34 @@ class AppLocalizationsHi extends AppLocalizations {
   String get vehicleType => 'वाहन प्रकार';
 
   @override
-  String get selectVehicleType => 'वाहन प्रकार का चयन करें';
+  String get selectVehicleType => 'वाहन प्रकार चुनें';
 
   @override
   String get lane => 'लेन';
 
   @override
-  String get selectLaneType => 'लेन प्रकार का चयन करें';
+  String get selectLaneType => 'लेन प्रकार चुनें';
 
   @override
   String get roadType => 'सड़क प्रकार';
 
   @override
-  String get selectRoadType => 'सड़क प्रकार का चयन करें';
+  String get selectRoadType => 'सड़क प्रकार चुनें';
 
   @override
-  String get cancel => 'रद्द करना';
+  String get cancel => 'रद्द करें';
 
   @override
-  String get apply => 'आवेदन करना';
+  String get apply => 'लागू करें';
 
   @override
-  String get tripTracking => 'ट्रिप ट्रैकिंग';
+  String get tripTracking => 'यात्रा ट्रैकिंग';
 
   @override
   String get allTrip => 'सभी यात्रा';
 
   @override
-  String get kavachModels => 'कावाच मॉडल';
+  String get kavachModels => 'कवच मॉडल्स';
 
   @override
   String get upcoming => 'आगामी';
@@ -237,16 +237,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get companyName => 'कंपनी का नाम';
 
   @override
-  String get truckType => 'ट्रक का प्रकार';
+  String get truckType => 'ट्रक प्रकार';
 
   @override
   String get ownedTrucks => 'स्वामित्व वाले ट्रक';
 
   @override
-  String get attachedTrucks => 'संलग्न ट्रक';
+  String get attachedTrucks => 'जुड़े हुए ट्रक';
 
   @override
-  String get preferredLanes => 'पसंदीदा मार्ग';
+  String get preferredLanes => 'पसंदीदा लेन';
 
   @override
   String get businessProof => 'व्यवसाय प्रमाण';
@@ -264,113 +264,137 @@ class AppLocalizationsHi extends AppLocalizations {
   String get aadhaarHint => 'xxxx xxxx xxxx';
 
   @override
-  String get submit => 'जमा करें';
+  String get submit => 'सबमिट करें';
 
   @override
-  String get selectTruckType => 'டிரக் வகையைத் தேர்ந்தெடுக்கவும்';
+  String get selectTruckType => 'ट्रक प्रकार चुनें';
 
   @override
-  String get benefitsOfKavach => 'कावाच के लाभ';
+  String get benefitsOfKavach => 'कवच के लाभ';
 
   @override
-  String get benefitsOfKavachHeading1 => 'ईंधन की हानि पर कोई अनुचित दोष नहीं';
+  String get benefitsOfKavachHeading1 => 'ईंधन की हानि के लिए अनुचित दोष नहीं';
 
   @override
-  String get benefitsOfKavachHeading2 => 'चोरी की जांच से होने वाली देरी से बचाव';
+  String get benefitsOfKavachHeading2 => 'चोरी की जांच से होने वाली देरी को रोकता है';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'कावाच ड्राइवरों को ईंधन चोरी का गलत आरोप लगने से बचाता है।';
+  String get benefitsOfKavachSubHeading1 => 'कवच ड्राइवरों को ईंधन चोरी के झूठे आरोपों से बचाता है।';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'ईंधन चोरी की समस्याओं में समय बर्बाद होने से बचाकर ड्राइवरों को समय पर रखता है।';
+  String get benefitsOfKavachSubHeading2 => 'ईंधन चोरी के मुद्दों में समय बर्बाद होने से ड्राइवरों को बचाता है।';
 
   @override
-  String get buyNow => 'अभी खरीदें';
+  String get buyNow => 'अब खरीदें';
 
   @override
   String get myAccount => 'मेरा खाता';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'संपादित करें';
 
   @override
-  String get personalDetails => 'Personal Details';
+  String get personalDetails => 'व्यक्तिगत विवरण';
 
   @override
-  String get mobileNumber => 'Mobile Number';
+  String get mobileNumber => 'मोबाइल नंबर';
 
   @override
-  String get accountDetails => 'Account Details';
+  String get accountDetails => 'खाता विवरण';
 
   @override
-  String get blueMembershipId => 'Blue Membership ID';
+  String get blueMembershipId => 'ब्लू सदस्यता आईडी';
 
   @override
-  String get accountType => 'Account Type';
+  String get accountType => 'खाता प्रकार';
 
   @override
-  String get registrationData => 'Registration Date';
+  String get registrationData => 'पंजीकरण तिथि';
 
   @override
-  String get kycStatus => 'KYC Status';
+  String get kycStatus => 'केवाईसी स्थिति';
 
   @override
-  String get companyDetails => 'Company Details';
+  String get companyDetails => 'कंपनी विवरण';
 
   @override
-  String get gst => 'GSTIN';
+  String get gst => 'जीएसटीआईएन';
 
   @override
-  String get transactions => 'Transactions';
+  String get transactions => 'लेन-देन';
 
   @override
-  String get settings => 'Settings';
+  String get settings => 'सेटिंग्स';
 
   @override
-  String get logOut => 'Log Out';
+  String get logOut => 'लॉग आउट';
 
   @override
-  String get updateChanges => 'Update Changes';
+  String get updateChanges => 'परिवर्तन अपडेट करें';
 
   @override
-  String get pending => 'Pending';
+  String get pending => 'लंबित';
 
   @override
-  String get all => 'All';
+  String get all => 'सभी';
 
   @override
-  String get idNumber => 'ID Number';
+  String get idNumber => 'आईडी नंबर';
 
   @override
-  String get validateMemo => 'Validate Memo';
+  String get validateMemo => 'मेमो सत्यापित करें';
 
   @override
-  String get iAgreeTripToGo => 'I agree trip to Gro';
+  String get iAgreeTripToGo => 'मैं ग्रो ट्रिप के लिए सहमत हूं';
 
   @override
-  String get memo => 'Memo';
+  String get memo => 'मेमो';
 
   @override
-  String get verifyAdvance => 'Verify Advance';
+  String get verifyAdvance => 'अग्रिम सत्यापित करें';
 
   @override
-  String get advancePayment => 'Advance payment';
+  String get advancePayment => 'अग्रिम भुगतान';
 
   @override
-  String get needHelp => 'Need Help?';
+  String get needHelp => 'मदद चाहिए?';
 
   @override
-  String get enter => 'Enter';
+  String get enter => 'दर्ज करें';
 
   @override
-  String get sortBy => 'इसके अनुसार क्रमबद्ध करेंy';
+  String get sortBy => 'क्रमबद्ध करें';
 
   @override
-  String get models => 'मॉडल';
+  String get models => 'मॉडल्स';
 
   @override
   String get excludingGST => '*जीएसटी को छोड़कर';
 
   @override
   String get pinCode => 'पिनकोड';
+
+  @override
+  String get accountCreatedSuccessfully => 'खाता सफलतापूर्वक बनाया गया';
+
+  @override
+  String get accountCreatedSuccessfullySubHeading => 'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
+
+  @override
+  String get createYourAccount => 'अपना खाता बनाएं';
+
+  @override
+  String get companyType => 'कंपनी प्रकार';
+
+  @override
+  String get select => 'चुनें';
+
+  @override
+  String get continueText => 'जारी रखें';
+
+  @override
+  String get inText => ' में ';
+
+  @override
+  String get second => ' सेकंड';
 }

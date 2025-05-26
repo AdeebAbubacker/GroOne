@@ -2,6 +2,7 @@ part of 'vp_creation_bloc.dart';
 
 sealed class VpCreationState {}
 
+// Vp Creation State
 class VpCreationInitial extends VpCreationState {}
 
 class VpCreationLoading extends VpCreationState {}
@@ -15,3 +16,4 @@ class VpCreationError extends VpCreationState {
   final ErrorType errorType;
   VpCreationError(this.errorType);
 }
+

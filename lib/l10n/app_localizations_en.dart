@@ -39,13 +39,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vpText => 'I can provide trucks for loads';
 
   @override
-  String get vpLpHeading => 'I do both';
+  String get vpLpHeading => 'Both Load & Truck Provider';
 
   @override
   String get vpLp => 'I have trucks and commodities';
 
   @override
-  String get fleetHeading => 'I Require Fleet Products';
+  String get fleetHeading => 'Require Fleet Products';
 
   @override
   String get fleet => 'I want value added services for my fleet';
@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifyCode => 'Verify Code';
 
   @override
-  String get resend => 'Resend';
+  String get resend => 'Resend Code';
 
   @override
   String get bookShipment => 'Book Shipment';
@@ -374,4 +374,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pinCode => 'Pincode';
 
+  @override
+  String get accountCreatedSuccessfully => 'Account created Successfully';
+
+  @override
+  String get accountCreatedSuccessfullySubHeading => 'Now you can explore the rates\nand post loads';
+
+  @override
+  String get createYourAccount => 'Create your account';
+
+  @override
+  String get companyType => 'Company Type';
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String get continueText => 'Continue';
+
+  @override
+  String get inText => '  in  ';
+
+  @override
+  String get second => ' seconds';
 }

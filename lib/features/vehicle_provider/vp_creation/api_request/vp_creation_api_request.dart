@@ -8,20 +8,51 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? ownedTrucks;
   final String? attachedTrucks;
   final String? preferredLanes;
-  VpCreationApiRequest({required this.mobileNumber, required this.companyName, required this.truckType, required this.attachedTrucks, required this.preferredLanes, required this.ownedTrucks, required this.customerName});
+  final String? uploadRc;
+  VpCreationApiRequest({
+    this.customerName,
+    this.mobileNumber,
+     this.companyName,
+     this.truckType,
+     this.ownedTrucks,
+     this.attachedTrucks,
+     this.preferredLanes,
+    this.uploadRc,
+  });
 
   @override
   Map<String, dynamic> toJson() {
     return {
       "customerName": customerName ?? "",
-      "mobileNumber": mobileNumber != null ? mobileNumber?.trim() : "",
+      "mobileNumber": mobileNumber?.trim() ?? "",
       "companyName": companyName ?? "",
-      "truckType": [5],
-      "ownedTrucks": ownedTrucks != null ? int.parse(ownedTrucks!) : 0,
-      "attachedTrucks": attachedTrucks != null ? int.parse(attachedTrucks!) : 0,
-      "preferredLanes": [10],
-      "uploadRc": "https://example.com/rc-document.pdf"
+      "truckType": [5], // Replace this with dynamic parsing if needed
+      "ownedTrucks": int.tryParse(ownedTrucks ?? "") ?? 0,
+      "attachedTrucks": int.tryParse(attachedTrucks ?? "") ?? 0,
+      "preferredLanes": [10], // Replace this with dynamic parsing if needed
+      "uploadRc": uploadRc ?? ""
     };
   }
 
+  VpCreationApiRequest copyWith({
+    String? customerName,
+    String? mobileNumber,
+    String? companyName,
+    String? truckType,
+    String? ownedTrucks,
+    String? attachedTrucks,
+    String? preferredLanes,
+    String? uploadRc,
+  }) {
+    return VpCreationApiRequest(
+      customerName: customerName ?? this.customerName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      companyName: companyName ?? this.companyName,
+      truckType: truckType ?? this.truckType,
+      ownedTrucks: ownedTrucks ?? this.ownedTrucks,
+      attachedTrucks: attachedTrucks ?? this.attachedTrucks,
+      preferredLanes: preferredLanes ?? this.preferredLanes,
+      uploadRc: uploadRc ?? this.uploadRc,
+    );
+  }
 }

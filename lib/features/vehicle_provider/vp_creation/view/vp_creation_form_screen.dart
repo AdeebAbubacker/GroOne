@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -11,6 +14,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -25,6 +29,7 @@ import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_for
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
 
 import '../../../../utils/extra_utils.dart';
 
@@ -39,6 +44,7 @@ class VpCreationFormScreen extends StatefulWidget {
 class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   final vpCreationBloc = locator<VpCreationBloc>();
+  final uploadRcTruckFileBloc = locator<UploadRcTruckFileBloc>();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -49,26 +55,26 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final attachedTruckTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
 
+  final MultiSelectController<String> truckTypeController = MultiSelectController<String>();
+  final MultiSelectController<String>  preferredLanesTypeController = MultiSelectController<String>();
+
+
   String? truckTypeDropDownValue;
   String? preferredLanesDropDownValue;
 
   List<dynamic> multiFilesList = [];
 
-  final List<String> truckTypeList = [
-    'Open Truck',
-    'Close Truck'
+  final List<DropdownItem<String>> truckTypeItems = [
+    DropdownItem(label: 'Open Truck', value: 'Open Truck'),
+    DropdownItem(label: 'Close Truck', value: 'Close Truck'),
   ];
 
-  final List<String> preferredLanesList = [
-    'Chennai - Mumbai',
-    'Chennai -  Pune',
-    'Chennai - Delhi',
-    'Chennai - Bangalore',
-    'Mumbai - Hyderabad',
-    'Mumbai - Chennai',
-    'Mumbai - Pune',
-    'Mumbai - Delhi',
-    'Mumbai - Bangalore',
+  final List<DropdownItem<String>> preferredLanesList = [
+    DropdownItem(label: 'Chennai - Mumbai', value: '1'),
+    DropdownItem(label: 'Chennai -  Pune', value: '2'),
+    DropdownItem(label: 'Chennai - Delhi', value: '3'),
+    DropdownItem(label: 'Mumbai - Pune', value: '4'),
+    DropdownItem(label: 'Mumbai - Bangalore', value: '5'),
   ];
 
 
@@ -189,21 +195,21 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // TrucK Type
-        AppDropdown(
-          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.truckType),
+        AppMultiSelectionDropdown<String>(
           labelText: context.appText.truckType,
           hintText: context.appText.selectTruckType,
-          dropdownValue: truckTypeDropDownValue,
-          decoration: commonInputDecoration(),
-          dropDownList: truckTypeList.map((e) => DropdownMenuItem(
-            value: e,
-            child: Text(e, style: AppTextStyle.body),
-          )).toList(),
-          onChanged: (onChangeValue) {
-            truckTypeDropDownValue = onChangeValue;
+          controller: truckTypeController,
+          items: truckTypeItems,
+          onSelectionChange: (selected) {
+            CustomLog.debug(this, 'Selected Trucks: $selected');
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "${context.appText.truckType} ${context.appText.pinCode}";
+            }
+            return null;
           },
         ),
-        //MultiPickerSelection(labelText: context.appText.truckType, hintText: ""),
         20.height,
 
         // Owned Truck
@@ -227,21 +233,21 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // Preferred Lane
-        AppDropdown(
-          validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.preferredLanes),
+        AppMultiSelectionDropdown<String>(
           labelText: context.appText.preferredLanes,
           hintText: context.appText.selectLaneType,
-          dropdownValue: preferredLanesDropDownValue,
-          decoration: commonInputDecoration(),
-          dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
-            value: e,
-            child: Text(e, style: AppTextStyle.body),
-          )).toList(),
-          onChanged: (onChangeValue) {
-            preferredLanesDropDownValue = onChangeValue;
+          controller: preferredLanesTypeController,
+          items: preferredLanesList,
+          onSelectionChange: (selected) {
+            CustomLog.debug(this, 'Selected lane: $selected');
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "${context.appText.truckType} ${context.appText.pinCode}";
+            }
+            return null;
           },
         ),
-       // MultiPickerSelection(labelText: context.appText.preferredLanes, hintText: ""),
       ],
     );
   }
@@ -254,22 +260,41 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         Text(context.appText.businessProof, style: AppTextStyle.body1PrimaryColor),
         20.height,
 
-        UploadAttachmentFiles(
-          multiFilesList: multiFilesList,
-          title: context.appText.uploadRC,
-          isSingleFile: true,
+        // Upload Rc Truck Document
+        BlocConsumer<UploadRcTruckFileBloc, UploadRcTruckFileState>(
+          bloc: uploadRcTruckFileBloc ,
+          listener: (context, state) {
+            if (state is UploadRcTruckFileSuccess) {
+              ToastMessages.success(message: "File uploaded successfully");
+            } else if (state is UploadRcTruckFileError) {
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            }
+          },
+          builder: (BuildContext context, UploadRcTruckFileState state) {
+            return UploadAttachmentFiles(
+              multiFilesList: multiFilesList,
+              title: context.appText.uploadRC,
+              isSingleFile: true,
+              thenUploadFileToSever: ()  {
+                if (multiFilesList.isNotEmpty) {
+                  uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
+                  if (state is UploadRcTruckFileSuccess) {
+                    if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
+                      multiFilesList.first['path'] = state.fileModel.data!.url;
+                    } else {
+                      multiFilesList.clear();
+                    }
+                  }
+                  if(state is UploadRcTruckFileError){
+                    multiFilesList.clear();
+                    ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                  }
+                }
+              },
+            );
+          },
         ),
-        20.height,
 
-        // Aadhaar Number
-        // AppTextField(
-        //   controller: aadhaarNumberTextController,
-        //   labelText: context.appText.aadhaarNumber,
-        //   hintText:  context.appText.aadhaarHint,
-        //   inputFormatters: [
-        //     AadhaarInputFormatter(),
-        //   ],
-        // ),
       ],
     );
   }
@@ -280,7 +305,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
       bloc: vpCreationBloc,
       listener: (context, state) {
         if (state is VpCreationSuccess) {
-
           addPostFrameCallback(() {
             showSuccessDialog(
               onTap: () {
@@ -291,33 +315,30 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               subheading: context.appText.accountCreatedSuccessfullySubHeading,
             );
           });
-
-
-
-
         } else if (state is VpCreationError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
       },
       builder: (context, state) {
-
         final isLoading = state is VpCreationLoading;
-
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
           onPressed: isLoading ? null : () {
             if (formKey.currentState!.validate()){
+
               final request = VpCreationApiRequest(
-                customerName: nameTextController.text,
-                mobileNumber: mobileNumberTextController.text,
-                companyName: companyNameTextController.text,
-                truckType: truckTypeDropDownValue,
-                ownedTrucks: ownedTruckTextController.text,
-                attachedTrucks: attachedTruckTextController.text,
-                preferredLanes: preferredLanesDropDownValue,
+                  customerName: nameTextController.text,
+                  mobileNumber: mobileNumberTextController.text,
+                  companyName: companyNameTextController.text,
+                  truckType: truckTypeDropDownValue,
+                  ownedTrucks: ownedTruckTextController.text,
+                  attachedTrucks: attachedTruckTextController.text,
+                  preferredLanes: preferredLanesDropDownValue,
+                  uploadRc: multiFilesList.first['path']
               );
-              vpCreationBloc.add(VpCreationRequested(apiRequest: request,id: widget.id));
+
+              vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
             }
           },
         );
