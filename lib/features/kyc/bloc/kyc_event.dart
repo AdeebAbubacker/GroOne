@@ -31,7 +31,16 @@ class VerifyPanRequested extends KycEvent {
   final VerifyPanRequest apiRequest;
 
   VerifyPanRequested({required this.apiRequest});
-}class UploadFileRequested extends KycEvent {
+}
+
+class SubmitKycRequested extends KycEvent {
+  final SubmitKycRequestLp apiRequest;
+  String userId;
+
+  SubmitKycRequested({required this.apiRequest,required this.userId});
+}
+
+class UploadFileRequested extends KycEvent {
   final File file;
 
   UploadFileRequested({required this.file});

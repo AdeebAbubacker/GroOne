@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
+import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
 
 import '../../../data/model/result.dart';
@@ -126,7 +128,7 @@ class KycService {
       return Error(DeserializationError());
     }
   }
-  // Fetch Upload Rc Truck File
+  // Fetch Upload File
   Future<Result<UploadFileModel>> fetchUploadFileData(File files) async {
     try {
       final url = ApiUrls.upload;
@@ -139,6 +141,29 @@ class KycService {
         return Error(GenericError());
       }
     } catch(e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+  //submit KYC form
+
+  Future<Result<SubmitKycResponse>> submitKyc(SubmitKycRequestLp request,{required String userID}) async {
+    try {
+      final result = await _apiService.post(
+        ApiUrls.submitKyc+userID,
+        body: request,
+      );
+      if (result is Success) {
+        return await _apiService.getResponseStatus(
+          result.value,
+              (data) => SubmitKycResponse.fromJson(data),
+        );
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }

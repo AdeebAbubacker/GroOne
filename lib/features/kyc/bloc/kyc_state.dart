@@ -10,6 +10,7 @@ class VerifyGstLoading extends KycState {}
 class VerifyTanLoading extends KycState {}
 class VerifyPanLoading extends KycState {}
 class UploadFileLoading extends KycState {}
+class SubmitKycLoading extends KycState {}
 
 class AddharOtpSuccess extends KycState {
   final AddharOtpResponse addharOtpResponse;
@@ -41,6 +42,10 @@ class UploadFileSuccess extends KycState {
   final UploadFileModel uploadFileModel;
 
   UploadFileSuccess(this.uploadFileModel);
+}class SubmitKycSuccess extends KycState {
+  final SubmitKycResponse submitKycResponse;
+
+  SubmitKycSuccess(this.submitKycResponse);
 }
 
 class AddharOtpError extends KycState {

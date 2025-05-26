@@ -1,5 +1,5 @@
-class SubmitKycRequest {
-  SubmitKycRequest({
+class SubmitKycRequestLp {
+  SubmitKycRequestLp({
     required this.aadhar,
     required this.isAadhar,
     required this.pan,
@@ -11,8 +11,8 @@ class SubmitKycRequest {
     required this.tan,
     required this.tanDocLink,
     required this.isTan,
-    required this.chequeDocLink,
-    required this.tdsDocLink,
+      this.chequeDocLink,
+      this.tdsDocLink,
     required this.address1,
     required this.address2,
     required this.address3,
@@ -33,8 +33,8 @@ class SubmitKycRequest {
   final String tan;
   final String tanDocLink;
   final bool isTan;
-  final String chequeDocLink;
-  final String tdsDocLink;
+  final String? chequeDocLink;
+    String? tdsDocLink;
   final String address1;
   final String address2;
   final String address3;
@@ -43,8 +43,8 @@ class SubmitKycRequest {
   final String branchName;
   final String ifscCode;
 
-  factory SubmitKycRequest.fromJson(Map<String, dynamic> json){
-    return SubmitKycRequest(
+  factory SubmitKycRequestLp.fromJson(Map<String, dynamic> json){
+    return SubmitKycRequestLp(
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",

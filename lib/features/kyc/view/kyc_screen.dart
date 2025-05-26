@@ -1,13 +1,11 @@
 import 'dart:io';
-
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -15,13 +13,13 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/kyc_upload_file.dart';
+import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/toast_messages.dart';
-import '../../../utils/upload_attachment_files.dart';
-import '../../vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import '../api_request/verify_pan_request.dart';
 import '../api_request/verify_tan_request.dart';
 
@@ -36,12 +34,15 @@ class KycScreen extends StatefulWidget {
 
 class _KycScreenState extends State<KycScreen> {
   final kycBloc = locator<KycBloc>();
-  TextEditingController addharNumber = TextEditingController();
+  TextEditingController addharNumber = TextEditingController(
+    text: "750001925686",
+  );
   TextEditingController gstIn = TextEditingController();
   TextEditingController tan = TextEditingController();
   TextEditingController pan = TextEditingController();
   TextEditingController addressLine1 = TextEditingController();
   TextEditingController addressLine2 = TextEditingController();
+  TextEditingController addressLine3 = TextEditingController();
   TextEditingController pincode = TextEditingController();
   TextEditingController accountNumber = TextEditingController();
   TextEditingController bankName = TextEditingController();
@@ -90,11 +91,13 @@ class _KycScreenState extends State<KycScreen> {
     });
   }
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
     nodeManage();
-    addharNumber.text = widget.addharNumber;
+    // addharNumber.text = widget.addharNumber;
   }
 
   @override
@@ -120,6 +123,17 @@ class _KycScreenState extends State<KycScreen> {
           child: BlocConsumer(
             bloc: kycBloc,
             listener: (context, state) {
+              if (state is SubmitKycSuccess) {
+                showSuccessDialog(
+                  onTap: () {
+                    //context.pop();
+                    context.pop();
+                  },
+                  context,
+                  text: "KYC Submitted for\nverification",
+                  subheading: "Will get back to you within\n48 hours.",
+                );
+              }
               if (state is VerifyTanSuccess) {
                 verifiedTan = true;
                 tan.text = "PNEM19000C";
@@ -145,126 +159,172 @@ class _KycScreenState extends State<KycScreen> {
             },
             builder: (context, state) {
               return Column(
-                spacing: 15.h,
                 children: [
-                  textFieldWithLabel(
-                    readOnly: true,
-                    rightText: "Aadhaar Number",
-                    leftText: "Verified",
-                    controller: addharNumber,
-                  ),
-                  textFieldWithLabel(
-                    leftText: verifiedGst ? "Verified" : null,
-                    readOnly: verifiedGst,
-                    currentFocus: _gstNode,
-                    rightText: "GSTIN",
-                    controller: gstIn,
-                  ),
-                  dottedButton(onTap: () {}),
-                  editAndDeleteButton(
-                    fileName: 'GST Registration Certificate.PDF',
-                    onEdit: () {},
-                    onDelete: () {},
-                  ),
-                  textFieldWithLabel(
-                    readOnly: verifiedTan,
-                    leftText: verifiedTan ? "Verified" : null,
-                    rightText: "TAN",
-                    controller: tan,
-                    currentFocus: _tanNode,
-                  ),
-                  dottedButton(onTap: () {}),
-                  editAndDeleteButton(
-                    fileName: 'TAN Registration Certificate.PDF',
-                    onEdit: () {},
-                    onDelete: () {},
-                  ),
-                  textFieldWithLabel(
-                    readOnly: verifiedPan,
-                    leftText: verifiedPan ? "Verified" : null,
-                    rightText: "PAN",
-                    controller: pan,
-                    currentFocus: _panNode,
-                  ),
-                  dottedButton(onTap: () {}),
-                  editAndDeleteButton(
-                    fileName: 'PAN Card.PNG',
-                    onEdit: () {},
-                    onDelete: () {},
-                  ),
-                  multipleTextFieldWidget(
-                    text: "Address",
-                    children: [
-                      AppTextField(
-                        controller: addressLine1,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Address Line 1",
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      spacing: 15.h,
+                      children: [
+                        textFieldWithLabel(
+                          readOnly: true,
+                          rightText: "Aadhaar Number",
+                          leftText: "Verified",
+                          controller: addharNumber,
                         ),
-                      ),
-                      AppTextField(
-                        controller: addressLine2,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Address Line 2",
+                        textFieldWithLabel(
+                          leftText: verifiedGst ? "Verified" : null,
+                          readOnly: verifiedGst,
+                          currentFocus: _gstNode,
+                          rightText: "GSTIN",
+                          controller: gstIn,
                         ),
-                      ),
-                      AppTextField(
-                        controller: pincode,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Pin code",
+                        upload(multiFilesList: gstDoc),
+
+                        textFieldWithLabel(
+                          readOnly: verifiedTan,
+                          leftText: verifiedTan ? "Verified" : null,
+                          rightText: "TAN",
+                          controller: tan,
+                          currentFocus: _tanNode,
                         ),
-                      ),
-                    ],
+                        upload(multiFilesList: tanDoc),
+
+                        textFieldWithLabel(
+                          readOnly: verifiedPan,
+                          leftText: verifiedPan ? "Verified" : null,
+                          rightText: "PAN",
+                          controller: pan,
+                          currentFocus: _panNode,
+                        ),
+
+                        upload(multiFilesList: panDoc),
+                        multipleTextFieldWidget(
+                          text: "Address",
+                          children: [
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: addressLine1,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Address Line 1",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: addressLine2,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Address Line 2",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: addressLine3,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Address Line 3",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: pincode,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Pin code",
+                              ),
+                            ),
+                          ],
+                        ),
+                        multipleTextFieldWidget(
+                          text: "Bank Details",
+                          children: [
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: accountNumber,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Account Number",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: bankName,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Bank Name",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: branchName,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "Branch Name",
+                              ),
+                            ),
+                            AppTextField(
+                              validator:
+                                  (value) => Validator.fieldRequired(value),
+                              controller: ifscCode,
+                              decoration: commonInputDecoration(
+                                fillColor: AppColors.white,
+                                hintText: "IFSC code",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  multipleTextFieldWidget(
-                    text: "Bank Details",
-                    children: [
-                      AppTextField(
-                        controller: accountNumber,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Account Number",
-                        ),
-                      ),
-                      AppTextField(
-                        controller: bankName,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Bank Name",
-                        ),
-                      ),
-                      AppTextField(
-                        controller: branchName,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "Branch Name",
-                        ),
-                      ),
-                      AppTextField(
-                        controller: ifscCode,
-                        decoration: commonInputDecoration(
-                          fillColor: AppColors.white,
-                          hintText: "IFSC code",
-                        ),
-                      ),
-                    ],
-                  ),
-                  upload(),
+
                   10.height,
                   AppButton(
+                    disableButton:
+                        (gstDoc.isEmpty && tanDoc.isEmpty && tanDoc.isEmpty),
                     title: "Submit",
                     onPressed: () {
-                      showSuccessDialog(
-                        onTap: () {
-                          context.pop();
-                          context.pop();
-                        },
-                        context,
-                        text: "KYC Submitted for\nverification",
-                        subheading: "Will get back to you within\n48 hours.",
-                      );
+                      if (_formKey.currentState!.validate()) {
+                        final request = SubmitKycRequestLp(
+                          aadhar: widget.addharNumber,
+                          address1: addressLine1.text,
+                          address2: addressLine2.text,
+                          address3: addressLine3.text,
+                          bankAccount: accountNumber.text,
+                          bankName: bankName.text,
+                          branchName: branchName.text,
+
+                          gstin: gstIn.text,
+                          gstinDocLink: gstDoc.first['path'],
+                          ifscCode: ifscCode.text,
+                          isAadhar: true,
+                          isGstin: verifiedGst,
+                          isPan: verifiedPan,
+                          isTan: verifiedTan,
+                          pan: pan.text,
+                          panDocLink: panDoc.first['path'],
+                          tan: tan.text,
+                          tanDocLink: tanDoc.first['path'],
+                        );
+
+                        List<String> keysToRemove = [
+                          'chequeDocLink',
+                          'tdsDocLink',
+                        ];
+
+                        for (var key in keysToRemove) {
+                          request.toJson().remove(key);
+                        }
+                        kycBloc.add(
+                          SubmitKycRequested(apiRequest: request, userId: "20"),
+                        );
+                      }
                     },
                   ),
                   10.height,
@@ -277,9 +337,11 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  List<dynamic> multiFilesList = [];
+  List<dynamic> gstDoc = [];
+  List<dynamic> panDoc = [];
+  List<dynamic> tanDoc = [];
 
-  upload() {
+  upload({required List<dynamic> multiFilesList}) {
     return BlocConsumer<KycBloc, KycState>(
       bloc: kycBloc,
       listener: (context, state) {
@@ -290,7 +352,7 @@ class _KycScreenState extends State<KycScreen> {
         }
       },
       builder: (BuildContext context, KycState state) {
-        return UploadAttachmentFiles(
+        return KycUploadFile(
           multiFilesList: multiFilesList,
 
           isSingleFile: true,
@@ -304,6 +366,7 @@ class _KycScreenState extends State<KycScreen> {
                     state.uploadFileModel.data!.url.isNotEmpty) {
                   multiFilesList.first['path'] =
                       state.uploadFileModel.data!.url;
+                  setState(() {});
                 } else {
                   multiFilesList.clear();
                 }
@@ -337,76 +400,6 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget editAndDeleteButton({
-    required String fileName,
-    required Function() onEdit,
-    required Function() onDelete,
-  }) {
-    return Container(
-      height: 40.h,
-      color: const Color(0xFFF5F7FF),
-      padding: EdgeInsets.only(left: 10.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              fileName,
-              style: AppTextStyle.textBlackColor12w400.copyWith(
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.edit_outlined,
-              color: AppColors.primaryColor,
-              size: 20,
-            ),
-            onPressed: () {
-              // Edit file logic
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.delete_forever_outlined,
-              color: AppColors.iconRed,
-              size: 20,
-            ),
-            onPressed: () {
-              // Delete file logic
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget dottedButton({required Function() onTap}) {
-    return DottedBorder(
-      color: Colors.grey,
-      dashPattern: [6, 3],
-      strokeWidth: 1,
-      child: SizedBox(
-        height: 44.h,
-        width: double.infinity,
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Upload document",
-              style: AppTextStyle.textBlackColor14w400.copyWith(
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            10.width,
-            Icon(Icons.file_upload_outlined, color: AppColors.black, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget textFieldWithLabel({
     required String rightText,
     String? leftText,
@@ -430,6 +423,7 @@ class _KycScreenState extends State<KycScreen> {
         ),
         5.height,
         AppTextField(
+          validator: (value) => Validator.fieldRequired(value),
           readOnly: readOnly,
           currentFocus: currentFocus,
           controller: controller,

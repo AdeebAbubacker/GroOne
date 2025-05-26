@@ -27,9 +27,14 @@ class ApiUrls {
 
   // VP Endpoints
   static String  createVpAccount = "$baseUrl$_customer$_vp/";
+//submit Kyc
+
+  static String  submitKyc = "$baseUrl/kyc/";
+
 
   // LP Endpoints
   static String  createLpAccount = "$baseUrl$_customer$_lp/";
+
   static String  login = "$_baseUrlWithAuth/login";
   static String  companyType = "$baseUrl/company-type";
   static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
