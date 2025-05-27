@@ -139,6 +139,6 @@ class PreferenceKey {
   final String fcmToken = "fcmToken";
   final String userAddress = "userAddress";
   final String userFullName = "userFullName";
-  final String userType = "userType";
+  final String userRole = "userRole";
 
 }

@@ -119,19 +119,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             ToastMessages.success(message: state.loginApiResponseModel.message);
           }
           if (state is OtpSuccess) {
-            if (state.otpResponse.data.user.tempflg) {
+            if (state.otpResponse.data!.user!.tempflg) {
               if (int.parse(widget.roleId) == 1) {
                 context.push(
                   AppRouteName.lpCreateAccount,
-                  extra: {"id": state.otpResponse.data.user.id.toString()},
+                  extra: {"id": state.otpResponse.data!.user!.id.toString()},
                 );
               } else if (int.parse(widget.roleId) == 2) {
-                Navigator.push(context, commonRoute(VpCreationFormScreen(id: state.otpResponse.data.user.id.toString()), isForward: true),);
+                Navigator.push(context, commonRoute(VpCreationFormScreen(id: state.otpResponse.data!.user!.id.toString()), isForward: true),);
               }
             } else {
               showSuccessDialog(
                 onTap: () {
-                  context.push(AppRouteName.lpBottomNavigation);
+                  context.push(AppRouteName.lpBottomNavigationBar);
                 },
                 context,
                 text: context.appText.loginSuccessful,

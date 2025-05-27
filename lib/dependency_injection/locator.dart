@@ -4,13 +4,23 @@ import 'package:get_it/get_it.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
-import 'package:gro_one_app/features/sign_in/bloc/sign_in_bloc.dart';
-import 'package:gro_one_app/features/sign_in/repository/sign_in_repository.dart';
-import 'package:gro_one_app/features/sign_in/service/sign_in_service.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/login/repository/auth_repository.dart';
+import 'package:gro_one_app/features/login/repository/login_repository.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/login/service/login_service.dart';
+import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
+import 'package:gro_one_app/features/otp_verification/repository/otp_repository.dart';
+import 'package:gro_one_app/features/otp_verification/service/otp_service.dart';
+import 'package:gro_one_app/features/splash/splash_repository.dart';
+import 'package:gro_one_app/features/splash/splash_service.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -49,7 +59,7 @@ void initLocator() {
 
 
     // Service
-    locator.registerLazySingleton(() => SignInService(locator<ApiService>()));
+    locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
@@ -58,16 +68,20 @@ void initLocator() {
 
 
     // Repository
-    locator.registerLazySingleton(() => SignInRepository(locator<SignInService>()));
+    locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
+    locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
+    locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
-    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>()));
-    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>()));
+    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
 
+    // View Model
+    locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
+
 
     // Bloc
-    locator.registerFactory(() => SignInBloc(locator<SignInRepository>()));
     locator.registerFactory(() => LanguageBloc());
     locator.registerFactory(() => RoleBloc());
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));

@@ -75,8 +75,6 @@ class LpProfileScreen extends StatelessWidget {
               children: [
                 profileWidget(imageString: AppImage.png.user, text: context.appText.myAccount,onTap: (){
                   context.push(AppRouteName.lpMyAccount);
-
-
                 }),
                 dividerWidget(),
                 profileWidget(imageString: AppImage.png.transaction, text: context.appText.transactions,onTap: (){

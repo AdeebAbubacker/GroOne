@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/sign_in/bloc/sign_in_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -14,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SignInBloc signInBloc = locator<SignInBloc>();
+
 
   @override
   void initState() {
@@ -35,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   });
 
   void disposeFunction() => addPostFrameCallback(() {
-    signInBloc.close();
+
   });
 
   @override

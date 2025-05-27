@@ -102,7 +102,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           if (state is LpCreateSuccess) {
             showSuccessDialog(
               onTap: () {
-                context.push(AppRouteName.lpBottomNavigation);
+                context.push(AppRouteName.lpBottomNavigationBar);
               },
               context,
               text: context.appText.accountCreatedSuccessfully,

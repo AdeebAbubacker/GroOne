@@ -14,12 +14,12 @@ class VpCreationService {
   VpCreationService(this._apiService);
 
   // Fetch Vp Creation
-  Future<Result<VpCreationModel>> fetchVpCreationData(VpCreationApiRequest request,{required String id}) async {
+  Future<Result<UserModel?>> fetchVpCreationData(VpCreationApiRequest request,{required String id}) async {
     try {
       final url = ApiUrls.createVpAccount+id;
       final result = await _apiService.put(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> VpCreationModel.fromJson(data));
+        return  await _apiService.getResponseStatus(result.value, (data)=> UserModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {
