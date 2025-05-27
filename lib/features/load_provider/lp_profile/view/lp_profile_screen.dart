@@ -13,6 +13,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_colors.dart';
@@ -29,7 +30,7 @@ class LpProfileScreen extends StatefulWidget {
 class _LpProfileScreenState extends State<LpProfileScreen> {
   final double profileSize = 130;
   dynamic pickImage;
-
+  File? _croppedImage;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,25 +49,37 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             15.width,
+
+            ///profile image upload widget
             buildUploadProfilePictureWidget(context: context),
-            Text("Sachin Mehta", style: AppTextStyle.blackColor15w500),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.primaryColor,
-              ),
-              child: Text(
-                "${context.appText.blueMembershipId} : qwesd123",
-                style: AppTextStyle.whiteColor14w400,
-              ),
-            ),
+            ///profile details widget
+            profileDetailWidget(),
+            ///profile options widget
             profileOptionWidget()
           ],
         ),
       ),
     );
   }
+  profileDetailWidget(){
+    return Column( spacing: 15.h,
+      children: [
+        Text("Sachin Mehta", style: AppTextStyle.blackColor15w500),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: AppColors.primaryColor,
+          ),
+          child: Text(
+            "${context.appText.blueMembershipId} : qwesd123",
+            style: AppTextStyle.whiteColor14w400,
+          ),
+        ),
+      ],
+    );
+  }
+
 profileOptionWidget(){
     return  Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -76,6 +89,7 @@ profileOptionWidget(){
       ),
       child: Column(
         children: [
+          10.height,
           profileWidget(
             imageString: AppImage.svg.user,
             text: context.appText.myAccount,
@@ -130,6 +144,7 @@ profileOptionWidget(){
             onTap: () {},
             showArrow: false,
           ),
+          10.height
         ],
       ),
     );
@@ -153,10 +168,10 @@ profileOptionWidget(){
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (pickImage != null)
+          if (_croppedImage != null)
             ClipOval(
               child: Image.file(
-                pickImage!,
+                _croppedImage!,
                 fit: BoxFit.cover,
                 width: profileSize,
                 height: profileSize,
@@ -179,18 +194,35 @@ profileOptionWidget(){
                   context: context,
                   barrierDismissible: true,
                   screen: const UploadFileAndImageBottomSheet(),
-                ).then((value) {
+                ).then((value) async {
                   if (value != null && value["path"] != null) {
                     File file = File(value["path"]);
                     pickImage = file;
-                    setState(() {});
-                    // if (file.existsSync()) {
-                    //   //viewModel.setPickImageUIState(file);
-                    //   debugPrint("File exists: $file");
-                    // } else {
-                    //   debugPrint("File does not exist: ${file.path}");
-                    // //  viewModel.setPickImageUIState(null);
-                    // }
+
+                    final croppedFile = await ImageCropper().cropImage(
+                      sourcePath: pickImage.path,
+                      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+
+
+                      uiSettings: [
+                        AndroidUiSettings(
+                          toolbarTitle: 'Crop Image',
+                          toolbarColor: AppColors.primaryColor,
+                          toolbarWidgetColor: Colors.white,
+                          initAspectRatio: CropAspectRatioPreset.ratio16x9,
+                          lockAspectRatio: true,
+                        ),
+                        IOSUiSettings(
+                          title: 'Crop Image',
+                        ),
+                      ],
+                    );
+
+                    if (croppedFile != null) {
+                      setState(() {
+                        _croppedImage = File(croppedFile.path);
+                      });
+                    }
                   } else {
                     // viewModel.setPickImageUIState(null);
                   }
