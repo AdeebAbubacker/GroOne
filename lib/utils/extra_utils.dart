@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -120,10 +121,10 @@ profileWidget({
   return InkWell(
     onTap: onTap,
     child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 22.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 13.h),
       child: Row(
         children: [
-          Image.asset(imageString, height: 20.h, width: 20.w),
+      SvgPicture.asset(imageString, height: 20.h, width: 20.w),
           10.width,
           Text(
             text,

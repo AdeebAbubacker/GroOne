@@ -38,8 +38,8 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-   // initialLocation: AppRouteName.lpBottomNavigation,
-   initialLocation: AppRouteName.splash,
+    initialLocation: AppRouteName.lpBottomNavigation,
+   // initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash

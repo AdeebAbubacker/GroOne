@@ -20,19 +20,19 @@ class PngImages {
   final String upi = "${_pngImageBasePath}upi.png";
   final String netBanking = "${_pngImageBasePath}netBanking.png";
   final String bankImage = "${_pngImageBasePath}bankImage.png";
-  final String settings = "${_pngImageBasePath}settings.png";
+
   final String document = "${_pngImageBasePath}document.png";
   final String doc = "${_pngImageBasePath}doc.png";
   final String truck = "${_pngImageBasePath}truck.png";
   final String privacy = "${_pngImageBasePath}privacy.png";
   final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
   final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";
-  final String support = "${_pngImageBasePath}support.png";
-  final String logOut = "${_pngImageBasePath}logOut.png";
+
+
   final String pendingTransaction = "${_pngImageBasePath}pendingTransaction.png";
   final String completedTransaction = "${_pngImageBasePath}completedTransaction.png";
-  final String transaction = "${_pngImageBasePath}transaction.png";
-  final String user = "${_pngImageBasePath}user.png";
+
+
   final String noShipment = "${_pngImageBasePath}noShipmentFound.png";
   final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";
@@ -83,6 +83,13 @@ class SvgImages {
   final String appLogo = "${_svgImageBasePath}appLogo.svg";
   final String noSearchFound = "${_svgImageBasePath}searchNotFound.svg";
   final String groBanner = "${_svgImageBasePath}gro_banner.svg";
+  final String master = "${_svgImageBasePath}master.svg";
+  final String myDocuments = "${_svgImageBasePath}my_documents.svg";
+  final String settings = "${_svgImageBasePath}settings.svg";
+  final String support = "${_svgImageBasePath}support.svg";
+  final String transaction = "${_svgImageBasePath}transaction.svg";
+  final String user = "${_svgImageBasePath}user.svg";
+  final String logOut = "${_svgImageBasePath}logOut.svg";
 }
 
 class JpgImage {
