@@ -73,7 +73,7 @@ void initLocator() {
     locator.registerFactory(() => RoleBloc());
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
-    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>(), locator<UserInformationRepository>()));
     locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
 

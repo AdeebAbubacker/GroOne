@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -9,7 +10,8 @@ part 'vp_creation_state.dart';
 
 class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   final VpCreationRepository _repository;
-  VpCreationBloc(this._repository) : super(VpCreationInitial()) {
+  final UserInformationRepository? _informationRepository;
+  VpCreationBloc(this._repository, this._informationRepository) : super(VpCreationInitial()) {
 
     // Vehicle provider creation api call
     on<VpCreationRequested>((event, emit) async {

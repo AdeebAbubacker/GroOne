@@ -261,7 +261,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Upload Rc Truck Document
         BlocConsumer<UploadRcTruckFileBloc, UploadRcTruckFileState>(
-          bloc: uploadRcTruckFileBloc ,
+          bloc: uploadRcTruckFileBloc,
           listener: (context, state) {
             if (state is UploadRcTruckFileSuccess) {
               ToastMessages.success(message: "File uploaded successfully");

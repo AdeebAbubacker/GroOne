@@ -51,6 +51,8 @@ class SvgIcons {
   final String dateAndTime = "${_svgBasePath}svg.svg";
   final String kgWeight = "${_svgBasePath}kg_weight.svg";
   final String truck = "${_svgBasePath}truck.svg";
+  final String markerLocation = "${_svgBasePath}marker_location.svg";
+  final String myLocation = "${_svgBasePath}my_location.svg";
 
 
 }

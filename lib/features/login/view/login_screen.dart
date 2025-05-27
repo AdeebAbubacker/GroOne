@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
           20.width,
           InkWell(
             onTap: (){
-              context.push(AppRouteName.lpBottomNavigation);
+              context.push(AppRouteName.lpBottomNavigationBar);
             },
             child: Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
           ),
