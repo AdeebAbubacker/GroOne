@@ -1,63 +1,76 @@
-// To parse this JSON data, do
-//
-//     final otpResponse = otpResponseFromJson(jsonString);
-
-import 'dart:convert';
-
-OtpResponse otpResponseFromJson(String str) => OtpResponse.fromJson(json.decode(str));
-
-String otpResponseToJson(OtpResponse data) => json.encode(data.toJson());
-
 class OtpResponse {
-  bool success;
-  String message;
-  Data data;
-
   OtpResponse({
     required this.success,
     required this.message,
     required this.data,
   });
 
-  factory OtpResponse.fromJson(Map<String, dynamic> json) => OtpResponse(
-    success: json["success"],
-    message: json["message"],
-    data: Data.fromJson(json["data"]),
-  );
+  final bool success;
+  final String message;
+  final Data? data;
+
+  OtpResponse copyWith({
+    bool? success,
+    String? message,
+    Data? data,
+  }) {
+    return OtpResponse(
+      success: success ?? this.success,
+      message: message ?? this.message,
+      data: data ?? this.data,
+    );
+  }
+
+  factory OtpResponse.fromJson(Map<String, dynamic> json){
+    return OtpResponse(
+      success: json["success"] ?? false,
+      message: json["message"] ?? "",
+      data: json["data"] == null ? null : Data.fromJson(json["data"]),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "success": success,
     "message": message,
-    "data": data.toJson(),
+    "data": data?.toJson(),
   };
+
 }
 
 class Data {
-  String token;
-  User user;
-
   Data({
     required this.token,
     required this.user,
   });
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    token: json["token"],
-    user: User.fromJson(json["user"]),
-  );
+  final String token;
+  final User? user;
+
+  Data copyWith({
+    String? token,
+    User? user,
+  }) {
+    return Data(
+      token: token ?? this.token,
+      user: user ?? this.user,
+    );
+  }
+
+  factory Data.fromJson(Map<String, dynamic> json){
+    return Data(
+      token: json["token"] ?? "",
+      user: json["user"] == null ? null : User.fromJson(json["user"]),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "token": token,
-    "user": user.toJson(),
+    "user": user?.toJson(),
   };
+
 }
 
 class User {
-  int id;
-  String mobile;
-  int role;
-  bool tempflg;
-
   User({
     required this.id,
     required this.mobile,
@@ -65,12 +78,33 @@ class User {
     required this.tempflg,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["id"],
-    mobile: json["mobile"],
-    role: json["role"],
-    tempflg: json["tempflg"],
-  );
+  final int id;
+  final String mobile;
+  final num role;
+  final bool tempflg;
+
+  User copyWith({
+    int? id,
+    String? mobile,
+    num? role,
+    bool? tempflg,
+  }) {
+    return User(
+      id: id ?? this.id,
+      mobile: mobile ?? this.mobile,
+      role: role ?? this.role,
+      tempflg: tempflg ?? this.tempflg,
+    );
+  }
+
+  factory User.fromJson(Map<String, dynamic> json){
+    return User(
+      id: json["id"] ?? 0,
+      mobile: json["mobile"] ?? "",
+      role: json["role"] ?? 0,
+      tempflg: json["tempflg"] ?? false,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "id": id,
@@ -78,4 +112,5 @@ class User {
     "role": role,
     "tempflg": tempflg,
   };
+
 }
