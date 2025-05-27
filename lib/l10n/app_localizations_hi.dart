@@ -54,7 +54,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get getOtp => 'ओटीपी प्राप्त करें';
 
   @override
-  String get enterMobileNumber => 'जारी रखने के लिए अपना मोबाइल नंबर दर्ज करें।';
+  String get enterMobileNumber =>
+      'जारी रखने के लिए अपना मोबाइल नंबर दर्ज करें।';
 
   @override
   String get loginSingUp => 'लॉगिन / साइन अप';
@@ -114,7 +115,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loginSuccessful => 'लॉगिन सफल';
 
   @override
-  String get loginSuccessfulSubHeading => 'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
+  String get loginSuccessfulSubHeading =>
+      'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
 
   @override
   String get home => 'होम';
@@ -276,13 +278,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get benefitsOfKavachHeading1 => 'ईंधन की हानि के लिए अनुचित दोष नहीं';
 
   @override
-  String get benefitsOfKavachHeading2 => 'चोरी की जांच से होने वाली देरी को रोकता है';
+  String get benefitsOfKavachHeading2 =>
+      'चोरी की जांच से होने वाली देरी को रोकता है';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'कवच ड्राइवरों को ईंधन चोरी के झूठे आरोपों से बचाता है।';
+  String get benefitsOfKavachSubHeading1 =>
+      'कवच ड्राइवरों को ईंधन चोरी के झूठे आरोपों से बचाता है।';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'ईंधन चोरी के मुद्दों में समय बर्बाद होने से ड्राइवरों को बचाता है।';
+  String get benefitsOfKavachSubHeading2 =>
+      'ईंधन चोरी के मुद्दों में समय बर्बाद होने से ड्राइवरों को बचाता है।';
 
   @override
   String get buyNow => 'अब खरीदें';
@@ -378,7 +383,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get accountCreatedSuccessfully => 'खाता सफलतापूर्वक बनाया गया';
 
   @override
-  String get accountCreatedSuccessfullySubHeading => 'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
+  String get accountCreatedSuccessfullySubHeading =>
+      'अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं';
 
   @override
   String get createYourAccount => 'अपना खाता बनाएं';
@@ -397,4 +403,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get second => ' सेकंड';
+
+  @override
+  String get checkout => 'चेक आउट';
 }

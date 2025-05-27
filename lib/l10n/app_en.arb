@@ -129,5 +129,6 @@
   "select": "Select",
   "continueText": "Continue",
   "inText": "  in  ",
-  "second": " seconds"
+  "second": " seconds",
+  "checkout": "checkout"
 }

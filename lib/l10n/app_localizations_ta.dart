@@ -18,13 +18,15 @@ class AppLocalizationsTa extends AppLocalizations {
   String get chooseLanguage => 'மொழியை பின்னர் மாற்றவும் முடியும்';
 
   @override
-  String get choosePreferredLanguage => 'உங்கள் விருப்பமான மொழியைத் தேர்வுசெய்க';
+  String get choosePreferredLanguage =>
+      'உங்கள் விருப்பமான மொழியைத் தேர்வுசெய்க';
 
   @override
   String get language => 'மொழி';
 
   @override
-  String get chooseRoleText => 'இந்த செயலியை நீங்கள் எதற்காகப் பயன்படுத்துகிறீர்கள்?';
+  String get chooseRoleText =>
+      'இந்த செயலியை நீங்கள் எதற்காகப் பயன்படுத்துகிறீர்கள்?';
 
   @override
   String get lpTextHeading => 'நான் ஒரு சரக்கு வழங்குநர்';
@@ -114,7 +116,8 @@ class AppLocalizationsTa extends AppLocalizations {
   String get loginSuccessful => 'உள்நுழைவு வெற்றிகரமாக முடிந்தது';
 
   @override
-  String get loginSuccessfulSubHeading => 'இப்போது நீங்கள் விகிதங்களை ஆராய்ந்து\nசரக்குகளை பதிவிடலாம்';
+  String get loginSuccessfulSubHeading =>
+      'இப்போது நீங்கள் விகிதங்களை ஆராய்ந்து\nசரக்குகளை பதிவிடலாம்';
 
   @override
   String get home => 'முகப்பு';
@@ -273,16 +276,20 @@ class AppLocalizationsTa extends AppLocalizations {
   String get benefitsOfKavach => 'KAVACH இன் நன்மைகள்';
 
   @override
-  String get benefitsOfKavachHeading1 => 'எரிபொருள் இழப்புக்கான தவறான குற்றச்சாட்டுகள் இல்லை';
+  String get benefitsOfKavachHeading1 =>
+      'எரிபொருள் இழப்புக்கான தவறான குற்றச்சாட்டுகள் இல்லை';
 
   @override
-  String get benefitsOfKavachHeading2 => 'திருட்டு விசாரணைகளால் ஏற்படும் தாமதம் தவிர்க்கப்படுகிறது';
+  String get benefitsOfKavachHeading2 =>
+      'திருட்டு விசாரணைகளால் ஏற்படும் தாமதம் தவிர்க்கப்படுகிறது';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'KAVACH, டிரைவர்களை எரிபொருள் திருட்டில் தவறாக குற்றம்சாட்டப்படுவதிலிருந்து பாதுகாக்கிறது.';
+  String get benefitsOfKavachSubHeading1 =>
+      'KAVACH, டிரைவர்களை எரிபொருள் திருட்டில் தவறாக குற்றம்சாட்டப்படுவதிலிருந்து பாதுகாக்கிறது.';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'எரிபொருள் திருட்டு பிரச்சனைகளால் நேரத்தை இழப்பதை தவிர்த்து, டிரைவர்களை திட்டமிட்டபடி வைத்திருக்கிறது.';
+  String get benefitsOfKavachSubHeading2 =>
+      'எரிபொருள் திருட்டு பிரச்சனைகளால் நேரத்தை இழப்பதை தவிர்த்து, டிரைவர்களை திட்டமிட்டபடி வைத்திருக்கிறது.';
 
   @override
   String get buyNow => 'இப்போது வாங்குங்கள்';
@@ -375,10 +382,12 @@ class AppLocalizationsTa extends AppLocalizations {
   String get pinCode => 'அஞ்சல் குறியீடு';
 
   @override
-  String get accountCreatedSuccessfully => 'கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது';
+  String get accountCreatedSuccessfully =>
+      'கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது';
 
   @override
-  String get accountCreatedSuccessfullySubHeading => 'இப்போது நீங்கள் விகிதங்களை ஆராய்ந்து\nசரக்குகளை பதிவிடலாம்';
+  String get accountCreatedSuccessfullySubHeading =>
+      'இப்போது நீங்கள் விகிதங்களை ஆராய்ந்து\nசரக்குகளை பதிவிடலாம்';
 
   @override
   String get createYourAccount => 'உங்கள் கணக்கை உருவாக்கவும்';
@@ -397,4 +406,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get second => ' விநாடிகள்';
+
+  @override
+  String get checkout => 'புதுப்பித்து';
 }

@@ -24,7 +24,6 @@ class KavachModelsListBody extends StatelessWidget {
           // Kavach Image
           Image.asset(AppImage.png.kavachProduct, width: 80),
           10.width,
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

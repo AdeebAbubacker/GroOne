@@ -129,5 +129,6 @@
   "select": "चुनें",
   "continueText": "जारी रखें",
   "inText": " में ",
-  "second": " सेकंड"
+  "second": " सेकंड",
+  "checkout": "चेक आउट"
 }

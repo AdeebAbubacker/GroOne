@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_models_filter_bottom_sheet_Screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -84,7 +85,9 @@ class _KavachModelsScreenState extends State<KavachModelsScreen> {
   Widget buildBuyButtonWidget(){
     return AppButton(
         title: context.appText.buyNow,
-        onPressed: (){},
+        onPressed: (){
+         Navigator.of(context).push(commonRoute(KavachCheckoutScreen()));
+        },
     ).bottomNavigationPadding();
   }
 

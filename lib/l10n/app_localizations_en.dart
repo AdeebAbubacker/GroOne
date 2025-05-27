@@ -114,7 +114,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSuccessful => 'LOGIN SUCCESSFUL';
 
   @override
-  String get loginSuccessfulSubHeading => 'Now you can explore the rates\nand post loads';
+  String get loginSuccessfulSubHeading =>
+      'Now you can explore the rates\nand post loads';
 
   @override
   String get home => 'Home';
@@ -276,13 +277,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get benefitsOfKavachHeading1 => 'No Unfair Blame for Fuel Loss';
 
   @override
-  String get benefitsOfKavachHeading2 => 'Prevents Delay from Theft Investigations';
+  String get benefitsOfKavachHeading2 =>
+      'Prevents Delay from Theft Investigations';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'KAVACH protects drivers from being wrongly accused of fuel theft.';
+  String get benefitsOfKavachSubHeading1 =>
+      'KAVACH protects drivers from being wrongly accused of fuel theft.';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
+  String get benefitsOfKavachSubHeading2 =>
+      'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
 
   @override
   String get buyNow => 'Buy Now';
@@ -378,7 +382,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountCreatedSuccessfully => 'Account created Successfully';
 
   @override
-  String get accountCreatedSuccessfullySubHeading => 'Now you can explore the rates\nand post loads';
+  String get accountCreatedSuccessfullySubHeading =>
+      'Now you can explore the rates\nand post loads';
 
   @override
   String get createYourAccount => 'Create your account';
@@ -397,4 +402,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get second => ' seconds';
+
+  @override
+  String get checkout => 'checkout';
 }
