@@ -58,6 +58,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   String? truckTypeDropDownValue;
   String? preferredLanesDropDownValue;
+  String? uploadedRcFile;
+
 
   List<dynamic> multiFilesList = [];
 
@@ -277,7 +279,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
                   if (state is UploadRcTruckFileSuccess) {
                     if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
-                      multiFilesList.first['path'] = state.fileModel.data!.url;
+                      uploadedRcFile = state.fileModel.data!.url;
                     } else {
                       multiFilesList.clear();
                     }
@@ -332,7 +334,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   ownedTrucks: ownedTruckTextController.text,
                   attachedTrucks: attachedTruckTextController.text,
                   preferredLanes: preferredLanesDropDownValue,
-                  uploadRc: multiFilesList.first['path']
+                  uploadRc: uploadedRcFile ?? "",
               );
 
               vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));

@@ -38,7 +38,6 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-   // initialLocation: AppRouteName.lpBottomNavigation,
    initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
@@ -49,6 +48,7 @@ class AppRoutes {
           return SplashScreen();
         },
       ),
+
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
@@ -165,7 +165,7 @@ class AppRoutes {
         },
       ),
       GoRoute(
-        path: AppRouteName.lpBottomNavigation,
+        path: AppRouteName.lpBottomNavigationBar,
         builder: (BuildContext context, GoRouterState state) {
           return LpBottomNavigation();
         },

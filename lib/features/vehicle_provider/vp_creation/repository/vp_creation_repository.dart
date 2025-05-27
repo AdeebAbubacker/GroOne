@@ -31,6 +31,7 @@ class VpCreationRepository {
       if(result is Error){
         return Error(result.type);
       }
+
       return Error(GenericError());
     } catch (e) {
       CustomLog.error(this, "Failed to request vp creation", e);
@@ -38,6 +39,7 @@ class VpCreationRepository {
     }
   }
 
+  // Upload rc truck document
   Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file) async {
     try {
       return await _vpCreationService.fetchUploadRcTruckFileData(file);
@@ -46,6 +48,17 @@ class VpCreationRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  // Sign Out
+  Future<Result<bool>> signOut() async {
+    try {
+      await _authRepository.signOut(); // Your logout logic here
+      return Success(true);
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+
 
 
 }

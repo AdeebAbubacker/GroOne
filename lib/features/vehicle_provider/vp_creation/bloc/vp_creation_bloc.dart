@@ -14,18 +14,29 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     // Vehicle provider creation api call
     on<VpCreationRequested>((event, emit) async {
       emit(VpCreationLoading());
-      Result result = await _repository.requestVpCreation(event.apiRequest,id:event.id );
-      if (result is Success<UserModel>) {
+      Result result = await _repository.requestVpCreation(event.apiRequest, id: event.id);
+      if (result is Success<UserModel?>) {
         emit(VpCreationSuccess(result.value));
-      } else if (result is Error) {
+      }
+      if (result is Error) {
         emit(VpCreationError(result.type));
-      } else {
-        emit(VpCreationError(GenericError()));
+      }
+    });
+
+
+    // Logout
+    on<LogoutRequested>((event, emit) async {
+      emit(LogoutLoading());
+      Result result = await _repository.signOut(); // You must define this in your repository
+      if (result is Success<bool>) {
+        emit(LogoutSuccess());
+      } else if (result is Error) {
+        emit(LogoutError(result.type));
       }
     });
 
 
 
-  }
 
+  }
 }

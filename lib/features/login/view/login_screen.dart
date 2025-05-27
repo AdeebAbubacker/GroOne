@@ -26,7 +26,7 @@ import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key, required this.roleId});
+  const LoginScreen({super.key, required this.roleId});
 
   final int roleId;
 

@@ -16,6 +16,9 @@ import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/repository/otp_repository.dart';
 import 'package:gro_one_app/features/otp_verification/service/otp_service.dart';
+import 'package:gro_one_app/features/splash/splash_repository.dart';
+import 'package:gro_one_app/features/splash/splash_service.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -45,6 +48,7 @@ void initLocator() {
 
 
     // Service
+    locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
@@ -52,12 +56,16 @@ void initLocator() {
 
 
     // Repository
+    locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
     locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
     locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
-    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>()));
+    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
+
+    // View Model
+    locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
 
 
     // Bloc

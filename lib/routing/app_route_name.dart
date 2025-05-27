@@ -1,9 +1,15 @@
 class AppRouteName{
   AppRouteName._();
 
-  static const String intro = "/intro";
-  static const String signIn = "/signIn";
   static const String splash = "/splash";
+  static const String login = "/login";
+  static const String lpBottomNavigationBar = "/lpBottomNavigation";
+  static const String vpBottomNavigationBar = "/vpBottomNavigationBar";
+  static const String lpCreateAccount = "/lpCreateAccount";
+
+  static const String notFound = "/notFound";
+
+
   static const String lpSupport = "/lpSupport";
   static const String buyFastag = "/buyFastag";
   static const String enDhanCard = "/enDhanCard";
@@ -19,15 +25,11 @@ class AppRouteName{
   static const String lpMyAccount = "/lpMyAccount";
   static const String home = "/home";
   static const String homeScreenLoadProvider = "/home_screen_load_provider";
-  static const String login = "/login";
   static const String securityHome = "/securityHome";
   static const String lpTransaction = "/lpTransaction";
   static const String lpSetting = "/lpSetting";
-  static const String lpBottomNavigation = "/lpBottomNavigation";
-  static const String vpBottomNavigationBar = "/vpBottomNavigationBar";
-  static const String notFound = "/notFound";
+
   static const String otpVerificationScreen = "/otpVerificationScreen";
-  static const String lpCreateAccount = "/lpCreateAccount";
   static const String chooseLanguage = "/chooseLanguage";
   static const String chooseRoleScreen = "/chooseRoleScreen";
   static const String lpPayNowAndTrackLoad = "/lpPayNowAndTrackLoad";
