@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/kyc_upload_file.dart';
@@ -109,6 +111,8 @@ class _KycScreenState extends State<KycScreen> {
     super.dispose();
   }
 
+  int roleId = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,14 +167,17 @@ class _KycScreenState extends State<KycScreen> {
                   Form(
                     key: _formKey,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 15.h,
                       children: [
-                        textFieldWithLabel(
+                     textFieldWithLabel(
                           readOnly: true,
                           rightText: "Aadhaar Number",
                           leftText: "Verified",
                           controller: addharNumber,
                         ),
+
+                        /// GST section
                         textFieldWithLabel(
                           leftText: verifiedGst ? "Verified" : null,
                           readOnly: verifiedGst,
@@ -180,15 +187,22 @@ class _KycScreenState extends State<KycScreen> {
                         ),
                         upload(multiFilesList: gstDoc),
 
-                        textFieldWithLabel(
-                          readOnly: verifiedTan,
-                          leftText: verifiedTan ? "Verified" : null,
-                          rightText: "TAN",
-                          controller: tan,
-                          currentFocus: _tanNode,
+                        /// Tan section
+                        Column(
+                          spacing: 15.h,
+                          children: [
+                            textFieldWithLabel(
+                              readOnly: verifiedTan,
+                              leftText: verifiedTan ? "Verified" : null,
+                              rightText: "TAN",
+                              controller: tan,
+                              currentFocus: _tanNode,
+                            ),
+                            upload(multiFilesList: tanDoc),
+                          ],
                         ),
-                        upload(multiFilesList: tanDoc),
 
+                        /// PAN section
                         textFieldWithLabel(
                           readOnly: verifiedPan,
                           leftText: verifiedPan ? "Verified" : null,
@@ -196,8 +210,30 @@ class _KycScreenState extends State<KycScreen> {
                           controller: pan,
                           currentFocus: _panNode,
                         ),
-
                         upload(multiFilesList: panDoc),
+
+                        roleId == 2
+                            ? Column(
+                              spacing: 15.h,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                /// Cancelled cheque section
+                                Text(
+                                  "Cancelled Cheque",
+                                  style: AppTextStyle.textBlackColor16w400,
+                                ),
+                                upload(multiFilesList: checkDocLink),
+
+                                /// Tds Certificate section
+                                Text(
+                                  "TDS Certificate",
+                                  style: AppTextStyle.textBlackColor16w400,
+                                ),
+                                upload(multiFilesList: tdsDocLink),
+                              ],
+                            )
+                            : const SizedBox(),
+
                         multipleTextFieldWidget(
                           text: "Address",
                           children: [
@@ -287,11 +323,18 @@ class _KycScreenState extends State<KycScreen> {
                   10.height,
                   AppButton(
                     disableButton:
-                        (gstDoc.isEmpty && tanDoc.isEmpty && tanDoc.isEmpty),
+                        roleId == 1
+                            ? (gstDoc.isEmpty &&
+                                tanDoc.isEmpty &&
+                                panDoc.isEmpty)
+                            : (gstDoc.isEmpty &&
+                                checkDocLink.isEmpty &&
+                                panDoc.isEmpty &&
+                                tdsDocLink.isNotEmpty),
                     title: "Submit",
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        final request = SubmitKycRequestLp(
+                        final kycRequest = SubmitKycRequestLp(
                           aadhar: widget.addharNumber,
                           address1: addressLine1.text,
                           address2: addressLine2.text,
@@ -299,7 +342,14 @@ class _KycScreenState extends State<KycScreen> {
                           bankAccount: accountNumber.text,
                           bankName: bankName.text,
                           branchName: branchName.text,
-
+                          chequeDocLink:
+                              checkDocLink.isNotEmpty
+                                  ? checkDocLink.first['path']
+                                  : null,
+                          tdsDocLink:
+                              tdsDocLink.isNotEmpty
+                                  ? tdsDocLink.first['path']
+                                  : null,
                           gstin: gstIn.text,
                           gstinDocLink: gstDoc.first['path'],
                           ifscCode: ifscCode.text,
@@ -313,17 +363,18 @@ class _KycScreenState extends State<KycScreen> {
                           tanDocLink: tanDoc.first['path'],
                         );
 
-                        List<String> keysToRemove = [
-                          'chequeDocLink',
-                          'tdsDocLink',
-                        ];
+                        jsonDecode(
+                          jsonEncode(kycRequest),
+                        ).remove('chequeDocLink');
+                        jsonDecode(jsonEncode(kycRequest)).remove('tdsDocLink');
 
-                        for (var key in keysToRemove) {
-                          request.toJson().remove(key);
-                        }
-                        kycBloc.add(
-                          SubmitKycRequested(apiRequest: request, userId: "20"),
+                        debugPrint(
+                          "json ${kycRequest.toJson()}",
+                          wrapWidth: 1000,
                         );
+                        // kycBloc.add(
+                        //   SubmitKycRequested(apiRequest: kycRequest, userId: "20"),
+                        // );
                       }
                     },
                   ),
@@ -340,12 +391,29 @@ class _KycScreenState extends State<KycScreen> {
   List<dynamic> gstDoc = [];
   List<dynamic> panDoc = [];
   List<dynamic> tanDoc = [];
-
+  List<dynamic> checkDocLink = [];
+  List<dynamic> tdsDocLink = [];
+  List<dynamic> tds = [];
+String uploadLink="";
   upload({required List<dynamic> multiFilesList}) {
     return BlocConsumer<KycBloc, KycState>(
       bloc: kycBloc,
       listener: (context, state) {
         if (state is UploadFileSuccess) {
+          if (state.uploadFileModel.data != null &&
+              state.uploadFileModel.data!.url.isNotEmpty) {
+if(multiFilesList.isNotEmpty){
+  multiFilesList.first['path'] =
+      state.uploadFileModel.data!.url;
+}
+
+
+
+
+
+          } else {
+            multiFilesList.clear();
+          }
           ToastMessages.success(message: "File uploaded successfully");
         } else if (state is AddharOtpError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
@@ -362,14 +430,17 @@ class _KycScreenState extends State<KycScreen> {
                 UploadFileRequested(file: File(multiFilesList.first['path'])),
               );
               if (state is UploadFileSuccess) {
-                if (state.uploadFileModel.data != null &&
-                    state.uploadFileModel.data!.url.isNotEmpty) {
-                  multiFilesList.first['path'] =
-                      state.uploadFileModel.data!.url;
-                  setState(() {});
-                } else {
-                  multiFilesList.clear();
-                }
+                // if (state.uploadFileModel.data != null &&
+                //     state.uploadFileModel.data!.url.isNotEmpty) {
+                //
+                //   multiFilesList.first['path'] =
+                //       state.uploadFileModel.data!.url;
+                //
+                //   setState(() {});
+                //   debugPrint("data!.url ${  multiFilesList.first['path']}");
+                // } else {
+                //   multiFilesList.clear();
+                // }
               }
               if (state is AddharOtpError) {
                 multiFilesList.clear();
