@@ -17,7 +17,7 @@ class _AppLockScreenState extends State<AppLockScreen> {
   @override
   void initState() {
     super.initState();
-    _authenticate();
+   // _authenticate();
   }
 
   Future<void> _authenticate() async {
@@ -41,10 +41,12 @@ class _AppLockScreenState extends State<AppLockScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return _isAuthenticated
-        ? widget.child
-        : const Scaffold(
-      body: Center(child: Text("Locked")),
-    );
+    return
+      // _isAuthenticated
+      //   ?
+      widget.child;
+    //     : const Scaffold(
+    //   body: Center(child: Text("Locked")),
+    // );
   }
 }
