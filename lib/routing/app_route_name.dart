@@ -5,6 +5,8 @@ class AppRouteName{
   static const String signIn = "/signIn";
   static const String splash = "/splash";
   static const String lpSupport = "/lpSupport";
+  static const String master = "/master";
+  static const String myDocumentScreen = "/myDocumentScreen";
   static const String buyFastag = "/buyFastag";
   static const String enDhanCard = "/enDhanCard";
   static const String gps = "/gps";

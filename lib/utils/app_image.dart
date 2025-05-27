@@ -90,6 +90,7 @@ class SvgImages {
   final String transaction = "${_svgImageBasePath}transaction.svg";
   final String user = "${_svgImageBasePath}user.svg";
   final String logOut = "${_svgImageBasePath}logOut.svg";
+  final String location = "${_svgImageBasePath}location.svg";
 }
 
 class JpgImage {

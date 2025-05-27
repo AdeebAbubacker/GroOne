@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -31,6 +32,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   final double profileSize = 130;
   dynamic pickImage;
   File? _croppedImage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,36 +54,45 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
 
             ///profile image upload widget
             buildUploadProfilePictureWidget(context: context),
+
             ///profile details widget
             profileDetailWidget(),
+
             ///profile options widget
-            profileOptionWidget()
+            profileOptionWidget(),
           ],
         ),
       ),
     );
   }
-  profileDetailWidget(){
-    return Column( spacing: 15.h,
+
+  profileDetailWidget() {
+    return Column(
+      spacing: 15.h,
       children: [
         Text("Sachin Mehta", style: AppTextStyle.blackColor15w500),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: AppColors.primaryColor,
-          ),
-          child: Text(
-            "${context.appText.blueMembershipId} : qwesd123",
-            style: AppTextStyle.whiteColor14w400,
+        InkWell(
+          onTap: () {
+            Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColors.primaryColor,
+            ),
+            child: Text(
+              "${context.appText.blueMembershipId} : qwesd123",
+              style: AppTextStyle.whiteColor14w400,
+            ),
           ),
         ),
       ],
     );
   }
 
-profileOptionWidget(){
-    return  Container(
+  profileOptionWidget() {
+    return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -102,7 +113,7 @@ profileOptionWidget(){
             imageString: AppImage.svg.master,
             text: "Master",
             onTap: () {
-              context.push(AppRouteName.lpMyAccount);
+              context.push(AppRouteName.master);
             },
           ),
           dividerWidget(),
@@ -110,7 +121,7 @@ profileOptionWidget(){
             imageString: AppImage.svg.myDocuments,
             text: "My Documents",
             onTap: () {
-              context.push(AppRouteName.lpMyAccount);
+              context.push(AppRouteName.myDocumentScreen);
             },
           ),
           dividerWidget(),
@@ -144,11 +155,12 @@ profileOptionWidget(){
             onTap: () {},
             showArrow: false,
           ),
-          10.height
+          10.height,
         ],
       ),
     );
-}
+  }
+
   dividerWidget() {
     return Divider(
       color: AppColors.dividerColor,
@@ -203,7 +215,6 @@ profileOptionWidget(){
                       sourcePath: pickImage.path,
                       aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
 
-
                       uiSettings: [
                         AndroidUiSettings(
                           toolbarTitle: 'Crop Image',
@@ -212,9 +223,7 @@ profileOptionWidget(){
                           initAspectRatio: CropAspectRatioPreset.ratio16x9,
                           lockAspectRatio: true,
                         ),
-                        IOSUiSettings(
-                          title: 'Crop Image',
-                        ),
+                        IOSUiSettings(title: 'Crop Image'),
                       ],
                     );
 
