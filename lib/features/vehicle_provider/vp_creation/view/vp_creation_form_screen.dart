@@ -303,7 +303,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     return BlocConsumer<VpCreationBloc, VpCreationState>(
       bloc: vpCreationBloc,
       listener: (context, state) {
-        print(state);
         if (state is VpCreationSuccess) {
           addPostFrameCallback(() {
             showSuccessDialog(

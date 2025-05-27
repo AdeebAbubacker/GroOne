@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
@@ -49,7 +50,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         bloc: vpHomeBloc,
         listener: (context, state) {
           if (state is LogoutSuccess) {
-            context.go(AppRouteName.splash);
+            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
           }
           if (state is LogoutError) {
             ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
