@@ -33,7 +33,9 @@ class VerifyTanSuccess extends KycState {
   final VerifyTanResponse verifyTanResponse;
 
   VerifyTanSuccess(this.verifyTanResponse);
-}class VerifyPanSuccess extends KycState {
+}
+
+class VerifyPanSuccess extends KycState {
   final VerifyPanResponse verifyPanResponse;
 
   VerifyPanSuccess(this.verifyPanResponse);

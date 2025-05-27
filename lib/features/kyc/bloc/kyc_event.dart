@@ -33,6 +33,9 @@ class VerifyPanRequested extends KycEvent {
   VerifyPanRequested({required this.apiRequest});
 }
 
+
+
+
 class SubmitKycRequested extends KycEvent {
   final SubmitKycRequestLp apiRequest;
   String userId;

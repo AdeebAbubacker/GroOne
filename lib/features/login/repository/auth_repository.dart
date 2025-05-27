@@ -54,25 +54,6 @@ class AuthRepository {
       return Error(GenericError());
     }
   }
-  /// Save user data
-  Future<Result<bool>> saveUserInfoFromLpCreateAccount(CreateResponse user) async {
-    try {
-      final userData = user.data;
-      if (userData == null) {
-        CustomLog.error(this, "Save user failed", "User data is null");
-        return Error(LoginAttemptError());
-      }
-      if(userData.customer != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
-        await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
-      }
-      CustomLog.debug(this, "Save user from create account saved successfully");
-      return const Success(true);
-    } catch (e) {
-      CustomLog.error(this, "Save Resident user info to preferences error", e);
-      return Error(GenericError());
-    }
-  }
 
 
 

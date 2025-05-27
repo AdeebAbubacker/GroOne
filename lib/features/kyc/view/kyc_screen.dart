@@ -1,19 +1,21 @@
-import 'dart:convert';
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
+
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/kyc_upload_file.dart';
@@ -38,8 +40,9 @@ class KycScreen extends StatefulWidget {
 
 class _KycScreenState extends State<KycScreen> {
   final kycBloc = locator<KycBloc>();
+
   TextEditingController addharNumber = TextEditingController(
-    text: "750001925686",
+
   );
   TextEditingController gstIn = TextEditingController();
   TextEditingController tan = TextEditingController();
@@ -65,7 +68,7 @@ class _KycScreenState extends State<KycScreen> {
       } else {
         kycBloc.add(
           VerifyGstRequested(
-            apiRequest: VerifyGstRequest(gst: "27AABCM9984D1Z4", force: false),
+            apiRequest: VerifyGstRequest(gst:gstIn.text, force: false),
           ),
         );
       }
@@ -76,7 +79,7 @@ class _KycScreenState extends State<KycScreen> {
       } else {
         kycBloc.add(
           VerifyTanRequested(
-            apiRequest: VerifyTanRequest(tan: "PNEM19000C", force: false),
+            apiRequest: VerifyTanRequest(tan:tan.text, force: false),
           ),
         );
       }
@@ -88,7 +91,7 @@ class _KycScreenState extends State<KycScreen> {
       } else {
         kycBloc.add(
           VerifyPanRequested(
-            apiRequest: VerifyPanRequest(pan: "AABCM9984D", force: false),
+            apiRequest: VerifyPanRequest(pan: pan.text, force: false),
           ),
         );
       }
@@ -96,15 +99,23 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
+  String? userRole;
+  String? userID;
+takeKey()async{
 
+  userID =await SecuredSharedPreferences(FlutterSecureStorage()).get(AppString.sessionKey.userId);
+  userRole=await SecuredSharedPreferences(FlutterSecureStorage()).get(AppString.sessionKey.userRole);
+  debugPrint("user Id $userRole}");
 
+}
   @override
   void initState() {
+    takeKey();
 
 
     super.initState();
     nodeManage();
-    // addharNumber.text = widget.addharNumber;
+     addharNumber.text = widget.addharNumber;
   }
 
   @override
@@ -116,7 +127,7 @@ class _KycScreenState extends State<KycScreen> {
     super.dispose();
   }
 
-  int roleId = 1;
+
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +143,13 @@ class _KycScreenState extends State<KycScreen> {
           child: BlocConsumer(
             bloc: kycBloc,
             listener: (context, state) {
+
               if (state is SubmitKycSuccess) {
+
+
                 showSuccessDialog(
                   onTap: () {
-                    //context.pop();
+                  context.pop();
                     context.pop();
                   },
                   context,
@@ -145,20 +159,20 @@ class _KycScreenState extends State<KycScreen> {
               }
               if (state is VerifyTanSuccess) {
                 verifiedTan = true;
-                tan.text = "PNEM19000C";
-                setState(() {});
+
+
                 print("success VerifyTanSuccess");
               }
               if (state is VerifyPanSuccess) {
                 verifiedPan = true;
                 pan.text = "AABCM9984D";
-                setState(() {});
+
                 print("success VerifyPanSuccess");
               }
               if (state is VerifyGstSuccess) {
                 verifiedGst = true;
                 gstIn.text = "27AABCM9984D1Z4";
-                setState(() {});
+
                 print("success VerifyGstSuccess");
               } else if (state is AddharOtpError) {
                 ToastMessages.error(
@@ -167,6 +181,8 @@ class _KycScreenState extends State<KycScreen> {
               }
             },
             builder: (context, state) {
+
+
               return Column(
                 children: [
                   Form(
@@ -184,7 +200,7 @@ class _KycScreenState extends State<KycScreen> {
 
                         /// GST section
                         textFieldWithLabel(
-                          leftText: verifiedGst ? "Verified" : null,
+                          leftText: verifiedGst ?   "Verified" : "Un-Verified",
                           readOnly: verifiedGst,
                           currentFocus: _gstNode,
                           rightText: "GSTIN",
@@ -198,7 +214,7 @@ class _KycScreenState extends State<KycScreen> {
                           children: [
                             textFieldWithLabel(
                               readOnly: verifiedTan,
-                              leftText: verifiedTan ? "Verified" : null,
+                              leftText: verifiedTan ? "Verified" : "Un-Verified",
                               rightText: "TAN",
                               controller: tan,
                               currentFocus: _tanNode,
@@ -210,14 +226,14 @@ class _KycScreenState extends State<KycScreen> {
                         /// PAN section
                         textFieldWithLabel(
                           readOnly: verifiedPan,
-                          leftText: verifiedPan ? "Verified" : null,
+                          leftText: verifiedPan ? "Verified" : "Un-Verified",
                           rightText: "PAN",
                           controller: pan,
                           currentFocus: _panNode,
                         ),
                         upload(multiFilesList: panDoc),
 
-                        roleId == 2
+                        int.parse(userRole??"0") == 2
                             ? Column(
                               spacing: 15.h,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,17 +344,19 @@ class _KycScreenState extends State<KycScreen> {
                   10.height,
                   AppButton(
                     disableButton:
-                        roleId == 1
-                            ? (gstDoc.isEmpty &&
-                                tanDoc.isEmpty &&
+
+                   int.parse(userRole??"0") == 1
+                            ? (gstDoc.isEmpty ||
+                                tanDoc.isEmpty ||
                                 panDoc.isEmpty)
-                            : (gstDoc.isEmpty &&
-                                checkDocLink.isEmpty &&
-                                panDoc.isEmpty &&
+                            : (gstDoc.isEmpty ||
+                                checkDocLink.isEmpty ||
+                                panDoc.isEmpty ||
                                 tdsDocLink.isNotEmpty),
                     title: "Submit",
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+
+                      if(verifiedGst && verifiedTan && verifiedPan){  if (_formKey.currentState!.validate()) {
                         final kycRequest = SubmitKycRequestLp(
                           aadhar: widget.addharNumber,
                           address1: addressLine1.text,
@@ -348,13 +366,13 @@ class _KycScreenState extends State<KycScreen> {
                           bankName: bankName.text,
                           branchName: branchName.text,
                           chequeDocLink:
-                              checkDocLink.isNotEmpty
-                                  ? checkDocLink.first['path']
-                                  : null,
+                          checkDocLink.isNotEmpty
+                              ? checkDocLink.first['path']
+                              : null,
                           tdsDocLink:
-                              tdsDocLink.isNotEmpty
-                                  ? tdsDocLink.first['path']
-                                  : null,
+                          tdsDocLink.isNotEmpty
+                              ? tdsDocLink.first['path']
+                              : null,
                           gstin: gstIn.text,
                           gstinDocLink: gstDoc.first['path'],
                           ifscCode: ifscCode.text,
@@ -368,19 +386,19 @@ class _KycScreenState extends State<KycScreen> {
                           tanDocLink: tanDoc.first['path'],
                         );
 
-                        jsonDecode(
-                          jsonEncode(kycRequest),
-                        ).remove('chequeDocLink');
-                        jsonDecode(jsonEncode(kycRequest)).remove('tdsDocLink');
+                        debugPrint("kycRequest ${kycRequest.toJson()}",wrapWidth: 1000);
 
-                        debugPrint(
-                          "json ${kycRequest.toJson()}",
-                          wrapWidth: 1000,
+
+                        kycBloc.add(
+                          SubmitKycRequested(apiRequest: kycRequest, userId:userID??"0"),
                         );
-                        // kycBloc.add(
-                        //   SubmitKycRequested(apiRequest: kycRequest, userId: "20"),
-                        // );
+                      }}
+                      else{
+                        ToastMessages.error(
+                          message:"Please verify all document before submit"
+                        );
                       }
+
                     },
                   ),
                   10.height,
@@ -435,17 +453,7 @@ if(multiFilesList.isNotEmpty){
                 UploadFileRequested(file: File(multiFilesList.first['path'])),
               );
               if (state is UploadFileSuccess) {
-                // if (state.uploadFileModel.data != null &&
-                //     state.uploadFileModel.data!.url.isNotEmpty) {
-                //
-                //   multiFilesList.first['path'] =
-                //       state.uploadFileModel.data!.url;
-                //
-                //   setState(() {});
-                //   debugPrint("data!.url ${  multiFilesList.first['path']}");
-                // } else {
-                //   multiFilesList.clear();
-                // }
+
               }
               if (state is AddharOtpError) {
                 multiFilesList.clear();
@@ -492,7 +500,7 @@ if(multiFilesList.isNotEmpty){
             Text(
               leftText ?? "",
               style: AppTextStyle.textBlackColor16w500.copyWith(
-                color: Color(0xFF018800),
+                color:!readOnly?Colors.red: Color(0xFF018800),
               ),
             ),
           ],

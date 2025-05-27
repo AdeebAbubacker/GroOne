@@ -1,4 +1,5 @@
 import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 
 import '../../../../data/model/result.dart';
 import '../../../../data/network/api_service.dart';
@@ -13,31 +14,51 @@ class LpCreateService {
 
   LpCreateService(this._apiService);
 
-  Future<Result<CreateResponse>> lpRegister(
-    CreateRequest request, {
-    required String id,
-  }) async
-  {
+  // Future<Result<UserModel?>> lpRegister(
+  //   CreateRequest request, {
+  //   required String id,
+  // }) async
+  // {
+  //   try {
+  //     final result = await _apiService.put(
+  //       ApiUrls.createLpAccount + id,
+  //       body: request,
+  //     );
+  //     if (result is Success) {
+  //       return await _apiService.getResponseStatus(
+  //         result.value,
+  //         (data) => UserModel.fromJson(data),
+  //       );
+  //     } else if (result is Error) {
+  //       return Error(result.type);
+  //     } else {
+  //       return Error(GenericError());
+  //     }
+  //   } catch (e) {
+  //     CustomLog.error(this, AppString.error.deserializationError, e);
+  //     return Error(DeserializationError());
+  //   }
+  // }
+
+
+  // Fetch Vp Creation
+  Future<Result<UserModel?>> lpRegister(CreateRequest request,{required String id}) async {
     try {
-      final result = await _apiService.put(
-        ApiUrls.createLpAccount + id,
-        body: request,
-      );
+      final url = ApiUrls.createLpAccount+id;
+      final result = await _apiService.put(url, body: request.toJson());
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => CreateResponse.fromJson(data),
-        );
+        return  await _apiService.getResponseStatus(result.value, (data)=> UserModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } catch(e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
+
 
   Future<Result<LpCompanyTypeResponse>> getCompanyType() async {
     try {
