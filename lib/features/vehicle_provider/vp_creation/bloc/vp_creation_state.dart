@@ -8,7 +8,7 @@ class VpCreationInitial extends VpCreationState {}
 class VpCreationLoading extends VpCreationState {}
 
 class VpCreationSuccess extends VpCreationState {
-  final VpCreationModel vpCreationModel;
+  final UserModel vpCreationModel;
   VpCreationSuccess(this.vpCreationModel);
 }
 
