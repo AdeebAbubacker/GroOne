@@ -69,7 +69,12 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          InkWell(
+            onTap: (){
+              context.push(AppRouteName.lpBottomNavigation);
+            },
+            child: Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          ),
           30.width,
         ],
       ),
@@ -80,8 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber":
-                state.loginApiResponseModel.data.user.mobileNumber,
+                "mobileNumber": state.loginApiResponseModel.data.user.mobileNumber,
                 "otp": state.loginApiResponseModel.data.user.otp.toString(),
                 "roleId": widget.roleId.toString(),
               },

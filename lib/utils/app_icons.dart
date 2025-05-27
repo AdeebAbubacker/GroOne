@@ -47,6 +47,11 @@ class SvgIcons {
   final String edit = "${_svgBasePath}edit_outline.svg";
   final String delete = "${_svgBasePath}trash.svg";
   final String infOutline = "${_svgBasePath}infoCircleOutline.svg";
+  final String commodity = "${_svgBasePath}commodity.svg";
+  final String dateAndTime = "${_svgBasePath}svg.svg";
+  final String kgWeight = "${_svgBasePath}kg_weight.svg";
+  final String truck = "${_svgBasePath}truck.svg";
+
 
 }
 

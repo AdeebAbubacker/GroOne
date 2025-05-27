@@ -5,10 +5,13 @@ import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../../utils/app_application_bar.dart';
@@ -183,78 +186,62 @@ elevation:10 ,
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(
-        //backgroundColor: Colors.transparent,
-        leading: InkWell(
-          onTap: () {
-            Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Image.asset(
-              AppImage.png.appIcon,
-              height: 33.h,
-              width: 75.w,
-              scale: 1,
-            ),
-          ),
-        ),
-        toolbarHeight: 50.h,
-        actions: [
-          kycWidget(
+      appBar: buildAppBarWidget(context),
+      body: buildBodyWidget(context),
+    );
+  }
+
+  // Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context){
+    return CommonAppBar(
+      isLeading: false,
+      leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+      actions: [
+        // KYC
+        kycWidget(
             onTap: () {
               _showKycBottomSheet(context);
-            },
-          ),
-          5.width,
-          InkWell(
-            onTap: () {
-              context.push(AppRouteName.lpProfile);
-            },
-            child: Container(
-              height: 36.h,
-
-              width: 36.w,
-              padding: EdgeInsets.all(4),
-              // Border width
-              decoration: BoxDecoration(
-                color: Colors.blue, // Border color
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  AppImage.png.appIcon, // Replace with your image path
-
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-
-          20.width,
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            5.height,
-            keyStatusWidget(),
-            5.height,
-
-            bookShipmentSection(),
-            5.height,
-            valueAddedService(context),
-            upComingShipment(),
-            30.height,
-          ],
+            }
         ),
+        10.width,
+
+        // Profile
+        InkWell(
+          onTap: (){
+            context.push(AppRouteName.lpProfile);
+          },
+          child: commonCacheNetworkImage(
+            height: 40,
+            width: 40,
+            path: "",
+            errorImage: AppImage.png.userProfileError
+          ).paddingRight(commonSafeAreaPadding),
+        ),
+      ],
+    );
+  }
+
+  // Body
+  Widget buildBodyWidget(BuildContext context){
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildKYCStatusWidget(),
+
+          bookShipmentSection(),
+          10.height,
+
+          valueAddedService(context),
+
+          upComingShipment(),
+          30.height,
+        ],
       ),
     );
   }
 
-  keyStatusWidget() {
+  Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       color: AppColors.appRedColor,
