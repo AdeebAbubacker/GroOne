@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -18,6 +19,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/kyc_upload_file.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
+import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/common_functions.dart';
@@ -95,8 +97,11 @@ class _KycScreenState extends State<KycScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+
   @override
   void initState() {
+
+
     super.initState();
     nodeManage();
     // addharNumber.text = widget.addharNumber;

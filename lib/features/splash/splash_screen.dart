@@ -11,7 +11,6 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:video_player/video_player.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -20,10 +19,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   late VideoPlayerController _controller;
   final splashViewModel = locator<SplashViewModel>();
-
 
   @override
   void initState() {
@@ -34,7 +31,8 @@ class _SplashScreenState extends State<SplashScreen> {
       });
 
     _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized) {
+      if (_controller.value.position == _controller.value.duration &&
+          _controller.value.isInitialized) {
         context.push(AppRouteName.chooseLanguage);
       }
     });
@@ -53,14 +51,14 @@ class _SplashScreenState extends State<SplashScreen> {
     super.dispose();
   }
 
-
   //  Init Function
   Future<void> init(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 3), () async {
       await splashViewModel.fetchIsUserLogin();
     });
 
-    if (splashViewModel.checkIsUserLoginUIState != null && splashViewModel.checkIsUserLoginUIState?.status != null) {
+    if (splashViewModel.checkIsUserLoginUIState != null &&
+        splashViewModel.checkIsUserLoginUIState?.status != null) {
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.SUCCESS) {
         if (splashViewModel.checkIsUserLoginUIState!.data == true) {
           if (!context.mounted) return;
@@ -69,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
         if (!context.mounted) return;
-        addPostFrameCallback(()=> context.go(AppRouteName.chooseLanguage));
+        addPostFrameCallback(() => context.go(AppRouteName.chooseLanguage));
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
@@ -79,17 +77,27 @@ class _SplashScreenState extends State<SplashScreen> {
   // Check user type (1 LP, 2 VP, 3 Both, 4)
   _checkUserType(BuildContext context) async {
     await splashViewModel.fetchUserType();
-    if (splashViewModel.userRoleUIState != null && splashViewModel.userRoleUIState?.status != null) {
+    if (splashViewModel.userRoleUIState != null &&
+        splashViewModel.userRoleUIState?.status != null) {
       if (splashViewModel.userRoleUIState?.status == Status.ERROR) {
-        if(splashViewModel.userRoleUIState?.errorType != null){
-          ToastMessages.error(message: getErrorMsg(errorType: splashViewModel.userRoleUIState!.errorType!));
+        if (splashViewModel.userRoleUIState?.errorType != null) {
+          ToastMessages.error(
+            message: getErrorMsg(
+              errorType: splashViewModel.userRoleUIState!.errorType!,
+            ),
+          );
         } else {
           ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
         }
       }
       if (splashViewModel.userRoleUIState?.status == Status.SUCCESS) {
         if (splashViewModel.userRoleUIState?.data != null) {
-          addPostFrameCallback(()=> navigateHomeScreen(splashViewModel.userRoleUIState!.data!, context));
+          addPostFrameCallback(
+            () => navigateHomeScreen(
+              splashViewModel.userRoleUIState!.data!,
+              context,
+            ),
+          );
         }
       }
     } else {
@@ -98,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Navigate Home Screen
-  void navigateHomeScreen(String userRole, BuildContext context){
+  void navigateHomeScreen(String userRole, BuildContext context) {
     if (userRole == "1") {
       context.go(AppRouteName.lpBottomNavigationBar);
     } else if (userRole == "2") {
@@ -108,18 +116,18 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _controller.value.isInitialized
-          ? Center(
-        child: AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ),
-      )
-          : const Center(child: CircularProgressIndicator()),
+      body:
+          _controller.value.isInitialized
+              ? Center(
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+              )
+              : const Center(child: CircularProgressIndicator()),
     );
   }
 }
