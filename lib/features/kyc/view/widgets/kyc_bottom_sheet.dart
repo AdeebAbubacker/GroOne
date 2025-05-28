@@ -175,88 +175,71 @@ _buildBody(){
     );
   }
   addharVerificationWidget(  bool isLoading) {
-    return Stack(
-      children: [
-        Container(
-          height: double.infinity,
-          color: AppColors.textBlackColor.withOpacity(0.4),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+      ),
+
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+
+              Text(
+                "Enter the OTP sent to your registered Mobile number",
+                style: AppTextStyle.textBlackColor16w400,
               ),
-            ),
+              20.height,
+              Center(
+                child: OtpTextField(
+                  borderRadius: BorderRadius.circular(10),
+                  numberOfFields: 6,
+                  showFieldAsBox: true,
+                  fieldWidth: 47.w,
+                  borderColor: AppColors.borderDisableColor,
+                  onCodeChanged: (String code) {},
 
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textAlign: TextAlign.left,
-                      "Verify Your KYC",
-                      style: AppTextStyle.textBlackColor20w500,
-                    ),
-                    15.height,
-                    Text(
-                      "Enter the OTP sent to your registered Mobile number",
-                      style: AppTextStyle.textBlackColor16w400,
-                    ),
-                    20.height,
-                    Center(
-                      child: OtpTextField(
-                        borderRadius: BorderRadius.circular(10),
-                        numberOfFields: 6,
-                        showFieldAsBox: true,
-                        fieldWidth: 50.w,
-                        borderColor: AppColors.borderDisableColor,
-                        onCodeChanged: (String code) {},
+                  onSubmit: (String verificationCode) {
+                    addharNumberOtp.text = verificationCode;
 
-                        onSubmit: (String verificationCode) {
-                          addharNumberOtp.text = verificationCode;
-
-                          setState(() {});
-                        }, // end
-                      ),
-                    ),
-
-                    20.height,
-                    AppButton(
-                      style:
-                      addharNumberOtp.text.length == 6?AppButtonStyle.primary:AppButtonStyle.disableButton,
-                      isLoading: isLoading,
-                      title: "Verify OTP",
-                      onPressed: () {
-                        if(addharNumberOtp.text.length == 6){
-                          kycBloc.add(
-                            AddharVerifyOtpRequested(
-                              apiRequest: AddharVerifyOtpRequest(
-                                requestId: requestID ?? "",
-                                otp: addharNumberOtp.text,
-                                aadhaar: addharNumber.text,
-                              ),
-                            ),
-                          );
-                        }
-
-                      },
-                    ),
-                    20.height,
-                  ],
+                    setState(() {});
+                  }, // end
                 ),
               ),
-            ),
+
+              20.height,
+              AppButton(
+                style:
+                addharNumberOtp.text.length == 6?AppButtonStyle.primary:AppButtonStyle.disableButton,
+                isLoading: isLoading,
+                title: "Verify OTP",
+                onPressed: () {
+                  if(addharNumberOtp.text.length == 6){
+                    kycBloc.add(
+                      AddharVerifyOtpRequested(
+                        apiRequest: AddharVerifyOtpRequest(
+                          requestId: requestID ?? "",
+                          otp: addharNumberOtp.text,
+                          aadhaar: addharNumber.text,
+                        ),
+                      ),
+                    );
+                  }
+
+                },
+              ),
+              20.height,
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

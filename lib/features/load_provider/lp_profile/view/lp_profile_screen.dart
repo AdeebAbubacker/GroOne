@@ -192,6 +192,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
           ),
           dividerWidget(),
         BlocListener<VpCreationBloc, VpCreationState>(
+          bloc: vpHomeBloc,
           listener: (context, state) {
             if (state is LogoutSuccess) {
               context.go(AppRouteName.splash);
