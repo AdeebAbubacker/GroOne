@@ -89,11 +89,11 @@ class _SplashScreenState extends State<SplashScreen> {
   //Navigate Home Screen
   void navigateHomeScreen(String userRole, BuildContext context){
     if (userRole == "1") {
-      context.go(AppRouteName.lpBottomNavigationBar);
+      context.push(AppRouteName.lpBottomNavigationBar);
     } else if (userRole == "2") {
-      context.go(AppRouteName.vpBottomNavigationBar);
+      context.push(AppRouteName.vpBottomNavigationBar);
     } else {
-      context.go(AppRouteName.notFound);
+      context.push(AppRouteName.notFound);
     }
   }
 

@@ -39,7 +39,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       // Dismiss only with button if needed
       builder: (BuildContext context) {
         return showAlertDialogue(
-          yesButtonText: "Log Out",
+          yesButtonText: "Exit",
           context: context,
           onClickYesButton: () {
             context.pop();

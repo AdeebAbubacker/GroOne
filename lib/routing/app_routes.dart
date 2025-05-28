@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/validate_memo/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/master/master_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
@@ -61,6 +62,11 @@ class AppRoutes {
         path: AppRouteName.lpSupport,
         builder: (BuildContext context, GoRouterState state) {
           return LpSupport();
+        },
+      ),   GoRoute(
+        path: AppRouteName.master,
+        builder: (BuildContext context, GoRouterState state) {
+          return MasterScreen();
         },
       ),
       GoRoute(

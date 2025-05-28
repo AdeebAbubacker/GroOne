@@ -10,17 +10,21 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dar
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
 
@@ -41,7 +45,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   dynamic pickImage;
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
-
+  final vpHomeBloc = locator<VpCreationBloc>();
   @override
   void initState() {
     initFunction();
@@ -187,12 +191,42 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             },
           ),
           dividerWidget(),
-          profileWidget(
+        BlocListener<VpCreationBloc, VpCreationState>(
+          listener: (context, state) {
+            if (state is LogoutSuccess) {
+              context.go(AppRouteName.splash);
+            }
+            if (state is LogoutError) {
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            }
+          },
+
+          child:   profileWidget(
             imageString: AppImage.svg.logOut,
             text: context.appText.logOut,
-            onTap: () {},
+            onTap: () {
+
+
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                // Dismiss only with button if needed
+                builder: (BuildContext context) {
+                  return showAlertDialogue(
+                    yesButtonText: "Log Out",
+                    noButtonText: "Cancel",
+                    context: context,
+                    onClickYesButton: () {
+                        vpHomeBloc.add(LogoutRequested());
+                    },
+                    child: LogOutDialogueUi(),
+                  );
+                },
+              );
+
+            },
             showArrow: false,
-          ),
+          )),
           10.height,
         ],
       ),

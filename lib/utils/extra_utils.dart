@@ -225,6 +225,7 @@ showAlertDialogue({
   required GestureTapCallback onClickYesButton,
   bool hideButtonButtons = false,
   String? yesButtonText,
+  String? noButtonText,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -249,7 +250,7 @@ showAlertDialogue({
                     child: AppButton(
                       buttonHeight: 32.h,
                       style: AppButtonStyle.outline,
-                      title: "No",
+                      title: noButtonText??"No",
                       onPressed: () {
                         context.pop();
                       },
