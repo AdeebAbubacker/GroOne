@@ -6,9 +6,11 @@ import 'package:gro_one_app/enum/status.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:lottie/lottie.dart';
 import 'package:video_player/video_player.dart';
 
 
@@ -21,23 +23,11 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
-  late VideoPlayerController _controller;
   final splashViewModel = locator<SplashViewModel>();
 
 
   @override
   void initState() {
-    _controller = VideoPlayerController.asset(AppImage.png.splash)
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
-      });
-
-    _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized) {
-        context.push(AppRouteName.chooseLanguage);
-      }
-    });
     init(context);
     super.initState();
   }
@@ -49,14 +39,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
 
   //  Init Function
   Future<void> init(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 3), () async {
+    await Future.delayed(const Duration(seconds: 4), () async {
       await splashViewModel.fetchIsUserLogin();
     });
 
@@ -112,14 +101,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _controller.value.isInitialized
-          ? Center(
-        child: AspectRatio(
-          aspectRatio: _controller.value.aspectRatio,
-          child: VideoPlayer(_controller),
-        ),
+      body: Center(
+        child: Lottie.asset(AppJSON.groSplash)
       )
-          : const Center(child: CircularProgressIndicator()),
     );
   }
 }

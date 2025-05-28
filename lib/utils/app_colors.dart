@@ -67,6 +67,7 @@ class AppColors {
   static const Color shimmerHighlightColor = Colors.white10;
 
   // Icon Color
+  static const Color primaryIconColor = Color(0xff0369A1);
   static const Color iconColor = Color(0xff606060);
   static const Color defaultIconTint = Colors.white;
   static const Color greyIconBackgroundColor = Color(0xffe3e3e8);

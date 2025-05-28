@@ -14,7 +14,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
-import '../../../service/hasInternet/has_internet_connection.dart';
+import '../../../service/has_internet_connection.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';

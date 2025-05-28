@@ -129,5 +129,13 @@
   "select": "Select",
   "continueText": "Continue",
   "inText": "  in  ",
-  "second": " seconds"
+  "second": " seconds",
+  "dateAndTime" : "Date & Time",
+  "consignmentWeightWithMT" : "Consignment weight (MT)",
+  "yes" : "Yes",
+  "no" : "No",
+  "markAsFavouriteTitle" : "Mark as Favourite",
+  "markAsFavouriteSubtitle" : "Do you want mark as Favorite this load?",
+  "location" : "Location",
+  "address" : "Address"
 }

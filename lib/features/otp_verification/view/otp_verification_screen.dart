@@ -8,12 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/otp_request.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
+import 'package:gro_one_app/features/otp_verification/model/otp_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../dependency_injection/locator.dart';
@@ -84,6 +86,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   bool _isButtonEnabled = false;
 
+  void homeRedirection(OtpResponse data, BuildContext context) => addPostFrameCallback((){
+    if (int.parse(widget.roleId) == 1) {
+      context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString()});
+    } else if (int.parse(widget.roleId) == 2) {
+      Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString()), isForward: true));
+    }
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,14 +129,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           }
           if (state is OtpSuccess) {
             if (state.otpResponse.data!.user!.tempflg) {
-              if (int.parse(widget.roleId) == 1) {
-                context.push(
-                  AppRouteName.lpCreateAccount,
-                  extra: {"id": state.otpResponse.data!.user!.id.toString()},
-                );
-              } else if (int.parse(widget.roleId) == 2) {
-                Navigator.push(context, commonRoute(VpCreationFormScreen(id: state.otpResponse.data!.user!.id.toString()), isForward: true),);
-              }
+               homeRedirection(state.otpResponse, context);
             } else {
               showSuccessDialog(
                 onTap: () {
@@ -136,6 +139,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 text: context.appText.loginSuccessful,
                 subheading: context.appText.loginSuccessfulSubHeading,
               );
+              await Future.delayed(Duration(seconds: 2));
+              if(!context.mounted) return;
+              homeRedirection(state.otpResponse, context);
             }
           } else if (state is OtpError) {
             otpString = "";

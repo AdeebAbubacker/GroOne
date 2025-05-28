@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
+import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
@@ -39,17 +47,48 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   final vpHomeBloc = locator<VpCreationBloc>();
 
-  bool checkBoxBool = false;
+  final dateTextController = TextEditingController();
+  final weightTextController = TextEditingController();
+
+
   int selectedPercentage = 80;
   final int baseAmount = 15000;
-  bool memoDone = false;
 
   String hintCommodity = 'Commodity';
   String? selectedCommodity;
   String hintTruck = 'Truck';
   String? selectedTruck;
+
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
+  bool checkBoxBool = false;
+  bool memoDone = false;
+
+
+
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() {
+    //  Call your init methods
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {
+
+  });
 
 
   void _showKycBottomSheet(BuildContext context) {
@@ -288,8 +327,6 @@ elevation:10 ,
 
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -314,12 +351,11 @@ elevation:10 ,
           }
         },
         child: InkWell(
-          onTap: (){
-            vpHomeBloc.add(LogoutRequested());
-          },
+          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
           child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
         ),
-      ),      actions: [
+      ),
+      actions: [
         // KYC
         kycWidget(
             onTap: () {
@@ -353,10 +389,11 @@ elevation:10 ,
           children: [
             buildKYCStatusWidget(),
 
-            bookShipmentSectionWidget(),
-            10.height,
+            bookShipmentSectionWidget(context),
+            20.height,
 
             valueAddedService(context),
+            20.height,
 
             buildUpComingShipmentWidget(),
             30.height,
@@ -370,11 +407,11 @@ elevation:10 ,
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       color: AppColors.appRedColor,
-      height: 42.h,
+      height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(AppImage.png.alertTriangle, height: 24.h, width: 24.w),
+          Image.asset(AppImage.png.alertTriangle, width: 20),
           10.width,
           RichText(
             textAlign: TextAlign.center,
@@ -385,7 +422,7 @@ elevation:10 ,
                   style: AppTextStyle.textDarkGreyColor14w500,
                 ),
                 TextSpan(
-                  text: " ${context.appText.kyc} ",
+                  text: "  ${context.appText.kyc}  ",
                   style: AppTextStyle.textDarkGreyColor14w500.copyWith(
                     color: AppColors.orangeTextColor,
                   ),
@@ -532,7 +569,30 @@ elevation:10 ,
   }
 
 
-  Widget bookShipmentSectionWidget() {
+  Widget bookShipmentSectionWidget(BuildContext context) {
+
+    // Inner inside Widget
+    Widget bookShipmentWidget({required String heading, required String subHeading, required GestureTapCallback onClick}) {
+      return InkWell(
+        onTap: onClick,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 3,
+              children: [
+                Text(heading, style: AppTextStyle.textGreyColor12w400),
+                Text(subHeading, style: AppTextStyle.body),
+              ],
+            ),
+            Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
+          ],
+        ),
+      );
+    }
+
     return Container(
       color: AppColors.white,
       child: Column(
@@ -540,40 +600,43 @@ elevation:10 ,
         children: [
           // Title
           Text(context.appText.bookShipment, style: AppTextStyle.body1),
+          15.height,
 
           Container(
             padding: EdgeInsets.all(10),
             decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
             child: Row(
               children: [
-                Image.asset(AppImage.png.bookAShipment, height: 86.h, width: 18.h),
+                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
                 10.width,
-                Expanded(
-                  child: Column(
-                    children: [
-                      bookShipmentWidget(
-                        heading: context.appText.source,
-                        subHeading: context.appText.selectPickUpPoint,
-                        onClick: () {
-                          context.push(AppRouteName.lpSelectPickPointScreen);
-                        },
-                      ),
 
-                      Divider(color: AppColors.disableColor, thickness: 0.5),
-                      bookShipmentWidget(
-                        heading: context.appText.destination,
-                        subHeading: context.appText.selectDestination,
-                        onClick: () {
-                          context.push(AppRouteName.lpSelectPickPointScreen);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                Column(
+                  children: [
+                    // Source
+                    bookShipmentWidget(
+                      heading: context.appText.source,
+                      subHeading: context.appText.selectPickUpPoint,
+                      onClick: () {
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(), isForward: true));
+                      },
+                    ),
+
+                    commonDivider(),
+
+                    // Destination
+                    bookShipmentWidget(
+                      heading: context.appText.destination,
+                      subHeading: context.appText.selectDestination,
+                      onClick: () {
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(), isForward: true));
+                      },
+                    ),
+                  ],
+                ).expand(),
               ],
             ),
           ),
-          20.height,
+          15.height,
 
           // Commodity selection
           LPSelectionDropdown(
@@ -593,7 +656,7 @@ elevation:10 ,
               setState(() {});
             },
           ),
-          20.height,
+          15.height,
 
           // Truck selection
           LPSelectionDropdown(
@@ -611,6 +674,60 @@ elevation:10 ,
               selectedValueTruck = !selectedValueTruck;
               setState(() {});
             },
+          ),
+          15.height,
+
+          // Date and Time
+          InkWell(
+            onTap: () async {
+              final String? date = await commonDatePicker(context,  firstDate:  DateTime.now(), initialDate : DateTimeHelper.convertToDateTimeWithCurrentTime(dateTextController.text));
+              if (date != null) {
+                dateTextController.text = date;
+              } else {
+                dateTextController.clear();
+              }
+              setState(() {});
+            },
+            child: Container(
+              height: 55,
+              padding: EdgeInsets.all(10),
+              decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+              child: Row(
+                children: [
+                  SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor),),
+                  12.width,
+                  Text(dateTextController.text.isEmpty ? context.appText.dateAndTime :  dateTextController.text, style: AppTextStyle.body).expand(),
+                  Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
+                ],
+              ),
+            ),
+          ),
+          20.height,
+
+          // Consignment weight (MT)
+          Container(
+            height: 55,
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            child: Row(
+              children: [
+                SvgPicture.asset(AppIcons.svg.kgWeight),
+                12.width,
+                TextFormField(
+                  controller: weightTextController,
+                  autofocus: false,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      border: InputBorder.none,
+                      hintText: context.appText.consignmentWeightWithMT,
+                      hintStyle: AppTextStyle.body,
+                      maintainHintHeight: true
+                  ),
+                ).expand(),
+              ],
+            ),
           ),
           20.height,
 
@@ -632,67 +749,9 @@ elevation:10 ,
                 AppButton(
                   title: context.appText.postLoad,
                   onPressed: () async {
-                    showSuccessDialog(
-                      context,
-                      text: "Load Posted Successfully",
-                      subheading:
-                          "We will assign the vehicle and\ndriver soon.",
-                    );
 
-                    await Future.delayed(
-                      const Duration(seconds: 2),
-                      () async {},
-                    );
-                    context.pop();
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      // Dismiss only with button if needed
-                      builder: (BuildContext context) {
-                        return showAlertDialogue(
-                          context: context,
-                          onClickYesButton: () {},
-                          child: Column(
-                            spacing: 20.h,
-                            children: [
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
-                                  child: const Icon(Icons.close, size: 24),
-                                ),
-                              ),
-
-                              // Illustration
-                              Image.asset(
-                                AppImage.png.markAsFavourite,
-                                // replace with your image asset
-                                height: 150,
-                              ),
-
-                              // Title
-                              const Text(
-                                "Mark as Favourite",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-
-                              // Subtitle
-                              const Text(
-                                "Do you want mark as Favorite this load?",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
+                    AppDialog.show(context, child: MarkAsFavouriteDialogUi());
+                    //AppDialog.show(context, child: SuccessDialogView());
                   },
                 ).expand(flex: 2),
 
@@ -716,26 +775,6 @@ elevation:10 ,
     );
   }
 
-  Widget bookShipmentWidget({required String heading, required String subHeading, required GestureTapCallback onClick}) {
-    return InkWell(
-      onTap: onClick,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 2.h,
-            children: [
-              Text(heading, style: AppTextStyle.textGreyColor12w400),
-              Text(subHeading, style: AppTextStyle.textBlackColor12w400),
-            ],
-          ),
-          Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
-        ],
-      ),
-    );
-  }
 
 
 

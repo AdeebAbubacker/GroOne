@@ -19,6 +19,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -32,6 +33,29 @@ class VpHomeScreen extends StatefulWidget {
 class _VpHomeScreenState extends State<VpHomeScreen> {
 
   final vpHomeBloc = locator<VpCreationBloc>();
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() {
+    //  Call your init methods
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {
+
+  });
 
 
   @override
@@ -50,7 +74,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         bloc: vpHomeBloc,
         listener: (context, state) {
           if (state is LogoutSuccess) {
-            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
+            addPostFrameCallback((){
+              navigateAndRemoveAllRoutes(context, screen: SplashScreen());
+            });
           }
           if (state is LogoutError) {
             ToastMessages.error(message: getErrorMsg(errorType: state.errorType));

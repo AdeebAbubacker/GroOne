@@ -14,3 +14,26 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+@override
+void initState() {
+// TODO: implement initState
+initFunction();
+super.initState();
+}
+
+@override
+void dispose() {
+// TODO: implement dispose
+disposeFunction();
+super.dispose();
+}
+
+void initFunction() => addPostFrameCallback(() {
+//  Call your init methods
+});
+
+void disposeFunction() => addPostFrameCallback(() {
+
+});

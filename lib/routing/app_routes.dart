@@ -1,15 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/features/home/view/home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
-
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -111,12 +107,8 @@ class AppRoutes {
           return LpTransaction();
         },
       ),
-      GoRoute(
-        path: AppRouteName.lpSelectPickPointScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpSelectPickPointScreen();
-        },
-      ),
+
+
       GoRoute(
         path: AppRouteName.lpSetting,
         builder: (BuildContext context, GoRouterState state) {
@@ -140,14 +132,6 @@ class AppRoutes {
         path: AppRouteName.lpEditMyAccount,
         builder: (BuildContext context, GoRouterState state) {
           return LpEditMyAccount();
-        },
-      ),
-
-      //home screen
-      GoRoute(
-        path: AppRouteName.home,
-        builder: (BuildContext context, GoRouterState state) {
-          return HomeScreen();
         },
       ),
 
