@@ -5,6 +5,7 @@ abstract class AppImage {
   static PngImages png = PngImages();
   static SvgImages svg = SvgImages();
   static JpgImage jpg = JpgImage();
+  static LottieFile lottie = LottieFile();
 }
 
 class PngImages {
@@ -96,4 +97,7 @@ class SvgImages {
 class JpgImage {
   static const String _jpgImageBasePath = "assets/images/jpg/";
   final String noticeBoardBgImage = "${_jpgImageBasePath}noticeBoardBgImage.jpg";
+}class LottieFile {
+  static const String _lottiePath = "assets/json/";
+  final String splash = "${_lottiePath}splash.json";
 }

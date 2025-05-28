@@ -93,89 +93,89 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           30.width,
         ],
       ),
-      body: BlocConsumer(
-        listener: (context, state) {
-          if (state is LpCompanyTypeSuccess) {
-            preferredLanesList = state.lpCompanyTypeSuccess.data;
-            setState(() {});
-          }
-          if (state is LpCreateSuccess) {
-            showSuccessDialog(
-              onTap: () {
-                context.push(AppRouteName.lpBottomNavigation);
-              },
-              context,
-              text: context.appText.accountCreatedSuccessfully,
-              subheading: context.appText.accountCreatedSuccessfullySubHeading,
-            );
-          } else if (state is LpCreateError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
-          }
-        },
-        bloc: lpCreateBloc,
-        builder: (context, state) {
-          final isLoading = state is LpCreateLoading;
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 18.0.h,
-                    horizontal: 20.w,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 18.0.h,
+                horizontal: 20.w,
+              ),
+              child: Column(
+                spacing: 15.h,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  20.height,
+                  Text(
+                    context.appText.createYourAccount,
+                    style: AppTextStyle.textBlackColor30w500,
                   ),
-                  child: Column(
-                    spacing: 15.h,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      20.height,
-                      Text(
-                        context.appText.createYourAccount,
-                        style: AppTextStyle.textBlackColor30w500,
-                      ),
-                      10.height,
+                  10.height,
 
-                      createFormWidget(),
-                      10.height,
-                      AppButton(
-                        isLoading: isLoading,
-                        title: "Continue",
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            lpCreateBloc.add(
-                              LpCreateRequested(
-                                apiRequest: CreateRequest(
-                                  customerName: nameTextController.text,
-                                  mobileNumber: phoneNumberTextController.text,
-                                  companyName: companyNameTextController.text,
-                                  companyTypeId: int.parse(
-                                    companyTypeDropDownValue!,
-                                  ),
-                                  pincode: pincode.text,
-                                ),
-                                id: widget.id,
-                              ),
-                            );
-                            // All validations passed
-                          } else {
-                            // Some fields are invalid
-                          }
-                        },
-                      ),
-                      30.height,
-                      Image.asset(AppImage.png.signUpBanner),
-                    ],
-                  ),
-                ),
-              ],
+                  createFormWidget(),
+                  10.height,
+                  buildSubmitButton(),
+                  30.height,
+                  Image.asset(AppImage.png.signUpBanner),
+                ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
-
+  Widget buildSubmitButton() {
+    return BlocConsumer<LpCreateBloc, LpCreateState>(
+      bloc: lpCreateBloc,
+      listener: (context, state) {
+        if (state is LpCompanyTypeSuccess) {
+          preferredLanesList = state.lpCompanyTypeSuccess.data;
+setState(() {});
+        }
+        if (state is LpCreateSuccess) {
+          showSuccessDialog(
+            onTap: () {
+              context.push(AppRouteName.lpBottomNavigationBar);
+            },
+            context,
+            text: context.appText.accountCreatedSuccessfully,
+            subheading: context.appText.accountCreatedSuccessfullySubHeading,
+          );
+        } else if (state is LpCreateError) {
+          ToastMessages.error(
+            message: getErrorMsg(errorType: state.errorType),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is LpCreateLoading;
+        return AppButton(
+          title: context.appText.continueText,
+          isLoading: isLoading,
+          onPressed: isLoading ? null : () {
+            if (_formKey.currentState!.validate()) {
+              lpCreateBloc.add(
+                LpCreateRequested(
+                  apiRequest: CreateRequest(
+                    customerName: nameTextController.text,
+                    mobileNumber: phoneNumberTextController.text,
+                    companyName: companyNameTextController.text,
+                    companyTypeId: int.parse(
+                      companyTypeDropDownValue!,
+                    ),
+                    pincode: pincode.text,
+                  ),
+                  id: widget.id,
+                ),
+              );
+              // All validations passed
+            }
+          },
+        );
+      },
+    );
+  }
   createFormWidget() {
     return Form(
       key: _formKey,

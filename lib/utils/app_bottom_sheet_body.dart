@@ -9,9 +9,10 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class AppBottomSheetBody extends StatefulWidget {
   final String? title;
   final bool? isCloseButton;
+  final bool hideDivider;
   final Widget body;
 
-  const AppBottomSheetBody( {super.key, this.title, this.isCloseButton = true, required this.body});
+  const AppBottomSheetBody( {super.key, this.title, this.isCloseButton = true,this.hideDivider = true, required this.body});
 
 
   @override
@@ -44,7 +45,7 @@ class _AppBottomSheetBodyState extends State<AppBottomSheetBody> {
               ],
             ).paddingSymmetric(horizontal: commonSafeAreaPadding),
 
-            commonDivider(height: 15, dividerColor: AppColors.lightDividerColor),
+           widget.hideDivider? commonDivider(height: 15, dividerColor: AppColors.lightDividerColor):const SizedBox(),
             20.height,
 
            // body

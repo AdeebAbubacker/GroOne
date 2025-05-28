@@ -55,6 +55,7 @@ class HomeScreenLoadProvider extends StatelessWidget {
 
         ],
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -71,6 +72,7 @@ class HomeScreenLoadProvider extends StatelessWidget {
                   context.appText.bookShipment,
                   style: AppTextStyle.textBlackColor18w500,
                 ),
+
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(

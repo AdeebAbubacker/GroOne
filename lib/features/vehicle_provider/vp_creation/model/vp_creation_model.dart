@@ -1,5 +1,5 @@
-class VpCreationModel {
-  VpCreationModel({
+class UserModel {
+  UserModel({
     required this.success,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class VpCreationModel {
   final String message;
   final Data? data;
 
-  factory VpCreationModel.fromJson(Map<String, dynamic> json){
-    return VpCreationModel(
+  factory UserModel.fromJson(Map<String, dynamic> json){
+    return UserModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

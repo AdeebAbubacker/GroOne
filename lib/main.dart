@@ -14,14 +14,10 @@ import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'multi_bloc.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
-  runApp(BlocProvider(
-    create: (_) => LocaleBloc(),
-    child: const MyApp(),
-  ),);
+  runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -31,17 +27,14 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-
 class _MyAppState extends State<MyApp> {
-
-
   @override
   void initState() {
     initFun();
     super.initState();
   }
 
-  initFun()=> addPostFrameCallback(() async {
+  initFun() => addPostFrameCallback(() async {
     await HasInternetConnection().checkConnectivity();
     // await authRepo.signOut();
   });
@@ -51,24 +44,21 @@ class _MyAppState extends State<MyApp> {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.white,
-        statusBarIconBrightness:
-        Brightness.dark,
+        statusBarIconBrightness: Brightness.dark,
       ),
     );
-    appContext=context;
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    appContext = context;
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return ScreenUtilInit(
-        designSize: Size(
-          MediaQuery.of(context).size.width,
-          MediaQuery.of(context).size.height,
-        ),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
+      designSize: Size(
+        MediaQuery.of(context).size.width,
+        MediaQuery.of(context).size.height,
+      ),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
         return BlocBuilder<LocaleBloc, LocaleState>(
-            builder: (context, state) {
+          builder: (context, state) {
             return MultiBlocWrapper(
               child: MaterialApp.router(
                 locale: state.locale,
@@ -80,10 +70,9 @@ class _MyAppState extends State<MyApp> {
                 routerConfig: AppRoutes.router,
               ),
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 }
-

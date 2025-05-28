@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,7 +11,6 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -24,14 +22,13 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/textFieldInputFormatter/aadhaar_input_formatter.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
-import '../../../../utils/extra_utils.dart';
 
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
@@ -61,6 +58,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   String? truckTypeDropDownValue;
   String? preferredLanesDropDownValue;
+  String? uploadedRcFile;
+
 
   List<dynamic> multiFilesList = [];
 
@@ -280,7 +279,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
                   if (state is UploadRcTruckFileSuccess) {
                     if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
-                      multiFilesList.first['path'] = state.fileModel.data!.url;
+                      uploadedRcFile = state.fileModel.data!.url;
                     } else {
                       multiFilesList.clear();
                     }
@@ -335,7 +334,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   ownedTrucks: ownedTruckTextController.text,
                   attachedTrucks: attachedTruckTextController.text,
                   preferredLanes: preferredLanesDropDownValue,
-                  uploadRc: multiFilesList.first['path']
+                  uploadRc: uploadedRcFile ?? "",
               );
 
               vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));

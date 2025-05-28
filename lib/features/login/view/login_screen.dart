@@ -26,7 +26,7 @@ import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({super.key, required this.roleId});
+  const LoginScreen({super.key, required this.roleId});
 
   final int roleId;
 
@@ -42,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     initFun();
-    debugPrint("Role Id ${widget.roleId}");
     super.initState();
   }
 
@@ -102,21 +101,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   horizontal: 20.w,
                 ),
                 child: Column(
-                  spacing: 10.h,
+                  spacing: 5.h,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    30.height,
+                    20.height,
 
                     Text(
                       context.appText.loginSingUp,
                       style: AppTextStyle.textBlackColor30w500,
                     ),
-                    20.height,
+                    15.height,
                     Text(
                       context.appText.enterMobileNumber,
                       style: AppTextStyle.textBlackColor18w400,
                     ),
-                    20.height,
+                    15.height,
                     Row(
                       spacing: 5.w,
                       children: [
@@ -182,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    20.height,
+                    15.height,
                     AppButton(
                       disableButton: !(phoneNumber.text.length==10 && checkBoxBool==true),
                       isLoading: isLoading,
@@ -201,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
 
-                    20.height,
+                    15.height,
                     RichText(
                       textAlign: TextAlign.start,
                       text: TextSpan(

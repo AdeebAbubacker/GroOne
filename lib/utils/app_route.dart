@@ -41,6 +41,13 @@ Route commonRoute(Widget screen, {bool isForward = false, bool nativeMode = fals
   }
 }
 
+// Remove all routes
+void navigateAndRemoveAllRoutes(BuildContext context, {required Widget screen}) {
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (context) => screen),
+        (Route<dynamic> route) => false,
+  );
+}
 
 
 Route splashRoute(Widget screen){

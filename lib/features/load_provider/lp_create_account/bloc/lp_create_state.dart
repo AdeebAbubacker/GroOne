@@ -8,7 +8,7 @@ final class LpCreateInitial extends LpCreateState {}
 class LpCreateLoading extends LpCreateState {}
 
 class LpCreateSuccess extends LpCreateState {
-  final CreateResponse createResponse;
+  final UserModel? createResponse;
 
   LpCreateSuccess(this.createResponse);
 }
