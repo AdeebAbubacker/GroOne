@@ -397,4 +397,28 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get second => ' सेकंड';
+
+  @override
+  String get dateAndTime => 'दिनांक समय';
+
+  @override
+  String get consignmentWeightWithMT => 'खेप भार (एमटी)';
+
+  @override
+  String get yes => 'हाँ';
+
+  @override
+  String get no => 'नहीं';
+
+  @override
+  String get markAsFavouriteTitle => 'पसंदीदा के रूप में चिह्नित करें';
+
+  @override
+  String get markAsFavouriteSubtitle => 'क्या आप इस लोड के पसंदीदा के रूप में मार्क चाहते हैं?';
+
+  @override
+  String get location => 'जगह';
+
+  @override
+  String get address => 'पता';
 }

@@ -261,7 +261,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Upload Rc Truck Document
         BlocConsumer<UploadRcTruckFileBloc, UploadRcTruckFileState>(
-          bloc: uploadRcTruckFileBloc ,
+          bloc: uploadRcTruckFileBloc,
           listener: (context, state) {
             if (state is UploadRcTruckFileSuccess) {
               ToastMessages.success(message: "File uploaded successfully");
@@ -323,7 +323,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? null : () {
+          onPressed: isLoading ? (){} : () {
             if (formKey.currentState!.validate()){
 
               final request = VpCreationApiRequest(
@@ -336,8 +336,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   preferredLanes: preferredLanesDropDownValue,
                   uploadRc: uploadedRcFile ?? "",
               );
-
-              vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
+               vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
             }
           },
         );

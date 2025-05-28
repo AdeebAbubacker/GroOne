@@ -129,5 +129,15 @@
   "select": "चुनें",
   "continueText": "जारी रखें",
   "inText": " में ",
-  "second": " सेकंड"
+  "second": " सेकंड",
+  "dateAndTime" : "दिनांक समय",
+  "consignmentWeightWithMT" : "खेप भार (एमटी)",
+  "yes" : "हाँ",
+  "no" : "नहीं",
+  "markAsFavouriteTitle" : "पसंदीदा के रूप में चिह्नित करें",
+  "markAsFavouriteSubtitle" : "क्या आप इस लोड के पसंदीदा के रूप में मार्क चाहते हैं?",
+  "location" : "जगह",
+  "address" : "पता"
+
+
 }
