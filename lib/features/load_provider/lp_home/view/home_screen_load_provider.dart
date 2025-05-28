@@ -7,17 +7,15 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -26,7 +24,6 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
@@ -395,7 +392,7 @@ elevation:10 ,
             valueAddedService(context),
             20.height,
 
-            buildUpComingShipmentWidget(),
+            upComingShipment(),
             30.height,
           ],
         ),
@@ -439,7 +436,7 @@ elevation:10 ,
     );
   }
 
-  Widget buildUpComingShipmentWidget() {
+  upComingShipment() {
     return Container(
       color: AppColors.white,
       child: Padding(
@@ -448,125 +445,135 @@ elevation:10 ,
           spacing: 10.h,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              context.appText.upComingShipment,
-              style: AppTextStyle.textBlackColor18w500,
+          Text(
+          context.appText.upComingShipment,
+          style: AppTextStyle.textBlackColor18w500,
+        ),
+
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            spacing: 5.h,
+            children: [
+          ListTile(
+          leading: Image.asset(
+          AppImage.png.shipmentBox,
+            height: 39.h,
+            width: 39.w,
+          ),
+          title: Text(
+            context.appText.idNumber,
+            style: AppTextStyle.textGreyDetailColor10w400,
+          ),
+          subtitle: Text(
+            "GD12456",
+            style: AppTextStyle.blackColor16w400,
+          ),
+          trailing: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 30.w,
+              vertical: 5.h,
             ),
-
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                spacing: 5.h,
-                children: [
-                  ListTile(
-                    leading: Image.asset(
-                      AppImage.png.shipmentBox,
-                      height: 39.h,
-                      width: 39.w,
-                    ),
-                    title: Text(
-                      context.appText.idNumber,
-                      style: AppTextStyle.textGreyDetailColor10w400,
-                    ),
-                    subtitle: Text(
-                      "GD12456",
-                      style: AppTextStyle.blackColor16w400,
-                    ),
-                    trailing: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.w,
-                        vertical: 5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightPurpleColor,
-
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Text(
-                        "Sourcing",
-                        style: AppTextStyle.whiteColor14w400.copyWith(
-                          color: AppColors.purpleColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  dividerWidget(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        spacing: 10.h,
-                        children: [
-                          Text(
-                            "14 Jul, 2025",
-                            style: AppTextStyle.textGreyDetailColor10w400,
-                          ),
-                          Text(
-                            "T. Nagar",
-                            style: AppTextStyle.blackColor16w400,
-                          ),
-                        ],
-                      ),
-                      Icon(Icons.arrow_forward, color: AppColors.primaryColor),
-                      Column(
-                        spacing: 10.h,
-                        children: [
-                          Text(
-                            "14 Jul, 2025",
-                            style: AppTextStyle.textGreyDetailColor10w400,
-                          ),
-                          Text(
-                            "T. Nagar",
-                            style: AppTextStyle.blackColor16w400,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  10.height,
-                  memoDone
-                      ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          normalButton(
-                            buttonText: "Pay Now",
-                            onTap: () {
-                              context.push(AppRouteName.lpPayNowAndTrackLoad);
-                            },
-                            buttonWidth: 143.w,
-                          ),
-                          normalButton(
-                            buttonText: "Track Load",
-                            onTap: () {
-                              context.push(AppRouteName.lpPayNowAndTrackLoad);
-                            },
-                            buttonWidth: 143.w,
-                          ),
-                        ],
-                      )
-                      : Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        child: normalButton(
-                          buttonText: context.appText.iAgreeTripToGo,
-                          onTap: () {
-                            showAdvanceDialogue(context: context);
-                          },
-                        ),
-                      ),
-                  5.height,
-                ],
-              ),
+            decoration: BoxDecoration(
+                color: AppColors.lightPurpleColor,
+            
+            borderRadius: BorderRadius.circular(40),
+          ),
+          child: Text(
+            "Sourcing",
+            style: AppTextStyle.whiteColor14w400.copyWith(
+              color: AppColors.purpleColor,
             ),
-
-            ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
-          ],
+          ),
         ),
       ),
+      dividerWidget(),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Column(
+            spacing: 10.h,
+            children: [
+              Text(
+                "14 Jul, 2025",
+                style: AppTextStyle.textGreyDetailColor10w400,
+              ),
+              Text(
+                "T. Nagar",
+                style: AppTextStyle.blackColor16w400,
+              ),
+            ],
+          ),
+          Icon(Icons.arrow_forward, color: AppColors.primaryColor),
+          Column(
+            spacing: 10.h,
+            children: [
+              Text(
+                "14 Jul, 2025",
+                style: AppTextStyle.textGreyDetailColor10w400,
+              ),
+              Text(
+                "T. Nagar",
+                style: AppTextStyle.blackColor16w400,
+              ),
+            ],
+          ),
+        ],
+      ),
+      10.height,
+      memoDone
+          ? Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Expanded(
+            child: AppButton(
+              buttonHeight: 32.h,
+              style: AppButtonStyle.outline,
+              title: "Pay Now",
+              onPressed: () {
+                context.push(AppRouteName.lpPayNowAndTrackLoad);
+              },
+            ),
+          ),
+          15.width,
+          Expanded(
+            child: AppButton(
+              buttonHeight: 32.h,
+              style: AppButtonStyle.outline,
+              title: "Track Load",
+              onPressed: () {
+                context.push(AppRouteName.lpPayNowAndTrackLoad);
+              },
+            ),
+          ),
+        ],
+      )
+          : Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        child: AppButton(
+          buttonHeight: 32.h,
+          style: AppButtonStyle.outline,
+          title: context.appText.iAgreeTripToGo,
+          onPressed: () {
+           // showAdvancePaymentDialogue(context: context);
+          },
+        ),
+      ),
+      5.height,
+      ],
+    ),
+    ),
+
+    ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
+    ],
+    ),
+    ),
     );
   }
+
 
 
   Widget bookShipmentSectionWidget(BuildContext context) {
