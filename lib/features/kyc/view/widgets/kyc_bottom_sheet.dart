@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -132,22 +133,27 @@ _buildBody(){
             20.height,
 
             AppButton(
-              disableButton:
-              addharNumber.text.length != 12 ? true : false,
+              style:addharNumber.text.length == 12?AppButtonStyle.primary:AppButtonStyle.disableButton,
+
+
               isLoading: isLoading,
               title: "Verify Aadhar",
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  kycBloc.add(
-                    AddharOtpRequested(
-                      apiRequest: AddharOtpRequest(
-                        force: false,
-                        aadhaar: addharNumber.text,
+
+                if( addharNumber.text.length == 12 ){
+                  if (_formKey.currentState!.validate()) {
+                    kycBloc.add(
+                      AddharOtpRequested(
+                        apiRequest: AddharOtpRequest(
+                          force: false,
+                          aadhaar: addharNumber.text,
+                        ),
                       ),
-                    ),
-                  );
-                  // All validations passed
+                    );
+                    // All validations passed
+                  }
                 }
+
               },
             ),
             Center(
@@ -224,20 +230,23 @@ _buildBody(){
 
                     20.height,
                     AppButton(
-                      disableButton:
-                      addharNumberOtp.text.length != 6 ? true : false,
+                      style:
+                      addharNumberOtp.text.length == 6?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       isLoading: isLoading,
                       title: "Verify OTP",
                       onPressed: () {
-                        kycBloc.add(
-                          AddharVerifyOtpRequested(
-                            apiRequest: AddharVerifyOtpRequest(
-                              requestId: requestID ?? "",
-                              otp: addharNumberOtp.text,
-                              aadhaar: addharNumber.text,
+                        if(addharNumberOtp.text.length == 6){
+                          kycBloc.add(
+                            AddharVerifyOtpRequested(
+                              apiRequest: AddharVerifyOtpRequest(
+                                requestId: requestID ?? "",
+                                otp: addharNumberOtp.text,
+                                aadhaar: addharNumber.text,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
+
                       },
                     ),
                     20.height,

@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/kyc/view/widgets/kyc_upload_file.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -344,61 +345,70 @@ takeKey()async{
 
                   10.height,
                   AppButton(
-                    disableButton:
-
-                   int.parse(userRole??"0") == 1
-                            ? (gstDoc.isEmpty ||
-                                tanDoc.isEmpty ||
-                                panDoc.isEmpty)
-                            : (gstDoc.isEmpty ||
-                                checkDocLink.isEmpty ||
-                                panDoc.isEmpty ||
-                                tdsDocLink.isNotEmpty),
+                    style:
+                  (int.parse(userRole??"0") != 1
+                  ? (gstDoc.isEmpty ||
+                  tanDoc.isEmpty ||
+                  panDoc.isEmpty)
+                      : (gstDoc.isEmpty ||
+                  checkDocLink.isEmpty ||
+                  panDoc.isEmpty ||
+                  tdsDocLink.isNotEmpty) ) ?AppButtonStyle.primary:AppButtonStyle.disableButton,
                     title: "Submit",
                     onPressed: () {
+if( int.parse(userRole??"0") != 1
+    ? (gstDoc.isEmpty ||
+    tanDoc.isEmpty ||
+    panDoc.isEmpty)
+    : (gstDoc.isEmpty ||
+    checkDocLink.isEmpty ||
+    panDoc.isEmpty ||
+    tdsDocLink.isNotEmpty)){
+  if(verifiedGst && verifiedTan && verifiedPan){  if (_formKey.currentState!.validate()) {
+    final kycRequest = SubmitKycRequestLp(
+      aadhar: widget.addharNumber,
+      address1: addressLine1.text,
+      address2: addressLine2.text,
+      address3: addressLine3.text,
+      bankAccount: accountNumber.text,
+      bankName: bankName.text,
+      branchName: branchName.text,
+      chequeDocLink:
+      checkDocLink.isNotEmpty
+          ? checkDocLink.first['path']
+          : null,
+      tdsDocLink:
+      tdsDocLink.isNotEmpty
+          ? tdsDocLink.first['path']
+          : null,
+      gstin: gstIn.text,
+      gstinDocLink: gstDoc.first['path'],
+      ifscCode: ifscCode.text,
+      isAadhar: true,
+      isGstin: verifiedGst,
+      isPan: verifiedPan,
+      isTan: verifiedTan,
+      pan: pan.text,
+      panDocLink: panDoc.first['path'],
+      tan: tan.text,
+      tanDocLink: tanDoc.first['path'],
+    );
 
-                      if(verifiedGst && verifiedTan && verifiedPan){  if (_formKey.currentState!.validate()) {
-                        final kycRequest = SubmitKycRequestLp(
-                          aadhar: widget.addharNumber,
-                          address1: addressLine1.text,
-                          address2: addressLine2.text,
-                          address3: addressLine3.text,
-                          bankAccount: accountNumber.text,
-                          bankName: bankName.text,
-                          branchName: branchName.text,
-                          chequeDocLink:
-                          checkDocLink.isNotEmpty
-                              ? checkDocLink.first['path']
-                              : null,
-                          tdsDocLink:
-                          tdsDocLink.isNotEmpty
-                              ? tdsDocLink.first['path']
-                              : null,
-                          gstin: gstIn.text,
-                          gstinDocLink: gstDoc.first['path'],
-                          ifscCode: ifscCode.text,
-                          isAadhar: true,
-                          isGstin: verifiedGst,
-                          isPan: verifiedPan,
-                          isTan: verifiedTan,
-                          pan: pan.text,
-                          panDocLink: panDoc.first['path'],
-                          tan: tan.text,
-                          tanDocLink: tanDoc.first['path'],
-                        );
-
-                        debugPrint("kycRequest ${kycRequest.toJson()}",wrapWidth: 1000);
+    debugPrint("kycRequest ${kycRequest.toJson()}",wrapWidth: 1000);
 
 
-                        kycBloc.add(
-                          SubmitKycRequested(apiRequest: kycRequest, userId:userID??"0"),
-                        );
-                      }}
-                      else{
-                        ToastMessages.error(
-                          message:"Please verify all document before submit"
-                        );
-                      }
+    kycBloc.add(
+      SubmitKycRequested(apiRequest: kycRequest, userId:userID??"0"),
+    );
+  }}
+  else{
+    ToastMessages.error(
+        message:"Please verify all document before submit"
+    );
+  }
+
+}
+
 
                     },
                   ),

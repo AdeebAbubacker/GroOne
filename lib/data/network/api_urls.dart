@@ -43,6 +43,7 @@ class ApiUrls {
   static String  gst = "$_verification/gst";
   static String  tan = "$_verification/tan";
   static String  pan = "$_verification/pan";
+  static String  getProfile = "$baseUrl$_customer/";
 
 
 

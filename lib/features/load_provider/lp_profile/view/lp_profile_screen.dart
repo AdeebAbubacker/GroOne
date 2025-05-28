@@ -1,17 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -22,8 +30,8 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/extra_utils.dart';
 
 class LpProfileScreen extends StatefulWidget {
-  const LpProfileScreen({super.key});
-
+  const LpProfileScreen({super.key, required this.profileData});
+final  AllProfileDetails profileData;
   @override
   State<LpProfileScreen> createState() => _LpProfileScreenState();
 }
@@ -32,7 +40,27 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   final double profileSize = 130;
   dynamic pickImage;
   File? _croppedImage;
+  final lpHomeLocator = locator<LpHomeBloc>();
 
+  @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() async {
+    await lpHomeLocator.getUserId();
+
+    debugPrint("user id ${lpHomeLocator.userId}");
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +89,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             ///profile options widget
             profileOptionWidget(),
           ],
-        ),
+        )
       ),
     );
   }
@@ -70,7 +98,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     return Column(
       spacing: 15.h,
       children: [
-        Text("Sachin Mehta", style: AppTextStyle.blackColor15w500),
+        Text(widget.profileData.customer!.customerName, style: AppTextStyle.blackColor15w500),
         InkWell(
           onTap: () {
             Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
@@ -105,7 +133,17 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             imageString: AppImage.svg.user,
             text: context.appText.myAccount,
             onTap: () {
-              context.push(AppRouteName.lpMyAccount);
+              Navigator.push(context,commonRoute(LpMyAccount(profileData: widget.profileData,),isForward: true)).then((onValue) {
+                lpHomeLocator.add(
+                  ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+                );
+                if(    lpHomeLocator.stream is ProfileDetailSuccess){
+                  setState(() {
+
+                  });
+                }
+              });
+
             },
           ),
           dividerWidget(),

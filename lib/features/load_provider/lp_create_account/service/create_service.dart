@@ -14,34 +14,6 @@ class LpCreateService {
 
   LpCreateService(this._apiService);
 
-  // Future<Result<UserModel?>> lpRegister(
-  //   CreateRequest request, {
-  //   required String id,
-  // }) async
-  // {
-  //   try {
-  //     final result = await _apiService.put(
-  //       ApiUrls.createLpAccount + id,
-  //       body: request,
-  //     );
-  //     if (result is Success) {
-  //       return await _apiService.getResponseStatus(
-  //         result.value,
-  //         (data) => UserModel.fromJson(data),
-  //       );
-  //     } else if (result is Error) {
-  //       return Error(result.type);
-  //     } else {
-  //       return Error(GenericError());
-  //     }
-  //   } catch (e) {
-  //     CustomLog.error(this, AppString.error.deserializationError, e);
-  //     return Error(DeserializationError());
-  //   }
-  // }
-
-
-  // Fetch Vp Creation
   Future<Result<UserModel?>> lpRegister(CreateRequest request,{required String id}) async {
     try {
       final url = ApiUrls.createLpAccount+id;

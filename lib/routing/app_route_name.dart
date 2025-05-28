@@ -23,9 +23,9 @@ class AppRouteName{
   static const String kycScreen = "/kycScreen";
 
   static const String lpValidateMemo = "/lpValidateMemo";
-  static const String lpProfile = "/lpProfile";
-  static const String lpMyAccount = "/lpMyAccount";
-  static const String home = "/home";
+
+
+
   static const String homeScreenLoadProvider = "/home_screen_load_provider";
   static const String securityHome = "/securityHome";
   static const String lpTransaction = "/lpTransaction";
@@ -35,7 +35,7 @@ class AppRouteName{
   static const String chooseLanguage = "/chooseLanguage";
   static const String chooseRoleScreen = "/chooseRoleScreen";
   static const String lpPayNowAndTrackLoad = "/lpPayNowAndTrackLoad";
-  static const String lpEditMyAccount = "/lpEditMyAccount";
+
 
   /// Navigate Type bool field [residentHome] , [securityHome] , [goBack]
   static const String genericSuccess = "/genericSuccess";

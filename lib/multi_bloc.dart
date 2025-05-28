@@ -8,6 +8,7 @@ import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/kyc/bloc/kyc_bloc.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import 'features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
 
@@ -27,6 +28,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LpCreateBloc>(create: (_) => locator<LpCreateBloc>()),
         BlocProvider<KycBloc>(create: (_) => locator<KycBloc>()),
         BlocProvider<UploadRcTruckFileBloc>(create: (_) => locator<UploadRcTruckFileBloc>()),
+        BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
       ],
       child: child,
     );

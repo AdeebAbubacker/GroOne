@@ -193,7 +193,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         showFieldAsBox: true,
                         fieldWidth: 60,
                         borderColor: AppColors.borderDisableColor,
-                        onCodeChanged: (String code) {},
+                        onCodeChanged: (String code) {
+
+                          otpString=code;
+                          setState(() {});},
 
                         onSubmit: (String verificationCode) {
                           otpString = verificationCode;
@@ -208,17 +211,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     AppButton(
                       title: context.appText.verifyCode,
                       isLoading: isLoading,
-                      disableButton: otpString.length == 4 ? false : true,
+                   //   disableButton: otpString.length == 4 ? false : true,
+                      style: otpString.length == 4 ?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
-                        otpBloc.add(
-                          OtpRequested(
-                            apiRequest: OtpRequest(
-                              mobile: widget.mobileNumber,
-                              role: int.parse(widget.roleId),
-                              otp: int.parse(widget.otp),
-                            ),
-                          ),
-                        );
+                       if(otpString.length == 4 ) {
+                         otpBloc.add(
+                           OtpRequested(
+                             apiRequest: OtpRequest(
+                               mobile: widget.mobileNumber,
+                               role: int.parse(widget.roleId),
+                               otp: int.parse(widget.otp),
+                             ),
+                           ),
+                         );
+                       }
                       },
                     ),
                     5.height,

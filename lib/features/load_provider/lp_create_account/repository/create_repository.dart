@@ -13,36 +13,6 @@ class LpCreateRepository {
   final AuthRepository _authRepository;
   LpCreateRepository(this._lpCreateService, this._authRepository);
 
-  // Future<Result<UserModel?>> lpCreateRegistration(
-  //   CreateRequest request, {
-  //   required String id,
-  // }) async {
-  //   try {
-  //     Result<dynamic> result =  await _lpCreateService.lpRegister(request,id: id);
-  //     if (result is Success<UserModel?>) {
-  //       if(result.value != null){
-  //         Result saveUserResult = await _authRepository.saveUserInfoFromCreateAccount(result.value!);
-  //         if(saveUserResult is Success){
-  //           return result;
-  //         }
-  //         if(saveUserResult is Error){
-  //           return Error(saveUserResult.type);
-  //         }
-  //       }
-  //     }
-  //     if(result is Error){
-  //       return Error(result.type);
-  //     }
-  //
-  //     return Error(GenericError());
-  //
-  //
-  //
-  //   } catch (e) {
-  //     CustomLog.error(this, "Failed to request Login In", e);
-  //     return Error(ErrorWithMessage(message: e.toString()));
-  //   }
-  // }
 
   Future<Result<UserModel?>> lpCreateRegistration(CreateRequest request,{required String id}) async {
     try {

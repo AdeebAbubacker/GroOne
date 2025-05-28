@@ -5,6 +5,10 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -13,7 +17,9 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
 
@@ -41,10 +47,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool checkBoxBool = false;
 
-
-
-  final kycBloc = locator<KycBloc>();
-
+  final lpHomeBloc = locator<LpHomeBloc>();
   void _showBlueMemberDialogue() {
     showDialog(
       context: context,
@@ -94,10 +97,29 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
 
+  @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
 
 
 
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
 
+  ProfileDetailResponse? profileResponse;
+
+  void initFunction() => addPostFrameCallback(() async {
+      await lpHomeBloc.getUserId()??"";
+    CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
+    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -122,21 +144,25 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         actions: [
           kycWidget(
             onTap: () {
-
-
               commonBottomSheetWithBGBlur(
-                  context: context,
+                context: context,
 
-
-                  screen:  KycBottomSheet()
-
+                screen: KycBottomSheet(),
               );
             },
           ),
           5.width,
           InkWell(
             onTap: () {
-              context.push(AppRouteName.lpProfile);
+              Navigator.push(
+                context,
+                commonRoute(
+                  LpProfileScreen(profileData: profileResponse!.data!),
+                  isForward: true,
+                ),
+              ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
+
+              });
             },
             child: Container(
               height: 36.h,
@@ -163,19 +189,35 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       ),
 
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            5.height,
-            keyStatusWidget(),
-            5.height,
+        child: BlocConsumer(
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                5.height,
+                keyStatusWidget(),
+                5.height,
 
-            bookShipmentSection(),
-            5.height,
-            valueAddedService(context),
-            upComingShipment(),
-            30.height,
-          ],
+                bookShipmentSection(),
+                5.height,
+                valueAddedService(context),
+                upComingShipment(),
+                30.height,
+              ],
+            );
+          },
+          listener: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
+
+
+            }else if (state is ProfileUpdateError) {
+              ToastMessages.error(
+                message: getErrorMsg(errorType: state.errorType),
+              );
+            }
+          },
         ),
       ),
     );
@@ -434,6 +476,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   setState(() {});
                 });
               },
+              disableButton: false,
               buttonText: context.appText.verifyAdvance,
             );
           },

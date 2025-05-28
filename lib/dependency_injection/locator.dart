@@ -10,6 +10,12 @@ import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/repository/profile_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/service/profile_service.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/login_repository.dart';
@@ -65,6 +71,8 @@ void initLocator() {
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
+    locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
 
 
     // Repository
@@ -76,6 +84,8 @@ void initLocator() {
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(),locator<AuthRepository>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
+    locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
+    locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -90,6 +100,8 @@ void initLocator() {
     locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
     locator.registerFactory(() => KycBloc(locator<KycRepository>()));
+    locator.registerFactory(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
+    locator.registerFactory(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

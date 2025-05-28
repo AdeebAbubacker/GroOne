@@ -189,14 +189,14 @@ showCustomDialogue({
           child,
           30.height,
           AppButton(
-            disableButton: disableButton,
+            style: !disableButton?AppButtonStyle.primary:AppButtonStyle.disableButton,
             title: buttonText,
-            onPressed:
+            onPressed:!disableButton?
                 onClickButton ??
                 () {
                   // Handle verify action here
                   Navigator.pop(context);
-                },
+                }:null,
           ),
           child2 ?? const SizedBox(),
         ],
