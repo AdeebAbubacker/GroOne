@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
-import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -30,16 +29,14 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/lp_selection_dropdown.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
-import '../../../../utils/lp_selection_dropdown.dart';
 import '../../../../utils/app_image.dart';
-import '../../../../utils/app_text_field.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
@@ -50,9 +47,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
-
-  final vpHomeBloc = locator<VpCreationBloc>();
-
+  bool checkBoxBool = false;
   final dateTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
@@ -67,7 +62,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
-  bool checkBoxBool = false;
+
   bool memoDone = false;
   final lpHomeBloc = locator<LpHomeBloc>();
   void _showBlueMemberDialogue() {
@@ -91,154 +86,40 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 ),
               ),
 
-                                            // Illustration
-                                            Image.asset(
-                                              AppImage.png.blueMembership,
-                                              // replace with your image asset
-                                              height: 150,
-                                            ),
+              // Illustration
+              Image.asset(
+                AppImage.png.blueMembership,
+                // replace with your image asset
+                height: 150,
+              ),
 
-                                            // Title
-                                            const Text(
-                                              "Blue membership ID\ngenerated Successfully",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
+              // Title
+              const Text(
+                "Blue membership ID\ngenerated Successfully",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
 
-                                            // Subtitle
-                                            const Text(
-                                              "Start exploring premium load\noptions today",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                });
-                              },
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: Text(
-                                  "I’ll do it later",
-                                  style: AppTextStyle.primaryColor16w400.copyWith(
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+              // Subtitle
+              const Text(
+                "Start exploring premium load\noptions today",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
 
+  ProfileDetailResponse? profileResponse;
+  final vpHomeBloc = locator<VpCreationBloc>();
 
   @override
   void initState() {
     initFunction();
     super.initState();
-  }
-  Future showAdvanceDialogue({required BuildContext context}) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState1) {
-            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
-            return showCustomDialogue(
-              context: context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.advancePayment,
-                    style: AppTextStyle.darkDividerColor16w400,
-                  ),
-                  20.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:
-                    [70, 80, 85].map((percent) {
-                      final isSelected = percent == selectedPercentage;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPercentage = percent;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                            isSelected
-                                ? const Color(0xFF0057FF)
-                                : Colors.transparent,
-                            border: Border.all(
-                              color:
-                              isSelected
-                                  ? const Color(0xFF0057FF)
-                                  : Colors.grey,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$percent%',
-                            style: TextStyle(
-                              color:
-                              isSelected
-                                  ? Colors.white
-                                  : Colors.black87,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    '₹$calculatedAmount',
-                    style: AppTextStyle.textBlackColor26w700,
-                  ),
-                ],
-              ),
-              onClickButton: () {
-                context.pop();
-                context.push(AppRouteName.lpValidateMemo).then((value) {
-                  memoDone = true;
-                  setState(() {});
-                });
-              },
-              buttonText: context.appText.verifyAdvance,
-            );
-          },
-        );
-      },
-    );
   }
 
 
@@ -248,8 +129,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     disposeFunction();
     super.dispose();
   }
-
-  ProfileDetailResponse? profileResponse;
 
   void initFunction() => addPostFrameCallback(() async {
       await lpHomeBloc.getUserId()??"";
@@ -264,115 +143,46 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: buildAppBarWidget(context),
-      body: buildBodyWidget(context),
+
+      body:buildBodyWidget(context)
     );
   }
-
-  // Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context){
-    return CommonAppBar(
-      isLeading: false,
-      leading:  BlocListener<VpCreationBloc, VpCreationState>(
-        bloc: vpHomeBloc,
+  // Body
+  Widget buildBodyWidget(BuildContext context){
+    return SingleChildScrollView(
+      child: BlocConsumer(
         listener: (context, state) {
-          if (state is LogoutSuccess) {
-            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
-          }
-          if (state is LogoutError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+          if (state is ProfileDetailSuccess) {
+            profileResponse = state.profileDetailResponse;
+
+
+          }else if (state is ProfileUpdateError) {
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
           }
         },
-        child: InkWell(
-          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
-          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            return SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildKYCStatusWidget(),
+
+            bookShipmentSectionWidget(context),
+            20.height,
+
+            valueAddedService(context),
+            20.height,
+
+            upComingShipment(),
+            30.height,
+          ],
         ),
-      ),
-      actions: [
-        // KYC
-        kycWidget(
-            onTap: () {
-              commonBottomSheetWithBGBlur(
-                context: context,
-
-                screen: KycBottomSheet(),
-              );
-            },
-          ),
-          5.width,
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(
-                  LpProfileScreen(profileData: profileResponse!.data!),
-                  isForward: true,
-                ),
-              ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
-
-              });
-            },
-            child: Container(
-              height: 36.h,
-
-              width: 36.w,
-              padding: EdgeInsets.all(4),
-              // Border width
-              decoration: BoxDecoration(
-                color: Colors.blue, // Border color
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  AppImage.png.appIcon, // Replace with your image path
-
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-
-          20.width,
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        child:BlocConsumer(
-bloc: lpHomeBloc,
-builder: (context, state) {
-return  SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              5.height,
-          buildKYCStatusWidget(),
-              5.height,
-
-          bookShipmentSectionWidget(context),
-              5.height,
-          valueAddedService(context),
-          20.height,
-              upComingShipment(),
-              30.height,
-            ],
-          ),
-        );
-},
-listener: (context, state) {
-if (state is ProfileDetailSuccess) {
-profileResponse = state.profileDetailResponse;
-
-
-}else if (state is ProfileUpdateError) {
-ToastMessages.error(
-message: getErrorMsg(errorType: state.errorType),
-);
-}
-},
-),
-      ),
+      );})
     );
   }
-
   Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -531,7 +341,7 @@ message: getErrorMsg(errorType: state.errorType),
           style: AppButtonStyle.outline,
           title: context.appText.iAgreeTripToGo,
           onPressed: () {
-           // showAdvancePaymentDialogue(context: context);
+            showAdvancePaymentDialogue(context: context);
           },
         ),
       ),
@@ -546,10 +356,59 @@ message: getErrorMsg(errorType: state.errorType),
     ),
     );
   }
+// Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context){
+    return CommonAppBar(
+      isLeading: false,
+      leading:  BlocListener<VpCreationBloc, VpCreationState>(
+        bloc: vpHomeBloc,
+        listener: (context, state) {
+          if (state is LogoutSuccess) {
+            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
+          }
+          if (state is LogoutError) {
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+          }
+        },
+        child: InkWell(
+          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
+          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+        ),
+      ),
+      actions: [
+        // KYC
+        kycWidget(
+            onTap: () {
+              commonBottomSheetWithBGBlur(
+                context: context,
 
-  int selectedPercentage = 80;
-  final int baseAmount = 15000;
-  bool memoDone = false;
+                screen: KycBottomSheet(),
+              );
+            }
+        ),
+        10.width,
+
+        // Profile
+        InkWell(
+          onTap: (){
+    Navigator.push(
+    context,
+    commonRoute(
+    LpProfileScreen(profileData: profileResponse!.data!),
+    isForward: true,
+    ),
+    ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
+          });},
+          child: commonCacheNetworkImage(
+              height: 40,
+              width: 40,
+              path: "",
+              errorImage: AppImage.png.userProfileError
+          ).paddingRight(commonSafeAreaPadding),
+        ),
+      ],
+    );
+  }
 
   Future showAdvancePaymentDialogue({required BuildContext context}) {
     return showDialog(
@@ -828,17 +687,18 @@ message: getErrorMsg(errorType: state.errorType),
 
           // Need Support Next
           InkWell(
-              onTap: (){
-                showCustomerCareBottomSheet(context);
-                },
-              child: Center(
-                child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
-              ),
+            onTap: (){
+              showCustomerCareBottomSheet(context);
+            },
+            child: Center(
+              child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
+            ),
           ),
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
+
 
 
 
