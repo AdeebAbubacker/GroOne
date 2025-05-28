@@ -409,4 +409,37 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get checkout => 'புதுப்பித்து';
+
+  @override
+  String get placeOrder => 'இடம் ஆர்டர்';
+
+  @override
+  String get productDetails => 'தயாரிப்பு விவரங்கள்';
+
+  @override
+  String get addMoreItems => 'மேலும் உருப்படிகளைச் சேர்க்கவும்';
+
+  @override
+  String get addVehicleDetails => 'வாகன விவரங்களைச் சேர்க்கவும்';
+
+  @override
+  String get gstKavach => 'ஜிஎஸ்டி';
+
+  @override
+  String get optional => 'விரும்பினால்';
+
+  @override
+  String get shippingAddress => 'கப்பல் முகவரி';
+
+  @override
+  String get billingAddress => 'பில்லிங் முகவரி';
+
+  @override
+  String get addNewAddress => 'புதிய முகவரியைச் சேர்க்கவும்';
+
+  @override
+  String get sameAsShippingAddress => 'கப்பல் முகவரியைப் போலவேs';
+
+  @override
+  String get deliverHere => 'இங்கே வழங்கவும்';
 }

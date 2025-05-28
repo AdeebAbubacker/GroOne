@@ -406,4 +406,37 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get checkout => 'चेक आउट';
+
+  @override
+  String get placeOrder => 'अभी ऑर्डर दें';
+
+  @override
+  String get productDetails => 'उत्पाद विवरण';
+
+  @override
+  String get addMoreItems => 'अधिक आइटम जोड़ें';
+
+  @override
+  String get addVehicleDetails => 'वाहन विवरण जोड़ें';
+
+  @override
+  String get gstKavach => 'जीएसटी';
+
+  @override
+  String get optional => 'वैकल्पिक';
+
+  @override
+  String get shippingAddress => 'शिपिंग पता';
+
+  @override
+  String get billingAddress => 'बिलिंग पता';
+
+  @override
+  String get addNewAddress => 'नया पता जोड़ें';
+
+  @override
+  String get sameAsShippingAddress => 'शिपिंग पते के समान';
+
+  @override
+  String get deliverHere => 'यहां डिलीवरी करें';
 }

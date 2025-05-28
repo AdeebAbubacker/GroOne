@@ -130,5 +130,16 @@
   "continueText": "जारी रखें",
   "inText": " में ",
   "second": " सेकंड",
-  "checkout": "चेक आउट"
+  "checkout": "चेक आउट",
+  "placeOrder": "अभी ऑर्डर दें",
+  "productDetails": "उत्पाद विवरण",
+  "addMoreItems": "अधिक आइटम जोड़ें",
+  "addVehicleDetails": "वाहन विवरण जोड़ें",
+  "gstKavach": "जीएसटी",
+  "optional": "वैकल्पिक",
+  "shippingAddress": "शिपिंग पता",
+  "billingAddress": "बिलिंग पता",
+  "addNewAddress": "नया पता जोड़ें",
+  "sameAsShippingAddress": "शिपिंग पते के समान",
+  "deliverHere": "यहां डिलीवरी करें"
 }

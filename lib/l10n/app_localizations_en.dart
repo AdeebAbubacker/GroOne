@@ -405,4 +405,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkout => 'checkout';
+
+  @override
+  String get placeOrder => 'Place Order';
+
+  @override
+  String get productDetails => 'Product Details';
+
+  @override
+  String get addMoreItems => 'Add More Items';
+
+  @override
+  String get addVehicleDetails => 'Add Vehicle Details';
+
+  @override
+  String get gstKavach => 'GST';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get shippingAddress => 'Shipping Address';
+
+  @override
+  String get billingAddress => 'Billing Address';
+
+  @override
+  String get addNewAddress => 'Add New Address';
+
+  @override
+  String get sameAsShippingAddress => 'Same As Shipping Address';
+
+  @override
+  String get deliverHere => 'Deliver Here';
 }

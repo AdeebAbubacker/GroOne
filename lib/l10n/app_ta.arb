@@ -130,5 +130,16 @@
   "continueText": "தொடரவும்",
   "inText": " இல் ",
   "second": " விநாடிகள்",
-  "checkout": "புதுப்பித்து"
+  "checkout": "புதுப்பித்து",
+  "placeOrder": "இடம் ஆர்டர்",
+  "productDetails": "தயாரிப்பு விவரங்கள்",
+  "addMoreItems": "மேலும் உருப்படிகளைச் சேர்க்கவும்",
+  "addVehicleDetails": "வாகன விவரங்களைச் சேர்க்கவும்",
+  "gstKavach": "ஜிஎஸ்டி",
+  "optional": "விரும்பினால்",
+  "shippingAddress": "கப்பல் முகவரி",
+  "billingAddress": "பில்லிங் முகவரி",
+  "addNewAddress": "புதிய முகவரியைச் சேர்க்கவும்",
+  "sameAsShippingAddress": "கப்பல் முகவரியைப் போலவேs",
+  "deliverHere": "இங்கே வழங்கவும்"
 }

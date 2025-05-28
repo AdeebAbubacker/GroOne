@@ -885,6 +885,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'checkout'**
   String get checkout;
+
+  /// No description provided for @placeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Place Order'**
+  String get placeOrder;
+
+  /// No description provided for @productDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Details'**
+  String get productDetails;
+
+  /// No description provided for @addMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Add More Items'**
+  String get addMoreItems;
+
+  /// No description provided for @addVehicleDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Vehicle Details'**
+  String get addVehicleDetails;
+
+  /// No description provided for @gstKavach.
+  ///
+  /// In en, this message translates to:
+  /// **'GST'**
+  String get gstKavach;
+
+  /// No description provided for @optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
+
+  /// No description provided for @shippingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping Address'**
+  String get shippingAddress;
+
+  /// No description provided for @billingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing Address'**
+  String get billingAddress;
+
+  /// No description provided for @addNewAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get addNewAddress;
+
+  /// No description provided for @sameAsShippingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Same As Shipping Address'**
+  String get sameAsShippingAddress;
+
+  /// No description provided for @deliverHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver Here'**
+  String get deliverHere;
 }
 
 class _AppLocalizationsDelegate

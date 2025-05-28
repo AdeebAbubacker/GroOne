@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_add_shipping_address_bottom_sheet.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_check_box.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -6,7 +9,6 @@ import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
@@ -72,6 +74,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       ],
     ).paddingSymmetric(horizontal: 10);
   }
+
   Widget buildBodyWidget(BuildContext context){
     return SafeArea(
       child: SingleChildScrollView(
@@ -83,7 +86,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Product Details',style: AppTextStyle.h5,),
+                    Text(context.appText.productDetails,style: AppTextStyle.h5,),
                     10.height,
                     ListView.separated(
                       itemCount: 3,
@@ -101,7 +104,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       child: Row(
                         children: [
                           Icon(Icons.add,color: AppColors.primaryColor,),
-                          Text('Add more items',style: AppTextStyle.primaryColor16w400,),
+                          Text(context.appText.addMoreItems,style: AppTextStyle.primaryColor16w400,),
                         ],
                       ),
                     )
@@ -116,7 +119,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppMultiSelectionDropdown<String>(
-                    labelText: 'Add Vehicle Details',
+                    labelText: context.appText.addVehicleDetails,
                     hintText: context.appText.select,
                     controller: vehicleDetailsController,
                     items: vehicleDetailsItems,
@@ -131,7 +134,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     },
                   ),
                   15.height,
-                  Text('GST (optional)',style: AppTextStyle.body3,),
+                  Text('${context.appText.gstKavach} (${context.appText.optional})',style: AppTextStyle.body3,),
                   AppTextField(
                     hintText: 'Eg: GS68468GS654',
                   ),
@@ -146,27 +149,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Shipping Address',style: AppTextStyle.body3,),
+                  Text(context.appText.shippingAddress, style: AppTextStyle.body3,),
                   5.height,
                   InkWell(
                     onTap: () {
-        
+                      // commonBottomSheetWithBGBlur(context: context, screen: KavachAddShippingAddressBottomSheet());
+                      commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
                     },
                     child: Row(
                       children: [
                         Icon(Icons.add,color: AppColors.primaryColor,),
-                        Text('Add New Addresses',style: AppTextStyle.primaryColor16w400,),
+                        Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
                       ],
                     ),
                   ),
                   15.height,
-                  Text('Billing Address',style: AppTextStyle.body3,),
+                  Text(context.appText.billingAddress,style: AppTextStyle.body3,),
                   Row(
                     children: [
                       AppCheckBox(onChanged: (p0) {
         
                       }, value: false),
-                      Text('Same as Shipping Address',style: AppTextStyle.primaryColor16w400,).expand()
+                      Text(context.appText.sameAsShippingAddress, style: AppTextStyle.primaryColor16w400,).expand()
                     ],
                   ),
                   10.height,
@@ -178,11 +182,12 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       ),
     );
   }
+
   Widget buildPlaceOrderButtonWidget(){
     return AppButton(
-      title: 'Place Order',
+      title: context.appText.placeOrder,
       onPressed: (){
-        Navigator.of(context).push(commonRoute(KavachCheckoutScreen()));
+        Navigator.of(context).push(commonRoute(KavachSummaryScreen()));
       },
     ).bottomNavigationPadding();
   }

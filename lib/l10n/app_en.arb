@@ -130,5 +130,16 @@
   "continueText": "Continue",
   "inText": "  in  ",
   "second": " seconds",
-  "checkout": "checkout"
+  "checkout": "checkout",
+  "placeOrder": "Place Order",
+  "productDetails": "Product Details",
+  "addMoreItems": "Add More Items",
+  "addVehicleDetails": "Add Vehicle Details",
+  "gstKavach": "GST",
+  "optional": "Optional",
+  "shippingAddress": "Shipping Address",
+  "billingAddress": "Billing Address",
+  "addNewAddress": "Add New Address",
+  "sameAsShippingAddress": "Same As Shipping Address",
+  "deliverHere": "Deliver Here"
 }
