@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/home/view/home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/master/master_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/my_doucment/my_document_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
@@ -40,8 +38,8 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-    //initialLocation: AppRouteName.lpBottomNavigation,
- initialLocation: AppRouteName.splash,
+   // initialLocation: AppRouteName.lpBottomNavigation,
+   initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
@@ -50,21 +48,14 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           return SplashScreen();
         },
-      ),  GoRoute(
-        path: AppRouteName.myDocumentScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return MyDocumentScreen();
-        },
       ),
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return KycScreen();
-        },
-      ),  GoRoute(
-        path: AppRouteName.master,
-        builder: (BuildContext context, GoRouterState state) {
-          return MasterScreen();
+          final data = state.extra! as Map<String, dynamic>;
+          final String addharNumber = data["addharNumber"]??"";
+
+          return KycScreen(addharNumber:addharNumber,);
         },
       ),
 
@@ -177,7 +168,7 @@ class AppRoutes {
         },
       ),
       GoRoute(
-        path: AppRouteName.lpBottomNavigation,
+        path: AppRouteName.lpBottomNavigationBar,
         builder: (BuildContext context, GoRouterState state) {
           return LpBottomNavigation();
         },
