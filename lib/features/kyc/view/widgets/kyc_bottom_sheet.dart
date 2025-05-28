@@ -6,19 +6,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-import '../dependency_injection/locator.dart';
-import '../features/kyc/api_request/addhar_otp_request.dart';
-import '../features/kyc/api_request/addhar_verify_otp_request.dart';
-import 'app_button.dart';
-import 'app_colors.dart';
-import 'app_text_field.dart';
-import 'app_text_style.dart';
-import 'common_functions.dart';
-import 'common_widgets.dart';
+import '../../../../dependency_injection/locator.dart';
+import '../../api_request/addhar_otp_request.dart';
+import '../../api_request/addhar_verify_otp_request.dart';
+import '../../../../utils/app_button.dart';
+import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_text_field.dart';
+import '../../../../utils/app_text_style.dart';
+import '../../../../utils/common_functions.dart';
+import '../../../../utils/common_widgets.dart';
 
 class KycBottomSheet extends StatefulWidget {
   const KycBottomSheet({super.key});
@@ -44,6 +45,12 @@ class _KycBottomSheetState extends State<KycBottomSheet> {
   }
   @override
   Widget build(BuildContext context) {
+    return AppBottomSheetBody(
+      hideDivider: false,
+      body: _buildBody(),isCloseButton: false,
+    title: "Verify Your KYC" ,);
+  }
+_buildBody(){
     return BlocConsumer(
       bloc: kycBloc,
       builder: (context, state) {
@@ -78,108 +85,87 @@ class _KycBottomSheetState extends State<KycBottomSheet> {
         }
       },
     );
-  }
-
+}
   addNumberInputWidget( bool isLoading) {
-    return Stack(
-      children: [
-        Container(
-          height: double.infinity,
-          color: AppColors.textBlackColor.withOpacity(0.4),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+      ),
+
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+
+
+            Form(
+              key: _formKey,
+              child: AppTextField(
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(12),
+                ],
+                onChanged: (value) {
+                  addharNumber.text = value;
+                  setState(() {});
+
+                },
+
+                validator: (value) => Validator.fieldRequired(value),
+                controller: addharNumber,
+                decoration: commonInputDecoration(
+                  hintText: "xxxx xxxx 9123",
+                  fillColor: AppColors.white,
+                ),
+                keyboardType: TextInputType.number,
+
+                labelText: "Enter Aadhar Card Number",
+                labelTextStyle: AppTextStyle.textBlackColor16w400,
               ),
             ),
 
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textAlign: TextAlign.left,
-                      "Verify Your KYC",
-                      style: AppTextStyle.textBlackColor20w500,
-                    ),
-                    15.height,
+            20.height,
 
-                    Form(
-                      key: _formKey,
-                      child: AppTextField(
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(12),
-                        ],
-                        onChanged: (value) {
-                          addharNumber.text = value;
-                          setState(() {});
-
-                        },
-
-                        validator: (value) => Validator.fieldRequired(value),
-                        controller: addharNumber,
-                        decoration: commonInputDecoration(
-                          hintText: "xxxx xxxx 9123",
-                          fillColor: AppColors.white,
-                        ),
-                        keyboardType: TextInputType.number,
-
-                        labelText: "Enter Aadhar Card Number",
-                        labelTextStyle: AppTextStyle.textBlackColor16w400,
+            AppButton(
+              disableButton:
+              addharNumber.text.length != 12 ? true : false,
+              isLoading: isLoading,
+              title: "Verify Aadhar",
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  kycBloc.add(
+                    AddharOtpRequested(
+                      apiRequest: AddharOtpRequest(
+                        force: false,
+                        aadhaar: addharNumber.text,
                       ),
                     ),
-
-                    20.height,
-
-                    AppButton(
-                      disableButton:
-                      addharNumber.text.length != 12 ? true : false,
-                      isLoading: isLoading,
-                      title: "Verify Aadhar",
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          kycBloc.add(
-                            AddharOtpRequested(
-                              apiRequest: AddharOtpRequest(
-                                force: false,
-                                aadhaar: addharNumber.text,
-                              ),
-                            ),
-                          );
-                          // All validations passed
-                        }
-                      },
-                    ),
-                    Center(
-                      child: TextButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        child: Text(
-                          "I’ll do it later",
-                          style: AppTextStyle.primaryColor16w400.copyWith(
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  );
+                  // All validations passed
+                }
+              },
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: Text(
+                  "I’ll do it later",
+                  style: AppTextStyle.primaryColor16w400.copyWith(
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
   addharVerificationWidget(  bool isLoading) {

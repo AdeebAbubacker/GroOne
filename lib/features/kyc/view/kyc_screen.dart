@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_upload_file.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -18,7 +19,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/kyc_upload_file.dart';
+
 import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../data/storage/secured_shared_preferences.dart';

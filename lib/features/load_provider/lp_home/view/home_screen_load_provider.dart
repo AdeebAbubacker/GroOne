@@ -15,7 +15,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
 
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
@@ -92,19 +92,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-    _showKycBottomSheet(BuildContext context)  {
-     showBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      elevation: 10,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) {
-        return KycBottomSheet();
-      },
-    );
-  }
 
 
 
@@ -136,10 +123,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           kycWidget(
             onTap: () {
 
-              setState(() {
 
-              });
-              _showKycBottomSheet(context);
+              commonBottomSheetWithBGBlur(
+                  context: context,
+
+
+                  screen:  KycBottomSheet()
+
+              );
             },
           ),
           5.width,

@@ -38,9 +38,9 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-   // initialLocation: AppRouteName.kycScreen,
+     initialLocation: AppRouteName.vpBottomNavigationBar,
 
-  initialLocation: AppRouteName.splash,
+  //initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
