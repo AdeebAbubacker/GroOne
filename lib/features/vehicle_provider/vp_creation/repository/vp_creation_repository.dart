@@ -58,7 +58,4 @@ class VpCreationRepository {
       return Error(GenericError());
     }
   }
-
-
-
 }

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
+import 'package:gro_one_app/features/terms_condition_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -216,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TapGestureRecognizer()
                                   ..onTap = () {
                                     // Handle terms & conditions tap
-                                    debugPrint('Terms & Conditions tapped');
+                                    Navigator.push(context,commonRoute(TermsAndConditionsScreen()));
                                   },
                           ),
                           TextSpan(
