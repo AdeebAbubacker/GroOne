@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
 
+import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_dropdown2.dart';
 import '../../../../utils/app_image.dart';
 import '../../../../utils/app_text_field.dart';
+import '../../../../utils/common_functions.dart';
+import '../../../../utils/toast_messages.dart';
+import '../../../../utils/validator.dart';
+import '../../../kyc/api_request/addhar_verify_otp_request.dart';
+import '../../../kyc/bloc/kyc_bloc.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
@@ -29,162 +41,69 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool checkBoxBool = false;
 
-  void _showKycBottomSheet(BuildContext context) {
-    showBottomSheet(
+
+
+  final kycBloc = locator<KycBloc>();
+
+  void _showBlueMemberDialogue() {
+    showDialog(
       context: context,
-backgroundColor: Colors.transparent,
-elevation:10 ,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context1, setStateBuilder) {
-            return Stack(
-              children: [
-                Container(height: double.infinity,color:AppColors.textBlackColor.withOpacity(0.4),),
-                Positioned(
-                  bottom: 0,left: 0,right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-
-                    ),
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              textAlign: TextAlign.left,
-                              "Verify Your KYC",
-                              style: AppTextStyle.textBlackColor20w500,
-                            ),
-                            15.height,
-
-                            AppTextField(
-                              decoration: commonInputDecoration(
-                                hintText: "xxxx xxxx 9123",
-                                fillColor: AppColors.white,
-                              ),
-                              keyboardType: TextInputType.number,
-
-                              labelText: "Enter Aadhar Card Number",
-                              labelTextStyle: AppTextStyle.textBlackColor16w400,
-                            ),
-
-                            20.height,
-                            customCheckbox(
-                              context: context,
-                              text: context.appText.iAgree,
-                              onTap: () {
-                                checkBoxBool = !checkBoxBool;
-                                setStateBuilder(() {});
-                              },
-                              selected: checkBoxBool,
-                            ),
-                            20.height,
-                            AppButton(
-                              title: "Verify Aadhar",
-                              onPressed: () {
-                                context.pop();
-                                context.push(AppRouteName.kycScreen).then((v) {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    // Dismiss only with button if needed
-                                    builder: (BuildContext context) {
-                                      return showAlertDialogue(
-                                        hideButtonButtons: true,
-                                        context: context,
-                                        onClickYesButton: () {},
-                                        child: Column(
-                                          spacing: 20.h,
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.topRight,
-                                              child: GestureDetector(
-                                                onTap:
-                                                    () => Navigator.of(context).pop(),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  size: 24,
-                                                ),
-                                              ),
-                                            ),
-
-                                            // Illustration
-                                            Image.asset(
-                                              AppImage.png.blueMembership,
-                                              // replace with your image asset
-                                              height: 150,
-                                            ),
-
-                                            // Title
-                                            const Text(
-                                              "Blue membership ID\ngenerated Successfully",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-
-                                            // Subtitle
-                                            const Text(
-                                              "Start exploring premium load\noptions today",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                });
-                              },
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: Text(
-                                  "I’ll do it later",
-                                  style: AppTextStyle.primaryColor16w400.copyWith(
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+      barrierDismissible: false,
+      // Dismiss only with button if needed
+      builder: (BuildContext context) {
+        return showAlertDialogue(
+          hideButtonButtons: true,
+          context: context,
+          onClickYesButton: () {},
+          child: Column(
+            spacing: 20.h,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, size: 24),
                 ),
-              ],
-            );
-          },
+              ),
+
+              // Illustration
+              Image.asset(
+                AppImage.png.blueMembership,
+                // replace with your image asset
+                height: 150,
+              ),
+
+              // Title
+              const Text(
+                "Blue membership ID\ngenerated Successfully",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
+              // Subtitle
+              const Text(
+                "Start exploring premium load\noptions today",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         );
       },
     );
   }
+
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
-        //backgroundColor: Colors.transparent,
         leading: InkWell(
           onTap: () {
             Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
@@ -203,7 +122,15 @@ elevation:10 ,
         actions: [
           kycWidget(
             onTap: () {
-              _showKycBottomSheet(context);
+
+
+              commonBottomSheetWithBGBlur(
+                  context: context,
+
+
+                  screen:  KycBottomSheet()
+
+              );
             },
           ),
           5.width,
@@ -382,28 +309,37 @@ elevation:10 ,
                       ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          normalButton(
-                            buttonText: "Pay Now",
-                            onTap: () {
-                              context.push(AppRouteName.lpPayNowAndTrackLoad);
-                            },
-                            buttonWidth: 143.w,
+                          Expanded(
+                            child: AppButton(
+                              buttonHeight: 32.h,
+                              style: AppButtonStyle.outline,
+                              title: "Pay Now",
+                              onPressed: () {
+                                context.push(AppRouteName.lpPayNowAndTrackLoad);
+                              },
+                            ),
                           ),
-                          normalButton(
-                            buttonText: "Track Load",
-                            onTap: () {
-                              context.push(AppRouteName.lpPayNowAndTrackLoad);
-                            },
-                            buttonWidth: 143.w,
+                          15.width,
+                          Expanded(
+                            child: AppButton(
+                              buttonHeight: 32.h,
+                              style: AppButtonStyle.outline,
+                              title: "Track Load",
+                              onPressed: () {
+                                context.push(AppRouteName.lpPayNowAndTrackLoad);
+                              },
+                            ),
                           ),
                         ],
                       )
                       : Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        child: normalButton(
-                          buttonText: context.appText.iAgreeTripToGo,
-                          onTap: () {
-                            showAdvanceDialogue(context: context);
+                        child: AppButton(
+                          buttonHeight: 32.h,
+                          style: AppButtonStyle.outline,
+                          title: context.appText.iAgreeTripToGo,
+                          onPressed: () {
+                            showAdvancePaymentDialogue(context: context);
                           },
                         ),
                       ),
@@ -423,7 +359,7 @@ elevation:10 ,
   final int baseAmount = 15000;
   bool memoDone = false;
 
-  Future showAdvanceDialogue({required BuildContext context}) {
+  Future showAdvancePaymentDialogue({required BuildContext context}) {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -689,14 +625,21 @@ elevation:10 ,
                       },
                     ),
                   ),
-
                 ],
               ),
             ),
             5.height,
-            InkWell(onTap: (){
-              showCustomerCareBottomSheet(context);
-            },child: Center(child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine,))),
+            InkWell(
+              onTap: () {
+                showCustomerCareBottomSheet(context);
+              },
+              child: Center(
+                child: Text(
+                  "Need Our Customer Support Help?",
+                  style: AppTextStyle.primaryColor14w400UnderLine,
+                ),
+              ),
+            ),
             5.height,
           ],
         ),

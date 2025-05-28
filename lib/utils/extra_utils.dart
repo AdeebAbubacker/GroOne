@@ -7,6 +7,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/customButton.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
+import 'app_button_style.dart';
 import 'app_colors.dart';
 import 'app_image.dart';
 
@@ -168,27 +169,6 @@ tabWidget({
   );
 }
 
-normalButton({
-  required String buttonText,
-  double? buttonWidth,
-  required GestureTapCallback onTap,
-}) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      height: 32.h,
-      width: buttonWidth ?? double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.primaryColor, width: 0.8),
-      ),
-      child: Center(
-        child: Text(buttonText, style: AppTextStyle.primaryColor16w400),
-      ),
-    ),
-  );
-}
-
 showCustomDialogue({
   required BuildContext context,
   required Widget child,
@@ -243,7 +223,7 @@ showAlertDialogue({
   required Widget child,
   required GestureTapCallback onClickYesButton,
   bool hideButtonButtons = false,
-  String? yesButtonText ,
+  String? yesButtonText,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -265,9 +245,11 @@ showAlertDialogue({
                 children: [
                   // No Button
                   Expanded(
-                    child: normalButton(
-                      buttonText: "No",
-                      onTap: () {
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      style: AppButtonStyle.outline,
+                      title: "No",
+                      onPressed: () {
                         context.pop();
                       },
                     ),
@@ -276,12 +258,10 @@ showAlertDialogue({
 
                   // Yes Button
                   Expanded(
-                    child: SizedBox(
-                      height: 32.h,
-                      child: AppButton(
-                        onPressed: onClickYesButton,
-                        title: yesButtonText??"Yes",
-                      ),
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      onPressed: onClickYesButton,
+                      title: yesButtonText ?? "Yes",
                     ),
                   ),
                 ],
@@ -390,10 +370,8 @@ void showCustomerCareBottomSheet(BuildContext context) {
               AppButton(
                 title: "Call Now",
                 onPressed: () async {
-
                   context.pop();
-                await  callRedirect("10090-0008-2345");
-
+                  await callRedirect("10090-0008-2345");
                 },
               ),
               15.height,

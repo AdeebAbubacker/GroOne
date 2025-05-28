@@ -6,6 +6,8 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
+import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
@@ -26,6 +28,15 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_cre
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/choose_role_screen/bloc/role_bloc.dart';
+import '../features/kyc/bloc/kyc_bloc.dart';
+import '../features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import '../features/login/bloc/login_bloc.dart';
+import '../features/login/repository/login_repository.dart';
+import '../features/login/service/login_service.dart';
+import '../features/otp_verification/bloc/otp_bloc.dart';
+import '../features/otp_verification/repository/otp_repository.dart';
+import '../features/otp_verification/service/otp_service.dart';
 
 var locator = GetIt.instance;
 
@@ -53,6 +64,7 @@ void initLocator() {
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
+    locator.registerLazySingleton(() => KycService(locator<ApiService>()));
 
 
     // Repository
@@ -62,7 +74,8 @@ void initLocator() {
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
+    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(),locator<AuthRepository>()));
+    locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -76,6 +89,7 @@ void initLocator() {
     locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
+    locator.registerFactory(() => KycBloc(locator<KycRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
