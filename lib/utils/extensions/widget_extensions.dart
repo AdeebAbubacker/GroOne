@@ -52,7 +52,7 @@ extension WidgetExtension on Widget? {
 
   /// Bottom Navigation padding all
   Padding bottomButtonPadding({double? bottom}) {
-    return Padding(padding: EdgeInsets.only(bottom: bottom ??  45), child: this);
+    return Padding(padding: EdgeInsets.only(bottom: bottom ??  20), child: this);
   }
 
   /// return custom padding from each side

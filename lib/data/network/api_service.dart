@@ -8,7 +8,7 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
-import 'package:gro_one_app/service/hasInternet/has_internet_connection.dart';
+import 'package:gro_one_app/service/has_internet_connection.dart';
 
 
 class ApiService {

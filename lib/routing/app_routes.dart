@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/validate_memo/view/lp_validate_memo.dart';
@@ -48,11 +46,12 @@ class AppRoutes {
           return SplashScreen();
         },
       ),
+
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
-          final String addharNumber = data["addharNumber"]??"";
+           final data = state.extra! as Map<String, dynamic>;
+           final String addharNumber = data["addharNumber"]??"";
 
           return KycScreen(addharNumber:addharNumber,);
         },
@@ -113,12 +112,8 @@ class AppRoutes {
           return LpTransaction();
         },
       ),
-      GoRoute(
-        path: AppRouteName.lpSelectPickPointScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpSelectPickPointScreen();
-        },
-      ),
+
+
       GoRoute(
         path: AppRouteName.lpSetting,
         builder: (BuildContext context, GoRouterState state) {

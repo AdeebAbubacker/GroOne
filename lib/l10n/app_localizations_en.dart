@@ -397,4 +397,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get second => ' seconds';
+
+  @override
+  String get dateAndTime => 'Date & Time';
+
+  @override
+  String get consignmentWeightWithMT => 'Consignment weight (MT)';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get markAsFavouriteTitle => 'Mark as Favourite';
+
+  @override
+  String get markAsFavouriteSubtitle => 'Do you want mark as Favorite this load?';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get address => 'Address';
 }

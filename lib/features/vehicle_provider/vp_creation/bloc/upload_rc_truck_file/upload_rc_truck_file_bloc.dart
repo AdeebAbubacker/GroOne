@@ -27,4 +27,7 @@ class UploadRcTruckFileBloc extends Bloc<UploadRcTruckFileEvent, UploadRcTruckFi
     });
 
   }
+
+
+
 }

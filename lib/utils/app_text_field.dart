@@ -35,10 +35,10 @@ class AppTextField extends StatelessWidget {
   final int? maxLength;
   final Iterable<String>? autofillHints;
   final TextInputAction? textInputAction;
-  const AppTextField(
-      {super.key,
+  const AppTextField({
+    super.key,
       this.controller,
-        this.labelTextStyle,
+      this.labelTextStyle,
       this.decoration,
       this.onTap,
       this.onTextFieldTap,
@@ -67,7 +67,7 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle?? AppTextStyle.body3),
+        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle ?? AppTextStyle.body),
         if (labelText != null) 6.height,
         InkWell(
           onTap: onTap ?? () {},

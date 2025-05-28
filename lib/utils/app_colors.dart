@@ -35,7 +35,7 @@ class AppColors {
   static const Color primaryColor =Color(0xFF003CFF);
   static const Color secondaryColor = Color(0xff4D4D4D);
   static const Color lightPrimaryColor = Color(0xffD6EEFB);
-  static const Color extraLightPrimaryColor = Color(0xffFFFFCF2);
+  static const Color lightPrimaryColor2 = Color(0xFFF8F9FF);
 
   // Text Color
   static const Color primaryTextColor = Color(0xff292D32);
@@ -67,6 +67,7 @@ class AppColors {
   static const Color shimmerHighlightColor = Colors.white10;
 
   // Icon Color
+  static const Color primaryIconColor = Color(0xff0369A1);
   static const Color iconColor = Color(0xff606060);
   static const Color defaultIconTint = Colors.white;
   static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
