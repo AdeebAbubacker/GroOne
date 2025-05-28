@@ -34,7 +34,9 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-   initialLocation: AppRouteName.splash,
+     initialLocation: AppRouteName.vpBottomNavigationBar,
+
+  //initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
@@ -48,7 +50,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return KycScreen();
+            final data = state.extra! as Map<String, dynamic>;
+           final String addharNumber = data["addharNumber"]??"";
+
+          return KycScreen(addharNumber:addharNumber,);
         },
       ),
 

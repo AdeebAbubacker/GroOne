@@ -23,6 +23,8 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
+import '../../../kyc/view/widgets/kyc_bottom_sheet.dart';
+
 class VpHomeScreen extends StatefulWidget {
   const VpHomeScreen({super.key});
 
@@ -33,7 +35,6 @@ class VpHomeScreen extends StatefulWidget {
 class _VpHomeScreenState extends State<VpHomeScreen> {
 
   final vpHomeBloc = locator<VpCreationBloc>();
-
 
   @override
   void initState() {
@@ -90,7 +91,16 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         ),
       ),
       actions: [
-        kycWidget(onTap: () {  }).paddingRight(commonSafeAreaPadding),
+        kycWidget(onTap: () {
+          commonBottomSheetWithBGBlur(
+              context: context,
+
+
+              screen:  KycBottomSheet()
+
+          );
+
+        }).paddingRight(commonSafeAreaPadding),
       ],
     );
   }

@@ -313,10 +313,10 @@ class ApiService {
 
   /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
-    if (result[SUCCESS] == true) {
+    if (result[SUCCESS] == true || result[STATUS] == true) {
       final data = fromJson(result);
       return Success(data);
-    } else if (result[SUCCESS] == false) {
+    } else if (result[SUCCESS] == false || result[STATUS] == false) {
       return Error(ErrorWithMessage(message: result[MESSAGE]));
     } else {
       return Error(ResponseStatusFailed());

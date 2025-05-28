@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
+import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
@@ -163,7 +164,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   horizontal: 20.w,
                 ),
                 child: Column(
-                  spacing: 10.h,
+                  spacing: 5.h,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     30.height,
@@ -174,7 +175,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     20.height,
                     Row(
                       children: [
-
                         Expanded(
                           child: Text(
                             textAlign: TextAlign.start,
@@ -228,8 +228,38 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       },
                     ),
                     5.height,
-                    InkWell(
-                      onTap: () {
+                    AppButton(
+                      isLoading: isLoadingResend,
+                      richTextWidget:
+                          _isButtonEnabled
+                              ? Text(
+                                context.appText.resend,
+                                style: AppTextStyle.primaryColor16w900,
+                              )
+                              : RichText(
+                                text: TextSpan(
+                                  style: TextStyle(fontSize: 16.0),
+                                  children: [
+                                    TextSpan(
+                                      text: context.appText.resend,
+                                      style: AppTextStyle.primaryColor16w900,
+                                    ),
+                                    TextSpan(
+                                      text: context.appText.inText,
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                    TextSpan(
+                                      text: '$_start',
+                                      style: TextStyle(color: Colors.green),
+                                    ),
+                                    TextSpan(
+                                      text: context.appText.second,
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      onPressed: () {
                         if (_isButtonEnabled) {
                           otpBloc.add(
                             OtpResendRequested(
@@ -241,66 +271,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           );
                         }
                       },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 48.h,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.primaryColor,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child:
-                              isLoadingResend
-                                  ? SizedBox(
-                                    height: 20.h,
-                                    width: 20.w,
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  )
-                                  : _isButtonEnabled
-                                  ? Text(
-                                    context.appText.resend,
-                                    style: AppTextStyle.primaryColor16w900,
-                                  )
-                                  : RichText(
-                                    text: TextSpan(
-                                      style: TextStyle(fontSize: 16.0),
-                                      children: [
-                                        TextSpan(
-                                          text: context.appText.resend,
-                                          style:
-                                              AppTextStyle.primaryColor16w900,
-                                        ),
-                                        TextSpan(
-                                          text: context.appText.inText,
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                        TextSpan(
-                                          text: '$_start',
-                                          style: TextStyle(color: Colors.green),
-                                        ),
-                                        TextSpan(
-                                          text: context.appText.second,
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                          // Text(
-                          //   context.appText.resend,
-                          //   style: AppTextStyle.primaryColor16w900,
-                          // ),
-                        ),
-                      ),
+                      style: AppButtonStyle.outline,
                     ),
                   ],
                 ),
               ),
+
               Expanded(child: SizedBox.shrink()),
               Image.asset(AppImage.png.signUpBanner),
             ],
