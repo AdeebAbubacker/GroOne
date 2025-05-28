@@ -48,7 +48,7 @@ class OtpVerificationScreen extends StatefulWidget {
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final otpBloc = locator<OtpBloc>();
   String otpString = "";
-  late final SecuredSharedPreferences _secureSharedPrefs;
+
   int _start = 52;
   Timer? _timer;
 
@@ -89,9 +89,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void homeRedirection(OtpResponse data, BuildContext context) => addPostFrameCallback((){
     if (int.parse(widget.roleId) == 1) {
-      context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString()});
+      context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});
     } else if (int.parse(widget.roleId) == 2) {
-      Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString()), isForward: true));
+      Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString(),mobileNumber:widget.mobileNumber), isForward: true));
     }
   });
 

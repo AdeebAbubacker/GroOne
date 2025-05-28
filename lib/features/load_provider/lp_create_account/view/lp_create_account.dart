@@ -29,9 +29,10 @@ import '../../../choose_language_screen/view/choose_language_screen.dart';
 import '../model/lp_company_type_response.dart';
 
 class LpCreateAccount extends StatefulWidget {
-  const LpCreateAccount({super.key, required this.id});
+  const LpCreateAccount({super.key, required this.id,required this.mobileNumber});
 
   final String id;
+  final String mobileNumber;
 
   @override
   State<LpCreateAccount> createState() => _LpCreateAccountState();
@@ -63,6 +64,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
   void initFunction() => addPostFrameCallback(() {
     lpCreateBloc.add(LpCompanyTypeRequested());
+    phoneNumberTextController.text=widget.mobileNumber;
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
@@ -220,8 +222,9 @@ setState(() {});
               ),
               1.width,
               Expanded(
-                child: AppTextField(
-                  validator: (value) => Validator.phone(value),
+                child: AppTextField(     validator: (value) => Validator.phone(value),
+                  readOnly: true,
+
                   controller: phoneNumberTextController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [phoneNumberInputFormatter,

@@ -60,7 +60,7 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
         customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
         customerName.text=widget.profileData.customer!.customerName;
         companyName.text=widget.profileData.details!.companyName;
-        gstIn.text=widget.profileData.details!.gstin;
+        gstIn.text=widget.profileData.details!.gstin??"--";
       });
 
   void disposeFunction() => addPostFrameCallback(() {});

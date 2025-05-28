@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -364,7 +363,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         bloc: vpHomeBloc,
         listener: (context, state) {
           if (state is LogoutSuccess) {
-            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
+            context.go(AppRouteName.splash);
           }
           if (state is LogoutError) {
             ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
