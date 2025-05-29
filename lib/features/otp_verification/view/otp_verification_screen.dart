@@ -54,7 +54,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void startTimer() {
     setState(() {
-      _start = 52;
+      _start = 10;
       _isButtonEnabled = false;
     });
 

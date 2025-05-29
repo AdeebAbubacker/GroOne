@@ -11,24 +11,33 @@ import '../service/otp_service.dart';
 class OtpRepository {
   final OtpService _otpService;
   final AuthRepository _authRepository;
+
   OtpRepository(this._otpService, this._authRepository);
 
   // Submit Otp
   Future<Result<OtpResponse?>> sendOtp(OtpRequest request) async {
     try {
-      Result<dynamic> result =  await _otpService.sendOtp(request);
+      Result<dynamic> result = await _otpService.sendOtp(request);
       if (result is Success<OtpResponse?>) {
-        if(result.value != null){
-          Result saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
-          if(saveUserResult is Success){
+        if (result.value != null) {
+          dynamic saveUserResult;
+          if (result.value?.data?.user?.tempflg == false) {
+            saveUserResult = await _authRepository.saveUserInfoFromLogin(
+              result.value!,
+            );
+            if (saveUserResult is Success) {
+              return result;
+            }
+            if (saveUserResult is Error) {
+              return Error(saveUserResult.type);
+            }
+          } else {
             return result;
-          }
-          if(saveUserResult is Error){
-            return Error(saveUserResult.type);
           }
         }
       }
-      if(result is Error){
+
+      if (result is Error) {
         return Error(result.type);
       }
       return Error(GenericError());
@@ -39,7 +48,9 @@ class OtpRepository {
   }
 
   // Resend Otp
-  Future<Result<LoginApiResponseModel>> resendOtp(LoginApiRequest request) async {
+  Future<Result<LoginApiResponseModel>> resendOtp(
+    LoginApiRequest request,
+  ) async {
     try {
       return await _otpService.resendOtp(request);
     } catch (e) {

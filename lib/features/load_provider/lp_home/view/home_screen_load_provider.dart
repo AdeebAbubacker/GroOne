@@ -59,7 +59,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedCommodity;
   String hintTruck = 'Truck';
   String? selectedTruck;
-  String? profileImage;
+  String profileImage="";
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
 
@@ -137,7 +137,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       await lpHomeBloc.getUserId()??"";
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
-     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
+      loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
 
   });
 
@@ -265,7 +265,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     }, listener: (context, state) {
       if (state is GetLoadSuccess) {
         getLoadResponse = state.getLoadResponse;
-        //loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
+    //    loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
 
       }else if (state is GetLoadError) {
         ToastMessages.error(
@@ -438,8 +438,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     LpProfileScreen(profileData: profileResponse!.data!),
     isForward: true,
     ),
-    ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
-          });},
+    ).then((v) {
+    addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
+          });
+
+    },
           child: commonCacheNetworkImage(radius: 50,
               height: 40,
               width: 40,

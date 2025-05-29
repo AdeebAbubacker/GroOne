@@ -213,7 +213,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
                 vpHomeBloc.add(LogoutRequested());
               }
               if (state is LogoutSuccess) {
-                context.go(AppRouteName.splash);
+                context.go(AppRouteName.chooseLanguage);
               }
               if (state is LogoutError) {
                 ToastMessages.error(
