@@ -141,5 +141,17 @@
   "billingAddress": "Billing Address",
   "addNewAddress": "Add New Address",
   "sameAsShippingAddress": "Same As Shipping Address",
-  "deliverHere": "Deliver Here"
+  "deliverHere": "Deliver Here",
+  "addressLine": "Address Line",
+  "city": "City",
+  "state": "State",
+  "useMyCurrentLocation": "Use My Current Location",
+  "summary": "Summary",
+  "total": "Total",
+  "proceedToPay": "Proceed To Pay",
+  "totalAmount": "Total Amount",
+  "paymentDetails": "Payment Details",
+  "makePayment": "Make Payment",
+  "totalAmountToPay": "Total Amount To Pay",
+  "pay": "Pay"
 }

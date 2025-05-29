@@ -439,4 +439,40 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get deliverHere => 'यहां डिलीवरी करें';
+
+  @override
+  String get addressLine => 'पता रेखा';
+
+  @override
+  String get city => 'शहर';
+
+  @override
+  String get state => 'राज्य';
+
+  @override
+  String get useMyCurrentLocation => 'मेरे वर्तमान स्थान का उपयोग करें';
+
+  @override
+  String get summary => 'सारांश';
+
+  @override
+  String get total => 'कुल';
+
+  @override
+  String get proceedToPay => 'चुकाने के लिए कार्रवाई शुरू करो';
+
+  @override
+  String get totalAmount => 'कुल राशि';
+
+  @override
+  String get paymentDetails => 'भुगतान विवरण';
+
+  @override
+  String get makePayment => 'भुगतान करें';
+
+  @override
+  String get totalAmountToPay => 'भुगतान करने के लिए कुल राशि';
+
+  @override
+  String get pay => 'वेतन';
 }

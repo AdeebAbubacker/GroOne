@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/app_image.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 
@@ -24,7 +23,7 @@ class _KavachMakePaymentScreenState extends State<KavachMakePaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Make Payment'),
+      appBar: CommonAppBar(title: context.appText.makePayment),
       bottomNavigationBar: buildProceeToPayButton(),
       body: buildBodyWidget(context),
     );
@@ -43,7 +42,7 @@ class _KavachMakePaymentScreenState extends State<KavachMakePaymentScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total Amounts to Pay',style: AppTextStyle.textDarkGreyColor14w500,),
+                    Text(context.appText.totalAmountToPay,style: AppTextStyle.textDarkGreyColor14w500,),
                     10.height,
                     Text('₹10,420',style: AppTextStyle.h4,),
                   ],
@@ -113,7 +112,7 @@ class _KavachMakePaymentScreenState extends State<KavachMakePaymentScreen> {
       onPressed: (){
 
       },
-      title: 'Pay ₹10,420',
+      title: '${context.appText.pay} ₹10,420',
       style: AppButtonStyle.primary,
     ).paddingAll(30);
   }

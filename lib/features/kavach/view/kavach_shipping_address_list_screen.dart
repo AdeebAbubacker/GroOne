@@ -9,6 +9,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
+import '../../../utils/app_route.dart';
+import 'kavach_add_shipping_address_bottom_sheet.dart';
 import 'kavach_checkout_screen.dart';
 
 class KavachShippingAddressListScreen extends StatelessWidget {
@@ -27,7 +29,9 @@ class KavachShippingAddressListScreen extends StatelessWidget {
       child: Column(
         children: [
           AppButton(
-            onPressed: ()=> context.pop(),
+            onPressed: () {
+              commonBottomSheetWithBGBlur(context: context, screen: KavachAddShippingAddressBottomSheet());
+            },
             title: context.appText.addNewAddress,
             style: AppButtonStyle.outline,
           ),

@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_make_payment_screen.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_application_bar.dart';
@@ -23,7 +24,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Summary'),
+      appBar: CommonAppBar(title: context.appText.summary),
       bottomNavigationBar: buildProceeToPayButton(),
       body: buildBodyWidget(context),
     );
@@ -40,7 +41,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Payment Details',style: AppTextStyle.h5,),
+                    Text(context.appText.paymentDetails, style: AppTextStyle.h5,),
                     10.height,
                     Row(
                       children: [
@@ -50,14 +51,14 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     ),
                     Row(
                       children: [
-                        Expanded(child: Text('GST',style: AppTextStyle.textDarkGreyColor14w500,)),
+                        Expanded(child: Text(context.appText.gstKavach,style: AppTextStyle.textDarkGreyColor14w500,)),
                         Text('₹9,730.00',style: AppTextStyle.blackColor15w500,),
                       ],
                     ),
                     Divider(color: AppColors.greyIconColor,),
                     Row(
                       children: [
-                        Expanded(child: Text('Total Amount',style: AppTextStyle.textDarkGreyColor14w500,)),
+                        Expanded(child: Text(context.appText.totalAmount, style: AppTextStyle.textDarkGreyColor14w500,)),
                         Text('₹10,420',style: AppTextStyle.blackColor15w500,),
                       ],
                     ),
@@ -71,7 +72,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Shipping Address',style: AppTextStyle.h5,),
+                  Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
                   10.height,
                   Text('John Doe', style: AppTextStyle.textDarkGreyColor14w500),
                   Text('+91 9988993399',style: AppTextStyle.textDarkGreyColor14w500,),
@@ -85,7 +86,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Billing Address',style: AppTextStyle.h5,),
+                  Text(context.appText.billingAddress, style: AppTextStyle.h5,),
                   10.height,
                   Text('John Doe', style: AppTextStyle.textDarkGreyColor14w500),
                   Text('+91 9988993399',style: AppTextStyle.textDarkGreyColor14w500,),
@@ -108,7 +109,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('₹10,420',style: AppTextStyle.primaryColor16w900,),
-            Text('Total',style: AppTextStyle.blackColor14w400,),
+            Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
           ],
         ),
         15.width,
@@ -116,7 +117,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           onPressed: (){
             Navigator.of(context).push(commonRoute(KavachMakePaymentScreen()));
           },
-          title: 'Proceed To Pay',
+          title: context.appText.proceedToPay,
           style: AppButtonStyle.primary,
         ).expand()
       ],

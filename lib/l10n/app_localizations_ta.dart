@@ -442,4 +442,41 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get deliverHere => 'இங்கே வழங்கவும்';
+
+  @override
+  String get addressLine => 'முகவரி வரி';
+
+  @override
+  String get city => 'நகரம்';
+
+  @override
+  String get state => 'மாநிலம்';
+
+  @override
+  String get useMyCurrentLocation =>
+      'எனது தற்போதைய இருப்பிடத்தைப் பயன்படுத்தவும்';
+
+  @override
+  String get summary => 'சுருக்கம்';
+
+  @override
+  String get total => 'மொத்தம்';
+
+  @override
+  String get proceedToPay => 'செலுத்த தொடரவும்';
+
+  @override
+  String get totalAmount => 'மொத்த தொகை';
+
+  @override
+  String get paymentDetails => 'கட்டண விவரங்கள்';
+
+  @override
+  String get makePayment => 'பணம் செலுத்துங்கள்';
+
+  @override
+  String get totalAmountToPay => 'செலுத்த வேண்டிய மொத்த தொகை';
+
+  @override
+  String get pay => 'செலுத்துங்கள்';
 }

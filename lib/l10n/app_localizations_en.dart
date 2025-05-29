@@ -438,4 +438,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliverHere => 'Deliver Here';
+
+  @override
+  String get addressLine => 'Address Line';
+
+  @override
+  String get city => 'City';
+
+  @override
+  String get state => 'State';
+
+  @override
+  String get useMyCurrentLocation => 'Use My Current Location';
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get proceedToPay => 'Proceed To Pay';
+
+  @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get paymentDetails => 'Payment Details';
+
+  @override
+  String get makePayment => 'Make Payment';
+
+  @override
+  String get totalAmountToPay => 'Total Amount To Pay';
+
+  @override
+  String get pay => 'Pay';
 }

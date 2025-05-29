@@ -46,17 +46,17 @@ class _KavachAddShippingAddressBottomSheetState extends State<KavachAddShippingA
             10.height,
             AppTextField(controller: mobileNoController,hintText: context.appText.mobileNumber,),
             10.height,
-            AppTextField(controller: addressLine1Controller,hintText: 'Address Line 1',),
+            AppTextField(controller: addressLine1Controller,hintText: '${context.appText.addressLine} 1',),
             10.height,
-            AppTextField(controller: customerNameController,hintText: 'Address Line 2',),
+            AppTextField(controller: customerNameController,hintText: '${context.appText.addressLine} 2',),
             10.height,
-            AppTextField(controller: customerNameController,hintText: 'City',),
+            AppTextField(controller: customerNameController,hintText: context.appText.city,),
             10.height,
-            AppTextField(controller: customerNameController,hintText: 'State',),
+            AppTextField(controller: customerNameController,hintText: context.appText.state,),
             10.height,
             AppTextField(controller: customerNameController,hintText: context.appText.mobileNumber,),
             10.height,
-            AppButtonWithIcon(title: 'Use my current location',iconData: Icons.my_location,onPressed: () {
+            AppButtonWithIcon(title: context.appText.useMyCurrentLocation ,iconData: Icons.my_location,onPressed: () {
             },),
             30.height,
             Row(
