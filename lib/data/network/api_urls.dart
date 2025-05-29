@@ -47,20 +47,20 @@ class ApiUrls {
   // http://34.54.198.251/customer/api/v1/customer/profile-image/2
 
   // Common Api
-  static final String  upload = "$baseUrl/upload";
-  static final String  updateProfile = "$_customerBaseUrl$_customer/profile-image/";
-  static final String  logout = "$_customerBaseUrl$_auth/logout";
+  static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
+  static final String  updateProfile = "$_customerBaseUrl/profile-image/";
+  static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
   /// VP Endpoints
   static final String  createVpAccount = "$_customerBaseUrl$_vp/";
 
- //submit Kyc
-  static final String  submitKyc = "$_customerBaseUrl/kyc/";
+  //submit Kyc
+  static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
 
   /// LP Endpoints
-  static final String  createLpAccount = "$baseUrl$_customerBaseUrl$_lp/";
+  static final String  createLpAccount = "$_customerBaseUrl$_lp/";
   static final String  login = "$_baseUrlWithAuth/login";
-  static final String  companyType = "$_customerBaseUrl/company-type";
+  static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
@@ -68,7 +68,11 @@ class ApiUrls {
   static final String  tan = "$_verification/tan";
   static final String  pan = "$_verification/pan";
   static final String  getProfile = "$_customerBaseUrl/";
-  static final String  getMaster = "$_customerBaseUrl/lp-master/";
+  static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
+
+
+
+
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1/";
@@ -78,11 +82,14 @@ class ApiUrls {
   static final String  loadTruckType = "${_loadBaseUrl}truck-type";
   static final String  getRateDiscoveryPrice = "${_loadBaseUrl}rate-discovery";
 
+
+
   // Load
-  static final String  createLoad = _loadBaseUrl;
-  static final String  getLoads = "$_loadBaseUrl$_customer/";
-  static final String  loadDetail = "$_loadBaseUrl/";
+  static final String  createLoad = "$_loadBaseUrl$_load";
+  static final String  getLoads = "$_loadBaseUrl$_load$_customer/";
+  static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
+
 
 
 }
