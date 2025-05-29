@@ -30,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
 
-    init(context);
+
     _controller = VideoPlayerController.asset(AppImage.png.splash)
       ..initialize().then((_) {
         if (mounted) {
@@ -43,9 +43,10 @@ class _SplashScreenState extends State<SplashScreen> {
       if (_controller.value.position == _controller.value.duration &&
           _controller.value.isInitialized &&
           mounted) {
-        context.push(AppRouteName.chooseLanguage);
+     //   context.push(AppRouteName.chooseLanguage);
       }
     });
+    init(context);
     super.initState();
   }
 

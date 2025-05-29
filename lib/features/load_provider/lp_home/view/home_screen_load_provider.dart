@@ -50,7 +50,6 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
-
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
@@ -60,7 +59,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final dateTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
-
   int selectedPercentage = 80;
   final int baseAmount = 15000;
 
@@ -68,12 +66,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedCommodity;
   String hintTruck = 'Truck';
   String? selectedTruck;
-  String profileImage="";
+  String profileImage = "";
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
   bool checkBoxBool = false;
   bool memoDone = false;
-
 
   void _showBlueMemberDialogue() {
     showDialog(
@@ -122,18 +119,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
   ProfileDetailResponse? profileResponse;
   GetLoadResponse? getLoadResponse;
-
 
   @override
   void initState() {
     initFunction();
     super.initState();
   }
-
-
 
   @override
   void dispose() {
@@ -142,15 +135,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
   void initFunction() => addPostFrameCallback(() async {
-      await lpHomeBloc.getUserId()??"";
+    await lpHomeBloc.getUserId() ?? "";
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
-    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
+    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
     CustomLog.debug(this, "All Apis");
-      loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
-
+    loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
@@ -161,27 +153,28 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       backgroundColor: AppColors.backgroundColor,
       appBar: buildAppBarWidget(context),
 
-      body:buildBodyWidget(context)
+      body: buildBodyWidget(context),
     );
   }
 
   // Body
-  Widget buildBodyWidget(BuildContext context){
+  Widget buildBodyWidget(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
         loadCommodityBloc.add(LoadCommodity());
         loadTruckTypeBloc.add(LoadTruckType());
-        lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
-        loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"1"));
+        lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+        loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? "1"));
       },
       child: SingleChildScrollView(
-        child: BlocConsumer<LpHomeBloc,HomeState>(
+        child: BlocConsumer<LpHomeBloc, HomeState>(
           listener: (context, state) {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
 
-              profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ??"";
-
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
             }
             if (state is ProfileDetailError) {
               ToastMessages.error(
@@ -189,34 +182,37 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               );
             }
           },
-            bloc: lpHomeBloc,
-            builder: (context, state) {
-              if (state is ProfileDetailSuccess) {
-                profileResponse = state.profileDetailResponse;
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
 
-                profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ??"";
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
+            }
+            return SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildKYCStatusWidget(),
 
-              }
-              return SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildKYCStatusWidget(),
+                  bookShipmentSectionWidget(context),
+                  20.height,
 
-            bookShipmentSectionWidget(context),
-            20.height,
+                  upComingShipment(),
+                  20.height,
+                  valueAddedService(context),
 
-              upComingShipment(),
-            20.height,
-              valueAddedService(context),
-
-            30.height,
-          ],
+                  30.height,
+                ],
+              ),
+            );
+          },
         ),
-      );})
-    ));
+      ),
+    );
   }
-
 
   Widget buildKYCStatusWidget() {
     return Container(
@@ -258,53 +254,61 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return BlocConsumer(
       bloc: loadDetailBloc,
       builder: (context, state) {
-      return Container(
-        color: AppColors.white,
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-          child: Column(
-            spacing: 10.h,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.appText.upComingShipment,
-                style: AppTextStyle.textBlackColor18w500,
-              ),
+        return Container(
+          color: AppColors.white,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+            child: Column(
+              spacing: 10.h,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.appText.upComingShipment,
+                  style: AppTextStyle.textBlackColor18w500,
+                ),
 
-              getLoadResponse!=null?
-              getLoadResponse!.data.isNotEmpty?ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: getLoadResponse!.data.length,
-                itemBuilder: (context, index) {
-                  final loadData=getLoadResponse!.data[index];
-                  return upcomingShipmentTileWidget(loadData);
-                },):Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment)):Center(child: CircularProgressIndicator(),)
+                getLoadResponse != null
+                    ? getLoadResponse!.data.isNotEmpty
+                        ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: getLoadResponse!.data.length,
+                          itemBuilder: (context, index) {
+                            final loadData = getLoadResponse!.data[index];
+                            return upcomingShipmentTileWidget(loadData);
+                          },
+                        )
+                        : Center(
+                          child: Image.asset(
+                            width: 201.w,
+                            height: 134.h,
+                            AppImage.png.noShipment,
+                          ),
+                        )
+                    : Center(child: CircularProgressIndicator()),
 
-              ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
-            ],
+                ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
+              ],
+            ),
           ),
-        ),
-      );
-    }, listener: (context, state) {
-      if (state is GetLoadSuccess) {
-        getLoadResponse = state.getLoadResponse;
-    //    loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
-
-      }else if (state is GetLoadError) {
-        ToastMessages.error(
-          message: getErrorMsg(errorType: state.errorType),
         );
-      }
-    },);
+      },
+      listener: (context, state) {
+        if (state is GetLoadSuccess) {
+          getLoadResponse = state.getLoadResponse;
+          //    loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
+        } else if (state is GetLoadError) {
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        }
+      },
+    );
   }
 
-  upcomingShipmentTileWidget(LoadData loadData){
+  upcomingShipmentTileWidget(LoadData loadData) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(vertical: 10.h),
       decoration: BoxDecoration(
-
         color: AppColors.blackishWhite,
         borderRadius: BorderRadius.circular(8),
       ),
@@ -321,15 +325,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               context.appText.idNumber,
               style: AppTextStyle.textGreyDetailColor10w400,
             ),
-            subtitle: Text(
-              "GD12456",
-              style: AppTextStyle.blackColor16w400,
-            ),
+            subtitle: Text("GD12456", style: AppTextStyle.blackColor16w400),
             trailing: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 30.w,
-                vertical: 5.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 5.h),
               decoration: BoxDecoration(
                 color: AppColors.lightPurpleColor,
 
@@ -351,7 +349,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 spacing: 10.h,
                 children: [
                   Text(
-    loadData.dueDate!=null? DateTimeHelper.formatCustomDate(loadData.dueDate!):"--",
+                    loadData.dueDate != null
+                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                        : "--",
                     style: AppTextStyle.textGreyDetailColor10w400,
                   ),
                   Text(
@@ -365,13 +365,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 spacing: 10.h,
                 children: [
                   Text(
-                    loadData.dueDate!=null? DateTimeHelper.formatCustomDate(loadData.dueDate!):"--",
+                    loadData.dueDate != null
+                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                        : "--",
                     style: AppTextStyle.textGreyDetailColor10w400,
                   ),
-                  Text(
-                   loadData.dropAddr,
-                    style: AppTextStyle.blackColor16w400,
-                  ),
+                  Text(loadData.dropAddr, style: AppTextStyle.blackColor16w400),
                 ],
               ),
             ],
@@ -379,101 +378,107 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           10.height,
           memoDone
               ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: AppButton(
-                  buttonHeight: 32.h,
-                  style: AppButtonStyle.outline,
-                  title: "Pay Now",
-                  onPressed: () {
-                    context.push(AppRouteName.lpPayNowAndTrackLoad);
-                  },
-                ),
-              ),
-              15.width,
-              Expanded(
-                child: AppButton(
-                  buttonHeight: 32.h,
-                  style: AppButtonStyle.outline,
-                  title: "Track Load",
-                  onPressed: () {
-                    context.push(AppRouteName.lpPayNowAndTrackLoad);
-                  },
-                ),
-              ),
-            ],
-          )
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      style: AppButtonStyle.outline,
+                      title: "Pay Now",
+                      onPressed: () {
+                        context.push(AppRouteName.lpPayNowAndTrackLoad);
+                      },
+                    ),
+                  ),
+                  15.width,
+                  Expanded(
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      style: AppButtonStyle.outline,
+                      title: "Track Load",
+                      onPressed: () {
+                        context.push(AppRouteName.lpPayNowAndTrackLoad);
+                      },
+                    ),
+                  ),
+                ],
+              )
               : Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: AppButton(
-              buttonHeight: 32.h,
-              style: AppButtonStyle.outline,
-              title: context.appText.iAgreeTripToGo,
-              onPressed: () {
-                showAdvancePaymentDialogue(context: context);
-              },
-            ),
-          ),
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: AppButton(
+                  buttonHeight: 32.h,
+                  style: AppButtonStyle.outline,
+                  title: context.appText.iAgreeTripToGo,
+                  onPressed: () {
+                    showAdvancePaymentDialogue(context: context);
+                  },
+                ),
+              ),
           5.height,
-
         ],
       ),
     );
   }
 
-
-// Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context){
+  // Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
-      leading:  BlocListener<VpCreationBloc, VpCreationState>(
+      leading: BlocListener<VpCreationBloc, VpCreationState>(
         bloc: vpHomeBloc,
         listener: (context, state) {
           if (state is LogoutSuccess) {
             context.go(AppRouteName.splash);
           }
           if (state is LogoutError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
           }
         },
         child: InkWell(
-          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
-          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+          onTap: () => vpHomeBloc.add(LogoutRequested()),
+          child: Image.asset(
+            AppIcons.png.appIcon,
+          ).paddingLeft(commonSafeAreaPadding),
         ),
       ),
       actions: [
         // KYC
         kycWidget(
-            onTap: () {
-              commonBottomSheetWithBGBlur(
-                context: context,
+          onTap: () {
+            commonBottomSheetWithBGBlur(
+              context: context,
 
-                screen: KycBottomSheet(),
-              );
-            }
+              screen: KycBottomSheet(),
+            );
+          },
         ),
         10.width,
 
         // Profile
         InkWell(
-          onTap: (){
-    Navigator.push(
-    context,
-    commonRoute(
-    LpProfileScreen(profileData: profileResponse!.data!),
-    isForward: true,
-    ),
-    ).then((v) {
-    addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
-          });
-
-    },
-          child: commonCacheNetworkImage(radius: 50,
-              height: 40,
-              width: 40,
-              path:profileImage ?? "",
-              errorImage: AppImage.png.userProfileError
+          onTap: () {
+            Navigator.push(
+              context,
+              commonRoute(
+                LpProfileScreen(profileData: profileResponse!.data!),
+                isForward: true,
+              ),
+            ).then((v) {
+              addPostFrameCallback(
+                () => lpHomeBloc.add(
+                  ProfileDetailRequested(lpHomeBloc.userId ?? ""),
+                ),
+              );
+            });
+          },
+          child: commonCacheNetworkImage(
+            radius: 50,
+            height: 40,
+            width: 40,
+            path: profileImage ?? "",
+            errorImage: AppImage.png.userProfileError,
           ).paddingRight(commonSafeAreaPadding),
         ),
       ],
@@ -564,11 +569,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
   Widget bookShipmentSectionWidget(BuildContext context) {
-
     // Inner inside Widget
-    Widget bookShipmentWidget({required String heading, required String subHeading, required GestureTapCallback onClick}) {
+    Widget bookShipmentWidget({
+      required String heading,
+      required String subHeading,
+      required GestureTapCallback onClick,
+    }) {
       return InkWell(
         onTap: onClick,
         child: Row(
@@ -600,10 +607,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
           Container(
             padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
             child: Row(
               children: [
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
+                Image.asset(
+                  AppImage.png.bookAShipment,
+                  width: 18,
+                  fit: BoxFit.fitHeight,
+                ),
                 10.width,
 
                 Column(
@@ -613,7 +627,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       heading: context.appText.source,
                       subHeading: context.appText.selectPickUpPoint,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSelectPickPointScreen(),
+                            isForward: true,
+                          ),
+                        );
                       },
                     ),
 
@@ -624,7 +643,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       heading: context.appText.destination,
                       subHeading: context.appText.selectDestination,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSelectPickPointScreen(),
+                            isForward: true,
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -639,7 +663,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             bloc: loadCommodityBloc,
             listener: (context, state) {
               if (state is LoadCommodityError) {
-                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
               }
             },
             child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
@@ -675,7 +701,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             listener: (context, state) {
               print("Truck type state : ${state}");
               if (state is LoadTruckTypeError) {
-                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
               }
             },
             child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
@@ -687,7 +715,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     preFixIcon: AppIcons.svg.truck,
                     hintText: hintTruck,
                     onSelect: (index) async {
-                      selectedTruck = "${truckTypes[index].type} ${truckTypes[index].subType}";
+                      selectedTruck =
+                          "${truckTypes[index].type} ${truckTypes[index].subType}";
                       setState(() {});
                     },
                     dataList: truckTypes,
@@ -709,7 +738,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Date and Time
           InkWell(
             onTap: () async {
-              final String? date = await commonDatePicker(context,  firstDate:  DateTime.now(), initialDate : DateTimeHelper.convertToDateTimeWithCurrentTime(dateTextController.text));
+              final String? date = await commonDatePicker(
+                context,
+                firstDate: DateTime.now(),
+                initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(
+                  dateTextController.text,
+                ),
+              );
               if (date != null) {
                 dateTextController.text = date;
               } else {
@@ -720,13 +755,29 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             child: Container(
               height: 55,
               padding: EdgeInsets.all(10),
-              decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+              decoration: commonContainerDecoration(
+                color: AppColors.lightPrimaryColor2,
+                borderColor: AppColors.borderColor,
+              ),
               child: Row(
                 children: [
-                  SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor),),
+                  SvgPicture.asset(
+                    AppIcons.svg.calendar,
+                    width: 20,
+                    colorFilter: AppColors.svg(AppColors.primaryIconColor),
+                  ),
                   12.width,
-                  Text(dateTextController.text.isEmpty ? context.appText.dateAndTime :  dateTextController.text, style: AppTextStyle.body).expand(),
-                  Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
+                  Text(
+                    dateTextController.text.isEmpty
+                        ? context.appText.dateAndTime
+                        : dateTextController.text,
+                    style: AppTextStyle.body,
+                  ).expand(),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.greyIconColor,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -737,7 +788,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           Container(
             height: 55,
             padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
             child: Row(
               children: [
                 SvgPicture.asset(AppIcons.svg.kgWeight),
@@ -747,12 +801,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   autofocus: false,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      border: InputBorder.none,
-                      hintText: context.appText.consignmentWeightWithMT,
-                      hintStyle: AppTextStyle.body,
-                      maintainHintHeight: true
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    hintText: context.appText.consignmentWeightWithMT,
+                    hintStyle: AppTextStyle.body,
+                    maintainHintHeight: true,
                   ),
                 ).expand(),
               ],
@@ -763,14 +817,23 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Suggested Price
           Container(
             padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
             child: Row(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Suggested Price", style: AppTextStyle.textDarkGreyColor14w400),
-                    Text("₹75,000 - ₹80, 000", style: AppTextStyle.textBlackColor16w500),
+                    Text(
+                      "Suggested Price",
+                      style: AppTextStyle.textDarkGreyColor14w400,
+                    ),
+                    Text(
+                      "₹75,000 - ₹80, 000",
+                      style: AppTextStyle.textBlackColor16w500,
+                    ),
                   ],
                 ),
                 SizedBox.shrink().expand(),
@@ -778,35 +841,31 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 AppButton(
                   title: context.appText.postLoad,
                   onPressed: () async {
-
                     AppDialog.show(context, child: MarkAsFavouriteDialogUi());
                     //AppDialog.show(context, child: SuccessDialogView());
                   },
                 ).expand(flex: 2),
-
               ],
             ),
           ),
           20.height,
 
-
           // Need Support Next
           InkWell(
-            onTap: (){
+            onTap: () {
               showCustomerCareBottomSheet(context);
             },
             child: Center(
-              child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
+              child: Text(
+                "Need Our Customer Support Help?",
+                style: AppTextStyle.primaryColor14w400UnderLine,
+              ),
             ),
           ),
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
-
-
-
-
 
   final List<Map<String, dynamic>> commodities = [
     {'label': 'Agriculture', 'icon': Icons.grass},
