@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +11,7 @@ import 'package:gro_one_app/features/kyc/view/widgets/kyc_upload_file.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -42,9 +42,7 @@ class KycScreen extends StatefulWidget {
 class _KycScreenState extends State<KycScreen> {
   final kycBloc = locator<KycBloc>();
 
-  TextEditingController addharNumber = TextEditingController(
-
-  );
+  TextEditingController addharNumber = TextEditingController();
   TextEditingController gstIn = TextEditingController();
   TextEditingController tan = TextEditingController();
   TextEditingController pan = TextEditingController();
@@ -69,7 +67,7 @@ class _KycScreenState extends State<KycScreen> {
       } else {
         kycBloc.add(
           VerifyGstRequested(
-            apiRequest: VerifyGstRequest(gst:gstIn.text, force: false),
+            apiRequest: VerifyGstRequest(gst: gstIn.text, force: false),
           ),
         );
       }
@@ -80,7 +78,7 @@ class _KycScreenState extends State<KycScreen> {
       } else {
         kycBloc.add(
           VerifyTanRequested(
-            apiRequest: VerifyTanRequest(tan:tan.text, force: false),
+            apiRequest: VerifyTanRequest(tan: tan.text, force: false),
           ),
         );
       }
@@ -102,21 +100,24 @@ class _KycScreenState extends State<KycScreen> {
   final _formKey = GlobalKey<FormState>();
   String? userRole;
   String? userID;
-takeKey()async{
 
-  userID =await SecuredSharedPreferences(FlutterSecureStorage()).get(AppString.sessionKey.userId);
-  userRole=await SecuredSharedPreferences(FlutterSecureStorage()).get(AppString.sessionKey.userRole);
-  debugPrint("user Id $userRole}");
+  takeKey() async {
+    userID = await SecuredSharedPreferences(
+      FlutterSecureStorage(),
+    ).get(AppString.sessionKey.userId);
+    userRole = await SecuredSharedPreferences(
+      FlutterSecureStorage(),
+    ).get(AppString.sessionKey.userRole);
+    debugPrint("user Id $userRole}");
+  }
 
-}
   @override
   void initState() {
     takeKey();
 
-
     super.initState();
     nodeManage();
-     addharNumber.text = widget.addharNumber;
+    addharNumber.text = widget.addharNumber;
   }
 
   @override
@@ -127,8 +128,6 @@ takeKey()async{
     // TODO: implement dispose
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -144,13 +143,10 @@ takeKey()async{
           child: BlocConsumer(
             bloc: kycBloc,
             listener: (context, state) {
-
               if (state is SubmitKycSuccess) {
-
-
                 showSuccessDialog(
                   onTap: () {
-                  context.pop();
+                    context.pop();
                     context.pop();
                   },
                   context,
@@ -160,7 +156,6 @@ takeKey()async{
               }
               if (state is VerifyTanSuccess) {
                 verifiedTan = true;
-
 
                 print("success VerifyTanSuccess");
               }
@@ -182,8 +177,6 @@ takeKey()async{
               }
             },
             builder: (context, state) {
-
-
               return Column(
                 children: [
                   Form(
@@ -192,7 +185,7 @@ takeKey()async{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 15.h,
                       children: [
-                     textFieldWithLabel(
+                        textFieldWithLabel(
                           readOnly: true,
                           rightText: "Aadhaar Number",
                           leftText: "Verified",
@@ -201,7 +194,7 @@ takeKey()async{
 
                         /// GST section
                         textFieldWithLabel(
-                          leftText: verifiedGst ?   "Verified" : "Un-Verified",
+                          leftText: verifiedGst ? "Verified" : "Un-Verified",
                           readOnly: verifiedGst,
                           currentFocus: _gstNode,
                           rightText: "GSTIN",
@@ -215,7 +208,8 @@ takeKey()async{
                           children: [
                             textFieldWithLabel(
                               readOnly: verifiedTan,
-                              leftText: verifiedTan ? "Verified" : "Un-Verified",
+                              leftText:
+                                  verifiedTan ? "Verified" : "Un-Verified",
                               rightText: "TAN",
                               controller: tan,
                               currentFocus: _tanNode,
@@ -234,7 +228,7 @@ takeKey()async{
                         ),
                         upload(multiFilesList: panDoc),
 
-                        int.parse(userRole??"0") == 2
+                        int.parse(userRole ?? "0") == 2
                             ? Column(
                               spacing: 15.h,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,62 +338,76 @@ takeKey()async{
 
                   10.height,
                   AppButton(
-                    disableButton:
-
-                   int.parse(userRole??"0") == 1
-                            ? (gstDoc.isEmpty ||
-                                tanDoc.isEmpty ||
-                                panDoc.isEmpty)
-                            : (gstDoc.isEmpty ||
-                                checkDocLink.isEmpty ||
-                                panDoc.isEmpty ||
-                                tdsDocLink.isNotEmpty),
+                    style:
+                        (int.parse(userRole ?? "0") == 1
+                                ? (gstDoc.isEmpty ||
+                                    tanDoc.isEmpty ||
+                                    panDoc.isEmpty)
+                                : (gstDoc.isEmpty ||
+                                    checkDocLink.isEmpty ||
+                                    panDoc.isEmpty ||
+                                    tdsDocLink.isNotEmpty))
+                            ? AppButtonStyle.disableButton
+                            : AppButtonStyle.primary,
                     title: "Submit",
                     onPressed: () {
+                      if (int.parse(userRole ?? "0") == 1
+                          ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
+                          : (gstDoc.isEmpty ||
+                              checkDocLink.isEmpty ||
+                              panDoc.isEmpty ||
+                              tdsDocLink.isNotEmpty)) {
 
-                      if(verifiedGst && verifiedTan && verifiedPan){  if (_formKey.currentState!.validate()) {
-                        final kycRequest = SubmitKycRequestLp(
-                          aadhar: widget.addharNumber,
-                          address1: addressLine1.text,
-                          address2: addressLine2.text,
-                          address3: addressLine3.text,
-                          bankAccount: accountNumber.text,
-                          bankName: bankName.text,
-                          branchName: branchName.text,
-                          chequeDocLink:
-                          checkDocLink.isNotEmpty
-                              ? checkDocLink.first['path']
-                              : null,
-                          tdsDocLink:
-                          tdsDocLink.isNotEmpty
-                              ? tdsDocLink.first['path']
-                              : null,
-                          gstin: gstIn.text,
-                          gstinDocLink: gstDoc.first['path'],
-                          ifscCode: ifscCode.text,
-                          isAadhar: true,
-                          isGstin: verifiedGst,
-                          isPan: verifiedPan,
-                          isTan: verifiedTan,
-                          pan: pan.text,
-                          panDocLink: panDoc.first['path'],
-                          tan: tan.text,
-                          tanDocLink: tanDoc.first['path'],
-                        );
+                      }else{
+                        if (verifiedGst && verifiedTan && verifiedPan) {
+                          if (_formKey.currentState!.validate()) {
+                            final kycRequest = SubmitKycRequestLp(
+                              aadhar: widget.addharNumber,
+                              address1: addressLine1.text,
+                              address2: addressLine2.text,
+                              address3: addressLine3.text,
+                              bankAccount: accountNumber.text,
+                              bankName: bankName.text,
+                              branchName: branchName.text,
+                              chequeDocLink:
+                              checkDocLink.isNotEmpty
+                                  ? checkDocLink.first['path']
+                                  : null,
+                              tdsDocLink:
+                              tdsDocLink.isNotEmpty
+                                  ? tdsDocLink.first['path']
+                                  : null,
+                              gstin: gstIn.text,
+                              gstinDocLink: gstDoc.first['path'],
+                              ifscCode: ifscCode.text,
+                              isAadhar: true,
+                              isGstin: verifiedGst,
+                              isPan: verifiedPan,
+                              isTan: verifiedTan,
+                              pan: pan.text,
+                              panDocLink: panDoc.first['path'],
+                              tan: tan.text,
+                              tanDocLink: tanDoc.first['path'],
+                            );
 
-                        debugPrint("kycRequest ${kycRequest.toJson()}",wrapWidth: 1000);
+                            debugPrint(
+                              "kycRequest ${kycRequest.toJson()}",
+                              wrapWidth: 1000,
+                            );
 
-
-                        kycBloc.add(
-                          SubmitKycRequested(apiRequest: kycRequest, userId:userID??"0"),
-                        );
-                      }}
-                      else{
-                        ToastMessages.error(
-                          message:"Please verify all document before submit"
-                        );
+                            kycBloc.add(
+                              SubmitKycRequested(
+                                apiRequest: kycRequest,
+                                userId: userID ?? "0",
+                              ),
+                            );
+                          }
+                        } else {
+                          ToastMessages.error(
+                            message: "Please verify all document before submit",
+                          );
+                        }
                       }
-
                     },
                   ),
                   10.height,
@@ -418,7 +426,8 @@ takeKey()async{
   List<dynamic> checkDocLink = [];
   List<dynamic> tdsDocLink = [];
   List<dynamic> tds = [];
-String uploadLink="";
+  String uploadLink = "";
+
   upload({required List<dynamic> multiFilesList}) {
     return BlocConsumer<KycBloc, KycState>(
       bloc: kycBloc,
@@ -426,15 +435,9 @@ String uploadLink="";
         if (state is UploadFileSuccess) {
           if (state.uploadFileModel.data != null &&
               state.uploadFileModel.data!.url.isNotEmpty) {
-if(multiFilesList.isNotEmpty){
-  multiFilesList.first['path'] =
-      state.uploadFileModel.data!.url;
-}
-
-
-
-
-
+            if (multiFilesList.isNotEmpty) {
+              multiFilesList.first['path'] = state.uploadFileModel.data!.url;
+            }
           } else {
             multiFilesList.clear();
           }
@@ -445,6 +448,14 @@ if(multiFilesList.isNotEmpty){
       },
       builder: (BuildContext context, KycState state) {
         return KycUploadFile(
+          onPressedDeleteButton: () {
+            {
+              multiFilesList.clear();
+              commonHapticFeedback();
+              commonHideKeyboard(context);
+              setState(() {});
+            }
+          },
           multiFilesList: multiFilesList,
 
           isSingleFile: true,
@@ -453,9 +464,7 @@ if(multiFilesList.isNotEmpty){
               kycBloc.add(
                 UploadFileRequested(file: File(multiFilesList.first['path'])),
               );
-              if (state is UploadFileSuccess) {
-
-              }
+              if (state is UploadFileSuccess) {}
               if (state is AddharOtpError) {
                 multiFilesList.clear();
                 ToastMessages.error(
@@ -501,7 +510,7 @@ if(multiFilesList.isNotEmpty){
             Text(
               leftText ?? "",
               style: AppTextStyle.textBlackColor16w500.copyWith(
-                color:!readOnly?Colors.red: Color(0xFF018800),
+                color: !readOnly ? Colors.red : Color(0xFF018800),
               ),
             ),
           ],

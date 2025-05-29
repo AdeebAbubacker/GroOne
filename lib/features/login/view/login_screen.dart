@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -187,20 +188,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     15.height,
                     AppButton(
-                      disableButton: !(phoneNumber.text.length==10 && checkBoxBool==true),
+
                       isLoading: isLoading,
                       title: context.appText.getOtp,
-
+style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
-                        loginBloc.add(
-                          LoginInRequested(
-                            apiRequest: LoginApiRequest(
-                              mobile:phoneNumber.text,
-                              role: widget.roleId,
+                        if(phoneNumber.text.length==10 && checkBoxBool==true){
+                          loginBloc.add(
+                            LoginInRequested(
+                              apiRequest: LoginApiRequest(
+                                mobile:phoneNumber.text,
+                                role: widget.roleId,
+                              ),
                             ),
-                          ),
-                        );
-                        //context.push(AppRouteName.otpVerificationScreen);
+                          );
+                        }
+
+
                       },
                     ),
 

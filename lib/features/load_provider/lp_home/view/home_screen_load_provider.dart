@@ -4,8 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -19,18 +24,18 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/lp_selection_dropdown.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
-import '../../../../utils/lp_selection_dropdown.dart';
 import '../../../../utils/app_image.dart';
-import '../../../../utils/app_text_field.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
@@ -41,9 +46,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
-
-  final vpHomeBloc = locator<VpCreationBloc>();
-
+  bool checkBoxBool = false;
   final dateTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
@@ -58,329 +61,109 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
-  bool checkBoxBool = false;
+
   bool memoDone = false;
+  final lpHomeBloc = locator<LpHomeBloc>();
+  void _showBlueMemberDialogue() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      // Dismiss only with button if needed
+      builder: (BuildContext context) {
+        return showAlertDialogue(
+          hideButtonButtons: true,
+          context: context,
+          onClickYesButton: () {},
+          child: Column(
+            spacing: 20.h,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, size: 24),
+                ),
+              ),
+
+              // Illustration
+              Image.asset(
+                AppImage.png.blueMembership,
+                // replace with your image asset
+                height: 150,
+              ),
+
+              // Title
+              const Text(
+                "Blue membership ID\ngenerated Successfully",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
+              // Subtitle
+              const Text(
+                "Start exploring premium load\noptions today",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
 
-
-
+  ProfileDetailResponse? profileResponse;
+  final vpHomeBloc = locator<VpCreationBloc>();
 
   @override
   void initState() {
-    // TODO: implement initState
     initFunction();
     super.initState();
   }
 
+
+
   @override
   void dispose() {
-    // TODO: implement dispose
     disposeFunction();
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() {
-    //  Call your init methods
+  void initFunction() => addPostFrameCallback(() async {
+      await lpHomeBloc.getUserId()??"";
+    CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
+    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
-
-  });
-
-
-  void _showKycBottomSheet(BuildContext context) {
-    showBottomSheet(
-      context: context,
-backgroundColor: Colors.transparent,
-elevation:10 ,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context1, setStateBuilder) {
-            return Stack(
-              children: [
-                Container(height: double.infinity,color:AppColors.textBlackColor.withOpacity(0.4),),
-                Positioned(
-                  bottom: 0,left: 0,right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-
-                    ),
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              textAlign: TextAlign.left,
-                              "Verify Your KYC",
-                              style: AppTextStyle.textBlackColor20w500,
-                            ),
-                            15.height,
-
-                            AppTextField(
-                              decoration: commonInputDecoration(
-                                hintText: "xxxx xxxx 9123",
-                                fillColor: AppColors.white,
-                              ),
-                              keyboardType: TextInputType.number,
-
-                              labelText: "Enter Aadhar Card Number",
-                              labelTextStyle: AppTextStyle.textBlackColor16w400,
-                            ),
-
-                            20.height,
-                            customCheckbox(
-                              context: context,
-                              text: context.appText.iAgree,
-                              onTap: () {
-                                checkBoxBool = !checkBoxBool;
-                                setStateBuilder(() {});
-                              },
-                              selected: checkBoxBool,
-                            ),
-                            20.height,
-                            AppButton(
-                              title: "Verify Aadhar",
-                              onPressed: () {
-                                context.pop();
-                                context.push(AppRouteName.kycScreen).then((v) {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    // Dismiss only with button if needed
-                                    builder: (BuildContext context) {
-                                      return showAlertDialogue(
-                                        hideButtonButtons: true,
-                                        context: context,
-                                        onClickYesButton: () {},
-                                        child: Column(
-                                          spacing: 20.h,
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.topRight,
-                                              child: GestureDetector(
-                                                onTap:
-                                                    () => Navigator.of(context).pop(),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  size: 24,
-                                                ),
-                                              ),
-                                            ),
-
-                                            // Illustration
-                                            Image.asset(
-                                              AppImage.png.blueMembership,
-                                              // replace with your image asset
-                                              height: 150,
-                                            ),
-
-                                            // Title
-                                            const Text(
-                                              "Blue membership ID\ngenerated Successfully",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-
-                                            // Subtitle
-                                            const Text(
-                                              "Start exploring premium load\noptions today",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                });
-                              },
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: Text(
-                                  "I’ll do it later",
-                                  style: AppTextStyle.primaryColor16w400.copyWith(
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-
-  Future showAdvanceDialogue({required BuildContext context}) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState1) {
-            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
-            return showCustomDialogue(
-              context: context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.advancePayment,
-                    style: AppTextStyle.darkDividerColor16w400,
-                  ),
-                  20.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:
-                    [70, 80, 85].map((percent) {
-                      final isSelected = percent == selectedPercentage;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPercentage = percent;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                            isSelected
-                                ? const Color(0xFF0057FF)
-                                : Colors.transparent,
-                            border: Border.all(
-                              color:
-                              isSelected
-                                  ? const Color(0xFF0057FF)
-                                  : Colors.grey,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$percent%',
-                            style: TextStyle(
-                              color:
-                              isSelected
-                                  ? Colors.white
-                                  : Colors.black87,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    '₹$calculatedAmount',
-                    style: AppTextStyle.textBlackColor26w700,
-                  ),
-                ],
-              ),
-              onClickButton: () {
-                context.pop();
-                context.push(AppRouteName.lpValidateMemo).then((value) {
-                  memoDone = true;
-                  setState(() {});
-                });
-              },
-              buttonText: context.appText.verifyAdvance,
-            );
-          },
-        );
-      },
-    );
-  }
-
-
+  void disposeFunction() => addPostFrameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: buildAppBarWidget(context),
-      body: buildBodyWidget(context),
+
+      body:buildBodyWidget(context)
     );
   }
-
-  // Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context){
-    return CommonAppBar(
-      isLeading: false,
-      leading:  BlocListener<VpCreationBloc, VpCreationState>(
-        bloc: vpHomeBloc,
-        listener: (context, state) {
-          if (state is LogoutSuccess) {
-            navigateAndRemoveAllRoutes(context, screen: SplashScreen());
-          }
-          if (state is LogoutError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-          }
-        },
-        child: InkWell(
-          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
-          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-        ),
-      ),
-      actions: [
-        // KYC
-        kycWidget(
-            onTap: () {
-              _showKycBottomSheet(context);
-            }
-        ),
-        10.width,
-
-        // Profile
-        InkWell(
-          onTap: (){
-            context.push(AppRouteName.lpProfile);
-          },
-          child: commonCacheNetworkImage(
-            height: 40,
-            width: 40,
-            path: "",
-            errorImage: AppImage.png.userProfileError
-          ).paddingRight(commonSafeAreaPadding),
-        ),
-      ],
-    );
-  }
-
   // Body
   Widget buildBodyWidget(BuildContext context){
     return SingleChildScrollView(
-      child: SafeArea(
+      child: BlocConsumer(
+        listener: (context, state) {
+          if (state is ProfileDetailSuccess) {
+            profileResponse = state.profileDetailResponse;
+
+
+          }else if (state is ProfileUpdateError) {
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
+          }
+        },
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            return SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -396,10 +179,9 @@ elevation:10 ,
             30.height,
           ],
         ),
-      ),
+      );})
     );
   }
-
   Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -479,7 +261,7 @@ elevation:10 ,
             ),
             decoration: BoxDecoration(
                 color: AppColors.lightPurpleColor,
-            
+
             borderRadius: BorderRadius.circular(40),
           ),
           child: Text(
@@ -558,7 +340,7 @@ elevation:10 ,
           style: AppButtonStyle.outline,
           title: context.appText.iAgreeTripToGo,
           onPressed: () {
-           // showAdvancePaymentDialogue(context: context);
+            showAdvancePaymentDialogue(context: context);
           },
         ),
       ),
@@ -573,9 +355,143 @@ elevation:10 ,
     ),
     );
   }
+// Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context){
+    return CommonAppBar(
+      isLeading: false,
+      leading:  BlocListener<VpCreationBloc, VpCreationState>(
+        bloc: vpHomeBloc,
+        listener: (context, state) {
+          if (state is LogoutSuccess) {
+            context.go(AppRouteName.splash);
+          }
+          if (state is LogoutError) {
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+          }
+        },
+        child: InkWell(
+          onTap: ()=> vpHomeBloc.add(LogoutRequested()),
+          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+        ),
+      ),
+      actions: [
+        // KYC
+        kycWidget(
+            onTap: () {
+              commonBottomSheetWithBGBlur(
+                context: context,
 
+                screen: KycBottomSheet(),
+              );
+            }
+        ),
+        10.width,
 
+        // Profile
+        InkWell(
+          onTap: (){
+    Navigator.push(
+    context,
+    commonRoute(
+    LpProfileScreen(profileData: profileResponse!.data!),
+    isForward: true,
+    ),
+    ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
+          });},
+          child: commonCacheNetworkImage(
+              height: 40,
+              width: 40,
+              path: "",
+              errorImage: AppImage.png.userProfileError
+          ).paddingRight(commonSafeAreaPadding),
+        ),
+      ],
+    );
+  }
 
+  Future showAdvancePaymentDialogue({required BuildContext context}) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState1) {
+            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
+            return showCustomDialogue(
+              context: context,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.advancePayment,
+                    style: AppTextStyle.darkDividerColor16w400,
+                  ),
+                  20.height,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children:
+                        [70, 80, 85].map((percent) {
+                          final isSelected = percent == selectedPercentage;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPercentage = percent;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isSelected
+                                        ? const Color(0xFF0057FF)
+                                        : Colors.transparent,
+                                border: Border.all(
+                                  color:
+                                      isSelected
+                                          ? const Color(0xFF0057FF)
+                                          : Colors.grey,
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '$percent%',
+                                style: TextStyle(
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : Colors.black87,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    '₹$calculatedAmount',
+                    style: AppTextStyle.textBlackColor26w700,
+                  ),
+                ],
+              ),
+              onClickButton: () {
+                context.pop();
+                context.push(AppRouteName.lpValidateMemo).then((value) {
+                  memoDone = true;
+                  setState(() {});
+                });
+              },
+              disableButton: false,
+              buttonText: context.appText.verifyAdvance,
+            );
+          },
+        );
+      },
+    );
+  }
   Widget bookShipmentSectionWidget(BuildContext context) {
 
     // Inner inside Widget
@@ -770,17 +686,18 @@ elevation:10 ,
 
           // Need Support Next
           InkWell(
-              onTap: (){
-                showCustomerCareBottomSheet(context);
-                },
-              child: Center(
-                child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
-              ),
+            onTap: (){
+              showCustomerCareBottomSheet(context);
+            },
+            child: Center(
+              child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
+            ),
           ),
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
+
 
 
 

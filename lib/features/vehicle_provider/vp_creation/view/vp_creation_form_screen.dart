@@ -32,7 +32,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
-  const VpCreationFormScreen({super.key,required this.id});
+  final String mobileNumber;
+  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber});
 
   @override
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
@@ -92,6 +93,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
   void initFunction() => addPostFrameCallback(() {
+    mobileNumberTextController.text=widget.mobileNumber;
     CustomLog.debug(this, ApiUrls.baseUrl);
     CustomLog.debug(this, ApiUrls.createLpAccount);
     CustomLog.debug(this, ApiUrls.createVpAccount);
@@ -143,6 +145,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Phone Number
         AppTextField(
+          readOnly: true,
+
+
           validator: (value)=> Validator.phone(value),
           controller: mobileNumberTextController,
           labelText: context.appText.phoneNumber,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/app_lock_screen/app_lock_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/support/view/lp_support.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -38,7 +39,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       // Dismiss only with button if needed
       builder: (BuildContext context) {
         return showAlertDialogue(
-          yesButtonText: "Log Out",
+          yesButtonText: "Exit",
           context: context,
           onClickYesButton: () {
             context.pop();
@@ -88,7 +89,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
         showExitDialogue(context: context);
         return true;
       },
-      child: Scaffold(
+      child: AppLockScreen(child: Scaffold(
         body: pages[selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: AppColors.primaryColor,
@@ -125,7 +126,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             ),
           ],
         ),
-      ),
+      ),)
     );
   }
 }

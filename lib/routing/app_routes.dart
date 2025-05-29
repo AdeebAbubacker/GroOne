@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/validate_memo/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/master/master_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
+
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -14,7 +17,6 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
 import '../features/kyc/view/kyc_screen.dart';
-import '../features/load_provider/home/validate_memo/view/lp_validate_memo.dart';
 import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_create_account/view/lp_create_account.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
@@ -34,9 +36,8 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-     initialLocation: AppRouteName.vpBottomNavigationBar,
-
-  //initialLocation: AppRouteName.splash,
+   // initialLocation: AppRouteName.lpBottomNavigation,
+   initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
@@ -50,7 +51,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
-            final data = state.extra! as Map<String, dynamic>;
+           final data = state.extra! as Map<String, dynamic>;
            final String addharNumber = data["addharNumber"]??"";
 
           return KycScreen(addharNumber:addharNumber,);
@@ -61,6 +62,11 @@ class AppRoutes {
         path: AppRouteName.lpSupport,
         builder: (BuildContext context, GoRouterState state) {
           return LpSupport();
+        },
+      ),   GoRoute(
+        path: AppRouteName.master,
+        builder: (BuildContext context, GoRouterState state) {
+          return MasterScreen();
         },
       ),
       GoRoute(
@@ -121,24 +127,12 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpMyAccount,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpMyAccount();
-        },
-      ),
-      GoRoute(
-        path: AppRouteName.lpProfile,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpProfileScreen();
-        },
-      ),
-      GoRoute(
-        path: AppRouteName.lpEditMyAccount,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpEditMyAccount();
-        },
-      ),
+
+
+
+
+      //home screen
+
 
       // VP Bottom Navigation bar
       GoRoute(
@@ -190,8 +184,9 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final String id = data["id"];
+          final String mobileNumber = data["mobileNumber"];
 
-          return LpCreateAccount(id: id);
+          return LpCreateAccount(id: id,mobileNumber:mobileNumber);
         },
       ),
       GoRoute(

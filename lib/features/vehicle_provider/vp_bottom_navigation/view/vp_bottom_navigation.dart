@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gro_one_app/features/load_provider/home/view/home_screen_load_provider.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_tracking/view/vp_trip_tracking.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';

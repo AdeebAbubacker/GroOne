@@ -9,7 +9,11 @@ class AppTextStyle {
 
   ///----Prabhat---
 
-  static TextStyle textBlackColor20w500 = TextStyle(
+  static TextStyle black13w700 = TextStyle(
+    color: AppColors.black,
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w700,
+  );  static TextStyle textBlackColor20w500 = TextStyle(
     color: AppColors.textBlackColor,
     fontSize: 20.sp,
     fontWeight: FontWeight.w500,
