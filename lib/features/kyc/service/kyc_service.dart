@@ -28,7 +28,7 @@ class KycService {
   Future<Result<AddharOtpResponse>> kycSendOtp(AddharOtpRequest request) async {
     try {
       final result = await _apiService.post(
-        ApiUrls.addharSendOtp,
+        ApiUrls.aadhaarSendOtp,
         body: request,
       );
       if (result is Success) {
@@ -50,7 +50,7 @@ class KycService {
   Future<Result<AddharVerifyOtpResponse>> kycVerifyOtp(AddharVerifyOtpRequest request) async {
     try {
       final result = await _apiService.post(
-        ApiUrls.addharVerifyOtp,
+        ApiUrls.aadhaarVerifyOtp,
         body: request,
       );
       if (result is Success) {

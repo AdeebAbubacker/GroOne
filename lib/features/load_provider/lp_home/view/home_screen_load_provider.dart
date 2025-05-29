@@ -142,10 +142,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: buildAppBarWidget(context),
-
       body:buildBodyWidget(context)
     );
   }
+
   // Body
   Widget buildBodyWidget(BuildContext context){
     return SingleChildScrollView(
@@ -153,8 +153,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         listener: (context, state) {
           if (state is ProfileDetailSuccess) {
             profileResponse = state.profileDetailResponse;
-
-
           }else if (state is ProfileUpdateError) {
             ToastMessages.error(
               message: getErrorMsg(errorType: state.errorType),
