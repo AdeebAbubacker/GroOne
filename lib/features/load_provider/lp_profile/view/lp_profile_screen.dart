@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -35,7 +36,9 @@ import '../../../../utils/extra_utils.dart';
 
 class LpProfileScreen extends StatefulWidget {
   const LpProfileScreen({super.key, required this.profileData});
-final  AllProfileDetails profileData;
+
+  final AllProfileDetails profileData;
+
   @override
   State<LpProfileScreen> createState() => _LpProfileScreenState();
 }
@@ -46,6 +49,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
+
   @override
   void initState() {
     initFunction();
@@ -65,6 +69,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +98,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             ///profile options widget
             profileOptionWidget(),
           ],
-        )
+        ),
       ),
     );
   }
@@ -102,7 +107,10 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     return Column(
       spacing: 15.h,
       children: [
-        Text(widget.profileData.customer!.customerName, style: AppTextStyle.blackColor15w500),
+        Text(
+          widget.profileData.customer!.customerName,
+          style: AppTextStyle.blackColor15w500,
+        ),
         InkWell(
           onTap: () {
             Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
@@ -137,17 +145,20 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             imageString: AppImage.svg.user,
             text: context.appText.myAccount,
             onTap: () {
-              Navigator.push(context,commonRoute(LpMyAccount(profileData: widget.profileData,),isForward: true)).then((onValue) {
+              Navigator.push(
+                context,
+                commonRoute(
+                  LpMyAccount(profileData: widget.profileData),
+                  isForward: true,
+                ),
+              ).then((onValue) {
                 lpHomeLocator.add(
                   ProfileDetailRequested(lpHomeLocator.userId ?? ""),
                 );
-                if(    lpHomeLocator.stream is ProfileDetailSuccess){
-                  setState(() {
-
-                  });
+                if (lpHomeLocator.stream is ProfileDetailSuccess) {
+                  setState(() {});
                 }
               });
-
             },
           ),
           dividerWidget(),
@@ -191,43 +202,54 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
             },
           ),
           dividerWidget(),
-        BlocListener<VpCreationBloc, VpCreationState>(
-          bloc: vpHomeBloc,
-          listener: (context, state) {
-            if (state is LogoutSuccess) {
-              context.go(AppRouteName.splash);
-            }
-            if (state is LogoutError) {
-              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-            }
-          },
-
-          child:   profileWidget(
-            imageString: AppImage.svg.logOut,
-            text: context.appText.logOut,
-            onTap: () {
-
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                // Dismiss only with button if needed
-                builder: (BuildContext context) {
-                  return showAlertDialogue(
-                    yesButtonText: "Log Out",
-                    noButtonText: "Cancel",
-                    context: context,
-                    onClickYesButton: () {
-                        vpHomeBloc.add(LogoutRequested());
-                    },
-                    child: LogOutDialogueUi(),
-                  );
-                },
-              );
-
+          BlocListener<VpCreationBloc, VpCreationState>(
+            bloc: vpHomeBloc,
+            listener: (context, state) {
+              if (state is LogOutAPISuccess) {
+                vpHomeBloc.add(LogoutRequested());
+              }
+              if (state is LogoutSuccess) {
+                context.go(AppRouteName.splash);
+              }
+              if (state is LogoutError) {
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
+              }
             },
-            showArrow: false,
-          )),
+
+            child: profileWidget(
+              imageString: AppImage.svg.logOut,
+              text: context.appText.logOut,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  // Dismiss only with button if needed
+                  builder: (BuildContext context) {
+                    return showAlertDialogue(
+                      yesButtonText: "Log Out",
+                      noButtonText: "Cancel",
+                      context: context,
+                      onClickYesButton: () {
+                        context.pop();
+
+                        vpHomeBloc.add(
+                          LogoutAPIRequested(
+                            apiRequest: LogOutRequest(
+                              customerId: lpHomeLocator.userId ?? "",
+                            ),
+                          ),
+                        );
+                      },
+                      child: LogOutDialogueUi(),
+                    );
+                  },
+                );
+              },
+              showArrow: false,
+            ),
+          ),
           10.height,
         ],
       ),

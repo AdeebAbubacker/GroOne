@@ -36,6 +36,7 @@ class ApiUrls {
   static String  createLpAccount = "$baseUrl$_customer$_lp/";
 
   static String  login = "$_baseUrlWithAuth/login";
+  static String  logOut = "$baseUrl${_auth}/logout";
   static String  companyType = "$baseUrl/company-type";
   static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
   static String  addharSendOtp = "$_verification/aadhaar/send-otp";
