@@ -137,8 +137,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       await lpHomeBloc.getUserId()??"";
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
-    // loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
-      loadDetailBloc.add(GetLoadRequested("1"));
+     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
 
   });
 
