@@ -14,7 +14,7 @@ part 'load_posting_state.dart';
 class LoadPostingBloc extends Bloc<LoadPostingEvent, LoadPostingState> {
   final UserInformationRepository _informationRepository;
   final LpHomeRepository _lpHomeRepository;
-  LoadPostingBloc(this._informationRepository, this._lpHomeRepository) : super(LoadPostingInitial()) {
+  LoadPostingBloc(this._informationRepository, this._lpHomeRepository) : super(CreateLoadPostInitial()) {
     getUserId();
     on<CreateLoadPostingEvent>(_onCreateLoadPosting);
   }

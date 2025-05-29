@@ -83,7 +83,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
 
-  String profileImage = "";
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
   bool checkBoxBool = false;

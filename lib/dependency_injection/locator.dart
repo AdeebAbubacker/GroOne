@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/l
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
@@ -111,6 +112,7 @@ void initLocator() {
     locator.registerFactory(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
     locator.registerFactory(() => LoadCommodityBloc(locator<LpHomeRepository>()));
     locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
+    locator.registerFactory(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
