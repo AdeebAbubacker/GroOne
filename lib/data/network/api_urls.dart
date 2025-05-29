@@ -18,12 +18,10 @@ class ApiUrls {
 
   // Base URL
   static String get _baseUrl => "$_fetchUrl$_path$_v1";
-  static String get _loadBaseUrl => "$_fetchUrl$_load$_path$_v1$_load";
-  static String get _loadPostingPickListOptionBaseUrl => "$_fetchUrl$_load$_path$_v1";
   static String get _baseUrlWithAuth => "$_fetchUrl$_path$_v1$_auth$_customer";
-  static String  baseUrl = _baseUrl;
-  static String  verification = _verification;
-  static String  loadBaseUrl = _loadBaseUrl;
+
+  static final String  baseUrl = _baseUrl;
+  static final String  verification = _verification;
 
   // Common Api
   static String  upload = "$baseUrl/upload";
@@ -49,20 +47,19 @@ class ApiUrls {
   static String  getProfile = "$baseUrl$_customer/";
   static String  getMaster = "$baseUrl/lp-master/";
 
-  // Load Form pick list
-  static String  loadCommodity = "${_loadPostingPickListOptionBaseUrl}commodity";
-  static String  loadTruckType = "${_loadPostingPickListOptionBaseUrl}truck-type";
 
+  // Load Creation
+  static final String  _loadCreationBaseUrl = "http://34.54.198.251/load/api/v1/";
+
+  // Load Form pick list
+  static final String  loadCommodity = "${_loadCreationBaseUrl}commodity";
+  static final String  loadTruckType = "${_loadCreationBaseUrl}truck-type";
 
   // Load
-  static String  createLoad = loadBaseUrl;
-  static String  getLoads  = "$loadBaseUrl$_customer/";
-  static String  loadDetail = "$loadBaseUrl/";
-  static String  updateLoad = "$loadBaseUrl/";
-
-
-
-
+  static final String  createLoad = "$_loadCreationBaseUrl/load";
+  static final String  getLoads = "$_loadCreationBaseUrl/load/$_customer/";
+  static final String  loadDetail = "$_loadCreationBaseUrl/load/";
+  static final String  updateLoad = "$_loadCreationBaseUrl/load/";
 
 
 }
