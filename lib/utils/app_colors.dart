@@ -10,6 +10,7 @@ class AppColors {
   static const Color borderDisableColor=Color(0xFF9D9D9D);
   static const Color lightBlackColor=Color(0xFF515151);
   static const Color veryLightGreyColor=Color(0xFF646464);
+  static const Color blackishWhite=Color(0xFFF8F8F8);
   static const Color backgroundColor=Color(0xFFF7F8FA);
   static const Color lightPurpleColor=Color(0xFFE8DAFF);
   static const Color purpleColor=Color(0xFF6929C4);

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -281,8 +282,12 @@ class _KycScreenState extends State<KycScreen> {
                               ),
                             ),
                             AppTextField(
-                              validator:
-                                  (value) => Validator.fieldRequired(value),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(6)
+                              ],
+keyboardType: TextInputType.number,
+                              validator: (value) => Validator.pincode(value),
                               controller: pincode,
                               decoration: commonInputDecoration(
                                 fillColor: AppColors.white,
@@ -357,8 +362,7 @@ class _KycScreenState extends State<KycScreen> {
                               checkDocLink.isEmpty ||
                               panDoc.isEmpty ||
                               tdsDocLink.isNotEmpty)) {
-
-                      }else{
+                      } else {
                         if (verifiedGst && verifiedTan && verifiedPan) {
                           if (_formKey.currentState!.validate()) {
                             final kycRequest = SubmitKycRequestLp(
@@ -370,13 +374,13 @@ class _KycScreenState extends State<KycScreen> {
                               bankName: bankName.text,
                               branchName: branchName.text,
                               chequeDocLink:
-                              checkDocLink.isNotEmpty
-                                  ? checkDocLink.first['path']
-                                  : null,
+                                  checkDocLink.isNotEmpty
+                                      ? checkDocLink.first['path']
+                                      : null,
                               tdsDocLink:
-                              tdsDocLink.isNotEmpty
-                                  ? tdsDocLink.first['path']
-                                  : null,
+                                  tdsDocLink.isNotEmpty
+                                      ? tdsDocLink.first['path']
+                                      : null,
                               gstin: gstIn.text,
                               gstinDocLink: gstDoc.first['path'],
                               ifscCode: ifscCode.text,

@@ -8,6 +8,7 @@ class ApiUrls {
   // Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
   static String get _path => "/api";
+  static String get _load => "/load";
   static String get _v1 => "/v1";
   static String get _auth => "/auth";
   static String get _vp => "/vp";
@@ -18,28 +19,28 @@ class ApiUrls {
   // Base URL
   static String get _baseUrl => "$_fetchUrl$_path$_v1";
   static String get _baseUrlWithAuth => "$_fetchUrl$_path$_v1$_auth$_customer";
-  //static String get _baseUrl => "$_fetchUrl$_path$_v1";
-  static String  baseUrl = _baseUrl;
-  static String  verification = _verification;
+
+  static final String  baseUrl = _baseUrl;
+  static final String  verification = _verification;
 
   // Common Api
   static String  upload = "$baseUrl/upload";
 
-  // VP Endpoints
+  /// VP Endpoints
   static String  createVpAccount = "$baseUrl$_customer$_vp/";
-//submit Kyc
 
+  //submit Kyc
   static String  submitKyc = "$baseUrl/kyc/";
 
 
-  // LP Endpoints
+  /// LP Endpoints
   static String  createLpAccount = "$baseUrl$_customer$_lp/";
 
   static String  login = "$_baseUrlWithAuth/login";
   static String  companyType = "$baseUrl/company-type";
   static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
-  static String  addharSendOtp = "$_verification/aadhaar/send-otp";
-  static String  addharVerifyOtp = "$_verification/aadhaar/verify-otp";
+  static String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
+  static String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static String  gst = "$_verification/gst";
   static String  tan = "$_verification/tan";
   static String  pan = "$_verification/pan";
@@ -47,6 +48,18 @@ class ApiUrls {
   static String  getMaster = "$baseUrl/lp-master/";
 
 
+  // Load Creation
+  static final String  _loadCreationBaseUrl = "http://34.54.198.251/load/api/v1/";
+
+  // Load Form pick list
+  static final String  loadCommodity = "${_loadCreationBaseUrl}commodity";
+  static final String  loadTruckType = "${_loadCreationBaseUrl}truck-type";
+
+  // Load
+  static final String  createLoad = "$_loadCreationBaseUrl/load";
+  static final String  getLoads = "${_loadCreationBaseUrl}load$_customer/";
+  static final String  loadDetail = "${_loadCreationBaseUrl}load/";
+  static final String  updateLoad = "$_loadCreationBaseUrl/load/";
 
 
 }

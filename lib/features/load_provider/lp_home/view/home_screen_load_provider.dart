@@ -5,13 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
-import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -64,6 +65,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   bool memoDone = false;
   final lpHomeBloc = locator<LpHomeBloc>();
+  final vpHomeBloc = locator<VpCreationBloc>();
+  final loadDetailBloc = locator<LoadListBloc>();
   void _showBlueMemberDialogue() {
     showDialog(
       context: context,
@@ -113,7 +116,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
   ProfileDetailResponse? profileResponse;
-  final vpHomeBloc = locator<VpCreationBloc>();
+  GetLoadResponse? getLoadResponse;
+
 
   @override
   void initState() {
@@ -133,6 +137,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       await lpHomeBloc.getUserId()??"";
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
+    // loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
+      loadDetailBloc.add(GetLoadRequested("1"));
+
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
@@ -151,6 +158,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return SingleChildScrollView(
       child: BlocConsumer(
         listener: (context, state) {
+
           if (state is ProfileDetailSuccess) {
             profileResponse = state.profileDetailResponse;
 
@@ -172,10 +180,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             bookShipmentSectionWidget(context),
             20.height,
 
-            valueAddedService(context),
+            upComingShipment(),
             20.height,
 
-            upComingShipment(),
+            valueAddedService(context),
             30.height,
           ],
         ),
@@ -219,140 +227,170 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
   upComingShipment() {
-    return Container(
-      color: AppColors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-        child: Column(
-          spacing: 10.h,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          Text(
-          context.appText.upComingShipment,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
+    return BlocConsumer(
+      bloc: loadDetailBloc,
+      builder: (context, state) {
+      return Container(
+        color: AppColors.white,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
           child: Column(
-            spacing: 5.h,
+            spacing: 10.h,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                context.appText.upComingShipment,
+                style: AppTextStyle.textBlackColor18w500,
+              ),
+
+              getLoadResponse!=null?
+              getLoadResponse!.data.isNotEmpty?ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: getLoadResponse!.data.length,
+                itemBuilder: (context, index) {
+                  final loadData=getLoadResponse!.data[index];
+                  return upcomingShipmentTileWidget(loadData);
+                },):Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment)):Center(child: CircularProgressIndicator(),)
+
+              ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
+            ],
+          ),
+        ),
+      );
+    }, listener: (context, state) {
+      if (state is GetLoadSuccess) {
+        getLoadResponse = state.getLoadResponse;
+        //loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
+
+      }else if (state is GetLoadError) {
+        ToastMessages.error(
+          message: getErrorMsg(errorType: state.errorType),
+        );
+      }
+    },);
+  }
+
+  upcomingShipmentTileWidget(LoadData loadData){
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
+      decoration: BoxDecoration(
+
+        color: AppColors.blackishWhite,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        spacing: 5.h,
+        children: [
           ListTile(
-          leading: Image.asset(
-          AppImage.png.shipmentBox,
-            height: 39.h,
-            width: 39.w,
-          ),
-          title: Text(
-            context.appText.idNumber,
-            style: AppTextStyle.textGreyDetailColor10w400,
-          ),
-          subtitle: Text(
-            "GD12456",
-            style: AppTextStyle.blackColor16w400,
-          ),
-          trailing: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 30.w,
-              vertical: 5.h,
+            leading: Image.asset(
+              AppImage.png.shipmentBox,
+              height: 39.h,
+              width: 39.w,
             ),
-            decoration: BoxDecoration(
+            title: Text(
+              context.appText.idNumber,
+              style: AppTextStyle.textGreyDetailColor10w400,
+            ),
+            subtitle: Text(
+              "GD12456",
+              style: AppTextStyle.blackColor16w400,
+            ),
+            trailing: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 30.w,
+                vertical: 5.h,
+              ),
+              decoration: BoxDecoration(
                 color: AppColors.lightPurpleColor,
 
-            borderRadius: BorderRadius.circular(40),
-          ),
-          child: Text(
-            "Sourcing",
-            style: AppTextStyle.whiteColor14w400.copyWith(
-              color: AppColors.purpleColor,
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: Text(
+                "Sourcing",
+                style: AppTextStyle.whiteColor14w400.copyWith(
+                  color: AppColors.purpleColor,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      dividerWidget(),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            spacing: 10.h,
+          dividerWidget(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                "14 Jul, 2025",
-                style: AppTextStyle.textGreyDetailColor10w400,
+              Column(
+                spacing: 10.h,
+                children: [
+                  Text(
+    loadData.dueDate!=null? DateTimeHelper.formatCustomDate(loadData.dueDate!):"--",
+                    style: AppTextStyle.textGreyDetailColor10w400,
+                  ),
+                  Text(
+                    loadData.pickUpAddr,
+                    style: AppTextStyle.blackColor16w400,
+                  ),
+                ],
               ),
-              Text(
-                "T. Nagar",
-                style: AppTextStyle.blackColor16w400,
+              Icon(Icons.arrow_forward, color: AppColors.primaryColor),
+              Column(
+                spacing: 10.h,
+                children: [
+                  Text(
+                    loadData.dueDate!=null? DateTimeHelper.formatCustomDate(loadData.dueDate!):"--",
+                    style: AppTextStyle.textGreyDetailColor10w400,
+                  ),
+                  Text(
+                   loadData.dropAddr,
+                    style: AppTextStyle.blackColor16w400,
+                  ),
+                ],
               ),
             ],
           ),
-          Icon(Icons.arrow_forward, color: AppColors.primaryColor),
-          Column(
-            spacing: 10.h,
+          10.height,
+          memoDone
+              ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                "14 Jul, 2025",
-                style: AppTextStyle.textGreyDetailColor10w400,
+              Expanded(
+                child: AppButton(
+                  buttonHeight: 32.h,
+                  style: AppButtonStyle.outline,
+                  title: "Pay Now",
+                  onPressed: () {
+                    context.push(AppRouteName.lpPayNowAndTrackLoad);
+                  },
+                ),
               ),
-              Text(
-                "T. Nagar",
-                style: AppTextStyle.blackColor16w400,
+              15.width,
+              Expanded(
+                child: AppButton(
+                  buttonHeight: 32.h,
+                  style: AppButtonStyle.outline,
+                  title: "Track Load",
+                  onPressed: () {
+                    context.push(AppRouteName.lpPayNowAndTrackLoad);
+                  },
+                ),
               ),
             ],
-          ),
-        ],
-      ),
-      10.height,
-      memoDone
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(
+          )
+              : Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: AppButton(
               buttonHeight: 32.h,
               style: AppButtonStyle.outline,
-              title: "Pay Now",
+              title: context.appText.iAgreeTripToGo,
               onPressed: () {
-                context.push(AppRouteName.lpPayNowAndTrackLoad);
+                showAdvancePaymentDialogue(context: context);
               },
             ),
           ),
-          15.width,
-          Expanded(
-            child: AppButton(
-              buttonHeight: 32.h,
-              style: AppButtonStyle.outline,
-              title: "Track Load",
-              onPressed: () {
-                context.push(AppRouteName.lpPayNowAndTrackLoad);
-              },
-            ),
-          ),
-        ],
-      )
-          : Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w),
-        child: AppButton(
-          buttonHeight: 32.h,
-          style: AppButtonStyle.outline,
-          title: context.appText.iAgreeTripToGo,
-          onPressed: () {
-            showAdvancePaymentDialogue(context: context);
-          },
-        ),
-      ),
-      5.height,
-      ],
-    ),
-    ),
+          5.height,
 
-    ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
-    ],
-    ),
-    ),
+        ],
+      ),
     );
   }
 // Appbar

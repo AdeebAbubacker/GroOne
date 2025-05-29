@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
@@ -107,6 +108,7 @@ void initLocator() {
     locator.registerFactory(() => KycBloc(locator<KycRepository>()));
     locator.registerFactory(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
     locator.registerFactory(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
+    locator.registerFactory(() => LoadListBloc(locator<LpHomeRepository>(),));
     locator.registerFactory(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
 
 
