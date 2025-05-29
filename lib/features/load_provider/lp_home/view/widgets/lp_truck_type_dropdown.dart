@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import 'app_colors.dart';
-import 'app_image.dart';
-import 'app_text_style.dart';
-
-class LPSelectionDropdown extends StatefulWidget {
+class LPTruckTypeDropdown extends StatefulWidget {
   final GestureTapCallback onTab;
   final String? selectedText;
   final String hintText;
   final String preFixIcon;
   final Function(int) onSelect;
   final bool viewDropDown;
-  final List dataList;
-  const LPSelectionDropdown({super.key, required this.onTab, required this.hintText, this.selectedText, required this.viewDropDown, required this.dataList, required this.onSelect, required this.preFixIcon});
+  final List<TruckTypeData> dataList;
+  const LPTruckTypeDropdown({super.key, required this.onTab, required this.hintText, this.selectedText, required this.viewDropDown, required this.dataList, required this.onSelect, required this.preFixIcon});
 
   @override
-  State<LPSelectionDropdown> createState() => _LPSelectionDropdownState();
+  State<LPTruckTypeDropdown> createState() => _LPTruckTypeDropdownState();
 }
 
-class _LPSelectionDropdownState extends State<LPSelectionDropdown> {
+class _LPTruckTypeDropdownState extends State<LPTruckTypeDropdown> {
+
+  int selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     debugPrint("selected Text ${widget.selectedText}");
@@ -66,36 +67,42 @@ class _LPSelectionDropdownState extends State<LPSelectionDropdown> {
                       crossAxisCount: 3, // 3 items per row
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 1.3, // Adjust for item width/height
+                      childAspectRatio: 1, // Adjust for item width/height
                     ),
                     itemBuilder: (context, index) {
-                      var image = widget.dataList[index];
+                      var data = widget.dataList[index];
                       return InkWell(
-                        onTap: () => widget.onSelect(index),
+                        onTap: (){
+                          widget.onSelect(index);
+                          selectedIndex = index;
+                          setState(() {});
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(10.0),
                           decoration: commonContainerDecoration(
-                            borderColor: widget.selectedText == image['label'] ? AppColors.primaryColor : AppColors.lightDividerColor,
+                            borderColor: selectedIndex == index ? AppColors.primaryColor : AppColors.lightDividerColor,
+                            borderWidth: 1.5
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-
-                              // Icon
-                              Icon(
-                                image['icon'],
-                                color: widget.selectedText == image['label'] ? AppColors.primaryDarkColor : AppColors.lightGreyIconColor,
-                                size: 25,
+                              // Type
+                              Text(
+                                data.type,
+                                style: selectedIndex == index ? AppTextStyle.h5 : AppTextStyle.body,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               5.height,
 
-                              // Label
-                              Flexible(
-                                child: Text(
-                                  image['label'],
-                                  style: widget.selectedText == image['label'] ? AppTextStyle.body : AppTextStyle.bodyGreyColor,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              // Icon
+                              SvgPicture.asset(AppIcons.svg.truck, colorFilter: AppColors.svg(selectedIndex == index ? AppColors.primaryColor : AppColors.greyIconColor)),
+                              5.height,
+
+                              // Sub Type
+                              Text(
+                                data.subType,
+                                style: selectedIndex == index ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -108,7 +115,7 @@ class _LPSelectionDropdownState extends State<LPSelectionDropdown> {
                 return 0.height;
               }
             }
-            )
+        )
 
       ],
     );

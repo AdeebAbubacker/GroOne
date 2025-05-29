@@ -50,7 +50,7 @@ class ApiService {
 
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url \n,QueryParams : $queryParams");
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if(HasInternetConnection.isInternet != true){
         return Error(InternetNetworkError());

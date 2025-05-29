@@ -6,9 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
@@ -30,9 +35,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/lp_selection_dropdown.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
@@ -47,7 +50,13 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
-  bool checkBoxBool = false;
+
+  final lpHomeBloc = locator<LpHomeBloc>();
+  final vpHomeBloc = locator<VpCreationBloc>();
+  final loadPostingBloc = locator<LoadPostingBloc>();
+  final loadCommodityBloc = locator<LoadCommodityBloc>();
+  final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
+  final loadDetailBloc = locator<LoadListBloc>();
   final dateTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
@@ -62,11 +71,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String profileImage="";
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
-
+  bool checkBoxBool = false;
   bool memoDone = false;
-  final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeBloc = locator<VpCreationBloc>();
-  final loadDetailBloc = locator<LoadListBloc>();
+
+
   void _showBlueMemberDialogue() {
     showDialog(
       context: context,
@@ -137,6 +145,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       await lpHomeBloc.getUserId()??"";
     CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
+    loadCommodityBloc.add(LoadCommodity());
+    loadTruckTypeBloc.add(LoadTruckType());
+    CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
+    CustomLog.debug(this, "All Apis");
       loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??""));
 
   });
@@ -152,48 +164,55 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       body:buildBodyWidget(context)
     );
   }
+
   // Body
   Widget buildBodyWidget(BuildContext context){
-    return SingleChildScrollView(
-      child: BlocConsumer(
-        listener: (context, state) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        loadCommodityBloc.add(LoadCommodity());
+        loadTruckTypeBloc.add(LoadTruckType());
+      },
+      child: SingleChildScrollView(
+        child: BlocConsumer(
+          listener: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
+              profileImage =
+              state
+                  .profileDetailResponse
+        .data!
+        .details!
+        .profileImageUrl ??"";
 
-          if (state is ProfileDetailSuccess) {
-            profileResponse = state.profileDetailResponse;
-            profileImage =
-                state
-                    .profileDetailResponse
-                    .data!
-                    .details!
-                    .profileImageUrl ??"";
-
-          }else if (state is ProfileUpdateError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
-          }
-        },
-          bloc: lpHomeBloc,
-          builder: (context, state) {
-            return SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildKYCStatusWidget(),
+            }else if (state is ProfileUpdateError) {
+              ToastMessages.error(
+                message: getErrorMsg(errorType: state.errorType),
+              );
+            }
+          },
+            bloc: lpHomeBloc,
+            builder: (context, state) {
+              return SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildKYCStatusWidget(),
 
             bookShipmentSectionWidget(context),
             20.height,
 
-            upComingShipment(),
+            valueAddedService(context),
             20.height,
 
-            valueAddedService(context),
+            upComingShipment(),
             30.height,
           ],
         ),
       );})
     );
   }
+
+
   Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -397,6 +416,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       ),
     );
   }
+
+
 // Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context){
     return CommonAppBar(
@@ -537,6 +558,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       },
     );
   }
+
+
   Widget bookShipmentSectionWidget(BuildContext context) {
 
     // Inner inside Widget
@@ -607,42 +630,75 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           15.height,
 
           // Commodity selection
-          LPSelectionDropdown(
-            preFixIcon: AppIcons.svg.commodity,
-            hintText: hintCommodity,
-            onSelect: (value) async {
-              selectedCommodity = commodities[value]['label'];
-              await Future.delayed(Duration(milliseconds: 300));
-              selectedValueCommodity = false;
-              setState(() {});
+          BlocListener<LoadCommodityBloc, LoadCommodityState>(
+            bloc: loadCommodityBloc,
+            listener: (context, state) {
+              if (state is LoadCommodityError) {
+                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+              }
             },
-            dataList: commodities,
-            selectedText: selectedCommodity,
-            viewDropDown: selectedValueCommodity,
-            onTab: () {
-              selectedValueCommodity = !selectedValueCommodity;
-              setState(() {});
-            },
+            child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+              bloc: loadCommodityBloc,
+              builder: (context, state) {
+                if (state is LoadCommoditySuccess) {
+                  final commodities = state.commodityListModel.data;
+                  return LPCommodityDropdown(
+                    preFixIcon: AppIcons.svg.commodity,
+                    hintText: hintCommodity,
+                    onSelect: (index) async {
+                      selectedCommodity = commodities[index].name;
+                      setState(() {});
+                    },
+                    dataList: commodities,
+                    selectedText: selectedCommodity,
+                    viewDropDown: selectedValueCommodity,
+                    onTab: () {
+                      selectedValueCommodity = !selectedValueCommodity;
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
           ),
           15.height,
 
           // Truck selection
-          LPSelectionDropdown(
-            preFixIcon: AppIcons.svg.truck,
-            hintText: hintTruck,
-            onSelect: (value) {
-              selectedTruck = truck[value]['label'];
-              selectedValueTruck = false;
-              setState(() {});
+          BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
+            bloc: loadTruckTypeBloc,
+            listener: (context, state) {
+              print("Truck type state : ${state}");
+              if (state is LoadTruckTypeError) {
+                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+              }
             },
-            dataList: truck,
-            selectedText: selectedTruck,
-            viewDropDown: selectedValueTruck,
-            onTab: () {
-              selectedValueTruck = !selectedValueTruck;
-              setState(() {});
-            },
+            child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
+              bloc: loadTruckTypeBloc,
+              builder: (context, state) {
+                if (state is LoadTruckTypeSuccess) {
+                  final truckTypes = state.loadTruckTypeListModel.data;
+                  return LPTruckTypeDropdown(
+                    preFixIcon: AppIcons.svg.truck,
+                    hintText: hintTruck,
+                    onSelect: (index) async {
+                      selectedTruck = "${truckTypes[index].type} ${truckTypes[index].subType}";
+                      setState(() {});
+                    },
+                    dataList: truckTypes,
+                    selectedText: selectedTruck,
+                    viewDropDown: selectedValueTruck,
+                    onTab: () {
+                      selectedValueTruck = !selectedValueTruck;
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
           ),
+
           15.height,
 
           // Date and Time
