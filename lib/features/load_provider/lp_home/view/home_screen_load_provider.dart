@@ -403,7 +403,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     ),
     ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
           });},
-          child: commonCacheNetworkImage(
+          child: commonCacheNetworkImage(radius: 50,
               height: 40,
               width: 40,
               path:profileImage ?? "",

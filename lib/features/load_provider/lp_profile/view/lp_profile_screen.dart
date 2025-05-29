@@ -68,7 +68,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
 
   void initFunction() => addPostFrameCallback(() async {
     await lpHomeLocator.getUserId();
-
+    profileImage=widget.profileData.details!.profileImageUrl??"";
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
@@ -269,7 +269,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     );
   }
 
-  String? profileImage;
+  String profileImage="";
 
   Widget buildUploadProfilePictureWidget({required BuildContext context}) {
     return BlocConsumer(

@@ -36,7 +36,7 @@ class VpCreationService {
   // Log out
   Future<Result<LogOutResponse>> logOut(LogOutRequest request) async {
     try {
-      final url = ApiUrls.logOut;
+      final url = ApiUrls.logout;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> LogOutResponse.fromJson(data));

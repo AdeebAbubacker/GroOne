@@ -46,7 +46,7 @@ class ProfileService {
   ) async {
     try {
       final result = await _apiService.post(
-        ApiUrls.uploadProfileImage+userId,
+        ApiUrls.updateProfile+userId,
         body: request,
       );
       if (result is Success) {
