@@ -171,20 +171,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       onRefresh: () async {
         loadCommodityBloc.add(LoadCommodity());
         loadTruckTypeBloc.add(LoadTruckType());
+        lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??""));
+        loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"1"));
       },
       child: SingleChildScrollView(
-        child: BlocConsumer(
+        child: BlocConsumer<LpHomeBloc,HomeState>(
           listener: (context, state) {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
-              profileImage =
-              state
-                  .profileDetailResponse
-        .data!
-        .details!
-        .profileImageUrl ??"";
 
-            }else if (state is ProfileUpdateError) {
+              profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ??"";
+
+            }
+            if (state is ProfileDetailError) {
               ToastMessages.error(
                 message: getErrorMsg(errorType: state.errorType),
               );
@@ -192,6 +191,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
             bloc: lpHomeBloc,
             builder: (context, state) {
+              if (state is ProfileDetailSuccess) {
+                profileResponse = state.profileDetailResponse;
+
+                profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ??"";
+
+              }
               return SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,10 +206,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             bookShipmentSectionWidget(context),
             20.height,
 
-            valueAddedService(context),
+              upComingShipment(),
             20.height,
+              valueAddedService(context),
 
-            upComingShipment(),
             30.height,
           ],
         ),

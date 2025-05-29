@@ -25,10 +25,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   final splashViewModel = locator<SplashViewModel>();
 
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
+
     init(context);
+    _controller = VideoPlayerController.asset(AppImage.png.splash)
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() {});
+          _controller.play();
+        }
+      });
+
+    _controller.addListener(() {
+      if (_controller.value.position == _controller.value.duration &&
+          _controller.value.isInitialized &&
+          mounted) {
+        context.push(AppRouteName.chooseLanguage);
+      }
+    });
     super.initState();
   }
 
@@ -39,6 +56,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
+    _controller.removeListener(() {}); // if you store the listener separately
+    _controller.dispose();
+
     super.dispose();
   }
 
@@ -101,9 +121,18 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Lottie.asset(AppJSON.groSplash)
+      body: _controller.value.isInitialized
+          ? SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover, // or BoxFit.fill depending on your needs
+          child: SizedBox(
+            width: _controller.value.size.width,
+            height: _controller.value.size.height,
+            child: VideoPlayer(_controller),
+          ),
+        ),
       )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }
