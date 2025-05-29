@@ -10,4 +10,12 @@ class VpCreationRequested extends VpCreationEvent {
 }
 
 /// Logout Event
-class LogoutRequested extends VpCreationEvent {}
+class LogoutRequested extends VpCreationEvent {
+
+}
+/// Logout API Event
+class LogoutAPIRequested extends VpCreationEvent {
+  final LogOutRequest apiRequest;
+
+  LogoutAPIRequested({required this.apiRequest});
+}

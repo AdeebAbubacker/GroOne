@@ -21,8 +21,13 @@ class VpCreationError extends VpCreationState {
 class LogoutInitial extends VpCreationState {}
 
 class LogoutLoading extends VpCreationState {}
+class LogOutAPILoading extends VpCreationState {}
 
 class LogoutSuccess extends VpCreationState {}
+class LogOutAPISuccess extends VpCreationState {
+  LogOutResponse logOutResponse;
+  LogOutAPISuccess(this.logOutResponse);
+}
 
 class LogoutError extends VpCreationState {
   final ErrorType errorType;

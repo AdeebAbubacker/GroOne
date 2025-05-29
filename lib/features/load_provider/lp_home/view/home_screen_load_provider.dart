@@ -58,7 +58,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedCommodity;
   String hintTruck = 'Truck';
   String? selectedTruck;
-
+  String? profileImage;
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
 
@@ -153,7 +153,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         listener: (context, state) {
           if (state is ProfileDetailSuccess) {
             profileResponse = state.profileDetailResponse;
-
+            profileImage =
+                state
+                    .profileDetailResponse
+                    .data!
+                    .details!
+                    .profileImageUrl ??"";
 
           }else if (state is ProfileUpdateError) {
             ToastMessages.error(
@@ -398,10 +403,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     ),
     ).then((v) {addPostFrameCallback(() =>    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"")),);
           });},
-          child: commonCacheNetworkImage(
+          child: commonCacheNetworkImage(radius: 50,
               height: 40,
               width: 40,
-              path: "",
+              path:profileImage ?? "",
               errorImage: AppImage.png.userProfileError
           ).paddingRight(commonSafeAreaPadding),
         ),
