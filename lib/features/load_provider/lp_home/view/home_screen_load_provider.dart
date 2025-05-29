@@ -209,7 +209,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           ],
         ),
       );})
-    );
+    ));
   }
 
 
