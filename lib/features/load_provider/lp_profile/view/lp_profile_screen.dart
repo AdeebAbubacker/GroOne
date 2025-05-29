@@ -6,7 +6,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
@@ -48,7 +50,9 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   dynamic pickImage;
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
+  final kycBloc = locator<KycBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
+  final profileBloc = locator<ProfileBloc>();
 
   @override
   void initState() {
@@ -269,85 +273,119 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     String? profileImage,
     required BuildContext context,
   }) {
-    return SizedBox(
-      height: profileSize,
-      width: profileSize,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (_croppedImage != null)
-            ClipOval(
-              child: Image.file(
-                _croppedImage!,
-                fit: BoxFit.cover,
-                width: profileSize,
-                height: profileSize,
-              ),
-            )
-          else
-            ClipOval(
-              child: commonCacheNetworkImage(
-                path: profileImage ?? "",
-                height: profileSize,
-                width: profileSize,
-                errorImage: AppImage.png.userProfileError,
-              ),
-            ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: InkWell(
-              onTap: () {
-                commonBottomSheet(
-                  context: context,
-                  barrierDismissible: true,
-                  screen: const UploadFileAndImageBottomSheet(),
-                ).then((value) async {
-                  if (value != null && value["path"] != null) {
-                    File file = File(value["path"]);
-                    pickImage = file;
+    return BlocConsumer(
+      bloc: kycBloc,
 
-                    final croppedFile = await ImageCropper().cropImage(
-                      sourcePath: pickImage.path,
-                      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-
-                      uiSettings: [
-                        AndroidUiSettings(
-                          toolbarTitle: 'Crop Image',
-                          toolbarColor: AppColors.primaryColor,
-                          toolbarWidgetColor: Colors.white,
-                          initAspectRatio: CropAspectRatioPreset.ratio16x9,
-                          lockAspectRatio: true,
-                        ),
-                        IOSUiSettings(title: 'Crop Image'),
-                      ],
-                    );
-
-                    if (croppedFile != null) {
-                      setState(() {
-                        _croppedImage = File(croppedFile.path);
-                      });
-                    }
-                  } else {
-                    // viewModel.setPickImageUIState(null);
-                  }
-                });
-              },
-              child: Container(
-                height: 40,
-                width: 40,
-                decoration: const BoxDecoration(
-                  color: AppColors.secondaryColor,
-                  shape: BoxShape.circle,
+      builder: (context, state) {
+        return SizedBox(
+          height: profileSize,
+          width: profileSize,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (_croppedImage != null)
+                ClipOval(
+                  child: Image.file(
+                    _croppedImage!,
+                    fit: BoxFit.cover,
+                    width: profileSize,
+                    height: profileSize,
+                  ),
+                )
+              else
+                ClipOval(
+                  child: commonCacheNetworkImage(
+                    path: profileImage ?? "",
+                    height: profileSize,
+                    width: profileSize,
+                    errorImage: AppImage.png.userProfileError,
+                  ),
                 ),
-                child: SvgPicture.asset(
-                  AppIcons.svg.camera,
-                  colorFilter: AppColors.svg(Colors.white),
-                ).paddingAll(7),
-              ).paddingBottom(15),
-            ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: InkWell(
+                  onTap: () {
+                    commonBottomSheet(
+                      context: context,
+                      barrierDismissible: true,
+                      screen: const UploadFileAndImageBottomSheet(),
+                    ).then((value) async {
+                      if (value != null && value["path"] != null) {
+                        File file = File(value["path"]);
+                        pickImage = file;
+
+                        final croppedFile = await ImageCropper().cropImage(
+                          sourcePath: pickImage.path,
+                          aspectRatio: const CropAspectRatio(
+                            ratioX: 1,
+                            ratioY: 1,
+                          ),
+
+                          uiSettings: [
+                            AndroidUiSettings(
+                              toolbarTitle: 'Crop Image',
+                              toolbarColor: AppColors.primaryColor,
+                              toolbarWidgetColor: Colors.white,
+                              initAspectRatio: CropAspectRatioPreset.ratio16x9,
+                              lockAspectRatio: true,
+                            ),
+                            IOSUiSettings(title: 'Crop Image'),
+                          ],
+                        );
+
+                        if (croppedFile != null) {
+                          setState(() {
+                            _croppedImage = File(croppedFile.path);
+
+                            kycBloc.add(
+                              UploadFileRequested(
+                                file: File(_croppedImage!.path),
+                              ),
+                            );
+                          });
+                        }
+                      } else {
+                        // viewModel.setPickImageUIState(null);
+                      }
+                    });
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: const BoxDecoration(
+                      color: AppColors.secondaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: SvgPicture.asset(
+                      AppIcons.svg.camera,
+                      colorFilter: AppColors.svg(Colors.white),
+                    ).paddingAll(7),
+                  ).paddingBottom(15),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
+      listener: (context, state) {
+        if (profileBloc.state is ProfileUploadedSuccess) {
+          ToastMessages.success(message: "File uploaded successfully");
+          lpHomeLocator.add(
+            ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+          );
+        }
+        if (state is UploadFileSuccess) {
+          profileBloc.add(
+            ProfileImageUploadRequested(userId: lpHomeLocator.userId ?? "",
+              profileImageUploadRequest: ProfileImageUploadRequest(
+                imageUrl: state.uploadFileModel.data!.url ?? "",
+              ),
+            ),
+          );
+        } else if (state is AddharOtpError) {
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        }
+      },
     );
   }
 }

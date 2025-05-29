@@ -45,6 +45,7 @@ class ApiUrls {
   static String  tan = "$_verification/tan";
   static String  pan = "$_verification/pan";
   static String  getProfile = "$baseUrl$_customer/";
+  static String  uploadProfileImage = "$baseUrl$_customer/profile-image/";
   static String  getMaster = "$baseUrl/lp-master/";
 
 
