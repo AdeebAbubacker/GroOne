@@ -37,9 +37,9 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/extra_utils.dart';
 
 class LpProfileScreen extends StatefulWidget {
-    LpProfileScreen({super.key, required this.profileData});
+  LpProfileScreen({super.key, required this.profileData});
 
-    AllProfileDetails profileData;
+  AllProfileDetails profileData;
 
   @override
   State<LpProfileScreen> createState() => _LpProfileScreenState();
@@ -145,24 +145,29 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
       child: Column(
         children: [
           10.height,
-          profileWidget(
-            imageString: AppImage.svg.user,
-            text: context.appText.myAccount,
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(
-                  LpMyAccount(profileData: widget.profileData),
-                  isForward: true,
-                ),
-              ).then((onValue) {
-                lpHomeLocator.add(
-                  ProfileDetailRequested(lpHomeLocator.userId ?? ""),
-                );
-                if (lpHomeLocator.stream is ProfileDetailSuccess) {
-                  setState(() {});
-                }
-              });
+          BlocBuilder<LpHomeBloc, HomeState>(
+            bloc: lpHomeLocator,
+            builder: (context, state) {
+              return profileWidget(
+                imageString: AppImage.svg.user,
+                text: context.appText.myAccount,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    commonRoute(
+                      LpMyAccount(profileData: widget.profileData),
+                      isForward: true,
+                    ),
+                  ).then((onValue) {
+                    lpHomeLocator.add(
+                      ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+                    );
+                    if (lpHomeLocator.state is ProfileDetailSuccess) {
+                      setState(() {});
+                    }
+                  });
+                },
+              );
             },
           ),
           dividerWidget(),
@@ -269,7 +274,7 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     );
   }
 
-  String profileImage="";
+  String profileImage = "";
 
   Widget buildUploadProfilePictureWidget({required BuildContext context}) {
     return BlocConsumer(
@@ -312,8 +317,8 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
                             .data!
                             .details!
                             .profileImageUrl ??
-                        "";
-                  widget.profileData=  state.profileDetailResponse.data!;
+                            "";
+                    widget.profileData = state.profileDetailResponse.data!;
                   }
                 },
               ),
