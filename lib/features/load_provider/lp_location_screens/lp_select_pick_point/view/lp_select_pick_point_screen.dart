@@ -10,25 +10,26 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:latlong2/latlong.dart';
 
 class LpSelectPickPointScreen extends StatefulWidget {
-  const LpSelectPickPointScreen({super.key});
+  final String title;
+  final String? address;
+  const LpSelectPickPointScreen({super.key, required this.title, this.address});
 
   @override
-  State<LpSelectPickPointScreen> createState() =>
-      _LpSelectPickPointScreenState();
+  State<LpSelectPickPointScreen> createState() => _LpSelectPickPointScreenState();
 }
 
-class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
-    with TickerProviderStateMixin {
-  TextEditingController address = TextEditingController(
-    text: "Coca Cola Bottling Plant, Nemam, Vellavedu, Tamil Nadu 600124",
-  );
+class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> with TickerProviderStateMixin {
+
+  TextEditingController addressTextController = TextEditingController();
   late final AnimatedMapController _animatedMapController;
 
   @override
   void initState() {
+    init();
     _animatedMapController = AnimatedMapController(
       vsync: this,
       duration: const Duration(milliseconds: 500), // Animation duration
@@ -38,6 +39,10 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
     // TODO: implement initState
     super.initState();
   }
+
+  void init()=> addPostFrameCallback((){
+    addressTextController.text = widget.address ?? "";
+  });
 
   bool locationDone = true;
 
@@ -118,8 +123,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
     debugPrint("centerLatLng ${centerLatLng}");
     return Scaffold(
       appBar: CommonAppBar(
-        title:
-        locationDone ? "Select Pick Point Location" : "Select Destination",
+        title: widget.title,
       ),
       body: Stack(
         children: [
@@ -198,7 +202,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
             right: 0,
             bottom: 0,
             child: Container(
-              height: 340.h,
+              height: 300.h,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: const BorderRadius.only(
@@ -212,40 +216,48 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Location", style: AppTextStyle.textBlackColor16w400),
-                    const SizedBox(height: 6),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.disableColor),
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.grey.shade200,
-                      ),
-                      child: Text(
-                        _address,
-                        style: AppTextStyle.textBlackColor14w400.copyWith(
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
+                    // Text("Location", style: AppTextStyle.textBlackColor16w400),
+                    // const SizedBox(height: 6),
+                    // Container(
+                    //   width: double.infinity,
+                    //   padding: const EdgeInsets.all(12),
+                    //   decoration: BoxDecoration(
+                    //     border: Border.all(color: AppColors.disableColor),
+                    //     borderRadius: BorderRadius.circular(10),
+                    //     color: Colors.grey.shade200,
+                    //   ),
+                    //   child: Text(
+                    //     _address,
+                    //     style: AppTextStyle.textBlackColor14w400.copyWith(
+                    //       overflow: TextOverflow.ellipsis,
+                    //     ),
+                    //   ),
+                    // ),
+                    //
+
                     const SizedBox(height: 16),
                     AppTextField(
-                      controller: address,
+                      controller: addressTextController,
                       labelText: "Address",
                       labelTextStyle: AppTextStyle.textBlackColor16w400,
                       maxLines: 3,
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 50),
                     AppButton(
-                      title: locationDone ? "Set Pickup Location" : "Continue",
+                      title: "Continue",
                       onPressed: () {
-                        if (locationDone == false) {
-                          context.pop();
+                        // if (locationDone == false) {
+                        //   context.pop();
+                        // } else {
+                        //   locationDone = false;
+                        //   setState(() {});
+                        // }
+
+                        if (widget.title == "Pickup Point") {
+                          context.pop(widget.address ?? addressTextController.text);
                         } else {
-                          locationDone = false;
-                          setState(() {});
+                          context.pop(widget.address ?? addressTextController.text);
                         }
                       },
                     ),

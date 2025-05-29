@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
@@ -6,6 +7,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -65,6 +67,17 @@ class LpHomeRepository{
       return await _lpHomeService.fetchCreateLoadData(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request create load data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Fetch Rate Discovery data
+  Future<Result<RateDiscoveryModel>> getRateDiscoveryData(RateDiscoveryApiRequest request) async {
+    try {
+      return await _lpHomeService.fetchRateDiscoveryData(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request rate discovery data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
