@@ -207,6 +207,7 @@ class AppTextStyle {
   static TextStyle body3 = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 13);
   static TextStyle body3GreyColor = body3.copyWith(color: AppColors.greyTextColor);
   static TextStyle body3WhiteColor = body3.copyWith(color: Colors.white);
+  static TextStyle body3PrimaryColor = body3.copyWith(color: AppColors.primaryColor);
 
   // Body 3
   static TextStyle body4 = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 11);

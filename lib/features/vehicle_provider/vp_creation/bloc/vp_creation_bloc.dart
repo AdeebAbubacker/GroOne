@@ -15,16 +15,8 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   VpCreationBloc(this._repository, this._informationRepository) : super(VpCreationInitial())  {
     on<VpCreationRequested>(createVpApiCall);
     on<LogoutRequested>(logout);
-    getUserId();
   }
 
-  // Get user Id
-  String? _userId;
-  String? get userId => _userId;
-  Future<String?> getUserId() async {
-    _userId = await _informationRepository?.getUserID();
-    return _userId;
-  }
 
   // Vehicle provider creation api call
   Future<void> createVpApiCall(VpCreationRequested event, Emitter<VpCreationState> emit) async {

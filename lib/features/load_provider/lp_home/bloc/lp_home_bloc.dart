@@ -15,7 +15,6 @@ final LpHomeRepository _lpHomeRepository;
     on<ProfileDetailRequested>((event, emit) async {
       emit(ProfileLoading());
       Result result = await _lpHomeRepository.getUserDetails(userId: userId??"");
-
       if (result is Success<ProfileDetailResponse>) {
         emit(ProfileDetailSuccess(result.value));
       } else if (result is Error) {
@@ -25,6 +24,7 @@ final LpHomeRepository _lpHomeRepository;
       }
     });
   }
+
   String? _userId;
   String? get userId => _userId;
   Future<String?> getUserId() async {

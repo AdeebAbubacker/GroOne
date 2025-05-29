@@ -18,6 +18,7 @@ class Error<T> extends Result<T> {
   const Error(this.type);
 }
 
+
 // Abstract class ErrorType to serve as a base for all error types
 abstract class ErrorType {
   String getText(BuildContext context);

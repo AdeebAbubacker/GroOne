@@ -10,6 +10,9 @@ import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
@@ -57,15 +60,12 @@ void initLocator() {
     locator.registerLazySingleton(() => const FlutterSecureStorage());
     locator.registerLazySingleton(() => SecuredSharedPreferences(locator<FlutterSecureStorage>()));
 
-
     // Firebase
     locator.registerLazySingleton(() => AnalyticsHelper());
-
 
     // Auth Services
     locator.registerLazySingleton<Dio>(() => Dio());
     locator.registerLazySingleton(() => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()));
-
 
     // Service
     locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
@@ -77,7 +77,6 @@ void initLocator() {
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
     locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
-
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -95,7 +94,6 @@ void initLocator() {
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
 
-
     // Bloc
     locator.registerFactory(() => LanguageBloc());
     locator.registerFactory(() => RoleBloc());
@@ -108,6 +106,9 @@ void initLocator() {
     locator.registerFactory(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
     locator.registerFactory(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
     locator.registerFactory(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
+    locator.registerFactory(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
+    locator.registerFactory(() => LoadCommodityBloc(locator<LpHomeRepository>()));
+    locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
