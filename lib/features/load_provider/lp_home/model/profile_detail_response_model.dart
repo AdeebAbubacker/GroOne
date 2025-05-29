@@ -62,6 +62,7 @@ class Customer {
     required this.roleId,
     required this.tempFlg,
     required this.status,
+
     required this.isLogin,
     required this.createdAt,
     required this.deletedAt,
@@ -72,6 +73,7 @@ class Customer {
   final String mobileNumber;
   final dynamic emailId;
   final dynamic blueId;
+
   final dynamic password;
   final num otp;
   final num otpAttempt;
@@ -86,6 +88,7 @@ class Customer {
   factory Customer.fromJson(Map<String, dynamic> json){
     return Customer(
       id: json["id"] ?? 0,
+
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
       emailId: json["emailId"],
@@ -108,6 +111,7 @@ class Customer {
     "customerName": customerName,
     "mobileNumber": mobileNumber,
     "emailId": emailId,
+
     "blueId": blueId,
     "password": password,
     "otp": otp,
@@ -139,6 +143,7 @@ class Details {
     required this.chequeDocLink,
     required this.drivingLicense,
     required this.drivingLicenseDocLink,
+    required this.profileImageUrl,
     required this.tds,
     required this.tdsDocLink,
     required this.tan,
@@ -179,6 +184,7 @@ class Details {
   final dynamic panDocLink;
   final dynamic cheque;
   final dynamic chequeDocLink;
+  final dynamic profileImageUrl;
   final dynamic drivingLicense;
   final dynamic drivingLicenseDocLink;
   final dynamic tds;
@@ -213,6 +219,7 @@ class Details {
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       companyName: json["companyName"] ?? "",
+      profileImageUrl: json["profileImageUrl"] ?? "",
       companyTypeId: json["companyTypeId"] ?? 0,
       gstin: json["gstin"],
       gstinDocLink: json["gstinDocLink"],
@@ -262,6 +269,7 @@ class Details {
     "gstinDocLink": gstinDocLink,
     "aadhar": aadhar,
     "aadharDocLink": aadharDocLink,
+    "profileImageUrl": profileImageUrl,
     "pan": pan,
     "panDocLink": panDocLink,
     "cheque": cheque,
