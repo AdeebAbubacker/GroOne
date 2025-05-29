@@ -37,9 +37,9 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/extra_utils.dart';
 
 class LpProfileScreen extends StatefulWidget {
-  const LpProfileScreen({super.key, required this.profileData});
+    LpProfileScreen({super.key, required this.profileData});
 
-  final AllProfileDetails profileData;
+    AllProfileDetails profileData;
 
   @override
   State<LpProfileScreen> createState() => _LpProfileScreenState();
@@ -269,10 +269,9 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     );
   }
 
-  Widget buildUploadProfilePictureWidget({
-    String? profileImage,
-    required BuildContext context,
-  }) {
+  String? profileImage;
+
+  Widget buildUploadProfilePictureWidget({required BuildContext context}) {
     return BlocConsumer(
       bloc: kycBloc,
 
@@ -283,24 +282,41 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              if (_croppedImage != null)
-                ClipOval(
-                  child: Image.file(
-                    _croppedImage!,
-                    fit: BoxFit.cover,
-                    width: profileSize,
-                    height: profileSize,
-                  ),
-                )
-              else
-                ClipOval(
-                  child: commonCacheNetworkImage(
-                    path: profileImage ?? "",
-                    height: profileSize,
-                    width: profileSize,
-                    errorImage: AppImage.png.userProfileError,
-                  ),
-                ),
+              // if (_croppedImage != null)
+              //   ClipOval(
+              //     child: Image.file(
+              //       _croppedImage!,
+              //       fit: BoxFit.cover,
+              //       width: profileSize,
+              //       height: profileSize,
+              //     ),
+              //   )
+              // else
+              BlocConsumer(
+                bloc: lpHomeLocator,
+                builder: (context, state) {
+                  return ClipOval(
+                    child: commonCacheNetworkImage(
+                      path: profileImage ?? "",
+                      height: profileSize,
+                      width: profileSize,
+                      errorImage: AppImage.png.userProfileError,
+                    ),
+                  );
+                },
+                listener: (context, state) {
+                  if (state is ProfileDetailSuccess) {
+                    profileImage =
+                        state
+                            .profileDetailResponse
+                            .data!
+                            .details!
+                            .profileImageUrl ??
+                        "";
+                  widget.profileData=  state.profileDetailResponse.data!;
+                  }
+                },
+              ),
               Align(
                 alignment: Alignment.bottomRight,
                 child: InkWell(
@@ -368,20 +384,21 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
         );
       },
       listener: (context, state) {
-        if (profileBloc.state is ProfileUploadedSuccess) {
-          ToastMessages.success(message: "File uploaded successfully");
-          lpHomeLocator.add(
-            ProfileDetailRequested(lpHomeLocator.userId ?? ""),
-          );
-        }
         if (state is UploadFileSuccess) {
           profileBloc.add(
-            ProfileImageUploadRequested(userId: lpHomeLocator.userId ?? "",
+            ProfileImageUploadRequested(
+              userId: lpHomeLocator.userId ?? "",
               profileImageUploadRequest: ProfileImageUploadRequest(
                 imageUrl: state.uploadFileModel.data!.url ?? "",
               ),
             ),
           );
+          Future.delayed(Duration(seconds: 1), () {
+            ToastMessages.success(message: "File uploaded successfully");
+            lpHomeLocator.add(
+              ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+            );
+          });
         } else if (state is AddharOtpError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
