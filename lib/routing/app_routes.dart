@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/validate_memo/view/lp_validate_memo.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/master/master_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
-
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -21,10 +19,7 @@ import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation
 import '../features/load_provider/lp_create_account/view/lp_create_account.dart';
 import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
 import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
-import '../features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import '../features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
-import '../features/load_provider/lp_profile/view/my_account/edit_my_account/view/lp_edit_my_account.dart';
-import '../features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
 import '../features/load_provider/lp_profile/view/setting/view/lp_setting.dart';
 import '../features/load_provider/lp_profile/view/support/view/lp_support.dart';
 import '../features/load_provider/lp_profile/view/transaction/view/lp_transaction.dart';
@@ -36,13 +31,11 @@ class AppRoutes {
 
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: true,
-   // initialLocation: AppRouteName.lpBottomNavigation,
-   initialLocation: AppRouteName.splash,
+    // initialLocation: AppRouteName.lpBottomNavigation,
+    initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
-
-
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
@@ -53,10 +46,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.kycScreen,
         builder: (BuildContext context, GoRouterState state) {
-           final data = state.extra! as Map<String, dynamic>;
-           final String addharNumber = data["addharNumber"]??"";
+          final data = state.extra! as Map<String, dynamic>;
+          final String addharNumber = data["addharNumber"] ?? "";
 
-          return KycScreen(addharNumber:addharNumber,);
+          return KycScreen(addharNumber: addharNumber);
         },
       ),
 
@@ -65,7 +58,8 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           return LpSupport();
         },
-      ),   GoRoute(
+      ),
+      GoRoute(
         path: AppRouteName.master,
         builder: (BuildContext context, GoRouterState state) {
           return MasterScreen();
@@ -121,21 +115,12 @@ class AppRoutes {
         },
       ),
 
-
       GoRoute(
         path: AppRouteName.lpSetting,
         builder: (BuildContext context, GoRouterState state) {
           return LpSetting();
         },
       ),
-
-
-
-
-
-      //home screen
-
-
       // VP Bottom Navigation bar
       GoRoute(
         path: AppRouteName.vpBottomNavigationBar,
@@ -188,7 +173,7 @@ class AppRoutes {
           final String id = data["id"];
           final String mobileNumber = data["mobileNumber"];
 
-          return LpCreateAccount(id: id,mobileNumber:mobileNumber);
+          return LpCreateAccount(id: id, mobileNumber: mobileNumber);
         },
       ),
       GoRoute(
@@ -214,7 +199,6 @@ class AppRoutes {
           return const DefaultScreen();
         },
       ),
-
     ],
   );
 }
