@@ -80,7 +80,7 @@ class ApiUrls {
   // Load Form pick list
   static final String  loadCommodity = "${_loadBaseUrl}commodity";
   static final String  loadTruckType = "${_loadBaseUrl}truck-type";
-  static final String  getRateDiscoveryPrice = "${_loadBaseUrl}rate-discovery";
+  static final String  getRateDiscoveryPrice = "${baseUrl}/ratediscovery$_path$_v1${"/rate-discovery"}";
 
 
 

@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (_controller.value.position == _controller.value.duration &&
           _controller.value.isInitialized &&
           mounted) {
-     //   context.push(AppRouteName.chooseLanguage);
+        context.push(AppRouteName.chooseLanguage);
       }
     });
     init(context);
@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
         if (!context.mounted) return;
-        addPostFrameCallback(()=> context.go(AppRouteName.chooseLanguage));
+        addPostFrameCallback(()=> context.push(AppRouteName.chooseLanguage));
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
@@ -125,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: _controller.value.isInitialized
           ? SizedBox.expand(
         child: FittedBox(
-          fit: BoxFit.cover, // or BoxFit.fill depending on your needs
+          fit: BoxFit.cover,
           child: SizedBox(
             width: _controller.value.size.width,
             height: _controller.value.size.height,

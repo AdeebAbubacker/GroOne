@@ -3,9 +3,6 @@ part of 'load_posting_bloc.dart';
 @immutable
 sealed class LoadPostingState {}
 
-final class LoadPostingInitial extends LoadPostingState {}
-
-
 /// Create Load Post State
 class CreateLoadPostInitial extends LoadPostingState {}
 

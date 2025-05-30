@@ -2,9 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-class SuccessDialogView extends StatelessWidget {
+class SuccessDialogView extends StatefulWidget {
   const SuccessDialogView({super.key});
+
+  @override
+  State<SuccessDialogView> createState() => _SuccessDialogViewState();
+}
+
+class _SuccessDialogViewState extends State<SuccessDialogView> {
+
+  @override
+  void initState() {
+    initFunction(context);
+    super.initState();
+  }
+
+  void initFunction(BuildContext context) => addPostFrameCallback(() async {
+    await Future.delayed(Duration(seconds: 2));
+    if(!context.mounted) return;
+    Navigator.of(context).pop();
+
+  });
 
   @override
   Widget build(BuildContext context) {

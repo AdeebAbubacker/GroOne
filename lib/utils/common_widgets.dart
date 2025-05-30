@@ -222,8 +222,8 @@ Widget commonListTile({required String title, TextStyle? titleStyle,String? subT
 }
 
 /// Common divider
-Widget commonDivider({double? height, Color? dividerColor, double? indent, double? endIndent }) {
-  return Divider(color: dividerColor ?? AppColors.lightDividerColor, height: height ?? 30, indent: indent, endIndent: endIndent);
+Widget commonDivider({double? height, Color? dividerColor, double? indent,double? thickness ,double? endIndent }) {
+  return Divider(color: dividerColor ?? AppColors.lightDividerColor, height: height ?? 30, thickness: thickness,indent: indent, endIndent: endIndent);
 }
 
 Widget docsGridDesign(String docType) {

@@ -2,26 +2,26 @@ import 'package:gro_one_app/data/model/serializable.dart';
 
 class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   CreateLoadApiRequest({
-    required this.customerId,
-    required this.commodityId,
-    required this.truckTypeId,
-    required this.pickUpAddr,
-    required this.pickUpLatlon,
-    required this.dropAddr,
-    required this.dropLatlon,
-    required this.dueDate,
-    required this.consignmentWeight,
+     this.customerId,
+     this.commodityId,
+     this.truckTypeId,
+     this.pickUpAddr,
+     this.pickUpLatlon,
+     this.dropAddr,
+     this.dropLatlon,
+     this.dueDate,
+     this.consignmentWeight,
   });
 
-  final num customerId;
-  final num commodityId;
-  final num truckTypeId;
-  final String pickUpAddr;
-  final String pickUpLatlon;
-  final String dropAddr;
-  final String dropLatlon;
-  final DateTime? dueDate;
-  final num consignmentWeight;
+  final num? customerId;
+  final num? commodityId;
+  final num? truckTypeId;
+  final String? pickUpAddr;
+  final String? pickUpLatlon;
+  final String? dropAddr;
+  final String? dropLatlon;
+  final String? dueDate;
+  final num? consignmentWeight;
 
   CreateLoadApiRequest copyWith({
     num? customerId,
@@ -31,7 +31,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLatlon,
-    DateTime? dueDate,
+    String? dueDate,
     num? consignmentWeight,
   }) {
     return CreateLoadApiRequest(
@@ -56,7 +56,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
-      dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
+      dueDate: json["dueDate"],
       consignmentWeight: json["consignmentWeight"] ?? 0,
     );
   }
@@ -70,7 +70,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "pickUpLatlon": pickUpLatlon,
     "dropAddr": dropAddr,
     "dropLatlon": dropLatlon,
-    "dueDate": dueDate?.toIso8601String(),
+    "dueDate": dueDate,
     "consignmentWeight": consignmentWeight,
   };
 
