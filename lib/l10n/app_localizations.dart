@@ -1023,6 +1023,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay'**
   String get pay;
+
+  /// No description provided for @items.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get items;
 }
 
 class _AppLocalizationsDelegate

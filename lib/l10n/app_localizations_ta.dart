@@ -479,4 +479,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get pay => 'செலுத்துங்கள்';
+
+  @override
+  String get items => 'உருப்படிகள்';
 }

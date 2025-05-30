@@ -475,4 +475,7 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get pay => 'वेतन';
+
+  @override
+  String get items => 'सामान';
 }

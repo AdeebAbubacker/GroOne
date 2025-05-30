@@ -6,8 +6,8 @@ class KavachProduct {
   final double gstPerc;
   final String productDesc;
   final String fileKey;
-  final String unitMeasurement;
-  final double purchasePrice;
+  final String? unitMeasurement;
+  final double? purchasePrice;
 
   KavachProduct({
     required this.id,
@@ -23,15 +23,15 @@ class KavachProduct {
 
   factory KavachProduct.fromJson(Map<String, dynamic> json) {
     return KavachProduct(
-      id: json['id'],
-      name: json['name'],
-      part: json['part'],
-      price: double.tryParse(json['price']) ?? 0,
-      gstPerc: double.tryParse(json['gst_perc']) ?? 0,
-      productDesc: json['product_desc'],
-      fileKey: json['file_key'],
-      unitMeasurement: json['unit_measurement'],
-      purchasePrice: double.tryParse(json['purchase_price']) ?? 0,
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      part: json['part'] ?? '',
+      price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
+      gstPerc: double.tryParse(json['gst_perc']?.toString() ?? '') ?? 0.0,
+      productDesc: json['product_desc'] ?? '',
+      fileKey: json['file_key'] ?? '',
+      unitMeasurement: json['unit_measurement']?.toString() ?? '',
+      purchasePrice: double.tryParse(json['purchase_price']?.toString() ?? '') ?? 0.0,
     );
   }
 }

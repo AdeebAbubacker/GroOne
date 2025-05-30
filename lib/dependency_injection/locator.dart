@@ -26,6 +26,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_cre
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/kavach/repository/kavach_repository.dart';
+import '../features/kavach/service/kavach_service.dart';
+
 
 var locator = GetIt.instance;
 
@@ -53,7 +56,7 @@ void initLocator() {
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
-
+    locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -63,6 +66,7 @@ void initLocator() {
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
+    locator.registerLazySingleton(() => KavachRepository(locator<KavachService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));

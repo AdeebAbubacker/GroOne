@@ -1,23 +1,18 @@
 import 'dart:convert';
+import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:http/http.dart' as http;
+import '../../../data/model/result.dart';
+import '../../../utils/custom_log.dart';
+import '../../login/model/login_model.dart';
 import '../model/kavach_product.dart';
 
 class KavachRepository {
-  final http.Client client;
+  final KavachService _service;
 
-  KavachRepository({required this.client});
+  KavachRepository(this._service);
 
-  Future<List<KavachProduct>> fetchProducts({String search = ""}) async {
-    final response = await client.get(Uri.parse(
-      "http://gro-devapi.letsgro.co/fleet/api/v1/product/list?fleetProductId=2&page=1&limit=10&search=$search",
-    ));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final rows = data['data']['rows'] as List;
-      return rows.map((e) => KavachProduct.fromJson(e)).toList();
-    } else {
-      throw Exception("Failed to load products");
-    }
+  Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1}) {
+    return _service.fetchProducts(search: search, page: page);
   }
 }
+

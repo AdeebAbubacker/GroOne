@@ -474,4 +474,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pay => 'Pay';
+
+  @override
+  String get items => 'Items';
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_add_shipping_address_bottom_sheet.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -16,10 +15,13 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
-import '../helper/product_counter.dart';
+import '../model/kavach_product.dart';
+import 'widgets/product_counter.dart';
 
 class KavachCheckoutScreen extends StatefulWidget {
-  const KavachCheckoutScreen({super.key});
+  final List<KavachProduct> products;
+  final Map<String, int> quantities;
+  const KavachCheckoutScreen({super.key, required this.products, required this.quantities});
 
   @override
   State<KavachCheckoutScreen> createState() => _KavachCheckoutScreenState();
@@ -33,16 +35,29 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     DropdownItem(label: 'Vehicle 1', value: 'vehicle 1'),
     DropdownItem(label: 'Vehicle 2', value: 'vehicle 2'),
   ];
+  late Map<String, int> _quantities;
+  late List<KavachProduct> _products;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantities = Map<String, int>.from(widget.quantities);
+    _products = List<KavachProduct>.from(widget.products);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.checkout),
+      appBar: CommonAppBar(title: context.appText.checkout,onLeadingTap: () {
+        Navigator.of(context).pop(_quantities);
+      },),
       bottomNavigationBar: buildPlaceOrderButtonWidget(),
       body: buildBodyWidget(context),
     );
   }
 
-  Widget productWidget(){
+  Widget productWidget(KavachProduct product, int quantity) {
+    num totalPrice = product.price*quantity;
     return Row(
       children: [
         Column(
@@ -50,27 +65,40 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           children: [
             Row(
               children: [
-                Text("eN-Dhan Kavach", style: AppTextStyle.h5).expand(),
+                Text(product.name, style: AppTextStyle.h5).expand(),
                 ProductCounter(
-                  count: 1,
+                  count: quantity,
                   onIncrement: () {
-
+                    setState(() {
+                      _quantities[product.id] = quantity + 1;
+                    });
                   },
                   onDecrement: () {
+                    if (quantity > 1) {
+                      setState(() {
+                        _quantities[product.id] = quantity - 1;
+                      });
+                    } else {
+                      // Quantity will become 0 – remove the product
+                      setState(() {
+                        _quantities.remove(product.id);
+                        _products.removeWhere((p) => p.id == product.id);
+                      });
 
+                    }
                   },
+
                 ),
               ],
             ),
             Row(
               children: [
-                Text("CS01K0001", style: AppTextStyle.bodyGreyColor).expand(),
-                Text("$indianCurrencySymbol 1,499", style: AppTextStyle.h4PrimaryColor),
+                Text(product.part, style: AppTextStyle.bodyGreyColor).expand(),
+                Text("$indianCurrencySymbol ${totalPrice.toStringAsFixed(2)}", style: AppTextStyle.h4PrimaryColor),
               ],
             ),
           ],
         ).expand(),
-
       ],
     ).paddingSymmetric(horizontal: 10);
   }
@@ -89,25 +117,21 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     Text(context.appText.productDetails,style: AppTextStyle.h5,),
                     10.height,
                     ListView.separated(
-                      itemCount: 3,
+                      itemCount: _products.length,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
-                      separatorBuilder: (context, index) => Divider(height: 20,),
-                      itemBuilder: (context, index){
-                        return productWidget();
+                      separatorBuilder: (context, index) => Divider(height: 20),
+                      itemBuilder: (context, index) {
+                        final product = _products[index];
+                        final quantity = _quantities[product.id] ?? 0;
+                        return productWidget(product, quantity);
                       },
                     ),
-                    InkWell(
-                      onTap: () {
-        
-                      },
-                      child: Row(
-                        children: [
-                          Icon(Icons.add,color: AppColors.primaryColor,),
-                          Text(context.appText.addMoreItems,style: AppTextStyle.primaryColor16w400,),
-                        ],
-                      ),
-                    )
+                    TextButton.icon(onPressed: () {
+                      Navigator.of(context).pop(_quantities);
+                    }, label: Text(context.appText.addMoreItems,style: AppTextStyle.primaryColor16w400,),
+                      icon: Icon(Icons.add,color: AppColors.primaryColor,),
+                    ),
                   ],
                 )
             ),
@@ -151,23 +175,16 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 children: [
                   Text(context.appText.shippingAddress, style: AppTextStyle.body3,),
                   5.height,
-                  InkWell(
-                    onTap: () {
-                      commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.add,color: AppColors.primaryColor,),
-                        Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
-                      ],
-                    ),
+                  TextButton.icon(onPressed: () {
+                    commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
+                  }, label: Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
+                    icon: Icon(Icons.add,color: AppColors.primaryColor,),
                   ),
                   15.height,
                   Text(context.appText.billingAddress,style: AppTextStyle.body3,),
                   Row(
                     children: [
                       AppCheckBox(onChanged: (p0) {
-        
                       }, value: false),
                       Text(context.appText.sameAsShippingAddress, style: AppTextStyle.primaryColor16w400,).expand()
                     ],

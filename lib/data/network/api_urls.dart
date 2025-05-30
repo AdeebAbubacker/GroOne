@@ -32,6 +32,6 @@ class ApiUrls {
   static String  companyType = "$baseUrl/company-type";
   static String  resendOtp = "$_baseUrlWithAuth/resend-otp";
 
-
-
+  //Kavach
+  static String  kavachProductList = "$baseUrl/product/list";
 }

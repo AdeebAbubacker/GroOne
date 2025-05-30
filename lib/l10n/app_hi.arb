@@ -153,5 +153,6 @@
   "paymentDetails": "भुगतान विवरण",
   "makePayment": "भुगतान करें",
   "totalAmountToPay": "भुगतान करने के लिए कुल राशि",
-  "pay": "वेतन"
+  "pay": "वेतन",
+  "items": "सामान"
 }

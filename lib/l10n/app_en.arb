@@ -153,5 +153,6 @@
   "paymentDetails": "Payment Details",
   "makePayment": "Make Payment",
   "totalAmountToPay": "Total Amount To Pay",
-  "pay": "Pay"
+  "pay": "Pay",
+  "items": "Items"
 }
