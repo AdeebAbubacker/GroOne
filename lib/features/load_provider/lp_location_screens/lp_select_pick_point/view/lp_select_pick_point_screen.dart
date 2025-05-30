@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' show GoogleMapController;
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -51,16 +55,24 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> with 
 
   Future<void> getAddressFromLatLng(double lat, double lng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
-      Placemark place = placemarks.first;
-      _address = '${placemarks.first.street}, ${placemarks.first.locality}, ${placemarks.first.country}';
-      print('datata  ${place.locality}, ${place.country}');
+      List<Placemark> placeMarks = await placemarkFromCoordinates(lat, lng);
+      Placemark place = placeMarks.first;
+      _address = '${placeMarks.first.name}, ${placeMarks.first.street}, ${placeMarks.first.locality} ${placeMarks.first.postalCode}, ${placeMarks.first.country}';
+      addressTextController.text = _address;
+      debugPrint('Marker Address  ${place.locality}, ${place.country}');
     } catch (e) {
-      setState(() {
-        _address = 'Error: $e';
-      });
+      CustomLog.error(this, "Error in getAddressFromLatLng", e);
+      _address = '';
     }
+    setState(() {});
   }
+
+
+  Future<void> _setMapStyle(GoogleMapController controller) async {
+    String style = await rootBundle.loadString(AppJSON.mapStyle);
+    controller.setMapStyle(style);
+  }
+
 
   Future<void> _getCurrentLocation({bool fromAnimate = false}) async {
     bool serviceEnabled;
@@ -142,6 +154,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> with 
                 children: [
                   FlutterMap(
                     mapController: _animatedMapController.mapController,
+
                     options: MapOptions(
                       // initialCenter: centerLatLng!,
                       initialCenter: centerLatLng!,
@@ -202,7 +215,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> with 
             right: 0,
             bottom: 0,
             child: Container(
-              height: 300.h,
+              height: 380.h,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 borderRadius: const BorderRadius.only(
@@ -216,24 +229,24 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> with 
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Text("Location", style: AppTextStyle.textBlackColor16w400),
-                    // const SizedBox(height: 6),
-                    // Container(
-                    //   width: double.infinity,
-                    //   padding: const EdgeInsets.all(12),
-                    //   decoration: BoxDecoration(
-                    //     border: Border.all(color: AppColors.disableColor),
-                    //     borderRadius: BorderRadius.circular(10),
-                    //     color: Colors.grey.shade200,
-                    //   ),
-                    //   child: Text(
-                    //     _address,
-                    //     style: AppTextStyle.textBlackColor14w400.copyWith(
-                    //       overflow: TextOverflow.ellipsis,
-                    //     ),
-                    //   ),
-                    // ),
-                    //
+                    Text("Location", style: AppTextStyle.textBlackColor16w400),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.disableColor),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey.shade200,
+                      ),
+                      child: Text(
+                        _address,
+                        style: AppTextStyle.textBlackColor14w400.copyWith(
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+
 
                     const SizedBox(height: 16),
                     AppTextField(

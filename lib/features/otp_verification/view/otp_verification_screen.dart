@@ -199,6 +199,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         showFieldAsBox: true,
                         fieldWidth: 60,
                         borderColor: AppColors.borderDisableColor,
+
                         onCodeChanged: (String code) {
 
                           otpString=code;

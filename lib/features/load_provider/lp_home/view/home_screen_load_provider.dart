@@ -25,11 +25,9 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -365,14 +363,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildKYCStatusWidget(),
-
                   bookShipmentSectionWidget(context),
                   20.height,
-
                   upComingShipment(),
                   20.height,
                   valueAddedService(context),
-
                   30.height,
                 ],
               ),
@@ -440,9 +435,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               spacing: 3,
               children: [
                 Text(heading, style: AppTextStyle.textGreyColor12w400),
-                Text(subHeading, style: AppTextStyle.body),
+                Text(subHeading, style: AppTextStyle.body, overflow: TextOverflow.ellipsis, maxLines: 1),
               ],
-            ),
+            ).expand(),
             Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
           ],
         ),
@@ -510,7 +505,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               ],
             ),
           ),
-          20.height,
 
           // Commodity selection
           BlocListener<LoadCommodityBloc, LoadCommodityState>(
@@ -540,13 +534,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       selectedValueCommodity = !selectedValueCommodity;
                       setState(() {});
                     },
-                  );
+                  ).paddingBottom(20);
                 }
                 return const SizedBox();
               },
             ),
           ),
-          15.height,
+
 
           // Truck selection
           BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
@@ -579,14 +573,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       print(selectedValueTruck);
                       setState(() {});
                     },
-                  );
+                  ).paddingBottom(15);
                 }
                 return const SizedBox();
               },
             ),
           ),
 
-          15.height,
+          20.height,
 
           // Date and Time
           InkWell(
@@ -771,6 +765,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
+  // Up coming shipment
   Widget upComingShipment() {
     return BlocConsumer(
       bloc: loadDetailBloc,
@@ -789,14 +784,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               ),
 
               getLoadResponse!=null?
-              getLoadResponse!.data.isNotEmpty?ListView.builder(
+              getLoadResponse!.data.isNotEmpty? ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: getLoadResponse!.data.length,
                 itemBuilder: (context, index) {
                   final loadData=getLoadResponse!.data[index];
                   return upcomingShipmentTileWidget(loadData);
-                },):Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment)):Center(child: CircularProgressIndicator(),)
+                },
+              ):Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment)):Center(child: CircularProgressIndicator(),)
 
               ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
             ],
@@ -816,6 +812,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     },);
   }
 
+  // Upcoming Widget
   Widget upcomingShipmentTileWidget(LoadData loadData) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),

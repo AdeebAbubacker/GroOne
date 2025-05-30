@@ -55,22 +55,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     );
   }
 
-  factory CreateLoadApiRequest.fromJson(Map<String, dynamic> json){
-    return CreateLoadApiRequest(
-      customerId: json["customerId"] ?? 0,
-      commodityId: json["commodityId"] ?? 0,
-      truckTypeId: json["truckTypeId"] ?? 0,
-      pickUpAddr: json["pickUpAddr"] ?? "",
-      pickUpLatlon: json["pickUpLatlon"] ?? "",
-      dropAddr: json["dropAddr"] ?? "",
-      dropLatlon: json["dropLatlon"] ?? "",
-      dueDate: json["dueDate"],
-      consignmentWeight: json["consignmentWeight"] ?? 0,
-      note: json["note"] ?? "",
-      rate: json["rate"] ?? "",
-    );
-  }
-
   @override
   Map<String, dynamic> toJson() => {
     "customerId": customerId,
@@ -82,7 +66,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "dropLatlon": dropLatlon,
     "dueDate": dueDate,
     "consignmentWeight": consignmentWeight,
-    "note": note,
+    "notes": note,
     "rate": rate,
 
   };
