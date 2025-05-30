@@ -92,6 +92,6 @@ class ApiUrls {
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
 
-
-
+  //Kavach
+  static String  kavachProductList = "$baseUrl/product/list";
 }

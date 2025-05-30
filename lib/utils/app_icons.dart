@@ -17,6 +17,10 @@ class PngIcons {
   final String insightGraph = "${_pngBasePath}insight_graph.png";
   final String lockAndKey = "${_pngBasePath}lock_and_key.png";
 
+  //kavach payment icons
+  final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
+  final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
+  final String kavachPaymentNetBanking = "${_pngBasePath}payment_netbanking.png";
 
 }
 

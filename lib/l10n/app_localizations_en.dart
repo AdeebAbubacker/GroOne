@@ -114,7 +114,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSuccessful => 'LOGIN SUCCESSFUL';
 
   @override
-  String get loginSuccessfulSubHeading => 'Now you can explore the rates\nand post loads';
+  String get loginSuccessfulSubHeading =>
+      'Now you can explore the rates\nand post loads';
 
   @override
   String get home => 'Home';
@@ -276,13 +277,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get benefitsOfKavachHeading1 => 'No Unfair Blame for Fuel Loss';
 
   @override
-  String get benefitsOfKavachHeading2 => 'Prevents Delay from Theft Investigations';
+  String get benefitsOfKavachHeading2 =>
+      'Prevents Delay from Theft Investigations';
 
   @override
-  String get benefitsOfKavachSubHeading1 => 'KAVACH protects drivers from being wrongly accused of fuel theft.';
+  String get benefitsOfKavachSubHeading1 =>
+      'KAVACH protects drivers from being wrongly accused of fuel theft.';
 
   @override
-  String get benefitsOfKavachSubHeading2 => 'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
+  String get benefitsOfKavachSubHeading2 =>
+      'Keeps drivers on schedule by avoiding time lost to fuel theft issues.';
 
   @override
   String get buyNow => 'Buy Now';
@@ -421,4 +425,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get address => 'Address';
+
+  @override
+  String get checkout => 'checkout';
+
+  @override
+  String get placeOrder => 'Place Order';
+
+  @override
+  String get productDetails => 'Product Details';
+
+  @override
+  String get addMoreItems => 'Add More Items';
+
+  @override
+  String get addVehicleDetails => 'Add Vehicle Details';
+
+  @override
+  String get gstKavach => 'GST';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get shippingAddress => 'Shipping Address';
+
+  @override
+  String get billingAddress => 'Billing Address';
+
+  @override
+  String get addNewAddress => 'Add New Address';
+
+  @override
+  String get sameAsShippingAddress => 'Same As Shipping Address';
+
+  @override
+  String get deliverHere => 'Deliver Here';
+
+  @override
+  String get addressLine => 'Address Line';
+
+  @override
+  String get city => 'City';
+
+  @override
+  String get state => 'State';
+
+  @override
+  String get useMyCurrentLocation => 'Use My Current Location';
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get proceedToPay => 'Proceed To Pay';
+
+  @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get paymentDetails => 'Payment Details';
+
+  @override
+  String get makePayment => 'Make Payment';
+
+  @override
+  String get totalAmountToPay => 'Total Amount To Pay';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get items => 'Items';
 }
