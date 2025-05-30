@@ -26,6 +26,14 @@ class _LPCommodityDropdownState extends State<LPCommodityDropdown> {
 
   int selectedIndex = 0;
 
+  List<String> commodityIconsList = [
+    AppIcons.svg.agriculture,
+    AppIcons.svg.parcel,
+    AppIcons.svg.barrel,
+    AppIcons.svg.log,
+    AppIcons.svg.bottles
+  ];
+
   @override
   Widget build(BuildContext context) {
     debugPrint("selected Text ${widget.selectedText}");
@@ -70,7 +78,7 @@ class _LPCommodityDropdownState extends State<LPCommodityDropdown> {
                       childAspectRatio: 1.3, // Adjust for item width/height
                     ),
                     itemBuilder: (context, index) {
-                      var data = widget.dataList[index];
+                      var data = widget.dataList[index].copyWith(iconUrl: commodityIconsList[index]);
                       return InkWell(
                         onTap: () {
                           widget.onSelect(index);
@@ -81,14 +89,14 @@ class _LPCommodityDropdownState extends State<LPCommodityDropdown> {
                           padding: const EdgeInsets.all(10.0),
                           decoration: commonContainerDecoration(
                             borderColor: selectedIndex == index ? AppColors.primaryColor : AppColors.lightDividerColor,
-                            borderWidth: 1.5
+                            borderWidth: selectedIndex == index  ? 1.5 : 1
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
 
                               // Icon
-                              SvgPicture.asset(AppIcons.svg.commodity, colorFilter: AppColors.svg(selectedIndex == index ? AppColors.primaryColor : AppColors.greyIconColor)),
+                              SvgPicture.asset(data.iconUrl, width: 25 ,colorFilter: AppColors.svg(selectedIndex == index ? AppColors.primaryColor : AppColors.greyIconColor)),
                               5.height,
 
                               // Label

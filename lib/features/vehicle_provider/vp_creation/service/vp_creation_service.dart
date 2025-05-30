@@ -33,6 +33,7 @@ class VpCreationService {
       return Error(DeserializationError());
     }
   }
+
   // Log out
   Future<Result<LogOutResponse>> logOut(LogOutRequest request) async {
     try {

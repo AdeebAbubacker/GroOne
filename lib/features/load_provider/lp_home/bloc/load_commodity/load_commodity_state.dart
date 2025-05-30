@@ -17,3 +17,5 @@ class LoadCommodityError extends LoadCommodityState {
   LoadCommodityError(this.errorType);
 }
 
+
+

@@ -54,6 +54,18 @@ class SvgIcons {
   final String markerLocation = "${_svgBasePath}marker_location.svg";
   final String myLocation = "${_svgBasePath}my_location.svg";
   final String calendar = "${_svgBasePath}calendar_outline.svg";
+  final String agriculture = "${_svgBasePath}agriculture.svg";
+  final String barrel = "${_svgBasePath}barrel.svg";
+  final String bottles = "${_svgBasePath}bottles.svg";
+  final String log = "${_svgBasePath}log.svg";
+  final String parcel = "${_svgBasePath}parcel.svg";
+  final String moreMenu = "${_svgBasePath}more_menu.svg";
+  final String openTruck = "${_svgBasePath}open_truck.svg";
+  final String trailer = "${_svgBasePath}trailer.svg";
+  final String truck20Feet = "${_svgBasePath}truck_20_feet.svg";
+  final String truck22Feet = "${_svgBasePath}truck_22_feet.svg";
+  final String truck24Feet = "${_svgBasePath}truck_24_feet.svg";
+  final String truck32Feet = "${_svgBasePath}truck_32_feet.svg";
 
 
 }

@@ -11,6 +11,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.dropLatlon,
      this.dueDate,
      this.consignmentWeight,
+     this.note,
+     this.rate,
   });
 
   final num? customerId;
@@ -22,6 +24,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? dropLatlon;
   final String? dueDate;
   final num? consignmentWeight;
+  final String? note;
+  final String? rate;
 
   CreateLoadApiRequest copyWith({
     num? customerId,
@@ -33,6 +37,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     String? dropLatlon,
     String? dueDate,
     num? consignmentWeight,
+    String? note,
+    String? rate,
   }) {
     return CreateLoadApiRequest(
       customerId: customerId ?? this.customerId,
@@ -44,6 +50,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
+      note: note ?? this.note,
+      rate: rate ?? this.rate,
     );
   }
 
@@ -58,6 +66,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: json["dueDate"],
       consignmentWeight: json["consignmentWeight"] ?? 0,
+      note: json["note"] ?? "",
+      rate: json["rate"] ?? "",
     );
   }
 
@@ -72,6 +82,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "dropLatlon": dropLatlon,
     "dueDate": dueDate,
     "consignmentWeight": consignmentWeight,
+    "note": note,
+    "rate": rate,
+
   };
 
 }

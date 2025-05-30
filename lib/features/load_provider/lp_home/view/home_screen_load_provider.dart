@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
@@ -37,13 +38,14 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_image.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
-import 'widgets/load_summary_screen/load_summary_screen.dart';
+import 'load_summary_screen.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -55,7 +57,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   final lpHomeBloc = locator<LpHomeBloc>();
-
+  final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
@@ -71,9 +73,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final int baseAmount = 15000;
 
   String hintCommodity = 'Commodity';
-  String? selectedCommodity;
   String hintTruck = 'Truck';
-  String? selectedTruck;
   String profileImage="";
 
   String? pickup;
@@ -81,7 +81,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? commodityId;
   String? truckTypeId;
   String? rateDiscoveryPrice;
-
+  String? selectedTruck;
+  String? selectedCommodity;
+  String? truckType;
+  String? truckLength;
 
 
   bool selectedValueCommodity = false;
@@ -137,6 +140,89 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
+  Future showAdvancePaymentDialogue({required BuildContext context}) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState1) {
+            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
+            return showCustomDialogue(
+              context: context,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.advancePayment,
+                    style: AppTextStyle.darkDividerColor16w400,
+                  ),
+                  20.height,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children:
+                    [70, 80, 85].map((percent) {
+                      final isSelected = percent == selectedPercentage;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedPercentage = percent;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                            isSelected
+                                ? const Color(0xFF0057FF)
+                                : Colors.transparent,
+                            border: Border.all(
+                              color:
+                              isSelected
+                                  ? const Color(0xFF0057FF)
+                                  : Colors.grey,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$percent%',
+                            style: TextStyle(
+                              color:
+                              isSelected
+                                  ? Colors.white
+                                  : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    '₹$calculatedAmount',
+                    style: AppTextStyle.textBlackColor26w700,
+                  ),
+                ],
+              ),
+              onClickButton: () {
+                context.pop();
+                context.push(AppRouteName.lpValidateMemo).then((value) {
+                  memoDone = true;
+                  setState(() {});
+                });
+              },
+              disableButton: false,
+              buttonText: context.appText.verifyAdvance,
+            );
+          },
+        );
+      },
+    );
+  }
 
   ProfileDetailResponse? profileResponse;
   GetLoadResponse? getLoadResponse;
@@ -170,9 +256,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     destination = null;
     commodityId = null;
     truckTypeId = null;
+    selectedTruck = null;
+    selectedCommodity = null;
     rateDiscoveryPrice = null;
     selectedValueCommodity = false;
     selectedValueTruck = false;
+    truckType = null;
+    truckLength = null;
   });
 
   @override
@@ -182,6 +272,60 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       appBar: buildAppBarWidget(context),
 
       body: buildBodyWidget(context),
+    );
+  }
+
+  // Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+    return CommonAppBar(
+      isLeading: false,
+      leading: BlocListener<VpCreationBloc, VpCreationState>(
+        bloc: vpHomeBloc,
+        listener: (context, state) {
+          if (state is LogoutSuccess) {
+            context.go(AppRouteName.splash);
+          }
+          if (state is LogoutError) {
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
+          }
+        },
+        child: InkWell(
+          onTap: () => vpHomeBloc.add(LogoutRequested()),
+          child: Image.asset(
+            AppIcons.png.appIcon,
+          ).paddingLeft(commonSafeAreaPadding),
+        ),
+      ),
+      actions: [
+        // KYC
+        kycWidget(
+          onTap: () {
+            commonBottomSheetWithBGBlur(
+              context: context,
+
+              screen: KycBottomSheet(),
+            );
+          },
+        ),
+        10.width,
+
+        // Profile
+        InkWell(
+          onTap: (){
+            Navigator.push(context, commonRoute(LpProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
+              addPostFrameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+            });
+          },
+          child: commonCacheNetworkImage(radius: 50,
+              height: 40,
+              width: 40,
+              path:profileImage ?? "",
+              errorImage: AppImage.png.userProfileError
+          ).paddingRight(commonSafeAreaPadding),
+        ),
+      ],
     );
   }
 
@@ -200,9 +344,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
               profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ?? "";
-          setState(() {
-
-          });
             }
             if (state is ProfileDetailError) {
               ToastMessages.error(
@@ -212,7 +353,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
           bloc: lpHomeBloc,
           builder: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
 
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
+            }
             return SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,6 +384,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
+  // KYC Widget
   Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -273,7 +421,357 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  upComingShipment() {
+  // Book Shipment Section
+  Widget bookShipmentSectionWidget(BuildContext context) {
+    // Inner inside Widget
+    Widget bookShipmentWidget({
+      required String heading,
+      required String subHeading,
+      required GestureTapCallback onClick,
+    }) {
+      return InkWell(
+        onTap: onClick,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 3,
+              children: [
+                Text(heading, style: AppTextStyle.textGreyColor12w400),
+                Text(subHeading, style: AppTextStyle.body),
+              ],
+            ),
+            Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      color: AppColors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(context.appText.bookShipment, style: AppTextStyle.body1),
+          15.height,
+
+          // Location Picker
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            child: Row(
+              children: [
+                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
+                10.width,
+
+                Column(
+                  children: [
+                    // Source
+                    bookShipmentWidget(
+                      heading: context.appText.source,
+                      subHeading: pickup ?? context.appText.selectPickUpPoint,
+                      onClick: () {
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup), isForward: true)).then((onValue){
+                          if(onValue != null){
+                            pickup = onValue;
+                          }
+                          setState(() {});
+                        });
+                      },
+                    ),
+
+                    commonDivider(),
+
+                    // Destination
+                    bookShipmentWidget(
+                      heading: context.appText.destination,
+                      subHeading: destination ?? context.appText.selectDestination,
+                      onClick: () {
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination), isForward: true)).then((onValue){
+                          if(onValue != null){
+                            destination = onValue;
+                          }
+                          setState(() {});
+
+                          dynamic req = RateDiscoveryApiRequest(
+                              pickup: pickup?.toLowerCase(),
+                              drop: destination?.toLowerCase()
+                          );
+
+                          rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
+                        });
+                      },
+                    ),
+                  ],
+                ).expand(),
+              ],
+            ),
+          ),
+          20.height,
+
+          // Commodity selection
+          BlocListener<LoadCommodityBloc, LoadCommodityState>(
+            bloc: loadCommodityBloc,
+            listener: (context, state) {
+              if (state is LoadCommodityError) {
+                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+              }
+            },
+            child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+              bloc: loadCommodityBloc,
+              builder: (context, state) {
+                if (state is LoadCommoditySuccess) {
+                  final commodities = state.commodityListModel.data;
+                  return LPCommodityDropdown(
+                    preFixIcon: AppIcons.svg.commodity,
+                    hintText: hintCommodity,
+                    onSelect: (index) async {
+                      selectedCommodity = commodities[index].name;
+                      commodityId = commodities[index].id.toString();
+                      setState(() {});
+                    },
+                    dataList: commodities,
+                    selectedText: selectedCommodity,
+                    viewDropDown: selectedValueCommodity,
+                    onTab: () {
+                      selectedValueCommodity = !selectedValueCommodity;
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+          15.height,
+
+          // Truck selection
+          BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
+            bloc: loadTruckTypeBloc,
+            listener: (context, state) {
+              if (state is LoadTruckTypeError) {
+                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+              }
+            },
+            child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
+              bloc: loadTruckTypeBloc,
+              builder: (context, state) {
+                if (state is LoadTruckTypeSuccess) {
+                  final truckTypesList = state.loadTruckTypeListModel.data;
+                  return LPTruckTypeDropdown(
+                    preFixIcon: AppIcons.svg.truck,
+                    hintText: hintTruck,
+                    onSelect: (TruckTypeData truck) async {
+                      selectedTruck = "${truck.type} ${truck.subType}";
+                      truckTypeId = truck.id.toString();
+                      truckType = truck.type;
+                      truckLength = truck.subType;
+                      setState(() {});
+                    },
+                    dataList: truckTypesList,
+                    selectedText: selectedTruck,
+                    viewDropDown: selectedValueTruck,
+                    onTab: () {
+                      selectedValueTruck = !selectedValueTruck;
+                      print(selectedValueTruck);
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+
+          15.height,
+
+          // Date and Time
+          InkWell(
+            onTap: () async {
+              final String? date = await commonDatePicker(context,  firstDate:  DateTime.now(), initialDate : DateTimeHelper.convertToDateTimeWithCurrentTime(dateTextController.text));
+              if (date != null) {
+                dateTextController.text = date;
+              } else {
+                dateTextController.clear();
+              }
+              setState(() {});
+            },
+            child: Container(
+              height: 55,
+              padding: EdgeInsets.all(10),
+              decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+              child: Row(
+                children: [
+                  SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor),),
+                  12.width,
+                  Text(dateTextController.text.isEmpty ? context.appText.dateAndTime :  dateTextController.text, style: AppTextStyle.body).expand(),
+                  Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
+                ],
+              ),
+            ),
+          ),
+          20.height,
+
+          // Consignment weight (MT)
+          Container(
+            height: 55,
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            child: Row(
+              children: [
+                SvgPicture.asset(AppIcons.svg.kgWeight),
+                12.width,
+                TextFormField(
+                  controller: weightTextController,
+                  autofocus: false,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    phoneNumberInputFormatter
+                  ],
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    hintText: context.appText.consignmentWeightWithMT,
+                    hintStyle: AppTextStyle.body,
+                    maintainHintHeight: true,
+                  ),
+                ).expand(),
+              ],
+            ),
+          ),
+          20.height,
+
+          // Suggested Price
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  children: [
+                    Text("Suggested Price", style: AppTextStyle.textDarkGreyColor14w400),
+                    BlocBuilder<RateDiscoveryBloc, RateDiscoveryState>(
+                      bloc: rateDiscoveryBloc,
+                      builder: (context, state) {
+                        if (state is RateDiscoverySuccess) {
+                          final suggestedPrice = state.rateDiscoveryModel.data;
+                          rateDiscoveryPrice = suggestedPrice?.price ?? "00000 - 00000";
+                          return Text("₹$rateDiscoveryPrice", style: AppTextStyle.textBlackColor16w500);
+                        }
+                        return const SizedBox();
+                      },
+                    ),
+                  ],
+                ),
+
+                SizedBox.shrink().expand(),
+
+                // Post Load Button
+                BlocConsumer<LoadPostingBloc, LoadPostingState>(
+                  bloc: loadPostingBloc,
+                  listener: (context, state) {
+                    if (state is CreateLoadSuccess) {
+                      disposeFunction();
+                    }
+                  },
+                  builder: (context, state) {
+                    final isLoading = state is CreateLoadLoading;
+                    return AppButton(
+                      title: context.appText.postLoad,
+                      isLoading: isLoading,
+                      onPressed: isLoading ? (){} : () async {
+                        try {
+
+                          if(pickup == null){
+                            ToastMessages.alert(message: "Please select pickup location");
+                            return;
+                          }
+
+                          if(destination == null){
+                            ToastMessages.alert(message: "Please select destination location");
+                            return;
+                          }
+
+                          if(commodityId == null){
+                            ToastMessages.alert(message: "Please select commodity");
+                            return;
+                          }
+
+                          if(truckTypeId == null){
+                            ToastMessages.alert(message: "Please select truck");
+                            return;
+                          }
+
+                          if(dateTextController.text.isEmpty){
+                            ToastMessages.alert(message: "Please select date");
+                            return;
+                          }
+
+                          if(weightTextController.text.isEmpty){
+                            ToastMessages.alert(message: "Please select consignment weight");
+                            return;
+                          }
+
+                          final request = CreateLoadApiRequest(
+                            customerId: int.parse(lpHomeBloc.userId.toString()),
+                            commodityId: int.parse(commodityId ?? "0"),
+                            truckTypeId: int.parse(truckTypeId ?? "0"),
+                            pickUpAddr: pickup ?? "",
+                            pickUpLatlon: "13.0827,80.2707",
+                            dropAddr:  destination ?? '',
+                            dropLatlon: "13.0827,80.2707",
+                            dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
+                            consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
+                            rate: rateDiscoveryPrice ?? "0000 - 0000",
+                          );
+
+
+                          Navigator.push(context, commonRoute(LoadSummaryScreen(
+                            apiRequest: request,
+                            senderAddress: pickup ?? "",
+                            receiverAddress: destination ?? "",
+                            vehicleType: truckType ?? "",
+                            vehicleLength: truckLength ?? "",
+                            approxWeight: weightTextController.text,
+                            category: selectedCommodity ?? "",
+                            price: rateDiscoveryPrice ?? "0000 - 0000",
+                          ), isForward: true)).then((onValue){
+                            if(onValue!=null && onValue == true){
+                              disposeFunction();
+                            }
+                          });
+
+                        } catch (e) {
+                          CustomLog.debug(this, e.toString());
+                        }
+                      },
+                    );
+                  },
+                ).expand(flex: 2)
+
+
+              ],
+            ),
+          ),
+          20.height,
+
+
+          // Need Support Next
+          TextButton(
+            onPressed: (){},
+            child: Text("Need Our Customer Support Help?",style: AppTextStyle.bodyPrimaryColor),
+          ),
+        ],
+      ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
+    );
+  }
+
+  Widget upComingShipment() {
     return BlocConsumer(
       bloc: loadDetailBloc,
       builder: (context, state) {
@@ -318,7 +816,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     },);
   }
 
-  upcomingShipmentTileWidget(LoadData loadData) {
+  Widget upcomingShipmentTileWidget(LoadData loadData) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -434,459 +932,4 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  // Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
-    return CommonAppBar(
-      isLeading: false,
-      leading: Image.asset(
-        AppIcons.png.appIcon,
-      ).paddingLeft(commonSafeAreaPadding),
-      actions: [
-        // KYC
-        kycWidget(
-          onTap: () {
-            commonBottomSheetWithBGBlur(
-              context: context,
-
-              screen: KycBottomSheet(),
-            );
-          },
-        ),
-        10.width,
-
-        // Profile
-        InkWell(
-          onTap: (){
-            Navigator.push(context, commonRoute(LpProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-              addPostFrameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
-            });
-            },
-          child: commonCacheNetworkImage(radius: 50,
-              height: 40,
-              width: 40,
-              path:profileImage ?? "",
-              errorImage: AppImage.png.userProfileError
-          ).paddingRight(commonSafeAreaPadding),
-        ),
-      ],
-    );
-  }
-
-  Future showAdvancePaymentDialogue({required BuildContext context}) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState1) {
-            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
-            return showCustomDialogue(
-              context: context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.advancePayment,
-                    style: AppTextStyle.darkDividerColor16w400,
-                  ),
-                  20.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:
-                        [70, 80, 85].map((percent) {
-                          final isSelected = percent == selectedPercentage;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedPercentage = percent;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    isSelected
-                                        ? const Color(0xFF0057FF)
-                                        : Colors.transparent,
-                                border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? const Color(0xFF0057FF)
-                                          : Colors.grey,
-                                  width: 1.5,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                '$percent%',
-                                style: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Colors.white
-                                          : Colors.black87,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    '₹$calculatedAmount',
-                    style: AppTextStyle.textBlackColor26w700,
-                  ),
-                ],
-              ),
-              onClickButton: () {
-                context.pop();
-                context.push(AppRouteName.lpValidateMemo).then((value) {
-                  memoDone = true;
-                  setState(() {});
-                });
-              },
-              disableButton: false,
-              buttonText: context.appText.verifyAdvance,
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget bookShipmentSectionWidget(BuildContext context) {
-    // Inner inside Widget
-    Widget bookShipmentWidget({
-      required String heading,
-      required String subHeading,
-      required GestureTapCallback onClick,
-    }) {
-      return InkWell(
-        onTap: onClick,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 3,
-              children: [
-                Text(heading, style: AppTextStyle.textGreyColor12w400),
-                Text(subHeading, style: AppTextStyle.body),
-              ],
-            ),
-            Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      color: AppColors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title
-          Text(context.appText.bookShipment, style: AppTextStyle.body1),
-          15.height,
-
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-            child: Row(
-              children: [
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
-                10.width,
-
-                Column(
-                  children: [
-                    // Source
-                    bookShipmentWidget(
-                      heading: context.appText.source,
-                      subHeading: pickup ?? context.appText.selectPickUpPoint,
-                      onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup), isForward: true)).then((onValue){
-                          if(onValue != null){
-                            pickup = onValue;
-                          }
-                          setState(() {});
-                        });
-                      },
-                    ),
-
-                    commonDivider(),
-
-                    // Destination
-                    bookShipmentWidget(
-                      heading: context.appText.destination,
-                      subHeading: destination ?? context.appText.selectDestination,
-                      onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination), isForward: true)).then((onValue){
-                          if(onValue != null){
-                            destination = onValue;
-                          }
-                          setState(() {});
-
-                          dynamic req = RateDiscoveryApiRequest(
-                            pickup: pickup?.toLowerCase(),
-                            drop: destination?.toLowerCase()
-                          );
-
-                          rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
-                        });
-                      },
-                    ),
-                  ],
-                ).expand(),
-              ],
-            ),
-          ),
-          15.height,
-
-          // Commodity selection
-          BlocListener<LoadCommodityBloc, LoadCommodityState>(
-            bloc: loadCommodityBloc,
-            listener: (context, state) {
-              if (state is LoadCommodityError) {
-                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-              }
-            },
-            child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
-              bloc: loadCommodityBloc,
-              builder: (context, state) {
-                if (state is LoadCommoditySuccess) {
-                  final commodities = state.commodityListModel.data;
-                  return LPCommodityDropdown(
-                    preFixIcon: AppIcons.svg.commodity,
-                    hintText: hintCommodity,
-                    onSelect: (index) async {
-                      selectedCommodity = commodities[index].name;
-                      commodityId = commodities[index].id.toString();
-                      setState(() {});
-                    },
-                    dataList: commodities,
-                    selectedText: selectedCommodity,
-                    viewDropDown: selectedValueCommodity,
-                    onTab: () {
-                      selectedValueCommodity = !selectedValueCommodity;
-                      setState(() {});
-                    },
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
-          ),
-          15.height,
-
-          // Truck selection
-          BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
-            bloc: loadTruckTypeBloc,
-            listener: (context, state) {
-              if (state is LoadTruckTypeError) {
-                ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-              }
-            },
-            child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
-              bloc: loadTruckTypeBloc,
-              builder: (context, state) {
-                if (state is LoadTruckTypeSuccess) {
-                  final truckTypes = state.loadTruckTypeListModel.data;
-                  return LPTruckTypeDropdown(
-                    preFixIcon: AppIcons.svg.truck,
-                    hintText: hintTruck,
-                    onSelect: (index) async {
-                      selectedTruck = "${truckTypes[index].type} ${truckTypes[index].subType}";
-                      truckTypeId = truckTypes[index].id.toString();
-                      setState(() {});
-                    },
-                    dataList: truckTypes,
-                    selectedText: selectedTruck,
-                    viewDropDown: selectedValueTruck,
-                    onTab: () {
-                      selectedValueTruck = !selectedValueTruck;
-                      setState(() {});
-                    },
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
-          ),
-
-          15.height,
-
-          // Date and Time
-          InkWell(
-            onTap: () async {
-              final String? date = await commonDatePicker(context,  firstDate:  DateTime.now(), initialDate : DateTimeHelper.convertToDateTimeWithCurrentTime(dateTextController.text));
-              if (date != null) {
-                dateTextController.text = date;
-              } else {
-                dateTextController.clear();
-              }
-              setState(() {});
-            },
-            child: Container(
-              height: 55,
-              padding: EdgeInsets.all(10),
-              decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-              child: Row(
-                children: [
-                  SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor),),
-                  12.width,
-                  Text(dateTextController.text.isEmpty ? context.appText.dateAndTime :  dateTextController.text, style: AppTextStyle.body).expand(),
-                  Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
-                ],
-              ),
-            ),
-          ),
-          20.height,
-
-          // Consignment weight (MT)
-          Container(
-            height: 55,
-            padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-            child: Row(
-              children: [
-                SvgPicture.asset(AppIcons.svg.kgWeight),
-                12.width,
-                TextFormField(
-                  controller: weightTextController,
-                  autofocus: false,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    border: InputBorder.none,
-                    hintText: context.appText.consignmentWeightWithMT,
-                    hintStyle: AppTextStyle.body,
-                    maintainHintHeight: true,
-                  ),
-                ).expand(),
-              ],
-            ),
-          ),
-          20.height,
-
-          // Suggested Price
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    Text("Suggested Price", style: AppTextStyle.textDarkGreyColor14w400),
-                    BlocBuilder<RateDiscoveryBloc, RateDiscoveryState>(
-                      bloc: rateDiscoveryBloc,
-                      builder: (context, state) {
-                        if (state is RateDiscoverySuccess) {
-                          final suggestedPrice = state.rateDiscoveryModel.data;
-                          rateDiscoveryPrice = suggestedPrice?.price;
-                          return Text("₹${rateDiscoveryPrice ?? '00000 - 00000'}", style: AppTextStyle.textBlackColor16w500);
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                  ],
-                ),
-
-                SizedBox.shrink().expand(),
-
-                BlocConsumer<LoadPostingBloc, LoadPostingState>(
-                  bloc: loadPostingBloc,
-                  listener: (context, state) {
-                    if (state is CreateLoadError) {
-                      addPostFrameCallback(() {
-                        ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-                      });
-                    }
-                    if (state is CreateLoadSuccess){
-                      AppDialog.show(context, child: SuccessDialogView());
-                    }
-                  },
-                  builder: (context, state) {
-                    final isLoading = state is CreateLoadLoading;
-                    return AppButton(
-                      title: context.appText.postLoad,
-                      isLoading: isLoading,
-                      onPressed: isLoading ? (){} : () async
-                      {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                            LoadSummaryScreen(),
-                            isForward: true,
-                          ),
-                        );
-                        // try {
-                        //   final request = CreateLoadApiRequest(
-                        //     customerId: int.parse(lpHomeBloc.userId.toString()),
-                        //     commodityId: int.parse(commodityId ?? "0"),
-                        //     truckTypeId: int.parse(truckTypeId ?? "0"),
-                        //     pickUpAddr: pickup ?? "",
-                        //     pickUpLatlon: "13.0827,80.2707",
-                        //     dropAddr:  destination ?? '',
-                        //     dropLatlon: "13.0827,80.2707",
-                        //     dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
-                        //     consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
-                        //   );
-                        //   loadPostingBloc.add(CreateLoadPostingEvent(apiRequest: request));
-                        //
-                        //   await Future.delayed(Duration(seconds: 5));
-                        //
-                        //   addPostFrameCallback(() {
-                        //     disposeFunction();
-                        //   });
-                        //   setState(() {
-                        //
-                        //   });
-                        // } catch (e) {
-                        //   CustomLog.debug(this, e.toString());
-                        // }
-                      },
-                    );
-                  },
-                ).expand(flex: 2)
-
-
-              ],
-            ),
-          ),
-          20.height,
-
-
-          // Need Support Next
-          InkWell(
-            onTap: (){
-              showCustomerCareBottomSheet(context);
-            },
-            child: Center(
-              child: Text("Need Our Customer Support Help?",style: AppTextStyle.primaryColor14w400UnderLine),
-            ),
-          ),
-        ],
-      ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
-    );
-  }
-
-  final List<Map<String, dynamic>> commodities = [
-    {'label': 'Agriculture', 'icon': Icons.grass},
-    {'label': 'Parcels', 'icon': Icons.inventory_2},
-    {'label': 'Barrels', 'icon': Icons.local_drink},
-    {'label': 'Logs', 'icon': Icons.fireplace},
-    {'label': 'Bottles', 'icon': Icons.wine_bar},
-  ];
-  final List<Map<String, dynamic>> truck = [
-    {'label': 'Open - 20ft SXL1', 'icon': Icons.grass},
-    {'label': 'Open - 20ft SXL2', 'icon': Icons.inventory_2},
-    {'label': 'Open - 20ft SXL3', 'icon': Icons.local_drink},
-    {'label': 'Open - 20ft SXL4', 'icon': Icons.fireplace},
-    {'label': 'Open - 20ft SXL5', 'icon': Icons.wine_bar},
-  ];
 }

@@ -71,21 +71,16 @@ class ApiUrls {
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
 
 
-
-
-
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1/";
 
   // Load Form pick list
   static final String  loadCommodity = "${_loadBaseUrl}commodity";
   static final String  loadTruckType = "${_loadBaseUrl}truck-type";
-  static final String  getRateDiscoveryPrice = "${baseUrl}/ratediscovery$_path$_v1${"/rate-discovery"}";
-
-
+  static final String  getRateDiscoveryPrice = "$baseUrl/ratediscovery$_path$_v1${"/rate-discovery"}";
 
   // Load
-  static final String  createLoad = "$_loadBaseUrl$_load";
+  static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";
   static final String  getLoads = "$_loadBaseUrl$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
