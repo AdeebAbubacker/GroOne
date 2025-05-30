@@ -12,7 +12,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/trip_scheduling_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -506,6 +505,53 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
           vertical: commonSafeAreaPadding,
         );
       },
+    );
+  }
+}
+class DateTimePickerField extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const DateTimePickerField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyle.black13w700),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value.isEmpty ? "Select" : value,
+                    style: AppTextStyle.body,
+                  ),
+                ),
+                Icon(icon, size: 20, color: AppColors.primaryIconColor),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
