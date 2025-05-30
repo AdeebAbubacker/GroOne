@@ -43,6 +43,7 @@ class LpHomeService{
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
+        _apiService.clearCache();
         return  await _apiService.getResponseStatus(result.value, (data)=> GetLoadResponse.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);

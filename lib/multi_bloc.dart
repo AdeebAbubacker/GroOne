@@ -43,6 +43,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LoadListBloc>(create: (_) => locator<LoadListBloc>()),
         BlocProvider<RateDiscoveryBloc>(create: (_) => locator<RateDiscoveryBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
+        BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
+        BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
       ],
       child: child,
     );
