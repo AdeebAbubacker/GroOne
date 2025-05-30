@@ -43,6 +43,7 @@ import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_image.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
+import 'widgets/load_summary_screen/load_summary_screen.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -54,7 +55,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeBloc = locator<VpCreationBloc>();
+
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
@@ -199,6 +200,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
               profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ?? "";
+          setState(() {
+
+          });
             }
             if (state is ProfileDetailError) {
               ToastMessages.error(
@@ -208,13 +212,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
           bloc: lpHomeBloc,
           builder: (context, state) {
-            if (state is ProfileDetailSuccess) {
-              profileResponse = state.profileDetailResponse;
 
-              profileImage =
-                  state.profileDetailResponse.data!.details!.profileImageUrl ??
-                  "";
-            }
             return SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,25 +438,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
-      leading: BlocListener<VpCreationBloc, VpCreationState>(
-        bloc: vpHomeBloc,
-        listener: (context, state) {
-          if (state is LogoutSuccess) {
-            context.go(AppRouteName.splash);
-          }
-          if (state is LogoutError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
-          }
-        },
-        child: InkWell(
-          onTap: () => vpHomeBloc.add(LogoutRequested()),
-          child: Image.asset(
-            AppIcons.png.appIcon,
-          ).paddingLeft(commonSafeAreaPadding),
-        ),
-      ),
+      leading: Image.asset(
+        AppIcons.png.appIcon,
+      ).paddingLeft(commonSafeAreaPadding),
       actions: [
         // KYC
         kycWidget(
@@ -833,32 +815,40 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     return AppButton(
                       title: context.appText.postLoad,
                       isLoading: isLoading,
-                      onPressed: isLoading ? (){} : () async {
-                        try {
-                          final request = CreateLoadApiRequest(
-                            customerId: int.parse(lpHomeBloc.userId.toString()),
-                            commodityId: int.parse(commodityId ?? "0"),
-                            truckTypeId: int.parse(truckTypeId ?? "0"),
-                            pickUpAddr: pickup ?? "",
-                            pickUpLatlon: "13.0827,80.2707",
-                            dropAddr:  destination ?? '',
-                            dropLatlon: "13.0827,80.2707",
-                            dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
-                            consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
-                          );
-                          loadPostingBloc.add(CreateLoadPostingEvent(apiRequest: request));
-
-                          await Future.delayed(Duration(seconds: 5));
-
-                          addPostFrameCallback(() {
-                            disposeFunction();
-                          });
-                          setState(() {
-
-                          });
-                        } catch (e) {
-                          CustomLog.debug(this, e.toString());
-                        }
+                      onPressed: isLoading ? (){} : () async
+                      {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                            LoadSummaryScreen(),
+                            isForward: true,
+                          ),
+                        );
+                        // try {
+                        //   final request = CreateLoadApiRequest(
+                        //     customerId: int.parse(lpHomeBloc.userId.toString()),
+                        //     commodityId: int.parse(commodityId ?? "0"),
+                        //     truckTypeId: int.parse(truckTypeId ?? "0"),
+                        //     pickUpAddr: pickup ?? "",
+                        //     pickUpLatlon: "13.0827,80.2707",
+                        //     dropAddr:  destination ?? '',
+                        //     dropLatlon: "13.0827,80.2707",
+                        //     dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
+                        //     consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
+                        //   );
+                        //   loadPostingBloc.add(CreateLoadPostingEvent(apiRequest: request));
+                        //
+                        //   await Future.delayed(Duration(seconds: 5));
+                        //
+                        //   addPostFrameCallback(() {
+                        //     disposeFunction();
+                        //   });
+                        //   setState(() {
+                        //
+                        //   });
+                        // } catch (e) {
+                        //   CustomLog.debug(this, e.toString());
+                        // }
                       },
                     );
                   },

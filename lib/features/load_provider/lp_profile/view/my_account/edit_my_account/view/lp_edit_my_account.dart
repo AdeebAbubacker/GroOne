@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_update_request.dart';
@@ -109,8 +110,10 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
   updateButtonWidget() {
     return BlocConsumer(
       bloc: lpProfile,
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is ProfileUpdateSuccess) {
+
+
 context.pop();
 context.pop();
         } else if (state is ProfileUpdateError) {

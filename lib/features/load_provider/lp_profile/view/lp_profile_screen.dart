@@ -69,6 +69,9 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   void initFunction() => addPostFrameCallback(() async {
     await lpHomeLocator.getUserId();
     profileImage=widget.profileData.details!.profileImageUrl??"";
+    setState(() {
+
+    });
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
@@ -108,33 +111,47 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   }
 
   profileDetailWidget() {
-    return Column(
-      spacing: 15.h,
-      children: [
-        Text(
-          widget.profileData.customer!.customerName,
-          style: AppTextStyle.blackColor15w500,
-        ),
-        InkWell(
-          onTap: () {
-            Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColors.primaryColor,
-            ),
-            child: Text(
-              "${context.appText.blueMembershipId} : qwesd123",
-              style: AppTextStyle.whiteColor14w400,
+    return BlocConsumer(
+
+      bloc: lpHomeLocator,
+      builder: (context, state) {
+      return Column(
+        spacing: 15.h,
+        children: [
+          Text(
+            widget.profileData.customer!.customerName,
+            style: AppTextStyle.blackColor15w500,
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
+            },
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryColor,
+              ),
+              child: Text(
+                "${context.appText.blueMembershipId} : qwesd123",
+                style: AppTextStyle.whiteColor14w400,
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    }, listener: _listener);
   }
+  _listener(BuildContext context, HomeState state) {
+    if (state is ProfileDetailSuccess) {
+      widget.profileData=state.profileDetailResponse.data!;
 
+      //paas here your route
+    }
+    if (state is ProfileDetailError) {
+
+    }
+  }
   profileOptionWidget() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -145,7 +162,9 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
       child: Column(
         children: [
           10.height,
-          BlocBuilder<LpHomeBloc, HomeState>(
+          BlocConsumer<LpHomeBloc, HomeState>(
+
+            listener:_listener,
             bloc: lpHomeLocator,
             builder: (context, state) {
               return profileWidget(

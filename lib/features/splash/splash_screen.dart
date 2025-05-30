@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
         if (!context.mounted) return;
-        addPostFrameCallback(()=> context.go(AppRouteName.chooseLanguage));
+        addPostFrameCallback(()=> context.push(AppRouteName.chooseLanguage));
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
