@@ -11,7 +11,7 @@ import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/v
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 
 import 'package:gro_one_app/features/splash/splash_screen.dart';
-import 'package:gro_one_app/features/terms_condition_screen.dart';
+import 'package:gro_one_app/features/legal_detail_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
