@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
@@ -13,8 +14,11 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -36,7 +40,7 @@ class VpHomeScreen extends StatefulWidget {
 class _VpHomeScreenState extends State<VpHomeScreen> {
 
   final vpHomeBloc = locator<VpCreationBloc>();
-
+  final searchController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -104,13 +108,30 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     );
   }
 
+  Widget buildSearchBarAndFilterWidget(BuildContext context){
+    return Row(
+      children: [
+        // Search bar
+        AppSearchBar(searchController: searchController).expand(),
+        15.width,
 
+        // Filter Button
+        AppIconButton(
+          onPressed: (){
+          //  commonBottomSheetWithBGBlur(context: context, screen: KavachModelsFilterBottomSheetScreen());
+          },
+          style: AppButtonStyle.primaryIconButtonStyle,
+          icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+        )
+      ],
+    );
+  }
   Widget _buildRecentAddedLoadWidget(BuildContext context){
     return Container(
       decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
       child: Column(
         children: [
-
+          10.height,
           // Title
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,7 +149,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
             ],
           ),
           10.height,
-
+          buildSearchBarAndFilterWidget(context),
+          10.height,
           // List
           ListView.separated(
             itemCount: 5,

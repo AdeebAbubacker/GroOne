@@ -43,7 +43,8 @@ class _SplashScreenState extends State<SplashScreen> {
       if (_controller.value.position == _controller.value.duration &&
           _controller.value.isInitialized &&
           mounted) {
-        context.push(AppRouteName.chooseLanguage);
+        setState((){});
+        //context.push(AppRouteName.chooseLanguage);
       }
     });
     init(context);
@@ -85,6 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
     }
   }
+
 
   // Check user type (1 LP, 2 VP, 3 Both, 4)
   _checkUserType(BuildContext context) async {

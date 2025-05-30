@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
-import 'package:gro_one_app/features/legal_detail_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -26,6 +25,7 @@ import '../../../utils/customButton.dart';
 import '../../../utils/toast_messages.dart';
 import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
+import 'widget/legal_detail_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.roleId});

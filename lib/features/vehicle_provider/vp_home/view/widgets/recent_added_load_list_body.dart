@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 
 class RecentAddedLoadListBody extends StatelessWidget {
   const RecentAddedLoadListBody({super.key});
@@ -58,7 +59,7 @@ class RecentAddedLoadListBody extends StatelessWidget {
                   Text("20 ft Closed Truck", style: AppTextStyle.body),
                 ],
               ).expand(),
-              Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
+              statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
             ],
           ),
           10.height,
@@ -72,12 +73,18 @@ class RecentAddedLoadListBody extends StatelessWidget {
                   Text("Construction Material", style: AppTextStyle.body),
                 ],
               ).expand(),
-              Text("Initial Price Offer", style: AppTextStyle.body),
+              Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
             ],
           ),
           20.height,
-
-
+          Row(
+            children: [
+              SvgPicture.asset(AppIcons.svg.package),
+              10.width,
+              Text("5 Ton", style: AppTextStyle.body),
+            ],
+          ),
+          20.height,
           AppButton(
             onPressed: (){},
             title: context.appText.accept,
