@@ -871,12 +871,6 @@ abstract class AppLocalizations {
   /// **'  in  '**
   String get inText;
 
-  /// No description provided for @second.
-  ///
-  /// In en, this message translates to:
-  /// **' seconds'**
-  String get second;
-
   /// No description provided for @dateAndTime.
   ///
   /// In en, this message translates to:
@@ -924,6 +918,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Address'**
   String get address;
+
+  /// No description provided for @second.
+  ///
+  /// In en, this message translates to:
+  /// **' seconds'**
+  String get second;
 
   /// No description provided for @checkout.
   ///
@@ -1076,8 +1076,7 @@ abstract class AppLocalizations {
   String get items;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1086,28 +1085,26 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'hi', 'ta'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'hi', 'ta'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'hi':
-      return AppLocalizationsHi();
-    case 'ta':
-      return AppLocalizationsTa();
+    case 'en': return AppLocalizationsEn();
+    case 'hi': return AppLocalizationsHi();
+    case 'ta': return AppLocalizationsTa();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

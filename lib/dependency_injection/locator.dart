@@ -43,7 +43,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repo
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
-
 import '../features/kavach/repository/kavach_repository.dart';
 import '../features/kavach/service/kavach_service.dart';
 import '../features/kyc/bloc/kyc_bloc.dart';
@@ -92,7 +91,7 @@ void initLocator() {
     locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>()));
-    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>()));
+    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => KavachRepository(locator<KavachService>()));
 
     // View Model
