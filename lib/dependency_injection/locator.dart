@@ -38,6 +38,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -51,6 +53,7 @@ import '../features/login/service/login_service.dart';
 import '../features/otp_verification/bloc/otp_bloc.dart';
 import '../features/otp_verification/repository/otp_repository.dart';
 import '../features/otp_verification/service/otp_service.dart';
+import '../features/vehicle_provider/vp_home/service/vp_service.dart';
 
 var locator = GetIt.instance;
 
@@ -79,6 +82,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
     locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
+    locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -92,6 +96,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
     locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
+    locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -113,6 +118,7 @@ void initLocator() {
     locator.registerFactory(() => LoadCommodityBloc(locator<LpHomeRepository>()));
     locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
     locator.registerFactory(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
+    locator.registerFactory(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
