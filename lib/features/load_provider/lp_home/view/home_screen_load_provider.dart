@@ -57,6 +57,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   final lpHomeBloc = locator<LpHomeBloc>();
+
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
@@ -520,33 +521,37 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Column(
-                spacing: 10.h,
-                children: [
-                  Text(
-                    loadData.dueDate != null
-                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
-                        : "--",
-                    style: AppTextStyle.textGreyDetailColor10w400,
-                  ),
-                  Text(
-                    loadData.pickUpAddr,
-                    style: AppTextStyle.blackColor16w400,
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  spacing: 10.h,
+                  children: [
+                    Text(
+                      loadData.dueDate != null
+                          ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                          : "--",
+                      style: AppTextStyle.textGreyDetailColor10w400,
+                    ),
+                    Text(
+                      loadData.pickUpAddr,
+                      style: AppTextStyle.blackColor16w400,
+                    ),
+                  ],
+                ),
               ),
               Icon(Icons.arrow_forward, color: AppColors.primaryColor),
-              Column(
-                spacing: 10.h,
-                children: [
-                  Text(
-                    loadData.dueDate != null
-                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
-                        : "--",
-                    style: AppTextStyle.textGreyDetailColor10w400,
-                  ),
-                  Text(loadData.dropAddr, style: AppTextStyle.blackColor16w400),
-                ],
+              Expanded(
+                child: Column(
+                  spacing: 10.h,
+                  children: [
+                    Text(
+                      loadData.dueDate != null
+                          ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                          : "--",
+                      style: AppTextStyle.textGreyDetailColor10w400,
+                    ),
+                    Text(loadData.dropAddr, style: AppTextStyle.blackColor16w400),
+                  ],
+                ),
               ),
             ],
           ),
@@ -681,8 +686,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           setState(() {});
 
                               dynamic req = RateDiscoveryApiRequest(
-                                pickup: pickup?.toLowerCase(),
-                                drop: destination?.toLowerCase(),
+                                // pickup: pickup?.toLowerCase(),
+                                // drop: destination?.toLowerCase(),
+                                pickup: "chennai",
+                                drop: "bangalore",
                               );
 
                               rateDiscoveryBloc.add(
@@ -963,7 +970,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             category: selectedCommodity ?? "",
                             price: rateDiscoveryPrice ?? "0000 - 0000",
                           ), isForward: true)).then((onValue){
+                            loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
                             if(onValue!=null && onValue == true){
+
+
                               disposeFunction();
                             }
                           });
