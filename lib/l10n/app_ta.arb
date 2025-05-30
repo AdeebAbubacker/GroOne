@@ -137,7 +137,32 @@
   "markAsFavouriteTitle" : "பிடித்தவராக குறி",
   "markAsFavouriteSubtitle" : "இந்த சுமைக்கு பிடித்த மார்க் வேண்டுமா?",
   "location" : "இடம்",
-  "address" : "முகவரி"
+  "address" : "முகவரி",
 
 
+  "checkout": "புதுப்பித்து",
+  "placeOrder": "இடம் ஆர்டர்",
+  "productDetails": "தயாரிப்பு விவரங்கள்",
+  "addMoreItems": "மேலும் உருப்படிகளைச் சேர்க்கவும்",
+  "addVehicleDetails": "வாகன விவரங்களைச் சேர்க்கவும்",
+  "gstKavach": "ஜிஎஸ்டி",
+  "optional": "விரும்பினால்",
+  "shippingAddress": "கப்பல் முகவரி",
+  "billingAddress": "பில்லிங் முகவரி",
+  "addNewAddress": "புதிய முகவரியைச் சேர்க்கவும்",
+  "sameAsShippingAddress": "கப்பல் முகவரியைப் போலவேs",
+  "deliverHere": "இங்கே வழங்கவும்",
+  "addressLine": "முகவரி வரி",
+  "city": "நகரம்",
+  "state": "மாநிலம்",
+  "useMyCurrentLocation": "எனது தற்போதைய இருப்பிடத்தைப் பயன்படுத்தவும்",
+  "summary": "சுருக்கம்",
+  "total": "மொத்தம்",
+  "proceedToPay": "செலுத்த தொடரவும்",
+  "totalAmount": "மொத்த தொகை",
+  "paymentDetails": "கட்டண விவரங்கள்",
+  "makePayment": "பணம் செலுத்துங்கள்",
+  "totalAmountToPay": "செலுத்த வேண்டிய மொத்த தொகை",
+  "pay": "செலுத்துங்கள்",
+  "items": "உருப்படிகள்"
 }

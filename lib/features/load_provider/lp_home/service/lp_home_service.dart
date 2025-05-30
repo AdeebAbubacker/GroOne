@@ -37,6 +37,7 @@ class LpHomeService{
   }
 
 
+  /// Gwt Load
   Future<Result<GetLoadResponse>> getLoads({required String id}) async {
     try {
       final url = ApiUrls.getLoads+id;
@@ -55,6 +56,7 @@ class LpHomeService{
   }
 
 
+  /// Get Load Details
   Future<Result<LoadDetailResponse>> getLoadDetail({required String id}) async {
     try {
       final url = ApiUrls.loadDetail+id;

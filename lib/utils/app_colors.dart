@@ -90,6 +90,8 @@ class AppColors {
   static const Color titleTextColor = Color(0xFF5A6474);
   static const Color blueColor = Color(0xFF0A4DFF);
   static const Color uploadedDocBgColor = Color(0xFFF2F5FF);
+  static const Color greyContainerBackgroundColor = Color(0xffF5F5F5);
+  static const Color lightBlueIconBackgroundColor = Color(0xffE0EFF7);
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {

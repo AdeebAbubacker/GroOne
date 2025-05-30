@@ -49,3 +49,7 @@ app.*.map.json
 
 
 /pubspec.lock
+/lib/l10n/
+/lib/l10n/app_localizations_en.dart
+/lib/l10n/app_localizations_hi.dart
+/lib/l10n/app_localizations_ta.dart

@@ -11,12 +11,11 @@ import 'package:meta/meta.dart';
 part 'load_posting_event.dart';
 part 'load_posting_state.dart';
 
-class LoadPostingBloc extends Bloc<LoadPostingEvent, LoadPostingState> {
+class LoadPostingBloc extends Cubit<LoadPostingState> {
   final UserInformationRepository _informationRepository;
   final LpHomeRepository _lpHomeRepository;
   LoadPostingBloc(this._informationRepository, this._lpHomeRepository) : super(CreateLoadPostInitial()) {
     getUserId();
-    on<CreateLoadPostingEvent>(_onCreateLoadPosting);
   }
 
   // Get user Id
@@ -29,7 +28,7 @@ class LoadPostingBloc extends Bloc<LoadPostingEvent, LoadPostingState> {
 
 
   //  Create Load Posting API call
-  Future<void> _onCreateLoadPosting(CreateLoadPostingEvent event, Emitter<LoadPostingState> emit) async {
+  Future<void> loadPostingApiCall(CreateLoadPostingEvent event) async {
     emit(CreateLoadLoading());
     dynamic result = await _lpHomeRepository.getCreateLoadData(event.apiRequest);
     if (result is Success<CreateLoadModel>) {

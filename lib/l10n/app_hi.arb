@@ -137,7 +137,30 @@
   "markAsFavouriteTitle" : "पसंदीदा के रूप में चिह्नित करें",
   "markAsFavouriteSubtitle" : "क्या आप इस लोड के पसंदीदा के रूप में मार्क चाहते हैं?",
   "location" : "जगह",
-  "address" : "पता"
-
-
+  "address" : "पता",
+  "checkout": "चेक आउट",
+  "placeOrder": "अभी ऑर्डर दें",
+  "productDetails": "उत्पाद विवरण",
+  "addMoreItems": "अधिक आइटम जोड़ें",
+  "addVehicleDetails": "वाहन विवरण जोड़ें",
+  "gstKavach": "जीएसटी",
+  "optional": "वैकल्पिक",
+  "shippingAddress": "शिपिंग पता",
+  "billingAddress": "बिलिंग पता",
+  "addNewAddress": "नया पता जोड़ें",
+  "sameAsShippingAddress": "शिपिंग पते के समान",
+  "deliverHere": "यहां डिलीवरी करें",
+  "addressLine": "पता रेखा",
+  "city": "शहर",
+  "state": "राज्य",
+  "useMyCurrentLocation": "मेरे वर्तमान स्थान का उपयोग करें",
+  "summary": "सारांश",
+  "total": "कुल",
+  "proceedToPay": "चुकाने के लिए कार्रवाई शुरू करो",
+  "totalAmount": "कुल राशि",
+  "paymentDetails": "भुगतान विवरण",
+  "makePayment": "भुगतान करें",
+  "totalAmountToPay": "भुगतान करने के लिए कुल राशि",
+  "pay": "वेतन",
+  "items": "सामान"
 }

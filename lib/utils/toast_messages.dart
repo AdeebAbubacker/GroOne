@@ -18,9 +18,9 @@ class ToastMessages{
       isDismissible: false,
       boxShadows: const [
         BoxShadow(
-          color: Colors.black26,
-          blurRadius:  10.0, // soften the shadow
-          spreadRadius:  3.0, //extend the shadow
+          color: Colors.black12,
+          blurRadius:  5.0, // soften the shadow
+          spreadRadius:  1.5, //extend the shadow
         )
       ],
       icon: const Icon(Icons.wifi_off_rounded, size : 25,  color: AppColors.secondaryColor).paddingAll(10).paddingLeft(10),
@@ -37,9 +37,9 @@ class ToastMessages{
       isDismissible: false,
       boxShadows: const [
         BoxShadow(
-          color: Colors.black26,
-          blurRadius:  10.0, // soften the shadow
-          spreadRadius:  3.0, //extend the shadow
+          color: Colors.black12,
+          blurRadius:  5.0, // soften the shadow
+          spreadRadius:  1.5, //extend the shadow
         )
       ],
       icon: const Icon(Icons.check_circle_rounded, size : 25, color: Colors.green).paddingAll(10).paddingLeft(5),
@@ -56,9 +56,9 @@ class ToastMessages{
       isDismissible: false,
       boxShadows: const [
         BoxShadow(
-          color:  Colors.black26,
-          blurRadius:  10.0, // soften the shadow
-          spreadRadius: 3.0, //extend the shadow
+          color: Colors.black12,
+          blurRadius:  5.0, // soften the shadow
+          spreadRadius:  1.5, //extend the shadow
         )
       ],
       icon: const Icon(Icons.error, size : 25, color:  Colors.red).paddingAll(10).paddingLeft(5),
@@ -75,9 +75,9 @@ class ToastMessages{
       isDismissible: false,
       boxShadows: const [
         BoxShadow(
-          color:  Colors.black26,
-          blurRadius:  10.0, // soften the shadow
-          spreadRadius: 3.0, //extend the shadow
+          color: Colors.black12,
+          blurRadius:  5.0, // soften the shadow
+          spreadRadius:  1.5, //extend the shadow
         )
       ],
       icon: const Icon(Icons.error, size : 25, color:  Colors.orange).paddingAll(10).paddingLeft(5),
@@ -94,9 +94,9 @@ class ToastMessages{
       isDismissible: false,
       boxShadows: const [
         BoxShadow(
-          color:  Colors.black26,
-          blurRadius:  10.0, // soften the shadow
-          spreadRadius: 3.0, //extend the shadow
+          color: Colors.black12,
+          blurRadius:  5.0, // soften the shadow
+          spreadRadius:  1.5, //extend the shadow
         )
       ],
       icon: const Icon(Icons.warning_rounded, size : 25, color:  AppColors.secondaryColor).paddingAll(10).paddingLeft(5),

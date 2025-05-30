@@ -222,6 +222,10 @@ class AppTextStyle {
   static TextStyle body = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
   static TextStyle bodyGreyColor = body.copyWith(color: AppColors.greyTextColor);
   static TextStyle bodyWhiteColor = body.copyWith(color: Colors.white);
+  static TextStyle bodyWhiteColorW500 = body.copyWith(color: Colors.white, fontWeight: FontWeight.w500);
+  static TextStyle bodyGreyColorW500 = body.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500);
+  static TextStyle bodyBlackColorW500 = body.copyWith(color: Colors.black, fontWeight: FontWeight.w500);
+  static TextStyle bodyPrimaryColor = body.copyWith(color: AppColors.primaryColor, fontWeight: FontWeight.w500);
 
   /// --- Button ---
   // Primary
