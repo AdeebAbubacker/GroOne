@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -37,6 +38,29 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   final vpHomeBloc = locator<VpCreationBloc>();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() {
+    //  Call your init methods
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {
+
+  });
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -48,24 +72,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context){
     return CommonAppBar(
       isLeading: false,
-      leading:  BlocListener<VpCreationBloc, VpCreationState>(
-        bloc: vpHomeBloc,
-        listener: (context, state) {
-          if (state is LogoutSuccess) {
-            // navigateAndRemoveAllRoutes(context, screen: SplashScreen());
-            context.go(AppRouteName.splash);
-          }
-          if (state is LogoutError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-          }
-        },
-        child: InkWell(
-          onTap: (){
-            vpHomeBloc.add(LogoutRequested());
-          },
-          child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-        ),
-      ),
+      leading:Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         kycWidget(onTap: () {
           commonBottomSheetWithBGBlur(

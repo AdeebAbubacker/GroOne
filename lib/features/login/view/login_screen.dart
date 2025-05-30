@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart
 import 'package:gro_one_app/features/legal_detail_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -15,7 +16,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
-import '../../../service/hasInternet/has_internet_connection.dart';
+import '../../../service/has_internet_connection.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
@@ -69,7 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          InkWell(
+            onTap: (){
+              context.push(AppRouteName.lpBottomNavigationBar);
+            },
+            child: Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          ),
           30.width,
         ],
       ),
@@ -80,8 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber":
-                state.loginApiResponseModel.data.user.mobileNumber,
+                "mobileNumber": state.loginApiResponseModel.data.user.mobileNumber,
                 "otp": state.loginApiResponseModel.data.user.otp.toString(),
                 "roleId": widget.roleId.toString(),
               },
@@ -184,20 +189,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     15.height,
                     AppButton(
-                      disableButton: !(phoneNumber.text.length==10 && checkBoxBool==true),
+
                       isLoading: isLoading,
                       title: context.appText.getOtp,
-
+style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
-                        loginBloc.add(
-                          LoginInRequested(
-                            apiRequest: LoginApiRequest(
-                              mobile:phoneNumber.text,
-                              role: widget.roleId,
+                        if(phoneNumber.text.length==10 && checkBoxBool==true){
+                          loginBloc.add(
+                            LoginInRequested(
+                              apiRequest: LoginApiRequest(
+                                mobile:phoneNumber.text,
+                                role: widget.roleId,
+                              ),
                             ),
-                          ),
-                        );
-                        //context.push(AppRouteName.otpVerificationScreen);
+                          );
+                        }
+
+
                       },
                     ),
 

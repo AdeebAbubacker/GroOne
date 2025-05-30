@@ -876,6 +876,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **' seconds'**
   String get second;
+
+  /// No description provided for @dateAndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & Time'**
+  String get dateAndTime;
+
+  /// No description provided for @consignmentWeightWithMT.
+  ///
+  /// In en, this message translates to:
+  /// **'Consignment weight (MT)'**
+  String get consignmentWeightWithMT;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @markAsFavouriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Favourite'**
+  String get markAsFavouriteTitle;
+
+  /// No description provided for @markAsFavouriteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want mark as Favorite this load?'**
+  String get markAsFavouriteSubtitle;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

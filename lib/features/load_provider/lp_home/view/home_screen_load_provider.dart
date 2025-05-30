@@ -1,34 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/mark_as_favourite_dailog_ui.dart';
+import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
-
-import '../../../../dependency_injection/locator.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_dropdown2.dart';
 import '../../../../utils/app_image.dart';
-import '../../../../utils/app_text_field.dart';
-import '../../../../utils/common_functions.dart';
-import '../../../../utils/toast_messages.dart';
-import '../../../../utils/validator.dart';
-import '../../../kyc/api_request/addhar_verify_otp_request.dart';
-import '../../../kyc/bloc/kyc_bloc.dart';
 import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
@@ -39,11 +50,27 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
+  final lpHomeBloc = locator<LpHomeBloc>();
+  final vpHomeBloc = locator<VpCreationBloc>();
+  final loadPostingBloc = locator<LoadPostingBloc>();
+  final loadCommodityBloc = locator<LoadCommodityBloc>();
+  final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
+  final loadDetailBloc = locator<LoadListBloc>();
+  final dateTextController = TextEditingController();
+  final weightTextController = TextEditingController();
+
+  int selectedPercentage = 80;
+  final int baseAmount = 15000;
+
+  String hintCommodity = 'Commodity';
+  String? selectedCommodity;
+  String hintTruck = 'Truck';
+  String? selectedTruck;
+  String profileImage = "";
+  bool selectedValueCommodity = false;
+  bool selectedValueTruck = false;
   bool checkBoxBool = false;
-
-
-
-  final kycBloc = locator<KycBloc>();
+  bool memoDone = false;
 
   void _showBlueMemberDialogue() {
     showDialog(
@@ -92,104 +119,110 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
+  ProfileDetailResponse? profileResponse;
+  GetLoadResponse? getLoadResponse;
 
+  @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
 
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
 
+  void initFunction() => addPostFrameCallback(() async {
+    await lpHomeBloc.getUserId() ?? "";
+    CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
+    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+    loadCommodityBloc.add(LoadCommodity());
+    loadTruckTypeBloc.add(LoadTruckType());
+    CustomLog.debug(this, " User ID ${lpHomeBloc.userId}");
+    CustomLog.debug(this, "All Apis");
+    loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
+  });
 
-
-
+  void disposeFunction() => addPostFrameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(
-        leading: InkWell(
-          onTap: () {
-            Navigator.of(context).push(commonRoute(VPBottomNavigationBar()));
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Image.asset(
-              AppImage.png.appIcon,
-              height: 33.h,
-              width: 75.w,
-              scale: 1,
-            ),
-          ),
-        ),
-        toolbarHeight: 50.h,
-        actions: [
-          kycWidget(
-            onTap: () {
+      appBar: buildAppBarWidget(context),
 
+      body: buildBodyWidget(context),
+    );
+  }
 
-              commonBottomSheetWithBGBlur(
-                  context: context,
+  // Body
+  Widget buildBodyWidget(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        loadCommodityBloc.add(LoadCommodity());
+        loadTruckTypeBloc.add(LoadTruckType());
+        lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+        loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? "1"));
+      },
+      child: SingleChildScrollView(
+        child: BlocConsumer<LpHomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
 
-
-                  screen:  KycBottomSheet()
-
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
+            }
+            if (state is ProfileDetailError) {
+              ToastMessages.error(
+                message: getErrorMsg(errorType: state.errorType),
               );
-            },
-          ),
-          5.width,
-          InkWell(
-            onTap: () {
-              context.push(AppRouteName.lpProfile);
-            },
-            child: Container(
-              height: 36.h,
+            }
+          },
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
 
-              width: 36.w,
-              padding: EdgeInsets.all(4),
-              // Border width
-              decoration: BoxDecoration(
-                color: Colors.blue, // Border color
-                shape: BoxShape.circle,
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
+            }
+            return SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildKYCStatusWidget(),
+
+                  bookShipmentSectionWidget(context),
+                  20.height,
+
+                  upComingShipment(),
+                  20.height,
+                  valueAddedService(context),
+
+                  30.height,
+                ],
               ),
-              child: ClipOval(
-                child: Image.asset(
-                  AppImage.png.appIcon, // Replace with your image path
-
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-
-          20.width,
-        ],
-      ),
-
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            5.height,
-            keyStatusWidget(),
-            5.height,
-
-            bookShipmentSection(),
-            5.height,
-            valueAddedService(context),
-            upComingShipment(),
-            30.height,
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  keyStatusWidget() {
+  Widget buildKYCStatusWidget() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       color: AppColors.appRedColor,
-      height: 42.h,
+      height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(AppImage.png.alertTriangle, height: 24.h, width: 24.w),
+          Image.asset(AppImage.png.alertTriangle, width: 20),
           10.width,
           RichText(
             textAlign: TextAlign.center,
@@ -200,7 +233,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   style: AppTextStyle.textDarkGreyColor14w500,
                 ),
                 TextSpan(
-                  text: " ${context.appText.kyc} ",
+                  text: "  ${context.appText.kyc}  ",
                   style: AppTextStyle.textDarkGreyColor14w500.copyWith(
                     color: AppColors.orangeTextColor,
                   ),
@@ -218,146 +251,239 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
   upComingShipment() {
-    return Container(
-      color: AppColors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-        child: Column(
-          spacing: 10.h,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.appText.upComingShipment,
-              style: AppTextStyle.textBlackColor18w500,
-            ),
+    return BlocConsumer(
+      bloc: loadDetailBloc,
+      builder: (context, state) {
+        return Container(
+          color: AppColors.white,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+            child: Column(
+              spacing: 10.h,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.appText.upComingShipment,
+                  style: AppTextStyle.textBlackColor18w500,
+                ),
 
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                spacing: 5.h,
-                children: [
-                  ListTile(
-                    leading: Image.asset(
-                      AppImage.png.shipmentBox,
-                      height: 39.h,
-                      width: 39.w,
-                    ),
-                    title: Text(
-                      context.appText.idNumber,
-                      style: AppTextStyle.textGreyDetailColor10w400,
-                    ),
-                    subtitle: Text(
-                      "GD12456",
-                      style: AppTextStyle.blackColor16w400,
-                    ),
-                    trailing: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 30.w,
-                        vertical: 5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightPurpleColor,
-
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      child: Text(
-                        "Sourcing",
-                        style: AppTextStyle.whiteColor14w400.copyWith(
-                          color: AppColors.purpleColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  dividerWidget(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        spacing: 10.h,
-                        children: [
-                          Text(
-                            "14 Jul, 2025",
-                            style: AppTextStyle.textGreyDetailColor10w400,
-                          ),
-                          Text(
-                            "T. Nagar",
-                            style: AppTextStyle.blackColor16w400,
-                          ),
-                        ],
-                      ),
-                      Icon(Icons.arrow_forward, color: AppColors.primaryColor),
-                      Column(
-                        spacing: 10.h,
-                        children: [
-                          Text(
-                            "14 Jul, 2025",
-                            style: AppTextStyle.textGreyDetailColor10w400,
-                          ),
-                          Text(
-                            "T. Nagar",
-                            style: AppTextStyle.blackColor16w400,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  10.height,
-                  memoDone
-                      ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Expanded(
-                            child: AppButton(
-                              buttonHeight: 32.h,
-                              style: AppButtonStyle.outline,
-                              title: "Pay Now",
-                              onPressed: () {
-                                context.push(AppRouteName.lpPayNowAndTrackLoad);
-                              },
-                            ),
-                          ),
-                          15.width,
-                          Expanded(
-                            child: AppButton(
-                              buttonHeight: 32.h,
-                              style: AppButtonStyle.outline,
-                              title: "Track Load",
-                              onPressed: () {
-                                context.push(AppRouteName.lpPayNowAndTrackLoad);
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                      : Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        child: AppButton(
-                          buttonHeight: 32.h,
-                          style: AppButtonStyle.outline,
-                          title: context.appText.iAgreeTripToGo,
-                          onPressed: () {
-                            showAdvancePaymentDialogue(context: context);
+                getLoadResponse != null
+                    ? getLoadResponse!.data.isNotEmpty
+                        ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: getLoadResponse!.data.length,
+                          itemBuilder: (context, index) {
+                            final loadData = getLoadResponse!.data[index];
+                            return upcomingShipmentTileWidget(loadData);
                           },
-                        ),
-                      ),
-                  5.height,
+                        )
+                        : Center(
+                          child: Image.asset(
+                            width: 201.w,
+                            height: 134.h,
+                            AppImage.png.noShipment,
+                          ),
+                        )
+                    : Center(child: CircularProgressIndicator()),
+
+                ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
+              ],
+            ),
+          ),
+        );
+      },
+      listener: (context, state) {
+        if (state is GetLoadSuccess) {
+          getLoadResponse = state.getLoadResponse;
+          //    loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
+        } else if (state is GetLoadError) {
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        }
+      },
+    );
+  }
+
+  upcomingShipmentTileWidget(LoadData loadData) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
+      decoration: BoxDecoration(
+        color: AppColors.blackishWhite,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        spacing: 5.h,
+        children: [
+          ListTile(
+            leading: Image.asset(
+              AppImage.png.shipmentBox,
+              height: 39.h,
+              width: 39.w,
+            ),
+            title: Text(
+              context.appText.idNumber,
+              style: AppTextStyle.textGreyDetailColor10w400,
+            ),
+            subtitle: Text("GD12456", style: AppTextStyle.blackColor16w400),
+            trailing: Container(
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 5.h),
+              decoration: BoxDecoration(
+                color: AppColors.lightPurpleColor,
+
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: Text(
+                "Sourcing",
+                style: AppTextStyle.whiteColor14w400.copyWith(
+                  color: AppColors.purpleColor,
+                ),
+              ),
+            ),
+          ),
+          dividerWidget(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                spacing: 10.h,
+                children: [
+                  Text(
+                    loadData.dueDate != null
+                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                        : "--",
+                    style: AppTextStyle.textGreyDetailColor10w400,
+                  ),
+                  Text(
+                    loadData.pickUpAddr,
+                    style: AppTextStyle.blackColor16w400,
+                  ),
                 ],
               ),
-            ),
-
-            ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
-          ],
-        ),
+              Icon(Icons.arrow_forward, color: AppColors.primaryColor),
+              Column(
+                spacing: 10.h,
+                children: [
+                  Text(
+                    loadData.dueDate != null
+                        ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
+                        : "--",
+                    style: AppTextStyle.textGreyDetailColor10w400,
+                  ),
+                  Text(loadData.dropAddr, style: AppTextStyle.blackColor16w400),
+                ],
+              ),
+            ],
+          ),
+          10.height,
+          memoDone
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      style: AppButtonStyle.outline,
+                      title: "Pay Now",
+                      onPressed: () {
+                        context.push(AppRouteName.lpPayNowAndTrackLoad);
+                      },
+                    ),
+                  ),
+                  15.width,
+                  Expanded(
+                    child: AppButton(
+                      buttonHeight: 32.h,
+                      style: AppButtonStyle.outline,
+                      title: "Track Load",
+                      onPressed: () {
+                        context.push(AppRouteName.lpPayNowAndTrackLoad);
+                      },
+                    ),
+                  ),
+                ],
+              )
+              : Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: AppButton(
+                  buttonHeight: 32.h,
+                  style: AppButtonStyle.outline,
+                  title: context.appText.iAgreeTripToGo,
+                  onPressed: () {
+                    showAdvancePaymentDialogue(context: context);
+                  },
+                ),
+              ),
+          5.height,
+        ],
       ),
     );
   }
 
-  int selectedPercentage = 80;
-  final int baseAmount = 15000;
-  bool memoDone = false;
+  // Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+    return CommonAppBar(
+      isLeading: false,
+      leading: BlocListener<VpCreationBloc, VpCreationState>(
+        bloc: vpHomeBloc,
+        listener: (context, state) {
+          if (state is LogoutSuccess) {
+            context.go(AppRouteName.splash);
+          }
+          if (state is LogoutError) {
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
+          }
+        },
+        child: InkWell(
+          onTap: () => vpHomeBloc.add(LogoutRequested()),
+          child: Image.asset(
+            AppIcons.png.appIcon,
+          ).paddingLeft(commonSafeAreaPadding),
+        ),
+      ),
+      actions: [
+        // KYC
+        kycWidget(
+          onTap: () {
+            commonBottomSheetWithBGBlur(
+              context: context,
+
+              screen: KycBottomSheet(),
+            );
+          },
+        ),
+        10.width,
+
+        // Profile
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              commonRoute(
+                LpProfileScreen(profileData: profileResponse!.data!),
+                isForward: true,
+              ),
+            ).then((v) {
+              addPostFrameCallback(
+                () => lpHomeBloc.add(
+                  ProfileDetailRequested(lpHomeBloc.userId ?? ""),
+                ),
+              );
+            });
+          },
+          child: commonCacheNetworkImage(
+            radius: 50,
+            height: 40,
+            width: 40,
+            path: profileImage ?? "",
+            errorImage: AppImage.png.userProfileError,
+          ).paddingRight(commonSafeAreaPadding),
+        ),
+      ],
+    );
+  }
 
   Future showAdvancePaymentDialogue({required BuildContext context}) {
     return showDialog(
@@ -434,6 +560,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   setState(() {});
                 });
               },
+              disableButton: false,
               buttonText: context.appText.verifyAdvance,
             );
           },
@@ -442,242 +569,304 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  bookShipmentSection() {
+  Widget bookShipmentSectionWidget(BuildContext context) {
+    // Inner inside Widget
+    Widget bookShipmentWidget({
+      required String heading,
+      required String subHeading,
+      required GestureTapCallback onClick,
+    }) {
+      return InkWell(
+        onTap: onClick,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 3,
+              children: [
+                Text(heading, style: AppTextStyle.textGreyColor12w400),
+                Text(subHeading, style: AppTextStyle.body),
+              ],
+            ),
+            Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
+          ],
+        ),
+      );
+    }
+
     return Container(
       color: AppColors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10.h,
-          children: [
-            Text(
-              context.appText.bookShipment,
-              style: AppTextStyle.textBlackColor18w500,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(context.appText.bookShipment, style: AppTextStyle.body1),
+          15.height,
+
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
             ),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.borderDisableColor,
-                  width: 0.6.w,
+            child: Row(
+              children: [
+                Image.asset(
+                  AppImage.png.bookAShipment,
+                  width: 18,
+                  fit: BoxFit.fitHeight,
                 ),
-                borderRadius: BorderRadius.circular(8),
-                color: AppColors.backGroundBlue,
-              ),
-              child: Row(
-                children: [
-                  Image.asset(
-                    AppImage.png.bookAShipment,
-                    height: 86.h,
-                    width: 18.h,
-                  ),
-                  10.width,
-                  Expanded(
-                    child: Column(
-                      children: [
-                        bookShipmentWidget(
-                          heading: context.appText.source,
-                          subHeading: context.appText.selectPickUpPoint,
-                          onClick: () {
-                            context.push(AppRouteName.lpSelectPickPointScreen);
-                          },
-                        ),
+                10.width,
 
-                        Divider(color: AppColors.disableColor, thickness: 0.5),
-                        bookShipmentWidget(
-                          heading: context.appText.destination,
-                          subHeading: context.appText.selectDestination,
-                          onClick: () {
-                            context.push(AppRouteName.lpSelectPickPointScreen);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            AppDropdown(
-              hintText: hintCommodity,
-              onSelect: (value) {
-                selectedCommodity = commodities[value]['label'];
-                selectedValueCommodity = false;
-                setState(() {});
-              },
-              dataList: commodities,
-              selectedText: selectedCommodity,
-              viewDroDown: selectedValueCommodity,
-              onTab: () {
-                selectedValueCommodity = !selectedValueCommodity;
-                setState(() {});
-              },
-            ),
-
-            AppDropdown(
-              hintText: hintTruck,
-              onSelect: (value) {
-                selectedTruck = truck[value]['label'];
-                selectedValueTruck = false;
-                setState(() {});
-              },
-              dataList: truck,
-              selectedText: selectedTruck,
-              viewDroDown: selectedValueTruck,
-              onTab: () {
-                selectedValueTruck = !selectedValueTruck;
-                setState(() {});
-              },
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.borderDisableColor,
-                  width: 0.6.w,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                color: AppColors.backGroundBlue,
-              ),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Suggested Price",
-                        style: AppTextStyle.textDarkGreyColor14w400,
-                      ),
-                      Text(
-                        "₹75,000 - ₹80, 000",
-                        style: AppTextStyle.textBlackColor16w500,
-                      ),
-                    ],
-                  ),
-                  Expanded(child: const SizedBox.shrink()),
-                  Expanded(
-                    flex: 2,
-                    child: AppButton(
-                      title: context.appText.postLoad,
-
-                      onPressed: () async {
-                        showSuccessDialog(
-                          context,
-                          text: "Load Posted Successfully",
-                          subheading:
-                              "We will assign the vehicle and\ndriver soon.",
-                        );
-
-                        await Future.delayed(
-                          const Duration(seconds: 2),
-                          () async {},
-                        );
-                        context.pop();
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          // Dismiss only with button if needed
-                          builder: (BuildContext context) {
-                            return showAlertDialogue(
-                              context: context,
-                              onClickYesButton: () {},
-                              child: Column(
-                                spacing: 20.h,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: GestureDetector(
-                                      onTap: () => Navigator.of(context).pop(),
-                                      child: const Icon(Icons.close, size: 24),
-                                    ),
-                                  ),
-
-                                  // Illustration
-                                  Image.asset(
-                                    AppImage.png.markAsFavourite,
-                                    // replace with your image asset
-                                    height: 150,
-                                  ),
-
-                                  // Title
-                                  const Text(
-                                    "Mark as Favourite",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  // Subtitle
-                                  const Text(
-                                    "Do you want mark as Favorite this load?",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                Column(
+                  children: [
+                    // Source
+                    bookShipmentWidget(
+                      heading: context.appText.source,
+                      subHeading: context.appText.selectPickUpPoint,
+                      onClick: () {
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSelectPickPointScreen(),
+                            isForward: true,
+                          ),
                         );
                       },
                     ),
+
+                    commonDivider(),
+
+                    // Destination
+                    bookShipmentWidget(
+                      heading: context.appText.destination,
+                      subHeading: context.appText.selectDestination,
+                      onClick: () {
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSelectPickPointScreen(),
+                            isForward: true,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ).expand(),
+              ],
+            ),
+          ),
+          15.height,
+
+          // Commodity selection
+          BlocListener<LoadCommodityBloc, LoadCommodityState>(
+            bloc: loadCommodityBloc,
+            listener: (context, state) {
+              if (state is LoadCommodityError) {
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
+              }
+            },
+            child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+              bloc: loadCommodityBloc,
+              builder: (context, state) {
+                if (state is LoadCommoditySuccess) {
+                  final commodities = state.commodityListModel.data;
+                  return LPCommodityDropdown(
+                    preFixIcon: AppIcons.svg.commodity,
+                    hintText: hintCommodity,
+                    onSelect: (index) async {
+                      selectedCommodity = commodities[index].name;
+                      setState(() {});
+                    },
+                    dataList: commodities,
+                    selectedText: selectedCommodity,
+                    viewDropDown: selectedValueCommodity,
+                    onTab: () {
+                      selectedValueCommodity = !selectedValueCommodity;
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+          15.height,
+
+          // Truck selection
+          BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
+            bloc: loadTruckTypeBloc,
+            listener: (context, state) {
+              print("Truck type state : ${state}");
+              if (state is LoadTruckTypeError) {
+                ToastMessages.error(
+                  message: getErrorMsg(errorType: state.errorType),
+                );
+              }
+            },
+            child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
+              bloc: loadTruckTypeBloc,
+              builder: (context, state) {
+                if (state is LoadTruckTypeSuccess) {
+                  final truckTypes = state.loadTruckTypeListModel.data;
+                  return LPTruckTypeDropdown(
+                    preFixIcon: AppIcons.svg.truck,
+                    hintText: hintTruck,
+                    onSelect: (index) async {
+                      selectedTruck =
+                          "${truckTypes[index].type} ${truckTypes[index].subType}";
+                      setState(() {});
+                    },
+                    dataList: truckTypes,
+                    selectedText: selectedTruck,
+                    viewDropDown: selectedValueTruck,
+                    onTab: () {
+                      selectedValueTruck = !selectedValueTruck;
+                      setState(() {});
+                    },
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ),
+
+          15.height,
+
+          // Date and Time
+          InkWell(
+            onTap: () async {
+              final String? date = await commonDatePicker(
+                context,
+                firstDate: DateTime.now(),
+                initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(
+                  dateTextController.text,
+                ),
+              );
+              if (date != null) {
+                dateTextController.text = date;
+              } else {
+                dateTextController.clear();
+              }
+              setState(() {});
+            },
+            child: Container(
+              height: 55,
+              padding: EdgeInsets.all(10),
+              decoration: commonContainerDecoration(
+                color: AppColors.lightPrimaryColor2,
+                borderColor: AppColors.borderColor,
+              ),
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    AppIcons.svg.calendar,
+                    width: 20,
+                    colorFilter: AppColors.svg(AppColors.primaryIconColor),
+                  ),
+                  12.width,
+                  Text(
+                    dateTextController.text.isEmpty
+                        ? context.appText.dateAndTime
+                        : dateTextController.text,
+                    style: AppTextStyle.body,
+                  ).expand(),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.greyIconColor,
+                    size: 20,
                   ),
                 ],
               ),
             ),
-            5.height,
-            InkWell(
-              onTap: () {
-                showCustomerCareBottomSheet(context);
-              },
-              child: Center(
-                child: Text(
-                  "Need Our Customer Support Help?",
-                  style: AppTextStyle.primaryColor14w400UnderLine,
+          ),
+          20.height,
+
+          // Consignment weight (MT)
+          Container(
+            height: 55,
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
+            child: Row(
+              children: [
+                SvgPicture.asset(AppIcons.svg.kgWeight),
+                12.width,
+                TextFormField(
+                  controller: weightTextController,
+                  autofocus: false,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    hintText: context.appText.consignmentWeightWithMT,
+                    hintStyle: AppTextStyle.body,
+                    maintainHintHeight: true,
+                  ),
+                ).expand(),
+              ],
+            ),
+          ),
+          20.height,
+
+          // Suggested Price
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonContainerDecoration(
+              color: AppColors.lightPrimaryColor2,
+              borderColor: AppColors.borderColor,
+            ),
+            child: Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Suggested Price",
+                      style: AppTextStyle.textDarkGreyColor14w400,
+                    ),
+                    Text(
+                      "₹75,000 - ₹80, 000",
+                      style: AppTextStyle.textBlackColor16w500,
+                    ),
+                  ],
                 ),
+                SizedBox.shrink().expand(),
+
+                AppButton(
+                  title: context.appText.postLoad,
+                  onPressed: () async {
+                    AppDialog.show(context, child: MarkAsFavouriteDialogUi());
+                    //AppDialog.show(context, child: SuccessDialogView());
+                  },
+                ).expand(flex: 2),
+              ],
+            ),
+          ),
+          20.height,
+
+          // Need Support Next
+          InkWell(
+            onTap: () {
+              showCustomerCareBottomSheet(context);
+            },
+            child: Center(
+              child: Text(
+                "Need Our Customer Support Help?",
+                style: AppTextStyle.primaryColor14w400UnderLine,
               ),
             ),
-            5.height,
-          ],
-        ),
-      ),
-    );
-  }
-
-  bookShipmentWidget({
-    required String heading,
-    required String subHeading,
-    required GestureTapCallback onClick,
-  }) {
-    return InkWell(
-      onTap: onClick,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 2.h,
-            children: [
-              Text(heading, style: AppTextStyle.textGreyColor12w400),
-              Text(subHeading, style: AppTextStyle.textBlackColor12w400),
-            ],
           ),
-          Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
         ],
-      ),
+      ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
 
-  String hintCommodity = 'Commodity';
-  String? selectedCommodity;
-  String hintTruck = 'Truck';
-  String? selectedTruck;
-  bool selectedValueCommodity = false;
-  bool selectedValueTruck = false;
   final List<Map<String, dynamic>> commodities = [
     {'label': 'Agriculture', 'icon': Icons.grass},
     {'label': 'Parcels', 'icon': Icons.inventory_2},

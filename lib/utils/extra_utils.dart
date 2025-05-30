@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -121,10 +122,10 @@ profileWidget({
   return InkWell(
     onTap: onTap,
     child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 22.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 13.h),
       child: Row(
         children: [
-          Image.asset(imageString, height: 20.h, width: 20.w),
+      SvgPicture.asset(imageString, height: 20.h, width: 20.w),
           10.width,
           Text(
             text,
@@ -188,14 +189,14 @@ showCustomDialogue({
           child,
           30.height,
           AppButton(
-            disableButton: disableButton,
+            style: !disableButton?AppButtonStyle.primary:AppButtonStyle.disableButton,
             title: buttonText,
-            onPressed:
+            onPressed:!disableButton?
                 onClickButton ??
                 () {
                   // Handle verify action here
                   Navigator.pop(context);
-                },
+                }:null,
           ),
           child2 ?? const SizedBox(),
         ],
@@ -224,6 +225,7 @@ showAlertDialogue({
   required GestureTapCallback onClickYesButton,
   bool hideButtonButtons = false,
   String? yesButtonText,
+  String? noButtonText,
 }) {
   return Dialog(
     backgroundColor: AppColors.white,
@@ -248,7 +250,7 @@ showAlertDialogue({
                     child: AppButton(
                       buttonHeight: 32.h,
                       style: AppButtonStyle.outline,
-                      title: "No",
+                      title: noButtonText??"No",
                       onPressed: () {
                         context.pop();
                       },

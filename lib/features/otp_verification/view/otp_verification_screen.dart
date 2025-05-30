@@ -8,12 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/otp_request.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
+import 'package:gro_one_app/features/otp_verification/model/otp_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../dependency_injection/locator.dart';
@@ -46,13 +48,13 @@ class OtpVerificationScreen extends StatefulWidget {
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final otpBloc = locator<OtpBloc>();
   String otpString = "";
-  late final SecuredSharedPreferences _secureSharedPrefs;
+
   int _start = 52;
   Timer? _timer;
 
   void startTimer() {
     setState(() {
-      _start = 52;
+      _start = 10;
       _isButtonEnabled = false;
     });
 
@@ -84,6 +86,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   bool _isButtonEnabled = false;
+
+  void homeRedirection(OtpResponse data, BuildContext context,{required tempFlag}) => addPostFrameCallback((){
+    if (int.parse(widget.roleId) == 1) {
+      tempFlag?context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber}):context.push(AppRouteName.lpBottomNavigationBar);
+    } else if (int.parse(widget.roleId) == 2) {
+      tempFlag?Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString(),mobileNumber:widget.mobileNumber), isForward: true)):context.push(AppRouteName.vpBottomNavigationBar);
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,23 +130,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           }
           if (state is OtpSuccess) {
             if (state.otpResponse.data!.user!.tempflg) {
-              if (int.parse(widget.roleId) == 1) {
-                context.push(
-                  AppRouteName.lpCreateAccount,
-                  extra: {"id": state.otpResponse.data!.user!.id.toString()},
-                );
-              } else if (int.parse(widget.roleId) == 2) {
-                Navigator.push(context, commonRoute(VpCreationFormScreen(id: state.otpResponse.data!.user!.id.toString()), isForward: true),);
-              }
+               homeRedirection(state.otpResponse, context,tempFlag: state.otpResponse.data!.user!.tempflg);
             } else {
               showSuccessDialog(
                 onTap: () {
-                  context.push(AppRouteName.lpBottomNavigationBar);
+                //  context.push(AppRouteName.lpBottomNavigationBar);
                 },
                 context,
                 text: context.appText.loginSuccessful,
                 subheading: context.appText.loginSuccessfulSubHeading,
               );
+              await Future.delayed(Duration(seconds: 2));
+              if(!context.mounted) return;
+              homeRedirection(state.otpResponse, context,tempFlag:state.otpResponse.data!.user!.tempflg);
             }
           } else if (state is OtpError) {
             otpString = "";
@@ -193,7 +199,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         showFieldAsBox: true,
                         fieldWidth: 60,
                         borderColor: AppColors.borderDisableColor,
-                        onCodeChanged: (String code) {},
+                        onCodeChanged: (String code) {
+
+                          otpString=code;
+                          setState(() {});},
 
                         onSubmit: (String verificationCode) {
                           otpString = verificationCode;
@@ -208,17 +217,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     AppButton(
                       title: context.appText.verifyCode,
                       isLoading: isLoading,
-                      disableButton: otpString.length == 4 ? false : true,
+                   //   disableButton: otpString.length == 4 ? false : true,
+                      style: otpString.length == 4 ?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
-                        otpBloc.add(
-                          OtpRequested(
-                            apiRequest: OtpRequest(
-                              mobile: widget.mobileNumber,
-                              role: int.parse(widget.roleId),
-                              otp: int.parse(widget.otp),
-                            ),
-                          ),
-                        );
+                       if(otpString.length == 4 ) {
+                         otpBloc.add(
+                           OtpRequested(
+                             apiRequest: OtpRequest(
+                               mobile: widget.mobileNumber,
+                               role: int.parse(widget.roleId),
+                               otp: int.parse(widget.otp),
+                             ),
+                           ),
+                         );
+                       }
                       },
                     ),
                     5.height,

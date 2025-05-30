@@ -12,21 +12,20 @@ class AppButton extends StatelessWidget {
   final ButtonStyle? style;
   final bool? isLoading;
   final double? buttonHeight;
-
   final Widget? richTextWidget;
-  final  bool disableButton;
 
-  const AppButton({super.key, this.onPressed,this.buttonHeight,this.richTextWidget, this.isLoading = false, this.title, this.textStyle,  this.style,this.disableButton=false,});
+
+  const AppButton({super.key, this.onPressed,this.buttonHeight,this.richTextWidget, this.isLoading = false, this.title, this.textStyle,  this.style,});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(height: buttonHeight,
       child: ElevatedButton(
-        onPressed: !disableButton?isLoading == true ? (){} : (){
+        onPressed: isLoading == true ? (){} : (){
           commonHapticFeedback();
           onPressed?.call();
-        }:null,
-        style: isLoading == true ? AppButtonStyle.disableButton : disableButton?AppButtonStyle.disableButton: (style ?? AppButtonStyle.primary),
+        },
+        style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
         child: isLoading == true
             ? const CupertinoActivityIndicator()
             : richTextWidget??Text(title.capitalize,

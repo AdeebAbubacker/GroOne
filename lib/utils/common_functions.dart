@@ -73,14 +73,11 @@ Future<String?> commonDatePicker(BuildContext context, {DateTime? initialDate, D
       return Theme(
         data: ThemeData.light().copyWith(
           colorScheme: const ColorScheme.light(
-            primary: AppColors.secondaryColor, // Selection color
+            primary: AppColors.primaryColor, // Selection color
             onPrimary: Colors.white, // Text color on selection
-            onSurface: Colors.black, // Text color
+            onSurface: AppColors.primaryTextColor, // Text color
           ),
-          textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.secondaryColor, // Button text color
-            ),
+          textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
           ),
         ),
         child: child!,

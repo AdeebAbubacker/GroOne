@@ -10,6 +10,18 @@ import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/repository/profile_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_profile/service/profile_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/bloc/lp_map_select_pick_point_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/repository/lp_map_select_pick_point_repository.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/login_repository.dart';
@@ -26,6 +38,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creati
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
 import 'package:gro_one_app/helpers/analytics_helper.dart';
+import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../features/choose_role_screen/bloc/role_bloc.dart';
@@ -48,24 +61,23 @@ void initLocator() {
     locator.registerLazySingleton(() => const FlutterSecureStorage());
     locator.registerLazySingleton(() => SecuredSharedPreferences(locator<FlutterSecureStorage>()));
 
-
     // Firebase
     locator.registerLazySingleton(() => AnalyticsHelper());
-
 
     // Auth Services
     locator.registerLazySingleton<Dio>(() => Dio());
     locator.registerLazySingleton(() => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()));
 
-
     // Service
     locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(() => LocationService());
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
     locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
-
+    locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -74,22 +86,31 @@ void initLocator() {
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(() => LpMapSelectPickPointRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(),locator<AuthRepository>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
+    locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
+    locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
-
 
     // Bloc
     locator.registerFactory(() => LanguageBloc());
     locator.registerFactory(() => RoleBloc());
     locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
-    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>(), locator<UserInformationRepository>()));
     locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
     locator.registerFactory(() => KycBloc(locator<KycRepository>()));
+    locator.registerFactory(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
+    locator.registerFactory(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
+    locator.registerFactory(() => LoadListBloc(locator<LpHomeRepository>(),));
+    locator.registerFactory(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
+    locator.registerFactory(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
+    locator.registerFactory(() => LoadCommodityBloc(locator<LpHomeRepository>()));
+    locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

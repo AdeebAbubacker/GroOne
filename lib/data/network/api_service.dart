@@ -8,7 +8,7 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
-import 'package:gro_one_app/service/hasInternet/has_internet_connection.dart';
+import 'package:gro_one_app/service/has_internet_connection.dart';
 
 
 class ApiService {
@@ -50,7 +50,7 @@ class ApiService {
 
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url,n\,QueryParams : $queryParams");
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if(HasInternetConnection.isInternet != true){
         return Error(InternetNetworkError());

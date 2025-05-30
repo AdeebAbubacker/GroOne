@@ -16,21 +16,6 @@ class LpCreateBloc extends Bloc<LpCreateEvent, LpCreateState> {
   final LpCreateRepository _repository;
 
   LpCreateBloc(this._repository) : super(LpCreateInitial()) {
-    // on<LpCreateRequested>((event, emit) async {
-    //   emit(LpCreateLoading());
-    //   Result result = await _repository.lpCreateRegistration(
-    //     event.apiRequest,
-    //     id: event.id,
-    //   );
-    //
-    //   if (result is Success<UserModel?>) {
-    //     emit(LpCreateSuccess(result.value));
-    //   }
-    //   if (result is Error) {
-    //     emit(LpCreateError(result.type));
-    //   }
-    // });
-    // Vehicle provider creation api call
     on<LpCreateRequested>((event, emit) async {
       emit(LpCreateLoading());
       Result result = await _repository.lpCreateRegistration(event.apiRequest, id: event.id);

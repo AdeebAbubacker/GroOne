@@ -397,4 +397,28 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get second => ' விநாடிகள்';
+
+  @override
+  String get dateAndTime => 'தேதி & நேரம்';
+
+  @override
+  String get consignmentWeightWithMT => 'சரக்கு எடை (எம்டி)';
+
+  @override
+  String get yes => 'ஆம்';
+
+  @override
+  String get no => 'இல்லை';
+
+  @override
+  String get markAsFavouriteTitle => 'பிடித்தவராக குறி';
+
+  @override
+  String get markAsFavouriteSubtitle => 'இந்த சுமைக்கு பிடித்த மார்க் வேண்டுமா?';
+
+  @override
+  String get location => 'இடம்';
+
+  @override
+  String get address => 'முகவரி';
 }

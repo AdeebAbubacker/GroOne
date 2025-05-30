@@ -129,5 +129,15 @@
   "select": "தேர்வு செய்க",
   "continueText": "தொடரவும்",
   "inText": " இல் ",
-  "second": " விநாடிகள்"
+  "second": " விநாடிகள்",
+  "dateAndTime" : "தேதி & நேரம்",
+  "consignmentWeightWithMT" : "சரக்கு எடை (எம்டி)",
+  "yes" : "ஆம்",
+  "no" : "இல்லை",
+  "markAsFavouriteTitle" : "பிடித்தவராக குறி",
+  "markAsFavouriteSubtitle" : "இந்த சுமைக்கு பிடித்த மார்க் வேண்டுமா?",
+  "location" : "இடம்",
+  "address" : "முகவரி"
+
+
 }

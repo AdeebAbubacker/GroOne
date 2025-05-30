@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -15,7 +14,6 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -24,10 +22,10 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 @immutable
 class KycUploadFile extends StatefulWidget {
   final List multiFilesList;
-  final bool? isSingleFile;
+  final bool? isSingleFile; final GestureTapCallback onPressedDeleteButton;
 
   final Function? thenUploadFileToSever;
-  const KycUploadFile({super.key, required this.multiFilesList, this.isSingleFile = false, this.thenUploadFileToSever});
+  const KycUploadFile({super.key, required this.onPressedDeleteButton, required this.multiFilesList, this.isSingleFile = false, this.thenUploadFileToSever});
 
   @override
   State<KycUploadFile> createState() => _KycUploadFile();
@@ -145,12 +143,7 @@ class _KycUploadFile extends State<KycUploadFile> {
                             10.width,
                             // AppIconButton(onPressed: (){}, icon: AppIcons.svg.edit)
                             AppIconButton(
-                              onPressed: (){
-                                widget.multiFilesList.removeAt(index);
-                                commonHapticFeedback();
-                                commonHideKeyboard(context);
-                                setState(() {});
-                              },
+                              onPressed: widget.onPressedDeleteButton,
                               icon: AppIcons.svg.delete,
                               iconColor: AppColors.activeRedColor,
                             ),

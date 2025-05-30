@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/bloc/lp_map_select_pick_point_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 
@@ -8,6 +13,7 @@ import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/kyc/bloc/kyc_bloc.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import 'features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
 
@@ -27,6 +33,12 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LpCreateBloc>(create: (_) => locator<LpCreateBloc>()),
         BlocProvider<KycBloc>(create: (_) => locator<KycBloc>()),
         BlocProvider<UploadRcTruckFileBloc>(create: (_) => locator<UploadRcTruckFileBloc>()),
+        BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
+        BlocProvider<LpMapSelectPickPointBloc>(create: (_) => locator<LpMapSelectPickPointBloc>()),
+        BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
+        BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
+        BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
+        BlocProvider<LoadListBloc>(create: (_) => locator<LoadListBloc>()),
       ],
       child: child,
     );

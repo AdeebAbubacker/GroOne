@@ -32,7 +32,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
-  const VpCreationFormScreen({super.key,required this.id});
+  final String mobileNumber;
+  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber});
 
   @override
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
@@ -92,6 +93,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
   void initFunction() => addPostFrameCallback(() {
+    mobileNumberTextController.text=widget.mobileNumber;
     CustomLog.debug(this, ApiUrls.baseUrl);
     CustomLog.debug(this, ApiUrls.createLpAccount);
     CustomLog.debug(this, ApiUrls.createVpAccount);
@@ -143,6 +145,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Phone Number
         AppTextField(
+          readOnly: true,
+
+
           validator: (value)=> Validator.phone(value),
           controller: mobileNumberTextController,
           labelText: context.appText.phoneNumber,
@@ -261,7 +266,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Upload Rc Truck Document
         BlocConsumer<UploadRcTruckFileBloc, UploadRcTruckFileState>(
-          bloc: uploadRcTruckFileBloc ,
+          bloc: uploadRcTruckFileBloc,
           listener: (context, state) {
             if (state is UploadRcTruckFileSuccess) {
               ToastMessages.success(message: "File uploaded successfully");
@@ -323,7 +328,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? null : () {
+          onPressed: isLoading ? (){} : () {
             if (formKey.currentState!.validate()){
 
               final request = VpCreationApiRequest(
@@ -336,8 +341,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   preferredLanes: preferredLanesDropDownValue,
                   uploadRc: uploadedRcFile ?? "",
               );
-
-              vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
+               vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
             }
           },
         );

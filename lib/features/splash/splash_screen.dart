@@ -6,10 +6,13 @@ import 'package:gro_one_app/enum/status.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:lottie/lottie.dart';
 import 'package:video_player/video_player.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,21 +22,28 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late VideoPlayerController _controller;
+
   final splashViewModel = locator<SplashViewModel>();
+
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
+
+
     _controller = VideoPlayerController.asset(AppImage.png.splash)
       ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
+        if (mounted) {
+          setState(() {});
+          _controller.play();
+        }
       });
 
     _controller.addListener(() {
       if (_controller.value.position == _controller.value.duration &&
-          _controller.value.isInitialized) {
-        context.push(AppRouteName.chooseLanguage);
+          _controller.value.isInitialized &&
+          mounted) {
+     //   context.push(AppRouteName.chooseLanguage);
       }
     });
     init(context);
@@ -47,18 +57,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
+    _controller.removeListener(() {}); // if you store the listener separately
     _controller.dispose();
+
     super.dispose();
   }
 
+
   //  Init Function
   Future<void> init(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 3), () async {
+    await Future.delayed(const Duration(seconds: 4), () async {
       await splashViewModel.fetchIsUserLogin();
     });
 
-    if (splashViewModel.checkIsUserLoginUIState != null &&
-        splashViewModel.checkIsUserLoginUIState?.status != null) {
+    if (splashViewModel.checkIsUserLoginUIState != null && splashViewModel.checkIsUserLoginUIState?.status != null) {
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.SUCCESS) {
         if (splashViewModel.checkIsUserLoginUIState!.data == true) {
           if (!context.mounted) return;
@@ -67,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
         if (!context.mounted) return;
-        addPostFrameCallback(() => context.go(AppRouteName.chooseLanguage));
+        addPostFrameCallback(()=> context.go(AppRouteName.chooseLanguage));
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
@@ -77,27 +89,17 @@ class _SplashScreenState extends State<SplashScreen> {
   // Check user type (1 LP, 2 VP, 3 Both, 4)
   _checkUserType(BuildContext context) async {
     await splashViewModel.fetchUserType();
-    if (splashViewModel.userRoleUIState != null &&
-        splashViewModel.userRoleUIState?.status != null) {
+    if (splashViewModel.userRoleUIState != null && splashViewModel.userRoleUIState?.status != null) {
       if (splashViewModel.userRoleUIState?.status == Status.ERROR) {
-        if (splashViewModel.userRoleUIState?.errorType != null) {
-          ToastMessages.error(
-            message: getErrorMsg(
-              errorType: splashViewModel.userRoleUIState!.errorType!,
-            ),
-          );
+        if(splashViewModel.userRoleUIState?.errorType != null){
+          ToastMessages.error(message: getErrorMsg(errorType: splashViewModel.userRoleUIState!.errorType!));
         } else {
           ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
         }
       }
       if (splashViewModel.userRoleUIState?.status == Status.SUCCESS) {
         if (splashViewModel.userRoleUIState?.data != null) {
-          addPostFrameCallback(
-            () => navigateHomeScreen(
-              splashViewModel.userRoleUIState!.data!,
-              context,
-            ),
-          );
+          addPostFrameCallback(()=> navigateHomeScreen(splashViewModel.userRoleUIState!.data!, context));
         }
       }
     } else {
@@ -106,28 +108,32 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Navigate Home Screen
-  void navigateHomeScreen(String userRole, BuildContext context) {
+  void navigateHomeScreen(String userRole, BuildContext context){
     if (userRole == "1") {
-      context.go(AppRouteName.lpBottomNavigationBar);
+      context.push(AppRouteName.lpBottomNavigationBar);
     } else if (userRole == "2") {
-      context.go(AppRouteName.vpBottomNavigationBar);
+      context.push(AppRouteName.vpBottomNavigationBar);
     } else {
-      context.go(AppRouteName.notFound);
+      context.push(AppRouteName.notFound);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          _controller.value.isInitialized
-              ? Center(
-                child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                ),
-              )
-              : const Center(child: CircularProgressIndicator()),
+      body: _controller.value.isInitialized
+          ? SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover, // or BoxFit.fill depending on your needs
+          child: SizedBox(
+            width: _controller.value.size.width,
+            height: _controller.value.size.height,
+            child: VideoPlayer(_controller),
+          ),
+        ),
+      )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }
