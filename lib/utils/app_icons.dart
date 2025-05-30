@@ -72,6 +72,8 @@ class SvgIcons {
   final String truck22Feet = "${_svgBasePath}truck_22_feet.svg";
   final String truck24Feet = "${_svgBasePath}truck_24_feet.svg";
   final String truck32Feet = "${_svgBasePath}truck_32_feet.svg";
+  final String call = "${_svgBasePath}call.svg";
+  final String tick = "${_svgBasePath}tick.svg";
 
 
 }
