@@ -98,7 +98,8 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
           if (state is ProfileUpdateSuccess) {
 
 
-          } else if (state is ProfileUpdateError) {
+          }
+          if (state is ProfileUpdateError) {
             ToastMessages.error(
               message: getErrorMsg(errorType: state.errorType),
             );

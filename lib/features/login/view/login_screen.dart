@@ -25,6 +25,7 @@ import '../../../utils/customButton.dart';
 import '../../../utils/toast_messages.dart';
 import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
+import 'widget/legal_detail_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.roleId});
@@ -224,7 +225,7 @@ style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary
                                 TapGestureRecognizer()
                                   ..onTap = () {
                                     // Handle terms & conditions tap
-                                    debugPrint('Terms & Conditions tapped');
+                                    Navigator.push(context,commonRoute(LegalDetailScreen(type: 'terms')));
                                   },
                           ),
                           TextSpan(
@@ -237,8 +238,7 @@ style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary
                             recognizer:
                                 TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Handle privacy policy tap
-                                    debugPrint('Privacy Policy tapped');
+                                    Navigator.push(context,commonRoute(LegalDetailScreen(type: 'privacy')));
                                   },
                           ),
                         ],
