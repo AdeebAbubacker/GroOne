@@ -40,7 +40,7 @@ class AppRouteName{
   static const String genericSuccess = "/genericSuccess";
 
   ///LP TripSchedulingScreen
-  static const String tripSchedulingWidget = "/tripSchedulingWidget";
+
   static const String tripSchedulingScreen = "/tripSchedulingScreen";
 
 }

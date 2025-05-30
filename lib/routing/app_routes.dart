@@ -42,18 +42,8 @@ class AppRoutes {
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
-      GoRoute(
-        path: AppRouteName.tripSchedulingWidget,
-        builder: (BuildContext context, GoRouterState state) {
-          return TripSchedulingWidget();
-        },
-      ),
-      GoRoute(
-        path: AppRouteName.tripSchedulingWidget,
-        builder: (BuildContext context, GoRouterState state) {
-          return TripSchedulingWidget();
-        },
-      ),
+
+
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {

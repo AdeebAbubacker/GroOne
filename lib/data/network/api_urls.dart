@@ -32,6 +32,8 @@ class ApiUrls {
   static String get _vp => "/vp";
   static String get _lp => "/lp";
   static String get _customer => "/customer";
+  static String get _vp_master => "/vp-master";
+
   static String get _rateDiscovery => "/ratediscovery";
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
 
@@ -53,6 +55,11 @@ class ApiUrls {
 
   /// VP Endpoints
   static final String  createVpAccount = "$_customerBaseUrl$_vp/";
+  static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
+  static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vp_master/vehicle/";
+  static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vp_master/driver/";
+
+  static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
 
   //submit Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";

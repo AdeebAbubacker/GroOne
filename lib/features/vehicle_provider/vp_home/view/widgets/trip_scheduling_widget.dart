@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -16,8 +17,9 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:intl/intl.dart';
 
 class TripSchedulingWidget extends StatefulWidget {
-  const TripSchedulingWidget({super.key});
-
+  const TripSchedulingWidget({super.key,required this.data,required this.onPressed});
+  final VpLoadsList data;
+  final Function() onPressed;
   @override
   State<TripSchedulingWidget> createState() => _TripSchedulingWidgetState();
 }
@@ -43,21 +45,21 @@ class _TripSchedulingWidgetState extends State<TripSchedulingWidget> {
                     children: [
                       Row(
                         children: [
-                          Text("Chennai", style: AppTextStyle.h4w500),
+                          Text(widget.data.pickUpAddr, style: AppTextStyle.h4w500),
                           Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
-                          Text("Bangolore", style: AppTextStyle.h4w500),
+                          Expanded(child: Text(widget.data.dropAddr, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis))),
                         ],
                       ),
-                      Text("Bloom Cosmetic Pvt Ltd", style: AppTextStyle.body3GreyColor),
+                      Text("GD12456", style: AppTextStyle.body3GreyColor),
                     ],
                   ),
 
                   leading: Container(
                     decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor, borderRadius: BorderRadius.circular(100)),
-                    child: SvgPicture.asset(AppIcons.svg.truck).paddingAll(10),
+                    child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
                   ),
 
-                  trailing: SvgPicture.asset(AppIcons.svg.call)
+                  trailing: SvgPicture.asset(AppIcons.svg.support)
               ),
 
 
@@ -69,7 +71,7 @@ class _TripSchedulingWidgetState extends State<TripSchedulingWidget> {
                     children: [
                       SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
                       10.width,
-                      Text("20 ft Closed Truck", style: AppTextStyle.body),
+                      Text(widget.data.truckType!.subType, style: AppTextStyle.body),
                     ],
                   ).expand(),
                   statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
@@ -83,7 +85,7 @@ class _TripSchedulingWidgetState extends State<TripSchedulingWidget> {
                     children: [
                       SvgPicture.asset(AppIcons.svg.package),
                       10.width,
-                      Text("Construction Material", style: AppTextStyle.body),
+                      Text(widget.data.commodity!.name, style: AppTextStyle.body),
                     ],
                   ).expand(),
                   Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
@@ -94,7 +96,7 @@ class _TripSchedulingWidgetState extends State<TripSchedulingWidget> {
                 children: [
                   SvgPicture.asset(AppIcons.svg.package),
                   10.width,
-                  Text("5 Ton", style: AppTextStyle.body),
+                  Text("${widget.data.consignmentWeight} Tonn", style: AppTextStyle.body),
                 ],
               ),
               20.height,
@@ -233,6 +235,12 @@ class _TripSchedulingWidgetState extends State<TripSchedulingWidget> {
             });
           },
         ),
+
+
+        AppButton(
+          onPressed: widget.onPressed,
+          title: context.appText.continueText,
+        )
 
 
       ],
