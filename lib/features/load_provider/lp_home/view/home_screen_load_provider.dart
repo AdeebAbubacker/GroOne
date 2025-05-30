@@ -587,13 +587,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 3,
-              children: [
-                Text(heading, style: AppTextStyle.textGreyColor12w400),
-                Text(subHeading, style: AppTextStyle.body),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 3,
+                children: [
+                  Text(heading, style: AppTextStyle.textGreyColor12w400,),
+                  Text(subHeading, style: AppTextStyle.body),
+                ],
+              ),
             ),
             Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
           ],
