@@ -39,4 +39,8 @@ class AppRouteName{
   /// Navigate Type bool field [residentHome] , [securityHome] , [goBack]
   static const String genericSuccess = "/genericSuccess";
 
+  ///LP TripSchedulingScreen
+  static const String tripSchedulingWidget = "/tripSchedulingWidget";
+  static const String tripSchedulingScreen = "/tripSchedulingScreen";
+
 }

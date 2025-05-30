@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/our_value_added_service/view/insurance/view
 
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/trip_scheduling_widget.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -41,6 +42,18 @@ class AppRoutes {
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       // Splash
+      GoRoute(
+        path: AppRouteName.tripSchedulingWidget,
+        builder: (BuildContext context, GoRouterState state) {
+          return TripSchedulingWidget();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.tripSchedulingWidget,
+        builder: (BuildContext context, GoRouterState state) {
+          return TripSchedulingWidget();
+        },
+      ),
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {

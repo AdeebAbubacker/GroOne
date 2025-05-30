@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/vehicle_provider/available_loads/view/avail
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/trip_scheduling_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
@@ -141,7 +142,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               // See More
               TextButton(
                 onPressed: (){
-                  Navigator.push(context, commonRoute(const AvailableLoadsScreen()));
+                  Navigator.push(context, commonRoute(const TripSchedulingScreen()//AvailableLoadsScreen()
+                  ));
                 },
                 style: AppButtonStyle.primaryTextButton,
                   child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),

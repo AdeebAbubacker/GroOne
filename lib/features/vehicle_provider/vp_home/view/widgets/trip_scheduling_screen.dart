@@ -15,21 +15,21 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-class AvailableLoadsScreen extends StatefulWidget {
-  const AvailableLoadsScreen({super.key});
+class TripSchedulingScreen extends StatefulWidget {
+  const TripSchedulingScreen({super.key});
 
   @override
-  State<AvailableLoadsScreen> createState() => _AvailableLoadsScreenState();
+  State<TripSchedulingScreen> createState() => _TripSchedulingScreenState();
 }
 
-class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
+class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
 
   final TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.availableLoads, scrolledUnderElevation: 0.0,),
+      appBar: CommonAppBar(title: "Trip Scheduling", scrolledUnderElevation: 0.0,),
       body: SafeArea(
         minimum: EdgeInsets.only(right: commonSafeAreaPadding, left: commonSafeAreaPadding, top: 20),
         bottom: false,
@@ -37,31 +37,17 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
           children: [
 
             // Search Bar
-            Row(
-              children: [
-                AppSearchBar(searchController: searchController).expand(),
 
-                15.width,
 
-                AppIconButton(
-                  onPressed: (){
-                    commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
-                  },
-                  style: AppButtonStyle.primaryIconButtonStyle,
-                  icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
-                )
-              ],
-            ),
-            10.height,
 
             // List
             ListView.separated(
-              itemCount: 5,
+              itemCount: 1,
               shrinkWrap: true,
               padding: EdgeInsets.only(top: 20, bottom: 50),
               separatorBuilder: (context, index) => 20.height,
               itemBuilder: (context, index){
-                return RecentAddedLoadListBody();
+                return TripSchedulingWidget();
               },
             ).expand(),
           ],
