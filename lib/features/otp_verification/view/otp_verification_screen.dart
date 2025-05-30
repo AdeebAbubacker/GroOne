@@ -88,9 +88,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool _isButtonEnabled = false;
 
   void homeRedirection(OtpResponse data, BuildContext context,{required tempFlag}) => addPostFrameCallback((){
-    if (int.parse(widget.roleId) == 1) {
+    debugPrint("homeRedirection ${data.toJson()}");
+
+    if (data.data?.user?.role == 1) {
       tempFlag?context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber}):context.push(AppRouteName.lpBottomNavigationBar);
-    } else if (int.parse(widget.roleId) == 2) {
+    } else if (data.data?.user?.role == 2) {
       tempFlag?Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString(),mobileNumber:widget.mobileNumber), isForward: true)):context.push(AppRouteName.vpBottomNavigationBar);
     }
   });
@@ -226,7 +228,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                              apiRequest: OtpRequest(
                                mobile: widget.mobileNumber,
                                role: int.parse(widget.roleId),
-                               otp: int.parse(widget.otp),
+                               otp: int.parse(otpString),
                              ),
                            ),
                          );

@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -75,7 +76,7 @@ class VpHomeService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  } Future<Result<DriverListResponse>> scheduleTripResponse({
+  } Future<Result<ScheduleTripResponse>> scheduleTripResponse({
     required ScheduleTripRequest apiRequest,
   }) async {
     try {
@@ -83,7 +84,7 @@ class VpHomeService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => DriverListResponse.fromJson(data),
+          (data) => ScheduleTripResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);

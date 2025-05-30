@@ -45,7 +45,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                       Expanded(child: Text(widget.data.dropAddr, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis))),
                     ],
                   ),
-                  Text("GD12456", style: AppTextStyle.body3GreyColor),
+                  Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),
                 ],
               ),
 
@@ -98,7 +98,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
           AppButton(
             buttonHeight: 32.h,
             onPressed: widget.onClickAssignDriver,
-            title: "Assign Driver",
+            title: widget.data.assignStatus==0?"Assign Driver":"Start Trip",
             style: AppButtonStyle.outline,
           )
         ],

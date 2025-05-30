@@ -1,0 +1,10 @@
+<svg width="199" height="199" viewBox="0 0 199 199" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="99.5" cy="99.5" r="99.5" fill="#EA7144"/>
+<circle cx="99.5" cy="99.5" r="99.5" fill="white" fill-opacity="0.9"/>
+<circle cx="99.5" cy="99.5" r="78.5" fill="#EA7144"/>
+<circle cx="99.5" cy="99.5" r="78.5" fill="white" fill-opacity="0.7"/>
+<circle cx="99" cy="100" r="59" fill="#EA7144"/>
+<path d="M93.8698 75.58L68.4598 118C67.9359 118.907 67.6587 119.936 67.6558 120.984C67.6529 122.031 67.9243 123.061 68.4431 123.972C68.9619 124.882 69.71 125.64 70.6129 126.172C71.5159 126.703 72.5422 126.988 73.5898 127H124.41C125.457 126.988 126.484 126.703 127.387 126.172C128.29 125.64 129.038 124.882 129.557 123.972C130.075 123.061 130.347 122.031 130.344 120.984C130.341 119.936 130.064 118.907 129.54 118L104.13 75.58C103.595 74.6983 102.842 73.9694 101.943 73.4635C101.045 72.9575 100.031 72.6918 98.9998 72.6918C97.9686 72.6918 96.9548 72.9575 96.0562 73.4635C95.1577 73.9694 94.4046 74.6983 93.8698 75.58Z" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M99 91V103" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M99 115H99.03" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

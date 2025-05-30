@@ -8,11 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_sucess_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_upload_file.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -42,6 +45,7 @@ class KycScreen extends StatefulWidget {
 
 class _KycScreenState extends State<KycScreen> {
   final kycBloc = locator<KycBloc>();
+  final lpHomeBloc = locator<LpHomeBloc>();
 
   TextEditingController addharNumber = TextEditingController();
   TextEditingController gstIn = TextEditingController();
@@ -62,7 +66,8 @@ class _KycScreenState extends State<KycScreen> {
   final FocusNode _panNode = FocusNode();
   bool verifiedPan = false;
 
-  nodeManage() {
+  nodeManage() async {
+    await lpHomeBloc.getUserId();
     _gstNode.addListener(() {
       if (_gstNode.hasFocus) {
       } else {
@@ -145,6 +150,18 @@ class _KycScreenState extends State<KycScreen> {
             bloc: kycBloc,
             listener: (context, state) {
               if (state is SubmitKycSuccess) {
+                // commonBottomSheetWithBGBlur(
+                //   context: context,
+                //
+                //   screen: KycSuccessDialogue(),
+                // ).then((value) {
+                //   lpHomeBloc.add(
+                //     ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
+                //   );
+                //
+                //   context.pop();
+                //   context.pop();
+                // });
                 showSuccessDialog(
                   onTap: () {
                     context.pop();
@@ -284,9 +301,9 @@ class _KycScreenState extends State<KycScreen> {
                             AppTextField(
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(6)
+                                LengthLimitingTextInputFormatter(6),
                               ],
-keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.number,
                               validator: (value) => Validator.pincode(value),
                               controller: pincode,
                               decoration: commonInputDecoration(
