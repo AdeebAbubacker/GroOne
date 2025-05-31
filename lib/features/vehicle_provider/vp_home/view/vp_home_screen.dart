@@ -31,6 +31,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -38,6 +39,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../kyc/view/widgets/kyc_bottom_sheet.dart';
 
@@ -49,6 +51,12 @@ class VpHomeScreen extends StatefulWidget {
 }
 
 class _VpHomeScreenState extends State<VpHomeScreen> {
+
+
+  late VideoPlayerController _controller;
+
+
+
   String profileImage = "";
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -72,6 +80,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 
   void initFunction() => addPostFrameCallback(() async {
+    initializeVideoPlayer(context);
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     await lpHomeBloc.getUserId() ?? "";
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
@@ -79,6 +88,25 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
+
+
+
+  void initializeVideoPlayer(BuildContext context){
+    _controller = VideoPlayerController.asset(AppVideo.kycBlinking)
+      ..initialize().then((_) {
+        if (mounted) {
+          _controller.play();
+        }
+        setState(() {});
+      });
+    _controller.addListener(() {
+      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized && mounted) {
+        _controller.play();
+        setState(() {});
+      }
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,19 +122,14 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       ).paddingLeft(commonSafeAreaPadding),
       actions: [
         // KYC
+        if( _controller.value.isInitialized)
         kycWidget(
+          controller: _controller,
           onTap: () {
-            commonBottomSheetWithBGBlur(
-              context: context,
-
-              screen: KycBottomSheet(),
-            ).then((value) {
-              lpHomeBloc.add(
-                ProfileDetailRequested(
-                  lpHomeBloc.userId ?? "0",
-                ),
+            commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet()).then((value) {
+              lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
               );
-            });;
+            });
           },
         ),
         10.width,

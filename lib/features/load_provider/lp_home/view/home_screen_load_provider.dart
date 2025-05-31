@@ -29,6 +29,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -40,6 +41,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:video_player/video_player.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_colors.dart';
@@ -57,7 +59,6 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   final lpHomeBloc = locator<LpHomeBloc>();
-
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
@@ -65,10 +66,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final loadDetailBloc = locator<LoadListBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
 
-
   final dateTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
+  late VideoPlayerController _controller;
 
   int selectedPercentage = 80;
   final int baseAmount = 15000;
@@ -228,9 +229,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   ProfileDetailResponse? profileResponse;
   GetLoadResponse? getLoadResponse;
 
+  @override
+  void setState(fn) {
+    if (mounted) super.setState(fn);
+  }
 
   @override
   void initState() {
+    initializeVideoPlayer(context);
     initFunction();
     super.initState();
   }
@@ -238,6 +244,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   @override
   void dispose() {
     disposeFunction();
+    _controller.removeListener(() {}); // if you store the listener separately
+    _controller.dispose();
     super.dispose();
   }
 
@@ -265,6 +273,23 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     truckType = null;
     truckLength = null;
   });
+
+
+  void initializeVideoPlayer(BuildContext context){
+    _controller = VideoPlayerController.asset(AppVideo.kycBlinking)
+      ..initialize().then((_) {
+        if (mounted) {
+          _controller.play();
+          setState(() {});
+        }
+      });
+    _controller.addListener(() {
+      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized && mounted) {
+        setState((){});
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -300,14 +325,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         ),
       ),
       actions: [
-        // KYC
-        kycWidget(
-          onTap: () {
-            commonBottomSheetWithBGBlur(
-              context: context,
 
-              screen: KycBottomSheet(),
-            );
+        // KYC
+        if( _controller.value.isInitialized)
+        kycWidget(
+          controller: _controller,
+          onTap: () {
+            commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet());
           },
         ),
         10.width,
@@ -344,9 +368,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           listener: (context, state) {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
-              profileImage =
-                  state.profileDetailResponse.data!.details!.profileImageUrl ??
-                  "";
+              profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ?? "";
               setState(() {});
             }
             if (state is ProfileDetailError) {

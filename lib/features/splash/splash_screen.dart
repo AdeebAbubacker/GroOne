@@ -38,7 +38,6 @@ class _SplashScreenState extends State<SplashScreen> {
           _controller.play();
         }
       });
-
     _controller.addListener(() {
       if (_controller.value.position == _controller.value.duration &&
           _controller.value.isInitialized &&

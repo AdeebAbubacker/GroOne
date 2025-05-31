@@ -19,6 +19,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:video_player/video_player.dart';
 
 /// Input Decoration
 InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor, dynamic suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, Color? fillColor,  Color? focusColor, bool? enableBorder = true, TextStyle? hintStyle}) {
@@ -256,14 +257,14 @@ Widget appLoader() {
 //   return Container();
 // }
 
-Widget kycWidget({required Function() onTap}){
+Widget kycWidget({required Function() onTap, required VideoPlayerController controller}){
   return InkWell(onTap: onTap,
     child: Container(
-      height: 40.h,
-      width: 40.w,
+      height: 55.h,
+      width: 55.w,
+      color: Colors.red,
       alignment: Alignment.center,
-      decoration: commonContainerDecoration(color: Colors.redAccent.shade100, borderRadius: BorderRadius.circular(100)),
-      child: Text("KYC", style: AppTextStyle.h6WhiteColor).paddingAll(5),
+      child: VideoPlayer(controller),
     ),
   );
 }
