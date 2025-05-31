@@ -7,6 +7,10 @@ class VpMyLoadListRequested extends VpHomeEvent {
   VpMyLoadListRequested();
 }
 
+class VpRecentLoadEvent extends VpHomeEvent {
+  VpRecentLoadEvent();
+}
+
 class VpVehicleListRequested extends VpHomeEvent {
   final String userId;
 
@@ -21,4 +25,10 @@ class VpDriverDetailsRequested extends VpHomeEvent {
   final ScheduleTripRequest apiRequest;
 
   ScheduleTripRequested({required this.apiRequest});
+}
+
+class VpAcceptLoadEvent extends VpHomeEvent {
+  final String loadId;
+
+  VpAcceptLoadEvent({required this.loadId});
 }

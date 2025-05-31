@@ -5,7 +5,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedu
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -14,10 +16,10 @@ class VpHomeService {
 
   VpHomeService(this._apiService);
 
-  Future<Result<VpMyLoadResponse>> getVpMyLoad() async {
+  Future<Result<VpMyLoadResponse>> getVpMyLoad({required String userID}) async {
     try {
       _apiService.clearCache();
-      final result = await _apiService.get(ApiUrls.vpLoadList);
+      final result = await _apiService.get(ApiUrls.vpLoadList,queryParams: {'customerId':userID});
 
       if (result is Success) {
         _apiService.clearCache();
@@ -76,7 +78,9 @@ class VpHomeService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  } Future<Result<ScheduleTripResponse>> scheduleTripResponse({
+  }
+
+  Future<Result<ScheduleTripResponse>> scheduleTripResponse({
     required ScheduleTripRequest apiRequest,
   }) async {
     try {
@@ -85,6 +89,46 @@ class VpHomeService {
         return await _apiService.getResponseStatus(
           result.value,
           (data) => ScheduleTripResponse.fromJson(data),
+        );
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<VpRecentLoadResponse>> getVpRecentLoads() async {
+    try {
+      final result = await _apiService.get(ApiUrls.vpRecentLoads);
+
+      if (result is Success) {
+        return await _apiService.getResponseStatus(
+          result.value,
+              (data) => VpRecentLoadResponse.fromJson(data),
+        );
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<VpLoadAcceptModel>> fetchVpAcceptLoad({required String userId,required String loadId}) async {
+    try {
+      final result = await _apiService.get('${ApiUrls.vpAcceptLoad}$userId/$loadId');
+
+      if (result is Success) {
+        return await _apiService.getResponseStatus(
+          result.value,
+              (data) => VpLoadAcceptModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);

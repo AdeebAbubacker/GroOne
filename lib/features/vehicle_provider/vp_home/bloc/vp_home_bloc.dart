@@ -5,7 +5,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedu
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:meta/meta.dart';
@@ -18,12 +20,12 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
   final VpHomeRepository _vHomeRepository;
   final UserInformationRepository _userInformationRepository;
 
-  VpHomeBloc(this._vHomeRepository, this._userInformationRepository)
-    : super(VpHomeInitial()) {
+  VpHomeBloc(this._vHomeRepository, this._userInformationRepository) : super(VpHomeInitial()) {
+
     on<VpMyLoadListRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
 
-      Result result = await _vHomeRepository.getVpMyLoad();
+      Result result = await _vHomeRepository.getVpMyLoad(await _userInformationRepository.getUserID()??'');
 
       if (result is Success<VpMyLoadResponse>) {
         emit(VpMyLoadListSuccess(result.value));
@@ -33,6 +35,20 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
         emit(VpMyLoadListError(GenericError()));
       }
     });
+
+    on<VpRecentLoadEvent>((event, emit) async {
+      emit(VpRecentLoadListLoading());
+
+      Result result = await _vHomeRepository.getVpRecentLoadData();
+
+      if (result is Success<VpRecentLoadResponse>) {
+        emit(VpRecentLoadListSuccess(result.value));
+      }
+      if (result is Error) {
+        emit(VpRecentLoadListError(result.type));
+      }
+    });
+
     on<VpVehicleListRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
       Result result = await _vHomeRepository.getVehicleDetails(
@@ -47,6 +63,24 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
         emit(VpMyLoadListError(GenericError()));
       }
     });
+
+     on<VpAcceptLoadEvent>((event, emit) async {
+      emit(VpMyLoadListLoading());
+
+      Result result = await _vHomeRepository.getLoadAcceptData(
+        userId: await _userInformationRepository.getUserID()??'',
+        loadId: event.loadId
+      );
+
+      if (result is Success<VpLoadAcceptModel>) {
+        emit(VpAcceptLoadSuccess(result.value));
+      }
+      if (result is Error) {
+        emit(VpAcceptLoadError(result.type));
+      }
+    });
+
+
     on<VpDriverDetailsRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
       Result result = await _vHomeRepository.getDriverDetails(
@@ -60,7 +94,9 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       } else {
         emit(VpMyLoadListError(GenericError()));
       }
-    }); on<ScheduleTripRequested>((event, emit) async {
+    });
+
+    on<ScheduleTripRequested>((event, emit) async {
       emit(ScheduleTripLoading());
       Result result = await _vHomeRepository.scheduleTripResponse(
         apiRequest: event.apiRequest,
