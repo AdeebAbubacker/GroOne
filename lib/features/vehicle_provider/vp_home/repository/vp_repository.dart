@@ -1,6 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
@@ -42,7 +43,7 @@ class VpHomeRepository {
     }
   }
 
-  Future<Result<DriverListResponse>> scheduleTripResponse({
+  Future<Result<ScheduleTripResponse>> scheduleTripResponse({
 
     required ScheduleTripRequest apiRequest,}) async {
     try {

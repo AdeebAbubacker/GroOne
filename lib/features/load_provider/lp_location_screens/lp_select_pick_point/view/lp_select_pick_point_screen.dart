@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,19 +9,17 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
-import 'package:google_maps_flutter/google_maps_flutter.dart' show GoogleMapController;
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class LpSelectPickPointScreen extends StatefulWidget {
   final String title;
   final String? address;
+
   const LpSelectPickPointScreen({super.key, required this.title, this.address});
 
   @override
@@ -71,7 +68,11 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
     });
 
     if (widget.title == "Pickup Point") {
+      latLngData="${latLng.latitude},${latLng.longitude}";
       getAddressFromLatLng(latLng.latitude, latLng.longitude);
+      setState(() {
+
+      });
     }
 
     if (animate) {
@@ -87,18 +88,11 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
         _address = '${place.street}, ${place.locality}, ${place.country}';
       });
     } catch (e) {
-      CustomLog.error(this, "Error in getAddressFromLatLng", e);
-      _address = '';
+      setState(() {
+        _address = 'Error: $e';
+      });
     }
-    setState(() {});
   }
-
-
-  Future<void> _setMapStyle(GoogleMapController controller) async {
-    String style = await rootBundle.loadString(AppJSON.mapStyle);
-    controller.setMapStyle(style);
-  }
-
 
   Future<void> fetchSuggestions(String input) async {
     final String url =
@@ -113,11 +107,11 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       });
     }
   }
-
+  String latLngData="";
   Future<void> fetchLatLngFromPlaceId(
-    String placeId,
-    String description,
-  ) async {
+      String placeId,
+      String description,
+      ) async {
     final url =
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$googlePlacesApiKey";
 
@@ -130,10 +124,12 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       final latLng = LatLng(location['lat'], location['lng']);
 
       setState(() {
+        latLngData="${location['lat'].toString()},${ location['lng'].toString()}";
         centerLatLng = latLng;
         _address = formattedAddress;
         searchTextController.text = description;
         suggestions.clear();
+
       });
 
       _animatedMapController.animateTo(dest: latLng, zoom: 15);
@@ -144,6 +140,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
     if (position.center != null) {
       setState(() {
         centerLatLng = position.center!;
+        latLngData="${centerLatLng!.latitude},${centerLatLng!.longitude}";
       });
       if (widget.title == "Pickup Point") {
         getAddressFromLatLng(centerLatLng!.latitude, centerLatLng!.longitude);
@@ -167,37 +164,39 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
         children: [
           Positioned.fill(
             child:
-                centerLatLng == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : FlutterMap(
-                      mapController: _animatedMapController.mapController,
-                      options: MapOptions(
-                        initialCenter: centerLatLng!,
-                        initialZoom: 15,
-                        onPositionChanged: _onPositionChanged,
+            centerLatLng == null
+                ? const Center(child: CircularProgressIndicator())
+                : SizedBox(height: 500.h,
+                  child: FlutterMap(
+                                mapController: _animatedMapController.mapController,
+                                options: MapOptions(
+                  initialCenter: centerLatLng!,
+                  initialZoom: 15,
+                  onPositionChanged: _onPositionChanged,
+                                ),
+                                children: [
+                  TileLayer(
+                    urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: centerLatLng!,
+                        width: 80,
+                        height: 80,
+                        child: const Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                          size: 40,
+                        ),
                       ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: centerLatLng!,
-                              width: 80,
-                              height: 80,
-                              child: const Icon(
-                                Icons.location_pin,
-                                color: Colors.red,
-                                size: 40,
+                    ],
+                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                ),
           ),
           Positioned(
             right: 10,
@@ -263,9 +262,9 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                                   title: Text(suggestion['description']),
                                   onTap:
                                       () => fetchLatLngFromPlaceId(
-                                        suggestion['place_id'],
-                                        suggestion['description'],
-                                      ),
+                                    suggestion['place_id'],
+                                    suggestion['description'],
+                                  ),
                                 );
                               },
                             ),
@@ -287,47 +286,55 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                       final detectedAddress = _address.trim();
 
                       // Normalize invalid address values
-                      final isDetectedAddressValid = detectedAddress.isNotEmpty &&
-                          detectedAddress != 'No address found' &&
-                          !detectedAddress.startsWith('Error');
+                      final isDetectedAddressValid =
+                          detectedAddress.isNotEmpty &&
+                              detectedAddress != 'No address found' &&
+                              !detectedAddress.startsWith('Error');
 
                       if (widget.title == "Pickup Point") {
                         if (!isDetectedAddressValid) {
                           // Use correct ScaffoldMessenger context
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Failed to fetch current location address."),
+                              content: Text(
+                                "Failed to fetch current location address.",
+                              ),
                             ),
                           );
                           return;
                         }
-                        context.pop(detectedAddress);
+                        var data = {"address": detectedAddress, "latLng": latLngData};
+                        context.pop(data);
                         _address = '';
                       } else {
                         if (manualAddress.isEmpty && !isDetectedAddressValid) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("Please provide or select a location address."),
+                              content: Text(
+                                "Please provide or select a location address.",
+                              ),
                             ),
                           );
                           return;
                         }
 
                         if (manualAddress.isNotEmpty) {
-                          context.pop(manualAddress);
+                          var data = {"address": manualAddress, "latLng": latLngData};
+                          context.pop(data);
                           addressTextController.clear();
                         } else {
-                          context.pop(detectedAddress);
+                          var data = {"address": detectedAddress, "latLng": latLngData};
+                          context.pop(data);
                           _address = '';
                         }
                       }
                     },
-
                   ),
                 ],
               ),
             ),
           ),
+
         ],
       ),
     );

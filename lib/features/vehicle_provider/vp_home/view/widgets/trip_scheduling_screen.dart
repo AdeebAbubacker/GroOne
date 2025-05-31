@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+ 
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
@@ -50,8 +50,8 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final _formKey = GlobalKey<FormState>();
-  VehicleListResponse? vehicleListResponse;
-  DriverListResponse? driverListResponse;
+
+
   List<VehicleDetail> vehicleDetail = [];
   List<DriverDetails> driverDetails = [];
   DateTime? pickedDate;
@@ -97,37 +97,49 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
         title: "Trip Scheduling",
         scrolledUnderElevation: 0.0,
       ),
-      body: SafeArea(
-        minimum: EdgeInsets.only(
-          right: commonSafeAreaPadding,
-          left: commonSafeAreaPadding,
-          top: 20,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          minimum: EdgeInsets.only(
+            right: commonSafeAreaPadding,
+            left: commonSafeAreaPadding,
+            top: 20,
+          ),
+          bottom: false,
+          child: _buildTripDetailWidget(buildContext: context),
         ),
-        bottom: false,
-        child: _buildTripDetailWidget(),
       ),
     );
   }
 
-  _buildTripDetailWidget() {
+  _buildTripDetailWidget({required BuildContext buildContext}) {
     return BlocConsumer(
       bloc: vpHomeScreenBloc,
       listener: (context, state) {
         if (state is VpVehicleListSuccess) {
-          vehicleListResponse = state.vehicleListResponse;
+          vehicleDetail = state.vehicleListResponse.data;
+
         }
         if (state is ScheduleTripSuccess) {
           ToastMessages.success(message:"Trip Scheduled");
-          context.pop();
+
+
+          // if (Navigator.canPop(buildContext)) {
+          //   Future.delayed(const Duration(seconds: 1),(){
+          //     Navigator.pop(buildContext);
+          //   });
+          //
+          // }
+
         }
         if (state is VpDriverListSuccess) {
-          driverListResponse = state.driverListResponse;
+          driverDetails = state.driverListResponse.data;
         }
         if (state is VpMyLoadListError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
       },
       builder: (context, state) {
+        bool isLoading=state is ScheduleTripLoading;
         return Column(
           children: [
             Container(
@@ -164,7 +176,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                             ),
                           ],
                         ),
-                        Text("GD12456", style: AppTextStyle.body3GreyColor),
+                        Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),
                       ],
                     ),
 
@@ -473,6 +485,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
             ),
             20.height,
             AppButton(
+              isLoading:isLoading,
               style:pickedDate!=null &&  deliveryDateTime!=null?AppButtonStyle.primary:AppButtonStyle.disableButton,
               onPressed: () {
 
@@ -481,12 +494,14 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                     vpHomeScreenBloc.add(
                       ScheduleTripRequested(
                         apiRequest: ScheduleTripRequest(
+                          loadId: widget.data.id,
                           vehicleId: int.parse(truckType ?? "0"),
                           driverId: int.parse(driverType ?? "0"),
                           acceptedBy:
-                          widget.allProfileDetails.customer?.customerName ?? "",
+                         int.parse(lpHomeBloc.userId??"0"),
                           etaForPickUp: pickedDate,
                           expectedDeliveryDate: deliveryDateTime,
+
                         ),
                       ),
                     );
@@ -499,10 +514,8 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
               },
               title: context.appText.continueText,
             ),
+            20.height,
           ],
-        ).paddingSymmetric(
-          horizontal: commonSafeAreaPadding,
-          vertical: commonSafeAreaPadding,
         );
       },
     );
