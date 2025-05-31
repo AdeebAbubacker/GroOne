@@ -15,7 +15,7 @@ final Function() onPressed;
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 10.h,
       children: [
-        SvgPicture.asset(AppImage.svg.kycPending),
+        Center(child: SvgPicture.asset(AppImage.svg.kycPending)),
         Text("KYC Pending",style: AppTextStyle.orangeTextColor26w700,),
         Text("Please complete your KYC to accept load",style: AppTextStyle.textDarkGreyColor14w400,),
      AppButton(

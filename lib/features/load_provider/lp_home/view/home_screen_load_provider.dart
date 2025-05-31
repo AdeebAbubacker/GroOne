@@ -79,8 +79,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedTruck;
   String profileImage = "";
 
-  String? pickup;
-  String? destination;
+  Map<String, dynamic>? destination;
+  Map<String, dynamic>? pickup;
   String? commodityId;
   String? truckTypeId;
   String? rateDiscoveryPrice;
@@ -660,11 +660,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     // Source
                     bookShipmentWidget(
                       heading: context.appText.source,
-                      subHeading: pickup ?? context.appText.selectPickUpPoint,
+                      subHeading: pickup?['address']?? context.appText.selectPickUpPoint,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup), isForward: true)).then((onValue){
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             pickup = onValue;
+
                           }
                           setState(() {});
                         });
@@ -677,11 +678,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     bookShipmentWidget(
                       heading: context.appText.destination,
                       subHeading:
-                          destination ?? context.appText.selectDestination,
+                          destination?['address'] ?? context.appText.selectDestination,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination), isForward: true)).then((onValue){
+                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             destination = onValue;
+
                           }
                           setState(() {});
 
@@ -950,10 +952,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             customerId: int.parse(lpHomeBloc.userId.toString()),
                             commodityId: int.parse(commodityId ?? "0"),
                             truckTypeId: int.parse(truckTypeId ?? "0"),
-                            pickUpAddr: pickup ?? "",
-                            pickUpLatlon: "13.0827,80.2707",
-                            dropAddr:  destination ?? '',
-                            dropLatlon: "13.0827,80.2707",
+                            pickUpAddr: pickup?['address'] ?? "",
+                           // pickUpLatlon: "13.0827,80.2707",
+                            pickUpLatlon:  pickup?['latLng']??"",
+                            dropAddr:  destination?['address'] ?? "",
+                            dropLatlon:  destination?['latLng']??"",
+                            // dropLatlon: "13.0827,80.2707",
                             dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
                             consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
                             rate: rateDiscoveryPrice ?? "0000 - 0000",
@@ -962,8 +966,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                           Navigator.push(context, commonRoute(LoadSummaryScreen(
                             apiRequest: request,
-                            senderAddress: pickup ?? "",
-                            receiverAddress: destination ?? "",
+                            senderAddress: pickup?['address'] ?? "",
+                            receiverAddress: destination?['address'] ?? "",
                             vehicleType: truckType ?? "",
                             vehicleLength: truckLength ?? "",
                             approxWeight: weightTextController.text,

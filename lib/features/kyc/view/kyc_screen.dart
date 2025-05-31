@@ -150,27 +150,27 @@ class _KycScreenState extends State<KycScreen> {
             bloc: kycBloc,
             listener: (context, state) {
               if (state is SubmitKycSuccess) {
-                // commonBottomSheetWithBGBlur(
-                //   context: context,
-                //
-                //   screen: KycSuccessDialogue(),
-                // ).then((value) {
-                //   lpHomeBloc.add(
-                //     ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
-                //   );
-                //
-                //   context.pop();
-                //   context.pop();
-                // });
-                showSuccessDialog(
-                  onTap: () {
-                    context.pop();
-                    context.pop();
-                  },
-                  context,
-                  text: "KYC Submitted for\nverification",
-                  subheading: "Will get back to you within\n48 hours.",
-                );
+                commonBottomSheetWithBGBlur(
+                  context: context,
+
+                  screen: KycSuccessDialogue(),
+                ).then((value) {
+                  lpHomeBloc.add(
+                    ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
+                  );
+
+                  context.pop();
+
+                });
+                // showSuccessDialog(
+                //   onTap: () {
+                //     context.pop();
+                //     context.pop();
+                //   },
+                //   context,
+                //   text: "KYC Submitted for\nverification",
+                //   subheading: "Will get back to you within\n48 hours.",
+                // );
               }
               if (state is VerifyTanSuccess) {
                 verifiedTan = true;

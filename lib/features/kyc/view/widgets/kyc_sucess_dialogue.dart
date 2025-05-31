@@ -14,8 +14,8 @@ class KycSuccessDialogue extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       spacing: 10.h,
       children: [
-        SvgPicture.asset(AppImage.svg.kycSuccessStatus),
-        Text("KYC Submitted for\napproval",textAlign: TextAlign.center,style: AppTextStyle.orangeTextColor26w700,),
+        Center(child: SvgPicture.asset(AppImage.svg.kycSuccess)),
+        Text("KYC Submitted for\napproval",textAlign: TextAlign.center,style: AppTextStyle.greenColor20w700.copyWith(fontSize: 26.sp),),
         Text("Will get back to you within 48 hours.",style: AppTextStyle.textDarkGreyColor14w400,),
 
 
