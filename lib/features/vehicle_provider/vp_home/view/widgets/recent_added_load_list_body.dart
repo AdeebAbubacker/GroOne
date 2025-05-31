@@ -1,20 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
-class RecentAddedLoadListBody extends StatelessWidget {
-  const RecentAddedLoadListBody({super.key});
+class RecentAddedLoadListBody extends StatefulWidget {
+  final VpRecentLoadData data;
+  const RecentAddedLoadListBody({super.key, required this.data});
+
+  @override
+  State<RecentAddedLoadListBody> createState() => _RecentAddedLoadListBodyState();
+}
+
+class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
+
+  final vpHomeScreenBloc = locator<VpHomeBloc>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +50,12 @@ class RecentAddedLoadListBody extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text("Chennai", style: AppTextStyle.h4w500),
+                      Text(widget.data.pickUpAddr, style: AppTextStyle.h5w500, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.left).expand(),
                       Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
-                      Text("Pune", style: AppTextStyle.h4w500),
+                      Text(widget.data.dropAddr, style: AppTextStyle.h5w500, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right).expand(),
                     ],
                   ),
-                  Text("GD12456", style: AppTextStyle.body3GreyColor),
+                  Text(widget.data.rate, style: AppTextStyle.body3GreyColor),
                 ],
               ),
 
@@ -52,46 +71,77 @@ class RecentAddedLoadListBody extends StatelessWidget {
           commonDivider(),
 
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 children: [
                   SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
                   10.width,
-                  Text("20 ft Closed Truck", style: AppTextStyle.body),
+                  if(widget.data.truckType != null)
+                  Text("${widget.data.truckType!.subType} ${widget.data.truckType!.type}", style: AppTextStyle.body),
                 ],
               ).expand(),
+
               statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
             ],
           ),
           10.height,
 
+          if(widget.data.commodity != null)...[
+            Row(
+              children: [
+                Row(
+                  children: [
+                    SvgPicture.asset(AppIcons.svg.package),
+                    10.width,
+                    Text(widget.data.commodity!.name, style: AppTextStyle.body),
+                  ],
+                ).expand(),
+                Text("$indianCurrencySymbol${widget.data.rate}", style: AppTextStyle.h4),
+              ],
+            ),
+            10.height,
+          ],
+
+
+
+
           Row(
             children: [
-              Row(
-                children: [
-                  SvgPicture.asset(AppIcons.svg.package),
-                  10.width,
-                  Text("Construction Material", style: AppTextStyle.body),
-                ],
-              ).expand(),
-              Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
+              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+              7.width,
+              Text("${widget.data.consignmentWeight} Ton", style: AppTextStyle.body),
             ],
           ),
+
           20.height,
-          Row(
-            children: [
-              SvgPicture.asset(AppIcons.svg.package),
-              10.width,
-              Text("5 Ton", style: AppTextStyle.body),
-            ],
+
+
+          BlocListener<VpHomeBloc, VpHomeState>(
+            listener: (context, state) {
+              if (state is VpAcceptLoadSuccess) {
+                addPostFrameCallback(()=> AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully")));
+              }
+              if (state is VpAcceptLoadError) {
+                addPostFrameCallback(()=> ToastMessages.error(message: getErrorMsg(errorType: state.errorType)));
+              }
+            },
+            child: BlocBuilder<VpHomeBloc, VpHomeState>(
+            bloc: vpHomeScreenBloc,
+            builder: (context, state) {
+              return AppButton(
+                buttonHeight: 35.h,
+                onPressed: (){
+                  vpHomeScreenBloc.add(VpAcceptLoadEvent(loadId: widget.data.id.toString()));
+                },
+                isLoading: state is VpAcceptLoadLoading,
+                title: context.appText.accept,
+                style: AppButtonStyle.outline,
+              );
+            },
           ),
-          20.height,
-          AppButton(
-            buttonHeight: 30.h,
-            onPressed: (){},
-            title: context.appText.accept,
-            style: AppButtonStyle.outline,
-          )
+),
+
         ],
       ),
     );

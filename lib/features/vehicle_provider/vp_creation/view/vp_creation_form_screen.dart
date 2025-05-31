@@ -68,6 +68,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final List<DropdownItem<String>> truckTypeItems = [
     DropdownItem(label: 'Open Truck', value: 'Open Truck'),
     DropdownItem(label: 'Close Truck', value: 'Close Truck'),
+    DropdownItem(label: 'Trailer Truck', value: 'Trailer Truck'),
   ];
 
   final List<DropdownItem<String>> preferredLanesList = [
@@ -75,7 +76,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     DropdownItem(label: 'Chennai -  Pune', value: '2'),
     DropdownItem(label: 'Chennai - Delhi', value: '3'),
     DropdownItem(label: 'Mumbai - Pune', value: '4'),
-    DropdownItem(label: 'Mumbai - Bangalore', value: '5'),
+    DropdownItem(label: 'Chennai - Bangalore', value: '5'),
   ];
 
 
@@ -95,9 +96,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   void initFunction() => addPostFrameCallback(() {
     mobileNumberTextController.text=widget.mobileNumber;
-    CustomLog.debug(this, ApiUrls.baseUrl);
-    CustomLog.debug(this, ApiUrls.createLpAccount);
-    CustomLog.debug(this, ApiUrls.createVpAccount);
   });
 
   void disposeFunction() => addPostFrameCallback(() {

@@ -1,5 +1,38 @@
 class VpRecentLoadResponse {
   VpRecentLoadResponse({
+    required this.success,
+    required this.message,
+    required this.data,
+  });
+
+  final bool success;
+  final String message;
+  final List<VpRecentLoadData> data;
+
+  VpRecentLoadResponse copyWith({
+    bool? success,
+    String? message,
+    List<VpRecentLoadData>? data,
+  }) {
+    return VpRecentLoadResponse(
+      success: success ?? this.success,
+      message: message ?? this.message,
+      data: data ?? this.data,
+    );
+  }
+
+  factory VpRecentLoadResponse.fromJson(Map<String, dynamic> json){
+    return VpRecentLoadResponse(
+      success: json["success"] ?? false,
+      message: json["message"] ?? "",
+      data: json["data"] == null ? [] : List<VpRecentLoadData>.from(json["data"]!.map((x) => VpRecentLoadData.fromJson(x))),
+    );
+  }
+
+}
+
+class VpRecentLoadData {
+  VpRecentLoadData({
     required this.id,
     required this.customerId,
     required this.commodityId,
@@ -34,18 +67,18 @@ class VpRecentLoadResponse {
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
-  final dynamic notes;
-  final dynamic rate;
+  final String notes;
+  final String rate;
   final num status;
   final dynamic acceptedBy;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final Commodity? commodity;
   final TruckType? truckType;
-  final dynamic customer;
-  final dynamic customerDetail;
+  final Customer? customer;
+  final CustomerDetail? customerDetail;
 
-  VpRecentLoadResponse copyWith({
+  VpRecentLoadData copyWith({
     int? id,
     num? customerId,
     num? commodityId,
@@ -57,18 +90,18 @@ class VpRecentLoadResponse {
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
-    dynamic notes,
-    dynamic rate,
+    String? notes,
+    String? rate,
     num? status,
-    dynamic acceptedBy,
+    dynamic? acceptedBy,
     DateTime? createdAt,
-    dynamic deletedAt,
+    dynamic? deletedAt,
     Commodity? commodity,
     TruckType? truckType,
-    dynamic customer,
-    dynamic customerDetail,
+    Customer? customer,
+    CustomerDetail? customerDetail,
   }) {
-    return VpRecentLoadResponse(
+    return VpRecentLoadData(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
       commodityId: commodityId ?? this.commodityId,
@@ -93,8 +126,8 @@ class VpRecentLoadResponse {
     );
   }
 
-  factory VpRecentLoadResponse.fromJson(Map<String, dynamic> json){
-    return VpRecentLoadResponse(
+  factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
+    return VpRecentLoadData(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
@@ -106,42 +139,18 @@ class VpRecentLoadResponse {
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
-      notes: json["notes"],
-      rate: json["rate"],
+      notes: json["notes"] ?? "",
+      rate: json["rate"] ?? "",
       status: json["status"] ?? 0,
       acceptedBy: json["acceptedBy"],
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      customer: json["customer"],
-      customerDetail: json["customerDetail"],
+      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerId": customerId,
-    "commodityId": commodityId,
-    "truckTypeId": truckTypeId,
-    "pickUpAddr": pickUpAddr,
-    "assignStatus": assignStatus,
-    "pickUpLatlon": pickUpLatlon,
-    "dropAddr": dropAddr,
-    "dropLatlon": dropLatlon,
-    "dueDate": dueDate?.toIso8601String(),
-    "consignmentWeight": consignmentWeight,
-    "notes": notes,
-    "rate": rate,
-    "status": status,
-    "acceptedBy": acceptedBy,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-    "commodity": commodity?.toJson(),
-    "truckType": truckType?.toJson(),
-    "customer": customer,
-    "customerDetail": customerDetail,
-  };
 
 }
 
@@ -159,7 +168,7 @@ class Commodity {
   Commodity copyWith({
     int? id,
     String? name,
-    dynamic iconUrl,
+    dynamic? iconUrl,
   }) {
     return Commodity(
       id: id ?? this.id,
@@ -176,11 +185,76 @@ class Commodity {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "iconUrl": iconUrl,
-  };
+}
+
+class Customer {
+  Customer({
+    required this.id,
+    required this.customerName,
+    required this.mobileNumber,
+    required this.emailId,
+  });
+
+  final int id;
+  final String customerName;
+  final String mobileNumber;
+  final String emailId;
+
+  Customer copyWith({
+    int? id,
+    String? customerName,
+    String? mobileNumber,
+    String? emailId,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      customerName: customerName ?? this.customerName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      emailId: emailId ?? this.emailId,
+    );
+  }
+
+  factory Customer.fromJson(Map<String, dynamic> json){
+    return Customer(
+      id: json["id"] ?? 0,
+      customerName: json["customerName"] ?? "",
+      mobileNumber: json["mobileNumber"] ?? "",
+      emailId: json["emailId"] ?? "",
+    );
+  }
+
+}
+
+class CustomerDetail {
+  CustomerDetail({
+    required this.id,
+    required this.companyName,
+    required this.companyTypeId,
+  });
+
+  final int id;
+  final String companyName;
+  final num companyTypeId;
+
+  CustomerDetail copyWith({
+    int? id,
+    String? companyName,
+    num? companyTypeId,
+  }) {
+    return CustomerDetail(
+      id: id ?? this.id,
+      companyName: companyName ?? this.companyName,
+      companyTypeId: companyTypeId ?? this.companyTypeId,
+    );
+  }
+
+  factory CustomerDetail.fromJson(Map<String, dynamic> json){
+    return CustomerDetail(
+      id: json["id"] ?? 0,
+      companyName: json["companyName"] ?? "",
+      companyTypeId: json["companyTypeId"] ?? 0,
+    );
+  }
 
 }
 
@@ -214,11 +288,5 @@ class TruckType {
       subType: json["subType"] ?? "",
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "type": type,
-    "subType": subType,
-  };
 
 }

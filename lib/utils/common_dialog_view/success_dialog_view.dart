@@ -5,7 +5,9 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class SuccessDialogView extends StatefulWidget {
-  const SuccessDialogView({super.key});
+  final String? message;
+  final String? heading;
+  const SuccessDialogView({super.key,  this.message,  this.heading});
 
   @override
   State<SuccessDialogView> createState() => _SuccessDialogViewState();
@@ -34,14 +36,14 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
         20.height,
         Image.asset(AppImage.png.successGif),
         SizedBox(height: 50),
-        Text(
-          "Load Posted Successfully",
-          textAlign: TextAlign.center,
-          style: AppTextStyle.greenColor20w700,
-        ),
+
+        if(widget.message != null)
+        Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.greenColor20w700),
         30.height,
+
+        if(widget.heading != null)
         Text(
-          "We will assign the vehicle and\ndriver soon.",
+          widget.heading!,
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.black54),
         ),

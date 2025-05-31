@@ -123,13 +123,9 @@ class VpHomeService {
 
   Future<Result<VpLoadAcceptModel>> fetchVpAcceptLoad({required String userId,required String loadId}) async {
     try {
-      final result = await _apiService.get('${ApiUrls.vpAcceptLoad}$userId/$loadId');
-
+      final result = await _apiService.put('${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-              (data) => VpLoadAcceptModel.fromJson(data),
-        );
+        return await _apiService.getResponseStatus(result.value, (data) => VpLoadAcceptModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -140,4 +136,6 @@ class VpHomeService {
       return Error(DeserializationError());
     }
   }
+
+
 }

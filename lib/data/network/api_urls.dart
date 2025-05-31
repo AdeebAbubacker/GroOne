@@ -58,10 +58,8 @@ class ApiUrls {
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
   static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vp_master/vehicle/";
   static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vp_master/driver/";
-
-
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
-  static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load$_vp/load/";
+  static final String vpAcceptLoad="$_baseUrl$_path$_v1$_load/";
 
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
 

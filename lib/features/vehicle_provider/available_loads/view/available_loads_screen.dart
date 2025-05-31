@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -10,8 +15,10 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class AvailableLoadsScreen extends StatefulWidget {
@@ -23,7 +30,31 @@ class AvailableLoadsScreen extends StatefulWidget {
 
 class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
 
-  final TextEditingController searchController = TextEditingController();
+  final vpHomeScreenBloc = locator<VpHomeBloc>();
+
+  final searchController = TextEditingController();
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    initFunction();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => addPostFrameCallback(() async {
+    vpHomeScreenBloc.add(VpRecentLoadEvent());
+  });
+
+  void disposeFunction() => addPostFrameCallback(() {});
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,15 +85,40 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
             10.height,
 
             // List
-            ListView.separated(
-              itemCount: 5,
-              shrinkWrap: true,
-              padding: EdgeInsets.only(top: 20, bottom: 50),
-              separatorBuilder: (context, index) => 20.height,
-              itemBuilder: (context, index){
-                return RecentAddedLoadListBody();
+            BlocBuilder<VpHomeBloc, VpHomeState>(
+              bloc: vpHomeScreenBloc,
+              builder: (context, state) {
+                if (state is VpRecentLoadListLoading) {
+                  return CircularProgressIndicator().center();
+                }
+                if (state is VpRecentLoadListError) {
+                  return genericErrorWidget(error: state.errorType);
+                }
+                if (state is VpRecentLoadListSuccess) {
+                  if(state.vpRecentLoadResponse.data.isNotEmpty){
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                         initFunction();
+                      },
+                      child: ListView.separated(
+                        itemCount: state.vpRecentLoadResponse.data.length,
+                        shrinkWrap: true,
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        physics: ScrollPhysics(),
+                        separatorBuilder: (context, index) => 20.height,
+                        itemBuilder: (context, index) {
+                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index]);
+                        },
+                      ),
+                    );
+                  }else{
+                    return genericErrorWidget(error: NotFoundError());
+                  }
+                }
+                return genericErrorWidget(error: GenericError());
               },
             ).expand(),
+
           ],
         ),
       ),

@@ -282,17 +282,15 @@ statusButtonWidget({
 }) {
   return Container(
     height: 24.h,
-    margin: margin ?? EdgeInsets.only(top: 17.h),
     padding: EdgeInsets.symmetric(horizontal: 15.w),
     decoration: BoxDecoration(
       color: statusBackgroundColor,
-
-      borderRadius: BorderRadius.circular(40),
+      borderRadius: BorderRadius.circular(50),
     ),
     child: Center(
       child: Text(
         statusText,
-        style: AppTextStyle.whiteColor14w400.copyWith(color: statusTextColor),
+        style: AppTextStyle.body4.copyWith(color: statusTextColor),
       ),
     ),
   );
