@@ -11,6 +11,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -102,6 +103,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void disposeFunction() => addPostFrameCallback(() {
 
   });
+
 
 
   @override
@@ -307,18 +309,17 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   Widget buildSubmitButton() {
     return BlocConsumer<VpCreationBloc, VpCreationState>(
       bloc: vpCreationBloc,
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is VpCreationSuccess) {
           addPostFrameCallback(() {
             showSuccessDialog(
-              onTap: () {
-                addPostFrameCallback(() => context.go(AppRouteName.vpBottomNavigationBar));
-              },
               context,
               text: context.appText.accountCreatedSuccessfully,
               subheading: context.appText.accountCreatedSuccessfullySubHeading,
             );
           });
+          await Future.delayed(const Duration(seconds: 2));
+          addPostFrameCallback(() => context.go(AppRouteName.vpBottomNavigationBar));
         } else if (state is VpCreationError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
@@ -342,6 +343,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   uploadRc: uploadedRcFile ?? "",
               );
                vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
+              //context.push(AppRouteName.lpBottomNavigationBar);
+
             }
           },
         );
