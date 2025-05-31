@@ -82,6 +82,9 @@ class PngImages {
 class SvgImages {
   static const String _svgImageBasePath = "assets/images/svg/";
   final String appLogo = "${_svgImageBasePath}appLogo.svg";
+  final String kycPending = "${_svgImageBasePath}kyc_pending.svg";
+  final String kycSuccess = "${_svgImageBasePath}kyc_success.svg";
+  final String kycSuccessStatus = "${_svgImageBasePath}kyc_success_status.svg";
   final String noSearchFound = "${_svgImageBasePath}searchNotFound.svg";
   final String groBanner = "${_svgImageBasePath}gro_banner.svg";
   final String master = "${_svgImageBasePath}master.svg";

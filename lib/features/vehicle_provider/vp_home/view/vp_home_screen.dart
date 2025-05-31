@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/view/widgets/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
@@ -23,6 +24,7 @@ import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -98,35 +100,60 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               context: context,
 
               screen: KycBottomSheet(),
-            );
+            ).then((value) {
+              lpHomeBloc.add(
+                ProfileDetailRequested(
+                  lpHomeBloc.userId ?? "0",
+                ),
+              );
+            });;
           },
         ),
         10.width,
 
         // Profile
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              commonRoute(
-                LpProfileScreen(profileData: profileResponse!.data!),
-                isForward: true,
-              ),
-            ).then((v) {
-              addPostFrameCallback(
-                () => lpHomeBloc.add(
-                  ProfileDetailRequested(lpHomeBloc.userId ?? ""),
-                ),
+        BlocConsumer<LpHomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              profileResponse = state.profileDetailResponse;
+              profileImage =
+                  state.profileDetailResponse.data!.details!.profileImageUrl ??
+                  "";
+              setState(() {});
+            }
+            if (state is ProfileDetailError) {
+              ToastMessages.error(
+                message: getErrorMsg(errorType: state.errorType),
               );
-            });
+            }
           },
-          child: commonCacheNetworkImage(
-            radius: 50,
-            height: 40,
-            width: 40,
-            path: profileImage ?? "",
-            errorImage: AppImage.png.userProfileError,
-          ).paddingRight(commonSafeAreaPadding),
+          bloc: lpHomeBloc,
+          builder: (context, state) {
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  commonRoute(
+                    LpProfileScreen(profileData: profileResponse!.data!),
+                    isForward: true,
+                  ),
+                ).then((v) {
+                  addPostFrameCallback(
+                    () => lpHomeBloc.add(
+                      ProfileDetailRequested(lpHomeBloc.userId ?? ""),
+                    ),
+                  );
+                });
+              },
+              child: commonCacheNetworkImage(
+                radius: 50,
+                height: 40,
+                width: 40,
+                path: profileImage ?? "",
+                errorImage: AppImage.png.userProfileError,
+              ).paddingRight(commonSafeAreaPadding),
+            );
+          },
         ),
       ],
     );
@@ -139,6 +166,14 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         child:
             Column(
               children: [
+                profileResponse != null
+                    ? profileResponse!.data!.customer!.isKyc
+                    ? SvgPicture.asset(
+                  AppImage.svg.kycSuccessStatus,
+                  height: 50.h,
+                )
+                    : buildKYCStatusWidget()
+                    : buildKYCStatusWidget(),
                 20.height,
                 valueAddedService(context),
                 20.height,
@@ -150,7 +185,41 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       ),
     );
   }
-
+  Widget buildKYCStatusWidget() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      color: AppColors.appRedColor,
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(AppImage.png.alertTriangle, width: 20),
+          10.width,
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: context.appText.your,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+                TextSpan(
+                  text: "  ${context.appText.kyc}  ",
+                  style: AppTextStyle.textDarkGreyColor14w500.copyWith(
+                    color: AppColors.orangeTextColor,
+                  ),
+                ),
+                TextSpan(
+                  text: context.appText.stillPending,
+                  style: AppTextStyle.textDarkGreyColor14w500,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
     return Row(
       children: [
@@ -218,12 +287,40 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                           return MyLoadsListBody(
                             data: data,
                             onClickAssignDriver: () {
-                              Navigator.push(
-                                context,
-                                commonRoute(TripSchedulingScreen(data: data,allProfileDetails:profileResponse!.data!)),
-                              ).then((value) {
-                                vpHomeScreenBloc.add(VpMyLoadListRequested());
-                              },);
+                              if (profileResponse!.data!.customer!.isKyc) {
+                                Navigator.push(
+                                  context,
+                                  commonRoute(
+                                    TripSchedulingScreen(
+                                      data: data,
+                                      allProfileDetails: profileResponse!.data!,
+                                    ),
+                                  ),
+                                ).then((value) {
+                                  vpHomeScreenBloc.add(VpMyLoadListRequested());
+                                });
+                              } else {
+                                commonBottomSheetWithBGBlur(
+                                  screen: KycPendingDialogue(
+                                    onPressed: () {
+                                      context.pop();
+
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+
+                                        screen: KycBottomSheet(),
+                                      ).then((value) {
+                                        lpHomeBloc.add(
+                                          ProfileDetailRequested(
+                                            lpHomeBloc.userId ?? "0",
+                                          ),
+                                        );
+                                      });
+                                    },
+                                  ),
+                                  context: context,
+                                );
+                              }
                             },
                           );
                         },

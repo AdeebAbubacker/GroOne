@@ -17,6 +17,10 @@ class PngIcons {
   final String insightGraph = "${_pngBasePath}insight_graph.png";
   final String lockAndKey = "${_pngBasePath}lock_and_key.png";
 
+  //kavach payment icons
+  final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
+  final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
+  final String kavachPaymentNetBanking = "${_pngBasePath}payment_netbanking.png";
 
 }
 
@@ -54,6 +58,8 @@ class SvgIcons {
   final String markerLocation = "${_svgBasePath}marker_location.svg";
   final String myLocation = "${_svgBasePath}my_location.svg";
   final String calendar = "${_svgBasePath}calendar_outline.svg";
+  final String call = "${_svgBasePath}call.svg";
+  final String tick = "${_svgBasePath}tick.svg";
   final String agriculture = "${_svgBasePath}agriculture.svg";
   final String barrel = "${_svgBasePath}barrel.svg";
   final String bottles = "${_svgBasePath}bottles.svg";

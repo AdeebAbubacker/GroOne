@@ -5,6 +5,7 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -36,13 +37,18 @@ class _KycBottomSheetState extends State<KycBottomSheet> {
   TextEditingController addharNumberOtp = TextEditingController();
   bool showOtpFieldAdhar = false;
   final kycBloc = locator<KycBloc>();
+  final lpHomeBloc = locator<LpHomeBloc>();
 
   @override
   void initState() {
+    getUserId();
     showOtpFieldAdhar=false;
     addharNumberOtp.clear();
     addharNumberOtp.clear();
     super.initState();
+  }
+  getUserId()async{
+  await  lpHomeBloc.getUserId();
   }
   @override
   Widget build(BuildContext context) {
@@ -69,6 +75,9 @@ _buildBody(){
           setState(() {});
           context.pop();
           context.push(AppRouteName.kycScreen,extra: {"addharNumber":addharNumber.text}).then((v) {
+
+            lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId??"0"));
+
             addharNumber.clear();
             addharNumberOtp.clear();
           });
