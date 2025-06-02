@@ -127,7 +127,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
           BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
             listener: (context, state) {
-              bool isLoading = state is VpAcceptLoadLoading;
               if (state is VpAcceptLoadSuccess) {
                 vpRecentLoadListBloc.add(VpRecentLoad());
                 addPostFrameCallback(()=> AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully")));

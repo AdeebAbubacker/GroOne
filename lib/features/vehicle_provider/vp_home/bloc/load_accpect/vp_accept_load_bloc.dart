@@ -20,9 +20,13 @@ class VpAcceptLoadBloc extends Bloc<VpAcceptLoadEvent, VpAcceptLoadState> {
       );
       if (result is Success<VpLoadAcceptModel>) {
         emit(VpAcceptLoadSuccess(result.value));
+        await Future.delayed(const Duration(milliseconds: 100)); // slight delay to ensure UI handles it
+        emit(VpAcceptLoadInitial()); // Reset UI state
       }
       if (result is Error) {
         emit(VpAcceptLoadError(result.type));
+        await Future.delayed(const Duration(milliseconds: 100));
+        emit(VpAcceptLoadInitial()); // Reset state after error
       }
     });
   }

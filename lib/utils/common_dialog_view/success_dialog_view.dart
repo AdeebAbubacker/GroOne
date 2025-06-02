@@ -24,7 +24,7 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
   void initFunction(BuildContext context) => addPostFrameCallback(() async {
     await Future.delayed(Duration(seconds: 2));
     if(!context.mounted) return;
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true);
 
   });
 

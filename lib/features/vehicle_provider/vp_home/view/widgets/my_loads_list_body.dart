@@ -43,7 +43,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                     children: [
                       Text(widget.data.pickUpAddr, style: AppTextStyle.h4w500, maxLines: 1).expand(),
                       Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
-                      Expanded(child: Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis))).expand(),
+                      Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis)).expand(),
                     ],
                   ),
 
@@ -111,6 +111,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
             title: widget.data.assignStatus ==0 ? "Assign Driver": "Start Trip",
             style: AppButtonStyle.outline,
           )
+
         ],
       ),
     );
