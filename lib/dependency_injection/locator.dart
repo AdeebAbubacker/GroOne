@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
@@ -45,6 +46,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repo
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import '../features/kavach/bloc/kavach_checkout_bloc/kavach_checkout_bloc.dart';
 import '../features/kavach/repository/kavach_repository.dart';
 import '../features/kavach/service/kavach_service.dart';
 import '../features/kyc/bloc/kyc_bloc.dart';
@@ -118,6 +120,8 @@ void initLocator() {
     locator.registerFactory(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
     locator.registerFactory(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
     locator.registerFactory(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
+    locator.registerFactory(() => KavachProductsListBloc(locator<KavachRepository>()));
+    locator.registerFactory(() => KavachCheckoutBloc(locator<KavachRepository>(), locator<UserInformationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

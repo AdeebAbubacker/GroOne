@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_add_shipping_address_bottom_sheet.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -15,7 +17,11 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
-import '../model/kavach_product.dart';
+import '../bloc/kavach_checkout_bloc/kavach_checkout_bloc.dart';
+import '../bloc/kavach_checkout_bloc/kavach_checkout_event.dart';
+import '../bloc/kavach_checkout_bloc/kavach_checkout_state.dart';
+import '../model/kavach_address_model.dart';
+import '../model/kavach_product_model.dart';
 import 'widgets/product_counter.dart';
 
 class KavachCheckoutScreen extends StatefulWidget {
@@ -29,12 +35,6 @@ class KavachCheckoutScreen extends StatefulWidget {
 
 class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   final MultiSelectController<String> vehicleDetailsController = MultiSelectController<String>();
-
-
-  final List<DropdownItem<String>> vehicleDetailsItems = [
-    DropdownItem(label: 'Vehicle 1', value: 'vehicle 1'),
-    DropdownItem(label: 'Vehicle 2', value: 'vehicle 2'),
-  ];
   late Map<String, int> _quantities;
   late List<KavachProduct> _products;
 
@@ -43,6 +43,14 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     super.initState();
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<KavachProduct>.from(widget.products);
+    context.read<KavachCheckoutBloc>().add(FetchVehicles());
+    context.read<KavachCheckoutBloc>().add(FetchAddresses());
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -106,6 +114,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   Widget buildBodyWidget(BuildContext context){
     return SafeArea(
       child: SingleChildScrollView(
+
         child: Column(
           children: [
             Container(
@@ -142,19 +151,38 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppMultiSelectionDropdown<String>(
-                    labelText: context.appText.addVehicleDetails,
-                    hintText: context.appText.select,
-                    controller: vehicleDetailsController,
-                    items: vehicleDetailsItems,
-                    onSelectionChange: (selected) {
-                      print('Vehicle details: $selected');
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "${context.appText.truckType} ${context.appText.pinCode}";
+                  BlocBuilder<KavachCheckoutBloc, KavachCheckoutState>(
+                    builder: (context, state) {
+                      if (state is VehicleLoading) {
+                        return const CircularProgressIndicator();
+                      } else if (state is VehicleLoaded) {
+                        final items = state.vehicles.map((vehicle) {
+                          return DropdownItem<String>(
+                            label: vehicle.vehicleNumber,
+                            value: vehicle.vehicleNumber
+                          );
+                        }).toList();
+
+                        return AppMultiSelectionDropdown<String>(
+                          labelText: context.appText.addVehicleDetails,
+                          hintText: context.appText.select,
+                          controller: vehicleDetailsController,
+                          items: items,
+                          onSelectionChange: (selected) {
+                            print('Selected vehicles: $selected');
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "${context.appText.truckType} ${context.appText.pinCode}";
+                            }
+                            return null;
+                          },
+                        );
+                      } else if (state is VehicleError) {
+                        return Text('Error: ${state.error}');
                       }
-                      return null;
+
+                      return const SizedBox.shrink();
                     },
                   ),
                   15.height,
@@ -166,6 +194,47 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 ],
               ),
             ),
+
+            BlocBuilder<KavachCheckoutBloc, KavachCheckoutState>(
+              builder: (context, state) {
+                KavachAddressModel? selectedAddress;
+                if (state is AddressSelected) {
+                  selectedAddress = state.selectedAddress;
+                }
+                // else if (state is AddressLoaded && state.addresses.isNotEmpty) {
+                //   selectedAddress = state.addresses.first;
+                // }
+                if (selectedAddress != null) {
+                  return Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: commonContainerDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Expanded(child: Text(context.appText.shippingAddress, style: AppTextStyle.body3,)),
+                            TextButton.icon(
+                              onPressed: () {
+                                commonBottomSheetWithBGBlur(context: context, screen: const KavachShippingAddressListScreen());
+                              },
+                              icon: const Icon(Icons.mode_edit_outline_outlined, color: AppColors.primaryColor),
+                              label: Text('Change', style: AppTextStyle.primaryColor16w400),
+                            ),
+                          ],
+                        ),
+                        Text(selectedAddress.customerName, style: AppTextStyle.textDarkGreyColor14w500),
+                        Text('+91 ${selectedAddress.mobileNumber}', style: AppTextStyle.textDarkGreyColor14w500),
+                        Text(selectedAddress.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
+                      ],
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
+
             15.height,
             Container(
               padding: EdgeInsets.all(10),
@@ -173,11 +242,23 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.body3,),
+                  Row(
+                    children: [
+                      Expanded(child: Text(context.appText.shippingAddress, style: AppTextStyle.body3,)),
+                      TextButton.icon(onPressed: () {
+                        commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
+                      }, label:
+                      Text('Change',style: AppTextStyle.primaryColor16w400,),
+                        icon: Icon(Icons.mode_edit_outline_outlined,color: AppColors.primaryColor,),
+                      ),
+                    ],
+                  ),
                   5.height,
                   TextButton.icon(onPressed: () {
-                    commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
-                  }, label: Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
+                    commonBottomSheetWithBGBlur(context: context, screen: KavachAddShippingAddressBottomSheet());
+                  },
+                    label:
+                    Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
                     icon: Icon(Icons.add,color: AppColors.primaryColor,),
                   ),
                   15.height,
@@ -188,6 +269,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       }, value: false),
                       Text(context.appText.sameAsShippingAddress, style: AppTextStyle.primaryColor16w400,).expand()
                     ],
+                  ),
+                  TextButton.icon(onPressed: () {
+                    commonBottomSheetWithBGBlur(context: context, screen: KavachAddShippingAddressBottomSheet());
+                  },
+                    label:
+                  Text(context.appText.addNewAddress,style: AppTextStyle.primaryColor16w400,),
+                    icon: Icon(Icons.add,color: AppColors.primaryColor,),
                   ),
                   10.height,
                 ],
@@ -208,3 +296,41 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     ).bottomNavigationPadding();
   }
 }
+
+
+// BlocBuilder<KavachCheckoutBloc, KavachCheckoutState>(
+//   builder: (context, state) {
+//     if (state is AddressLoading) {
+//       return CircularProgressIndicator();
+//     } else if (state is AddressLoaded) {
+//       final address = state.addresses.first;
+//       return Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(address.customerName, style: AppTextStyle.textDarkGreyColor14w500),
+//           Text('+91 ${address.mobileNumber}', style: AppTextStyle.textDarkGreyColor14w500),
+//           Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
+//           TextButton.icon(
+//             onPressed: () {
+//               commonBottomSheetWithBGBlur(context: context, screen: KavachShippingAddressListScreen());
+//             },
+//             icon: Icon(Icons.mode_edit_outline_outlined, color: AppColors.primaryColor),
+//             label: Text('Change', style: AppTextStyle.primaryColor16w400),
+//           ),
+//         ],
+//       );
+//     } else if (state is AddressEmpty) {
+//       return TextButton.icon(
+//         onPressed: () {
+//           commonBottomSheetWithBGBlur(context: context, screen: KavachAddShippingAddressBottomSheet());
+//         },
+//         icon: Icon(Icons.add, color: AppColors.primaryColor),
+//         label: Text('Add Address', style: AppTextStyle.primaryColor16w400),
+//       );
+//     } else if (state is AddressError) {
+//       return Text('Error loading address');
+//     }
+//
+//     return SizedBox.shrink();
+//   },
+// ),

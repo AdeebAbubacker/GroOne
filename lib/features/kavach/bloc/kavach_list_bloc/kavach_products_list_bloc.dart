@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import '../../../../data/model/result.dart';
-import '../../model/kavach_product.dart';
+import '../../model/kavach_product_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
 import 'kavach_products_list_state.dart';
@@ -12,14 +12,7 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     on<FetchKavachProducts>(_onFetch);
     on<IncrementQuantity>(_onIncrement);
     on<DecrementQuantity>(_onDecrement);
-    // on<UpdateKavachQuantities>((event, emit) {
-    //   emit(state.copyWith(quantities: event.updatedQuantities));
-    // });
-    // on<UpdateKavachQuantities>((event, emit) {
-    //   final filtered = Map<String, int>.from(event.updatedQuantities)
-    //     ..removeWhere((key, value) => value <= 0);
-    //   emit(state.copyWith(quantities: filtered));
-    // });
+
     on<UpdateKavachQuantities>((event, emit) {
       // Emit updated quantities including zeros to reset them properly
       emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
@@ -50,7 +43,8 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
         hasMore: products.isNotEmpty,
         currentPage: event.page,
       ));
-    } else if (result is Error<List<KavachProduct>>) {
+    }
+    if (result is Error<List<KavachProduct>>) {
       emit(state.copyWith(error: result.type, loading: false));
     }
   }
@@ -64,13 +58,6 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     emit(state.copyWith(quantities: updated));
   }
 
-  // void _onDecrement(DecrementQuantity event, Emitter<KavachProductsListState> emit) {
-  //   final updated = Map<String, int>.from(state.quantities);
-  //   if ((updated[event.productId] ?? 1) > 0) {
-  //     updated[event.productId] = updated[event.productId]! - 1;
-  //     emit(state.copyWith(quantities: updated));
-  //   }
-  // }
   void _onDecrement(DecrementQuantity event, Emitter<KavachProductsListState> emit) {
     final updated = Map<String, int>.from(state.quantities);
     final currentQty = updated[event.productId] ?? 0;

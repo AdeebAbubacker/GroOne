@@ -14,7 +14,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
 import '../../bloc/kavach_list_bloc/kavach_products_list_event.dart';
-import '../../model/kavach_product.dart';
+import '../../model/kavach_product_model.dart';
 
 
 class KavachModelsListBody extends StatelessWidget {

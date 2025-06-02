@@ -8,7 +8,6 @@ class FetchKavachProducts extends KavachProductsListEvent {
   FetchKavachProducts({this.search = "", this.page = 1, this.isLoadMore = false});
 }
 
-
 class IncrementQuantity extends KavachProductsListEvent {
   final String productId;
   IncrementQuantity(this.productId);

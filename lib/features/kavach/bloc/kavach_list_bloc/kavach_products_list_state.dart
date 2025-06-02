@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../../data/model/result.dart';
-import '../../model/kavach_product.dart';
+import '../../model/kavach_product_model.dart';
 import 'package:collection/collection.dart';
 
 

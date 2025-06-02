@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_loa
 
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/kavach/bloc/kavach_checkout_bloc/kavach_checkout_bloc.dart';
 import 'features/kyc/bloc/kyc_bloc.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'features/load_provider/lp_profile/bloc/profile_bloc.dart';
@@ -49,6 +50,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpRecentLoadListBloc>(create: (_) => locator<VpRecentLoadListBloc>()),
         BlocProvider<VpAcceptLoadBloc>(create: (_) => locator<VpAcceptLoadBloc>()),
+        BlocProvider<KavachCheckoutBloc>(create: (_) => locator<KavachCheckoutBloc>()),
       ],
       child: child,
     );
