@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -44,6 +45,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   final vpCreationBloc = locator<VpCreationBloc>();
   final uploadRcTruckFileBloc = locator<UploadRcTruckFileBloc>();
+  final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
+
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -64,12 +67,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   List<dynamic> multiFilesList = [];
-
-  final List<DropdownItem<String>> truckTypeItems = [
-    DropdownItem(label: 'Open Truck', value: 'Open Truck'),
-    DropdownItem(label: 'Close Truck', value: 'Close Truck'),
-    DropdownItem(label: 'Trailer Truck', value: 'Trailer Truck'),
-  ];
 
   final List<DropdownItem<String>> preferredLanesList = [
     DropdownItem(label: 'Chennai - Mumbai', value: '1'),
@@ -96,6 +93,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   void initFunction() => addPostFrameCallback(() {
     mobileNumberTextController.text=widget.mobileNumber;
+    loadTruckTypeBloc.add(LoadTruckType());
   });
 
   void disposeFunction() => addPostFrameCallback(() {
@@ -107,7 +105,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.createAccount),
+      appBar: CommonAppBar(title: context.appText.createAccount, actions: [
+        IconButton(onPressed: (){
+          loadTruckTypeBloc.add(LoadTruckType());
+        }, icon: Icon(Icons.notifications_none_outlined))
+        ],),
       body: SafeArea(
         child: Form(
           key: formKey,
@@ -115,13 +117,13 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             children: [
               buildNameAndPhoneNumberWidget(),
               30.height,
-          
+
               buildBusinessDetailsWidget(context),
               30.height,
-          
+
               buildBusinessProofWidget(),
               30.height,
-          
+
               buildSubmitButton()
             ],
           ).withScroll(padding: EdgeInsets.all(commonSafeAreaPadding)),
@@ -199,21 +201,46 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // TrucK Type
-        AppMultiSelectionDropdown<String>(
-          labelText: context.appText.truckType,
-          hintText: context.appText.selectTruckType,
-          controller: truckTypeController,
-          items: truckTypeItems,
-          onSelectionChange: (selected) {
-            CustomLog.debug(this, 'Selected Trucks: $selected');
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "${context.appText.truckType} ${context.appText.pinCode}";
+        BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
+          bloc: loadTruckTypeBloc,
+          listener: (context, state) {
+            if (state is LoadTruckTypeSuccess) {
+
             }
-            return null;
+            if (state is LoadTruckTypeError) {
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            }
           },
+          child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
+            bloc: loadTruckTypeBloc,
+            builder: (context, state) {
+              if (state is LoadTruckTypeSuccess) {
+                return AppMultiSelectionDropdown<String>(
+                  labelText: context.appText.truckType,
+                  hintText: context.appText.selectTruckType,
+                  controller: truckTypeController,
+                  items: state.loadTruckTypeListModel.data.map((e) => DropdownItem<String>(
+                    value: e.type, // or e.id
+                    label: e.type,
+                  )).toList(),
+                  onSelectionChange: (selected) {
+                    CustomLog.debug(this, 'Selected Trucks: ${selected.first}');
+                    truckTypeDropDownValue = selected.first;
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "${context.appText.truckType} ${context.appText.pinCode}";
+                    }
+                    return null;
+                  },
+                );
+              }
+              return const SizedBox();
+            },
+          ),
         ),
+
+
         20.height,
 
         // Owned Truck
