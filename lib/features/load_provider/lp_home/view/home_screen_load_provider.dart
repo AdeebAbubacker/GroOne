@@ -699,27 +699,23 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     // Destination
                     bookShipmentWidget(
                       heading: context.appText.destination,
-                      subHeading:
-                          destination?['address'] ?? context.appText.selectDestination,
+                      subHeading: destination?['address'] ?? context.appText.selectDestination,
                       onClick: () {
                         Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             destination = onValue;
-
                           }
                           setState(() {});
 
-                              dynamic req = RateDiscoveryApiRequest(
+                          dynamic req = RateDiscoveryApiRequest(
                                 // pickup: pickup?.toLowerCase(),
                                 // drop: destination?.toLowerCase(),
                                 pickup: "chennai",
                                 drop: "bangalore",
-                              );
+                          );
 
-                              rateDiscoveryBloc.add(
-                                RateDiscoveryEvent(apiRequest: req),
-                              );
-                            });
+                          rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
+                        });
                       },
                     ),
                   ],
@@ -759,7 +755,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       selectedValueCommodity = !selectedValueCommodity;
                       setState(() {});
                     },
-                  ).paddingBottom(20);
+                  ).paddingBottom(15);
                 }
                 return const SizedBox();
               },
@@ -797,7 +793,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     viewDropDown: selectedValueTruck,
                     onTab: () {
                       selectedValueTruck = !selectedValueTruck;
-                      print(selectedValueTruck);
                       setState(() {});
                     },
                   ).paddingBottom(15);
@@ -807,7 +802,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             ),
           ),
 
-          20.height,
 
           // Date and Time
           InkWell(
@@ -937,7 +931,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       title: context.appText.postLoad,
                       isLoading: isLoading,
                       onPressed: isLoading ? (){} : () async {
-    if (profileResponse!.data!.customer!.isKyc) {
+                        if (profileResponse!.data!.customer!.isKyc) {
                         try {
 
                           if(pickup == null){
@@ -998,8 +992,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           ), isForward: true)).then((onValue){
                             loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
                             if(onValue!=null && onValue == true){
-
-
                               disposeFunction();
                             }
                           });
@@ -1007,28 +999,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         } catch (e) {
                           CustomLog.debug(this, e.toString());
                         }}else{
-      commonBottomSheetWithBGBlur(
-        screen: KycPendingDialogue(
-          onPressed: () {
-            context.pop();
-
-            commonBottomSheetWithBGBlur(
-              context: context,
-
-              screen: KycBottomSheet(),
-            ).then((value) {
-              lpHomeBloc.add(
-                ProfileDetailRequested(
-                  lpHomeBloc.userId ?? "0",
-                ),
-              );
-            });
-            ;
-          },
-        ),
-        context: context,
-      );
-    }
+                          commonBottomSheetWithBGBlur(
+                            screen: KycPendingDialogue(
+                              onPressed: () {
+                                context.pop();
+                                commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet()).then((value) {
+                                  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
+                                  );
+                                });
+                                },
+                            ),
+                            context: context,
+                          );
+                        }
                       },
                     );
                   },
@@ -1046,14 +1029,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             onPressed: (){},
             child: Text("Need Our Customer Support Help?",style: AppTextStyle.bodyPrimaryColor),
           ),
+
+
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
 
-  // Up coming shipment
-
-  // Upcoming Widget
 
 
 }
