@@ -15,7 +15,6 @@ class VpRecentLoadListBloc extends Bloc<VpRecentLoadListEvent, VpRecentLoadListS
       Result result = await _vHomeRepository.getVpRecentLoadData();
       if (result is Success<VpRecentLoadResponse>) {
         emit(VpRecentLoadListSuccess(result.value));
-        emit(VpRecentLoadListInitial());
       }
       if (result is Error) {
         emit(VpRecentLoadListError(result.type));
