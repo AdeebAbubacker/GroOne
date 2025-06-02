@@ -305,19 +305,13 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
             borderRadius: BorderRadius.circular(0),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              10.height,
+              20.height,
               // Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("My Loads", style: AppTextStyle.body1).expand(),
+              Text("My Loads", textAlign: TextAlign.start, style: AppTextStyle.body1),
 
-                  // See More
-                ],
-              ),
-
-              10.height,
+              20.height,
               // List
               Builder(
                 builder: (context) {
@@ -347,7 +341,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                         data: data,
                         onClickAssignDriver: () {
                           final isKycDone = profileResponse?.data?.customer?.isKyc ?? false;
-
                           if (isKycDone) {
                             Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!))).then((_) {
                               vpHomeScreenBloc.add(VpMyLoadListRequested());

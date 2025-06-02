@@ -97,7 +97,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black),),
+              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
               10.width,
               Text("${widget.data.consignmentWeight} Tonn", style: AppTextStyle.body),
             ],
