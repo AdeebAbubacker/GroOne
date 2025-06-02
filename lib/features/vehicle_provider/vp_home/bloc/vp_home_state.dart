@@ -49,30 +49,7 @@ class VpMyLoadListError extends VpHomeState {
   VpMyLoadListError(this.errorType);
 }
 
-class VpRecentLoadListLoading extends VpHomeState {}
 
-class VpRecentLoadListError extends VpHomeState {
-  final ErrorType errorType;
 
-  VpRecentLoadListError(this.errorType);
-}
 
-class VpRecentLoadListSuccess extends VpHomeState {
-  final VpRecentLoadResponse vpRecentLoadResponse;
 
-  VpRecentLoadListSuccess(this.vpRecentLoadResponse);
-}
-
-class VpAcceptLoadLoading extends VpHomeState {}
-
-class VpAcceptLoadError extends VpHomeState {
-  final ErrorType errorType;
-
-  VpAcceptLoadError(this.errorType);
-}
-
-class VpAcceptLoadSuccess extends VpHomeState {
-  final VpLoadAcceptModel vpLoadAcceptModel;
-
-  VpAcceptLoadSuccess(this.vpLoadAcceptModel);
-}

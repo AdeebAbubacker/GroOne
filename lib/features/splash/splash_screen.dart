@@ -29,8 +29,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-
-
     _controller = VideoPlayerController.asset(AppImage.png.splash)
       ..initialize().then((_) {
         if (mounted) {

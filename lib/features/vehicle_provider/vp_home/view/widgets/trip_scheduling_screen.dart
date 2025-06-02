@@ -161,19 +161,19 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                             Text(
                               widget.data.pickUpAddr,
                               style: AppTextStyle.h4w500,
-                            ),
+                              maxLines: 1,
+                            ).expand(),
+
                             Icon(
                               Icons.arrow_right_alt_outlined,
                               color: AppColors.primaryColor,
                             ).paddingSymmetric(horizontal: 5),
-                            Expanded(
-                              child: Text(
-                                widget.data.dropAddr,
-                                style: AppTextStyle.h4w500.copyWith(
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
+
+                            Text(
+                              widget.data.dropAddr,
+                              maxLines: 1,
+                              style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis),
+                            ).expand(),
                           ],
                         ),
                         Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),

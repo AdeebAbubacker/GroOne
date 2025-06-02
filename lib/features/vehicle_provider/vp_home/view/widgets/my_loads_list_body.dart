@@ -32,19 +32,21 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
       decoration: commonContainerDecoration(borderColor: AppColors.borderColor, borderWidth: 1),
       child: Column(
         children: [
+
           ListTile(
               contentPadding: EdgeInsets.zero,
-
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Row(
                     children: [
-                      Text(widget.data.pickUpAddr, style: AppTextStyle.h4w500),
+                      Text(widget.data.pickUpAddr, style: AppTextStyle.h4w500, maxLines: 1).expand(),
                       Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
-                      Expanded(child: Text(widget.data.dropAddr, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis))),
+                      Expanded(child: Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis))).expand(),
                     ],
                   ),
+
                   Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),
                 ],
               ),
@@ -60,7 +62,9 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
 
           commonDivider(),
 
+
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
@@ -68,13 +72,14 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   10.width,
                   Text(widget.data.truckType!.subType, style: AppTextStyle.body),
                 ],
-              ).expand(),
+              ),
               statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
             ],
           ),
           10.height,
 
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
@@ -82,23 +87,28 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   10.width,
                   Text(widget.data.commodity!.name, style: AppTextStyle.body),
                 ],
-              ).expand(),
+              ),
               Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
             ],
           ),
-          20.height,
+          10.height,
+
+
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SvgPicture.asset(AppIcons.svg.package),
+              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black),),
               10.width,
               Text("${widget.data.consignmentWeight} Tonn", style: AppTextStyle.body),
             ],
           ),
+
+
           20.height,
           AppButton(
             buttonHeight: 32.h,
             onPressed: widget.onClickAssignDriver,
-            title: widget.data.assignStatus==0?"Assign Driver":"Start Trip",
+            title: widget.data.assignStatus ==0 ? "Assign Driver": "Start Trip",
             style: AppButtonStyle.outline,
           )
         ],

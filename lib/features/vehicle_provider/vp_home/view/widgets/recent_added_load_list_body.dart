@@ -3,7 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -32,7 +35,9 @@ class RecentAddedLoadListBody extends StatefulWidget {
 
 class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
+  final bloc = locator<VpAcceptLoadBloc>();
+  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+
 
 
   @override
@@ -89,14 +94,16 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
           if(widget.data.commodity != null)...[
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 Row(
                   children: [
                     SvgPicture.asset(AppIcons.svg.package),
                     10.width,
                     Text(widget.data.commodity!.name, style: AppTextStyle.body),
                   ],
-                ).expand(),
+                ),
                 Text("$indianCurrencySymbol${widget.data.rate}", style: AppTextStyle.h4),
               ],
             ),
@@ -107,6 +114,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
 
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
               7.width,
@@ -117,22 +125,24 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
           20.height,
 
 
-          BlocListener<VpHomeBloc, VpHomeState>(
+          BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
             listener: (context, state) {
+              bool isLoading = state is VpAcceptLoadLoading;
               if (state is VpAcceptLoadSuccess) {
+                vpRecentLoadListBloc.add(VpRecentLoad());
                 addPostFrameCallback(()=> AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully")));
               }
               if (state is VpAcceptLoadError) {
                 addPostFrameCallback(()=> ToastMessages.error(message: getErrorMsg(errorType: state.errorType)));
               }
             },
-            child: BlocBuilder<VpHomeBloc, VpHomeState>(
-            bloc: vpHomeScreenBloc,
+            bloc: bloc,
+            child: BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
             builder: (context, state) {
               return AppButton(
                 buttonHeight: 35.h,
                 onPressed: (){
-                  vpHomeScreenBloc.add(VpAcceptLoadEvent(loadId: widget.data.id.toString()));
+                  bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                 },
                 isLoading: state is VpAcceptLoadLoading,
                 title: context.appText.accept,
@@ -140,7 +150,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
               );
             },
           ),
-),
+          ),
 
         ],
       ),

@@ -36,19 +36,6 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       }
     });
 
-    on<VpRecentLoadEvent>((event, emit) async {
-      emit(VpRecentLoadListLoading());
-
-      Result result = await _vHomeRepository.getVpRecentLoadData();
-
-      if (result is Success<VpRecentLoadResponse>) {
-        emit(VpRecentLoadListSuccess(result.value));
-      }
-      if (result is Error) {
-        emit(VpRecentLoadListError(result.type));
-      }
-    });
-
     on<VpVehicleListRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
       Result result = await _vHomeRepository.getVehicleDetails(
@@ -64,21 +51,6 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       }
     });
 
-     on<VpAcceptLoadEvent>((event, emit) async {
-      emit(VpMyLoadListLoading());
-
-      Result result = await _vHomeRepository.getLoadAcceptData(
-        userId: await _userInformationRepository.getUserID()??'',
-        loadId: event.loadId
-      );
-
-      if (result is Success<VpLoadAcceptModel>) {
-        emit(VpAcceptLoadSuccess(result.value));
-      }
-      if (result is Error) {
-        emit(VpAcceptLoadError(result.type));
-      }
-    });
 
 
     on<VpDriverDetailsRequested>((event, emit) async {

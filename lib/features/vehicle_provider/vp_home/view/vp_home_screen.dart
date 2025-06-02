@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/vehicle_provider/available_loads/view/avail
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
@@ -59,6 +60,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
+
+  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+
+
   final searchController = TextEditingController();
   ProfileDetailResponse? profileResponse;
   VpMyLoadResponse? vpMyLoadResponse;
@@ -80,7 +85,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
   void initFunction() => addPostFrameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
-    vpHomeScreenBloc.add(VpRecentLoadEvent());
+    vpRecentLoadListBloc.add(VpRecentLoad());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
   });
@@ -184,32 +189,39 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   /// Body
   Widget _buildBody(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child:
-            Column(
-              children: [
-                Builder(
-                    builder: (context) {
-                      if ( profileResponse != null ) {
-                        if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
-                          if (profileResponse!.data!.customer!.isKyc) {
-                            return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
-                          } else {
-                            return buildKYCStatusWidget();
+      body: RefreshIndicator(
+        onRefresh: () async {
+          vpRecentLoadListBloc.add(VpRecentLoad());
+          vpHomeScreenBloc.add(VpMyLoadListRequested());
+        },
+        child: SafeArea(
+          child:
+              Column(
+                children: [
+                  Builder(
+                      builder: (context) {
+                        if ( profileResponse != null ) {
+                          if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
+                            if (profileResponse!.data!.customer!.isKyc) {
+                              return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
+                            } else {
+                              return buildKYCStatusWidget();
+                            }
                           }
                         }
+                       // return buildKYCStatusWidget();
+                        return SizedBox();
                       }
-                      return buildKYCStatusWidget();
-                    }
-                ),
+                  ),
 
-                valueAddedService(context),
-                20.height,
-                _buildMyLoadsWidget(context),
-                20.height,
-                _buildRecentAddedLoadWidget(context),
-              ],
-            ).withScroll(),
+                  valueAddedService(context),
+                  20.height,
+                  _buildMyLoadsWidget(context),
+                  20.height,
+                  _buildRecentAddedLoadWidget(context),
+                ],
+              ).withScroll(),
+        ),
       ),
     );
   }
@@ -307,64 +319,62 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
               10.height,
               // List
-              vpMyLoadResponse != null
-                  ? vpMyLoadResponse!.data.isNotEmpty
-                      ? ListView.separated(
-                        itemCount: vpMyLoadResponse!.data.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        separatorBuilder: (context, index) => 20.height,
-                        itemBuilder: (context, index) {
-                          var data = vpMyLoadResponse!.data[index];
-                          return MyLoadsListBody(
-                            data: data,
-                            onClickAssignDriver: () {
-                              if (profileResponse!.data!.customer!.isKyc) {
-                                Navigator.push(
-                                  context,
-                                  commonRoute(
-                                    TripSchedulingScreen(
-                                      data: data,
-                                      allProfileDetails: profileResponse!.data!,
-                                    ),
-                                  ),
-                                ).then((value) {
-                                  vpHomeScreenBloc.add(VpMyLoadListRequested());
-                                });
-                              } else {
-                                commonBottomSheetWithBGBlur(
-                                  screen: KycPendingDialogue(
-                                    onPressed: () {
-                                      context.pop();
+              Builder(
+                builder: (context) {
+                  if (vpMyLoadResponse == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                                      commonBottomSheetWithBGBlur(
-                                        context: context,
+                  if (vpMyLoadResponse!.data.isEmpty) {
+                    return Center(
+                      child: Image.asset(
+                        AppImage.png.noShipment,
+                        width: 201.w,
+                        height: 134.h,
+                      ),
+                    );
+                  }
 
-                                        screen: KycBottomSheet(),
-                                      ).then((value) {
-                                        lpHomeBloc.add(
-                                          ProfileDetailRequested(
-                                            lpHomeBloc.userId ?? "0",
-                                          ),
-                                        );
-                                      });
-                                    },
-                                  ),
-                                  context: context,
-                                );
-                              }
-                            },
-                          );
+                  return ListView.separated(
+                    itemCount: vpMyLoadResponse!.data.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (context, index) => 20.height,
+                    itemBuilder: (context, index) {
+                      final data = vpMyLoadResponse!.data[index];
+
+                      return MyLoadsListBody(
+                        data: data,
+                        onClickAssignDriver: () {
+                          final isKycDone = profileResponse?.data?.customer?.isKyc ?? false;
+
+                          if (isKycDone) {
+                            Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!))).then((_) {
+                              vpHomeScreenBloc.add(VpMyLoadListRequested());
+                            });
+                          } else {
+                            commonBottomSheetWithBGBlur(
+                              context: context,
+                              screen: KycPendingDialogue(
+                                onPressed: () {
+                                  context.pop();
+                                  commonBottomSheetWithBGBlur(
+                                    context: context,
+                                    screen: KycBottomSheet(),
+                                  ).then((_) {
+                                    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
+                                  });
+                                },
+                              ),
+                            );
+                          }
                         },
-                      )
-                      : Center(
-                        child: Image.asset(
-                          width: 201.w,
-                          height: 134.h,
-                          AppImage.png.noShipment,
-                        ),
-                      )
-                  : Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                  );
+                },
+              ),
+
 
               20.height,
             ],
@@ -407,8 +417,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           20.height,
 
           // List
-          BlocBuilder<VpHomeBloc, VpHomeState>(
-            bloc: vpHomeScreenBloc,
+          BlocBuilder<VpRecentLoadListBloc, VpRecentLoadListState>(
+            bloc: vpRecentLoadListBloc,
             builder: (context, state) {
               if (state is VpRecentLoadListLoading) {
                  return CircularProgressIndicator().center();
@@ -431,7 +441,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                   return genericErrorWidget(error: NotFoundError());
                 }
               }
-              return genericErrorWidget(error: GenericError());
+              return 100.height;
             },
           ),
           20.height,

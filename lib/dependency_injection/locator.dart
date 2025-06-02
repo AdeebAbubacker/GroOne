@@ -38,7 +38,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -114,6 +116,8 @@ void initLocator() {
     locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
     locator.registerFactory(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
     locator.registerFactory(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
+    locator.registerFactory(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
+    locator.registerFactory(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

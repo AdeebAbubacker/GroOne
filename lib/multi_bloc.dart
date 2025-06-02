@@ -9,7 +9,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/r
 import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/bloc/lp_map_select_pick_point_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
@@ -45,6 +47,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
+        BlocProvider<VpRecentLoadListBloc>(create: (_) => locator<VpRecentLoadListBloc>()),
+        BlocProvider<VpAcceptLoadBloc>(create: (_) => locator<VpAcceptLoadBloc>()),
       ],
       child: child,
     );

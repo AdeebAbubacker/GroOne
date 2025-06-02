@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -30,7 +31,7 @@ class AvailableLoadsScreen extends StatefulWidget {
 
 class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
 
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
+  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
 
   final searchController = TextEditingController();
 
@@ -50,7 +51,7 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
   }
 
   void initFunction() => addPostFrameCallback(() async {
-    vpHomeScreenBloc.add(VpRecentLoadEvent());
+    vpRecentLoadListBloc.add(VpRecentLoad());
   });
 
   void disposeFunction() => addPostFrameCallback(() {});
@@ -85,8 +86,8 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
             10.height,
 
             // List
-            BlocBuilder<VpHomeBloc, VpHomeState>(
-              bloc: vpHomeScreenBloc,
+            BlocBuilder<VpRecentLoadListBloc, VpRecentLoadListState>(
+              bloc: vpRecentLoadListBloc,
               builder: (context, state) {
                 if (state is VpRecentLoadListLoading) {
                   return CircularProgressIndicator().center();
