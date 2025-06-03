@@ -20,3 +20,6 @@ class LogoutAPIRequested extends VpCreationEvent {
   final LogOutRequest apiRequest;
   LogoutAPIRequested({required this.apiRequest});
 }
+
+// Reset Event
+class VpResetEvent extends VpCreationEvent {}

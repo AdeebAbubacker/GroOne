@@ -19,6 +19,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     on<LogoutRequested>(logout);
     on<LogoutAPIRequested>(logOutApiCall);
     on<GetTruckTypeEvent>(fetchTruckType);
+    on<VpResetEvent>(resetUIState);
   }
 
 
@@ -70,6 +71,10 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     if (result is Error) {
       emit(LogoutError(result.type));
     }
+  }
+
+  void resetUIState(VpResetEvent event, Emitter emit) {
+    emit(VpCreationInitial());
   }
 
 

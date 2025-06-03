@@ -113,13 +113,14 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     uploadedRcFile = null;
     multiFilesList.clear();
     preferredLanesList.clear();
-    uploadRcTruckFileBloc.close();
-    vpCreationBloc.close();
+    vpCreationBloc.add(VpResetEvent());
+
   });
 
 
   // Vp Creation Api call
   void vpCreationApiCall(){
+    print("uploadedRcFile ${uploadedRcFile}");
     if (formKey.currentState!.validate()){
       if(uploadedRcFile == null){
         return;
@@ -132,7 +133,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
         preferredLanes: preferredLanesDropDownValue,
-        uploadRc: uploadedRcFile ?? "",
+        uploadRc: uploadedRcFile,
       );
       vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
     }
@@ -360,6 +361,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
               isSingleFile: true,
+              isLoading: state is UploadRcTruckFileLoading,
               thenUploadFileToSever: ()  {
                 if (multiFilesList.isNotEmpty) {
                   uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
@@ -367,7 +369,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                     if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
                       uploadedRcFile = state.fileModel.data!.url;
                     } else {
-                      uploadedRcFile = null;
                       multiFilesList.clear();
                     }
                   }
@@ -395,6 +396,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         if (state is VpCreationSuccess) {
           navigateToHomeScreen(context);
         } else if (state is VpCreationError) {
+          vpCreationBloc.add(VpResetEvent());
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
       },

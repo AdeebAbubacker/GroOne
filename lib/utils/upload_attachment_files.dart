@@ -24,9 +24,10 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
+  final bool? isLoading;
   final String? title;
   final Function? thenUploadFileToSever;
-  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever});
+  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever, this.isLoading = false});
 
   @override
   State<UploadAttachmentFiles> createState() => _UploadAttachmentFilesState();
@@ -147,6 +148,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             Text(widget.multiFilesList[index]["fileName"].toString().capitalizeFirst, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.body).expand(),
                             10.width,
                             // AppIconButton(onPressed: (){}, icon: AppIcons.svg.edit)
+
+                            if(!widget.isLoading!)
                             AppIconButton(
                               onPressed: (){
                                 widget.multiFilesList.removeAt(index);
@@ -156,7 +159,9 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                               },
                               icon: AppIcons.svg.delete,
                               iconColor: AppColors.activeRedColor,
-                            ),
+                            )
+                            else
+                              CupertinoActivityIndicator()
                           ],
                         ),
                       );

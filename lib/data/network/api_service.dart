@@ -252,11 +252,11 @@ class ApiService {
   Result<dynamic> _handleHttpError(Response? response) {
     switch (response?.statusCode) {
       case 400:
-        return Error(ErrorWithMessage.fromApiResponse(response?.data));
+        return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        return Error(UnauthenticatedError());
+        return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
-        return Error(NotFoundError());
+        return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
         return Error(ConflictError());
       case 498:

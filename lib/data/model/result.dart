@@ -62,11 +62,25 @@ class InvalidTokenError extends ErrorType {
 }
 
 class BadRequestError extends ErrorType {
+  final String? message;
+  BadRequestError({this.message});
   @override
   String getText(BuildContext context) {
+    if(message != null){
+      return message!;
+    }
     return AppString.errorType.badRequestError.capitalize;
   }
+
+  factory BadRequestError.fromApiResponse(Map<String, dynamic> response) {
+    return BadRequestError(
+      message: response['message'] ?? "",
+    );
+  }
+
 }
+
+
 
 class InternalServerError extends ErrorType {
   @override
@@ -82,18 +96,43 @@ class ConflictError extends ErrorType {
   }
 }
 
+// Not Found Error
 class NotFoundError extends ErrorType {
+  final String? message;
+  NotFoundError({this.message});
   @override
   String getText(BuildContext context) {
+    if(message != null){
+      return message!;
+    }
     return AppString.errorType.notFound.capitalize;
   }
+
+  factory NotFoundError.fromApiResponse(Map<String, dynamic> response) {
+    return NotFoundError(
+      message: response['message'] ?? "",
+    );
+  }
+
 }
 
 class UnauthenticatedError extends ErrorType {
+  final String? message;
+  UnauthenticatedError({this.message});
   @override
   String getText(BuildContext context) {
+    if(message != null){
+      return message!;
+    }
     return AppString.errorType.unauthenticatedError.capitalize;
   }
+
+  factory UnauthenticatedError.fromApiResponse(Map<String, dynamic> response) {
+    return UnauthenticatedError(
+      message: response['message'] ?? "",
+    );
+  }
+
 }
 
 class NetworkTimeoutError extends ErrorType {
@@ -151,7 +190,6 @@ class InternetNetworkError extends ErrorType {
     return AppString.errorType.networkError.capitalize;
   }
 }
-
 
 class InvalidInputError extends ErrorType {
   @override
