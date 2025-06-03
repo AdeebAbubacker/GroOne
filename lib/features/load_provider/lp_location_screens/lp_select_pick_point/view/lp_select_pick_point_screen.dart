@@ -1,20 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_animations/flutter_map_animations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class LpSelectPickPointScreen extends StatefulWidget {
   final String title;
@@ -27,28 +24,36 @@ class LpSelectPickPointScreen extends StatefulWidget {
       _LpSelectPickPointScreenState();
 }
 
-class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
-    with TickerProviderStateMixin {
+class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> {
   TextEditingController addressTextController = TextEditingController();
   TextEditingController searchTextController = TextEditingController();
-  late final AnimatedMapController _animatedMapController;
 
+  GoogleMapController? _googleMapController;
   LatLng? centerLatLng;
-  String _address = 'No address found';
+  String _locationField = '';
   List<dynamic> suggestions = [];
   final String googlePlacesApiKey = "AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY";
+  String latLngData = "";
+
+  // New flag to track first map movement for destination mode
+  bool _hasMovedMap = false;
 
   @override
   void initState() {
     super.initState();
-    _animatedMapController = AnimatedMapController(vsync: this);
-
-    addPostFrameCallback(() {
-      Future.delayed(const Duration(milliseconds: 300), _getCurrentLocation);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.title == "Pickup Point") {
+        await _getCurrentLocation();
+      } else {
+        await _getCurrentLocation(fetchOnly: true);
+      }
     });
   }
 
-  Future<void> _getCurrentLocation({bool animate = false}) async {
+  Future<void> _getCurrentLocation({
+    bool animate = false,
+    bool fetchOnly = false,
+  }) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
 
@@ -57,7 +62,6 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) return;
     }
-
     if (permission == LocationPermission.deniedForever) return;
 
     Position position = await Geolocator.getCurrentPosition();
@@ -65,31 +69,44 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
 
     setState(() {
       centerLatLng = latLng;
+      latLngData = "${latLng.latitude},${latLng.longitude}";
     });
 
-    if (widget.title == "Pickup Point") {
-      latLngData="${latLng.latitude},${latLng.longitude}";
-      getAddressFromLatLng(latLng.latitude, latLng.longitude);
-      setState(() {
-
-      });
+    if (!fetchOnly && widget.title == "Pickup Point") {
+      await _updateAddressFromLatLng(latLng);
     }
 
-    if (animate) {
-      _animatedMapController.animateTo(dest: latLng, zoom: 15);
+    if (animate && _googleMapController != null) {
+      _googleMapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(latLng, 15),
+      );
     }
   }
 
-  Future<void> getAddressFromLatLng(double lat, double lng) async {
+  Future<void> _updateAddressFromLatLng(LatLng latLng) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      List<Placemark> placemarks =
+      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
       Placemark place = placemarks.first;
+      final address = '${place.street}, ${place.locality}, ${place.country}';
+
       setState(() {
-        _address = '${place.street}, ${place.locality}, ${place.country}';
+        _locationField = address;
+        if (widget.title != "Pickup Point") {
+          // For destination, update searchTextController on map move (except first)
+          if (_hasMovedMap) {
+            searchTextController.text = address;
+          }
+        }
       });
     } catch (e) {
       setState(() {
-        _address = 'Error: $e';
+        _locationField = 'No address found';
+        if (widget.title != "Pickup Point") {
+          if (_hasMovedMap) {
+            searchTextController.text = '';
+          }
+        }
       });
     }
   }
@@ -97,7 +114,6 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
   Future<void> fetchSuggestions(String input) async {
     final String url =
         "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$googlePlacesApiKey";
-
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
@@ -107,14 +123,13 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       });
     }
   }
-  String latLngData="";
+
   Future<void> fetchLatLngFromPlaceId(
       String placeId,
       String description,
       ) async {
     final url =
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$googlePlacesApiKey";
-
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
@@ -124,35 +139,59 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       final latLng = LatLng(location['lat'], location['lng']);
 
       setState(() {
-        latLngData="${location['lat'].toString()},${ location['lng'].toString()}";
+        latLngData = "${location['lat']},${location['lng']}";
         centerLatLng = latLng;
-        _address = formattedAddress;
+        _locationField = formattedAddress;
         searchTextController.text = description;
         suggestions.clear();
 
+        // Once user picks suggestion, map moves, so set flag true:
+        _hasMovedMap = true;
       });
 
-      _animatedMapController.animateTo(dest: latLng, zoom: 15);
+      _googleMapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(latLng, 15),
+      );
     }
   }
 
-  void _onPositionChanged(MapPosition position, bool hasGesture) {
-    if (position.center != null) {
-      setState(() {
-        centerLatLng = position.center!;
-        latLngData="${centerLatLng!.latitude},${centerLatLng!.longitude}";
-      });
-      if (widget.title == "Pickup Point") {
-        getAddressFromLatLng(centerLatLng!.latitude, centerLatLng!.longitude);
+  void _onCameraMove(CameraPosition position) {
+    setState(() {
+      centerLatLng = position.target;
+      latLngData = "${position.target.latitude},${position.target.longitude}";
+    });
+
+    if (widget.title == "Pickup Point") {
+      // Always update pickup location immediately:
+      _updateAddressFromLatLng(position.target);
+    } else {
+      // For destination: skip first move to prevent initial address update in search field
+      if (!_hasMovedMap) {
+        _hasMovedMap = true;
+        return;
       }
+      _updateAddressFromLatLng(position.target);
     }
+  }
+
+  Widget _buildFloatingButton(IconData icon, VoidCallback onPressed) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      child: IconButton(icon: Icon(icon), onPressed: onPressed),
+    );
   }
 
   @override
   void dispose() {
-    _animatedMapController.dispose();
     addressTextController.dispose();
     searchTextController.dispose();
+    _googleMapController?.dispose();
     super.dispose();
   }
 
@@ -162,48 +201,63 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
       appBar: CommonAppBar(title: widget.title),
       body: Stack(
         children: [
-          Positioned.fill(
-            child:
-            centerLatLng == null
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 420.h,
+            child: centerLatLng == null
                 ? const Center(child: CircularProgressIndicator())
-                : SizedBox(height: 500.h,
-                  child: FlutterMap(
-                                mapController: _animatedMapController.mapController,
-                                options: MapOptions(
-                  initialCenter: centerLatLng!,
-                  initialZoom: 15,
-                  onPositionChanged: _onPositionChanged,
-                                ),
-                                children: [
-                  TileLayer(
-                    urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                : Stack(
+              children: [
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: centerLatLng!,
+                    zoom: 15,
                   ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: centerLatLng!,
-                        width: 80,
-                        height: 80,
-                        child: const Icon(
-                          Icons.location_pin,
-                          color: Colors.red,
-                          size: 40,
-                        ),
-                      ),
+                  onMapCreated: (controller) => _googleMapController = controller,
+                  onCameraMove: _onCameraMove,
+                  myLocationEnabled: false,
+                  zoomControlsEnabled: false,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.location_pin,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+                Positioned(
+                  right: 12,
+                  top: 250,
+                  child: Column(
+                    children: [
+                      _buildFloatingButton(Icons.add, () async {
+                        if (_googleMapController != null) {
+                          final zoom = await _googleMapController!.getZoomLevel();
+                          _googleMapController!.moveCamera(
+                            CameraUpdate.zoomTo(zoom + 1),
+                          );
+                        }
+                      }),
+                      const SizedBox(height: 8),
+                      _buildFloatingButton(Icons.remove, () async {
+                        if (_googleMapController != null) {
+                          final zoom = await _googleMapController!.getZoomLevel();
+                          _googleMapController!.moveCamera(
+                            CameraUpdate.zoomTo(zoom - 1),
+                          );
+                        }
+                      }),
+                      const SizedBox(height: 8),
+                      _buildFloatingButton(Icons.my_location, () {
+                        _getCurrentLocation(animate: true);
+                      }),
                     ],
                   ),
-                                ],
-                              ),
                 ),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 330,
-            child: IconButton(
-              icon: Icon(Icons.my_location, color: AppColors.primaryDarkColor),
-              onPressed: () => _getCurrentLocation(animate: true),
+              ],
             ),
           ),
           Positioned(
@@ -232,7 +286,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        _address,
+                        _locationField,
                         style: AppTextStyle.textBlackColor14w400,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -260,8 +314,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                                 final suggestion = suggestions[index];
                                 return ListTile(
                                   title: Text(suggestion['description']),
-                                  onTap:
-                                      () => fetchLatLngFromPlaceId(
+                                  onTap: () => fetchLatLngFromPlaceId(
                                     suggestion['place_id'],
                                     suggestion['description'],
                                   ),
@@ -283,17 +336,23 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                     title: "Continue",
                     onPressed: () {
                       final manualAddress = addressTextController.text.trim();
-                      final detectedAddress = _address.trim();
+                      final locationAddress = _locationField.trim();
 
-                      // Normalize invalid address values
-                      final isDetectedAddressValid =
-                          detectedAddress.isNotEmpty &&
-                              detectedAddress != 'No address found' &&
-                              !detectedAddress.startsWith('Error');
+                      final isLocationValid = locationAddress.isNotEmpty &&
+                          locationAddress != 'No address found' &&
+                          !locationAddress.startsWith('Error');
 
                       if (widget.title == "Pickup Point") {
-                        if (!isDetectedAddressValid) {
-                          // Use correct ScaffoldMessenger context
+                        if (manualAddress.isNotEmpty) {
+                          var data = {
+                            "address": manualAddress,
+                            "latLng": latLngData,
+                          };
+                          context.pop(data);
+                          return;
+                        }
+
+                        if (!isLocationValid) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -303,11 +362,14 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                           );
                           return;
                         }
-                        var data = {"address": detectedAddress, "latLng": latLngData};
+
+                        var data = {
+                          "address": locationAddress,
+                          "latLng": latLngData,
+                        };
                         context.pop(data);
-                        _address = '';
                       } else {
-                        if (manualAddress.isEmpty && !isDetectedAddressValid) {
+                        if (manualAddress.isEmpty && !isLocationValid) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -318,15 +380,13 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
                           return;
                         }
 
-                        if (manualAddress.isNotEmpty) {
-                          var data = {"address": manualAddress, "latLng": latLngData};
-                          context.pop(data);
-                          addressTextController.clear();
-                        } else {
-                          var data = {"address": detectedAddress, "latLng": latLngData};
-                          context.pop(data);
-                          _address = '';
-                        }
+                        var finalAddress =
+                        manualAddress.isNotEmpty ? manualAddress : locationAddress;
+                        var data = {
+                          "address": finalAddress,
+                          "latLng": latLngData,
+                        };
+                        context.pop(data);
                       }
                     },
                   ),
@@ -334,7 +394,6 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen>
               ),
             ),
           ),
-
         ],
       ),
     );
