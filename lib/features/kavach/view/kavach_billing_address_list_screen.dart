@@ -1,39 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
-import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
-import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
-import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
+import '../../../utils/common_widgets.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
 import '../model/kavach_address_model.dart';
-import 'kavach_add_shipping_address_bottom_sheet.dart';
 
-class KavachShippingAddressListScreen extends StatelessWidget {
-  const KavachShippingAddressListScreen({super.key});
+class KavachBillingAddressListScreen extends StatelessWidget {
+  const KavachBillingAddressListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
-      title: context.appText.shippingAddress,
+      title: context.appText.billingAddress,
       body: _buildBody(context: context),
     );
   }
 
   Widget _buildBody({required BuildContext context}) {
-    return BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
+    return BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
       builder: (context, state) {
-        if (state is KavachCheckoutAddressLoading) {
+        if (state is KavachCheckoutBillingAddressLoading) {
           return const CircularProgressIndicator();
         }
 
-        if (state is KavachCheckoutAddressSelected) {
+        if (state is KavachCheckoutBillingAddressSelected) {
           final addresses = state.addresses;
 
           return SingleChildScrollView(
@@ -41,10 +40,10 @@ class KavachShippingAddressListScreen extends StatelessWidget {
               children: [
                 AppButton(
                   onPressed: () {
-                    commonBottomSheetWithBGBlur(
-                      context: context,
-                      screen: KavachAddShippingAddressBottomSheet(),
-                    );
+                    // commonBottomSheetWithBGBlur(
+                    //   context: context,
+                    //   screen: KavachAddShippingAddressBottomSheet(),
+                    // );
                   },
                   title: context.appText.addNewAddress,
                   style: AppButtonStyle.outline,
@@ -86,15 +85,15 @@ class AddressListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedAddress = context.select((KavachCheckoutShippingAddressBloc bloc) {
+    final selectedAddress = context.select((KavachCheckoutBillingAddressBloc bloc) {
       final state = bloc.state;
-      if (state is KavachCheckoutAddressSelected) return state.selectedAddress;
+      if (state is KavachCheckoutBillingAddressSelected) return state.selectedAddress;
       return null;
     });
 
     return GestureDetector(
       onTap: () {
-        context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachAddress(address));
+        context.read<KavachCheckoutBillingAddressBloc>().add(SelectKavachBillingAddress(address));
         Navigator.pop(context); // Close bottom sheet
       },
       child: Container(
@@ -106,7 +105,7 @@ class AddressListItem extends StatelessWidget {
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachAddress(address));
+                context.read<KavachCheckoutBillingAddressBloc>().add(SelectKavachBillingAddress(address));
                 Navigator.pop(context); // Close bottom sheet
               },
             ),
@@ -126,4 +125,3 @@ class AddressListItem extends StatelessWidget {
     );
   }
 }
-
