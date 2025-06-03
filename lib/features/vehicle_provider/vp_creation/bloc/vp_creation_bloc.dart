@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/log_out_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 
@@ -13,12 +14,11 @@ part 'vp_creation_state.dart';
 
 class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   final VpCreationRepository _repository;
-  final UserInformationRepository? _informationRepository;
-  VpCreationBloc(this._repository, this._informationRepository) : super(VpCreationInitial())  {
+  VpCreationBloc(this._repository) : super(VpCreationInitial())  {
     on<VpCreationRequested>(createVpApiCall);
     on<LogoutRequested>(logout);
     on<LogoutAPIRequested>(logOutApiCall);
-
+    on<GetTruckTypeEvent>(fetchTruckType);
   }
 
 
@@ -33,6 +33,20 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
       emit(VpCreationError(result.type));
     }
   }
+
+
+  // Get Truck Type Api Call
+  Future<void> fetchTruckType(GetTruckTypeEvent event, Emitter<VpCreationState> emit) async {
+    emit(TruckTypeLoading());
+    Result result = await _repository.getTruckTypeData();
+    if (result is Success<TruckTypeModel>) {
+      emit(TruckTypeSuccess(result.value));
+    }
+    if (result is Error) {
+      emit(VpCreationError(result.type));
+    }
+  }
+
 
   //log Out
   Future<void> logOutApiCall(LogoutAPIRequested event, Emitter<VpCreationState> emit) async {

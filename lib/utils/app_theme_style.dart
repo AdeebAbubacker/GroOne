@@ -11,18 +11,13 @@ class AppThemeStyle {
         seedColor: AppColors.scaffoldBackgroundColor,
         primary: AppColors.primaryColor,
         secondary: AppColors.secondaryColor,
-        surfaceTint: Colors.transparent,
         brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: AppColors.scaffoldBackgroundColor,
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,
     useMaterial3: true,
-    appBarTheme:  const AppBarTheme(
-        shadowColor: AppColors.shadowColor,
-        backgroundColor: AppColors.appBarBackgroundColor,
-        surfaceTintColor: Colors.white,
-    ),
+    appBarTheme:  const AppBarTheme(shadowColor: AppColors.shadowColor, backgroundColor: AppColors.appBarBackgroundColor, surfaceTintColor: Colors.white),
   );
 
   static TimePickerThemeData timePickerTheme = TimePickerThemeData(

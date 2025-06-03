@@ -67,6 +67,9 @@ InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor,
     enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.borderColor, width: 1), borderRadius: BorderRadius.circular(borderRadius)),
     focusedBorder: OutlineInputBorder(borderSide:  BorderSide(color: focusColor ?? AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(borderRadius)),
     errorBorder: OutlineInputBorder(borderSide: BorderSide(color: enableBorder == false ? Colors.transparent : Colors.red), borderRadius: BorderRadius.circular(borderRadius)),
+    errorStyle: TextStyle(
+    color: Colors.red,
+    backgroundColor: Colors.transparent),
     focusedErrorBorder: OutlineInputBorder(borderSide: BorderSide(color: enableBorder == false ? Colors.transparent : Colors.red), borderRadius: BorderRadius.circular(borderRadius)),
   );
 

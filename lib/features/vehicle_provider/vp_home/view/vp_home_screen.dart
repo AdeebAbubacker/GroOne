@@ -403,6 +403,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 style: AppButtonStyle.primaryTextButton,
                 child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
               ),
+
             ],
           ),
           10.height,

@@ -26,10 +26,10 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "customerName": customerName ?? "",
       "mobileNumber": mobileNumber?.trim() ?? "",
       "companyName": companyName ?? "",
-      "truckType": [5], // Replace this with dynamic parsing if needed
+      "truckType": [5],
       "ownedTrucks": int.tryParse(ownedTrucks ?? "") ?? 0,
       "attachedTrucks": int.tryParse(attachedTrucks ?? "") ?? 0,
-      "preferredLanes": [10], // Replace this with dynamic parsing if needed
+      "preferredLanes": [10],
       "uploadRc": uploadRc ?? ""
     };
   }

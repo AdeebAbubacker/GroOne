@@ -54,7 +54,7 @@ class AppColors {
   // Button Color
   static const Color primaryButtonColor = primaryColor;
   static const Color secondaryButtonColor = Color(0xff222831);
-  static const Color deActiveButtonColor = Color(0xffe3e3e8);
+  static const Color deActiveButtonColor = Colors.black26;
 
   // Border and Shadow Color
   static const Color shadowColor = Color(0xffdfdfdf);

@@ -3,23 +3,28 @@ import 'package:gro_one_app/data/network/env/environment_variable.dart';
 class ApiUrls {
   ApiUrls._();
 
-  // http://34.54.198.251/customer/api/v1/customer/vp/4
-  // load service:
-  // http://gro-devapi.letsgro.co/load
-  //
-  // customer service:
-  // http://gro-devapi.letsgro.co/customer/api/vi/
-  //
-  // thirdparty service:
-  // http://gro-devapi.letsgro.co/thirdparty
-  //
-  // freight service:
-  // http://gro-devapi.letsgro.co/freight
-  //
-  // rate-discovery service:
-  // http://gro-devapi.letsgro.co/ratediscovery/
+  /// <<< -- backend urls -- >>>
 
-  // http://34.54.198.251/customer/api/v1/auth/logout
+  /// Fleet service:
+  // https://gro-devapi.letsgro.co/fleet
+
+  /// load service:
+  // https://gro-devapi.letsgro.co/load
+
+  /// customer service:
+  // https://gro-devapi.letsgro.co/customer
+
+  /// thirdparty service:
+  // https://gro-devapi.letsgro.co/thirdparty
+
+  /// freight service:
+  // https://gro-devapi.letsgro.co/freight
+
+  /// rate-discovery service:
+  // https://gro-devapi.letsgro.co/ratediscovery/
+
+  /// Frontend admin service:
+  // https://gro-devadmin.letsgro.co/
 
   // Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
@@ -32,8 +37,7 @@ class ApiUrls {
   static String get _vp => "/vp";
   static String get _lp => "/lp";
   static String get _customer => "/customer";
-  static String get _vp_master => "/vp-master";
-
+  static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
 
@@ -54,10 +58,10 @@ class ApiUrls {
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
   /// VP Endpoints
-  static final String  createVpAccount = "$_customerBaseUrl$_vp/";
+  static final String createVpAccount = "$_customerBaseUrl$_vp/";
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
-  static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vp_master/vehicle/";
-  static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vp_master/driver/";
+  static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle/";
+  static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/driver/";
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
 
@@ -85,8 +89,9 @@ class ApiUrls {
 
   // Load Form pick list
   static final String  loadCommodity = "${_loadBaseUrl}commodity";
-  static final String  loadTruckType = "${_loadBaseUrl}truck-type";
-  static final String  getRateDiscoveryPrice = "$baseUrl/ratediscovery$_path$_v1${"/rate-discovery"}";
+  static final String  loadTruckType = "${_loadBaseUrl}truck-type/";
+  static final String  truckType = "${loadTruckType}distinct/types";
+  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1$_rateDiscovery";
 
   // Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";

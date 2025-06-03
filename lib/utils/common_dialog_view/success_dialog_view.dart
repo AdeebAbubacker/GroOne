@@ -7,7 +7,8 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 class SuccessDialogView extends StatefulWidget {
   final String? message;
   final String? heading;
-  const SuccessDialogView({super.key,  this.message,  this.heading});
+  final void Function()? afterDismiss;
+  const SuccessDialogView({super.key,  this.message,  this.heading, this.afterDismiss});
 
   @override
   State<SuccessDialogView> createState() => _SuccessDialogViewState();
@@ -24,8 +25,7 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
   void initFunction(BuildContext context) => addPostFrameCallback(() async {
     await Future.delayed(Duration(seconds: 2));
     if(!context.mounted) return;
-    Navigator.of(context).pop(true);
-
+    widget.afterDismiss?.call();
   });
 
   @override

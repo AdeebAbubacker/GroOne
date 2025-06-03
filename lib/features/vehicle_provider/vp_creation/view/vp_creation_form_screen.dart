@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -43,12 +45,11 @@ class VpCreationFormScreen extends StatefulWidget {
 
 class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   final vpCreationBloc = locator<VpCreationBloc>();
   final uploadRcTruckFileBloc = locator<UploadRcTruckFileBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
-
-
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final nameTextController = TextEditingController();
   final mobileNumberTextController = TextEditingController();
@@ -60,14 +61,13 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final MultiSelectController<String> truckTypeController = MultiSelectController<String>();
   final MultiSelectController<String>  preferredLanesTypeController = MultiSelectController<String>();
 
-
-  String? truckTypeDropDownValue;
   String? preferredLanesDropDownValue;
+  String? truckTypeDropDownValue;
   String? uploadedRcFile;
 
 
   List<dynamic> multiFilesList = [];
-
+  List<String> selectedTruckTypeList = [];
   final List<DropdownItem<String>> preferredLanesList = [
     DropdownItem(label: 'Chennai - Mumbai', value: '1'),
     DropdownItem(label: 'Chennai -  Pune', value: '2'),
@@ -75,6 +75,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     DropdownItem(label: 'Mumbai - Pune', value: '4'),
     DropdownItem(label: 'Chennai - Bangalore', value: '5'),
   ];
+  List<String> getUniqueTypes(List<TruckTypeData> dataList) {
+    return dataList.map((e) => e.type).toSet().toList();
+  }
 
 
   @override
@@ -94,10 +97,61 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void initFunction() => addPostFrameCallback(() {
     mobileNumberTextController.text=widget.mobileNumber;
     loadTruckTypeBloc.add(LoadTruckType());
+    vpCreationBloc.add(GetTruckTypeEvent());
   });
 
   void disposeFunction() => addPostFrameCallback(() {
+    nameTextController.dispose();
+    mobileNumberTextController.dispose();
+    companyNameTextController.dispose();
+    ownedTruckTextController.dispose();
+    attachedTruckTextController.dispose();
+    pinCodeTextController.dispose();
+    truckTypeController.dispose();
+    truckTypeController.dispose();
+    preferredLanesDropDownValue = null;
+    uploadedRcFile = null;
+    multiFilesList.clear();
+    preferredLanesList.clear();
+    uploadRcTruckFileBloc.close();
+    vpCreationBloc.close();
+  });
 
+
+  // Vp Creation Api call
+  void vpCreationApiCall(){
+    if (formKey.currentState!.validate()){
+      if(uploadedRcFile == null){
+        return;
+      }
+      final request = VpCreationApiRequest(
+        customerName: nameTextController.text,
+        mobileNumber: mobileNumberTextController.text,
+        companyName: companyNameTextController.text,
+        truckType: truckTypeDropDownValue,
+        ownedTrucks: ownedTruckTextController.text,
+        attachedTrucks: attachedTruckTextController.text,
+        preferredLanes: preferredLanesDropDownValue,
+        uploadRc: uploadedRcFile ?? "",
+      );
+      vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
+    }
+  }
+
+
+  // Navigate to home screen
+  void navigateToHomeScreen(BuildContext context) => addPostFrameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: context.appText.accountCreatedSuccessfully,
+        heading: context.appText.accountCreatedSuccessfullySubHeading,
+        afterDismiss: (){
+          context.go(AppRouteName.vpBottomNavigationBar);
+          disposeFunction();
+        },
+      ),
+    );
   });
 
 
@@ -105,34 +159,29 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.createAccount, actions: [
-        IconButton(onPressed: (){
-          loadTruckTypeBloc.add(LoadTruckType());
-        }, icon: Icon(Icons.notifications_none_outlined))
-        ],),
+      appBar: CommonAppBar(
+        title: context.appText.createAccount, scrolledUnderElevation: 0.0, backgroundColor: Colors.transparent),
       body: SafeArea(
+        bottom: false,
         child: Form(
           key: formKey,
           child: Column(
             children: [
               buildNameAndPhoneNumberWidget(),
               30.height,
-
               buildBusinessDetailsWidget(context),
               30.height,
-
               buildBusinessProofWidget(),
-              30.height,
-
-              buildSubmitButton()
+              50.height,
             ],
           ).withScroll(padding: EdgeInsets.all(commonSafeAreaPadding)),
         ),
       ),
+      bottomNavigationBar: buildSubmitButton(),
     );
   }
 
-  // Name and Phone Number
+  /// Name and Phone Number
   Widget buildNameAndPhoneNumberWidget(){
     return Column(
       children: [
@@ -183,7 +232,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     );
   }
 
-  // Business Details
+
+  /// Business Details
   Widget buildBusinessDetailsWidget(BuildContext context){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,31 +251,34 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // TrucK Type
-        BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
-          bloc: loadTruckTypeBloc,
+        BlocListener<VpCreationBloc, VpCreationState>(
+          bloc: vpCreationBloc,
           listener: (context, state) {
-            if (state is LoadTruckTypeSuccess) {
-
-            }
-            if (state is LoadTruckTypeError) {
+            if (state is TruckTypeError) {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
-          child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
-            bloc: loadTruckTypeBloc,
+          child: BlocBuilder<VpCreationBloc, VpCreationState>(
+            bloc: vpCreationBloc,
             builder: (context, state) {
-              if (state is LoadTruckTypeSuccess) {
+              if (state is TruckTypeSuccess) {
                 return AppMultiSelectionDropdown<String>(
                   labelText: context.appText.truckType,
                   hintText: context.appText.selectTruckType,
                   controller: truckTypeController,
-                  items: state.loadTruckTypeListModel.data.map((e) => DropdownItem<String>(
-                    value: e.type, // or e.id
-                    label: e.type,
+                  items: state.truckTypeModel.data.map((e) => DropdownItem<String>(
+                    value: e, // or e.id
+                    label: e,
                   )).toList(),
                   onSelectionChange: (selected) {
-                    CustomLog.debug(this, 'Selected Trucks: ${selected.first}');
-                    truckTypeDropDownValue = selected.first;
+                    if (selected.isNotEmpty) {
+                      selectedTruckTypeList = selected.toSet().toList();
+                      truckTypeDropDownValue = selected.first;
+                    } else {
+                      truckTypeDropDownValue = null;
+                      selectedTruckTypeList.clear();
+                    }
+                    CustomLog.debug(this, 'Selected truck type: $selectedTruckTypeList');
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -284,6 +337,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
 
+  /// Business Proof
   Widget buildBusinessProofWidget(){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,11 +367,13 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                     if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
                       uploadedRcFile = state.fileModel.data!.url;
                     } else {
+                      uploadedRcFile = null;
                       multiFilesList.clear();
                     }
                   }
                   if(state is UploadRcTruckFileError){
                     multiFilesList.clear();
+                    uploadedRcFile = null;
                     ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
                   }
                 }
@@ -330,21 +386,14 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     );
   }
 
-  // Submit Button
+
+  /// Submit Button
   Widget buildSubmitButton() {
     return BlocConsumer<VpCreationBloc, VpCreationState>(
       bloc: vpCreationBloc,
       listener: (context, state) async {
         if (state is VpCreationSuccess) {
-          addPostFrameCallback(() {
-            showSuccessDialog(
-              context,
-              text: context.appText.accountCreatedSuccessfully,
-              subheading: context.appText.accountCreatedSuccessfullySubHeading,
-            );
-          });
-          await Future.delayed(const Duration(seconds: 2));
-          addPostFrameCallback(() => context.go(AppRouteName.vpBottomNavigationBar));
+          navigateToHomeScreen(context);
         } else if (state is VpCreationError) {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
@@ -354,27 +403,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? (){} : () {
-            if (formKey.currentState!.validate()){
-
-              final request = VpCreationApiRequest(
-                  customerName: nameTextController.text,
-                  mobileNumber: mobileNumberTextController.text,
-                  companyName: companyNameTextController.text,
-                  truckType: truckTypeDropDownValue,
-                  ownedTrucks: ownedTruckTextController.text,
-                  attachedTrucks: attachedTruckTextController.text,
-                  preferredLanes: preferredLanesDropDownValue,
-                  uploadRc: uploadedRcFile ?? "",
-              );
-               vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
-              //context.push(AppRouteName.lpBottomNavigationBar);
-
-            }
-          },
+          onPressed: isLoading ? (){} : () => vpCreationApiCall(),
         );
       },
-    );
+    ).bottomNavigationPadding();
   }
 
 

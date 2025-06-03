@@ -25,7 +25,7 @@ class AppButton extends StatelessWidget {
           onPressed?.call();
         },
         style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
-        child: isLoading == true ? const CupertinoActivityIndicator() : richTextWidget??Text(title.capitalize,
+        child: isLoading == true ?  CupertinoActivityIndicator(color: Colors.white) : richTextWidget??Text(title.capitalize,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

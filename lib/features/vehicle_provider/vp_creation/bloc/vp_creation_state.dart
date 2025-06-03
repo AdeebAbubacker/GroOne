@@ -34,4 +34,16 @@ class LogoutError extends VpCreationState {
   LogoutError(this.errorType);
 }
 
+// Truck Type state
+class TruckTypeInitial extends VpCreationState {}
+class TruckTypeLoading extends VpCreationState {}
+class TruckTypeSuccess extends VpCreationState {
+  final TruckTypeModel truckTypeModel;
+  TruckTypeSuccess(this.truckTypeModel);
+}
+class TruckTypeError extends VpCreationState {
+  final ErrorType errorType;
+  TruckTypeError(this.errorType);
+}
+
 

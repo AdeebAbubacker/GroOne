@@ -26,7 +26,6 @@ class AppTextField extends StatelessWidget {
   final bool? readOnly;
   final bool? showCursor;
   final bool? autofocus;
-  final Function()? onTap;
   final Function()? onTextFieldTap;
   final int? maxLines;
   final bool? obscureText;
@@ -40,7 +39,6 @@ class AppTextField extends StatelessWidget {
       this.controller,
       this.labelTextStyle,
       this.decoration,
-      this.onTap,
       this.onTextFieldTap,
       this.labelText,
       this.inputTextColor,
@@ -69,43 +67,40 @@ class AppTextField extends StatelessWidget {
       children: [
         if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle ?? AppTextStyle.body),
         if (labelText != null) 6.height,
-        InkWell(
-          onTap: onTap ?? () {},
-          child: TextFormField(
-            validator: validator,
-            inputFormatters: inputFormatters ?? [],
-            textAlign: textAlign,
-            controller: controller,
-            focusNode: currentFocus,
-            cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
-            cursorWidth: 1.5,
-            keyboardType: keyboardType,
-            maxLines: maxLines ?? 1,
-            obscureText: obscureText ?? false,
-            obscuringCharacter: "•",
-            cursorRadius: const Radius.circular(5),
-            readOnly: readOnly ?? false,
-            autofocus: autofocus ?? false,
-            showCursor: showCursor,
-            ignorePointers: ignorePointers,
-            style: AppTextStyle.textFiled.copyWith(color:  inputTextColor ?? AppColors.primaryTextColor),
-            decoration: decoration ?? commonInputDecoration(hintText: hintText),
-            maxLength: maxLength,
-            autofillHints: autofillHints,
-            textInputAction: textInputAction,
-            onChanged: onChanged,
-            onFieldSubmitted: onFieldSubmitted ??
-                (value) {
-                  try {
-                    fieldFocusChange(context, current: currentFocus!, nextFocus: nextFocus!);
-                  } catch (e) {
-                    if (kDebugMode) {
-                      print(e);
-                    }
+        TextFormField(
+          validator: validator,
+          inputFormatters: inputFormatters ?? [],
+          textAlign: textAlign,
+          controller: controller,
+          focusNode: currentFocus,
+          cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
+          cursorWidth: 1.5,
+          keyboardType: keyboardType,
+          maxLines: maxLines ?? 1,
+          obscureText: obscureText ?? false,
+          obscuringCharacter: "•",
+          cursorRadius: const Radius.circular(5),
+          readOnly: readOnly ?? false,
+          autofocus: autofocus ?? false,
+          showCursor: showCursor,
+          ignorePointers: ignorePointers,
+          style: AppTextStyle.textFiled.copyWith(color:  inputTextColor ?? AppColors.primaryTextColor),
+          decoration: decoration ?? commonInputDecoration(hintText: hintText),
+          maxLength: maxLength,
+          autofillHints: autofillHints,
+          textInputAction: textInputAction,
+          onChanged: onChanged,
+          onFieldSubmitted: onFieldSubmitted ??
+              (value) {
+                try {
+                  fieldFocusChange(context, current: currentFocus!, nextFocus: nextFocus!);
+                } catch (e) {
+                  if (kDebugMode) {
+                    print(e);
                   }
-                },
-            onTap: onTextFieldTap ?? () {},
-          ),
+                }
+              },
+          onTap: onTextFieldTap ?? () {},
         ),
       ],
     );

@@ -99,25 +99,25 @@ void initLocator() {
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
 
     // Bloc
-    locator.registerFactory(() => LanguageBloc());
-    locator.registerFactory(() => RoleBloc());
-    locator.registerFactory(() => LoginBloc(locator<LoginInRepository>()));
-    locator.registerFactory(() => OtpBloc(locator<OtpRepository>()));
-    locator.registerFactory(() => VpCreationBloc(locator<VpCreationRepository>(), locator<UserInformationRepository>()));
-    locator.registerFactory(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
-    locator.registerFactory(() => LpCreateBloc(locator<LpCreateRepository>()));
-    locator.registerFactory(() => KycBloc(locator<KycRepository>()));
-    locator.registerFactory(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
-    locator.registerFactory(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
-    locator.registerFactory(() => LoadListBloc(locator<LpHomeRepository>(),));
-    locator.registerFactory(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
-    locator.registerFactory(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
-    locator.registerFactory(() => LoadCommodityBloc(locator<LpHomeRepository>()));
-    locator.registerFactory(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
-    locator.registerFactory(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
-    locator.registerFactory(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
-    locator.registerFactory(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
-    locator.registerFactory(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LanguageBloc());
+    locator.registerLazySingleton(() => RoleBloc());
+    locator.registerLazySingleton(() => LoginBloc(locator<LoginInRepository>()));
+    locator.registerLazySingleton(() => OtpBloc(locator<OtpRepository>()));
+    locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(() => LpCreateBloc(locator<LpCreateRepository>()));
+    locator.registerLazySingleton(() => KycBloc(locator<KycRepository>()));
+    locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LoadListBloc(locator<LpHomeRepository>(),));
+    locator.registerLazySingleton(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
+    locator.registerLazySingleton(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
+    locator.registerLazySingleton(() => LoadCommodityBloc(locator<LpHomeRepository>()));
+    locator.registerLazySingleton(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
+    locator.registerLazySingleton(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
+    locator.registerLazySingleton(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
+    locator.registerLazySingleton(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
