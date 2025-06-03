@@ -162,5 +162,6 @@
   "makePayment": "Make Payment",
   "totalAmountToPay": "Total Amount To Pay",
   "pay": "Pay",
-  "items": "Items"
+  "items": "Items",
+  "call" : "Call"
 }

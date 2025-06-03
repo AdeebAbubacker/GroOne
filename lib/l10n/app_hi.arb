@@ -162,5 +162,6 @@
   "makePayment": "भुगतान करें",
   "totalAmountToPay": "भुगतान करने के लिए कुल राशि",
   "pay": "वेतन",
-  "items": "सामान"
+  "items": "सामान",
+  "call" : "Call"
 }

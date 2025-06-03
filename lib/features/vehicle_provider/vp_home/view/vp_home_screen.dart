@@ -10,10 +10,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dar
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
-import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
@@ -21,12 +19,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_lo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/trip_scheduling_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -85,7 +80,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
   void initFunction() => addPostFrameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
-    vpRecentLoadListBloc.add(VpRecentLoad());
+    vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
   });
@@ -174,7 +169,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 radius: 50,
                 height: 40,
                 width: 40,
-                path: profileImage ?? "",
+                path: profileImage,
                 errorImage: AppImage.png.userProfileError,
               ).paddingRight(commonSafeAreaPadding),
             );
@@ -189,7 +184,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoad());
+          vpRecentLoadListBloc.add(VpRecentLoadEvent());
           vpHomeScreenBloc.add(VpMyLoadListRequested());
         },
         child: SafeArea(
@@ -298,6 +293,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       },
       bloc: vpHomeScreenBloc,
       builder: (context, state) {
+
         return Container(
           decoration: commonContainerDecoration(
             borderRadius: BorderRadius.circular(0),
@@ -305,11 +301,30 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              20.height,
+              10.height,
               // Title
-              Text("My Loads", textAlign: TextAlign.start, style: AppTextStyle.body1),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("My Loads", textAlign: TextAlign.start, style: AppTextStyle.body1),
 
-              20.height,
+                  // See More
+                  if (state is VpMyLoadListSuccess)
+                    if (state.vpMyLoadResponse.data.isNotEmpty && state.vpMyLoadResponse.data.length > 2)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        commonRoute(const AvailableLoadsScreen()),
+                      );
+                    },
+                    style: AppButtonStyle.primaryTextButton,
+                    child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                  )
+                ],
+              ),
+              10.height,
+
               // List
               Builder(
                 builder: (context) {

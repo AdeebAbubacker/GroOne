@@ -281,8 +281,8 @@ statusButtonWidget({
   EdgeInsetsGeometry? margin,
 }) {
   return Container(
-    height: 24.h,
-    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    height: 24,
+    padding: EdgeInsets.symmetric(horizontal: 15),
     decoration: BoxDecoration(
       color: statusBackgroundColor,
       borderRadius: BorderRadius.circular(50),

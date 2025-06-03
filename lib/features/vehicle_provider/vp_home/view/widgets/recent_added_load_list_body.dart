@@ -76,76 +76,101 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
           commonDivider(),
 
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Column(
                 children: [
-                  SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
-                  10.width,
-                  if(widget.data.truckType != null)
-                  Text("${widget.data.truckType!.subType} ${widget.data.truckType!.type}", style: AppTextStyle.body),
+
+                  Row(
+                    children: [
+                      SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
+                      10.width,
+                      if(widget.data.truckType != null)
+                      Text("${widget.data.truckType!.subType} ${widget.data.truckType!.type}", style: AppTextStyle.body),
+                    ],
+                  ),
+                  10.height,
+
+                  if(widget.data.commodity != null)...[
+                    Row(
+                      children: [
+                        SvgPicture.asset(AppIcons.svg.package),
+                        10.width,
+                        Text(widget.data.commodity!.name, style: AppTextStyle.body),
+                      ],
+                    ),
+                    10.height,
+                  ],
+
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+                      7.width,
+                      Text("${widget.data.consignmentWeight} Ton", style: AppTextStyle.body),
+                    ],
+                  ),
                 ],
               ).expand(),
 
-              statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Advance Paid
+                 // if (widget.data.)
+                  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid"),
+                  10.height,
+
+                  Text("$indianCurrencySymbol${widget.data.rate}", style: AppTextStyle.h4),
+                ],
+              )
+
+
             ],
           ),
-          10.height,
-
-          if(widget.data.commodity != null)...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                Row(
-                  children: [
-                    SvgPicture.asset(AppIcons.svg.package),
-                    10.width,
-                    Text(widget.data.commodity!.name, style: AppTextStyle.body),
-                  ],
-                ),
-                Text("$indianCurrencySymbol${widget.data.rate}", style: AppTextStyle.h4),
-              ],
-            ),
-            10.height,
-          ],
-
-
-
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
-              7.width,
-              Text("${widget.data.consignmentWeight} Ton", style: AppTextStyle.body),
-            ],
-          ),
-
           20.height,
 
-
           BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
-            listener: (context, state) {
-              if (state is VpAcceptLoadSuccess) {
-                vpRecentLoadListBloc.add(VpRecentLoad());
-                addPostFrameCallback(()=> AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully")));
-              }
-              if (state is VpAcceptLoadError) {
-                addPostFrameCallback(()=> ToastMessages.error(message: getErrorMsg(errorType: state.errorType)));
-              }
-            },
+            listener: (context, state) {},
             bloc: bloc,
             child: BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
+            bloc: bloc,
             builder: (context, state) {
-              return AppButton(
-                buttonHeight: 35.h,
-                onPressed: (){
-                  bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
-                },
-                isLoading: state is VpAcceptLoadLoading,
-                title: context.appText.accept,
-                style: AppButtonStyle.outline,
+              return Row(
+                children: [
+                  // Call
+                  AppButton(
+                    buttonHeight: 40,
+                    onPressed: (){
+
+                    },
+                    title: context.appText.call,
+                    style: AppButtonStyle.outline,
+                  ).expand(),
+
+                  15.width,
+
+
+                  // Accept
+                  AppButton(
+                    buttonHeight: 40,
+                    onPressed: (){
+                      bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
+                      if (state is VpAcceptLoadSuccess) {
+                        vpRecentLoadListBloc.add(VpRecentLoadEvent());
+                        AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully"));
+                      }
+                      if (state is VpAcceptLoadError) {
+                        ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                      }
+                    },
+                    isLoading: state is VpAcceptLoadLoading,
+                    title: context.appText.accept,
+                  ).expand(),
+
+                ],
               );
             },
           ),

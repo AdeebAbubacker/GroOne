@@ -106,9 +106,9 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
 
           20.height,
           AppButton(
-            buttonHeight: 32.h,
+            buttonHeight: 40,
             onPressed: widget.onClickAssignDriver,
-            title: widget.data.assignStatus ==0 ? "Assign Driver": "Start Trip",
+            title: widget.data.assignStatus == 0 ? "Assign Driver": "Start Trip",
             style: AppButtonStyle.outline,
           )
 

@@ -51,7 +51,7 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
   }
 
   void initFunction() => addPostFrameCallback(() async {
-    vpRecentLoadListBloc.add(VpRecentLoad());
+    vpRecentLoadListBloc.add(VpRecentLoadEvent());
   });
 
   void disposeFunction() => addPostFrameCallback(() {});

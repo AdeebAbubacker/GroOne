@@ -64,6 +64,7 @@ class InvalidTokenError extends ErrorType {
 class BadRequestError extends ErrorType {
   final String? message;
   BadRequestError({this.message});
+
   @override
   String getText(BuildContext context) {
     if(message != null){
@@ -132,7 +133,6 @@ class UnauthenticatedError extends ErrorType {
       message: response['message'] ?? "",
     );
   }
-
 }
 
 class NetworkTimeoutError extends ErrorType {
