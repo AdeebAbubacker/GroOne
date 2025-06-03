@@ -12,20 +12,27 @@ part 'upload_rc_truck_file_state.dart';
 class UploadRcTruckFileBloc extends Bloc<UploadRcTruckFileEvent, UploadRcTruckFileState> {
   final VpCreationRepository _repository;
   UploadRcTruckFileBloc(this._repository) : super(UploadRcTruckFileInitial()) {
+    on<UploadRcTruckFileRequested>(uploadTruckRcDocumentFile);
+    on<ResetUploadRcDocumentEvent>(resetUIState);
+  }
 
-    // Upload Rc truck document api call
-    on<UploadRcTruckFileRequested>((event, emit) async {
-      emit(UploadRcTruckFileLoading());
-      Result result = await _repository.getUploadRcTruckData(event.file);
-      if (result is Success<UploadRcTruckFileModel>) {
-        emit(UploadRcTruckFileSuccess(result.value));
-      } else if (result is Error) {
-        emit(UploadRcTruckFileError(result.type));
-      } else {
-        emit(UploadRcTruckFileError(GenericError()));
-      }
-    });
+  // Upload Rc truck document api call
+  Future<void> uploadTruckRcDocumentFile(UploadRcTruckFileRequested event, Emitter<UploadRcTruckFileState> emit) async {
+    emit(UploadRcTruckFileLoading());
+    Result result = await _repository.getUploadRcTruckData(event.file);
+    if (result is Success<UploadRcTruckFileModel>) {
+      emit(UploadRcTruckFileSuccess(result.value));
+    } else if (result is Error) {
+      emit(UploadRcTruckFileError(result.type));
+    } else {
+      emit(UploadRcTruckFileError(GenericError()));
+    }
+  }
 
+
+  // Reset UI State
+  void resetUIState(ResetUploadRcDocumentEvent event, Emitter emit) {
+    emit(UploadRcTruckFileInitial());
   }
 
 

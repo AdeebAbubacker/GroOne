@@ -251,7 +251,7 @@ class ImagePickerFrom {
 
   // Image Constraint
   static bool _imageConstraint(File image) {
-    if (!['bmp', 'jpg', 'jpeg', 'png', 'PNG', 'heif', 'HEIF'].contains(image.path.split('.').last.toString())) {
+    if (!['jpg', 'jpeg', 'png', 'PNG', 'heif', 'HEIF', 'pdf'].contains(image.path.split('.').last.toString())) {
        ToastMessages.alert(message: AppString.label.imageSupport);
       return false;
     }
@@ -305,9 +305,15 @@ Future<Map?> pickMultipleFiles<T>() async {
         "extension": extension,
         "dateTime": DateTime.now().toString(),
       };
-    }
 
-    return validFiles;
+      if (file.size > 8000000) {
+        ToastMessages.alert(message: AppString.label.imageSize);
+        return null;
+      } else {
+        return validFiles;
+      }
+    }
+    return null;
   } catch (e) {
     debugPrint("File Picker error: $e");
     ToastMessages.alert(message: "An error occurred while picking files");

@@ -121,9 +121,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
-      leading: Image.asset(
-        AppIcons.png.appIcon,
-      ).paddingLeft(commonSafeAreaPadding),
+      leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         // KYC
         if( _controller.value.isInitialized)

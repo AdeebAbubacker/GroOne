@@ -73,6 +73,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     }
   }
 
+  // Reset UI State
   void resetUIState(VpResetEvent event, Emitter emit) {
     emit(VpCreationInitial());
   }

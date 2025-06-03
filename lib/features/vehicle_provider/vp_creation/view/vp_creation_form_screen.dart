@@ -114,13 +114,12 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     multiFilesList.clear();
     preferredLanesList.clear();
     vpCreationBloc.add(VpResetEvent());
-
+    uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
   });
 
 
   // Vp Creation Api call
   void vpCreationApiCall(){
-    print("uploadedRcFile ${uploadedRcFile}");
     if (formKey.currentState!.validate()){
       if(uploadedRcFile == null){
         return;
@@ -368,6 +367,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   if (state is UploadRcTruckFileSuccess) {
                     if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
                       uploadedRcFile = state.fileModel.data!.url;
+                      uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
                     } else {
                       multiFilesList.clear();
                     }
