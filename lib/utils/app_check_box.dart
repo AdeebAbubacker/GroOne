@@ -16,14 +16,16 @@ class AppCheckBox extends StatelessWidget {
           onChanged?.call(!value!);
         }
       },
+
       child: Row(
         mainAxisSize: title == null ? MainAxisSize.min : MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Checkbox(
             value: value,
-            activeColor: AppColors.secondaryColor,
-            checkColor: AppColors.primaryColor,
+            activeColor: AppColors.primaryColor,
+            checkColor: AppColors.white,
+            side: BorderSide(color: AppColors.primaryColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),

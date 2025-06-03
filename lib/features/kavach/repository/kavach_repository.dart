@@ -4,15 +4,36 @@ import 'package:http/http.dart' as http;
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
 import '../../login/model/login_model.dart';
-import '../model/kavach_product.dart';
+import '../../login/repository/user_information_repository.dart';
+import '../api_request/kacach_add_address_api_request.dart';
+import '../model/kavach_address_model.dart';
+import '../model/kavach_product_model.dart';
+import '../model/kavach_vehicle_model.dart';
 
 class KavachRepository {
   final KavachService _service;
+  final UserInformationRepository userInfoRepo;
 
-  KavachRepository(this._service);
+  KavachRepository(this._service, this.userInfoRepo);
 
   Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1}) {
     return _service.fetchProducts(search: search, page: page);
+  }
+
+  Future<Result<List<KavachVehicleModel>>> fetchVehicles() async {
+    String cId = await userInfoRepo.getUserID()??'';
+    return _service.fetchVehicles(cId);
+  }
+
+  Future<Result<List<KavachAddressModel>>> fetchAddresses({required int addrType}) async {
+    String cId = await userInfoRepo.getUserID()??'';
+    return _service.fetchAddresses(cId, addrType: addrType);
+  }
+
+  Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
+    String cId = await userInfoRepo.getUserID()??'';
+    request.customerId = int.tryParse(cId)??0;
+    return _service.addAddress(request);
   }
 }
 

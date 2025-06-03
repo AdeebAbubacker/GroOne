@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
@@ -12,9 +14,10 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creati
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
-
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
+import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'features/kyc/bloc/kyc_bloc.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'features/load_provider/lp_profile/bloc/profile_bloc.dart';
@@ -49,6 +52,10 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpRecentLoadListBloc>(create: (_) => locator<VpRecentLoadListBloc>()),
         BlocProvider<VpAcceptLoadBloc>(create: (_) => locator<VpAcceptLoadBloc>()),
+        BlocProvider<KavachCheckoutShippingAddressBloc>(create: (_) => locator<KavachCheckoutShippingAddressBloc>()),
+        BlocProvider<KavachCheckoutBillingAddressBloc>(create: (_) => locator<KavachCheckoutBillingAddressBloc>()),
+        BlocProvider<KavachCheckoutVehicleBloc>(create: (_) => locator<KavachCheckoutVehicleBloc>()),
+        BlocProvider<KavachCheckoutAddAddressBloc>(create: (_) => locator<KavachCheckoutAddAddressBloc>()),
       ],
       child: child,
     );

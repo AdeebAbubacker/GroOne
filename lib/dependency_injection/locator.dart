@@ -5,6 +5,10 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
@@ -45,6 +49,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repo
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import '../features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import '../features/kavach/repository/kavach_repository.dart';
 import '../features/kavach/service/kavach_service.dart';
 import '../features/kyc/bloc/kyc_bloc.dart';
@@ -93,7 +98,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => KavachRepository(locator<KavachService>()));
+    locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(),locator<UserInformationRepository>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -118,6 +123,11 @@ void initLocator() {
     locator.registerLazySingleton(() => VpHomeBloc(locator<VpHomeRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => KavachProductsListBloc(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => KavachCheckoutShippingAddressBloc(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => KavachCheckoutBillingAddressBloc(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => KavachCheckoutVehicleBloc(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => KavachCheckoutAddAddressBloc(locator<KavachRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
