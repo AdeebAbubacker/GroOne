@@ -33,7 +33,8 @@ class LoadSummaryScreen extends StatefulWidget {
   final String approxWeight;
   final String category;
   final String price;
-  const LoadSummaryScreen({super.key, required this.senderAddress, required this.receiverAddress, required this.vehicleType, required this.vehicleLength, required this.approxWeight, required this.category, required this.price, required this.apiRequest});
+  final String date;
+  const LoadSummaryScreen({super.key, required this.senderAddress, required this.receiverAddress, required this.vehicleType, required this.vehicleLength, required this.approxWeight, required this.category, required this.price, required this.apiRequest, required this.date});
 
   @override
   State<LoadSummaryScreen> createState() => _LoadSummaryScreenState();
@@ -113,36 +114,36 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LoadSummaryWidget(
-          title: "Address Details",
-          heading1: "Sender Address",
-          heading2: "Receiver Address",
+          title: context.appText.addressDetails,
+          heading1: context.appText.senderAddress,
+          heading2: context.appText.unloadingPt,
           subheading1: widget.senderAddress,
           subheading2: widget.receiverAddress,
         ),
 
         LoadSummaryWidget(
-          title: "Vehicle Details",
-          heading1: "Vehicle Type",
-          heading2: "Vehicle Length",
+          title: context.appText.vehicleDetails,
+          heading1: context.appText.vehicleType,
+          heading2: context.appText.vehicleLength,
           subheading1: widget.vehicleType,
           subheading2: widget.vehicleLength,
         ),
 
         LoadSummaryWidget(
-          title: "Package Details",
-          heading1: "Approx. Weight",
-          heading2: "Category",
-          subheading1: "${widget.approxWeight} Tons",
+          title: context.appText.packageDetails,
+          heading1: context.appText.approxWeight,
+          heading2: context.appText.category,
+          subheading1: "${widget.approxWeight} ${context.appText.tons}",
           subheading2: widget.category,
         ),
 
+
         LoadSummaryWidget(
-          title: "Price Details",
-          heading1: "Suggestion Price",
-          heading2: "",
-          showHeading2: false,
+          title: context.appText.priceDetail,
+          heading1: context.appText.suggestedPrice,
+          heading2: context.appText.loadingDate,
           subheading1: widget.price,
-          subheading2: "",
+          subheading2: widget.date,
         ),
 
       ],
@@ -167,7 +168,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       builder: (context, state) {
         final isLoading = state is CreateLoadLoading;
         return AppButton(
-          title: "Confirm",
+          title: context.appText.confirm,
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () async {
             final CreateLoadApiRequest req = widget.apiRequest.copyWith(note: noteTextController.text);

@@ -9,9 +9,12 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -39,14 +42,18 @@ class LpCreateAccount extends StatefulWidget {
 }
 
 class _LpCreateAccountState extends State<LpCreateAccount> {
+
+  final _formKey = GlobalKey<FormState>();
+  final lpCreateBloc = locator<LpCreateBloc>();
+
   final nameTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
   final phoneNumberTextController = TextEditingController();
-  final pincode = TextEditingController();
+  final pinCodeTextController = TextEditingController();
+
   List<CompanyType> preferredLanesList = [];
+
   String? companyTypeDropDownValue;
-  final _formKey = GlobalKey<FormState>();
-  final lpCreateBloc = locator<LpCreateBloc>();
 
   @override
   void initState() {
@@ -64,10 +71,32 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
   void initFunction() => addPostFrameCallback(() {
     lpCreateBloc.add(LpCompanyTypeRequested());
-    phoneNumberTextController.text=widget.mobileNumber;
+    phoneNumberTextController.text = widget.mobileNumber;
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => addPostFrameCallback(() {
+    nameTextController.dispose();
+    companyNameTextController.dispose();
+    phoneNumberTextController.dispose();
+    pinCodeTextController.dispose();
+    preferredLanesList.clear();
+    companyTypeDropDownValue = null;
+  });
+
+  // Navigate to home screen
+  void navigateToHomeScreen(BuildContext context) => addPostFrameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: context.appText.accountCreatedSuccessfully,
+        heading: context.appText.accountCreatedSuccessfullySubHeading,
+        afterDismiss: (){
+          context.go(AppRouteName.lpBottomNavigationBar);
+          disposeFunction();
+        },
+      ),
+    );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,111 +124,56 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           30.width,
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: 18.0.h,
-                horizontal: 20.w,
-              ),
-              child: Column(
-                spacing: 15.h,
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(right: commonSafeAreaPadding, left: commonSafeAreaPadding, top: commonSafeAreaPadding),
+          child: Column(
+            children: [
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   20.height,
-                  Text(
-                    context.appText.createYourAccount,
-                    style: AppTextStyle.textBlackColor30w500,
-                  ),
-                  10.height,
-
-                  createFormWidget(),
-                  10.height,
+                  Text(context.appText.createYourAccount, style: AppTextStyle.h3w500),
+                  20.height,
+                  buildCreateFormWidget(context),
+                  50.height,
                   buildSubmitButton(),
                   30.height,
                   Image.asset(AppImage.png.signUpBanner),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-  Widget buildSubmitButton() {
-    return BlocConsumer<LpCreateBloc, LpCreateState>(
-      bloc: lpCreateBloc,
-      listener: (context, state) {
-        if (state is LpCompanyTypeSuccess) {
-          preferredLanesList = state.lpCompanyTypeSuccess.data;
-setState(() {});
-        }
-        if (state is LpCreateSuccess) {
-          showSuccessDialog(
-            onTap: () {
-              context.push(AppRouteName.lpBottomNavigationBar);
-            },
-            context,
-            text: context.appText.accountCreatedSuccessfully,
-            subheading: context.appText.accountCreatedSuccessfullySubHeading,
-          );
-        } else if (state is LpCreateError) {
-          ToastMessages.error(
-            message: getErrorMsg(errorType: state.errorType),
-          );
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state is LpCreateLoading;
-        return AppButton(
-          title: context.appText.continueText,
-          isLoading: isLoading,
-          onPressed: isLoading ? null : () {
-            if (_formKey.currentState!.validate()) {
-              lpCreateBloc.add(
-                LpCreateRequested(
-                  apiRequest: CreateRequest(
-                    customerName: nameTextController.text,
-                    mobileNumber: phoneNumberTextController.text,
-                    companyName: companyNameTextController.text,
-                    companyTypeId: int.parse(
-                      companyTypeDropDownValue!,
-                    ),
-                    pincode: pincode.text,
-                  ),
-                  id: widget.id,
-                ),
-              );
-              // All validations passed
-            }
-          },
-        );
-      },
-    );
-  }
-  createFormWidget() {
+
+  // Form
+  Widget buildCreateFormWidget(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 15.h,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          // Name
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
-            labelTextStyle: AppTextStyle.textBlackColor18w400,
+            labelText: context.appText.name,
             decoration: commonInputDecoration(
               fillColor: AppColors.white,
               hintText: "${context.appText.enter} ${context.appText.name}",
             ),
-            labelText: context.appText.name,
           ),
+          20.height,
 
-          Text(
-            context.appText.enterMobileNumber,
-            style: AppTextStyle.textBlackColor18w400,
-          ),
 
+          // Phone Number
+          Text(context.appText.enterMobileNumber, style: AppTextStyle.textFiled),
+          6.height,
           Row(
             spacing: 5.w,
             children: [
@@ -239,55 +213,88 @@ setState(() {});
               ),
             ],
           ),
+          20.height,
+
           // Company Name
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: companyNameTextController,
-            decoration: commonInputDecoration(
-              fillColor: AppColors.white,
-              hintText:
-                  "${context.appText.enter} ${context.appText.companyName}",
-            ),
             labelText: context.appText.companyName,
-            labelTextStyle: AppTextStyle.textBlackColor18w400,
+            hintText: "${context.appText.enter} ${context.appText.companyName}",
           ),
+          20.height,
+
+
+          // Company Type
           AppDropdown(
-            validator:
-                (value) =>
-                    Validator.fieldRequired(value, fieldName: "Company Type"),
-            labelText: "Company Type",
-            labelTextStyle: AppTextStyle.textBlackColor18w400,
-            hintText: "Select Company Type",
+            validator: (value) => Validator.fieldRequired(value),
+            labelText: context.appText.companyName,
+            hintText: context.appText.selectCompanyType,
             dropdownValue: companyTypeDropDownValue,
             decoration: commonInputDecoration(fillColor: Colors.white),
-            dropDownList:
-                preferredLanesList
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e.id.toString(),
-                        child: Text(e.companyType, style: AppTextStyle.body),
-                      ),
-                    )
-                    .toList(),
+            dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
+              value: e.id.toString(),
+              child: Text(e.companyType, style: AppTextStyle.body)),
+            ).toList(),
             onChanged: (onChangeValue) {
               companyTypeDropDownValue = onChangeValue;
               setState(() {});
             },
           ),
+          20.height,
+
+          // Pin code
           AppTextField(
             validator: (value) => Validator.pincode(value),
-            controller: pincode,inputFormatters: [  FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(6),],
+            controller: pinCodeTextController,inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(6),
+             ],
             keyboardType: TextInputType.number,
-            decoration: commonInputDecoration(
-              fillColor: AppColors.white,
-              hintText: "${context.appText.enter} pincode",
-            ),
-            labelText: "Pincode",
-            labelTextStyle: AppTextStyle.textBlackColor18w400,
+            labelText: context.appText.pincode,
           ),
+
         ],
       ),
     );
   }
+
+  // Submit Button
+  Widget buildSubmitButton() {
+    return BlocConsumer<LpCreateBloc, LpCreateState>(
+      bloc: lpCreateBloc,
+      listener: (context, state) {
+        if (state is LpCompanyTypeSuccess) {
+          preferredLanesList = state.lpCompanyTypeSuccess.data;
+          setState(() {});
+        }
+        if (state is LpCreateSuccess) {
+          navigateToHomeScreen(context);
+        }
+        if (state is LpCreateError) {
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is LpCreateLoading;
+        return AppButton(
+          title: context.appText.continueText,
+          isLoading: isLoading,
+          onPressed: isLoading ? null : () {
+            if (_formKey.currentState!.validate()) {
+              final apiRequest = CreateRequest(
+                customerName: nameTextController.text,
+                mobileNumber: phoneNumberTextController.text,
+                companyName: companyNameTextController.text,
+                companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
+                pincode: pinCodeTextController.text,
+              );
+              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.id));
+            }
+          },
+        );
+      },
+    );
+  }
+
 }

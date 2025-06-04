@@ -172,5 +172,31 @@
   "eTAOfPickup" : "ETA of Pickup",
   "driverNameAndNumber" : "Driver Name  & Number",
   "selectDriver" : "Select Driver",
-  "myLoads" : "My Loads"
+  "myLoads" : "My Loads",
+  "selectCompanyType" : "Select Company Type",
+  "pincode" : "Pincode",
+  "postLoadSummary" : "Post Load Summary",
+  "unloadingPt" : "Unloading pt",
+  "vehicleTonnage" : "Vehicle tonnage",
+  "loadingDate" : "Loading Date",
+  "unloadingDate" : "Unloading Date",
+  "writeNotes" : "Write Notes..",
+  "notes" : "Notes",
+  "needCustomerSupport" : "Need Our Customer Support Help?",
+  "confirm" : "Confirm",
+  "suggestedPrice" : "Suggested Price",
+  "priceDetail" : "Price Details",
+  "addressDetails": "Address Details",
+  "senderAddress": "Sender Address",
+  "receiverAddress": "Receiver Address",
+
+  "vehicleDetails": "Vehicle Details",
+  "vehicleLength": "Vehicle Length",
+
+  "packageDetails": "Package Details",
+  "approxWeight": "Approx. Weight",
+  "category": "Category",
+  "tons": "Tons"
+
+
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/widgets/kyc_pending_dialogue.dart';
@@ -58,6 +59,10 @@ class HomeScreenLoadProvider extends StatefulWidget {
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
+  late VideoPlayerController _controller;
+  ProfileDetailResponse? profileResponse;
+  GetLoadResponse? getLoadResponse;
+
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
@@ -66,29 +71,28 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final loadDetailBloc = locator<LoadListBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
 
-  final dateTextController = TextEditingController();
+  final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
-  late VideoPlayerController _controller;
-
   int selectedPercentage = 80;
-  final int baseAmount = 15000;
-
-  String hintCommodity = 'Commodity';
-  String? selectedCommodity;
-  String hintTruck = 'Truck';
-  String? selectedTruck;
-  String profileImage = "";
+  int baseAmount = 15000;
 
   Map<String, dynamic>? destination;
   Map<String, dynamic>? pickup;
+
+  String hintCommodity = 'Commodity';
+  String hintTruck = 'Truck';
+  String profileImage = "";
+
   String? commodityId;
   String? truckTypeId;
   String? rateDiscoveryPrice;
-
+  String? selectedCommodity;
+  String? selectedTruck;
   String? truckType;
   String? truckLength;
-
+  String? selectedDate;
+  String? selectedTime;
 
   bool selectedValueCommodity = false;
   bool selectedValueTruck = false;
@@ -226,8 +230,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  ProfileDetailResponse? profileResponse;
-  GetLoadResponse? getLoadResponse;
+
 
   @override
   void setState(fn) {
@@ -259,7 +262,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   });
 
   void disposeFunction() => addPostFrameCallback(() {
-    dateTextController.clear();
+    dateTimeTextController.clear();
     weightTextController.clear();
     pickup = null;
     destination = null;
@@ -296,7 +299,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: buildAppBarWidget(context),
-
       body: buildBodyWidget(context),
     );
   }
@@ -396,9 +398,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   bookShipmentSectionWidget(context),
                   20.height,
 
-                  upComingShipment(),
+                  buildUpComingShipment(),
                   20.height,
-                  valueAddedService(context),
+                  buildValueAddedService(context),
 
                   30.height,
                 ],
@@ -448,7 +450,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  upComingShipment() {
+  Widget buildUpComingShipment() {
     return BlocConsumer(
       bloc: loadDetailBloc,
       builder: (context, state) {
@@ -460,30 +462,30 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               spacing: 10.h,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  context.appText.upComingShipment,
-                  style: AppTextStyle.textBlackColor18w500,
-                ),
+                Text(context.appText.upComingShipment, style: AppTextStyle.body1),
+                20.height,
 
-                getLoadResponse != null
-                    ? getLoadResponse!.data.isNotEmpty
-                        ? ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: getLoadResponse!.data.length,
-                          itemBuilder: (context, index) {
-                            final loadData = getLoadResponse!.data[index];
-                            return upcomingShipmentTileWidget(loadData);
-                          },
-                        )
-                        : Center(
-                          child: Image.asset(
-                            width: 201.w,
-                            height: 134.h,
-                            AppImage.png.noShipment,
-                          ),
-                        )
-                    : Center(child: CircularProgressIndicator()),
+                Builder(
+                    builder: (context){
+                      if(getLoadResponse != null){
+                        if (getLoadResponse!.data.isNotEmpty) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: getLoadResponse!.data.length,
+                            itemBuilder: (context, index) {
+                              final loadData = getLoadResponse!.data[index];
+                              return upcomingShipmentTileWidget(loadData);
+                            },
+                          );
+                        } else {
+                          return genericErrorWidget(error: NotFoundError());
+                        }
+                      } else {
+                        return genericErrorWidget(error: GenericError());
+                      }
+                    },
+                )
 
                 ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
               ],
@@ -502,7 +504,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  upcomingShipmentTileWidget(LoadData loadData) {
+ Widget upcomingShipmentTileWidget(LoadData loadData) {
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -519,10 +521,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               height: 39.h,
               width: 39.w,
             ),
-            title: Text(
-              context.appText.idNumber,
-              style: AppTextStyle.textGreyDetailColor10w400,
-            ),
+            title: Text(context.appText.idNumber, style: AppTextStyle.textGreyDetailColor10w400),
             subtitle: Text("GD12456", style: AppTextStyle.blackColor16w400),
             trailing: Container(
               padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 5.h),
@@ -622,9 +621,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
-
-
+  // Book Shipment
   Widget bookShipmentSectionWidget(BuildContext context) {
     // Inner inside Widget
     Widget bookShipmentWidget({
@@ -707,8 +704,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           dynamic req = RateDiscoveryApiRequest(
                             // pickup: pickup?.toLowerCase(),
                             // drop: destination?.toLowerCase(),
-                            pickup: "chennai",
-                            drop: "bangalore",
+                            pickup: "bangalore",
+                            drop: "chennai",
                           );
                           rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                         });
@@ -803,46 +800,35 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Date and Time
           InkWell(
             onTap: () async {
+
               final String? date = await commonDatePicker(
                 context,
                 firstDate: DateTime.now(),
-                initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(
-                  dateTextController.text,
-                ),
+                initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateTimeTextController.text),
               );
-              if (date != null) {
-                dateTextController.text = date;
-              } else {
-                dateTextController.clear();
+
+              if(!context.mounted) return;
+              final String? time = await commonTimePicker(context);
+
+              if (date != null && time != null) {
+                dateTimeTextController.text = "$date - $time";
+                 selectedDate = date;
+                 selectedTime = time;
               }
               setState(() {});
             },
             child: Container(
               height: 55,
               padding: EdgeInsets.all(10),
-              decoration: commonContainerDecoration(
-                color: AppColors.lightPrimaryColor2,
-                borderColor: AppColors.borderColor,
-              ),
+              decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
               child: Row(
                 children: [
-                  SvgPicture.asset(
-                    AppIcons.svg.calendar,
-                    width: 20,
-                    colorFilter: AppColors.svg(AppColors.primaryIconColor),
-                  ),
+                  SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor)),
                   12.width,
-                  Text(
-                    dateTextController.text.isEmpty
-                        ? context.appText.dateAndTime
-                        : dateTextController.text,
-                    style: AppTextStyle.body,
-                  ).expand(),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: AppColors.greyIconColor,
-                    size: 20,
-                  ),
+
+                  Text(dateTimeTextController.text.isEmpty ? context.appText.dateAndTime : dateTimeTextController.text, style: AppTextStyle.body).expand(),
+
+                  Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
                 ],
               ),
             ),
@@ -890,7 +876,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   children: [
                     Text("Suggested Price", style: AppTextStyle.bodyGreyColor),
 
-                    BlocBuilder<RateDiscoveryBloc, RateDiscoveryState>(
+                    BlocConsumer<RateDiscoveryBloc, RateDiscoveryState>(
+                      listener: (context, state){
+                        if(state is RateDiscoveryError){
+                          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                        }
+                      },
                       bloc: rateDiscoveryBloc,
                       builder: (context, state) {
                         if (state is RateDiscoverySuccess) {
@@ -921,8 +912,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       title: context.appText.postLoad,
                       isLoading: isLoading,
                       onPressed: isLoading ? (){} : () async {
-                        if (profileResponse!.data!.customer!.isKyc) {
-                        try {
+                        if (!profileResponse!.data!.customer!.isKyc) {
 
                           if(pickup == null){
                             ToastMessages.alert(message: "Please select pickup location");
@@ -944,7 +934,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             return;
                           }
 
-                          if(dateTextController.text.isEmpty){
+                          if(dateTimeTextController.text.isEmpty){
                             ToastMessages.alert(message: "Please select date");
                             return;
                           }
@@ -959,12 +949,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             commodityId: int.parse(commodityId ?? "0"),
                             truckTypeId: int.parse(truckTypeId ?? "0"),
                             pickUpAddr: pickup?['address'] ?? "",
-                           // pickUpLatlon: "13.0827,80.2707",
                             pickUpLatlon:  pickup?['latLng']??"",
                             dropAddr:  destination?['address'] ?? "",
                             dropLatlon:  destination?['latLng']??"",
-                            // dropLatlon: "13.0827,80.2707",
-                            dueDate: DateTimeHelper.convertStringToDateTime(dateTextController.text).toString(),
+                            dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
                             consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
                             rate: rateDiscoveryPrice ?? "0000 - 0000",
                           );
@@ -979,6 +967,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             approxWeight: weightTextController.text,
                             category: selectedCommodity ?? "",
                             price: rateDiscoveryPrice ?? "0000 - 0000",
+                            date : dateTimeTextController.text,
                           ), isForward: true)).then((onValue){
                             loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
                             if(onValue!=null && onValue == true){
@@ -986,9 +975,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             }
                           });
 
-                        } catch (e) {
-                          CustomLog.debug(this, e.toString());
-                        }}else{
+                        } else {
                           commonBottomSheetWithBGBlur(
                             screen: KycPendingDialogue(
                               onPressed: () {

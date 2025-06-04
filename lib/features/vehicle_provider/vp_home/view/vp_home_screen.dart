@@ -151,18 +151,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           builder: (context, state) {
             return InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  commonRoute(
-                    ProfileScreen(profileData: profileResponse!.data!),
-                    isForward: true,
-                  ),
+                Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true),
                 ).then((v) {
-                  addPostFrameCallback(
-                    () => lpHomeBloc.add(
-                      ProfileDetailRequested(lpHomeBloc.userId ?? ""),
-                    ),
-                  );
+                  addPostFrameCallback(() => lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
                 });
               },
               child: commonCacheNetworkImage(
@@ -216,7 +207,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       }
                   ),
 
-                  valueAddedService(context),
+                  buildValueAddedService(context),
                   20.height,
                   _buildMyLoadsWidget(context),
                   20.height,

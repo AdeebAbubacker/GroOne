@@ -113,14 +113,12 @@ Future<String?> commonTimePicker(BuildContext context, {TimeOfDay? initialTime})
       return Theme(
         data: ThemeData.light().copyWith(
           colorScheme: const ColorScheme.light(
-            primary: AppColors.secondaryColor, // Selection color
+            primary: AppColors.primaryColor, // Selection color
             onPrimary: Colors.white, // Text color on selection
             onSurface: Colors.black, // Text color
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.secondaryColor, // Button text color
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
           ),
           timePickerTheme: AppThemeStyle.timePickerTheme,
         ),
@@ -160,14 +158,12 @@ Future<String?> commonHourPicker(BuildContext context) async {
       return Theme(
         data: ThemeData.light().copyWith(
           colorScheme: const ColorScheme.light(
-            primary: AppColors.secondaryColor, // Selection color
-            onPrimary: AppColors.primaryColor, // Text color on selection
+            primary: AppColors.primaryColor, // Selection color
+            onPrimary: AppColors.white, // Text color on selection
             onSurface: Colors.black, // Text color
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.secondaryColor, // Button text color
-            ),
+            style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
           ),
           timePickerTheme: AppThemeStyle.timePickerTheme,
         ),

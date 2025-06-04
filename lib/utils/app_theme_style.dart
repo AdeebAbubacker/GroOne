@@ -21,13 +21,13 @@ class AppThemeStyle {
   );
 
   static TimePickerThemeData timePickerTheme = TimePickerThemeData(
-    hourMinuteColor: AppColors.secondaryColor, // Hour & Minute background
+    hourMinuteColor: AppColors.primaryColor, // Hour & Minute background
     hourMinuteTextColor: Colors.white, // Hour & Minute text color
-    dialHandColor: AppColors.secondaryColor, // Dial hand color
+    dialHandColor: AppColors.primaryColor, // Dial hand color
     dialBackgroundColor: Colors.white, // Dial background color
     dayPeriodColor: MaterialStateColor.resolveWith((states) =>
     states.contains(MaterialState.selected)
-        ? AppColors.secondaryColor // Selected AM/PM Background
+        ? AppColors.primaryColor // Selected AM/PM Background
         : Colors.white), // Unselected AM/PM Background
     dayPeriodTextColor: MaterialStateColor.resolveWith((states) =>
     states.contains(MaterialState.selected)

@@ -3,6 +3,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class SuccessDialogView extends StatefulWidget {
   final String? message;
@@ -34,21 +35,18 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
       mainAxisSize: MainAxisSize.min,
       children: [
         20.height,
+
         Image.asset(AppImage.png.successGif),
-        SizedBox(height: 50),
+        50.height,
 
         if(widget.message != null)
         Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.greenColor20w700),
         30.height,
 
         if(widget.heading != null)
-        Text(
-          widget.heading!,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.black54),
-        ),
-        12.height,
+        Text(widget.heading!, textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+        20.height,
       ],
-    );
+    ).paddingAll(5);
   }
 }

@@ -4,36 +4,43 @@ import 'package:intl/intl.dart';
 class DateTimeHelper {
   DateTimeHelper._();
 
+  /// Get Current Date Time
   static DateTime now() {
     return DateTime.now();
   }
 
+  /// Get Date Time Format
   static String getDateTimeFormat(DateTime date) {
     var formatter = DateFormat('dd/MM/yyyy - hh:mm a');
     return formatter.format(date);
   }
 
+  /// Get Time Format With Am or Pm
   static String getTimeFormatWithAmOrPm(DateTime date) {
     var formatter = DateFormat('hh:mm a');
     return formatter.format(date);
   }
 
+  /// Get Format Date
   static String getFormattedDate(DateTime date) {
     var formatter = DateFormat("dd/MM/yyyy");
     return formatter.format(date);
   }
 
+  /// Get Date With Short Name
   static String getFormattedDateWithShortMonthName(DateTime date) {
     var formatter = DateFormat("dd MMM yyyy");
     return formatter.format(date);
   }
 
+  /// Convert to AM or Pm
   static String convertToAmPm(String time, BuildContext context) {
     DateTime parsedTime = DateTime.parse('1970-01-01 $time:00');
     String formattedTime = TimeOfDay.fromDateTime(parsedTime).format(context);
     return formattedTime;
   }
 
+  /// Convert to database format
   static String convertToDatabaseFormat(String date) {
     try {
       DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
@@ -42,7 +49,8 @@ class DateTimeHelper {
       return "Invalid Date";
     }
   }
-  // Output: 14 Jul, 2025, 7.30 PM
+
+  /// Output: 14 Jul, 2025, 7.30 PM
   static String formatCustomDate(DateTime date) {
     try {
     return DateFormat("d MMM, y, h.mm a").format(date);
@@ -50,6 +58,7 @@ class DateTimeHelper {
       return "Invalid Date";
     }
   }
+
   static DateTime? convertStringToDateTime(String dateString) {
     try {
       // Define input format (DD/MM/YYYY)
@@ -57,7 +66,7 @@ class DateTimeHelper {
       return format.parse(dateString);
     } catch (e) {
       debugPrint("Error parsing date: $e");
-      return null; // Return null if the parsing fails
+      return null;
     }
   }
 
@@ -69,7 +78,7 @@ class DateTimeHelper {
       return DateTime(parsedDate.year, parsedDate.month, parsedDate.day, now.hour, now.minute, now.second);
     } catch (e) {
       debugPrint("Error parsing date: $e");
-      return DateTime.now(); // Return current date-time in case of error
+      return DateTime.now();
     }
   }
 
@@ -81,7 +90,7 @@ class DateTimeHelper {
       return TimeOfDay(hour: parsedDateTime.hour, minute: parsedDateTime.minute);
     } catch (e) {
       debugPrint("Error parsing time: $e");
-      return TimeOfDay.now(); // Return current time if parsing fails
+      return TimeOfDay.now();
     }
   }
 

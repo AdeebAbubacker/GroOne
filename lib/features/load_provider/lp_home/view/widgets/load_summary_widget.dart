@@ -21,6 +21,7 @@ class LoadSummaryWidget extends StatelessWidget {
         Text(title, style: AppTextStyle.h5),
         15.height,
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Column(
