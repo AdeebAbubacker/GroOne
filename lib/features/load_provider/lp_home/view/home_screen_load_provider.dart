@@ -670,15 +670,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             ),
             child: Row(
               children: [
-                Image.asset(
-                  AppImage.png.bookAShipment,
-                  width: 18,
-                  fit: BoxFit.fitHeight,
-                ),
+
+                // Source or destination vertical line
+                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
                 10.width,
 
                 Column(
                   children: [
+
                     // Source
                     bookShipmentWidget(
                       heading: context.appText.source,
@@ -687,7 +686,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             pickup = onValue;
-
                           }
                           setState(() {});
                         });
@@ -706,24 +704,23 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             destination = onValue;
                           }
                           setState(() {});
-
                           dynamic req = RateDiscoveryApiRequest(
-                                // pickup: pickup?.toLowerCase(),
-                                // drop: destination?.toLowerCase(),
-                                pickup: "chennai",
-                                drop: "bangalore",
+                            // pickup: pickup?.toLowerCase(),
+                            // drop: destination?.toLowerCase(),
+                            pickup: "chennai",
+                            drop: "bangalore",
                           );
-
                           rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                         });
                       },
                     ),
+
                   ],
                 ).expand(),
               ],
             ),
           ),
-          15.height,
+          20.height,
 
           // Commodity selection
           BlocListener<LoadCommodityBloc, LoadCommodityState>(
@@ -755,7 +752,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       selectedValueCommodity = !selectedValueCommodity;
                       setState(() {});
                     },
-                  ).paddingBottom(15);
+                  ).paddingBottom(10);
                 }
                 return const SizedBox();
               },
@@ -795,7 +792,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       selectedValueTruck = !selectedValueTruck;
                       setState(() {});
                     },
-                  ).paddingBottom(15);
+                  ).paddingBottom(10);
                 }
                 return const SizedBox();
               },
@@ -856,10 +853,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           Container(
             height: 55,
             padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor2,
-              borderColor: AppColors.borderColor,
-            ),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
             child: Row(
               children: [
                 SvgPicture.asset(AppIcons.svg.kgWeight),
@@ -888,19 +882,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Suggested Price
           Container(
             padding: EdgeInsets.all(10),
-            decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor2,
-              borderColor: AppColors.borderColor,
-            ),
+            decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
                   children: [
-                    Text(
-                      "Suggested Price",
-                      style: AppTextStyle.textDarkGreyColor14w400,
-                    ),
+                    Text("Suggested Price", style: AppTextStyle.bodyGreyColor),
+
                     BlocBuilder<RateDiscoveryBloc, RateDiscoveryState>(
                       bloc: rateDiscoveryBloc,
                       builder: (context, state) {
@@ -912,6 +901,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         return const SizedBox();
                       },
                     ),
+
                   ],
                 ),
 
@@ -1016,7 +1006,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     );
                   },
                 ).expand(flex: 2)
-
 
               ],
             ),
