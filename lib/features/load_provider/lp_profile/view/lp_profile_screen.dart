@@ -18,9 +18,11 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/lo
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -100,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             profileDetailWidget(),
 
             // profile options widget
-            profileOptionWidget(),
+            profileOptionWidget(context),
           ],
         ),
       ),
@@ -146,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
-  profileOptionWidget() {
+ Widget profileOptionWidget(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
       decoration: BoxDecoration(
@@ -244,29 +246,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               imageString: AppImage.svg.logOut,
               text: context.appText.logOut,
               onTap: () {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  // Dismiss only with button if needed
-                  builder: (BuildContext context) {
-                    return showAlertDialogue(
-                      yesButtonText: "Log Out",
-                      noButtonText: "Cancel",
-                      context: context,
+                
+                AppDialog.show(
+                    context, 
+                    child: CommonDialogView(
+                      yesButtonText: context.appText.logOut,
+                      noButtonText: context.appText.cancel,
+                      showYesNoButtonButtons: true,
                       onClickYesButton: () {
                         context.pop();
-
-                        vpHomeBloc.add(
-                          LogoutAPIRequested(
-                            apiRequest: LogOutRequest(
-                              customerId: lpHomeLocator.userId ?? "",
-                            ),
-                          ),
+                        vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
                         );
                       },
                       child: LogOutDialogueUi(),
-                    );
-                  },
+                    ),
                 );
               },
               showArrow: false,

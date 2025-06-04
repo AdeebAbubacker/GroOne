@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class LogOutDialogueUi extends StatelessWidget {
   const LogOutDialogueUi({super.key});
@@ -9,35 +13,16 @@ class LogOutDialogueUi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 20.h,
       children: [
-        Align(
-          alignment: Alignment.topRight,
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: const Icon(Icons.close, size: 24),
-          ),
-        ),
 
-        // Illustration
-        SvgPicture.asset(
-          AppImage.svg.logOutImage,
-          // replace with your image asset
-          height: 150,
-        ),
+        SvgPicture.asset(AppImage.svg.logOutImage, height: 250),
 
         // Title
-        const Text(
-          "Log Out?",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
+        Text("${context.appText.logOut}?", style: AppTextStyle.h3),
+        10.height,
 
         // Subtitle
-        const Text(
-          "You’ll be signed out from your account. Come back soon!",
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
+        Text(context.appText.logoutSubHeading, style: AppTextStyle.bodyGreyColor, textAlign: TextAlign.center),
       ],
     );
   }

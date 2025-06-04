@@ -197,7 +197,9 @@
   "packageDetails": "Package Details",
   "approxWeight": "Approx. Weight",
   "category": "Category",
-  "tons": "Tons"
+  "tons": "Tons",
+  "logoutSubHeading" : "You’ll be signed out from your account. Come back soon!"
+
 
 
 }
