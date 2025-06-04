@@ -165,5 +165,13 @@
   "totalAmountToPay": "செலுத்த வேண்டிய மொத்த தொகை",
   "pay": "செலுத்துங்கள்",
   "items": "உருப்படிகள்",
-  "call" : "Call"
+  "call" : "Call",
+  "assignVehicle" : "Assign Vehicle",
+  "drivingLicense"  : "Driving license",
+  "scheduleTrip" : "Schedule Trip",
+  "expectedDeliveryDate" : "Expected Delivery Date",
+  "eTAOfPickup" : "ETA of Pickup",
+  "driverNameAndNumber" : "Driver Name  & Number",
+  "selectDriver" : "Select Driver",
+  "myLoads" : "My Loads"
 }

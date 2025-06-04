@@ -23,7 +23,7 @@ class AppIconButton extends StatelessWidget {
           return Image.asset(icon, width: 20, color: iconColor ?? AppColors.iconColor);
         }
       }else if(icon is IconData){
-        return Icon(icon);
+        return Icon(icon, color: iconColor ?? AppColors.iconColor,);
       }else if(icon is Widget){
         return icon;
       } else {

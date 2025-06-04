@@ -163,5 +163,17 @@
   "totalAmountToPay": "Total Amount To Pay",
   "pay": "Pay",
   "items": "Items",
-  "call" : "Call"
+  "call" : "Call",
+  "assignVehicle" : "Assign Vehicle",
+  "drivingLicense"  : "Driving license",
+  "settledPrice" : "Settled Price",
+  "scheduleTrip" : "Schedule Trip",
+  "expectedDeliveryDate" : "Expected Delivery Date",
+  "eTAOfPickup" : "ETA of Pickup",
+  "driverNameAndNumber" : "Driver Name  & Number",
+  "selectDriver" : "Select Driver",
+  "truckNumber" : "Truck Number",
+  "rcCopyOfVehicle" : "RC Copy of Vehicle",
+  "myLoads" : "My Loads"
+
 }

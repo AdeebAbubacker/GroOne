@@ -65,7 +65,7 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle ?? AppTextStyle.body),
+        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle ?? AppTextStyle.textFiled),
         if (labelText != null) 6.height,
         TextFormField(
           validator: validator,

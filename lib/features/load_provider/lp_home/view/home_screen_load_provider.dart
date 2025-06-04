@@ -339,7 +339,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         // Profile
         InkWell(
           onTap: (){
-            Navigator.push(context, commonRoute(LpProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
+            Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
               addPostFrameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
             });
           },

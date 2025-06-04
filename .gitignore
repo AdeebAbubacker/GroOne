@@ -53,3 +53,4 @@ app.*.map.json
 /lib/l10n/app_localizations_en.dart
 /lib/l10n/app_localizations_hi.dart
 /lib/l10n/app_localizations_ta.dart
+/lib/l10n/extensions/

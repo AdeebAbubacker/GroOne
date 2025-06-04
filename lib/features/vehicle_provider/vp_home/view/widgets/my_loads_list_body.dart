@@ -6,7 +6,9 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -47,7 +49,8 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                     ],
                   ),
 
-                  Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),
+                  Text(widget.data.customerDetail?.companyName ?? "", style: AppTextStyle.body3GreyColor),
+                 // Text(widget.data. ?? "", style: AppTextStyle.body4GreyColor),
                 ],
               ),
 
@@ -56,7 +59,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
               ),
 
-              trailing: SvgPicture.asset(AppIcons.svg.support)
+              trailing: AppIconButton(onPressed: () async => await callRedirect(widget.data.customer!.mobileNumber), icon: SvgPicture.asset(AppIcons.svg.call))
           ),
 
 
@@ -88,7 +91,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   Text(widget.data.commodity!.name, style: AppTextStyle.body),
                 ],
               ),
-              Text("${indianCurrencySymbol}1000", style: AppTextStyle.h4),
+              Text("$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}", style: AppTextStyle.h4),
             ],
           ),
           10.height,

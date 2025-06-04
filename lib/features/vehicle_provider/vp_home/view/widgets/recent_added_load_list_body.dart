@@ -49,7 +49,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

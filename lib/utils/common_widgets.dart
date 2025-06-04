@@ -263,8 +263,8 @@ Widget appLoader() {
 Widget kycWidget({required Function() onTap, required VideoPlayerController controller}){
   return InkWell(onTap: onTap,
     child: Container(
-      height: 50.h,
-      width: 50.w,
+      height: 55,
+      width: 55,
       color: Colors.red,
       alignment: Alignment.center,
       child: VideoPlayer(controller),

@@ -88,7 +88,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool _isButtonEnabled = false;
 
   void homeRedirection(OtpResponse data, BuildContext context,{required tempFlag}) => addPostFrameCallback((){
-    debugPrint("homeRedirection ${data.toJson()}");
     if (data.data?.user?.role == 1) {
       if (tempFlag) {
         context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});

@@ -17,7 +17,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_loa
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/trip_scheduling_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/view/trip_scheduling_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -154,7 +154,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 Navigator.push(
                   context,
                   commonRoute(
-                    LpProfileScreen(profileData: profileResponse!.data!),
+                    ProfileScreen(profileData: profileResponse!.data!),
                     isForward: true,
                   ),
                 ).then((v) {
@@ -171,10 +171,20 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 width: 40,
                 path: profileImage,
                 errorImage: AppImage.png.userProfileError,
-              ).paddingRight(commonSafeAreaPadding),
+              ),
             );
           },
         ),
+        15.width,
+
+        // Notification
+        AppIconButton(
+            onPressed: (){},
+            style: AppButtonStyle.circularIconButtonStyle,
+            icon: Icons.notifications,
+            iconColor: AppColors.primaryColor,
+        ),
+        15.width,
       ],
     );
   }
@@ -202,7 +212,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                             }
                           }
                         }
-                       // return buildKYCStatusWidget();
                         return SizedBox();
                       }
                   ),
@@ -287,105 +296,103 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         if (state is VpMyLoadListSuccess) {
           vpMyLoadResponse = state.vpMyLoadResponse;
         }
-        if (state is VpMyLoadListError) {
-          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-        }
       },
       bloc: vpHomeScreenBloc,
       builder: (context, state) {
+        if (state is VpMyLoadListSuccess) {
+          return Container(
+            decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                10.height,
 
-        return Container(
-          decoration: commonContainerDecoration(
-            borderRadius: BorderRadius.circular(0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              10.height,
-              // Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("My Loads", textAlign: TextAlign.start, style: AppTextStyle.body1),
+                // Title
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
 
-                  // See More
-                  if (state is VpMyLoadListSuccess)
-                    if (state.vpMyLoadResponse.data.isNotEmpty && state.vpMyLoadResponse.data.length > 2)
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        commonRoute(const AvailableLoadsScreen()),
+                    // See More
+                    //if (state is VpMyLoadListSuccess)
+                    // if (state.vpMyLoadResponse.data.length > 2)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
+                      },
+                      style: AppButtonStyle.primaryTextButton,
+                      child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                    )
+                  ],
+                ),
+                10.height,
+
+                // List
+                Builder(
+                  builder: (context) {
+                    if (vpMyLoadResponse == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (vpMyLoadResponse!.data.isEmpty) {
+                      return Center(
+                        child: Image.asset(
+                          AppImage.png.noShipment,
+                          width: 201.w,
+                          height: 134.h,
+                        ),
                       );
-                    },
-                    style: AppButtonStyle.primaryTextButton,
-                    child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
-                  )
-                ],
-              ),
-              10.height,
+                    }
 
-              // List
-              Builder(
-                builder: (context) {
-                  if (vpMyLoadResponse == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                    return ListView.separated(
+                      itemCount: vpMyLoadResponse!.data.length > 2 ? 2 : vpMyLoadResponse!.data.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      separatorBuilder: (context, index) => 20.height,
+                      itemBuilder: (context, index) {
+                        final data = vpMyLoadResponse!.data[index];
 
-                  if (vpMyLoadResponse!.data.isEmpty) {
-                    return Center(
-                      child: Image.asset(
-                        AppImage.png.noShipment,
-                        width: 201.w,
-                        height: 134.h,
-                      ),
+                        return MyLoadsListBody(
+                          data: data,
+                          onClickAssignDriver: () {
+                            final isKycDone = profileResponse?.data?.customer?.isKyc ?? false;
+                            if (isKycDone) {
+                              Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!), isForward: true));
+                            } else {
+                              commonBottomSheetWithBGBlur(
+                                context: context,
+                                screen: KycPendingDialogue(
+                                  onPressed: () {
+                                    context.pop();
+                                    commonBottomSheetWithBGBlur(
+                                      context: context,
+                                      screen: KycBottomSheet(),
+                                    ).then((_) {
+                                      lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
+                                    });
+                                  },
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
                     );
-                  }
-
-                  return ListView.separated(
-                    itemCount: vpMyLoadResponse!.data.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (context, index) => 20.height,
-                    itemBuilder: (context, index) {
-                      final data = vpMyLoadResponse!.data[index];
-
-                      return MyLoadsListBody(
-                        data: data,
-                        onClickAssignDriver: () {
-                          final isKycDone = profileResponse?.data?.customer?.isKyc ?? false;
-                          if (isKycDone) {
-                            Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!))).then((_) {
-                              vpHomeScreenBloc.add(VpMyLoadListRequested());
-                            });
-                          } else {
-                            commonBottomSheetWithBGBlur(
-                              context: context,
-                              screen: KycPendingDialogue(
-                                onPressed: () {
-                                  context.pop();
-                                  commonBottomSheetWithBGBlur(
-                                    context: context,
-                                    screen: KycBottomSheet(),
-                                  ).then((_) {
-                                    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
-                                  });
-                                },
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-
-
-              20.height,
-            ],
-          ).paddingSymmetric(horizontal: commonSafeAreaPadding),
-        );
+                  },
+                ),
+                20.height,
+              ],
+            ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+          );
+        }
+        if (state is VpMyLoadListError) {
+           return genericErrorWidget(error: state.errorType);
+        }
+        if (state is VpMyLoadListLoading) {
+           return CircularProgressIndicator().paddingSymmetric(vertical: 100).center();
+        } else {
+          return genericErrorWidget(error: GenericError());
+        }
       },
     );
   }
@@ -408,10 +415,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               // See More
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    commonRoute(const AvailableLoadsScreen()),
-                  );
+                  Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
                 },
                 style: AppButtonStyle.primaryTextButton,
                 child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
@@ -447,8 +451,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 }else{
                   return genericErrorWidget(error: NotFoundError());
                 }
+              } else {
+                return genericErrorWidget(error: GenericError());
               }
-              return 100.height;
             },
           ),
           20.height,

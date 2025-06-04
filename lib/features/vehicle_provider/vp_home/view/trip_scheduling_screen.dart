@@ -93,18 +93,10 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        title: "Trip Scheduling",
-        scrolledUnderElevation: 0.0,
-      ),
+      appBar: CommonAppBar(title: "Trip Scheduling", scrolledUnderElevation: 0.0),
       body: SingleChildScrollView(
         child: SafeArea(
-          minimum: EdgeInsets.only(
-            right: commonSafeAreaPadding,
-            left: commonSafeAreaPadding,
-            top: 20,
-          ),
-          bottom: false,
+          minimum: EdgeInsets.only(right: commonSafeAreaPadding, left: commonSafeAreaPadding, top: 20),
           child: _buildTripDetailWidget(buildContext: context),
         ),
       ),
@@ -151,281 +143,227 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    contentPadding: EdgeInsets.zero,
-
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              widget.data.pickUpAddr,
-                              style: AppTextStyle.h4w500,
-                              maxLines: 1,
-                            ).expand(),
-
-                            Icon(
-                              Icons.arrow_right_alt_outlined,
-                              color: AppColors.primaryColor,
-                            ).paddingSymmetric(horizontal: 5),
-
-                            Text(
-                              widget.data.dropAddr,
-                              maxLines: 1,
-                              style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis),
-                            ).expand(),
-                          ],
-                        ),
-                        Text(widget.data.customerDetail?.companyName??"", style: AppTextStyle.body3GreyColor),
-                      ],
-                    ),
-
-                    leading: Container(
-                      decoration: commonContainerDecoration(
-                        color: AppColors.lightPrimaryColor,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: SvgPicture.asset(
-                        AppIcons.svg.orderBox,
-                      ).paddingAll(10),
-                    ),
-
-                    trailing: SvgPicture.asset(AppIcons.svg.support),
-                  ),
-
-                  commonDivider(),
-
-                  Row(
-                    children: [
-                      Row(
+                      contentPadding: EdgeInsets.zero,
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
-                          10.width,
-                          Text(
-                            widget.data.truckType!.subType,
-                            style: AppTextStyle.body,
-                          ),
-                        ],
-                      ).expand(),
-                      statusButtonWidget(
-                        statusBackgroundColor: AppColors.boxGreen,
-                        statusTextColor: AppColors.textGreen,
-                        statusText: "Advance Paid",
-                      ),
-                    ],
-                  ),
-                  10.height,
-
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          SvgPicture.asset(AppIcons.svg.package),
-                          10.width,
-                          Text(
-                            widget.data.commodity!.name,
-                            style: AppTextStyle.body,
-                          ),
-                        ],
-                      ).expand(),
-                      Text(
-                        "${indianCurrencySymbol}1000",
-                        style: AppTextStyle.h4,
-                      ),
-                    ],
-                  ),
-                  20.height,
-                  Row(
-                    children: [
-                      SvgPicture.asset(AppIcons.svg.package),
-                      10.width,
-                      Text(
-                        "${widget.data.consignmentWeight} Tonn",
-                        style: AppTextStyle.body,
-                      ),
-                    ],
-                  ),
-                  20.height,
-                  commonDivider(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        commonCacheNetworkImage(
-                          radius: 50,
-                          height: 40,
-                          width: 40,
-                          path:
-                              widget
-                                  .allProfileDetails
-                                  .details
-                                  ?.profileImageUrl ??
-                              "",
-                          errorImage: AppImage.png.userProfileError,
-                        ).paddingRight(commonSafeAreaPadding),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text:
-                                          widget
-                                              .allProfileDetails
-                                              .customer
-                                              ?.customerName ??
-                                          "",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: ' (Gro Agent)',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '+91 ${widget.allProfileDetails.customer?.mobileNumber}',
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 14,
-                                ),
-                              ),
+                              Text(widget.data.pickUpAddr, style: AppTextStyle.h5w500, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.left).expand(),
+                              Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
+                              Text(widget.data.dropAddr, style: AppTextStyle.h5w500, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.right).expand(),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(widget.data.rate, style: AppTextStyle.body3GreyColor),
+                        ],
+                      ),
+
+                      leading: Container(
+                        decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor, borderRadius: BorderRadius.circular(100)),
+                        child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
+                      ),
+
+                      trailing: SvgPicture.asset(AppIcons.svg.call)
+                  ),
+
+
+                  commonDivider(),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      Column(
+                        children: [
+
+                          Row(
+                            children: [
+                              SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
+                              10.width,
+                              if(widget.data.truckType != null)
+                                Text("${widget.data.truckType!.subType} ${widget.data.truckType!.type}", style: AppTextStyle.body),
+                            ],
+                          ),
+                          10.height,
+
+                          if(widget.data.commodity != null)...[
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppIcons.svg.package),
+                                10.width,
+                                Text(widget.data.commodity!.name, style: AppTextStyle.body),
+                              ],
+                            ),
+                            10.height,
+                          ],
+
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+                              7.width,
+                              Text("${widget.data.consignmentWeight} Ton", style: AppTextStyle.body),
+                            ],
+                          ),
+                        ],
+                      ).expand(),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          // Advance Paid
+                          // if (widget.data.)
+                          statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid"),
+                          10.height,
+
+                          Text("$indianCurrencySymbol${widget.data.rate}", style: AppTextStyle.h5PrimaryColor),
+                          3.height,
+
+                          // Settled Price
+                          Text(context.appText.settledPrice, style: AppTextStyle.body3),
+                        ],
+                      )
+                    ],
+                  ),
+
+
+                  commonDivider(),
+
+                  // Vehicle Provider
+                  Row(
+                    children: [
+                      // Vehicle Provider Profile
+                      commonCacheNetworkImage(
+                        radius: 100,
+                        height: 40,
+                        width: 40,
+                        path: widget.allProfileDetails.details?.profileImageUrl ?? "",
+                        errorImage: AppImage.png.userProfileError,
+                      ),
+                      10.width,
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: widget.allProfileDetails.customer?.customerName ?? "",
+                                  style: AppTextStyle.h5w500,
+                                ),
+                                TextSpan(
+                                  text: '  (Gro Agent)',
+                                  style: AppTextStyle.body3GreyColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                          3.height,
+
+                          Text('+91 ${widget.allProfileDetails.customer?.mobileNumber}', style: AppTextStyle.body),
+                        ],
+                      ).expand(),
+                    ],
                   ),
                 ],
               ),
             ),
-            20.height,
+            50.height,
 
            Form(
              key: _formKey,
              child: Column(
                crossAxisAlignment: CrossAxisAlignment.start,
                children: [
-                 ///truck part
+                 //truck part
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Text("Truck Number", style: AppTextStyle.textBlackColor16w400),
+                     Text("Truck Number", style: AppTextStyle.textFiled),
                      Icon(Icons.add, size: 20),
                    ],
                  ),
-                 10.height,
+                 6.height,
+
                  AppDropdown(
-                   validator:
-                       (value) => Validator.fieldRequired(
-                     value,
-                     fieldName: "Truck Number Required*",
-                   ),
-                   //  labelText: "Company Type",
+                   validator: (value) => Validator.fieldRequired(value, fieldName: "Truck Number Required*"),
                    labelTextStyle: AppTextStyle.textBlackColor18w400,
                    hintText: "Truck Number",
                    dropdownValue: truckType,
                    decoration: commonInputDecoration(fillColor: Colors.white),
-                   dropDownList:
-                   vehicleDetail
-                       .map(
-                         (e) => DropdownMenuItem(
+                   dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
                        value: e.id.toString(),
-                       child: Text(
-                         e.vehicleNumber,
-                         style: AppTextStyle.body,
-                       ),
+                       child: Text(e.vehicleNumber, style: AppTextStyle.body),
                      ),
-                   )
-                       .toList(),
+                   ).toList(),
                    onChanged: (onChangeValue) {
                      truckType = onChangeValue;
-                     setState(() {});
                    },
                  ),
+                 30.height,
 
-                 ///Driver part
+
+                 // RC Copy of Vehicle
+                 Row(
+                   crossAxisAlignment: CrossAxisAlignment.center,
+                   children: [
+                     Text(context.appText.rcCopyOfVehicle, style: AppTextStyle.body2),
+                     10.width,
+                     Icon(Icons.verified, color: AppColors.activeDarkGreenColor),
+                   ],
+                 ),
+                 30.height,
+
+                 //Driver part
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Text(
-                       "Driver Name  & Number",
-                       style: AppTextStyle.textBlackColor16w400,
-                     ),
+                     Text(context.appText.driverNameAndNumber, style: AppTextStyle.textFiled),
                      Icon(Icons.add, size: 20),
                    ],
                  ),
-                 10.height,
+                 6.height,
                  AppDropdown(
-                   validator:
-                       (value) => Validator.fieldRequired(
-                     value,
-                     fieldName: "Driver Required*",
-                   ),
-                   //  labelText: "Company Type",
+                   validator: (value) => Validator.fieldRequired(value),
                    labelTextStyle: AppTextStyle.textBlackColor18w400,
-                   hintText: "Driver Required*",
+                   hintText: context.appText.selectDriver,
                    dropdownValue: driverType,
                    decoration: commonInputDecoration(fillColor: Colors.white),
-                   dropDownList:
-                   driverDetails
-                       .map(
-                         (e) => DropdownMenuItem(
+                   dropDownList: driverDetails.map((e) => DropdownMenuItem(
                        value: e.id.toString(),
                        child: Text(e.name, style: AppTextStyle.body),
                      ),
-                   )
-                       .toList(),
+                   ).toList(),
                    onChanged: (onChangeValue) {
                      driverType = onChangeValue;
-                     setState(() {});
                    },
                  ),
                ],
              ),
            ),
+            30.height,
 
-            20.height,
+            // RC Copy of Vehicle
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "RC Copy of Vehicle",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: EdgeInsets.all(4),
-
-                  child: SvgPicture.asset(AppIcons.svg.tick),
-                ),
+                Text(context.appText.drivingLicense, style: AppTextStyle.body2),
+                10.width,
+                Icon(Icons.verified, color:  AppColors.activeDarkGreenColor),
               ],
             ),
+            30.height,
+
 
             DateTimePickerField(
-              label: "ETA of Pickup",
+              label: context.appText.eTAOfPickup,
               value: pickupEta,
               icon: Icons.access_time,
               onTap: () async {
+
                 pickedDate = await showDatePicker(
                   context: context,
                   initialDate: DateTime.now(),
@@ -433,12 +371,9 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                   lastDate: DateTime(2100),
                 );
 
-                if (!mounted || pickedDate == null) return;
+                if (!context.mounted || pickedDate == null) return;
 
-                final TimeOfDay? pickedTime = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
+                final TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
 
                 if (!mounted || pickedTime == null) return;
 
@@ -450,18 +385,18 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                   pickedTime.minute,
                 );
 
-                final formatted =
-                    "${DateFormat('dd-MM-yy').format(dt)} | ${DateFormat('h.mm a').format(dt)}";
+                final formatted = "${DateFormat('dd-MM-yy').format(dt)} | ${DateFormat('h.mm a').format(dt)}";
 
                 setState(() {
                   pickupEta = formatted;
                 });
               },
             ),
-
             20.height,
+
+
             DateTimePickerField(
-              label: "Expected Delivery date",
+              label: context.appText.expectedDeliveryDate,
               value: deliveryDate,
               icon: Icons.calendar_today,
               onTap: () async {
@@ -483,12 +418,14 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                 });
               },
             ),
-            20.height,
-            AppButton(
-              isLoading:isLoading,
-              style:pickedDate!=null &&  deliveryDateTime!=null?AppButtonStyle.primary:AppButtonStyle.disableButton,
-              onPressed: () {
+            50.height,
 
+
+            AppButton(
+              title: context.appText.scheduleTrip,
+              isLoading:isLoading,
+              style: (pickedDate !=null &&  deliveryDateTime !=null ) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+              onPressed: () {
                 if(pickedDate!=null &&  deliveryDateTime!=null){
                   if(_formKey.currentState!.validate()){
                     vpHomeScreenBloc.add(
@@ -506,13 +443,10 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                       ),
                     );
                   }
-
                 }else{
                   ToastMessages.error(message: "Please Select Dates!!!");
                 }
-
               },
-              title: context.appText.continueText,
             ),
             20.height,
           ],
@@ -521,6 +455,8 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
     );
   }
 }
+
+
 class DateTimePickerField extends StatelessWidget {
   final String label;
   final String value;
@@ -540,16 +476,17 @@ class DateTimePickerField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyle.black13w700),
-        const SizedBox(height: 8),
+        Text(label, style: AppTextStyle.textFiled),
+        const SizedBox(height: 6),
         InkWell(
           onTap: onTap,
           child: Container(
             height: 50,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor2,
+              color: Colors.white,
               borderColor: AppColors.borderColor,
+              borderRadius: BorderRadius.circular(commonTexFieldRadius)
             ),
             child: Row(
               children: [
@@ -559,7 +496,7 @@ class DateTimePickerField extends StatelessWidget {
                     style: AppTextStyle.body,
                   ),
                 ),
-                Icon(icon, size: 20, color: AppColors.primaryIconColor),
+                Icon(icon, size: 20, color: AppColors.iconColor),
               ],
             ),
           ),

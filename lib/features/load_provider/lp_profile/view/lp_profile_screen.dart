@@ -36,17 +36,15 @@ import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_text_style.dart';
 import '../../../../utils/extra_utils.dart';
 
-class LpProfileScreen extends StatefulWidget {
-  LpProfileScreen({super.key, required this.profileData});
-
+class ProfileScreen extends StatefulWidget {
   AllProfileDetails profileData;
-
+  ProfileScreen({super.key, required this.profileData});
   @override
-  State<LpProfileScreen> createState() => _LpProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _LpProfileScreenState extends State<LpProfileScreen> {
-  final double profileSize = 130;
+class _ProfileScreenState extends State<ProfileScreen> {
+  final double profileSize = 120;
   dynamic pickImage;
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
@@ -95,14 +93,13 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             15.width,
-
-            ///profile image upload widget
+            // profile image upload widget
             buildUploadProfilePictureWidget(context: context),
 
-            ///profile details widget
+            // profile details widget
             profileDetailWidget(),
 
-            ///profile options widget
+            // profile options widget
             profileOptionWidget(),
           ],
         ),
@@ -112,7 +109,6 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
 
   profileDetailWidget() {
     return BlocConsumer(
-
       bloc: lpHomeLocator,
       builder: (context, state) {
       return Column(
@@ -143,15 +139,13 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
     }, listener: _listener);
   }
   _listener(BuildContext context, HomeState state) {
+
     if (state is ProfileDetailSuccess) {
       widget.profileData=state.profileDetailResponse.data!;
-
-      //paas here your route
-    }
-    if (state is ProfileDetailError) {
-
     }
   }
+
+
   profileOptionWidget() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -298,7 +292,6 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
   Widget buildUploadProfilePictureWidget({required BuildContext context}) {
     return BlocConsumer(
       bloc: kycBloc,
-
       builder: (context, state) {
         return SizedBox(
           height: profileSize,
@@ -306,26 +299,15 @@ class _LpProfileScreenState extends State<LpProfileScreen> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // if (_croppedImage != null)
-              //   ClipOval(
-              //     child: Image.file(
-              //       _croppedImage!,
-              //       fit: BoxFit.cover,
-              //       width: profileSize,
-              //       height: profileSize,
-              //     ),
-              //   )
-              // else
               BlocConsumer(
                 bloc: lpHomeLocator,
                 builder: (context, state) {
-                  return ClipOval(
-                    child: commonCacheNetworkImage(
-                      path: profileImage ?? "",
-                      height: profileSize,
-                      width: profileSize,
-                      errorImage: AppImage.png.userProfileError,
-                    ),
+                  return commonCacheNetworkImage(
+                    path: profileImage ?? "",
+                    height: profileSize,
+                    width: profileSize,
+                    radius: 100,
+                    errorImage: AppImage.png.userProfileError,
                   );
                 },
                 listener: (context, state) {

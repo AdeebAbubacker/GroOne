@@ -163,7 +163,7 @@ class AppTextStyle {
   static TextStyle h1PrimaryColor = h1.copyWith(color: AppColors.primaryColor);
 
   // H2
-  static TextStyle h2 = GoogleFonts.ubuntu(fontWeight: FontWeight.w700, color: AppColors.primaryTextColor, fontSize: 28);
+  static TextStyle h2 = GoogleFonts.ubuntu(fontWeight: FontWeight.w800, color: AppColors.primaryTextColor, fontSize: 28);
   static TextStyle h2PrimaryColor = h2.copyWith(color: AppColors.primaryColor);
 
   // H3
@@ -173,14 +173,14 @@ class AppTextStyle {
   static TextStyle h3GreyColor = h3.copyWith(color: AppColors.greyTextColor);
   static TextStyle h3PrimaryColor = h3.copyWith(color: AppColors.primaryColor);
 
-  // H3
-  static TextStyle h4 = GoogleFonts.ubuntu(fontWeight: FontWeight.w600, color: AppColors.primaryTextColor, fontSize: 18);
+  // H4
+  static TextStyle h4 = GoogleFonts.ubuntu(fontWeight: FontWeight.w700, color: AppColors.primaryTextColor, fontSize: 18);
   static TextStyle h4w500 = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: AppColors.primaryTextColor, fontSize: 18);
   static TextStyle h4GreyColor = h4.copyWith(color: AppColors.greyTextColor);
   static TextStyle h4WhiteColor = h4.copyWith(color: Colors.white);
   static TextStyle h4PrimaryColor = h4.copyWith(color: AppColors.primaryColor);
 
-  // H3
+  // H5
   static TextStyle h5 = GoogleFonts.ubuntu(fontWeight: FontWeight.w600, color: AppColors.primaryTextColor, fontSize: 15);
   static TextStyle h5w500 = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: AppColors.primaryTextColor, fontSize: 15);
   static TextStyle h5GreyColor = h5.copyWith(color: AppColors.greyTextColor);
@@ -242,6 +242,7 @@ class AppTextStyle {
   static TextStyle appBar = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: Colors.black, fontSize: 18);
 
   /// Text Field & Dropdown
-  static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 16);
+  static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
   static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 13);
+
 }

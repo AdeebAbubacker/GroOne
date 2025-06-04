@@ -78,6 +78,7 @@ class AppColors {
 
   // Activity Color
   static const Color activeGreenColor = CupertinoColors.activeGreen;
+  static const Color activeDarkGreenColor = Color(0xff018800);
   static const Color activeBlueColor = CupertinoColors.activeBlue;
   static const Color activeRedColor = CupertinoColors.systemRed;
 
