@@ -62,7 +62,7 @@ class KavachModelsListBody extends StatelessWidget {
 
                   ProductCounter(
                     count: quantity,
-                    onIncrement: () => bloc.add(IncrementQuantity(product.id)),
+                    onIncrement: () => bloc.add(TryIncrementQuantity(productId: product.id)),
                     onDecrement: () => bloc.add(DecrementQuantity(product.id)),
                   ),
                 ],

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import '../../../../data/model/result.dart';
+import '../../../../utils/toast_messages.dart';
 import '../../model/kavach_product_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
@@ -12,12 +13,30 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     on<FetchKavachProducts>(_onFetch);
     on<IncrementQuantity>(_onIncrement);
     on<DecrementQuantity>(_onDecrement);
+    on<TryIncrementQuantity>((event, emit) async {
+      final stockResult = await repository.fetchAvailableStock(
+        productId: event.productId,
+      );
 
+      if (stockResult is Success<int>) {
+        final availableStock = stockResult.value;
+        final currentQty = state.quantities[event.productId] ?? 0;
+
+        if (currentQty < availableStock) {
+          final updatedQuantities = Map<String, int>.from(state.quantities);
+          updatedQuantities[event.productId] = currentQty + 1;
+          emit(state.copyWith(quantities: updatedQuantities));
+        } else {
+          ToastMessages.alert(message: 'Product out of stock');
+        }
+      } else if (stockResult is Error) {
+        ToastMessages.error(message: 'Failed to check stock availability.');
+      }
+    });
     on<UpdateKavachQuantities>((event, emit) {
       // Emit updated quantities including zeros to reset them properly
       emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
-    });
-  }
+    }); }
   Future<void> _onFetch(FetchKavachProducts event, Emitter<KavachProductsListState> emit) async {
     if (state.loading) return;
 

@@ -10,7 +10,10 @@ import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
+import '../../../data/model/result.dart';
+import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_check_box.dart';
@@ -28,6 +31,7 @@ import '../bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import '../bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_event.dart';
 import '../bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_state.dart';
 import '../model/kavach_product_model.dart';
+import '../repository/kavach_repository.dart';
 import 'widgets/product_counter.dart';
 
 class KavachCheckoutScreen extends StatefulWidget {
@@ -41,19 +45,51 @@ class KavachCheckoutScreen extends StatefulWidget {
 
 class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   final MultiSelectController<String> vehicleDetailsController = MultiSelectController<String>();
+  final kavachCheckoutVehicleBloc = locator<KavachCheckoutVehicleBloc>();
+  final kavachCheckoutShippingAddressBloc = locator<KavachCheckoutShippingAddressBloc>();
+  final kavachCheckoutBillingAddressBloc = locator<KavachCheckoutBillingAddressBloc>();
+
   late Map<String, int> _quantities;
   late List<KavachProduct> _products;
   bool billingSameAsShipping =false;
+  TextEditingController gstNoController = TextEditingController();
+  late Map<String, int> _availableStocks;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _quantities = Map<String, int>.from(widget.quantities);
+  //   _products = List<KavachProduct>.from(widget.products);
+  //   kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
+  //   kavachCheckoutShippingAddressBloc.add(FetchKavachAddresses());
+  //   kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
+  // }
 
   @override
   void initState() {
     super.initState();
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<KavachProduct>.from(widget.products);
-    context.read<KavachCheckoutVehicleBloc>().add(FetchKavachVehicles());
-    context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachAddresses());
-    context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+    _availableStocks = {}; // empty initially
+
+    for (var product in _products) {
+      // Fetch stock for each product
+      locator<KavachRepository>().fetchAvailableStock(
+        productId: product.id,
+      ).then((result) {
+        if (result is Success<int>) {
+          setState(() {
+            _availableStocks[product.id] = result.value;
+          });
+        }
+      });
+    }
+
+    kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
+    kavachCheckoutShippingAddressBloc.add(FetchKavachAddresses());
+    kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
   }
+
 
   @override
   void dispose() {
@@ -83,11 +119,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 Text(product.name, style: AppTextStyle.h5).expand(),
                 ProductCounter(
                   count: quantity,
+                  // onIncrement: () {
+                  //   setState(() {
+                  //     _quantities[product.id] = quantity + 1;
+                  //   });
+                  // },
                   onIncrement: () {
-                    setState(() {
-                      _quantities[product.id] = quantity + 1;
-                    });
+                    final stock = _availableStocks[product.id] ?? 0;
+                    final currentQty = _quantities[product.id] ?? 0;
+
+                    if (currentQty < stock) {
+                      setState(() {
+                        _quantities[product.id] = currentQty + 1;
+                      });
+                    } else {
+                      ToastMessages.alert(message: 'Product out of stock');
+                    }
                   },
+
                   onDecrement: () {
                     if (quantity > 1) {
                       setState(() {
@@ -190,6 +239,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                   15.height,
                   Text('${context.appText.gstKavach} (${context.appText.optional})',style: AppTextStyle.body3,),
                   AppTextField(
+                    controller: gstNoController,
                     hintText: 'Eg: GS68468GS654',
                   ),
                   10.height
@@ -355,9 +405,25 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   Widget buildPlaceOrderButtonWidget(){
     return AppButton(
       title: context.appText.placeOrder,
-      onPressed: (){
-        Navigator.of(context).push(commonRoute(KavachSummaryScreen()));
+      onPressed: () {
+        final shippingState = context.read<KavachCheckoutShippingAddressBloc>().state;
+        final billingState = context.read<KavachCheckoutBillingAddressBloc>().state;
+
+        if (shippingState is KavachCheckoutAddressSelected && billingState is KavachCheckoutBillingAddressSelected && vehicleDetailsController.selectedItems.map((item) => item.value).toList().isNotEmpty) {
+          Navigator.of(context).push(commonRoute(KavachSummaryScreen(
+            products: _products,
+            quantities: _quantities,
+            availableStocks: _availableStocks,
+            shippingAddress: shippingState.selectedAddress,
+            billingAddress: billingState.selectedAddress,
+            selectedVehicleNumbers: vehicleDetailsController.selectedItems.map((item) => item.value).toList(),
+            gstNo: gstNoController.text.trim(),
+          )));
+        } else {
+          // Show error/snackbar
+        }
       },
+
     ).bottomNavigationPadding();
   }
 }

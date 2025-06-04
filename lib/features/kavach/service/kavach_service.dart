@@ -1,8 +1,9 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import '../../../utils/custom_log.dart';
-import '../api_request/kacach_add_address_api_request.dart';
+import '../api_request/kavach_add_address_api_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
@@ -59,12 +60,12 @@ class KavachService {
 
   Future<Result<List<KavachAddressModel>>> fetchAddresses(String customerId, {required int addrType}) async {
     try {
-      // final response = await _apiService.get(
-      //   'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
-      // );
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=189&addrType=$addrType',
+        'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
       );
+      // final response = await _apiService.get(
+      //   'https://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=189&addrType=$addrType',
+      // );
 
       if (response is Success) {
         final data = response.value;
@@ -85,7 +86,7 @@ class KavachService {
   Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
     try {
       final response = await _apiService.post(
-        'http://gro-devapi.letsgro.co/customer/api/v1/vas',
+        'https://gro-devapi.letsgro.co/customer/api/v1/vas',
         body: request.toJson(),
       );
 
@@ -102,7 +103,44 @@ class KavachService {
     }
   }
 
+  Future<Result<int>> fetchAvailableStock({
+    required String productId,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        'https://gro-devapi.letsgro.co/fleet/api/v1/stocks/available-stock?productId=$productId&teamId=1',
+      );
 
+      if (response is Success) {
+        final data = response.value['data'];
+        return Success(int.tryParse(data['availableStock'].toString()) ?? 0);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<void>> createOrder(KavachOrderRequest request) async {
+    try {
+      final response = await _apiService.post(
+        'https://gro-devapi.letsgro.co/fleet/api/v1/orders/create',
+        body: request.toJson(),
+      );
+      if (response is Success) {
+        return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
 }
 
