@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
@@ -7,6 +6,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
@@ -14,7 +14,8 @@ import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
-import '../../login/repository/user_information_repository.dart';
+import '../../../utils/extra_utils.dart';
+import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
 
@@ -43,14 +44,53 @@ class KavachSummaryScreen extends StatefulWidget {
 class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   final kavachOrderBloc = locator<KavachOrderBloc>();
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: CommonAppBar(title: context.appText.summary),
+  //     bottomNavigationBar: buildProceeToPayButton(context),
+  //     body: buildBodyWidget(context),
+  //   );
+  // }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(title: context.appText.summary),
-      bottomNavigationBar: buildProceeToPayButton(context),
-      body: buildBodyWidget(context),
+    return BlocListener<KavachOrderBloc, KavachOrderState>(
+      bloc: kavachOrderBloc,
+      listener: (context, state) {
+        if (state is KavachOrderSubmitting) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else {
+          if (Navigator.canPop(context)) Navigator.of(context).pop();
+        }
+
+        if (state is KavachOrderSuccess) {
+          // ToastMessages.success(message: "Order placed successfully");
+          showSuccessDialog(
+            context,
+            text: 'Order placed successfully',
+            subheading: ''
+          );
+          Future.delayed(Duration(seconds: 3),() {
+            Navigator.of(context).popUntil((route) => route.settings.name == 'KavachBenefits');
+          },);
+
+          // Pop until KavachBenefitsScreen
+        } else if (state is KavachOrderFailure) {
+          ToastMessages.error(message: "Failed to place order: ${state.message}");
+        }
+      },
+      child: Scaffold(
+        appBar: CommonAppBar(title: context.appText.summary),
+        bottomNavigationBar: buildProceeToPayButton(context),
+        body: buildBodyWidget(context),
+      ),
     );
   }
+
 
   Widget buildBodyWidget(BuildContext context){
     return SafeArea(
@@ -65,25 +105,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   children: [
                     Text(context.appText.paymentDetails, style: AppTextStyle.h5,),
                     10.height,
-                    // Row(
-                    //   children: [
-                    //     Expanded(child: Text('Price (6 items)',style: AppTextStyle.textDarkGreyColor14w500,)),
-                    //     Text('₹9,730.00',style: AppTextStyle.blackColor15w500,),
-                    //   ],
-                    // ),
-                    // Row(
-                    //   children: [
-                    //     Expanded(child: Text(context.appText.gstKavach,style: AppTextStyle.textDarkGreyColor14w500,)),
-                    //     Text('₹9,730.00',style: AppTextStyle.blackColor15w500,),
-                    //   ],
-                    // ),
-                    // Divider(color: AppColors.greyIconColor,),
-                    // Row(
-                    //   children: [
-                    //     Expanded(child: Text(context.appText.totalAmount, style: AppTextStyle.textDarkGreyColor14w500,)),
-                    //     Text('₹10,420',style: AppTextStyle.blackColor15w500,),
-                    //   ],
-                    // ),
                     Row(
                       children: [
                         Expanded(child: Text('Price (${widget.quantities.values.reduce((a, b) => a + b)} items)', style: AppTextStyle.textDarkGreyColor14w500)),

@@ -1,4 +1,6 @@
-class KavachAddressModel {
+import 'package:equatable/equatable.dart';
+
+class KavachAddressModel extends Equatable {
   final int id;
   final String customerName;
   final String mobileNumber;
@@ -8,7 +10,7 @@ class KavachAddressModel {
   final String state;
   final String pincode;
 
-  KavachAddressModel({
+  const KavachAddressModel({
     required this.id,
     required this.customerName,
     required this.mobileNumber,
@@ -33,4 +35,16 @@ class KavachAddressModel {
   }
 
   String get fullAddress => '$addr1, $addr2, $city, $state - $pincode';
+
+  @override
+  List<Object?> get props => [
+    id,
+    customerName,
+    mobileNumber,
+    addr1,
+    addr2,
+    city,
+    state,
+    pincode,
+  ];
 }

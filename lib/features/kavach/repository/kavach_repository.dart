@@ -8,6 +8,7 @@ import '../../login/model/login_model.dart';
 import '../../login/repository/user_information_repository.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../model/kavach_address_model.dart';
+import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
@@ -46,6 +47,29 @@ class KavachRepository {
   Future<Result<void>> createOrder(KavachOrderRequest request) async {
     return _service.createOrder(request);
   }
+
+  // Future<Result<KavachOrderListResponse>> fetchCustomerOrders({
+  //   int page = 1,
+  //   int limit = 10,
+  // }) async {
+  //   String cId = await userInfoRepo.getUserID()??'';
+  //   return _service.fetchCustomerOrders(customerId: cId, page: page, limit: limit);
+  // }
+
+  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({
+    int page = 1,
+    int limit = 10,
+    int? status,
+  }) async {
+    String cId = await userInfoRepo.getUserID() ?? '';
+    return _service.fetchCustomerOrders(
+      customerId: cId,
+      page: page,
+      limit: limit,
+      status: status,
+    );
+  }
+
 
 }
 

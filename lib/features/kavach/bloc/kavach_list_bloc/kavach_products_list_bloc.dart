@@ -37,6 +37,37 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
       // Emit updated quantities including zeros to reset them properly
       emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
     }); }
+
+  // Future<void> _onFetch(FetchKavachProducts event, Emitter<KavachProductsListState> emit) async {
+  //   if (state.loading) return;
+  //
+  //   emit(state.copyWith(loading: true, error: null));
+  //
+  //   final result = await repository.fetchProducts(search: event.search, page: event.page);
+  //
+  //   if (result is Success<List<KavachProduct>>) {
+  //     final products = result.value;
+  //     final newProductList = event.isLoadMore
+  //         ? [...state.products, ...products]
+  //         : products;
+  //
+  //     final updatedQuantities = Map<String, int>.from(state.quantities);
+  //     for (var product in products) {
+  //       updatedQuantities.putIfAbsent(product.id, () => 0);
+  //     }
+  //
+  //     emit(state.copyWith(
+  //       products: newProductList,
+  //       quantities: updatedQuantities,
+  //       loading: false,
+  //       hasMore: products.isNotEmpty,
+  //       currentPage: event.page,
+  //     ));
+  //   }
+  //   if (result is Error<List<KavachProduct>>) {
+  //     emit(state.copyWith(error: result.type, loading: false));
+  //   }
+  // }
   Future<void> _onFetch(FetchKavachProducts event, Emitter<KavachProductsListState> emit) async {
     if (state.loading) return;
 
@@ -51,13 +82,24 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
           : products;
 
       final updatedQuantities = Map<String, int>.from(state.quantities);
+      final updatedAvailableStocks = Map<String, int>.from(state.availableStocks); // New map for stocks
+
+      // Fetch available stock for each product (consider optimizing this if API can return it)
       for (var product in products) {
         updatedQuantities.putIfAbsent(product.id, () => 0);
+        // Assuming you want to fetch stock for each product upon initial load
+        final stockResult = await repository.fetchAvailableStock(productId: product.id);
+        if (stockResult is Success<int>) {
+          updatedAvailableStocks[product.id] = stockResult.value;
+        } else {
+          updatedAvailableStocks[product.id] = 0; // Default to 0 or handle error
+        }
       }
 
       emit(state.copyWith(
         products: newProductList,
         quantities: updatedQuantities,
+        availableStocks: updatedAvailableStocks, // Pass the updated stocks
         loading: false,
         hasMore: products.isNotEmpty,
         currentPage: event.page,

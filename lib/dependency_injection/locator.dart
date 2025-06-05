@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
@@ -130,6 +131,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KavachCheckoutVehicleBloc(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachCheckoutAddAddressBloc(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachOrderBloc(locator<KavachRepository>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => KavachOrderListBloc(locator<KavachRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");

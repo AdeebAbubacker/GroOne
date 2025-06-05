@@ -1,12 +1,10 @@
 class KavachOrderVehicle {
   final String vehicleNumber;
-  final String? deviceUniqueNumber;
 
-  KavachOrderVehicle({required this.vehicleNumber, this.deviceUniqueNumber});
+  KavachOrderVehicle({required this.vehicleNumber});
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
-    "deviceUniqueNumber": deviceUniqueNumber ?? "",
   };
 }
 

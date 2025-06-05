@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import '../../../utils/custom_log.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../model/kavach_address_model.dart';
+import '../model/kavach_order_list_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
 class KavachService {
@@ -58,14 +59,36 @@ class KavachService {
     }
   }
 
+  // Future<Result<List<KavachAddressModel>>> fetchAddresses(String customerId, {required int addrType}) async {
+  //   try {
+  //     final response = await _apiService.get(
+  //       'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
+  //     );
+  //     // final response = await _apiService.get(
+  //     //   'https://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=189&addrType=$addrType',
+  //     // );
+  //
+  //     if (response is Success) {
+  //       final data = response.value;
+  //       final addresses = (data['data'] as List)
+  //           .map((e) => KavachAddressModel.fromJson(e))
+  //           .toList();
+  //       return Success(addresses);
+  //     } else if (response is Error) {
+  //       return Error(response.type);
+  //     } else {
+  //       return Error(GenericError());
+  //     }
+  //   } catch (e) {
+  //     return Error(DeserializationError());
+  //   }
+  // }
   Future<Result<List<KavachAddressModel>>> fetchAddresses(String customerId, {required int addrType}) async {
     try {
       final response = await _apiService.get(
         'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
+        forceRefresh: true,
       );
-      // final response = await _apiService.get(
-      //   'https://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=189&addrType=$addrType',
-      // );
 
       if (response is Success) {
         final data = response.value;
@@ -141,6 +164,39 @@ class KavachService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({
+    required String customerId,
+    int page = 1,
+    int limit = 10,
+    int? status,
+  }) async {
+    try {
+      // final response = await _apiService.get(
+      //   'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit',
+      //   forceRefresh: true,
+      // );
+      final statusParam = status != null ? "&status=$status" : "";
+      final response = await _apiService.get(
+        'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit$statusParam',
+        forceRefresh: true,
+      );
+
+      if (response is Success) {
+        final data = response.value;
+        final ordersResponse = KavachOrderListResponse.fromJson(data);
+        return Success(ordersResponse);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch customer orders", e);
+      return Error(DeserializationError());
+    }
+  }
+
 
 }
 

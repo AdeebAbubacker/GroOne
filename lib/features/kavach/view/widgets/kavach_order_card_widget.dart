@@ -1,48 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_order_details_screen.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_route.dart';
 import '../../../../utils/app_text_style.dart';
-
-class KavachOrderItem {
-  final String id;
-  final String description;
-  final String status;
-  final int price;
-
-  KavachOrderItem(this.id, this.description, this.status, this.price);
-}
+import '../../../../utils/common_functions.dart';
+import '../../model/kavach_order_list_model.dart';
 
 class KavachOrderCardWidget extends StatelessWidget {
-  final KavachOrderItem order;
+  final KavachOrderListOrderItem order;
 
   const KavachOrderCardWidget({super.key, required this.order});
 
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'Order Placed':
-        return AppColors.primaryColor;
-      case 'Dispatched':
-        return Colors.orange;
-      case 'Delivered':
-        return AppColors.greenColor;
-      case 'Failed':
-        return AppColors.activeRedColor;
-      case 'Installed':
-        return Colors.teal;
-      default:
-        return AppColors.greyContainerBackgroundColor;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor(order.status);
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),side: BorderSide(color: AppColors.greyIconBackgroundColor)),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6,horizontal: 10),
+      decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -53,20 +28,20 @@ class KavachOrderCardWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Order ID: ${order.id}',
-                    style: AppTextStyle.primaryColor16w900,
+                    'Order ID: ${order.orderUniqueId}',
+                    style: AppTextStyle.h4,
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.09),
+                    color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    order.status,
+                    order.statusHistory.first.statusLabel,
                     style: TextStyle(
-                      color: color,
+                      color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -75,19 +50,22 @@ class KavachOrderCardWidget extends StatelessWidget {
               ],
             ),
             6.height,
-            Text(order.description, style: AppTextStyle.bodyGreyColor),
-            4.height,
-            Text('₹${order.price}', style: AppTextStyle.h4),
-            6.height,
+            Row(
+              children: [
+                Expanded(child: Text(order.lineItems.first.itemType , style: AppTextStyle.bodyGreyColor)),
+                Text('₹${order.orderAmount}', style: AppTextStyle.h4),
+              ],
+            ),
+            Divider(color: AppColors.borderColor,),
             Row(
               children: [
                 InkWell(
                     onTap: () {
-                      Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen()));
+                      Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
                     },
-                    child: Text("View Details", style: AppTextStyle.primaryColor14w700)),
+                    child: Text("View Details", style: AppTextStyle.primaryColor16w400)),
                 15.width,
-                Expanded(child: Text("Purchased on 21 May 2025, 7:30PM", style: AppTextStyle.bodyGreyColor)),
+                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.bodyGreyColor)),
               ],
             )
           ],
@@ -95,4 +73,5 @@ class KavachOrderCardWidget extends StatelessWidget {
       ),
     );
   }
+
 }
