@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/hide_success_kyc_status/hide_success_kyc_status_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
@@ -38,11 +39,9 @@ import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:video_player/video_player.dart';
@@ -99,6 +98,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool selectedValueTruck = false;
   bool checkBoxBool = false;
   bool memoDone = false;
+  bool hideKycSuccessStatus = false;
 
 
 
@@ -129,6 +129,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
+    await disableKycSuccessStatus();
   });
 
   void disposeFunction() => addPostFrameCallback(() {
@@ -163,6 +164,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     });
   }
 
+  Future<void> disableKycSuccessStatus() async {
+    if(profileResponse != null && profileResponse?.data != null) {
+      if(profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc){
+        hideKycSuccessStatus = true;
+        await Future.delayed(const Duration(milliseconds: 1000));
+        if(mounted) return;
+        setState(() {});
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -189,22 +201,26 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             );
           }
         },
-        child: InkWell(
-          onTap: () => vpHomeBloc.add(LogoutRequested()),
-          child: Image.asset(
-            AppIcons.png.appIcon,
-          ).paddingLeft(commonSafeAreaPadding),
-        ),
+        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       ),
       actions: [
 
         // KYC
         if( _controller.value.isInitialized)
-        kycWidget(
-          controller: _controller,
-          onTap: () {
-            commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet());
-          },
+          Builder(
+            builder: (builder){
+              if(profileResponse != null && profileResponse?.data != null) {
+                if(profileResponse?.data?.customer != null && (!profileResponse!.data!.customer!.isKyc)){
+                  return kycWidget(
+                    controller: _controller,
+                    onTap: () {
+                      commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet());
+                    },
+                  );
+                }
+              }
+              return Container();
+            }
         ),
         10.width,
 
@@ -251,19 +267,35 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
           bloc: lpHomeBloc,
           builder: (context, state) {
-
             return SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  profileResponse != null
-                      ? profileResponse!.data!.customer!.isKyc
-                          ? SvgPicture.asset(
-                            AppImage.svg.kycSuccessStatus,
-                            height: 50.h,
-                          )
-                          : buildKYCStatusWidget()
-                      : buildKYCStatusWidget(),
+                  Builder(
+                      builder: (builder){
+                        if(profileResponse != null && profileResponse?.data != null) {
+                          if(profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc){
+                            if(hideKycSuccessStatus == false){
+                              return BlocBuilder<HideSuccessKycStatusCubit, bool>(
+                                builder: (context, state) {
+                                  if (!state){
+                                    return kycSuccessStatusWidget();
+                                  } else {
+                                    return 20.height;
+                                  }
+                                },
+                              );
+
+                            }else {
+                              return 20.height;
+                            }
+                          } else {
+                            return buildKYCStatusWidget();
+                          }
+                        }
+                        return 20.height;
+                      }
+                  ),
 
                   bookShipmentSectionWidget(context),
                   20.height,

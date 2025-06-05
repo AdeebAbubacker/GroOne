@@ -271,3 +271,7 @@ Widget kycWidget({required Function() onTap, required VideoPlayerController cont
     ),
   );
 }
+
+Widget kycSuccessStatusWidget(){
+  return SvgPicture.asset(AppImage.svg.kycSuccessStatus, width: double.infinity, height: 50);
+}

@@ -12,7 +12,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
 import '../../../service/has_internet_connection.dart';
@@ -21,7 +20,6 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
-import '../../../utils/customButton.dart';
 import '../../../utils/toast_messages.dart';
 import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';

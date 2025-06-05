@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/hide_success_kyc_status/hide_success_kyc_status_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
@@ -128,6 +129,9 @@ void initLocator() {
     locator.registerLazySingleton(() => KavachCheckoutBillingAddressBloc(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachCheckoutVehicleBloc(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachCheckoutAddAddressBloc(locator<KavachRepository>()));
+
+    // Cubit
+    locator.registerLazySingleton(() => HideSuccessKycStatusCubit());
 
 
     CustomLog.info(locator, "All instances registered.");
