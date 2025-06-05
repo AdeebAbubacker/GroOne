@@ -1,11 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_tracking/view/vp_trip_tracking.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
-import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_image.dart';
+import '../../../utils/app_colors.dart';
+import '../../../utils/app_image.dart';
 
 class VPBottomNavigationBar extends StatefulWidget {
   const VPBottomNavigationBar({super.key});
@@ -44,25 +45,21 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
           BottomNavigationBarItem(
             icon: const Padding(
               padding: EdgeInsets.only(top: 8.0),
-              child: Icon(Icons.home),
+              child: Icon(CupertinoIcons.home),
             ),
             label: context.appText.home,
           ),
           BottomNavigationBarItem(
-            icon: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Image.asset(
-                AppImage.png.loadImage,
-                height: 22.h,
-                width: 22.w,
-              ),
+            icon: const Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Icon(CupertinoIcons.cube),
             ),
-            label:context.appText.loads
+            label: context.appText.loads,
           ),
-            BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Padding(
               padding: EdgeInsets.only(top: 8.0),
-              child: Icon(Icons.headset_mic_outlined),
+              child: Icon(Icons.headset_mic_rounded),
             ),
             label: context.appText.support,
           ),

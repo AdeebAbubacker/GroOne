@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -359,7 +360,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             separatorBuilder: (BuildContext context, int index) => 20.height,
                             itemBuilder: (context, index) {
                               final loadData = getLoadResponse!.data[index];
-                              return buildUpcomingShipmentTileWidget(loadData, context);
+                              return buildUpcomingShipmentListBody(loadData, context);
                             },
                           );
                         } else {
@@ -388,9 +389,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
- Widget buildUpcomingShipmentTileWidget(LoadData loadData, BuildContext context) {
+ Widget buildUpcomingShipmentListBody(LoadData loadData, BuildContext context) {
     return Container(
-      decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
+      padding: EdgeInsets.all(15),
+      decoration: commonContainerDecoration(color: AppColors.scaffoldBackgroundColor),
       child: Column(
         children: [
 
@@ -424,7 +426,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 ],
               ).expand(),
             ],
-          ).paddingOnly(right: 10, left: 10, top: 10),
+          ),
 
           commonDivider(),
 
@@ -449,7 +451,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 ],
               ).expand(),
             ],
-          ).paddingSymmetric(horizontal: 10),
+          ),
           20.height,
 
 
@@ -478,7 +480,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   ).expand(),
 
                 ],
-              ).paddingSymmetric(horizontal: 10)
+              )
             else
                AppButton(
                  buttonHeight: 40,
@@ -488,9 +490,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                    AppDialog.show(context, child: AdvancePaymentDialog());
                    //showAdvancePaymentDialogue(context: context);
                  },
-               ).paddingSymmetric(horizontal: 10),
+               ),
 
-          10.height,
         ],
       ),
     );
@@ -878,8 +879,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Need Support Next
           TextButton(
             onPressed: (){},
-            child: Text("Need Our Customer Support Help?",style: AppTextStyle.bodyPrimaryColor),
-          ),
+            child: Text("Need Our Customer Support Help?",style: AppTextStyle.h6PrimaryColor),
+          ).align(Alignment.center),
 
 
         ],

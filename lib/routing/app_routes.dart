@@ -8,14 +8,14 @@ import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_s
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/view/vp_bottom_navigation.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart' show DefaultScreen;
 import 'package:gro_one_app/routing/app_route_name.dart';
 import '../features/choose_language_screen/view/choose_language_screen.dart';
 import '../features/choose_role_screen/view/choose_role_screen.dart';
 import '../features/kyc/view/kyc_screen.dart';
-import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
+import '../features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_create_account/view/lp_create_account.dart';
 import '../features/load_provider/lp_home/view/lp_home_screen.dart';
 import '../features/load_provider/lp_home/view/lp_track_load_screen.dart';

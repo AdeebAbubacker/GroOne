@@ -260,11 +260,11 @@ extension WidgetExtension on Widget? {
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(
-            sigmaY: blur ?? 20,
-            sigmaX: blur ?? 20,
+            sigmaY: blur ?? 5,
+            sigmaX: blur ?? 5,
           tileMode: TileMode.mirror
         ),
-        child: Container(color: bgColor ?? Colors.white30, child: this!),
+        child: Container(color: bgColor ?? Colors.white10, child: this!),
       ),
     );
   }
@@ -282,6 +282,14 @@ extension WidgetExtension on Widget? {
   Widget isAnimate() {
     return Animate(
       effects: fadeAnimation,
+      child: this!,
+    );
+  }
+
+  /// Align a parent widget
+  Widget align(AlignmentGeometry alignment) {
+    return Align(
+      alignment: alignment,
       child: this!,
     );
   }
