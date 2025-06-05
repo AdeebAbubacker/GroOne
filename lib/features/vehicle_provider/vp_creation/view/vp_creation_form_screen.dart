@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
@@ -120,6 +121,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void vpCreationApiCall(){
     if (formKey.currentState!.validate()){
       if(uploadedRcFile == null){
+        ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
         return;
       }
       final request = VpCreationApiRequest(
@@ -348,8 +350,16 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           bloc: uploadRcTruckFileBloc,
           listener: (context, state) {
             if (state is UploadRcTruckFileSuccess) {
-              ToastMessages.success(message: "File uploaded successfully");
-            } else if (state is UploadRcTruckFileError) {
+              if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
+                uploadedRcFile = state.fileModel.data!.url;
+                uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
+                ToastMessages.success(message: "File uploaded successfully");
+              } else {
+                multiFilesList.clear();
+              }
+            }
+            if (state is UploadRcTruckFileError) {
+              multiFilesList.clear();
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
@@ -362,19 +372,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               thenUploadFileToSever: ()  {
                 if (multiFilesList.isNotEmpty) {
                   uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
-                  if (state is UploadRcTruckFileSuccess) {
-                    if (state.fileModel.data != null && state.fileModel.data!.url.isNotEmpty){
-                      uploadedRcFile = state.fileModel.data!.url;
-                      uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
-                    } else {
-                      multiFilesList.clear();
-                    }
-                  }
-                  if(state is UploadRcTruckFileError){
-                    multiFilesList.clear();
-                    uploadedRcFile = null;
-                    ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-                  }
                 }
               },
             );

@@ -67,7 +67,6 @@ class BadRequestError extends ErrorType {
 
   @override
   String getText(BuildContext context) {
-    print("Bad Request Error: $message");
     if(message != null){
       return message!;
     } else {

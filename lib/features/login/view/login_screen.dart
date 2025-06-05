@@ -194,10 +194,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         if(phoneNumber.text.length==10 && checkBoxBool==true){
                           loginBloc.add(
-                            LoginInRequested(
-                              apiRequest: LoginApiRequest(
-                                mobile:phoneNumber.text,
-                                role: widget.roleId,
+                            LoginInRequested(apiRequest: LoginApiRequest(
+                              mobile:phoneNumber.text,
+                              role: widget.roleId,
                               ),
                             ),
                           );

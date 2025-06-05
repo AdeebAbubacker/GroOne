@@ -17,7 +17,7 @@ class OtpRepository {
   // Submit Otp
   Future<Result<OtpResponse?>> sendOtp(OtpRequest request) async {
     try {
-      Result<dynamic> result = await _otpService.sendOtp(request);
+      Result<dynamic> result = await _otpService.fetchSendOtpData(request);
       if (result is Success<OtpResponse?>) {
         if (result.value != null) {
           dynamic saveUserResult;
