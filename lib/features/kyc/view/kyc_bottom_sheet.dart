@@ -13,15 +13,15 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-import '../../../../dependency_injection/locator.dart';
-import '../../api_request/addhar_otp_request.dart';
-import '../../api_request/addhar_verify_otp_request.dart';
-import '../../../../utils/app_button.dart';
-import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_text_field.dart';
-import '../../../../utils/app_text_style.dart';
-import '../../../../utils/common_functions.dart';
-import '../../../../utils/common_widgets.dart';
+import '../../../dependency_injection/locator.dart';
+import '../api_request/addhar_otp_request.dart';
+import '../api_request/addhar_verify_otp_request.dart';
+import '../../../utils/app_button.dart';
+import '../../../utils/app_colors.dart';
+import '../../../utils/app_text_field.dart';
+import '../../../utils/app_text_style.dart';
+import '../../../utils/common_functions.dart';
+import '../../../utils/common_widgets.dart';
 
 class KycBottomSheet extends StatefulWidget {
   const KycBottomSheet({super.key});
@@ -55,7 +55,7 @@ class _KycBottomSheetState extends State<KycBottomSheet> {
     return AppBottomSheetBody(
       hideDivider: false,
       body: _buildBody(),isCloseButton: false,
-    title: "Verify Your KYC" ,);
+      title: "Verify Your KYC" ,);
   }
 _buildBody(){
     return BlocConsumer(

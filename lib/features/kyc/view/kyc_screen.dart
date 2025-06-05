@@ -8,8 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
-import 'package:gro_one_app/features/kyc/view/widgets/kyc_sucess_dialogue.dart';
-import 'package:gro_one_app/features/kyc/view/widgets/kyc_upload_file.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_sucess_dialogue.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_file.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
 import 'package:gro_one_app/utils/app_application_bar.dart';

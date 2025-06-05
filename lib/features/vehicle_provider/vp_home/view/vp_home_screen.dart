@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/kyc/view/widgets/kyc_pending_dialogue.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
@@ -38,7 +38,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../kyc/view/widgets/kyc_bottom_sheet.dart';
+import '../../../kyc/view/kyc_bottom_sheet.dart';
 
 class VpHomeScreen extends StatefulWidget {
   const VpHomeScreen({super.key});
