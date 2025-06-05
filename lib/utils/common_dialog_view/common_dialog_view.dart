@@ -42,7 +42,7 @@ class CommonDialogView extends StatelessWidget {
             // Yes Button
             AppButton(
               buttonHeight: 40,
-              onPressed: onClickYesButton,
+              onPressed: onClickYesButton ?? (){},
               title: yesButtonText ?? context.appText.yes,
             ).expand(),
 

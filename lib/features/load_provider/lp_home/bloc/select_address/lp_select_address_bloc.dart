@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/repository/lp_map_select_pick_point_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
 import 'package:meta/meta.dart';
 
-part 'lp_map_select_pick_point_event.dart';
-part 'lp_map_select_pick_point_state.dart';
+part 'lp_select_address_event.dart';
+part 'lp_select_address_state.dart';
 
 class LpMapSelectPickPointBloc extends Bloc<LpMapSelectPickPointEvent, LpMapSelectPickPointState> {
-  final LpMapSelectPickPointRepository _repository;
+  final LPMapSelectAddressRepository _repository;
 
   LpMapSelectPickPointBloc(this._repository) : super(LpMapSelectPickPointInitial()) {
     on<FetchCurrentLatLong>(_onFetchCurrentLatLong);

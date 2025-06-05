@@ -7,7 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';

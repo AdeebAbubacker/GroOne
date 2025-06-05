@@ -13,29 +13,31 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/l
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/advance_payment_dailog.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
-import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/view/lp_select_pick_point_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/lp_profile_screen.dart';
+import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_video.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -43,12 +45,10 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:video_player/video_player.dart';
-import '../../../../utils/app_application_bar.dart';
-import '../../../../utils/app_button.dart';
-import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_image.dart';
-import '../../../our_value_added_service/view/our_value_added_service_widget.dart';
-import 'load_summary_screen.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -98,137 +98,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool selectedValueTruck = false;
   bool checkBoxBool = false;
   bool memoDone = false;
-
-  void _showBlueMemberDialogue() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      // Dismiss only with button if needed
-      builder: (BuildContext context) {
-        return showAlertDialogue(
-          hideButtonButtons: true,
-          context: context,
-          onClickYesButton: () {},
-          child: Column(
-            spacing: 20.h,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close, size: 24),
-                ),
-              ),
-
-              // Illustration
-              Image.asset(
-                AppImage.png.blueMembership,
-                // replace with your image asset
-                height: 150,
-              ),
-
-              // Title
-              const Text(
-                "Blue membership ID\ngenerated Successfully",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-
-              // Subtitle
-              const Text(
-                "Start exploring premium load\noptions today",
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future showAdvancePaymentDialogue({required BuildContext context}) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState1) {
-            int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
-            return showCustomDialogue(
-              context: context,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.advancePayment,
-                    style: AppTextStyle.darkDividerColor16w400,
-                  ),
-                  20.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:
-                    [70, 80, 85].map((percent) {
-                      final isSelected = percent == selectedPercentage;
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedPercentage = percent;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                            isSelected
-                                ? const Color(0xFF0057FF)
-                                : Colors.transparent,
-                            border: Border.all(
-                              color:
-                              isSelected
-                                  ? const Color(0xFF0057FF)
-                                  : Colors.grey,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$percent%',
-                            style: TextStyle(
-                              color:
-                              isSelected
-                                  ? Colors.white
-                                  : Colors.black87,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    '₹$calculatedAmount',
-                    style: AppTextStyle.textBlackColor26w700,
-                  ),
-                ],
-              ),
-              onClickButton: () {
-                context.pop();
-                context.push(AppRouteName.lpValidateMemo).then((value) {
-                  memoDone = true;
-                  setState(() {});
-                });
-              },
-              disableButton: false,
-              buttonText: context.appText.verifyAdvance,
-            );
-          },
-        );
-      },
-    );
-  }
 
 
 
@@ -397,11 +266,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                   bookShipmentSectionWidget(context),
                   20.height,
-
                   buildUpComingShipment(),
                   20.height,
                   buildValueAddedService(context),
-
                   30.height,
                 ],
               ),
@@ -457,25 +324,42 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         return Container(
           color: AppColors.white,
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+            padding: EdgeInsets.symmetric(vertical: commonSafeAreaPadding, horizontal: commonSafeAreaPadding),
             child: Column(
-              spacing: 10.h,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.appText.upComingShipment, style: AppTextStyle.body1),
-                20.height,
+                // Title
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
+
+                    // See More
+                    TextButton(
+                      onPressed: () {
+                      },
+                      style: AppButtonStyle.primaryTextButton,
+                      child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                    ),
+
+                  ],
+                ),
+                15.height,
+
 
                 Builder(
                     builder: (context){
                       if(getLoadResponse != null){
                         if (getLoadResponse!.data.isNotEmpty) {
-                          return ListView.builder(
+                          return ListView.separated(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
                             itemCount: getLoadResponse!.data.length,
+                            separatorBuilder: (BuildContext context, int index) => 20.height,
                             itemBuilder: (context, index) {
                               final loadData = getLoadResponse!.data[index];
-                              return upcomingShipmentTileWidget(loadData);
+                              return buildUpcomingShipmentTileWidget(loadData, context);
                             },
                           );
                         } else {
@@ -504,118 +388,109 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
- Widget upcomingShipmentTileWidget(LoadData loadData) {
+ Widget buildUpcomingShipmentTileWidget(LoadData loadData, BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      decoration: BoxDecoration(
-        color: AppColors.blackishWhite,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
       child: Column(
-        spacing: 5.h,
         children: [
-          ListTile(
-            leading: Image.asset(
-              AppImage.png.shipmentBox,
-              height: 39.h,
-              width: 39.w,
-            ),
-            title: Text(context.appText.idNumber, style: AppTextStyle.textGreyDetailColor10w400),
-            subtitle: Text("GD12456", style: AppTextStyle.blackColor16w400),
-            trailing: Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 5.h),
-              decoration: BoxDecoration(
-                color: AppColors.lightPurpleColor,
 
-                borderRadius: BorderRadius.circular(40),
-              ),
-              child: Text(
-                "Sourcing",
-                style: AppTextStyle.whiteColor14w400.copyWith(
-                  color: AppColors.purpleColor,
+          Row(
+            children: [
+              Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
+              10.width,
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
+                  Text("GD12456", style: AppTextStyle.h5,  maxLines: 1),
+                ],
+              ).expand(),
+
+
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
+                child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
                 ),
               ),
-            ),
-          ),
-          dividerWidget(),
+              10.width,
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text("Vehicle Provider", style: AppTextStyle.body4,  maxLines: 1),
+                  Text("Raj Sharma", style: AppTextStyle.h5,  maxLines: 1),
+                ],
+              ).expand(),
+            ],
+          ).paddingOnly(right: 10, left: 10, top: 10),
+
+          commonDivider(),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Expanded(
-                child: Column(
-                  spacing: 10.h,
-                  children: [
-                    Text(
-                      loadData.dueDate != null
-                          ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
-                          : "--",
-                      style: AppTextStyle.textGreyDetailColor10w400,
-                    ),
-                    Text(
-                      loadData.pickUpAddr,
-                      style: AppTextStyle.blackColor16w400,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward, color: AppColors.primaryColor),
-              Expanded(
-                child: Column(
-                  spacing: 10.h,
-                  children: [
-                    Text(
-                      loadData.dueDate != null
-                          ? DateTimeHelper.formatCustomDate(loadData.dueDate!)
-                          : "--",
-                      style: AppTextStyle.textGreyDetailColor10w400,
-                    ),
-                    Text(loadData.dropAddr, style: AppTextStyle.blackColor16w400),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          10.height,
-          memoDone
-              ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: AppButton(
-                      buttonHeight: 32.h,
-                      style: AppButtonStyle.outline,
-                      title: "Pay Now",
-                      onPressed: () {
-                        context.push(AppRouteName.lpPayNowAndTrackLoad);
-                      },
-                    ),
-                  ),
-                  15.width,
-                  Expanded(
-                    child: AppButton(
-                      buttonHeight: 32.h,
-                      style: AppButtonStyle.outline,
-                      title: "Track Load",
-                      onPressed: () {
-                        context.push(AppRouteName.lpPayNowAndTrackLoad);
-                      },
-                    ),
-                  ),
+                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4GreyColor),
+                  Text(loadData.pickUpAddr, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis),
                 ],
-              )
-              : Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: AppButton(
-                  buttonHeight: 32.h,
-                  style: AppButtonStyle.outline,
-                  title: context.appText.iAgreeTripToGo,
-                  onPressed: () {
-                    showAdvancePaymentDialogue(context: context);
-                  },
-                ),
-              ),
-          5.height,
+              ).expand(),
+
+              Icon(Icons.arrow_forward, color: AppColors.primaryColor).paddingSymmetric(horizontal: 15),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--",  style: AppTextStyle.body4GreyColor),
+                  Text(loadData.dropAddr,  style: AppTextStyle.body, maxLines: 1),
+                ],
+              ).expand(),
+            ],
+          ).paddingSymmetric(horizontal: 10),
+          20.height,
+
+
+          if (memoDone)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+
+                  AppButton(
+                    buttonHeight: 40,
+                    style: AppButtonStyle.outline,
+                    title: "Pay Now",
+                    onPressed: () {
+                      context.push(AppRouteName.lpPayNowAndTrackLoad);
+                    },
+                  ).expand(),
+                  15.width,
+
+                  AppButton(
+                    buttonHeight: 40,
+                    style: AppButtonStyle.outline,
+                    title: "Track Load",
+                    onPressed: () {
+                      context.push(AppRouteName.lpPayNowAndTrackLoad);
+                    },
+                  ).expand(),
+
+                ],
+              ).paddingSymmetric(horizontal: 10)
+            else
+               AppButton(
+                 buttonHeight: 40,
+                 style: AppButtonStyle.outline,
+                 title: context.appText.iAgreeTripToGo,
+                 onPressed: () {
+                   AppDialog.show(context, child: AdvancePaymentDialog());
+                   //showAdvancePaymentDialogue(context: context);
+                 },
+               ).paddingSymmetric(horizontal: 10),
+
+          10.height,
         ],
       ),
     );
@@ -680,7 +555,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       heading: context.appText.source,
                       subHeading: pickup?['address']?? context.appText.selectPickUpPoint,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
+                        Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             pickup = onValue;
                           }
@@ -696,7 +571,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       heading: context.appText.destination,
                       subHeading: destination?['address'] ?? context.appText.selectDestination,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LpSelectPickPointScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
+                        Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
                           if(onValue != null){
                             destination = onValue;
                           }

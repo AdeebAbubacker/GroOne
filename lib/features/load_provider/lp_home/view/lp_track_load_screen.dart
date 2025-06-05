@@ -12,16 +12,16 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:timeline_tile/timeline_tile.dart';
-import '../../../../../utils/app_image.dart';
+import '../../../../utils/app_image.dart';
 
-class LpPayNowAndTrackLoad extends StatefulWidget {
-  const LpPayNowAndTrackLoad({super.key});
+class LPTrackLoadScreen extends StatefulWidget {
+  const LPTrackLoadScreen({super.key});
 
   @override
-  State<LpPayNowAndTrackLoad> createState() => _LpPayNowAndTrackLoadState();
+  State<LPTrackLoadScreen> createState() => _LPTrackLoadScreenState();
 }
 
-class _LpPayNowAndTrackLoadState extends State<LpPayNowAndTrackLoad> {
+class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
   late GoogleMapController mapController;
   final LatLng _bengaluru = LatLng(26.8467, 80.9462);
   final LatLng _chennai = LatLng(28.6139, 77.2090);

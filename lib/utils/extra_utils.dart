@@ -27,26 +27,23 @@ Widget customCheckbox({
   required Function() onTap,
   required bool selected,
 }) {
-  return Row(
-    children: [
-      GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 17.h,
-          width: 17.w,
+  return InkWell(
+  onTap: onTap,
+    child: Row(
+      children: [
+        Container(
+          height: 20,
+          width: 20,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            border: Border.all(color: AppColors.primaryColor, width: 1.5),
+            border: Border.all(color: AppColors.primaryColor, width: 2),
           ),
-          child:
-              selected
-                  ? Center(child: Icon(Icons.check, size: 13.h))
-                  : const SizedBox(),
+          child: selected? Center(child: Icon(Icons.check, size: 15)): const SizedBox(),
         ),
-      ),
-      5.width,
-      Text(text, style: AppTextStyle.textBlackColor12w400),
-    ],
+        5.width,
+        Text(text, style: AppTextStyle.body2),
+      ],
+    ),
   );
 }
 
@@ -196,7 +193,7 @@ showCustomDialogue({
                 () {
                   // Handle verify action here
                   Navigator.pop(context);
-                }:null,
+                }: (){},
           ),
           child2 ?? const SizedBox(),
         ],

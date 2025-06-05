@@ -12,7 +12,6 @@ class AppColors {
   static const Color veryLightGreyColor=Color(0xFF646464);
   static const Color blackishWhite=Color(0xFFF8F8F8);
   static const Color backgroundColor=Color(0xFFF7F8FA);
-  static const Color lightPurpleColor=Color(0xFFE8DAFF);
   static const Color purpleColor=Color(0xFF6929C4);
   static const Color textRed=Color(0xFFA2191F);
   static const Color iconRed=Color(0xFFE31B25);
@@ -59,6 +58,7 @@ class AppColors {
   // Border and Shadow Color
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);
+  static const Color lightBorderColor = Colors.black26;
   static const Color focusBorderColor = Color(0xff4D4D4D);
   static const Color lightDividerColor = Colors.black12;
   static const Color darkDividerColor = Color(0xff707070);
@@ -93,6 +93,8 @@ class AppColors {
   static const Color uploadedDocBgColor = Color(0xFFF2F5FF);
   static const Color greyContainerBackgroundColor = Color(0xffF5F5F5);
   static const Color lightBlueIconBackgroundColor = Color(0xffE0EFF7);
+  static const Color lightPurpleColor=Color(0xFFE8DAFF);
+
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {

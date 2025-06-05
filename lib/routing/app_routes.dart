@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/validate_memo/view/lp_validate_memo.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/view/master/master_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
@@ -17,8 +17,8 @@ import '../features/choose_role_screen/view/choose_role_screen.dart';
 import '../features/kyc/view/kyc_screen.dart';
 import '../features/load_provider/lp_bottom_navigation/view/lp_bottom_navigation.dart';
 import '../features/load_provider/lp_create_account/view/lp_create_account.dart';
-import '../features/load_provider/lp_home/view/home_screen_load_provider.dart';
-import '../features/load_provider/lp_location_screens/lp_pay_now_or_track_load/view/lp_pay_now_and_track_load.dart';
+import '../features/load_provider/lp_home/view/lp_home_screen.dart';
+import '../features/load_provider/lp_home/view/lp_track_load_screen.dart';
 import '../features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import '../features/load_provider/lp_profile/view/setting/view/lp_setting.dart';
 import '../features/load_provider/lp_profile/view/support/view/lp_support.dart';
@@ -163,7 +163,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.lpPayNowAndTrackLoad,
         builder: (BuildContext context, GoRouterState state) {
-          return LpPayNowAndTrackLoad();
+          return LPTrackLoadScreen();
         },
       ),
       GoRoute(

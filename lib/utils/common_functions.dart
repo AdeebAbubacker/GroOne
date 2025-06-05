@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -44,7 +45,7 @@ Future<void> commonHideKeyboard(context) async {
 
 /// Exit App
 void exitApp(){
-  if(isIOS){
+  if(Platform.isIOS){
     exit(0);
   }else{
     SystemNavigator.pop();
@@ -347,13 +348,13 @@ Future<Map?> pickMultipleFiles<T>() async {
 String getErrorMsg({required ErrorType errorType}) {
   switch (errorType) {
     case NotFoundError _:
-      return AppString.errorType.notFound;
+      return errorType.getText(appContext);
     case GenericError _:
       return AppString.errorType.genericError;
     case InternetNetworkError _:
       return AppString.errorType.networkError;
     case BadRequestError _:
-      return AppString.errorType.badRequestError;
+      return errorType.getText(appContext);
     case TokenExpiredError _:
       return AppString.errorType.tokenExpireError;
     case InvalidTokenError _:
@@ -365,7 +366,7 @@ String getErrorMsg({required ErrorType errorType}) {
     case RequestCancelledError _:
       return AppString.errorType.requestCancelledError;
     case UnauthenticatedError _:
-      return AppString.errorType.unauthenticatedError;
+      return errorType.getText(appContext);
     case NetworkTimeoutError _:
       return AppString.errorType.timeOutError;
     case ResponseStatusFailed _:

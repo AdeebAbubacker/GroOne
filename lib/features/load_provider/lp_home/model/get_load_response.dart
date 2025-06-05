@@ -90,4 +90,23 @@ class LoadData {
     "deletedAt": deletedAt,
   };
 
+  // {
+  // "id": 26,
+  // "customerId": 146,
+  // "commodityId": 1,
+  // "truckTypeId": 5,
+  // "pickUpAddr": "Google Building 43, Mountain View, United States",
+  // "assignStatus": 1,
+  // "pickUpLatlon": "37.4219983,-122.084",
+  // "dropAddr": "New York, NY, USA",
+  // "dropLatlon": "40.7127753,-74.0059728",
+  // "dueDate": "2025-06-20T00:00:00.000Z",
+  // "consignmentWeight": 12,
+  // "notes": "12000-15000",
+  // "rate": "12000-15000",
+  // "status": 1,
+  // "acceptedBy": null,
+  // "createdAt": "2025-06-03T08:32:41.036Z",
+  // "deletedAt": null
+
 }

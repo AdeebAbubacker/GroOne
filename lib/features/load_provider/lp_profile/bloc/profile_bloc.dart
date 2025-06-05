@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_upload_request.dart';

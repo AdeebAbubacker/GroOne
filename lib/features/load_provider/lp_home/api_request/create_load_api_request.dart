@@ -67,8 +67,21 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "dueDate": dueDate,
     "consignmentWeight": consignmentWeight,
     "notes": note,
-    "rate": rate,
-
+    "rate": rate
+    // "sourceAddres" : {
+    //   "city" : "",
+    //   "state" : "",
+    //   "pincode" : "",
+    //   "fulladdress" : "",
+    //   "pickLatlong" : ""
+    // },
+    // "destinationAddres" : {
+    //   "city" : "",
+    //   "state" : "",
+    //   "pincode" : "",
+    //   "fulladdress" : "",
+    //   "dropLatlong" : ""
+    // }
   };
 
 }

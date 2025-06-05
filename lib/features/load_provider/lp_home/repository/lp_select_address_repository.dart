@@ -3,9 +3,9 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
-class LpMapSelectPickPointRepository {
+class LPMapSelectAddressRepository {
   final LocationService _locationService;
-  LpMapSelectPickPointRepository(this._locationService);
+  LPMapSelectAddressRepository(this._locationService);
 
   Future<Result<geo.Position>?> getCurrentLatLongData() async {
     try {

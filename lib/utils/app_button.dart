@@ -6,14 +6,14 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 class AppButton extends StatelessWidget {
-  final void Function()? onPressed;
+  final void Function() onPressed;
   final String? title;
   final TextStyle? textStyle;
   final ButtonStyle? style;
   final bool? isLoading;
   final double? buttonHeight;
   final Widget? richTextWidget;
-  const AppButton({super.key, this.onPressed,this.buttonHeight,this.richTextWidget, this.isLoading = false, this.title, this.textStyle,  this.style,});
+  const AppButton({super.key, required this.onPressed,this.buttonHeight,this.richTextWidget, this.isLoading = false, this.title, this.textStyle,  this.style,});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading == true ? (){} : (){
           commonHapticFeedback();
-          onPressed?.call();
+          onPressed.call();
         },
         style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
         child: isLoading == true ?  CupertinoActivityIndicator(color: Colors.white) : richTextWidget??Text(title.capitalize,

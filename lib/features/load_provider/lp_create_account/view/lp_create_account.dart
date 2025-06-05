@@ -280,7 +280,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
         return AppButton(
           title: context.appText.continueText,
           isLoading: isLoading,
-          onPressed: isLoading ? null : () {
+          onPressed: isLoading ? (){} : () {
             if (_formKey.currentState!.validate()) {
               final apiRequest = CreateRequest(
                 customerName: nameTextController.text,

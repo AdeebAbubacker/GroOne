@@ -91,10 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 "roleId": widget.roleId.toString(),
               },
             );
-          } else if (state is LogInError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
+          }
+          if (state is LogInError) {
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           }
         },
         builder: (context, state) {
@@ -189,10 +188,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     15.height,
                     AppButton(
-
                       isLoading: isLoading,
                       title: context.appText.getOtp,
-style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
+                      style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
                         if(phoneNumber.text.length==10 && checkBoxBool==true){
                           loginBloc.add(

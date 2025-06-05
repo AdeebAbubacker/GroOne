@@ -9,7 +9,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_image.dart';
 import '../../../../utils/extra_utils.dart';
-import '../../lp_home/view/home_screen_load_provider.dart';
+import '../../lp_home/view/lp_home_screen.dart';
 
 class LpBottomNavigation extends StatefulWidget {
   const LpBottomNavigation({super.key});

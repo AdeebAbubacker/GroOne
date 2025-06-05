@@ -67,10 +67,12 @@ class BadRequestError extends ErrorType {
 
   @override
   String getText(BuildContext context) {
+    print("Bad Request Error: $message");
     if(message != null){
       return message!;
+    } else {
+      return AppString.errorType.badRequestError.capitalize;
     }
-    return AppString.errorType.badRequestError.capitalize;
   }
 
   factory BadRequestError.fromApiResponse(Map<String, dynamic> response) {

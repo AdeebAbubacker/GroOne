@@ -248,7 +248,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   }
 
   Widget _downloadButton() {
-    return AppButton(title: 'Download Invoice').bottomNavigationPadding();
+    return AppButton(onPressed: (){},title: 'Download Invoice').bottomNavigationPadding();
   }
 }
 

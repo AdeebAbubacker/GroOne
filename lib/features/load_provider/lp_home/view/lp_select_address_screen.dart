@@ -12,18 +12,18 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
-class LpSelectPickPointScreen extends StatefulWidget {
+class LPSelectAddressScreen extends StatefulWidget {
   final String title;
   final String? address;
 
-  const LpSelectPickPointScreen({super.key, required this.title, this.address});
+  const LPSelectAddressScreen({super.key, required this.title, this.address});
 
   @override
-  State<LpSelectPickPointScreen> createState() =>
-      _LpSelectPickPointScreenState();
+  State<LPSelectAddressScreen> createState() =>
+      _LPSelectAddressScreenState();
 }
 
-class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> {
+class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   GoogleMapController? _mapController;
   LatLng? _centerLatLng;
   String _locationField = '';
@@ -97,8 +97,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> {
   }
 
   Future<void> _fetchSuggestions(String input) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${Uri.encodeComponent(input)}&key=$_apiKey&language=en';
+    final url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${Uri.encodeComponent(input)}&key=$_apiKey&language=en';
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
@@ -112,8 +111,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> {
   }
 
   Future<void> _onSuggestionTap(String placeId, String description) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
+    final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
@@ -195,6 +193,7 @@ class _LpSelectPickPointScreenState extends State<LpSelectPickPointScreen> {
               ],
             ),
           ),
+
           Positioned(
             left: 0,
             right: 0,

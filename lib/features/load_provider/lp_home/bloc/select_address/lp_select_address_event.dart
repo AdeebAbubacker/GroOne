@@ -1,4 +1,4 @@
-part of 'lp_map_select_pick_point_bloc.dart';
+part of 'lp_select_address_bloc.dart';
 
 @immutable
 sealed class LpMapSelectPickPointEvent {}

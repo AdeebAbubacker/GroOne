@@ -18,15 +18,15 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/l
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_profile/service/profile_service.dart';
-import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/bloc/lp_map_select_pick_point_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_location_screens/lp_select_pick_point/repository/lp_map_select_pick_point_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/login_repository.dart';
@@ -92,7 +92,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => LpMapSelectPickPointRepository(locator<LocationService>()));
+    locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
     locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>()));
@@ -115,7 +115,7 @@ void initLocator() {
     locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LoadListBloc(locator<LpHomeRepository>(),));
-    locator.registerLazySingleton(() => LpMapSelectPickPointBloc(locator<LpMapSelectPickPointRepository>()));
+    locator.registerLazySingleton(() => LpMapSelectPickPointBloc(locator<LPMapSelectAddressRepository>()));
     locator.registerLazySingleton(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => LoadCommodityBloc(locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
