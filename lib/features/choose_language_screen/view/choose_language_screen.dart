@@ -7,7 +7,9 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../core/localization_bloc/localization_bloc.dart';
 import '../../../core/localization_bloc/localization_event.dart';
 import '../../../routing/app_route_name.dart';
@@ -17,28 +19,34 @@ import '../../../utils/app_string.dart';
 import '../../../utils/customButton.dart';
 
 class ChooseLanguageScreen extends StatelessWidget {
-  const ChooseLanguageScreen({super.key,  this.isCloseButton=false});
-final bool isCloseButton;
+  const ChooseLanguageScreen({super.key, this.isCloseButton = false});
+  final bool isCloseButton;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      body: BlocBuilder<LanguageBloc, LanguageState>(
-        builder: (context, state) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 18.0.h, horizontal: 20.w),
-            child: Column(
-              spacing: 20,
+      body: SafeArea(
+        minimum: EdgeInsets.all(commonSafeAreaPadding),
+        child: BlocBuilder<LanguageBloc, LanguageState>(
+          builder: (context, state) {
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
-              30.height,
+                30.height,
+
+                // App bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    isCloseButton?IconButton(onPressed: (){
-                      context.pop();
-                    }, icon: Icon(Icons.clear,)):const SizedBox(),
+                    if(isCloseButton)
+                      IconButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        icon: Icon(Icons.clear),
+                      )
+                    else
+                      10.width,
+
                     Image.asset(
                       AppImage.png.appIcon,
                       width: 74.25.w,
@@ -46,31 +54,42 @@ final bool isCloseButton;
                     ),
                   ],
                 ),
+                30.height,
+
+
                 RichText(
                   text: TextSpan(
                     children: [
                       TextSpan(
                         text: context.appText.choosePreferredLanguage,
-                        style: AppTextStyle.textBlackColors20w400,),
+                        style: AppTextStyle.textBlackColors20w400,
+                      ),
                       TextSpan(
                         text: " ${context.appText.language}",
-                        style:AppTextStyle.textBlackColor20w500
+                        style: AppTextStyle.textBlackColor20w500,
                       ),
                     ],
                   ),
                 ),
+                20.height,
+
+
                 chooseLanguageTile(
                   isSelected: state.index == 0 ? true : false,
                   text1: AppString.label.english,
-                  text2: "",
+                  text2: AppString.label.english,
                   onTap: () {
                     context.read<LanguageBloc>().add(
                       const ChangeIndex(index: 0),
                     );
-                    context.read<LocaleBloc>().add(ChangeLocale(const Locale('en')));
+                    context.read<LocaleBloc>().add(
+                      ChangeLocale(const Locale('en')),
+                    );
                   },
                   imageString: AppImage.png.englishLanguage,
                 ),
+                20.height,
+
                 chooseLanguageTile(
                   isSelected: state.index == 1 ? true : false,
                   text1: AppString.label.hindi2,
@@ -83,6 +102,8 @@ final bool isCloseButton;
                   },
                   imageString: AppImage.png.hindiLanguage,
                 ),
+                20.height,
+
                 chooseLanguageTile(
                   isSelected: state.index == 2 ? true : false,
                   text1: AppString.label.tamil,
@@ -95,28 +116,34 @@ final bool isCloseButton;
                   },
                   imageString: AppImage.png.tamilLanguage,
                 ),
-                Expanded(child: SizedBox.shrink()),
-                Text(
-                  context.appText.chooseLanguage,
-                  style: AppTextStyle.textDarkGreyColor14w400
-                ),
-                AppButton(title:context.appText.next,
 
-                  onPressed:() {
-                     context.push(AppRouteName.chooseRoleScreen);
-                    } ,),
-             //   CustomButton(
-                //   buttonText: context.appText.next,
-                //   disable: true,
-                //   onClick: () {
-                //    context.push(AppRouteName.chooseRoleScreen);
-                //   },
-                // ),
-                Expanded(child: SizedBox.shrink()),
+                Expanded(child: SizedBox()),
+
+
+                Column(
+                  children: [
+
+                    Text(
+                      context.appText.chooseLanguage,
+                      style: AppTextStyle.textDarkGreyColor14w400,
+                    ).align(Alignment.center),
+                    10.height,
+
+                    AppButton(
+                      title: context.appText.next,
+                      onPressed: () {
+                        context.push(AppRouteName.chooseRoleScreen);
+                      },
+                    ),
+                    10.height,
+
+                  ],
+                ),
+
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -131,9 +158,10 @@ final bool isCloseButton;
     return Container(
       height: 70.h,
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          width: 0.8,
+          width: 1,
           color: isSelected ? AppColors.primaryColor : AppColors.disableColor,
         ),
       ),
@@ -147,7 +175,7 @@ final bool isCloseButton;
                     isSelected
                         ? AppColors.primaryColor
                         : AppColors.disableColor,
-                width: 0.8,
+                width: 1,
               ),
               borderRadius: BorderRadius.circular(50),
             ),
@@ -163,21 +191,12 @@ final bool isCloseButton;
           ),
           subtitle:
               text2.isNotEmpty
-                  ? Text(
-                    text2,
-
-                    style: AppTextStyle.textGreyColor14w400
-                  )
+                  ? Text(text2, style: AppTextStyle.textGreyColor14w400)
                   : null,
-          title: Text(
-            text1,
-            style: AppTextStyle.textBlackColor20w500
-          ),
+          title: Text(text1, style: AppTextStyle.textBlackColor20w500),
           trailing: Image.asset(width: 78.w, height: 50.h, imageString),
         ),
       ),
     );
   }
 }
-
-

@@ -25,18 +25,22 @@ class ChooseRoleScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(
         backgroundColor: Colors.transparent,
-
+        scrolledUnderElevation: 0.0,
         actions: [
-          translateWiget(onTap: (){
-
-            Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true,)));
-
-          }),    20.width,
-          customerSupportWidget(onTap: (){
-
-            showCustomerCareBottomSheet(context);
-
-          }),
+          translateWiget(
+            onTap: () {
+              Navigator.push(
+                context,
+                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
+              );
+            },
+          ),
+          20.width,
+          customerSupportWidget(
+            onTap: () {
+              showCustomerCareBottomSheet(context);
+            },
+          ),
           20.width,
           Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
           30.width,
@@ -94,16 +98,12 @@ class ChooseRoleScreen extends StatelessWidget {
                     },
                     imageString: AppImage.png.fleet,
                   ),
-                  5.height,
+                  20.height,
+
                   AppButton(
                     title: context.appText.next,
-
                     onPressed: () {
-
-
-                        context.push( AppRouteName.login,
-                        extra:"${state.index + 1}");
-
+                      context.push(AppRouteName.login, extra: "${state.index + 1}");
                     },
                   ),
 
@@ -133,9 +133,10 @@ class ChooseRoleScreen extends StatelessWidget {
           margin: EdgeInsets.only(top: 28.h),
           // height: 70.h,
           decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              width: 0.8,
+              width: 1,
               color:
                   isSelected ? AppColors.primaryColor : AppColors.disableColor,
             ),
@@ -150,7 +151,7 @@ class ChooseRoleScreen extends StatelessWidget {
                         isSelected
                             ? AppColors.primaryColor
                             : AppColors.disableColor,
-                    width: 0.8,
+                    width: 1,
                   ),
                   borderRadius: BorderRadius.circular(50),
                 ),
@@ -169,17 +170,12 @@ class ChooseRoleScreen extends StatelessWidget {
               ),
               subtitle:
                   text2.isNotEmpty
-                      ? Text(text2, style: AppTextStyle.textGreyColor14w300)
+                      ? Text(text2, style: AppTextStyle.body3GreyColor)
                       : null,
               title: Row(
                 children: [
                   60.width,
-                  Expanded(
-                    child: Text(
-                      text1,
-                      style: AppTextStyle.textBlackColor18w500,
-                    ),
-                  ),
+                  Expanded(child: Text(text1, style: AppTextStyle.body2)),
                 ],
               ),
             ),
