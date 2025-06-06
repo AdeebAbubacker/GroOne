@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -6,9 +7,12 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_image.dart';
+import '../../../utils/common_functions.dart';
 
 class KavachOrderDetailsScreen extends StatelessWidget {
-  const KavachOrderDetailsScreen({super.key});
+  final KavachOrderListOrderItem order;
+
+  const KavachOrderDetailsScreen({super.key, required this.order,});
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +33,9 @@ class KavachOrderDetailsScreen extends StatelessWidget {
             12.height,
             _orderTimeline(),
             12.height,
-            _addressSection("Shipping Address"),
+            _addressSection(context.appText.shippingAddress),
             12.height,
-            _addressSection("Billing Address"),
+            _addressSection(context.appText.billingAddress),
             12.height,
             _paymentSummary(),
             20.height,
@@ -55,19 +59,26 @@ class KavachOrderDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Order ID: 4546S846SFG3', style: AppTextStyle.primaryColor14w700),
+                Text('Order ID: ${order.orderUniqueId}', style: AppTextStyle.primaryColor14w700),
                 4.height,
-                Text('22 Apr 2025, 7.30PM', style: AppTextStyle.bodyGreyColor),
+                Text(formatDateTimeKavach(order.orderDate.toString()), style: AppTextStyle.bodyGreyColor),
               ],
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text('Dispatched', style: TextStyle(color: Colors.orange)),
+            child: Text(
+              order.statusHistory.first.statusLabel,
+              style: TextStyle(
+                color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
           ),
         ],
       ),
@@ -75,12 +86,6 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   }
 
   Widget _productDetails(BuildContext context) {
-    final products = [
-      Product('eN-Dhan Kavach', 'CS01K0001', 3620, 1),
-      Product('eN-Dhan Kavach', 'CS01K0458', 2730, 2),
-      Product('eN-Dhan Kavach', 'CS01K0879', 3500, 3),
-    ];
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
@@ -89,13 +94,13 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         children: [
           Text(context.appText.productDetails, style: AppTextStyle.h5),
           8.height,
-          ...products.map((p) => _productItem(p)),
+          ...order.lineItems.map((p) => _productItem(p)),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:  [
               Text("Total Amount Paid", style: AppTextStyle.h5GreyColor),
-              Text("₹10,500", style: AppTextStyle.h5),
+              Text("₹${order.orderAmount}", style: AppTextStyle.h5),
             ],
           ),
         ],
@@ -103,7 +108,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _productItem(Product p) {
+  Widget _productItem(KavachOrderListItem p) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -114,15 +119,15 @@ class KavachOrderDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.name, style: AppTextStyle.h5),
-                Text(p.code, style: AppTextStyle.textGreyColor12w400),
+                Text(p.itemType, style: AppTextStyle.h5),
+                Text(p.id, style: AppTextStyle.textGreyColor12w400),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('₹${p.price}', style: AppTextStyle.h5),
+              Text('₹${p.totalPrice}', style: AppTextStyle.h5),
               Text('Qty - ${p.quantity}', style: AppTextStyle.textGreyColor12w400),
             ],
           )
@@ -281,3 +286,13 @@ class PriceRow extends StatelessWidget {
     );
   }
 }
+
+// Shipping address
+// Billing address
+// Product name
+// Product img
+// Status clarification
+// Download Invoice PDF link
+// Separate payment summary - GST, price not there.
+
+

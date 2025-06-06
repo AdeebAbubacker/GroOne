@@ -17,3 +17,8 @@ class DecrementQuantity extends KavachProductsListEvent {
   final String productId;
   DecrementQuantity(this.productId);
 }
+
+class TryIncrementQuantity extends KavachProductsListEvent {
+  final String productId;
+  TryIncrementQuantity({required this.productId});
+}

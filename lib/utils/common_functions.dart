@@ -482,3 +482,27 @@ Future<void> downloadAndOpenPdf(String url) async {
 
 
 
+String formatDateTimeKavach(String dateTimeString) {
+  DateTime utcDateTime = DateTime.parse(dateTimeString);
+  DateTime localDateTime = utcDateTime.toLocal();
+  String formatted = DateFormat('dd MMMM yyyy, h:mm a').format(localDateTime);
+
+  return formatted;
+}
+
+Color getKavachOrderStatusColor(String status) {
+  switch (status) {
+    case 'Order Placed':
+      return AppColors.primaryColor;
+    case 'Dispatched':
+      return Colors.orange;
+    case 'Delivered':
+      return AppColors.greenColor;
+    case 'Failed':
+      return AppColors.activeRedColor;
+    case 'Installed':
+      return Colors.teal;
+    default:
+      return AppColors.primaryColor;
+  }
+}

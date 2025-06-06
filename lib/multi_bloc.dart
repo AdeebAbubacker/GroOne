@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
@@ -58,6 +60,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachCheckoutVehicleBloc>(create: (_) => locator<KavachCheckoutVehicleBloc>()),
         BlocProvider<KavachCheckoutAddAddressBloc>(create: (_) => locator<KavachCheckoutAddAddressBloc>()),
         BlocProvider<LPHomeCubit>(create: (_) => locator<LPHomeCubit>()),
+        BlocProvider<KavachOrderBloc>(create: (_) => locator<KavachOrderBloc>()),
+        BlocProvider<KavachOrderListBloc>(create: (_) => locator<KavachOrderListBloc>()),
       ],
       child: child,
     );

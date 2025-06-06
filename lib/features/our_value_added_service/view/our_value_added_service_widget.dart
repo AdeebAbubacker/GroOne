@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_benefits_screen.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -81,7 +83,13 @@ buildValueAddedService(BuildContext context) {
                 imageString: AppImage.png.kavach,
 
                 onClick: () {
-                  Navigator.of(context).push(commonRoute(KavachBenefitsScreen()));
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => KavachOrdersListScreen(),
+                      settings: RouteSettings(name: 'KavachOrderListScreen'),
+                    ),
+                  );
                 },
               ),
             ],

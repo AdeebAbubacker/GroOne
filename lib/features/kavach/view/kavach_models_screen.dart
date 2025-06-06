@@ -124,6 +124,31 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     );
   }
 
+  // Widget buildBodyWidget(BuildContext context) {
+  //   return BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
+  //     builder: (context, state) {
+  //       return ListView.separated(
+  //         controller: _scrollController,
+  //         itemCount: state.products.length + (state.loading ? 1 : 0),
+  //         separatorBuilder: (_, __) => 20.height,
+  //         itemBuilder: (context, index) {
+  //           if (index == state.products.length) {
+  //             return const Center(child: Padding(
+  //               padding: EdgeInsets.all(8.0),
+  //               child: CircularProgressIndicator(),
+  //             ));
+  //           }
+  //           final product = state.products[index];
+  //           final qty = state.quantities[product.id] ?? 0;
+  //           return KavachModelsListBody(
+  //             product: product,
+  //             quantity: qty,
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   Widget buildBodyWidget(BuildContext context) {
     return BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
       builder: (context, state) {
@@ -140,15 +165,19 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
             }
             final product = state.products[index];
             final qty = state.quantities[product.id] ?? 0;
+            final availableStock = state.availableStocks[product.id] ?? 0; // Get available stock from state
+
             return KavachModelsListBody(
               product: product,
               quantity: qty,
+              availableStock: availableStock, // Pass it here
             );
           },
         );
       },
     );
   }
+
   Widget buildBuyButtonWidget(int totalQuantity) {
     return BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
       builder: (context, state) {
