@@ -15,7 +15,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/hide_success_kyc_status/hide_success_kyc_status_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
@@ -70,6 +71,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
   final loadDetailBloc = locator<LoadListBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
@@ -129,7 +131,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
-    await disableKycSuccessStatus();
+    await lpHomeCubit.startKycSuccessTimer();
   });
 
   void disposeFunction() => addPostFrameCallback(() {
@@ -164,16 +166,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     });
   }
 
-  Future<void> disableKycSuccessStatus() async {
-    if(profileResponse != null && profileResponse?.data != null) {
-      if(profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc){
-        hideKycSuccessStatus = true;
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if(mounted) return;
-        setState(() {});
-      }
-    }
-  }
 
 
   @override
@@ -271,22 +263,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Builder(
-                      builder: (builder){
-                        if(profileResponse != null && profileResponse?.data != null) {
-                          if(profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc){
-                            if(hideKycSuccessStatus == false){
-                              return BlocBuilder<HideSuccessKycStatusCubit, bool>(
-                                builder: (context, state) {
-                                  if (!state){
-                                    return kycSuccessStatusWidget();
-                                  } else {
-                                    return 20.height;
-                                  }
-                                },
-                              );
 
-                            }else {
+                  BlocProvider<LPHomeCubit>.value(
+                    value: locator<LPHomeCubit>(), // singleton from locator
+                    child: BlocConsumer<LPHomeCubit, LPHomeState>(
+                      listener: (context, state) {
+                        print("State showSuccessKyc: ${state.showSuccessKyc}");
+                      },
+                      builder: (context, state) {
+                        if (profileResponse != null && profileResponse?.data != null) {
+                          if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc) {
+                            if (state.showSuccessKyc) {
+                              return kycSuccessStatusWidget();
+                            } else {
                               return 20.height;
                             }
                           } else {
@@ -294,7 +283,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           }
                         }
                         return 20.height;
-                      }
+                      },
+                    ),
                   ),
 
                   bookShipmentSectionWidget(context),

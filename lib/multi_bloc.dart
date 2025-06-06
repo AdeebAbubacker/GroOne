@@ -9,7 +9,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/hide_success_kyc_status/hide_success_kyc_status_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
@@ -57,7 +57,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachCheckoutBillingAddressBloc>(create: (_) => locator<KavachCheckoutBillingAddressBloc>()),
         BlocProvider<KavachCheckoutVehicleBloc>(create: (_) => locator<KavachCheckoutVehicleBloc>()),
         BlocProvider<KavachCheckoutAddAddressBloc>(create: (_) => locator<KavachCheckoutAddAddressBloc>()),
-        BlocProvider<HideSuccessKycStatusCubit>(create: (_) => locator<HideSuccessKycStatusCubit>()),
+        BlocProvider<LPHomeCubit>(create: (_) => locator<LPHomeCubit>()),
       ],
       child: child,
     );

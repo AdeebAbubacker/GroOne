@@ -1,0 +1,30 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+
+
+class LPHomeCubit extends Cubit<LPHomeState> {
+  final LpHomeRepository _truckRepo;
+  LPHomeCubit(this._truckRepo) : super(LPHomeState());
+
+
+  Future<void> fetchTruckTypes() async {
+    emit(state.copyWith(truckTypeState: UIState.loading()));
+    Result  result = await _truckRepo.getTruckTypeData();
+    if (result is Success<LoadTruckTypeListModel>) {
+      emit(state.copyWith(truckTypeState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(truckTypeState: UIState.error(result.type)));
+    }
+  }
+
+  Future<void> startKycSuccessTimer() async {
+    emit(state.copyWith(showSuccessKyc: true));
+    await Future.delayed(const Duration(seconds: 3));
+    emit(state.copyWith(showSuccessKyc: false));
+  }
+}
