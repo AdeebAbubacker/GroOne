@@ -52,7 +52,7 @@ class KavachOrderCardWidget extends StatelessWidget {
             6.height,
             Row(
               children: [
-                Expanded(child: Text(order.lineItems.first.itemType , style: AppTextStyle.bodyGreyColor)),
+                Expanded(child: Text(order.lineItems.length>1?'${order.lineItems.first.product?.name} +${order.lineItems.length-1}':'${order.lineItems.first.product?.name}', style: AppTextStyle.textGreyColor14w300)),
                 Text('₹${order.orderAmount}', style: AppTextStyle.h4),
               ],
             ),
@@ -65,7 +65,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                     },
                     child: Text("View Details", style: AppTextStyle.primaryColor16w400)),
                 15.width,
-                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.bodyGreyColor)),
+                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300)),
               ],
             )
           ],
