@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
+import '../../../utils/constant_variables.dart';
 import '../../../utils/toast_messages.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
@@ -38,6 +41,8 @@ class _KavachAddAddressBottomSheetState extends State<KavachAddAddressBottomShee
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
+  final gstNoController = TextEditingController();
+  final countryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +120,12 @@ class _KavachAddAddressBottomSheetState extends State<KavachAddAddressBottomShee
             ),
             10.height,
             AppTextField(
+              controller: countryController,
+              hintText: 'Country',
+              validator: (value) => value == null || value.trim().isEmpty ? 'Country is required' : null,
+            ),
+            10.height,
+            AppTextField(
               controller: pinCodeController,
               hintText: context.appText.pinCode,
               keyboardType: TextInputType.number,
@@ -132,7 +143,19 @@ class _KavachAddAddressBottomSheetState extends State<KavachAddAddressBottomShee
               },
             ),
             10.height,
-            30.height,
+            AppTextField(
+              controller: gstNoController,
+              hintText: '${context.appText.gstKavach} (${context.appText.optional})',
+            ),
+            15.height,
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonButtonRadius)),),
+              onPressed: () {
+
+            }, label: Text(context.appText.useMyCurrentLocation,style: AppTextStyle.bodyWhiteColorW500,),icon: Icon(Icons.my_location,color: AppColors.white,),),
+            40.height,
             Row(
               children: [
                 AppButton(

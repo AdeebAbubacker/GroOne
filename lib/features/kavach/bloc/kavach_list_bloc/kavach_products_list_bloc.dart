@@ -27,7 +27,7 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
           updatedQuantities[event.productId] = currentQty + 1;
           emit(state.copyWith(quantities: updatedQuantities));
         } else {
-          ToastMessages.alert(message: 'Product out of stock');
+          ToastMessages.alert(message: 'Unable to add more items');
         }
       } else if (stockResult is Error) {
         ToastMessages.error(message: 'Failed to check stock availability.');

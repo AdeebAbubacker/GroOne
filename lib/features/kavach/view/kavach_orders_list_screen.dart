@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
@@ -28,19 +27,27 @@ class KavachOrdersListScreen extends StatefulWidget {
   @override
   State<KavachOrdersListScreen> createState() => _KavachOrdersListScreenState();
 }
-
-class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> {
+class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with TickerProviderStateMixin {
   final _ordersBloc = locator<KavachOrderListBloc>();
   final _scrollController = ScrollController();
   bool _firstBuild = true;
 
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
-   initFunction();
+    _tabController = TabController(length: 5, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {}); // Safe setState
+    });
+    _ordersBloc.add(FetchKavachOrderList());
+    _scrollController.addListener(_onScroll);
   }
+
   @override
   void dispose() {
+    _tabController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -67,53 +74,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  void initFunction() => addPostFrameCallback(() async {
-    _ordersBloc.add(FetchKavachOrderList());
-    _scrollController.addListener(_onScroll);
-  });
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return BlocProvider.value(
-  //     value: _ordersBloc,
-  //     child: DefaultTabController(
-  //       length: 5,
-  //       child: Scaffold(
-  //               appBar: CommonAppBar(
-  //         title: context.appText.kavach,
-  //                 bottom: const TabBar(
-  //                   isScrollable: true,
-  //                   tabs: [
-  //                     Tab(text: 'All'),
-  //                     Tab(text: 'Order Placed'),
-  //                     Tab(text: 'Dispatched'),
-  //                     Tab(text: 'Delivered'),
-  //                     Tab(text: 'Installed'),
-  //                   ],
-  //                 ),
-  //         actions: [
-  //           AppIconButton(
-  //             onPressed: ()=> Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-  //             icon: Icon(Icons.add, color: Colors.white),
-  //             style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-  //           ),
-  //           AppIconButton(onPressed: (){}, icon: AppIcons.svg.support,  style: AppButtonStyle.circularIconButtonStyle),
-  //           10.width,
-  //         ],
-  //       ),
-  //         body:  TabBarView(
-  //           children: [
-  //             _buildTab(status: null),    // All
-  //             _buildTab(status: 4),       // Order Placed
-  //             _buildTab(status: 7),       // Dispatched
-  //             _buildTab(status: 8),       // Delivered
-  //             _buildTab(status: 10),      // Installed
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -141,44 +101,58 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> {
               body: kavachBenifitsWidget(context),
             );
           } else {
-            return DefaultTabController(
-              length: 5,
-              child: Scaffold(
-                appBar: CommonAppBar(
-                  title: context.appText.kavach,
-                  bottom: const TabBar(
-                    isScrollable: true,
-                    tabs: [
-                      Tab(text: 'All'),
-                      Tab(text: 'Order Placed'),
-                      Tab(text: 'Dispatched'),
-                      Tab(text: 'Delivered'),
-                      Tab(text: 'Installed'),
-                    ],
+            return Scaffold(
+              appBar: CommonAppBar(
+                title: context.appText.kavach,
+                bottom: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  indicator: const BoxDecoration(), // remove default indicator
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  tabs: List.generate(5, (index) {
+                    final tabLabels = ['All', 'Order Placed', 'Dispatched', 'Delivered', 'Installed'];
+                    final isSelected = _tabController.index == index;
+                    return Tab(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          tabLabels[index],
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                actions: [
+                  AppIconButton(
+                    onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+                    icon: Icon(Icons.add, color: Colors.white),
+                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
                   ),
-                  actions: [
-                    AppIconButton(
-                      onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-                      icon: Icon(Icons.add, color: Colors.white),
-                      style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                    ),
-                    AppIconButton(
-                      onPressed: () {},
-                      icon: AppIcons.svg.support,
-                      style: AppButtonStyle.circularIconButtonStyle,
-                    ),
-                    10.width,
-                  ],
-                ),
-                body: TabBarView(
-                  children: [
-                    _buildTab(status: null),
-                    _buildTab(status: 4),
-                    _buildTab(status: 7),
-                    _buildTab(status: 8),
-                    _buildTab(status: 10),
-                  ],
-                ),
+                  AppIconButton(
+                    onPressed: () {},
+                    icon: AppIcons.svg.support,
+                    style: AppButtonStyle.circularIconButtonStyle,
+                  ),
+                  10.width,
+                ],
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildTab(status: null),
+                  _buildTab(status: 4),
+                  _buildTab(status: 7),
+                  _buildTab(status: 8),
+                  _buildTab(status: 10),
+                ],
               ),
             );
           }
@@ -262,8 +236,39 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> {
     );
   }
 }
+class _OrdersListView extends StatefulWidget {
+  @override
+  State<_OrdersListView> createState() => _OrdersListViewState();
+}
+class _OrdersListViewState extends State<_OrdersListView> {
+  final ScrollController _scrollController = ScrollController();
 
-class _OrdersListView extends StatelessWidget {
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      final bloc = context.read<KavachOrderListBloc>();
+      bloc.add(FetchKavachOrderList());
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
@@ -275,8 +280,17 @@ class _OrdersListView extends StatelessWidget {
             return Center(child: Text('No orders found'));
           }
           return ListView.builder(
-            itemCount: state.orders.length,
+            controller: _scrollController,
+            itemCount: state.hasReachedMax
+                ? state.orders.length
+                : state.orders.length + 1,
             itemBuilder: (context, index) {
+              if (index >= state.orders.length) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
               final order = state.orders[index];
               return KavachOrderCardWidget(order: order);
             },
@@ -290,3 +304,79 @@ class _OrdersListView extends StatelessWidget {
   }
 }
 
+
+
+// @override
+// Widget build(BuildContext context) {
+//   return BlocProvider.value(
+//     value: _ordersBloc,
+//     child: DefaultTabController(
+//       length: 5,
+//       child: Scaffold(
+//               appBar: CommonAppBar(
+//         title: context.appText.kavach,
+//                 bottom: const TabBar(
+//                   isScrollable: true,
+//                   tabs: [
+//                     Tab(text: 'All'),
+//                     Tab(text: 'Order Placed'),
+//                     Tab(text: 'Dispatched'),
+//                     Tab(text: 'Delivered'),
+//                     Tab(text: 'Installed'),
+//                   ],
+//                 ),
+//         actions: [
+//           AppIconButton(
+//             onPressed: ()=> Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+//             icon: Icon(Icons.add, color: Colors.white),
+//             style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+//           ),
+//           AppIconButton(onPressed: (){}, icon: AppIcons.svg.support,  style: AppButtonStyle.circularIconButtonStyle),
+//           10.width,
+//         ],
+//       ),
+//         body:  TabBarView(
+//           children: [
+//             _buildTab(status: null),    // All
+//             _buildTab(status: 4),       // Order Placed
+//             _buildTab(status: 7),       // Dispatched
+//             _buildTab(status: 8),       // Delivered
+//             _buildTab(status: 10),      // Installed
+//           ],
+//         ),
+//       ),
+//     ),
+//   );
+// }
+
+// class _OrdersListView extends StatefulWidget {
+//   @override
+//   State<_OrdersListView> createState() => _OrdersListViewState();
+// }
+//
+// class _OrdersListViewState extends State<_OrdersListView> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
+//       builder: (context, state) {
+//         if (state is KavachOrderListLoading) {
+//           return const Center(child: CircularProgressIndicator());
+//         } else if (state is KavachOrderListLoaded) {
+//           if (state.orders.isEmpty) {
+//             return Center(child: Text('No orders found'));
+//           }
+//           return ListView.builder(
+//             itemCount: state.orders.length,
+//             itemBuilder: (context, index) {
+//               final order = state.orders[index];
+//               return KavachOrderCardWidget(order: order);
+//             },
+//           );
+//         } else if (state is KavachOrderListError) {
+//           return Center(child: Text(state.message));
+//         }
+//         return const SizedBox.shrink();
+//       },
+//     );
+//   }
+// }

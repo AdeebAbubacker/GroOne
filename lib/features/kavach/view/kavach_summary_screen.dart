@@ -16,6 +16,8 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
+import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
 
@@ -26,7 +28,6 @@ class KavachSummaryScreen extends StatefulWidget {
   final KavachAddressModel shippingAddress;
   final KavachAddressModel billingAddress;
   final List<String> selectedVehicleNumbers;
-  final String? gstNo;
 
   const KavachSummaryScreen({
     super.key,
@@ -34,7 +35,7 @@ class KavachSummaryScreen extends StatefulWidget {
     required this.quantities,
     required this.shippingAddress,
     required this.billingAddress,
-    required this.selectedVehicleNumbers, this.gstNo, required this.availableStocks,
+    required this.selectedVehicleNumbers, required this.availableStocks,
   });
 
   @override
@@ -68,14 +69,24 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         }
 
         if (state is KavachOrderSuccess) {
-          // ToastMessages.success(message: "Order placed successfully");
           showSuccessDialog(
             context,
             text: 'Order placed successfully',
             subheading: ''
           );
+          // Future.delayed(Duration(seconds: 3),() {
+          //   Navigator.of(context).popUntil((route) => route.settings.name == 'KavachOrderListScreen');
+          // },);
           Future.delayed(Duration(seconds: 3),() {
-            Navigator.of(context).popUntil((route) => route.settings.name == 'KavachBenefits');
+            Navigator.of(context).popUntil((route) {
+              if (route.settings.name == 'KavachOrderListScreen') {
+                if (route.navigator != null && route.navigator!.context.mounted) {
+                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(isRefresh: true));
+                }
+                return true; // Pop until this route
+              }
+              return false;
+            });
           },);
 
           // Pop until KavachBenefitsScreen
@@ -139,18 +150,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   Text(context.appText.addVehicleDetails, style: AppTextStyle.blackColor15w500,),
                   10.height,
                   ...widget.selectedVehicleNumbers.map((v) => Text(v,style: AppTextStyle.textDarkGreyColor14w500,),),
-                  15.height,
-                  Visibility(
-                    visible: widget.gstNo!=null && widget.gstNo!.trim().isNotEmpty,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(context.appText.gstKavach, style: AppTextStyle.blackColor15w500,),
-                        10.height,
-                        Text(widget.gstNo??'',style: AppTextStyle.textDarkGreyColor14w500,),
-                      ],
-                    ),
-                  )
                   ]
               ),
             ),
@@ -214,7 +213,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 "state": widget.billingAddress.state,
                 "postalCode": widget.billingAddress.pincode,
                 "country": "India",
-                "gstId": widget.gstNo ?? "",
+                "gstId": "",
                 "contactPerson": widget.billingAddress.customerName,
                 "contactNumber": widget.billingAddress.mobileNumber
               },
@@ -225,7 +224,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 "state": widget.shippingAddress.state,
                 "postalCode": widget.shippingAddress.pincode,
                 "country": "India",
-                "gstId": widget.gstNo ?? "",
+                "gstId":  "",
                 "contactPerson": widget.shippingAddress.customerName,
                 "contactNumber": widget.shippingAddress.mobileNumber
               },
@@ -245,7 +244,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             );
             kavachOrderBloc.add(KavachSubmitOrder(request));
           },
-          title: context.appText.proceedToPay,
+          title: context.appText.placeOrder,
           style: AppButtonStyle.primary,
         ).expand()
       ],

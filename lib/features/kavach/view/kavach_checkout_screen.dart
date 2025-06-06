@@ -52,7 +52,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   late Map<String, int> _quantities;
   late List<KavachProduct> _products;
   bool billingSameAsShipping = false;
-  TextEditingController gstNoController = TextEditingController();
   late Map<String, int> _availableStocks;
 
 
@@ -124,7 +123,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                         _quantities[product.id] = currentQty + 1;
                       });
                     } else {
-                      ToastMessages.alert(message: 'Product out of stock');
+                      ToastMessages.alert(message: 'Unable to add more items');
                     }
                   },
 
@@ -227,13 +226,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       return const SizedBox.shrink();
                     },
                   ),
-                  15.height,
-                  Text('${context.appText.gstKavach} (${context.appText.optional})',style: AppTextStyle.body3,),
-                  AppTextField(
-                    controller: gstNoController,
-                    hintText: 'Eg: GS68468GS654',
-                  ),
-                  10.height
                 ],
               ),
             ),
@@ -380,15 +372,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                         10.height,
                         TextButton.icon(
                           onPressed: () async {
-                            // Wait for the bottom sheet to be dismissed
                             await commonBottomSheetWithBGBlur(
                               context: context,
                               screen: KavachAddAddressBottomSheet(
-                                addrType: 2, // Shipping address type
+                                addrType: 2,
                                 title: context.appText.billingAddress,
                               ),
                             );
-                            // After the bottom sheet is dismissed, refetch the shipping addresses
                             context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
                           },
                           icon: Icon(Icons.add, color: AppColors.primaryColor),
@@ -489,7 +479,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             shippingAddress: shippingState.selectedAddress,
             billingAddress: billingState.selectedAddress,
             selectedVehicleNumbers: selectedVehicles,
-            gstNo: gstNoController.text.trim(),
           )));
         } else {
           // Fallback for any unhandled state combinations (should ideally not be hit with above checks)
