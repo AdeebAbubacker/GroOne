@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
@@ -22,7 +24,7 @@ import '../repository/kavach_repository.dart';
 import 'kavach_models_screen.dart';
 
 
-// /testing
+///testing
 class KavachOrdersListScreen extends StatefulWidget {
   const KavachOrdersListScreen({super.key});
 
@@ -31,7 +33,7 @@ class KavachOrdersListScreen extends StatefulWidget {
 }
 class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with TickerProviderStateMixin {
   final _ordersBloc = locator<KavachOrderListBloc>();
-  final _scrollController = ScrollController();
+  // final _scrollController = ScrollController();
   bool _firstBuild = true;
 
   late TabController _tabController;
@@ -40,41 +42,27 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _ordersBloc.add(FetchKavachOrderList(forceRefresh: true, isRefresh: true));
     _tabController.addListener(() {
       if (mounted) setState(() {}); // Safe setState
     });
-    // _ordersBloc.add(FetchKavachOrderList());
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_firstBuild) {
-      _firstBuild = false;
-      _ordersBloc.add(FetchKavachOrderList(isRefresh: true));
-    }
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   if (_firstBuild) {
+  //     _firstBuild = false;
+  //     _ordersBloc.add(FetchKavachOrderList(isRefresh: true));
+  //   }
+  // }
 
-  void _onScroll() {
-    if (_isBottom) {
-      _ordersBloc.add(FetchKavachOrderList());
-    }
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +71,23 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
       child: BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
         builder: (context, state) {
           if (state is KavachOrderListLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Scaffold(
+              appBar: CommonAppBar(title: context.appText.kavach,
+                actions: [
+                  AppIconButton(
+                    onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+                    icon: Icon(Icons.add, color: Colors.white),
+                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                  ),
+                  AppIconButton(
+                    onPressed: () {},
+                    icon: AppIcons.svg.support,
+                    style: AppButtonStyle.circularIconButtonStyle,
+                  ),
+                  10.width,
+                ],),
+              body: const Center(child: CircularProgressIndicator()),
+            );
           } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
             return Scaffold(
               appBar: CommonAppBar(title: context.appText.kavach,
@@ -162,7 +166,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
       ),
     );
   }
-
   Widget kavachBenifitsWidget(BuildContext context){
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,20 +233,25 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
   Widget buildGroBannerImageWidget(){
     return Image.asset(AppImage.png.groBanner);
   }
+
   Widget _buildTab({int? status}) {
+    // Only fetch initial data for the specific tab here
     return BlocProvider(
       create: (_) => KavachOrderListBloc(locator<KavachRepository>())
-        ..add(FetchKavachOrderList(status: status)),
+        ..add(FetchKavachOrderList(status: status, isRefresh: true)), // Initial fetch for the tab
       child: _OrdersListView(),
     );
   }
 }
+
+
 class _OrdersListView extends StatefulWidget {
   @override
   State<_OrdersListView> createState() => _OrdersListViewState();
 }
 class _OrdersListViewState extends State<_OrdersListView> {
   final ScrollController _scrollController = ScrollController();
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -257,11 +265,25 @@ class _OrdersListViewState extends State<_OrdersListView> {
     super.dispose();
   }
 
+  // void _onScroll() {
+  //   if (_isBottom) {
+  //     final bloc = context.read<KavachOrderListBloc>();
+  //     bloc.add(FetchKavachOrderList());
+  //   }
+  // }
+
   void _onScroll() {
-    if (_isBottom) {
-      final bloc = context.read<KavachOrderListBloc>();
-      bloc.add(FetchKavachOrderList());
-    }
+    if (_debounce?.isActive ?? false) return;
+    _debounce = Timer(const Duration(milliseconds: 200), () {
+      if (_isBottom && !_isLoading) {
+        context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
+      }
+    });
+  }
+
+  bool get _isLoading {
+    final state = context.read<KavachOrderListBloc>().state;
+    return state is KavachOrderListLoading; // or use a flag in your state
   }
 
   bool get _isBottom {

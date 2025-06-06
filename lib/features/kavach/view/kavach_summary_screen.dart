@@ -81,7 +81,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             Navigator.of(context).popUntil((route) {
               if (route.settings.name == 'KavachOrderListScreen') {
                 if (route.navigator != null && route.navigator!.context.mounted) {
-                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(isRefresh: true));
+                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
                 }
                 return true; // Pop until this route
               }

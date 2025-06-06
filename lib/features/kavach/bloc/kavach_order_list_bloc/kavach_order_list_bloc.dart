@@ -32,6 +32,7 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
       final result = await _repository.fetchCustomerOrders(
         page: nextPage,
         status: event.status,
+        forceRefresh: event.forceRefresh
       );
 
       if (result is Success<KavachOrderListResponse>) {

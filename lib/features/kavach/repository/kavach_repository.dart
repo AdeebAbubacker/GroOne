@@ -60,6 +60,7 @@ class KavachRepository {
     int page = 1,
     int limit = 10,
     int? status,
+    bool forceRefresh = false
   }) async {
     String cId = await userInfoRepo.getUserID() ?? '';
     return _service.fetchCustomerOrders(
@@ -67,6 +68,7 @@ class KavachRepository {
       page: page,
       limit: limit,
       status: status,
+      forceRefresh: forceRefresh
     );
   }
 

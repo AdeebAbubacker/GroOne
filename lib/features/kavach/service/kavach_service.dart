@@ -170,6 +170,7 @@ class KavachService {
     int page = 1,
     int limit = 10,
     int? status,
+    bool forceRefresh = false
   }) async {
     try {
       // final response = await _apiService.get(
@@ -179,7 +180,7 @@ class KavachService {
       final statusParam = status != null ? "&status=$status" : "";
       final response = await _apiService.get(
         'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit$statusParam',
-        forceRefresh: true,
+        forceRefresh: forceRefresh,
       );
 
       if (response is Success) {
