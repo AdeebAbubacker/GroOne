@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/my_account/edit_my_account/view/lp_edit_my_account.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/profile/view/edit_my_account.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 
-import '../../../../../../utils/app_application_bar.dart';
-import '../../../../../../utils/app_text_style.dart';
-import '../../../../../../utils/extra_utils.dart';
-import '../../../../lp_home/model/profile_detail_response_model.dart';
 
 class LpMyAccount extends StatefulWidget {
+  final AllProfileDetails profileData;
   const LpMyAccount({super.key, required this.profileData});
 
-  final AllProfileDetails profileData;
 
   @override
   State<LpMyAccount> createState() => _LpMyAccountState();

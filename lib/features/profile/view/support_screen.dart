@@ -8,8 +8,8 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
-import '../../../../../../utils/app_application_bar.dart';
-import '../../../../../../utils/app_text_style.dart';
+import '../../../../utils/app_application_bar.dart';
+import '../../../../utils/app_text_style.dart';
 
 class LpSupport extends StatefulWidget {
   const LpSupport({super.key, this.showBackButton = true});

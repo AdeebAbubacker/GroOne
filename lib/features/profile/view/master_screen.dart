@@ -3,19 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
-import '../../../../../utils/app_application_bar.dart';
-import '../../../../../utils/app_text_style.dart';
 
 class MasterScreen extends StatefulWidget {
   const MasterScreen({super.key});
@@ -27,6 +27,7 @@ class MasterScreen extends StatefulWidget {
 class _MasterScreenState extends State<MasterScreen> {
 
   final lpProfileBloc=locator<ProfileBloc>();
+
   @override
   void initState() {
     initFunction();
@@ -42,9 +43,10 @@ class _MasterScreenState extends State<MasterScreen> {
   void initFunction() => addPostFrameCallback(() async {
     await lpProfileBloc.getUserId();
     lpProfileBloc.add(MasterRequested(userID: lpProfileBloc.userId ??""));
-    debugPrint("user id ${lpProfileBloc.userId}");
   });
-MasterResponse? masterResponse;
+
+  MasterResponse? masterResponse;
+
   void disposeFunction() => addPostFrameCallback(() {});
   @override
   Widget build(BuildContext context) {

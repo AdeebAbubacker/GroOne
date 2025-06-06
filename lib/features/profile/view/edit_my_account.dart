@@ -3,38 +3,38 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_update_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
+import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import '../../../../../../../utils/app_application_bar.dart';
-import '../../../../../../../utils/app_button.dart';
-import '../../../../../../../utils/app_text_style.dart';
-import '../../../../../../../utils/extra_utils.dart';
+
 
 class LpEditMyAccount extends StatefulWidget {
-  const LpEditMyAccount(
-      {super.key, required this.profileData, });
-
-   final AllProfileDetails profileData;
+  final AllProfileDetails profileData;
+  const LpEditMyAccount({super.key, required this.profileData});
 
   @override
   State<LpEditMyAccount> createState() => _LpEditMyAccountState();
 }
 
 class _LpEditMyAccountState extends State<LpEditMyAccount> {
+
   final lpProfile = locator<ProfileBloc>();
   final _formKey = GlobalKey<FormState>();
+
   TextEditingController customerName = TextEditingController();
   TextEditingController customerMobileNumber = TextEditingController();
   TextEditingController companyName = TextEditingController();
@@ -53,16 +53,13 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
     super.dispose();
   }
 
-  void initFunction() =>
-      addPostFrameCallback(() async {
-        await lpProfile.getUserId();
-
-        debugPrint("user id ${lpProfile.userId}");
-        customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
-        customerName.text=widget.profileData.customer!.customerName;
-        companyName.text=widget.profileData.details!.companyName;
-        gstIn.text=widget.profileData.details!.gstin??"--";
-      });
+  void initFunction() => addPostFrameCallback(() async {
+    await lpProfile.getUserId();
+    customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
+    customerName.text=widget.profileData.customer!.customerName;
+    companyName.text=widget.profileData.details!.companyName;
+    gstIn.text=widget.profileData.details!.gstin??"--";
+  });
 
   void disposeFunction() => addPostFrameCallback(() {});
 

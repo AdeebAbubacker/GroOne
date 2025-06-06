@@ -6,10 +6,10 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
 
-import '../../../../../../utils/app_application_bar.dart';
-import '../../../../../../utils/app_colors.dart';
-import '../../../../../../utils/app_image.dart';
-import '../../../../../../utils/app_text_style.dart';
+import '../../../../utils/app_application_bar.dart';
+import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_image.dart';
+import '../../../../utils/app_text_style.dart';
 
 class LpSetting extends StatefulWidget {
   const LpSetting({super.key});

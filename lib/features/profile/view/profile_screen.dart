@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,35 +7,39 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/api_request/profile_upload_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/benefits_of_membership_screen/benefits_of_membership_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/log_out_dialogue_ui.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/my_account/view/lp_my_account.dart';
+import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
+import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
+import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
+import 'package:gro_one_app/features/profile/view/setting_screen.dart';
+import 'package:gro_one_app/features/profile/view/support_screen.dart';
+import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
+import 'package:gro_one_app/features/profile/view/widgets/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-import '../../../../utils/app_application_bar.dart';
-import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_text_style.dart';
-import '../../../../utils/extra_utils.dart';
 
 class ProfileScreen extends StatefulWidget {
   AllProfileDetails profileData;
@@ -190,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.master,
             text: "Master",
             onTap: () {
-              context.push(AppRouteName.master);
+              Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
             },
           ),
           dividerWidget(),
@@ -198,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.myDocuments,
             text: "My Documents",
             onTap: () {
-              context.push(AppRouteName.myDocumentScreen);
+              Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
           ),
           dividerWidget(),
@@ -206,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.transaction,
             text: context.appText.transactions,
             onTap: () {
-              context.push(AppRouteName.lpTransaction);
+              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
             },
           ),
           dividerWidget(),
@@ -214,7 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.settings,
             text: context.appText.settings,
             onTap: () {
-              context.push(AppRouteName.lpSetting);
+              Navigator.of(context).push(commonRoute(LpSetting(), isForward: true));
             },
           ),
           dividerWidget(),
@@ -222,8 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              context.push(AppRouteName.lpSupport);
-            },
+              Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
+              },
           ),
           dividerWidget(),
           BlocListener<VpCreationBloc, VpCreationState>(

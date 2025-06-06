@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/enum/status.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 

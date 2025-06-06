@@ -1,5 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/enum/status.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 
 class UIState<T>{
 

@@ -4,13 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/app_lock_screen/app_lock_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_profile/view/support/view/lp_support.dart';
+import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import '../../../utils/app_colors.dart';
-import '../../../utils/app_image.dart';
-import '../../../utils/extra_utils.dart';
-import '../lp_home/view/lp_home_screen.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
+
 
 class LpBottomNavigation extends StatefulWidget {
   const LpBottomNavigation({super.key});
@@ -20,6 +21,7 @@ class LpBottomNavigation extends StatefulWidget {
 }
 
 class _LpBottomNavigationState extends State<LpBottomNavigation> {
+
   final List<Widget> pages = [
     HomeScreenLoadProvider(),
     LpLoadsScreen(),

@@ -10,8 +10,6 @@ class AppRouteName{
   static const String notFound = "/notFound";
 
 
-  static const String lpSupport = "/lpSupport";
-  static const String master = "/master";
   static const String myDocumentScreen = "/myDocumentScreen";
   static const String buyFastag = "/buyFastag";
   static const String enDhanCard = "/enDhanCard";
@@ -27,8 +25,6 @@ class AppRouteName{
 
   static const String homeScreenLoadProvider = "/home_screen_load_provider";
   static const String securityHome = "/securityHome";
-  static const String lpTransaction = "/lpTransaction";
-  static const String lpSetting = "/lpSetting";
 
   static const String otpVerificationScreen = "/otpVerificationScreen";
   static const String chooseLanguage = "/chooseLanguage";
