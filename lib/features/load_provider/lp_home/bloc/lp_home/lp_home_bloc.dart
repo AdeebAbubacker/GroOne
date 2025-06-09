@@ -22,7 +22,7 @@ class LpHomeBloc extends Bloc<HomeEvent, HomeState> {
         userId: event.userId ?? "",
       );
 
-      if (result is Success<ProfileDetailResponse>) {
+      if (result is Success<ProfileDetailModel>) {
         emit(ProfileDetailSuccess(result.value));
       } else if (result is Error) {
         emit(ProfileDetailError(result.type));

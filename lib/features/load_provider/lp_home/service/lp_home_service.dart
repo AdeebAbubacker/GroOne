@@ -18,13 +18,13 @@ class LpHomeService{
   LpHomeService(this._apiService);
 
   /// Fetch Profile
-  Future<Result<ProfileDetailResponse>> getProfileDetails({required String id}) async {
+  Future<Result<ProfileDetailModel>> getProfileDetails({required String id}) async {
     try {
       final url = ApiUrls.getProfile+id;
       final result = await _apiService.get(url);
       if (result is Success) {
         _apiService.clearCache();
-        return  await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailResponse.fromJson(data));
+        return  await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

@@ -15,7 +15,7 @@ class LpHomeRepository{
   final LpHomeService _lpHomeService;
   LpHomeRepository(this._lpHomeService);
 
-  Future<Result<ProfileDetailResponse>> getUserDetails({required String userId}) async {
+  Future<Result<ProfileDetailModel>> getUserDetails({required String userId}) async {
     try {
       return await _lpHomeService.getProfileDetails(id: userId);
     } catch (e) {

@@ -1,5 +1,5 @@
-class ProfileDetailResponse {
-  ProfileDetailResponse({
+class ProfileDetailModel {
+  ProfileDetailModel({
     required this.success,
     required this.message,
     required this.data,
@@ -7,26 +7,32 @@ class ProfileDetailResponse {
 
   final bool success;
   final String message;
-  final AllProfileDetails? data;
+  final ProfileDetailsData? data;
 
-  factory ProfileDetailResponse.fromJson(Map<String, dynamic> json){
-    return ProfileDetailResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : AllProfileDetails.fromJson(json["data"]),
+  ProfileDetailModel copyWith({
+    bool? success,
+    String? message,
+    ProfileDetailsData? data,
+  }) {
+    return ProfileDetailModel(
+      success: success ?? this.success,
+      message: message ?? this.message,
+      data: data ?? this.data,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
+  factory ProfileDetailModel.fromJson(Map<String, dynamic> json){
+    return ProfileDetailModel(
+      success: json["success"] ?? false,
+      message: json["message"] ?? "",
+      data: json["data"] == null ? null : ProfileDetailsData.fromJson(json["data"]),
+    );
+  }
 
 }
 
-class AllProfileDetails {
-  AllProfileDetails({
+class ProfileDetailsData {
+  ProfileDetailsData({
     required this.customer,
     required this.details,
   });
@@ -34,17 +40,22 @@ class AllProfileDetails {
   final Customer? customer;
   final Details? details;
 
-  factory AllProfileDetails.fromJson(Map<String, dynamic> json){
-    return AllProfileDetails(
+  ProfileDetailsData copyWith({
+    Customer? customer,
+    Details? details,
+  }) {
+    return ProfileDetailsData(
+      customer: customer ?? this.customer,
+      details: details ?? this.details,
+    );
+  }
+
+  factory ProfileDetailsData.fromJson(Map<String, dynamic> json){
+    return ProfileDetailsData(
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       details: json["details"] == null ? null : Details.fromJson(json["details"]),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "customer": customer?.toJson(),
-    "details": details?.toJson(),
-  };
 
 }
 
@@ -58,14 +69,14 @@ class Customer {
     required this.password,
     required this.otp,
     required this.otpAttempt,
-    required this.isKyc,
     required this.roleId,
+    required this.isKyc,
     required this.tempFlg,
     required this.status,
-
     required this.isLogin,
     required this.createdAt,
     required this.deletedAt,
+    required this.kycType,
   });
 
   final int id;
@@ -73,22 +84,59 @@ class Customer {
   final String mobileNumber;
   final dynamic emailId;
   final dynamic blueId;
-
   final dynamic password;
   final num otp;
   final num otpAttempt;
-  final bool isKyc;
   final num roleId;
+  final num isKyc;
   final bool tempFlg;
   final num status;
   final bool isLogin;
   final DateTime? createdAt;
   final dynamic deletedAt;
+  final KycType? kycType;
+
+  Customer copyWith({
+    int? id,
+    String? customerName,
+    String? mobileNumber,
+    dynamic? emailId,
+    dynamic? blueId,
+    dynamic? password,
+    num? otp,
+    num? otpAttempt,
+    num? roleId,
+    num? isKyc,
+    bool? tempFlg,
+    num? status,
+    bool? isLogin,
+    DateTime? createdAt,
+    dynamic? deletedAt,
+    KycType? kycType,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      customerName: customerName ?? this.customerName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      emailId: emailId ?? this.emailId,
+      blueId: blueId ?? this.blueId,
+      password: password ?? this.password,
+      otp: otp ?? this.otp,
+      otpAttempt: otpAttempt ?? this.otpAttempt,
+      roleId: roleId ?? this.roleId,
+      isKyc: isKyc ?? this.isKyc,
+      tempFlg: tempFlg ?? this.tempFlg,
+      status: status ?? this.status,
+      isLogin: isLogin ?? this.isLogin,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      kycType: kycType ?? this.kycType,
+    );
+  }
 
   factory Customer.fromJson(Map<String, dynamic> json){
     return Customer(
       id: json["id"] ?? 0,
-
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
       emailId: json["emailId"],
@@ -96,34 +144,44 @@ class Customer {
       password: json["password"],
       otp: json["otp"] ?? 0,
       otpAttempt: json["otpAttempt"] ?? 0,
-      isKyc: json["isKyc"] ?? false,
       roleId: json["roleId"] ?? 0,
+      isKyc: json["isKyc"] ?? 0,
       tempFlg: json["tempFlg"] ?? false,
       status: json["status"] ?? 0,
       isLogin: json["isLogin"] ?? false,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      kycType: json["kycType"] == null ? null : KycType.fromJson(json["kycType"]),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerName": customerName,
-    "mobileNumber": mobileNumber,
-    "emailId": emailId,
+}
 
-    "blueId": blueId,
-    "password": password,
-    "otp": otp,
-    "otpAttempt": otpAttempt,
-    "isKyc": isKyc,
-    "roleId": roleId,
-    "tempFlg": tempFlg,
-    "status": status,
-    "isLogin": isLogin,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-  };
+class KycType {
+  KycType({
+    required this.id,
+    required this.kycType,
+  });
+
+  final int id;
+  final String kycType;
+
+  KycType copyWith({
+    int? id,
+    String? kycType,
+  }) {
+    return KycType(
+      id: id ?? this.id,
+      kycType: kycType ?? this.kycType,
+    );
+  }
+
+  factory KycType.fromJson(Map<String, dynamic> json){
+    return KycType(
+      id: json["id"] ?? 0,
+      kycType: json["kyc_type"] ?? "",
+    );
+  }
 
 }
 
@@ -143,7 +201,6 @@ class Details {
     required this.chequeDocLink,
     required this.drivingLicense,
     required this.drivingLicenseDocLink,
-    required this.profileImageUrl,
     required this.tds,
     required this.tdsDocLink,
     required this.tan,
@@ -166,6 +223,8 @@ class Details {
     required this.address1,
     required this.address2,
     required this.address3,
+    required this.profileImageUrl,
+    required this.location,
     required this.createdAt,
     required this.deletedAt,
     required this.detailsCustomerId,
@@ -184,7 +243,6 @@ class Details {
   final dynamic panDocLink;
   final dynamic cheque;
   final dynamic chequeDocLink;
-  final dynamic profileImageUrl;
   final dynamic drivingLicense;
   final dynamic drivingLicenseDocLink;
   final dynamic tds;
@@ -209,17 +267,108 @@ class Details {
   final dynamic address1;
   final dynamic address2;
   final dynamic address3;
+  final dynamic profileImageUrl;
+  final dynamic location;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final int detailsCustomerId;
   final int detailsCompanyTypeId;
+
+  Details copyWith({
+    int? id,
+    num? customerId,
+    String? companyName,
+    num? companyTypeId,
+    dynamic? gstin,
+    dynamic? gstinDocLink,
+    dynamic? aadhar,
+    dynamic? aadharDocLink,
+    dynamic? pan,
+    dynamic? panDocLink,
+    dynamic? cheque,
+    dynamic? chequeDocLink,
+    dynamic? drivingLicense,
+    dynamic? drivingLicenseDocLink,
+    dynamic? tds,
+    dynamic? tdsDocLink,
+    dynamic? tan,
+    dynamic? tanDocLink,
+    bool? isAadhar,
+    bool? isGstin,
+    bool? isTan,
+    bool? isPan,
+    dynamic? bankAccount,
+    dynamic? bankName,
+    dynamic? branchName,
+    dynamic? ifscCode,
+    num? status,
+    dynamic? truckType,
+    dynamic? ownedTrucks,
+    dynamic? attachedTrucks,
+    dynamic? preferredLanes,
+    dynamic? uploadRc,
+    String? pincode,
+    dynamic? address1,
+    dynamic? address2,
+    dynamic? address3,
+    dynamic? profileImageUrl,
+    dynamic? location,
+    DateTime? createdAt,
+    dynamic? deletedAt,
+    int? detailsCustomerId,
+    int? detailsCompanyTypeId,
+  }) {
+    return Details(
+      id: id ?? this.id,
+      customerId: customerId ?? this.customerId,
+      companyName: companyName ?? this.companyName,
+      companyTypeId: companyTypeId ?? this.companyTypeId,
+      gstin: gstin ?? this.gstin,
+      gstinDocLink: gstinDocLink ?? this.gstinDocLink,
+      aadhar: aadhar ?? this.aadhar,
+      aadharDocLink: aadharDocLink ?? this.aadharDocLink,
+      pan: pan ?? this.pan,
+      panDocLink: panDocLink ?? this.panDocLink,
+      cheque: cheque ?? this.cheque,
+      chequeDocLink: chequeDocLink ?? this.chequeDocLink,
+      drivingLicense: drivingLicense ?? this.drivingLicense,
+      drivingLicenseDocLink: drivingLicenseDocLink ?? this.drivingLicenseDocLink,
+      tds: tds ?? this.tds,
+      tdsDocLink: tdsDocLink ?? this.tdsDocLink,
+      tan: tan ?? this.tan,
+      tanDocLink: tanDocLink ?? this.tanDocLink,
+      isAadhar: isAadhar ?? this.isAadhar,
+      isGstin: isGstin ?? this.isGstin,
+      isTan: isTan ?? this.isTan,
+      isPan: isPan ?? this.isPan,
+      bankAccount: bankAccount ?? this.bankAccount,
+      bankName: bankName ?? this.bankName,
+      branchName: branchName ?? this.branchName,
+      ifscCode: ifscCode ?? this.ifscCode,
+      status: status ?? this.status,
+      truckType: truckType ?? this.truckType,
+      ownedTrucks: ownedTrucks ?? this.ownedTrucks,
+      attachedTrucks: attachedTrucks ?? this.attachedTrucks,
+      preferredLanes: preferredLanes ?? this.preferredLanes,
+      uploadRc: uploadRc ?? this.uploadRc,
+      pincode: pincode ?? this.pincode,
+      address1: address1 ?? this.address1,
+      address2: address2 ?? this.address2,
+      address3: address3 ?? this.address3,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      location: location ?? this.location,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      detailsCustomerId: detailsCustomerId ?? this.detailsCustomerId,
+      detailsCompanyTypeId: detailsCompanyTypeId ?? this.detailsCompanyTypeId,
+    );
+  }
 
   factory Details.fromJson(Map<String, dynamic> json){
     return Details(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       companyName: json["companyName"] ?? "",
-      profileImageUrl: json["profileImageUrl"] ?? "",
       companyTypeId: json["companyTypeId"] ?? 0,
       gstin: json["gstin"],
       gstinDocLink: json["gstinDocLink"],
@@ -253,55 +402,13 @@ class Details {
       address1: json["address1"],
       address2: json["address2"],
       address3: json["address3"],
+      profileImageUrl: json["profileImageUrl"],
+      location: json["location"],
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       detailsCustomerId: json["customer_id"] ?? 0,
       detailsCompanyTypeId: json["company_type_id"] ?? 0,
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerId": customerId,
-    "companyName": companyName,
-    "companyTypeId": companyTypeId,
-    "gstin": gstin,
-    "gstinDocLink": gstinDocLink,
-    "aadhar": aadhar,
-    "aadharDocLink": aadharDocLink,
-    "profileImageUrl": profileImageUrl,
-    "pan": pan,
-    "panDocLink": panDocLink,
-    "cheque": cheque,
-    "chequeDocLink": chequeDocLink,
-    "drivingLicense": drivingLicense,
-    "drivingLicenseDocLink": drivingLicenseDocLink,
-    "tds": tds,
-    "tdsDocLink": tdsDocLink,
-    "tan": tan,
-    "tanDocLink": tanDocLink,
-    "isAadhar": isAadhar,
-    "isGstin": isGstin,
-    "isTan": isTan,
-    "isPan": isPan,
-    "bankAccount": bankAccount,
-    "bankName": bankName,
-    "branchName": branchName,
-    "ifscCode": ifscCode,
-    "status": status,
-    "truckType": truckType,
-    "ownedTrucks": ownedTrucks,
-    "attachedTrucks": attachedTrucks,
-    "preferredLanes": preferredLanes,
-    "uploadRc": uploadRc,
-    "pincode": pincode,
-    "address1": address1,
-    "address2": address2,
-    "address3": address3,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-    "customer_id": detailsCustomerId,
-    "company_type_id": detailsCompanyTypeId,
-  };
 
 }

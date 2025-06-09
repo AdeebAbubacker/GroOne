@@ -6,7 +6,7 @@ sealed class HomeState {}
 final class HomeInitial extends HomeState {}
 class ProfileLoading extends HomeState {}
 class ProfileDetailSuccess extends HomeState {
-  final ProfileDetailResponse profileDetailResponse;
+  final ProfileDetailModel profileDetailResponse;
 
   ProfileDetailSuccess(this.profileDetailResponse);
 }
