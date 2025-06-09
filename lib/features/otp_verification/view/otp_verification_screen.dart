@@ -57,7 +57,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       _start = 10;
       _isButtonEnabled = false;
     });
-
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_start == 0) {
@@ -152,12 +151,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               if(!context.mounted) return;
               homeRedirection(state.otpResponse, context,tempFlag:state.otpResponse.data!.user!.tempflg);
             }
-          } else if (state is OtpError) {
+          }
+          if (state is OtpError) {
             otpString = "";
-
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           }
           setState(() {});
         },
@@ -198,7 +195,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         ),
                       ],
                     ),
-                    Text(textAlign: TextAlign.center, "otp: ${widget.otp}"),
+                    Builder(
+                      builder: (context) {
+                        if(state is OtpResendSuccess){
+                          if(state.loginApiResponseModel.data.user.otp != 0){
+                            return Text(textAlign: TextAlign.center, "otp: ${state.loginApiResponseModel.data.user.otp}");
+                          }
+                        }
+                        return Text(textAlign: TextAlign.center, "otp: ${widget.otp}");
+                      }
+                    ),
                     20.height,
                     Center(
                       child: OtpTextField(
@@ -243,13 +249,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       },
                     ),
                     5.height,
+
+                    // Resend OTP Button
                     AppButton(
+                      style: AppButtonStyle.outline,
                       isLoading: isLoadingResend,
                       richTextWidget:
                           _isButtonEnabled
                               ? Text(
                                 context.appText.resend,
-                                style: AppTextStyle.primaryColor16w900,
+                                style: AppTextStyle.buttonPrimaryColorTextColor,
                               )
                               : RichText(
                                 text: TextSpan(
@@ -257,7 +266,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   children: [
                                     TextSpan(
                                       text: context.appText.resend,
-                                      style: AppTextStyle.primaryColor16w900,
+                                      style: AppTextStyle.buttonPrimaryColorTextColor,
                                     ),
                                     TextSpan(
                                       text: context.appText.inText,
@@ -276,17 +285,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                               ),
                       onPressed: () {
                         if (_isButtonEnabled) {
-                          otpBloc.add(
-                            OtpResendRequested(
-                              apiRequest: LoginApiRequest(
-                                mobile: widget.mobileNumber,
-                                role: int.parse(widget.roleId),
-                              ),
-                            ),
-                          );
+                          otpBloc.add(OtpResendRequested(apiRequest: LoginApiRequest(mobile: widget.mobileNumber, role: int.parse(widget.roleId))));
+                          startTimer();
                         }
                       },
-                      style: AppButtonStyle.outline,
                     ),
                   ],
                 ),

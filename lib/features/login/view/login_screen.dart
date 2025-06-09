@@ -11,6 +11,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
@@ -23,7 +24,7 @@ import '../../../utils/common_functions.dart';
 import '../../../utils/toast_messages.dart';
 import '../../choose_language_screen/view/choose_language_screen.dart';
 import '../bloc/login_bloc.dart';
-import 'widget/legal_detail_screen.dart';
+import 'legal_detail_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.roleId});
@@ -77,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
           30.width,
         ],
       ),
+
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
         listener: (context, state) {
@@ -252,10 +254,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              Expanded(child: SizedBox.shrink()),
+              100.height,
               Image.asset(AppImage.png.signUpBanner),
             ],
-          );
+          ).withScroll(physics: NeverScrollableScrollPhysics());
         },
       ),
     );

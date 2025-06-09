@@ -230,10 +230,10 @@ class AppTextStyle {
   /// --- Button ---
   // Primary
   static final TextStyle _button = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16);
-  static TextStyle button = _button.copyWith(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16, inherit: true);
-  static TextStyle buttonWhiteTextColor = button.copyWith(color: Colors.white);
-  static TextStyle buttonBlackTextColor = button.copyWith(color: AppColors.primaryTextColor);
-  static TextStyle buttonPrimaryColorTextColor = button.copyWith(color: AppColors.primaryColor);
+  static TextStyle button = _button.copyWith(fontWeight: FontWeight.w500, color: Colors.white, fontSize: 16,  inherit: false);
+  static TextStyle buttonWhiteTextColor = button.copyWith(color: Colors.white,  inherit: false);
+  static TextStyle buttonBlackTextColor = button.copyWith(color: AppColors.primaryTextColor,  inherit: false);
+  static TextStyle buttonPrimaryColorTextColor = button.copyWith(color: AppColors.primaryColor,  inherit: false);
 
   // Secondary
   static TextStyle secondaryButton = button.copyWith(color: AppColors.primaryTextColor);
