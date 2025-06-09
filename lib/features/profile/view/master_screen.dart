@@ -40,14 +40,14 @@ class _MasterScreenState extends State<MasterScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpProfileBloc.getUserId();
     lpProfileBloc.add(MasterRequested(userID: lpProfileBloc.userId ??""));
   });
 
   MasterResponse? masterResponse;
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

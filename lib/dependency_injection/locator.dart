@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_o
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
@@ -114,7 +115,6 @@ void initLocator() {
     locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>()));
     locator.registerLazySingleton(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerLazySingleton(() => LpCreateBloc(locator<LpCreateRepository>()));
-    locator.registerLazySingleton(() => KycBloc(locator<KycRepository>()));
     locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LoadListBloc(locator<LpHomeRepository>(),));
@@ -136,6 +136,8 @@ void initLocator() {
 
     // Cubit
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
+    locator.registerLazySingleton(() => KycCubit(locator<KycRepository>(), locator<UserInformationRepository>()));
+
 
 
     CustomLog.info(locator, "All instances registered.");

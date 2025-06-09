@@ -4,22 +4,22 @@
 
 import 'dart:convert';
 
-AddharVerifyOtpRequest addharVerifyOtpRequestFromJson(String str) => AddharVerifyOtpRequest.fromJson(json.decode(str));
+AddharVerifyOtpApiRequest addharVerifyOtpRequestFromJson(String str) => AddharVerifyOtpApiRequest.fromJson(json.decode(str));
 
-String addharVerifyOtpRequestToJson(AddharVerifyOtpRequest data) => json.encode(data.toJson());
+String addharVerifyOtpRequestToJson(AddharVerifyOtpApiRequest data) => json.encode(data.toJson());
 
-class AddharVerifyOtpRequest {
+class AddharVerifyOtpApiRequest {
   String requestId;
   String otp;
   String aadhaar;
 
-  AddharVerifyOtpRequest({
+  AddharVerifyOtpApiRequest({
     required this.requestId,
     required this.otp,
     required this.aadhaar,
   });
 
-  factory AddharVerifyOtpRequest.fromJson(Map<String, dynamic> json) => AddharVerifyOtpRequest(
+  factory AddharVerifyOtpApiRequest.fromJson(Map<String, dynamic> json) => AddharVerifyOtpApiRequest(
     requestId: json["request_id"],
     otp: json["otp"],
     aadhaar: json["aadhaar"],

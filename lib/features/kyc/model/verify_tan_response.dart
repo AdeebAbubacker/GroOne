@@ -1,5 +1,5 @@
-class VerifyTanResponse {
-  VerifyTanResponse({
+class VerifyTanModel {
+  VerifyTanModel({
     required this.status,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class VerifyTanResponse {
   final String message;
   final Data? data;
 
-  factory VerifyTanResponse.fromJson(Map<String, dynamic> json){
-    return VerifyTanResponse(
+  factory VerifyTanModel.fromJson(Map<String, dynamic> json){
+    return VerifyTanModel(
       status: json["status"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

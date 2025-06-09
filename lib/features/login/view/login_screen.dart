@@ -4,26 +4,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/has_internet_connection.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import '../../../dependency_injection/locator.dart';
-import '../../../routing/app_route_name.dart';
-import '../../../service/has_internet_connection.dart';
-import '../../../utils/app_application_bar.dart';
-import '../../../utils/app_colors.dart';
-import '../../../utils/app_image.dart';
-import '../../../utils/app_route.dart';
-import '../../../utils/common_functions.dart';
-import '../../../utils/toast_messages.dart';
-import '../../choose_language_screen/view/choose_language_screen.dart';
-import '../bloc/login_bloc.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
 import 'legal_detail_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -46,9 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
   }
 
-  initFun() => addPostFrameCallback(() async {
+  initFun() => frameCallback(() async {
     await HasInternetConnection().checkConnectivity();
-    // await authRepo.signOut();
   });
 
   final loginBloc = locator<LoginBloc>();
@@ -59,23 +62,23 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
       appBar: CommonAppBar(
         backgroundColor: Colors.transparent,
-
         actions: [
-          translateWiget(onTap: () {   Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true,)));}),
+          translateWiget(
+              onTap: () {
+                Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));
+              },
+          ),
           20.width,
+
           customerSupportWidget(
             onTap: () {
               showCustomerCareBottomSheet(context);
             },
           ),
           20.width,
-          InkWell(
-            onTap: (){
-              context.push(AppRouteName.lpBottomNavigationBar);
-            },
-            child: Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
-          ),
-          30.width,
+
+          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          20.width,
         ],
       ),
 
@@ -111,82 +114,40 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     20.height,
 
-                    Text(
-                      context.appText.loginSingUp,
-                      style: AppTextStyle.textBlackColor30w500,
-                    ),
+                    // Login Heading
+                    Text(context.appText.loginSingUp, style: AppTextStyle.h2W600),
+
+                    // Login Sub Heading
+                    Text(context.appText.enterMobileNumber, style: AppTextStyle.body1Normal),
                     15.height,
-                    Text(
-                      context.appText.enterMobileNumber,
-                      style: AppTextStyle.textBlackColor18w400,
-                    ),
-                    15.height,
-                    Row(
-                      spacing: 5.w,
-                      children: [
-                        Container(
-                          height: 44.h,
-                          width: 81.w,
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColors.borderDisableColor,
-                            ),
-                          ),
 
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Image.asset(
-                                height: 18.h,
-                                width: 27.w,
-                                AppImage.png.flag,
-                              ),
-                              Text(
-                                "+91",
-                                style: AppTextStyle.textBlackColor16w400,
-                              ),
-                            ],
-                          ),
-                        ),
-                        1.width,
-                        Expanded(
-                          child: Container(
-                            height: 44.h,
-
-                            padding: EdgeInsets.all(15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: AppColors.borderDisableColor,
-                              ),
-                            ),
-                            child: TextFormField(
-                              focusNode: focusNode,
-                              onChanged: (va) {
-                                if (va.length == 10) {
-                                  focusNode.unfocus();
-                                }
-                                setState(() {
-
-                                });
-                              },
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
-                              keyboardType: TextInputType.number,
-                              controller: phoneNumber,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                        ),
+                    // Phone Number
+                    AppTextField(
+                      validator: (value)=> Validator.phone(value),
+                      controller: phoneNumber,
+                      labelText: context.appText.phoneNumber,
+                      maxLength: 10,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
                       ],
+                      keyboardType: iosNumberKeyboard,
+                      decoration: commonInputDecoration(
+                        hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+                        prefixIcon: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(AppImage.png.flag),
+                            10.width,
+                            Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                          ],
+                        ).paddingOnly(left: 20, right: 5),
+                      ),
                     ),
-                    15.height,
+                    20.height,
+
+                    // Get Otp Button
                     AppButton(
                       isLoading: isLoading,
                       title: context.appText.getOtp,
@@ -201,12 +162,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         }
-
-
                       },
                     ),
 
-                    15.height,
+                    20.height,
                     RichText(
                       textAlign: TextAlign.start,
                       text: TextSpan(
@@ -254,8 +213,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              100.height,
+
+              SizedBox(height: MediaQuery.of(context).size.height * 0.075),
               Image.asset(AppImage.png.signUpBanner),
+              10.height,
             ],
           ).withScroll(physics: NeverScrollableScrollPhysics());
         },

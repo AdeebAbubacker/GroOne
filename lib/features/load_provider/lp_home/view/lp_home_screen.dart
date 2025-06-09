@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
@@ -61,7 +61,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   late VideoPlayerController _controller;
-  ProfileDetailResponse? profileResponse;
+  ProfileDetailModel? profileResponse;
   GetLoadResponse? getLoadResponse;
 
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -125,7 +125,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
     loadCommodityBloc.add(LoadCommodity());
@@ -134,7 +134,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     await lpHomeCubit.startKycSuccessTimer();
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
+  void disposeFunction() => frameCallback(() {
     dateTimeTextController.clear();
     weightTextController.clear();
     pickup = null;
@@ -202,11 +202,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           Builder(
             builder: (builder){
               if(profileResponse != null && profileResponse?.data != null) {
-                if(profileResponse?.data?.customer != null && (!profileResponse!.data!.customer!.isKyc)){
+                if(profileResponse?.data?.customer != null && (profileResponse!.data!.customer!.isKyc != 3)){
                   return kycWidget(
                     controller: _controller,
                     onTap: () {
-                      commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet());
+                      commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                     },
                   );
                 }
@@ -220,13 +220,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         InkWell(
           onTap: (){
             Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-              addPostFrameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+              frameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
             });
           },
           child: commonCacheNetworkImage(radius: 50,
               height: 40,
               width: 40,
-              path:profileImage ?? "",
+              path: profileImage ?? "",
               errorImage: AppImage.png.userProfileError
           ).paddingRight(commonSafeAreaPadding),
         ),
@@ -267,16 +267,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   BlocProvider<LPHomeCubit>.value(
                     value: locator<LPHomeCubit>(), // singleton from locator
                     child: BlocConsumer<LPHomeCubit, LPHomeState>(
-                      listener: (context, state) {
-                        print("State showSuccessKyc: ${state.showSuccessKyc}");
-                      },
+                      listener: (context, state) { },
                       builder: (context, state) {
                         if (profileResponse != null && profileResponse?.data != null) {
-                          if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc) {
+                          if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc != 3) {
                             if (state.showSuccessKyc) {
                               return kycSuccessStatusWidget();
                             } else {
-                              return 20.height;
+                              return 0.height;
                             }
                           } else {
                             return buildKYCStatusWidget();
@@ -810,7 +808,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       title: context.appText.postLoad,
                       isLoading: isLoading,
                       onPressed: isLoading ? (){} : () async {
-                        if (!profileResponse!.data!.customer!.isKyc) {
+                        if (profileResponse!.data!.customer!.isKyc != 3) {
 
                           if(pickup == null){
                             ToastMessages.alert(message: "Please select pickup location");
@@ -878,7 +876,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             screen: KycPendingDialogue(
                               onPressed: () {
                                 context.pop();
-                                commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet()).then((value) {
+                                commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
                                   lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
                                   );
                                 });

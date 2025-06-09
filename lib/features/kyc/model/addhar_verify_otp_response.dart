@@ -1,5 +1,5 @@
-class AddharVerifyOtpResponse {
-  AddharVerifyOtpResponse({
+class AadhaarVerifyOtpModel {
+  AadhaarVerifyOtpModel({
     required this.status,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class AddharVerifyOtpResponse {
   final String message;
   final Data? data;
 
-  factory AddharVerifyOtpResponse.fromJson(Map<String, dynamic> json) {
-    return AddharVerifyOtpResponse(
+  factory AadhaarVerifyOtpModel.fromJson(Map<String, dynamic> json) {
+    return AadhaarVerifyOtpModel(
       status: json["status"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

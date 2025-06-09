@@ -40,7 +40,7 @@ class TripSchedulingScreen extends StatefulWidget {
   });
 
   final VpLoadsList data;
-  final AllProfileDetails allProfileDetails;
+  final ProfileDetailsData allProfileDetails;
 
   @override
   State<TripSchedulingScreen> createState() => _TripSchedulingScreenState();
@@ -76,7 +76,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
     vpHomeScreenBloc.add(
@@ -88,7 +88,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
     //  Call your init methods
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
   @override
   Widget build(BuildContext context) {

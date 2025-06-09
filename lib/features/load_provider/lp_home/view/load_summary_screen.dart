@@ -156,7 +156,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       bloc: loadPostingBloc,
       listener: (context, state) {
         if (state is CreateLoadError) {
-          addPostFrameCallback(() {
+          frameCallback(() {
             ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           });
         }

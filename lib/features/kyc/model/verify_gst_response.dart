@@ -1,5 +1,5 @@
-class VerifyGstResponse {
-  VerifyGstResponse({
+class VerifyGstModel {
+  VerifyGstModel({
     required this.status,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class VerifyGstResponse {
   final String message;
   final Data? data;
 
-  factory VerifyGstResponse.fromJson(Map<String, dynamic> json){
-    return VerifyGstResponse(
+  factory VerifyGstModel.fromJson(Map<String, dynamic> json){
+    return VerifyGstModel(
       status: json["status"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

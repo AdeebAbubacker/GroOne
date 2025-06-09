@@ -1,5 +1,5 @@
-class VerifyPanResponse {
-  VerifyPanResponse({
+class VerifyPanModel {
+  VerifyPanModel({
     required this.status,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class VerifyPanResponse {
   final String message;
   final Data? data;
 
-  factory VerifyPanResponse.fromJson(Map<String, dynamic> json){
-    return VerifyPanResponse(
+  factory VerifyPanModel.fromJson(Map<String, dynamic> json){
+    return VerifyPanModel(
       status: json["status"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

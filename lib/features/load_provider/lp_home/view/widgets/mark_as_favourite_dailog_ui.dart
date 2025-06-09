@@ -33,11 +33,11 @@ class _MarkAsFavouriteDialogUiState extends State<MarkAsFavouriteDialogUi> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() {
+  void initFunction() => frameCallback(() {
 //  Call your init methods
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
+  void disposeFunction() => frameCallback(() {
 
   });
 

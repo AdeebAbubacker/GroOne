@@ -27,7 +27,7 @@ class GenericSuccessScreen extends StatefulWidget {
 class _GenericSuccessScreenState extends BaseState<GenericSuccessScreen> with SingleTickerProviderStateMixin{
 
   void navigation (Widget route) {
-    addPostFrameCallback((){
+    frameCallback((){
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => route), (Route<dynamic> route) => false);
     });
   }

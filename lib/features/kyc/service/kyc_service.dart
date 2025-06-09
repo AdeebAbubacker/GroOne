@@ -25,7 +25,7 @@ class KycService {
 
   KycService(this._apiService);
 
-  Future<Result<AddharOtpResponse>> kycSendOtp(AddharOtpRequest request) async {
+  Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
     try {
       final result = await _apiService.post(
         ApiUrls.aadhaarSendOtp,
@@ -34,7 +34,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => AddharOtpResponse.fromJson(data),
+          (data) => AadhaarOtpModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -47,7 +47,7 @@ class KycService {
     }
   }
 
-  Future<Result<AddharVerifyOtpResponse>> kycVerifyOtp(AddharVerifyOtpRequest request) async {
+  Future<Result<AadhaarVerifyOtpModel>> kycVerifyOtp(AddharVerifyOtpApiRequest request) async {
     try {
       final result = await _apiService.post(
         ApiUrls.aadhaarVerifyOtp,
@@ -56,7 +56,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => AddharVerifyOtpResponse.fromJson(data),
+          (data) => AadhaarVerifyOtpModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -67,7 +67,7 @@ class KycService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  }  Future<Result<VerifyGstResponse>> verifyGst(VerifyGstRequest request) async {
+  }  Future<Result<VerifyGstModel>> verifyGst(VerifyGstApiRequest request) async {
     try {
       final result = await _apiService.post(
         ApiUrls.gst,
@@ -76,7 +76,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => VerifyGstResponse.fromJson(data),
+          (data) => VerifyGstModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -87,7 +87,7 @@ class KycService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  } Future<Result<VerifyTanResponse>> verifyTan(VerifyTanRequest request) async {
+  } Future<Result<VerifyTanModel>> verifyTan(VerifyTanApiRequest request) async {
     try {
       final result = await _apiService.post(
         ApiUrls.tan,
@@ -96,7 +96,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => VerifyTanResponse.fromJson(data),
+          (data) => VerifyTanModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -107,7 +107,7 @@ class KycService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-  } Future<Result<VerifyPanResponse>> verifyPan(VerifyPanRequest request) async {
+  } Future<Result<VerifyPanModel>> verifyPan(VerifyPanApiRequest request) async {
     try {
       final result = await _apiService.post(
         ApiUrls.pan,
@@ -116,7 +116,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => VerifyPanResponse.fromJson(data),
+          (data) => VerifyPanModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -147,7 +147,7 @@ class KycService {
   }
   //submit KYC form
 
-  Future<Result<SubmitKycResponse>> submitKyc(SubmitKycRequestLp request,{required String userID}) async {
+  Future<Result<SubmitKycModel>> submitKyc(SubmitKycApiRequest request,{required String userID}) async {
     try {
       final result = await _apiService.post(
         ApiUrls.submitKyc+userID,
@@ -156,7 +156,7 @@ class KycService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => SubmitKycResponse.fromJson(data),
+              (data) => SubmitKycModel.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);

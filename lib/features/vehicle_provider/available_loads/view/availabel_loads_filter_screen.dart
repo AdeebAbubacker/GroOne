@@ -57,11 +57,11 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() {
+  void initFunction() => frameCallback(() {
     //  Call your init methods
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
+  void disposeFunction() => frameCallback(() {
   });
 
 

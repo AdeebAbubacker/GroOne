@@ -1,5 +1,5 @@
-class VerifyGstRequest {
-  VerifyGstRequest({
+class VerifyGstApiRequest {
+  VerifyGstApiRequest({
     required this.gst,
     required this.force,
   });
@@ -7,8 +7,8 @@ class VerifyGstRequest {
   final String gst;
   final bool force;
 
-  factory VerifyGstRequest.fromJson(Map<String, dynamic> json){
-    return VerifyGstRequest(
+  factory VerifyGstApiRequest.fromJson(Map<String, dynamic> json){
+    return VerifyGstApiRequest(
       gst: json["gst"] ?? "",
       force: json["force"] ?? false,
     );

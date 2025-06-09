@@ -198,8 +198,17 @@
   "approxWeight": "Approx. Weight",
   "category": "Category",
   "tons": "Tons",
-  "logoutSubHeading" : "You’ll be signed out from your account. Come back soon!"
-
+  "logoutSubHeading" : "You’ll be signed out from your account. Come back soon!",
+  "email" : "Email",
+  "emailHint" : "Enter your email",
+  "fullName" : "Full Name",
+  "fullNameHint" : "Enter your full name",
+  "aadhaarLabel" : "Enter Aadhaar Card Number",
+  "verifyYourKYC" : "Verify Your KYC",
+  "iWillDoItLater" : "I’ll do it later",
+  "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
+  "verifyAadhaar" : "Verify Aadhaar",
+  "uploadYourDocument" : "Upload Your Documents"
 
 
 }

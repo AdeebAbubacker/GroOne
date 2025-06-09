@@ -52,6 +52,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   final nameTextController = TextEditingController();
   final mobileNumberTextController = TextEditingController();
+  final emailTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
   final ownedTruckTextController = TextEditingController();
   final attachedTruckTextController = TextEditingController();
@@ -93,13 +94,13 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() {
-    mobileNumberTextController.text=widget.mobileNumber;
+  void initFunction() => frameCallback(() {
+    mobileNumberTextController.text = widget.mobileNumber;
     loadTruckTypeBloc.add(LoadTruckType());
     vpCreationBloc.add(GetTruckTypeEvent());
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
+  void disposeFunction() => frameCallback(() {
     nameTextController.dispose();
     mobileNumberTextController.dispose();
     companyNameTextController.dispose();
@@ -108,6 +109,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     pinCodeTextController.dispose();
     truckTypeController.dispose();
     truckTypeController.dispose();
+    emailTextController.dispose();
     preferredLanesDropDownValue = null;
     uploadedRcFile = null;
     multiFilesList.clear();
@@ -140,7 +142,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   // Navigate to home screen
-  void navigateToHomeScreen(BuildContext context) => addPostFrameCallback(() {
+  void navigateToHomeScreen(BuildContext context) => frameCallback(() {
     AppDialog.show(
       context,
       child: SuccessDialogView(
@@ -189,16 +191,14 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
           controller: nameTextController,
-          labelText: context.appText.name,
-          hintText: "${context.appText.enter} ${context.appText.name}",
+          labelText: context.appText.fullName,
+          hintText: context.appText.fullNameHint,
         ),
         20.height,
 
         // Phone Number
         AppTextField(
           readOnly: true,
-
-
           validator: (value)=> Validator.phone(value),
           controller: mobileNumberTextController,
           labelText: context.appText.phoneNumber,
@@ -217,6 +217,16 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               ],
             ).paddingOnly(left: 20, right: 5),
           ),
+        ),
+        20.height,
+
+        // Email
+        AppTextField(
+          validator: (value) => Validator.fieldRequired(value),
+          controller: emailTextController,
+          labelText: context.appText.email,
+          hintText: context.appText.emailHint,
+          keyboardType: TextInputType.emailAddress,
         ),
         20.height,
 

@@ -45,7 +45,7 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final String addharNumber = data["addharNumber"] ?? "";
-          return KycScreen(addharNumber: addharNumber);
+          return KycScreen(aadhaarNumber: addharNumber);
         },
       ),
 

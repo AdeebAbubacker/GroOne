@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
@@ -42,7 +43,7 @@ import 'package:image_cropper/image_cropper.dart';
 
 
 class ProfileScreen extends StatefulWidget {
-  AllProfileDetails profileData;
+  ProfileDetailsData profileData;
   ProfileScreen({super.key, required this.profileData});
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -53,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   dynamic pickImage;
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
-  final kycBloc = locator<KycBloc>();
+  final kycBloc = locator<KycCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final profileBloc = locator<ProfileBloc>();
 
@@ -69,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpHomeLocator.getUserId();
     profileImage=widget.profileData.details!.profileImageUrl??"";
     setState(() {
@@ -78,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -354,12 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (croppedFile != null) {
                           setState(() {
                             _croppedImage = File(croppedFile.path);
-
-                            kycBloc.add(
-                              UploadFileRequested(
-                                file: File(_croppedImage!.path),
-                              ),
-                            );
+                            kycBloc.uploadFile(_croppedImage!);
                           });
                         }
                       } else {
@@ -386,24 +382,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
       listener: (context, state) {
-        if (state is UploadFileSuccess) {
-          profileBloc.add(
-            ProfileImageUploadRequested(
-              userId: lpHomeLocator.userId ?? "",
-              profileImageUploadRequest: ProfileImageUploadRequest(
-                imageUrl: state.uploadFileModel.data!.url ?? "",
-              ),
-            ),
-          );
-          Future.delayed(Duration(seconds: 1), () {
-            ToastMessages.success(message: "File uploaded successfully");
-            lpHomeLocator.add(
-              ProfileDetailRequested(lpHomeLocator.userId ?? ""),
-            );
-          });
-        } else if (state is AddharOtpError) {
-          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-        }
+        // if (state is UploadFileSuccess) {
+        //   profileBloc.add(
+        //     ProfileImageUploadRequested(
+        //       userId: lpHomeLocator.userId ?? "",
+        //       profileImageUploadRequest: ProfileImageUploadRequest(
+        //         imageUrl: state.uploadFileModel.data!.url ?? "",
+        //       ),
+        //     ),
+        //   );
+        //   Future.delayed(Duration(seconds: 1), () {
+        //     ToastMessages.success(message: "File uploaded successfully");
+        //     lpHomeLocator.add(
+        //       ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+        //     );
+        //   });
+        // } else if (state is AddharOtpError) {
+        //   ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+        // }
       },
     );
   }

@@ -50,11 +50,11 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
 
   @override

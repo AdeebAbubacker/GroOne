@@ -14,7 +14,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 
 
 class LpMyAccount extends StatefulWidget {
-  final AllProfileDetails profileData;
+  final ProfileDetailsData profileData;
   const LpMyAccount({super.key, required this.profileData});
 
 
@@ -37,11 +37,11 @@ class _LpMyAccountState extends State<LpMyAccount> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
 
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +110,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
             ),
             detailWidget(
               text1: context.appText.kycStatus,
-              text2:
-                  widget.profileData.customer!.isKyc
-                      ? "Verified"
-                      : "Un-Verified",
-            ),
+              text2: widget.profileData.customer!.isKyc == 3 ? "Verified" : "Un-Verified"),
             dividerWidget(),
 
             headingText(text: context.appText.companyDetails),

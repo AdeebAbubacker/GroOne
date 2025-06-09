@@ -23,7 +23,7 @@ class KycRepository {
 
   KycRepository(this._kycService);
 
-  Future<Result<AddharOtpResponse>> kycSendOtp(AddharOtpRequest request) async {
+  Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
     try {
       return await _kycService.kycSendOtp(request);
     } catch (e) {
@@ -32,8 +32,8 @@ class KycRepository {
     }
   }
 
-  Future<Result<AddharVerifyOtpResponse>> verifyAddharOtp(
-    AddharVerifyOtpRequest request,
+  Future<Result<AadhaarVerifyOtpModel>> verifyAddharOtp(
+    AddharVerifyOtpApiRequest request,
   ) async {
     try {
       return await _kycService.kycVerifyOtp(request);
@@ -43,7 +43,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyGstResponse>> verifyGST(VerifyGstRequest request) async {
+  Future<Result<VerifyGstModel>> verifyGST(VerifyGstApiRequest request) async {
     try {
       return await _kycService.verifyGst(request);
     } catch (e) {
@@ -52,7 +52,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyTanResponse>> verifyTan(VerifyTanRequest request) async {
+  Future<Result<VerifyTanModel>> verifyTan(VerifyTanApiRequest request) async {
     try {
       return await _kycService.verifyTan(request);
     } catch (e) {
@@ -61,7 +61,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyPanResponse>> verifyPan(VerifyPanRequest request) async {
+  Future<Result<VerifyPanModel>> verifyPan(VerifyPanApiRequest request) async {
     try {
       return await _kycService.verifyPan(request);
     } catch (e) {
@@ -70,7 +70,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<SubmitKycResponse>> submitKyc(SubmitKycRequestLp request,{required String userId}) async {
+  Future<Result<SubmitKycModel>> submitKyc(SubmitKycApiRequest request,{required String userId}) async {
     try {
       return await _kycService.submitKyc(request,userID:userId );
     } catch (e) {

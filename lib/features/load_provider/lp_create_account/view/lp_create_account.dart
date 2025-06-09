@@ -17,6 +17,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
@@ -48,6 +49,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
   final nameTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
+  final emailTextController = TextEditingController();
   final phoneNumberTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
 
@@ -69,12 +71,12 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() {
+  void initFunction() => frameCallback(() {
     lpCreateBloc.add(LpCompanyTypeRequested());
     phoneNumberTextController.text = widget.mobileNumber;
   });
 
-  void disposeFunction() => addPostFrameCallback(() {
+  void disposeFunction() => frameCallback(() {
     nameTextController.dispose();
     companyNameTextController.dispose();
     phoneNumberTextController.dispose();
@@ -84,7 +86,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   });
 
   // Navigate to home screen
-  void navigateToHomeScreen(BuildContext context) => addPostFrameCallback(() {
+  void navigateToHomeScreen(BuildContext context) => frameCallback(() {
     AppDialog.show(
       context,
       child: SuccessDialogView(
@@ -139,7 +141,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   buildCreateFormWidget(context),
                   50.height,
                   buildSubmitButton(),
-                  30.height,
+                  50.height,
                   Image.asset(AppImage.png.signUpBanner),
                 ],
               ),
@@ -150,7 +152,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     );
   }
 
-  // Form
+  /// Form
   Widget buildCreateFormWidget(BuildContext context) {
     return Form(
       key: _formKey,
@@ -162,56 +164,43 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
-            labelText: context.appText.name,
+            labelText: context.appText.fullName,
+            hintText:  context.appText.fullNameHint,
+          ),
+          20.height,
+
+          // Phone Number
+          AppTextField(
+            readOnly: true,
+            validator: (value)=> Validator.phone(value),
+            controller: phoneNumberTextController,
+            labelText: context.appText.phoneNumber,
+            maxLength: 10,
+            inputFormatters: [phoneNumberInputFormatter],
+            keyboardType: TextInputType.phone,
             decoration: commonInputDecoration(
-              fillColor: AppColors.white,
-              hintText: "${context.appText.enter} ${context.appText.name}",
+              hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+              prefixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(AppImage.png.flag),
+                  10.width,
+                  Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                ],
+              ).paddingOnly(left: 20, right: 5),
             ),
           ),
           20.height,
 
 
-          // Phone Number
-          Text(context.appText.enterMobileNumber, style: AppTextStyle.textFiled),
-          6.height,
-          Row(
-            spacing: 5.w,
-            children: [
-              Container(
-                height: 52.h,
-                width: 81.w,
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.borderDisableColor),
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Image.asset(height: 18.h, width: 27.w, AppImage.png.flag),
-                    Text("+91", style: AppTextStyle.textBlackColor16w400),
-                  ],
-                ),
-              ),
-              1.width,
-              Expanded(
-                child: AppTextField(     validator: (value) => Validator.phone(value),
-                  readOnly: true,
-
-                  controller: phoneNumberTextController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [phoneNumberInputFormatter,
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),],
-                  decoration: commonInputDecoration(
-                    fillColor: AppColors.white,
-                    hintText:
-                        "${context.appText.enter} ${context.appText.phoneNumber}",
-                  ),
-                ),
-              ),
-            ],
+          // Email
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: emailTextController,
+            labelText: context.appText.email,
+            hintText: context.appText.emailHint,
+            keyboardType: TextInputType.emailAddress,
           ),
           20.height,
 
@@ -259,7 +248,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     );
   }
 
-  // Submit Button
+  /// Submit Button
   Widget buildSubmitButton() {
     return BlocConsumer<LpCreateBloc, LpCreateState>(
       bloc: lpCreateBloc,

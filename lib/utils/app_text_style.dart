@@ -164,6 +164,7 @@ class AppTextStyle {
 
   // H2
   static TextStyle h2 = GoogleFonts.ubuntu(fontWeight: FontWeight.w800, color: AppColors.primaryTextColor, fontSize: 28);
+  static TextStyle h2W600 = GoogleFonts.ubuntu(fontWeight: FontWeight.w600, color: AppColors.primaryTextColor, fontSize: 28);
   static TextStyle h2PrimaryColor = h2.copyWith(color: AppColors.primaryColor);
 
   // H3
@@ -195,6 +196,7 @@ class AppTextStyle {
 
   /// --- Body ---
   static TextStyle body1 = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: AppColors.primaryTextColor, fontSize: 18);
+  static TextStyle body1Normal = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 18);
   static TextStyle body1GreyColor = body1.copyWith(color: AppColors.greyTextColor);
   static TextStyle body1BlackColor = body1.copyWith(color: Colors.black);
   static TextStyle body1WhiteColor = body1.copyWith(color: Colors.white);
@@ -243,6 +245,7 @@ class AppTextStyle {
 
   /// Text Field & Dropdown
   static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
-  static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 13);
+  static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 14);
+  static TextStyle textFieldHintBlackColor = GoogleFonts.ubuntu(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 14);
 
 }

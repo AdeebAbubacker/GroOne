@@ -1,5 +1,5 @@
-class SubmitKycResponse {
-  SubmitKycResponse({
+class SubmitKycModel {
+  SubmitKycModel({
     required this.status,
     required this.message,
   });
@@ -7,8 +7,8 @@ class SubmitKycResponse {
   final bool status;
   final String message;
 
-  factory SubmitKycResponse.fromJson(Map<String, dynamic> json){
-    return SubmitKycResponse(
+  factory SubmitKycModel.fromJson(Map<String, dynamic> json){
+    return SubmitKycModel(
       status: json["status"] ?? false,
       message: json["message"] ?? "",
     );

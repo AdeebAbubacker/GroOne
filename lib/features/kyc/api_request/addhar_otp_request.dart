@@ -4,20 +4,20 @@
 
 import 'dart:convert';
 
-AddharOtpRequest addharOtpRequestFromJson(String str) => AddharOtpRequest.fromJson(json.decode(str));
+AddharOtpApiRequest addharOtpRequestFromJson(String str) => AddharOtpApiRequest.fromJson(json.decode(str));
 
-String addharOtpRequestToJson(AddharOtpRequest data) => json.encode(data.toJson());
+String addharOtpRequestToJson(AddharOtpApiRequest data) => json.encode(data.toJson());
 
-class AddharOtpRequest {
+class AddharOtpApiRequest {
   String aadhaar;
   bool force;
 
-  AddharOtpRequest({
+  AddharOtpApiRequest({
     required this.aadhaar,
     required this.force,
   });
 
-  factory AddharOtpRequest.fromJson(Map<String, dynamic> json) => AddharOtpRequest(
+  factory AddharOtpApiRequest.fromJson(Map<String, dynamic> json) => AddharOtpApiRequest(
     aadhaar: json["aadhaar"],
     force: json["force"],
   );

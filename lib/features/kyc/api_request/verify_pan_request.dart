@@ -1,5 +1,5 @@
-class VerifyPanRequest {
-  VerifyPanRequest({
+class VerifyPanApiRequest {
+  VerifyPanApiRequest({
     required this.pan,
     required this.force,
   });
@@ -7,8 +7,8 @@ class VerifyPanRequest {
   final String pan;
   final bool force;
 
-  factory VerifyPanRequest.fromJson(Map<String, dynamic> json){
-    return VerifyPanRequest(
+  factory VerifyPanApiRequest.fromJson(Map<String, dynamic> json){
+    return VerifyPanApiRequest(
       pan: json["pan"] ?? "",
       force: json["force"] ?? false,
     );

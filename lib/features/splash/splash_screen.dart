@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
         if (!context.mounted) return;
-        addPostFrameCallback(()=> context.push(AppRouteName.chooseLanguage));
+        frameCallback(()=> context.push(AppRouteName.chooseLanguage));
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
       if (splashViewModel.userRoleUIState?.status == Status.SUCCESS) {
         if (splashViewModel.userRoleUIState?.data != null) {
-          addPostFrameCallback(()=> navigateHomeScreen(splashViewModel.userRoleUIState!.data!, context));
+          frameCallback(()=> navigateHomeScreen(splashViewModel.userRoleUIState!.data!, context));
         }
       }
     } else {

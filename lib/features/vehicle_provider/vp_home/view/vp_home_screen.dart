@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_bottom_sheet.dart';
+import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
@@ -60,7 +60,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
 
   final searchController = TextEditingController();
-  ProfileDetailResponse? profileResponse;
+  ProfileDetailModel? profileResponse;
   VpMyLoadResponse? vpMyLoadResponse;
 
   @override
@@ -78,14 +78,14 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
 
   void initializeVideoPlayer(BuildContext context){
@@ -123,7 +123,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         kycWidget(
           controller: _controller,
           onTap: () {
-            commonBottomSheetWithBGBlur(context: context, screen: KycBottomSheet()).then((value) {
+            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
               lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
               );
             });
@@ -153,7 +153,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               onTap: () {
                 Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true),
                 ).then((v) {
-                  addPostFrameCallback(() => lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+                  frameCallback(() => lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
                 });
               },
               child: commonCacheNetworkImage(
@@ -196,7 +196,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       builder: (context) {
                         if ( profileResponse != null ) {
                           if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
-                            if (profileResponse!.data!.customer!.isKyc) {
+                            if (profileResponse!.data!.customer!.isKyc == 3) {
                               return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
                             } else {
                               return buildKYCStatusWidget();
@@ -346,7 +346,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                         return MyLoadsListBody(
                           data: data,
                           onClickAssignDriver: () {
-                            final isKycDone = profileResponse?.data?.customer?.isKyc ?? false;
+                            final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
                             if (isKycDone) {
                               Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!), isForward: true));
                             } else {
@@ -357,7 +357,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                                     context.pop();
                                     commonBottomSheetWithBGBlur(
                                       context: context,
-                                      screen: KycBottomSheet(),
+                                      screen: EnterAadhaarNumberBottomSheet(),
                                     ).then((_) {
                                       lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
                                     });

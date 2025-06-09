@@ -23,7 +23,7 @@ import 'package:gro_one_app/utils/validator.dart';
 
 
 class LpEditMyAccount extends StatefulWidget {
-  final AllProfileDetails profileData;
+  final ProfileDetailsData profileData;
   const LpEditMyAccount({super.key, required this.profileData});
 
   @override
@@ -53,7 +53,7 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
     super.dispose();
   }
 
-  void initFunction() => addPostFrameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpProfile.getUserId();
     customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
     customerName.text=widget.profileData.customer!.customerName;
@@ -61,7 +61,7 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
     gstIn.text=widget.profileData.details!.gstin??"--";
   });
 
-  void disposeFunction() => addPostFrameCallback(() {});
+  void disposeFunction() => frameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
