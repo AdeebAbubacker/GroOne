@@ -229,7 +229,7 @@ class KavachOrderListStatusHistory {
       statusId: json['status_id'],
       remarks: json['remarks'] ?? '',
       createdAt: DateTime.parse(json['created_at']),
-      statusLabel: json['orderStatus']['status_label'],
+        statusLabel: json['orderStatus']?['status_label'] ?? '',
     );
   }
 }
@@ -268,7 +268,7 @@ class KavachOrderListAddress {
       state: json['state'],
       postalCode: json['postal_code'],
       country: json['country'],
-      gstId: json['gst_id'],
+      gstId: json['gst_id']??'',
       contactPerson: json['contact_person'],
       contactNumber: json['contact_number'],
     );

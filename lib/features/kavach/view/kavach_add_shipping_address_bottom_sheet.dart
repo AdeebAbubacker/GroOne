@@ -137,6 +137,7 @@ class _KavachAddAddressBottomSheetState
                     AppTextField(
                       controller: addressLine1Controller,
                       hintText: '${context.appText.addressLine} 1',
+                      maxLength: 200,
                       validator:
                           (value) =>
                               value == null || value.trim().isEmpty
@@ -147,6 +148,7 @@ class _KavachAddAddressBottomSheetState
                     AppTextField(
                       controller: addressLine2Controller,
                       hintText: '${context.appText.addressLine} 2',
+                      maxLength: 200,
                       validator:
                           (value) =>
                               value == null || value.trim().isEmpty
@@ -204,6 +206,18 @@ class _KavachAddAddressBottomSheetState
                       controller: gstNoController,
                       hintText:
                           '${context.appText.gstKavach} (${context.appText.optional})',
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return null;
+                        }
+
+                        final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+                        if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
+                          return 'Enter valid GSTIN';
+                        }
+
+                        return null;
+                      },
                     ),
                     15.height,
                     ElevatedButton.icon(
@@ -238,14 +252,16 @@ class _KavachAddAddressBottomSheetState
                 onPressed: () {
                   if (!formKey.currentState!.validate()) return;
                   final request = KavachAddAddressApiRequest(
-                    customerName: customerNameController.text,
-                    mobileNumber: mobileNoController.text,
-                    addr1: addressLine1Controller.text,
-                    addr2: addressLine2Controller.text,
-                    city: cityController.text,
-                    state: stateController.text,
-                    pincode: pinCodeController.text,
-                    addrType: widget.addrType, // Use the passed addrType
+                    customerName: customerNameController.text.trim(),
+                    mobileNumber: mobileNoController.text.trim(),
+                    addr1: addressLine1Controller.text.trim(),
+                    addr2: addressLine2Controller.text.trim(),
+                    city: cityController.text.trim(),
+                    state: stateController.text.trim(),
+                    pincode: pinCodeController.text.trim(),
+                    addrType: widget.addrType,
+                    country: countryController.text.trim(),
+                    gstIn: gstNoController.text.trim()
                   );
                   context.read<KavachCheckoutAddAddressBloc>().add(
                     AddKavachAddress(request),

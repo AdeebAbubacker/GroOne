@@ -305,8 +305,8 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 '${address.country} - ${address.postalCode}',
                 style: AppTextStyle.textGreyColor14w300,
               ),
-              address.gstId.isNotEmpty?Text(
-                address.gstId,
+              address.gstId!=null && address.gstId!.isNotEmpty?Text(
+                address.gstId!,
                 style: AppTextStyle.textGreyColor14w300,
               ):SizedBox.shrink(),
             ],
