@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
@@ -81,7 +82,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             Navigator.of(context).popUntil((route) {
               if (route.settings.name == 'KavachOrderListScreen') {
                 if (route.navigator != null && route.navigator!.context.mounted) {
-                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(isRefresh: true));
+                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
                 }
                 return true; // Pop until this route
               }
@@ -212,8 +213,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 "city": widget.billingAddress.city,
                 "state": widget.billingAddress.state,
                 "postalCode": widget.billingAddress.pincode,
-                "country": "India",
-                "gstId": "",
+                "country": widget.billingAddress.country,
+                "gstId": widget.billingAddress.gstin??"",
                 "contactPerson": widget.billingAddress.customerName,
                 "contactNumber": widget.billingAddress.mobileNumber
               },
@@ -223,8 +224,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 "city": widget.shippingAddress.city,
                 "state": widget.shippingAddress.state,
                 "postalCode": widget.shippingAddress.pincode,
-                "country": "India",
-                "gstId":  "",
+                "country": widget.shippingAddress.country,
+                "gstId":  widget.shippingAddress.gstin,
                 "contactPerson": widget.shippingAddress.customerName,
                 "contactNumber": widget.shippingAddress.mobileNumber
               },
@@ -258,7 +259,11 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         Text("Name: ${address.customerName}",style: AppTextStyle.textDarkGreyColor14w500,),
         Text("Mobile: ${address.mobileNumber}",style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.addr1}, ${address.addr1}",style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.city}, ${address.state} - ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Visibility(
+            visible: address.gstin!=null && address.gstin!.isNotEmpty,
+            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import '../../../utils/custom_log.dart';
@@ -170,17 +171,25 @@ class KavachService {
     int page = 1,
     int limit = 10,
     int? status,
+    bool forceRefresh = false
   }) async {
     try {
-      // final response = await _apiService.get(
-      //   'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit',
-      //   forceRefresh: true,
-      // );
       final statusParam = status != null ? "&status=$status" : "";
       final response = await _apiService.get(
         'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit$statusParam',
-        forceRefresh: true,
+        forceRefresh: forceRefresh,
       );
+
+
+      // final response = await _apiService.get(
+      //   '${ApiUrls.kavachOrdersList}$statusParam',
+      //   queryParams: {
+      //     "customerId":customerId,
+      //     "page":page,
+      //     "limit":limit
+      //   },
+      //   forceRefresh: forceRefresh,
+      // );
 
       if (response is Success) {
         final data = response.value;

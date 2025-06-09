@@ -6,6 +6,8 @@ class KavachAddAddressApiRequest {
   final String city;
   final String state;
   final String pincode;
+  String? gstIn;
+  final String country;
   final int addrType;
   int? customerId;
 
@@ -18,6 +20,8 @@ class KavachAddAddressApiRequest {
     required this.state,
     required this.pincode,
     required this.addrType,
+    required this.country,
+    this.gstIn,
     this.customerId,
   });
 
@@ -31,6 +35,8 @@ class KavachAddAddressApiRequest {
       'state': state,
       'pincode': pincode,
       'addrType': addrType,
+      'country': country,
+      'gstin': gstIn,
       'customerId': customerId,
     };
   }

@@ -40,6 +40,8 @@ class ApiUrls {
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  static String get _fleet => "/fleet";
+
 
   // Base URL
   static String get _baseUrl => _fetchUrl;
@@ -100,5 +102,6 @@ class ApiUrls {
   static final String  updateLoad = "$_loadBaseUrl/";
 
   //Kavach
-  static String  kavachProductList = "$baseUrl/product/list";
+  // https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list
+  static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
 }

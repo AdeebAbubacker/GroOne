@@ -100,5 +100,27 @@ class LocationService {
     }
   }
 
+  //for kavach
+  Future<Result<Placemark>> getPlacemarkFromCurrentLocation() async {
+    try {
+      final positionResult = await getCurrentLatLong();
+      if (positionResult is Success<geo.Position>) {
+        final position = positionResult.value;
+
+        List<Placemark> placeMarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+        if (placeMarks.isNotEmpty) {
+          return Success(placeMarks.first);
+        } else {
+          return Error(ErrorWithMessage(message: "No placemark found."));
+        }
+      } else {
+        return Error(ErrorWithMessage(message: "Failed to get current location."));
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch placemark", e);
+      return Error(ErrorWithMessage(message: "Failed to fetch placemark."));
+    }
+  }
+
 
 }

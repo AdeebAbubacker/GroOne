@@ -7,7 +7,6 @@ import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -60,10 +59,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     super.initState();
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<KavachProduct>.from(widget.products);
-    _availableStocks = {}; // empty initially
+    _availableStocks = {};
 
     for (var product in _products) {
-      // Fetch stock for each product
       locator<KavachRepository>().fetchAvailableStock(
         productId: product.id,
       ).then((result) {
@@ -74,7 +72,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         }
       });
     }
-
     kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
     kavachCheckoutShippingAddressBloc.add(FetchKavachAddresses());
     kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
@@ -256,9 +253,12 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                             ),
                           ],
                         ),
-                        Text(address.customerName),
-                        Text('+91 ${address.mobileNumber}'),
-                        Text(address.fullAddress),
+                        Text(address.customerName,style: AppTextStyle.blackColor14w400,),
+                        Text('+91 ${address.mobileNumber}',style: AppTextStyle.blackColor14w400,),
+                        Text(address.fullAddress,style: AppTextStyle.blackColor14w400,),
+                        Visibility(
+                            visible: address.gstin!=null && address.gstin!.isNotEmpty,
+                            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.blackColor14w400,)),
                       ],
                     );
                   }
@@ -333,15 +333,21 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               }
                             } else {
                               billingBloc.add(ClearKavachBillingAddress());
+                              // KavachCheckoutBillingAddressSelected(selectedAddress: firstAddress, addresses: result.value)
+                              // final billingState = context.read<KavachCheckoutBillingAddressBloc>().state;
+                              // billingBloc.add(SelectKavachBillingAddress(billingState))
                               context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
                             }
                           },
                           value: billingSameAsShipping,
                           title: context.appText.sameAsShippingAddress,
                         ),
-                        Text(address.customerName),
-                        Text('+91 ${address.mobileNumber}'),
-                        Text(address.fullAddress),
+                        Text(address.customerName,style: AppTextStyle.blackColor14w400,),
+                        Text('+91 ${address.mobileNumber}',style: AppTextStyle.blackColor14w400,),
+                        Text(address.fullAddress,style: AppTextStyle.blackColor14w400,),
+                        Visibility(
+                            visible: address.gstin!=null && address.gstin!.isNotEmpty,
+                            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.blackColor14w400,)),
                       ],
                     );
                   }
