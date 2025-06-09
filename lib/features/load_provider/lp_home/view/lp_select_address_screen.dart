@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+
+import '../../../../utils/app_json.dart';
 
 class LPSelectAddressScreen extends StatefulWidget {
   final String title;
@@ -30,28 +32,21 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   final addressTextController = TextEditingController();
   final searchTextController = TextEditingController();
   List suggestions = [];
-  bool _hasMovedMap = false;
   String latLngData = '';
   Set<Marker> _markers = {};
 
   final String _apiKey = "AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY";
 
+  Future<void> _setMapStyle(GoogleMapController controller) async {
+    String style = await rootBundle.loadString(AppJSON.mapStyle);
+    controller.setMapStyle(style);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.title == "Pickup Point") {
-        await _handleCurrentLocation();
-      } else {
-        final pos = await MapHelper.getCurrentLocation();
-        if (pos != null) {
-          setState(() {
-            _centerLatLng = pos;
-            latLngData = "${pos.latitude},${pos.longitude}";
-          });
-          _setMarker(pos);
-        }
-      }
+      await _handleCurrentLocation();
     });
   }
 
@@ -62,12 +57,6 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         _centerLatLng = pos;
         latLngData = "${pos.latitude},${pos.longitude}";
       });
-
-      if (widget.title == "Pickup Point") {
-        final address = await MapHelper.getAddressFromLatLng(pos);
-        setState(() => _locationField = address);
-      }
-
       _setMarker(pos);
       if (_mapController != null) {
         await MapHelper.animateTo(_mapController!, pos);
@@ -89,9 +78,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     final address = await MapHelper.getAddressFromLatLng(latLng);
     setState(() {
       _locationField = address;
-      if (widget.title != "Pickup Point" && _hasMovedMap) {
-        searchTextController.text = address;
-      }
+      searchTextController.text = address;
     });
     _setMarker(latLng);
   }
@@ -126,13 +113,11 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         _locationField = formattedAddress;
         searchTextController.text = description;
         suggestions.clear();
-        _hasMovedMap = true;
       });
-
-      _setMarker(latLng);
       if (_mapController != null) {
         await MapHelper.animateTo(_mapController!, latLng);
       }
+      _setMarker(latLng);
     }
   }
 
@@ -141,14 +126,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       _centerLatLng = position.target;
       latLngData = "${position.target.latitude},${position.target.longitude}";
     });
-
-    if (widget.title == "Pickup Point") {
-      _updateAddress(position.target);
-    } else if (_hasMovedMap) {
-      _updateAddress(position.target);
-    } else {
-      _hasMovedMap = true;
-    }
+    _updateAddress(position.target);
   }
 
   @override
@@ -168,44 +146,40 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         target: _centerLatLng!,
                         zoom: 15,
                       ),
-                      onMapCreated: (controller) => _mapController = controller,
+                      onMapCreated:(controller) async {
+                        _mapController = controller;
+                        await _setMapStyle(controller);
+                      },
                       onCameraMove: _onCameraMove,
                       markers: _markers,
                       zoomControlsEnabled: false,
                     ),
           ),
           Positioned(
-            right: 12,
-            top: 250,
+            top: 15,
+            right: 15,
             child: Column(
               children: [
                 _floatingButton(
                   Icons.add,
                   () => MapHelper.zoomIn(_mapController!),
                 ),
-                const SizedBox(height: 8),
+                8.height,
                 _floatingButton(
                   Icons.remove,
                   () => MapHelper.zoomOut(_mapController!),
                 ),
-                const SizedBox(height: 8),
+                8.height,
                 _floatingButton(Icons.my_location, _handleCurrentLocation),
               ],
             ),
           ),
-
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
-              height: 320.h,
-              padding: EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-              ),
+              padding: EdgeInsets.all(18),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -214,56 +188,50 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Location", style: AppTextStyle.textBlackColor16w400),
-                    const SizedBox(height: 6),
-                    if (widget.title == "Pickup Point")
-                      _readonlyBox(_locationField)
-                    else ...[
-                      AppTextField(
-                        controller: searchTextController,
-                        onChanged: (value) {
-                          if (value.length > 2) {
-                            _fetchSuggestions(value);
-                          } else {
-                            setState(() => suggestions = []);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 6),
-                      if (suggestions.isNotEmpty)
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxHeight: 150.h),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ListView.builder(
-                              itemCount: suggestions.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                final item = suggestions[index];
-                                return ListTile(
-                                  title: Text(item['description']),
-                                  onTap:
-                                      () => _onSuggestionTap(
-                                        item['place_id'],
-                                        item['description'],
-                                      ),
-                                );
-                              },
-                            ),
+                    Text("Location", style: AppTextStyle.textBlackColor14w400),
+                    6.height,
+                    AppTextField(
+                      controller: searchTextController,
+                      hintText: "Search location...",
+                      onChanged: (value) {
+                        if (value.length > 2) {
+                          _fetchSuggestions(value);
+                        } else {
+                          setState(() => suggestions = []);
+                        }
+                      },
+                    ),
+                    if (suggestions.isNotEmpty)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 120.h),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ListView.builder(
+                            itemCount: suggestions.length,
+                            physics: const ClampingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final item = suggestions[index];
+                              return ListTile(
+                                title: Text(item['description']),
+                                onTap: () => _onSuggestionTap(
+                                  item['place_id'],
+                                  item['description'],
+                                ),
+                              );
+                            },
                           ),
                         ),
-                    ],
-                    const SizedBox(height: 12),
+                      ),
+                    12.height,
                     AppTextField(
                       controller: addressTextController,
                       labelText: "Address",
                       maxLines: 3,
                     ),
-                    const SizedBox(height: 10),
+                    30.height,
                     AppButton(
                       title: "Continue",
                       onPressed: () {
@@ -272,41 +240,56 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         final isValid =
                             locationAddress.isNotEmpty &&
                             locationAddress != 'No address found';
+                        // if (widget.title == "Pickup Point") {
+                        //   if (manualAddress.isNotEmpty) {
+                        //     context.pop({
+                        //       "address": manualAddress,
+                        //       "latLng": latLngData,
+                        //     });
+                        //   } else if (isValid) {
+                        //     context.pop({
+                        //       "address": locationAddress,
+                        //       "latLng": latLngData,
+                        //     });
+                        //   } else {
+                        //     _showError(
+                        //       "Failed to fetch current location address.",
+                        //     );
+                        //   }
+                        // } else {
+                        //   if (manualAddress.isEmpty && !isValid) {
+                        //     _showError(
+                        //       "Please provide or select a location address.",
+                        //     );
+                        //   } else {
+                        //     final resultAddress =
+                        //         manualAddress.isNotEmpty
+                        //             ? manualAddress
+                        //             : locationAddress;
+                        //     context.pop({
+                        //       "address": resultAddress,
+                        //       "latLng": latLngData,
+                        //     });
+                        //   }
+                        // }
 
-                        if (widget.title == "Pickup Point") {
-                          if (manualAddress.isNotEmpty) {
-                            context.pop({
-                              "address": manualAddress,
-                              "latLng": latLngData,
-                            });
-                          } else if (isValid) {
-                            context.pop({
-                              "address": locationAddress,
-                              "latLng": latLngData,
-                            });
-                          } else {
-                            _showError(
-                              "Failed to fetch current location address.",
-                            );
-                          }
+                        if (manualAddress.isEmpty && !isValid) {
+                          _showError(
+                            "Please provide or select a location address.",
+                          );
                         } else {
-                          if (manualAddress.isEmpty && !isValid) {
-                            _showError(
-                              "Please provide or select a location address.",
-                            );
-                          } else {
-                            final resultAddress =
-                                manualAddress.isNotEmpty
-                                    ? manualAddress
-                                    : locationAddress;
-                            context.pop({
-                              "address": resultAddress,
-                              "latLng": latLngData,
-                            });
-                          }
+                          final resultAddress =
+                          manualAddress.isNotEmpty
+                              ? manualAddress
+                              : locationAddress;
+                          context.pop({
+                            "address": resultAddress,
+                            "latLng": latLngData,
+                          });
                         }
                       },
                     ),
+                    15.height
                   ],
                 ),
               ),
@@ -325,19 +308,6 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
       ),
       child: IconButton(icon: Icon(icon), onPressed: onTap),
-    );
-  }
-
-  Widget _readonlyBox(String text) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        border: Border.all(color: AppColors.disableColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(text, style: AppTextStyle.textBlackColor14w400),
     );
   }
 
