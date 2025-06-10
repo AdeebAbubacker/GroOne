@@ -7,24 +7,22 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
-
 class LpMyAccount extends StatefulWidget {
   final ProfileDetailsData profileData;
-  const LpMyAccount({super.key, required this.profileData});
 
+  const LpMyAccount({super.key, required this.profileData});
 
   @override
   State<LpMyAccount> createState() => _LpMyAccountState();
 }
 
 class _LpMyAccountState extends State<LpMyAccount> {
-
-
   @override
   void initState() {
     initFunction();
@@ -37,9 +35,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() async {
-
-  });
+  void initFunction() => frameCallback(() async {});
 
   void disposeFunction() => frameCallback(() {});
 
@@ -53,34 +49,32 @@ class _LpMyAccountState extends State<LpMyAccount> {
           style: AppTextStyle.textBlackColor18w500,
         ),
         toolbarHeight: 50.h,
-        actions: [
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(
-                  LpEditMyAccount(profileData:widget.profileData),
-                  isForward: true,
-                ),
-              );
-            },
-            child: Text(
-              context.appText.edit,
-              style: AppTextStyle.primaryColor18w500UnderLine,
-            ),
-          ).paddingOnly(right: 10),
-        ],
+        // actions: [
+        //   InkWell(
+        //     onTap: () {
+        //       Navigator.push(
+        //         context,
+        //         commonRoute(
+        //           LpEditMyAccount(profileData:widget.profileData),
+        //           isForward: true,
+        //         ),
+        //       );
+        //     },
+        //     child: Text(
+        //       context.appText.edit,
+        //       style: AppTextStyle.primaryColor18w500UnderLine,
+        //     ),
+        //   ).paddingOnly(right: 10),
+        // ],
       ),
 
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 18.h),
+      body: SingleChildScrollView(
+        padding: EdgeInsetsGeometry.all(commonSafeAreaPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20.h,
           children: [
             headingText(text: context.appText.personalDetails),
-
-            10.width,
             detailWidget(
               text1: context.appText.name,
               text2: widget.profileData.customer!.customerName,
@@ -89,11 +83,12 @@ class _LpMyAccountState extends State<LpMyAccount> {
               text1: context.appText.mobileNumber,
               text2: widget.profileData.customer!.mobileNumber,
             ),
+            detailWidget(
+              text1: context.appText.email,
+              text2: widget.profileData.customer?.emailId ?? '--',
+            ),
             dividerWidget(),
-
             headingText(text: context.appText.accountDetails),
-            10.width,
-
             detailWidget(
               text1: context.appText.blueMembershipId,
               text2: widget.profileData.customer!.blueId ?? "--",
@@ -110,12 +105,31 @@ class _LpMyAccountState extends State<LpMyAccount> {
             ),
             detailWidget(
               text1: context.appText.kycStatus,
-              text2: widget.profileData.customer!.isKyc == 3 ? "Verified" : "Un-Verified"),
+              text2:
+                  widget.profileData.customer!.isKyc == 3
+                      ? "Verified"
+                      : "Un-Verified",
+            ),
             dividerWidget(),
-
+            headingText(text: 'Bank Details'),
+            detailWidget(
+              text1: 'Account no.',
+              text2: widget.profileData.details!.bankAccount??'--',
+            ),
+            detailWidget(
+              text1: 'Bank Name',
+              text2: widget.profileData.details!.bankName??'--',
+            ),
+            detailWidget(
+              text1: 'Branch Name',
+              text2: widget.profileData.details!.branchName??'--',
+            ),
+            detailWidget(
+              text1: 'IFSC code',
+              text2: widget.profileData.details!.ifscCode??'--',
+            ),
+            dividerWidget(),
             headingText(text: context.appText.companyDetails),
-            10.width,
-
             detailWidget(
               text1: context.appText.companyName,
               text2: widget.profileData.details!.companyName,
@@ -124,6 +138,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
               text1: context.appText.gst,
               text2: widget.profileData.details!.gstin ?? "--",
             ),
+            20.height,
           ],
         ),
       ),

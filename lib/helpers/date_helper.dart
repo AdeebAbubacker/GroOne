@@ -23,7 +23,7 @@ class DateTimeHelper {
 
   /// Get Format Date
   static String getFormattedDate(DateTime date) {
-    var formatter = DateFormat("dd/MM/yyyy");
+    var formatter = DateFormat("dd-MM-yyyy");
     return formatter.format(date);
   }
 

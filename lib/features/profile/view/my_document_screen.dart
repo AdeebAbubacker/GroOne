@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+
+import '../../../utils/app_image.dart';
 
 class MyDocumentScreen extends StatelessWidget {
   const MyDocumentScreen({super.key});
@@ -38,7 +41,7 @@ class MyDocumentScreen extends StatelessWidget {
   }
   documentInfoWidget(){
     return  ListView.builder(
-      itemCount: 14,shrinkWrap: true,physics: BouncingScrollPhysics(),
+      itemCount: 3, shrinkWrap: true,physics: BouncingScrollPhysics(),
       itemBuilder: (context, index) {
       return Container(
           margin: EdgeInsets.only(bottom: 10),
@@ -48,12 +51,12 @@ class MyDocumentScreen extends StatelessWidget {
             color: AppColors.white,
           ),
           child:ListTile(
-            leading: Icon(Icons.picture_as_pdf,color: AppColors.textRed,size: 50,),
+            leading:  SvgPicture.asset(AppImage.svg.myDocumentsIcon2, height: 40.h, width: 40.w),
             title:   Text(
               "GSTIN",
-              style: AppTextStyle.textBlackDetailColor15w500,
+              style: AppTextStyle.h5,
             ),
-            subtitle: Text("Uploaded on 22 Apr 2025, 3:45 PM"),
+            subtitle: Text("Uploaded on 22 Apr 2025, 3:45 PM",style: AppTextStyle.textGreyDetailColor12w400,),
           ));
     },);
   }

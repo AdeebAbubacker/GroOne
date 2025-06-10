@@ -67,7 +67,7 @@ class _LpTransactionState extends State<LpTransaction> {
             ),
             AppTextField(
               decoration: commonInputDecoration(
-                suffixIcon: Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
                 hintText: "Search",
                 fillColor: AppColors.white,
               ),
@@ -92,7 +92,6 @@ class _LpTransactionState extends State<LpTransaction> {
         itemBuilder: (context, index) {
           return ListTile(
             tileColor: AppColors.white,
-
             leading: Image.asset(
               !index.isEven
                   ? AppImage.png.pendingTransaction

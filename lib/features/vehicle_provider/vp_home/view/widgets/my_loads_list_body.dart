@@ -7,6 +7,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -34,89 +35,99 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
       decoration: commonContainerDecoration(borderColor: AppColors.borderColor, borderWidth: 1),
       child: Column(
         children: [
-
-          ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Column(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(AppImage.png.truckMyLoad,width: 50.w,).paddingSymmetric(vertical: 10),
+              10.width,
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  Row(
-                    children: [
-                      Text(widget.data.pickUpAddr, style: AppTextStyle.h4w500, maxLines: 1).expand(),
-                      Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 5),
-                      Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.h4w500.copyWith(overflow: TextOverflow.ellipsis)).expand(),
-                    ],
-                  ),
-
-                  Text(widget.data.customerDetail?.companyName ?? "", style: AppTextStyle.body3GreyColor),
-                 // Text(widget.data. ?? "", style: AppTextStyle.body4GreyColor),
+                  Text('GD 34567', style: AppTextStyle.h5),
+                  Text('TN 04 Y 2344', style: AppTextStyle.textDarkGreyColor14w500),
+                  Text(formatDateTimeKavach(widget.data.dueDate!.toString()), style: AppTextStyle.primaryColor12w400),
                 ],
-              ),
-
-              leading: Container(
-                decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor, borderRadius: BorderRadius.circular(100)),
-                child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
-              ),
-
-              trailing: AppIconButton(onPressed: () async => await callRedirect(widget.data.customer!.mobileNumber), icon: SvgPicture.asset(AppIcons.svg.call))
+              ).expand(),
+              5.width,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                 Row(
+                   children: [
+                     Text(widget.data.pickUpAddr, style: AppTextStyle.blackColor15w500, maxLines: 1).expand(),
+                     Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 2),
+                     Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.blackColor15w500).expand(),
+                   ],
+                 ),
+                  Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                ],
+              ).expand()
+            ],
           ),
-
 
           commonDivider(),
-
+          //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  SvgPicture.asset(AppIcons.svg.deliveryTruckSpeed),
-                  10.width,
-                  Text(widget.data.truckType!.subType, style: AppTextStyle.body),
-                ],
-              ),
-              statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+              detailWidget(text: widget.data.truckType!.type, iconSvg: AppIcons.svg.deliveryTruckSpeed),
+              detailWidget(text: widget.data.truckType!.subType, iconSvg: AppIcons.svg.deliveryTruckSpeed)
             ],
           ),
           10.height,
-
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  SvgPicture.asset(AppIcons.svg.package),
-                  10.width,
-                  Text(widget.data.commodity!.name, style: AppTextStyle.body),
-                ],
-              ),
-              Text("$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}", style: AppTextStyle.h4),
+              detailWidget(text: widget.data.commodity!.name, iconSvg: AppIcons.svg.package),
+              detailWidget(text: "${widget.data.consignmentWeight} Tonn", iconSvg: AppIcons.svg.weight)
             ],
           ),
+          15.height,
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: AppColors.primaryLightColor),
+            child: Row(
+              children: [
+                Text("Accepted Price", style: AppTextStyle.textBlackColor18w400,textAlign: TextAlign.center,).expand(),
+                Text("$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}", style: AppTextStyle.h4PrimaryColor,textAlign: TextAlign.center,).expand(),
+              ],
+            ),
+          ),
           10.height,
-
-
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SvgPicture.asset(AppIcons.svg.kgWeight, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+              IconButton(
+                onPressed: () async => await callRedirect(widget.data.customer!.mobileNumber),
+                icon: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsetsGeometry.all(5),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: AppColors.primaryColor,width: 1.5)),
+                  child: SvgPicture.asset(AppIcons.svg.support , width: 30,colorFilter: AppColors.svg(AppColors.primaryColor),),
+                ),
+              ),
               10.width,
-              Text("${widget.data.consignmentWeight} Tonn", style: AppTextStyle.body),
+              AppButton(
+                buttonHeight: 40,
+                onPressed: widget.onClickAssignDriver ?? (){},
+                title: widget.data.assignStatus == 0 ? "Assign Driver": "Start Trip",
+                style: AppButtonStyle.primary,
+              ).expand(),
             ],
-          ),
-
-
-          20.height,
-          AppButton(
-            buttonHeight: 40,
-            onPressed: widget.onClickAssignDriver ?? (){},
-            title: widget.data.assignStatus == 0 ? "Assign Driver": "Start Trip",
-            style: AppButtonStyle.outline,
           )
 
         ],
       ),
     );
   }
+}
+
+Widget detailWidget({required String text,required String iconSvg,}){
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+      SvgPicture.asset(iconSvg, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+      10.width,
+      Text(text, style: AppTextStyle.body),
+    ],
+  ).expand();
 }

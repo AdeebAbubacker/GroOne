@@ -60,6 +60,7 @@ class PngImages {
   final String kavach = "${_pngImageBasePath}kavach.png";
   final String splash = "${_pngImageBasePath}splash_video.mp4";
 
+  final String truckMyLoad = "${_pngImageBasePath}truck_my_loads.png";
 
   // Base
   final String appLogoPng = "${_pngImageBasePath}appLogo.png";
@@ -88,7 +89,9 @@ class SvgImages {
   final String noSearchFound = "${_svgImageBasePath}searchNotFound.svg";
   final String groBanner = "${_svgImageBasePath}gro_banner.svg";
   final String master = "${_svgImageBasePath}master.svg";
+  final String routes = "${_svgImageBasePath}routes.svg";
   final String myDocuments = "${_svgImageBasePath}my_documents.svg";
+  final String myDocumentsIcon2 = "${_svgImageBasePath}my_doc_icon.svg";
   final String settings = "${_svgImageBasePath}settings.svg";
   final String support = "${_svgImageBasePath}support.svg";
   final String transaction = "${_svgImageBasePath}transaction.svg";

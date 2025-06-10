@@ -209,9 +209,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
                   buildValueAddedService(context),
                   20.height,
-                  _buildMyLoadsWidget(context),
-                  20.height,
                   _buildRecentAddedLoadWidget(context),
+                  20.height,
+                  _buildMyLoadsWidget(context),
                 ],
               ).withScroll(),
         ),
@@ -309,10 +309,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     // if (state.vpMyLoadResponse.data.length > 2)
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
+                        // Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
                       },
                       style: AppButtonStyle.primaryTextButton,
-                      child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                      child: Text("View All", style: AppTextStyle.h5WhiteColor),
                     )
                   ],
                 ),
@@ -388,6 +388,113 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     );
   }
 
+  // Widget _buildMyLoadsWidget(BuildContext context) {
+  //   return BlocConsumer(
+  //     listener: (context, state) {
+  //       if (state is VpMyLoadListSuccess) {
+  //         vpMyLoadResponse = state.vpMyLoadResponse;
+  //       }
+  //     },
+  //     bloc: vpHomeScreenBloc,
+  //     builder: (context, state) {
+  //       if (state is VpMyLoadListSuccess) {
+  //         return Container(
+  //           decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               10.height,
+  //
+  //               // Title
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
+  //
+  //                   // See More
+  //                   //if (state is VpMyLoadListSuccess)
+  //                   // if (state.vpMyLoadResponse.data.length > 2)
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
+  //                     },
+  //                     style: AppButtonStyle.primaryTextButton,
+  //                     child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+  //                   )
+  //                 ],
+  //               ),
+  //               10.height,
+  //
+  //               // List
+  //               Builder(
+  //                 builder: (context) {
+  //                   if (vpMyLoadResponse == null) {
+  //                     return const Center(child: CircularProgressIndicator());
+  //                   }
+  //
+  //                   if (vpMyLoadResponse!.data.isEmpty) {
+  //                     return Center(
+  //                       child: Image.asset(
+  //                         AppImage.png.noShipment,
+  //                         width: 201.w,
+  //                         height: 134.h,
+  //                       ),
+  //                     );
+  //                   }
+  //
+  //                   return ListView.separated(
+  //                     itemCount: vpMyLoadResponse!.data.length > 2 ? 2 : vpMyLoadResponse!.data.length,
+  //                     shrinkWrap: true,
+  //                     physics: const NeverScrollableScrollPhysics(),
+  //                     separatorBuilder: (context, index) => 20.height,
+  //                     itemBuilder: (context, index) {
+  //                       final data = vpMyLoadResponse!.data[index];
+  //
+  //                       return MyLoadsListBody(
+  //                         data: data,
+  //                         onClickAssignDriver: () {
+  //                           final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
+  //                           if (isKycDone) {
+  //                             Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!), isForward: true));
+  //                           } else {
+  //                             commonBottomSheetWithBGBlur(
+  //                               context: context,
+  //                               screen: KycPendingDialogue(
+  //                                 onPressed: () {
+  //                                   context.pop();
+  //                                   commonBottomSheetWithBGBlur(
+  //                                     context: context,
+  //                                     screen: EnterAadhaarNumberBottomSheet(),
+  //                                   ).then((_) {
+  //                                     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
+  //                                   });
+  //                                 },
+  //                               ),
+  //                             );
+  //                           }
+  //                         },
+  //                       );
+  //                     },
+  //                   );
+  //                 },
+  //               ),
+  //               20.height,
+  //             ],
+  //           ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+  //         );
+  //       }
+  //       if (state is VpMyLoadListError) {
+  //          return genericErrorWidget(error: state.errorType);
+  //       }
+  //       if (state is VpMyLoadListLoading) {
+  //          return CircularProgressIndicator().paddingSymmetric(vertical: 100).center();
+  //       } else {
+  //         return genericErrorWidget(error: GenericError());
+  //       }
+  //     },
+  //   );
+  // }
+
   /// Recent Loads
   Widget _buildRecentAddedLoadWidget(BuildContext context) {
     return Container(
@@ -409,7 +516,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                   Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
                 },
                 style: AppButtonStyle.primaryTextButton,
-                child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                child: Text(context.appText.seeMore, style: AppTextStyle.h5WhiteColor),
               ),
 
             ],
