@@ -20,6 +20,29 @@ class OurValueAddedServicesWidget extends StatefulWidget {
 }
 
 class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidget> {
+
+  final ScrollController _scrollController = ScrollController();
+  double _scrollProgress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final currentScroll = _scrollController.position.pixels;
+      setState(() {
+        _scrollProgress =
+        maxScroll == 0 ? 0 : (currentScroll / maxScroll).clamp(0.0, 1.0);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,16 +63,16 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),
           20.height,
-      
-          Row(
+
+          Column(
             children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  spacing: 15,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              SizedBox(
+                height: 101,
+                child: ListView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
                   children: [
-                    0.width,
+                    15.width,
 
                     _buildServicesWidget(
                       title: context.appText.buyFastTag,
@@ -58,6 +81,8 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         context.push(AppRouteName.buyFastag);
                       },
                     ),
+                    15.width,
+
 
                     _buildServicesWidget(
                       title: context.appText.enDan,
@@ -66,6 +91,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         context.push(AppRouteName.enDhanCard);
                       },
                     ),
+                    15.width,
 
                     _buildServicesWidget(
                       title: context.appText.gps,
@@ -74,6 +100,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         context.push(AppRouteName.gps);
                       },
                     ),
+                    15.width,
 
                     _buildServicesWidget(
                       title: context.appText.instantLoan,
@@ -82,6 +109,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         context.push(AppRouteName.instantLoan);
                       },
                     ),
+                    15.width,
 
                     _buildServicesWidget(
                       title: context.appText.insurance,
@@ -90,6 +118,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         context.push(AppRouteName.insurance);
                       },
                     ),
+                    15.width,
 
                     _buildServicesWidget(
                       title: context.appText.kavach,
@@ -99,11 +128,32 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                         );
                       },
                     ),
-                    10.width,
+                    15.width,
 
                   ],
                 ),
-              ).expand(),
+              ),
+
+              20.height,
+              Container(
+                width: 100,
+                height: 4,
+                decoration: commonContainerDecoration(color: AppColors.borderColor),
+                child: Stack(
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: _scrollProgress,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          // Replace with your theme color
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           20.height,
