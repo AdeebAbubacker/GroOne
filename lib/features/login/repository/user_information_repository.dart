@@ -27,6 +27,10 @@ class UserInformationRepository {
     return  await _securedSharedPref.get(AppString.sessionKey.userRole);
   }
 
+  Future<String?> getCustomerTypeID() async {
+    return  await _securedSharedPref.get(AppString.sessionKey.companyTypeId);
+  }
+
 
 
 }

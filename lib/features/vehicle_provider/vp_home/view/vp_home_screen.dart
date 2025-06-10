@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
+import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -207,8 +208,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       }
                   ),
 
-                  buildValueAddedService(context),
+                  OurValueAddedServicesWidget(),
                   20.height,
+
                   _buildMyLoadsWidget(context),
                   20.height,
                   _buildRecentAddedLoadWidget(context),

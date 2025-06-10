@@ -14,14 +14,11 @@ class LpHomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserInformationRepository _userInformationRepository;
   final LpHomeRepository _lpHomeRepository;
 
-  LpHomeBloc(this._lpHomeRepository, this._userInformationRepository)
-    : super(HomeInitial()) {
+  LpHomeBloc(this._lpHomeRepository, this._userInformationRepository) : super(HomeInitial()) {
+
     on<ProfileDetailRequested>((event, emit) async {
       emit(ProfileLoading());
-      Result result = await _lpHomeRepository.getUserDetails(
-        userId: event.userId ?? "",
-      );
-
+      Result result = await _lpHomeRepository.getUserDetails(userId: event.userId);
       if (result is Success<ProfileDetailModel>) {
         emit(ProfileDetailSuccess(result.value));
       } else if (result is Error) {
@@ -34,9 +31,7 @@ class LpHomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   String? _userId;
-
   String? get userId => _userId;
-
   Future<String?> getUserId() async {
     _userId = await _userInformationRepository.getUserID();
     return _userId;

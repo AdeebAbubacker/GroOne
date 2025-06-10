@@ -23,11 +23,14 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/recent_route_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/truck_type_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/advance_payment_dailog.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
+import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -119,7 +122,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   @override
   void dispose() {
     disposeFunction();
-    _controller.removeListener(() {}); // if you store the listener separately
+    _controller.removeListener(() {});
     _controller.dispose();
     super.dispose();
   }
@@ -283,7 +286,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     ),
                   ),
 
-                  buildValueAddedService(context),
+                  OurValueAddedServicesWidget(),
                   20.height,
 
                   bookShipmentSectionWidget(context),
@@ -520,31 +523,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   // Book Shipment
   Widget bookShipmentSectionWidget(BuildContext context) {
-    // Inner inside Widget
-    Widget bookShipmentWidget({
-      required String heading,
-      required String subHeading,
-      required GestureTapCallback onClick,
-    }) {
-      return InkWell(
-        onTap: onClick,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 3,
-              children: [
-                Text(heading, style: AppTextStyle.textGreyColor12w400),
-                Text(subHeading, style: AppTextStyle.body, overflow: TextOverflow.ellipsis, maxLines: 1),
-              ],
-            ).expand(),
-            Image.asset(AppImage.png.locationIcon, height: 18.h, width: 18.w),
-          ],
-        ),
-      );
-    }
 
     return Container(
       color: AppColors.white,
@@ -573,39 +551,56 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   children: [
 
                     // Source
-                    bookShipmentWidget(
+                    BookShipmentWidget(
                       heading: context.appText.source,
                       subHeading: pickup?['address'] ?? context.appText.selectPickUpPoint,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
+                        // Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
+                        //   if(onValue != null){
+                        //     pickup = onValue;
+                        //   }
+                        //   setState(() {});
+                        // });
+
+                        Navigator.of(context).push(createRoute(RecentRouteScreen(pickup: pickup?['address'], destination: destination?['address']))).then((onValue){
                           if(onValue != null){
-                            pickup = onValue;
+                            pickup = onValue['pickup'];
                           }
                           setState(() {});
                         });
+
                       },
                     ),
 
                     commonDivider(),
 
                     // Destination
-                    bookShipmentWidget(
+                    BookShipmentWidget(
                       heading: context.appText.destination,
                       subHeading: destination?['address'] ?? context.appText.selectDestination,
                       onClick: () {
-                        Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
+                        // Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
+                        //   if(onValue != null){
+                        //     destination = onValue;
+                        //   }
+                        //   setState(() {});
+                        //   dynamic req = RateDiscoveryApiRequest(
+                        //     // pickup: pickup?.toLowerCase(),
+                        //     // drop: destination?.toLowerCase(),
+                        //     pickup: "bangalore",
+                        //     drop: "chennai",
+                        //   );
+                        //   rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
+                        // });
+
+                        Navigator.of(context).push(createRoute(RecentRouteScreen(pickup: pickup?['address'], destination: destination?['address']))).then((onValue){
                           if(onValue != null){
-                            destination = onValue;
+                            destination = onValue['destination'];
                           }
                           setState(() {});
-                          dynamic req = RateDiscoveryApiRequest(
-                            // pickup: pickup?.toLowerCase(),
-                            // drop: destination?.toLowerCase(),
-                            pickup: "bangalore",
-                            drop: "chennai",
-                          );
-                          rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                         });
+
+
                       },
                     ),
 

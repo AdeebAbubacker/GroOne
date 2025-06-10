@@ -47,6 +47,9 @@ class AuthRepository {
         await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
         await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
       }
+      if(userData.details != null){
+        await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
+      }
       CustomLog.debug(this, "Save user from create account saved successfully");
       return const Success(true);
     } catch (e) {
@@ -62,6 +65,7 @@ class AuthRepository {
     await _securedSharedPref.deleteKey(AppString.sessionKey.userId);
     await _securedSharedPref.deleteKey(AppString.sessionKey.userRole);
     await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.companyTypeId);
     await _apiService.clearCache();
     // await _notificationService.clearBadgeCount();
     // await _notificationService.clearFcmToken();

@@ -93,6 +93,7 @@ class AppColors {
   static const Color uploadedDocBgColor = Color(0xFFF2F5FF);
   static const Color greyContainerBackgroundColor = Color(0xffF5F5F5);
   static const Color lightBlueIconBackgroundColor = Color(0xffE0EFF7);
+  static const Color lightBlueColor = Color(0xffE9F3FA);
   static const Color lightPurpleColor=Color(0xFFE8DAFF);
 
 

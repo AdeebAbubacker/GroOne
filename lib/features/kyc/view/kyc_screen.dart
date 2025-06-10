@@ -3,43 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
-import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
+import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_sucess_dialogue.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_upload_file.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_route.dart';
-import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
-
 import 'package:gro_one_app/utils/validator.dart';
 
-import '../../../data/storage/secured_shared_preferences.dart';
-import '../../../dependency_injection/locator.dart';
-import '../../../utils/app_colors.dart';
-import '../../../utils/common_functions.dart';
-import '../../../utils/toast_messages.dart';
-import '../api_request/verify_pan_request.dart';
-import '../api_request/verify_tan_request.dart';
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key, required this.aadhaarNumber});
@@ -63,7 +51,7 @@ class _KycScreenState extends State<KycScreen> {
   final TextEditingController addressLine1TextController = TextEditingController();
   final TextEditingController addressLine2TextController = TextEditingController();
   final TextEditingController addressLine3TextController = TextEditingController();
-  final TextEditingController pincodeTextController = TextEditingController();
+  final TextEditingController pinCodeTextController = TextEditingController();
   final TextEditingController accountNumberTextController = TextEditingController();
   final TextEditingController bankNameTextController = TextEditingController();
   final TextEditingController branchNameTextController = TextEditingController();
@@ -102,6 +90,8 @@ class _KycScreenState extends State<KycScreen> {
   
   void initFunction()=> frameCallback(() async {
     await kycBloc.fetchUserRole();
+    await kycBloc.fetchUserId();
+    await kycBloc.fetchCompanyTypeId();
     nodeManage();
     aadhaarNumberTextController.text = widget.aadhaarNumber;
   });
@@ -226,363 +216,178 @@ class _KycScreenState extends State<KycScreen> {
         child: BlocConsumer<KycCubit, KycState>(
           bloc: kycBloc,
           listener: (context, state) { },
-          // listener: (context, state) {
-          //   // if (state. == KycStatus.success) {
-          //   //   commonBottomSheetWithBGBlur(
-          //   //     context: context,
-          //   //
-          //   //     screen: KycSuccessDialogue(),
-          //   //   ).then((value) {
-          //   //     lpHomeBloc.add(
-          //   //       ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
-          //   //     );
-          //   //
-          //   //     context.pop();
-          //   //
-          //   //   });
-          //   // }
-          //   // if (state is VerifyTanSuccess) {
-          //   //   verifiedTan = true;
-          //   //
-          //   //   print("success VerifyTanSuccess");
-          //   // }
-          //   // if (state is VerifyPanSuccess) {
-          //   //   verifiedPan = true;
-          //   //   panTextController.text = "AABCM9984D";
-          //   //
-          //   //   print("success VerifyPanSuccess");
-          //   // }
-          //   // if (state is VerifyGstSuccess) {
-          //   //   verifiedGst = true;
-          //   //   gstInTextController.text = "27AABCM9984D1Z4";
-          //   //
-          //   //   print("success VerifyGstSuccess");
-          //   // } else if (state is AddharOtpError) {
-          //   //   ToastMessages.error(
-          //   //     message: getErrorMsg(errorType: state.errorType),
-          //   //   );
-          //   // }
-          // },
-
-          builder: (context, state) {
-            return Column(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                      // Aadhaar Number
-                      buildTextFieldWithLabelWidget(
-                        readOnly: true,
-                        rightText: "Aadhaar Number",
-                        leftText: "Verified",
-                        controller: aadhaarNumberTextController,
-                      ),
-                      20.height,
-
-                      // Enter GST Number
-                      buildTextFieldWithLabelWidget(
-                        leftText: state.verifiedGst != null && state.verifiedGst! ? "Verified" : "Un-Verified",
-                        readOnly: state.verifiedGst != null && state.verifiedGst!,
-                        rightText: "GSTIN",
-                        controller: gstInTextController,
-                        suffixOnTap: () async {
-                          if (gstDoc.isNotEmpty) {
-                            final Result result = await uploadDocCommonApiCall(gstDoc);
-                            if(result is Success) {
-                              await verifyGstApiCall(gstInTextController.text);
-                            }
-                          }
-                        }
-                      ),
-                      10.height,
-
-                      // Upload GST
-                      UploadAttachmentFiles(
-                        multiFilesList: gstDoc,
-                        isSingleFile: true,
-                        isLoading: state.fileUploadState?.status == Status.LOADING
-                      ),
-                      20.height,
-
-
-                      /// Tan section
-                      // Column(
-                      //   spacing: 15.h,
-                      //   children: [
-                      //     buildTextFieldWithLabelWidget(
-                      //       readOnly: verifiedTan,
-                      //       leftText: verifiedTan ? "Verified" : "Un-Verified",
-                      //       rightText: "TAN",
-                      //       controller: tanTextController,
-                      //       currentFocus: tanFocusNode,
-                      //     ),
-                      //     upload(multiFilesList: tanDoc),
-                      //   ],
-                      // ),
-
-                      // Enter TAN number
-                      buildTextFieldWithLabelWidget(
-                        leftText: state.verifiedTan != null && state.verifiedTan! ? "Verified" : "Un-Verified",
-                        readOnly: state.verifiedTan != null && state.verifiedTan!,
-                        rightText: "TAN",
-                        controller: tanTextController,
-                        suffixOnTap: () async {
-                          if (tanTextController.text.isNotEmpty && tanDoc.isNotEmpty) {
-                            final Result result = await uploadDocCommonApiCall(tanDoc);
-                            if(result is Success) {
-                              await verifyTANApiCall(tanTextController.text);
-                            }
-                          } else {
-                            ToastMessages.alert(message: "Please enter TAN and upload document");
-                          }
-                        }
-                      ),
-                      10.height,
-
-                      // Upload TAN Doc
-                      UploadAttachmentFiles(
-                        multiFilesList: tanDoc,
-                        isSingleFile: true,
-                        isLoading: state.fileUploadState?.status == Status.LOADING,
-                      ),
-                      20.height,
-
-                      // Enter PAN number
-                      buildTextFieldWithLabelWidget(
-                          leftText: state.verifiedPan != null && state.verifiedPan! ? "Verified" : "Un-Verified",
-                          readOnly: state.verifiedPan != null && state.verifiedPan!,
-                          rightText: "PAN",
-                          controller: panTextController,
-                          suffixOnTap: () async {
-                            if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
-                              final Result result = await uploadDocCommonApiCall(panDoc);
-                              if(result is Success) {
-                                await verifyPANApiCall(panTextController.text);
-                              }
-                            } else {
-                              ToastMessages.alert(message: "Please enter PAN and upload document");
-                            }
-                          }
-                      ),
-                      10.height,
-
-                      // Upload PAN Doc
-                      UploadAttachmentFiles(
-                        multiFilesList: panDoc,
-                        isSingleFile: true,
-                        isLoading: state.fileUploadState?.status == Status.LOADING,
-                      ),
-                      20.height,
-
-                      Builder(
-                        builder: (context){
-                          if(kycBloc.userRole != null && kycBloc.userRole != "2") {
-                            return Column(
-                              children: [
-
-                                // Upload Check Doc
-                                UploadAttachmentFiles(
-                                  title: "Upload Check Document",
-                                  multiFilesList: checkDocLink,
-                                  isSingleFile: true,
-                                  isLoading: state.fileUploadState?.status == Status.LOADING,
-                                  thenUploadFileToSever: () async {
-
-                                  },
-                                ),
-                                20.height,
-
-                                // Upload TDS Doc
-                                UploadAttachmentFiles(
-                                  title: "Upload TDS Certification",
-                                  multiFilesList: tdsDocLink,
-                                  isSingleFile: true,
-                                  isLoading: state.fileUploadState?.status == Status.LOADING,
-                                  thenUploadFileToSever: () async {
-
-                                  },
-                                ),
-                                20.height,
-                              ],
-                            );
-                          } else {
-                            return Container();
-                          }
-
-                      }),
-
-                      // int.parse(userRole ?? "0") == 2
-                      //     ? Column(
-                      //       spacing: 15.h,
-                      //       crossAxisAlignment: CrossAxisAlignment.start,
-                      //       children: [
-                      //         /// Cancelled cheque section
-                      //         Text(
-                      //           "Cancelled Cheque",
-                      //           style: AppTextStyle.textBlackColor16w400,
-                      //         ),
-                      //         upload(multiFilesList: checkDocLink),
-                      //
-                      //         /// Tds Certificate section
-                      //         Text(
-                      //           "TDS Certificate",
-                      //           style: AppTextStyle.textBlackColor16w400,
-                      //         ),
-                      //         upload(multiFilesList: tdsDocLink),
-                      //       ],
-                      //     )
-                      //     : const SizedBox(),
-
-                      multipleTextFieldWidget(
-                        text: "Address",
+          builder: (context, kycState) {
+            return BlocBuilder<LpHomeBloc, HomeState>(
+              bloc: lpHomeBloc,
+              builder: (context, lpHomeState){
+                dynamic companyId;
+                if(lpHomeState is ProfileDetailSuccess){
+                  companyId  = lpHomeState.profileDetailResponse.data?.details?.companyTypeId;
+                }else{
+                  companyId = 0;
+                }
+                print("companyId: $companyId");
+                return Column(
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: addressLine1TextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Address Line 1",
-                            ),
-                          ),
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: addressLine2TextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Address Line 2",
-                            ),
-                          ),
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: addressLine3TextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Address Line 3",
-                            ),
-                          ),
-                          AppTextField(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(6),
+
+                          //companyTypeId:1=Sole Proprietor-GST, PAN, TAN, Aadhaar
+                          if(companyId == 1)...[
+                            _buildAadhaarWidget(kycState),
+                            10.height,
+                            _buildGstWidget(kycState),
+                            10.height,
+                            _buildTanWidget(kycState),
+                            10.height,
+                            _buildPanWidget(kycState),
+                          ],
+
+                          // companyTypeId:2=Privated Proprietor-only Aadhaar
+                          if(companyId == 2)...[
+                            _buildAadhaarWidget(kycState),
+                            10.height,
+                          ],
+
+
+                          // companyTypeId:3=Limited Proprietor-GST, PAN, TAN
+                          // companyTypeId:4=LLC Proprietor-GST, PAN, TAN
+                          if(companyId == 3 || companyId == 4)...[
+                            _buildGstWidget(kycState),
+                            10.height,
+                            _buildTanWidget(kycState),
+                            10.height,
+                            _buildPanWidget(kycState),
+                          ],
+
+                          // Primary Address
+                          _buildMultipleTextFieldWidget(
+                            text: "Primary Address",
+                            children: [
+                              AppTextField(
+                                validator: (value) => Validator.fieldRequired(value),
+                                controller: addressLine1TextController,
+                                labelText: "Address Line 1*",
+                                hintText: "Enter Address Line 1",
+                              ),
+                              AppTextField(
+                                validator: (value) => Validator.fieldRequired(value),
+                                controller: addressLine2TextController,
+                                labelText: "Address Line 2*",
+                                hintText: "Enter Address Line 2",
+                              ),
+
+                              AppTextField(
+                                controller: addressLine3TextController,
+                                labelText: "Address Line 3",
+                                hintText: "Enter Address Line 3",
+                              ),
+
+                              AppTextField(
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(6),
+                                ],
+                                keyboardType: TextInputType.number,
+                                validator: (value) => Validator.pincode(value),
+                                controller: pinCodeTextController,
+                                labelText: "Pin Code*",
+                                hintText: "Enter Pin Code",
+                              ),
                             ],
-                            keyboardType: TextInputType.number,
-                            validator: (value) => Validator.pincode(value),
-                            controller: pincodeTextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Pin code",
-                            ),
+                          ),
+                          30.height,
+
+                          // Bank Details
+                          _buildMultipleTextFieldWidget(
+                            text: "Bank Details",
+                            children: [
+                              AppTextField(
+                                validator: (value) => Validator.fieldRequired(value),
+                                controller: accountNumberTextController,
+                                labelText: "Account Number*",
+                                hintText: "Enter Account Number",
+                              ),
+
+                              AppTextField(
+                                validator: (value) => Validator.fieldRequired(value),
+                                controller: bankNameTextController,
+                                labelText: "Bank Name*",
+                                hintText: "Enter Bank Name",
+                              ),
+
+                              AppTextField(
+                                  validator: (value) => Validator.fieldRequired(value),
+                                  controller: branchNameTextController,
+                                  labelText: "Branch Name*",
+                                  hintText: "Enter Branch Name"
+                              ),
+
+                              AppTextField(
+                                  validator: (value) => Validator.fieldRequired(value),
+                                  controller: ifscCodeTextController,
+                                  labelText: "IFSC Code*",
+                                  hintText: "Enter IFSC code"
+                              ),
+
+                            ],
                           ),
                         ],
                       ),
-                      20.height,
+                    ),
+                    30.height,
 
+                    AppButton(
+                      style:  AppButtonStyle.primary,
+                      title: context.appText.submit,
+                      onPressed: () async {
+                        if (int.parse(kycBloc.userRole ?? "0") == 1
+                            ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
+                            : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
+                        } else {
+                          if (kycBloc.state.verifiedGst! && kycBloc.state.verifiedTan! && kycBloc.state.verifiedPan!) {
+                            if (_formKey.currentState!.validate()) {
 
+                              final kycRequest = SubmitKycApiRequest(
+                                aadhar: widget.aadhaarNumber,
+                                address1: addressLine1TextController.text,
+                                address2: addressLine2TextController.text,
+                                address3: addressLine3TextController.text,
+                                bankAccount: accountNumberTextController.text,
+                                bankName: bankNameTextController.text,
+                                branchName: branchNameTextController.text,
+                                chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
+                                tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
+                                gstin: gstInTextController.text,
+                                gstinDocLink: gstDoc.first['path'],
+                                ifscCode: ifscCodeTextController.text,
+                                isAadhar: true,
+                                isGstin: kycBloc.state.verifiedGst!,
+                                isPan:  kycBloc.state.verifiedPan!,
+                                isTan:  kycBloc.state.verifiedTan!,
+                                pan: panTextController.text,
+                                panDocLink: panDoc.first['path'],
+                                tan: tanTextController.text,
+                                tanDocLink: tanDoc.first['path'],
+                              );
 
-                      multipleTextFieldWidget(
-                        text: "Bank Details",
-                        children: [
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: accountNumberTextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Account Number",
-                            ),
-                          ),
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: bankNameTextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Bank Name",
-                            ),
-                          ),
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: branchNameTextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "Branch Name",
-                            ),
-                          ),
-                          AppTextField(
-                            validator:
-                                (value) => Validator.fieldRequired(value),
-                            controller: ifscCodeTextController,
-                            decoration: commonInputDecoration(
-                              fillColor: AppColors.white,
-                              hintText: "IFSC code",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                10.height,
-                // AppButton(
-                //   style: (int.parse(userRole ?? "0") == 1 ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty) : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty))
-                //           ? AppButtonStyle.disableButton
-                //           : AppButtonStyle.primary,
-                //   title: context.appText.submit,
-                //   onPressed: () {
-                //     if (int.parse(userRole ?? "0") == 1
-                //         ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
-                //         : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
-                //     } else {
-                //       if (verifiedGst && verifiedTan && verifiedPan) {
-                //         if (_formKey.currentState!.validate()) {
-                //           final kycRequest = SubmitKycApiRequest(
-                //             aadhar: widget.addharNumber,
-                //             address1: addressLine1TextController.text,
-                //             address2: addressLine2TextController.text,
-                //             address3: addressLine3TextController.text,
-                //             bankAccount: accountNumberTextController.text,
-                //             bankName: bankNameTextController.text,
-                //             branchName: branchNameTextController.text,
-                //             chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
-                //             tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
-                //             gstin: gstInTextController.text,
-                //             gstinDocLink: gstDoc.first['path'],
-                //             ifscCode: ifscCodeTextController.text,
-                //             isAadhar: true,
-                //             isGstin: verifiedGst,
-                //             isPan: verifiedPan,
-                //             isTan: verifiedTan,
-                //             pan: panTextController.text,
-                //             panDocLink: panDoc.first['path'],
-                //             tan: tanTextController.text,
-                //             tanDocLink: tanDoc.first['path'],
-                //           );
-                //
-                //           kycBloc.add(
-                //             SubmitKycRequested(
-                //               apiRequest: kycRequest,
-                //               userId: userID ?? "0",
-                //             ),
-                //           );
-                //         }
-                //       } else {
-                //         ToastMessages.error(
-                //           message: "Please verify all document before submit",
-                //         );
-                //       }
-                //     }
-                //   },
-                // ),
-                10.height,
-              ],
+                              kycBloc.submitKyc(kycRequest, "${await kycBloc.fetchUserId()}");
+                            }
+                          } else {
+                            ToastMessages.error(
+                              message: "Please verify all document before submit",
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    10.height,
+                  ],
+                );
+              },
             );
           },
         ),
@@ -590,14 +395,174 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
+  Widget _buildAadhaarWidget(KycState kycState){
+    return Column(
+      children: [
+        buildTextFieldWithLabelWidget(
+          readOnly: true,
+          rightText: "Aadhaar Number",
+          leftText: "Verified",
+          controller: aadhaarNumberTextController,
+        ),
 
-  multipleTextFieldWidget({required String text, String? leftText, required List<Widget> children}) {
+
+      ],
+    );
+  }
+
+  Widget _buildGstWidget(KycState kycState){
+    return Column(
+      children: [
+
+        // Enter GST Number
+        buildTextFieldWithLabelWidget(
+            leftText: kycState.verifiedGst != null && kycState.verifiedGst! ? "Verified" : "Un-Verified",
+            readOnly: kycState.verifiedGst != null && kycState.verifiedGst!,
+            rightText: "GSTIN",
+            controller: gstInTextController,
+            suffixOnTap: () async {
+              if (gstDoc.isNotEmpty) {
+                final Result result = await uploadDocCommonApiCall(gstDoc);
+                if(result is Success) {
+                  await verifyGstApiCall(gstInTextController.text);
+                }
+              }
+            }
+        ),
+        10.height,
+
+        // Upload GST
+        UploadAttachmentFiles(
+            multiFilesList: gstDoc,
+            isSingleFile: true,
+            isLoading: kycState.fileUploadState?.status == Status.LOADING
+        ),
+
+        20.height,
+
+      ],
+    );
+  }
+
+
+  Widget _buildTanWidget(KycState kycState){
+    return Column(
+      children: [
+
+
+        // Enter TAN number
+        buildTextFieldWithLabelWidget(
+            leftText: kycState.verifiedTan != null && kycState.verifiedTan! ? "Verified" : "Un-Verified",
+            readOnly: kycState.verifiedTan != null && kycState.verifiedTan!,
+            rightText: "TAN",
+            controller: tanTextController,
+            suffixOnTap: () async {
+              if (tanTextController.text.isNotEmpty && tanDoc.isNotEmpty) {
+                final Result result = await uploadDocCommonApiCall(tanDoc);
+                if(result is Success) {
+                  await verifyTANApiCall(tanTextController.text);
+                }
+              } else {
+                ToastMessages.alert(message: "Please enter TAN and upload document");
+              }
+            }
+        ),
+        10.height,
+
+        // Upload TAN Doc
+        UploadAttachmentFiles(
+          multiFilesList: tanDoc,
+          isSingleFile: true,
+          isLoading: kycState.fileUploadState?.status == Status.LOADING,
+        ),
+        20.height,
+
+      ],
+    );
+  }
+
+
+  Widget _buildPanWidget(KycState kycState){
+    return Column(
+      children: [
+
+        // Enter PAN number
+        buildTextFieldWithLabelWidget(
+            leftText: kycState.verifiedPan != null && kycState.verifiedPan! ? "Verified" : "Un-Verified",
+            readOnly: kycState.verifiedPan != null && kycState.verifiedPan!,
+            rightText: "PAN",
+            controller: panTextController,
+            suffixOnTap: () async {
+              if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
+                final Result result = await uploadDocCommonApiCall(panDoc);
+                if(result is Success) {
+                  await verifyPANApiCall(panTextController.text);
+                }
+              } else {
+                ToastMessages.alert(message: "Please enter PAN and upload document");
+              }
+            }
+        ),
+        10.height,
+
+        // Upload PAN Doc
+        UploadAttachmentFiles(
+          multiFilesList: panDoc,
+          isSingleFile: true,
+          isLoading: kycState.fileUploadState?.status == Status.LOADING,
+        ),
+
+
+        20.height,
+
+        Builder(
+            builder: (context){
+              if(kycBloc.userRole != null && kycBloc.userRole != "2") {
+                return Column(
+                  children: [
+
+                    // Upload Check Doc
+                    UploadAttachmentFiles(
+                      title: "Upload Check Document",
+                      multiFilesList: checkDocLink,
+                      isSingleFile: true,
+                      isLoading: kycState.fileUploadState?.status == Status.LOADING,
+                      thenUploadFileToSever: () async {
+
+                      },
+                    ),
+                    20.height,
+
+                    // Upload TDS Doc
+                    UploadAttachmentFiles(
+                      title: "Upload TDS Certification",
+                      multiFilesList: tdsDocLink,
+                      isSingleFile: true,
+                      isLoading: kycState.fileUploadState?.status == Status.LOADING,
+                      thenUploadFileToSever: () async {
+
+                      },
+                    ),
+                    30.height,
+                  ],
+                );
+              } else {
+                return Container();
+              }
+
+            }),
+      ],
+    );
+  }
+
+
+  Widget  _buildMultipleTextFieldWidget({required String text, String? leftText, required List<Widget> children}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(text, style: AppTextStyle.textBlackColor16w400),
-        5.height,
-        Column(spacing: 10.h, children: children),
+        Text(text, style: AppTextStyle.body1),
+        10.height,
+        Column(spacing: 20.h, children: children),
       ],
     );
   }
@@ -630,4 +595,6 @@ class _KycScreenState extends State<KycScreen> {
       ],
     );
   }
+
+
 }

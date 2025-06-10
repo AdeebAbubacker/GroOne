@@ -34,6 +34,22 @@ class KycCubit extends Cubit<KycState> {
   }
 
 
+  // fetch user if
+  String? userId;
+  Future<String?> fetchUserId() async {
+    userId = await _userInformationRepository.getUserID();
+    return userId;
+  }
+
+
+  // fetch company Type Id
+  String? companyTypeId;
+  Future<String?> fetchCompanyTypeId() async {
+    companyTypeId = await _userInformationRepository.getCustomerTypeID();
+    return companyTypeId;
+  }
+
+
   // Send Aadhaar Otp
   Future<void> sendAadhaarOtp(AddharOtpApiRequest request) async {
     emit(state.copyWith(aadhaarOtpState: UIState.loading()));
