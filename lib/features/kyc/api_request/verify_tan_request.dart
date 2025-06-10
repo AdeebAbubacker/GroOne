@@ -10,7 +10,7 @@ class VerifyTanApiRequest {
   factory VerifyTanApiRequest.fromJson(Map<String, dynamic> json){
     return VerifyTanApiRequest(
       tan: json["tan"] ?? "",
-      force: json["force"] ?? false,
+      force: json["force"] ?? true,
     );
   }
 

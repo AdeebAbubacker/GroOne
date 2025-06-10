@@ -10,7 +10,7 @@ class VerifyPanApiRequest {
   factory VerifyPanApiRequest.fromJson(Map<String, dynamic> json){
     return VerifyPanApiRequest(
       pan: json["pan"] ?? "",
-      force: json["force"] ?? false,
+      force: json["force"] ?? true,
     );
   }
 

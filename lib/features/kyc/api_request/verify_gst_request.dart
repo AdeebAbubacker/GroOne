@@ -10,7 +10,7 @@ class VerifyGstApiRequest {
   factory VerifyGstApiRequest.fromJson(Map<String, dynamic> json){
     return VerifyGstApiRequest(
       gst: json["gst"] ?? "",
-      force: json["force"] ?? false,
+      force: json["force"] ?? true,
     );
   }
 

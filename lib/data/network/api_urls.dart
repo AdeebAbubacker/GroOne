@@ -39,7 +39,8 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  //static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/doc";
   static String get _fleet => "/fleet";
 
 

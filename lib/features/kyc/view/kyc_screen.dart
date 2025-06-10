@@ -109,21 +109,21 @@ class _KycScreenState extends State<KycScreen> {
 
     gstFocusNode.addListener(() async {
       if (!gstFocusNode.hasFocus) {
-        final apiRequest = VerifyGstApiRequest(gst: gstInTextController.text, force: false);
+        final apiRequest = VerifyGstApiRequest(gst: gstInTextController.text, force: true);
         await kycBloc.verifyGst(apiRequest);
       }
     });
 
     tanFocusNode.addListener(() async {
       if (!tanFocusNode.hasFocus) {
-        final apiRequest = VerifyTanApiRequest(tan: tanTextController.text, force: false);
+        final apiRequest = VerifyTanApiRequest(tan: tanTextController.text, force: true);
         await kycBloc.verifyTan(apiRequest);
       }
     });
 
     panFocusNode.addListener(() async {
       if (!panFocusNode.hasFocus) {
-        final apiRequest = VerifyPanApiRequest(pan: panTextController.text, force: false);
+        final apiRequest = VerifyPanApiRequest(pan: panTextController.text, force: true);
         await kycBloc.verifyPan(apiRequest);
       }
     });
@@ -153,7 +153,7 @@ class _KycScreenState extends State<KycScreen> {
 
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber) async {
-    final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: false);
+    final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycBloc.verifyGst(apiRequest);
     if (kycBloc.state.gstState?.status == Status.SUCCESS) {
       ToastMessages.success(message: "GST verified successfully");
@@ -166,7 +166,7 @@ class _KycScreenState extends State<KycScreen> {
 
   // Verify TAN api call
   Future<void> verifyTANApiCall(String tanNumber) async {
-    final apiRequest = VerifyTanApiRequest(tan: tanNumber, force: false);
+    final apiRequest = VerifyTanApiRequest(tan: tanNumber, force: true);
     await kycBloc.verifyTan(apiRequest);
     if (kycBloc.state.tanState?.status == Status.SUCCESS) {
       ToastMessages.success(message: "TAN verified successfully");
@@ -179,7 +179,7 @@ class _KycScreenState extends State<KycScreen> {
 
   // Verify pan api call
   Future<void> verifyPANApiCall(String panNumber) async {
-    final apiRequest = VerifyPanApiRequest(pan: panNumber, force: false);
+    final apiRequest = VerifyPanApiRequest(pan: panNumber, force: true);
     await kycBloc.verifyPan(apiRequest);
     if (kycBloc.state.panState?.status == Status.SUCCESS) {
       ToastMessages.success(message: "Pan verified successfully");
