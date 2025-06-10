@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 const double commonButtonRadius = 5;
 const double commonOutlineButtonRadius = 15;
 const double commonPadding = 10;
-const double commonSafeAreaPadding = 20.0;
+const double commonSafeAreaPadding = 15.0;
 const double commonButtonBottomPadding = 10;
 const double commonButtonBottomSheetPadding = 30;
 const double commonRadius = 12;

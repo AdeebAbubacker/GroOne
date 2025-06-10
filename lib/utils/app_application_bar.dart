@@ -29,7 +29,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     Widget? getWidget(){
       if(title is String){
         if(title != null){
-          return Text(title.toString().capitalize, style: AppTextStyle.appBar.copyWith(color: titleColor ?? Colors.black));
+          return Text(title.toString().capitalize, style: AppTextStyle.appBar.copyWith(color: titleColor ?? AppColors.primaryTextColor));
         } else {
           return null;
         }
