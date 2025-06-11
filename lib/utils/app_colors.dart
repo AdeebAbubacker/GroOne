@@ -95,6 +95,9 @@ class AppColors {
   static const Color lightBlueIconBackgroundColor = Color(0xffE0EFF7);
   static const Color lightBlueColor = Color(0xffE9F3FA);
   static const Color lightPurpleColor=Color(0xFFE8DAFF);
+  static const Color profileBgGrey=Color(0xFFD2D2D2);
+  static const Color primaryLightColor =Color(0xFFE9F3FA);
+  static const Color textPurpleColor =Color(0xFF9C27B0);
 
 
 

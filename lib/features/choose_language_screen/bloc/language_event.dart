@@ -14,3 +14,5 @@ class ChangeIndex extends LanguageEvent{
 
   const ChangeIndex({ required this.index});
 }
+
+class LoadLanguages extends LanguageEvent {}

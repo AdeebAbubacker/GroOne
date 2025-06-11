@@ -11,14 +11,28 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../core/localization_bloc/localization_bloc.dart';
 import '../../../core/localization_bloc/localization_event.dart';
+import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_string.dart';
 
-class ChooseLanguageScreen extends StatelessWidget {
+class ChooseLanguageScreen extends StatefulWidget {
   const ChooseLanguageScreen({super.key, this.isCloseButton = false});
   final bool isCloseButton;
+
+  @override
+  State<ChooseLanguageScreen> createState() => _ChooseLanguageScreenState();
+}
+
+class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
+  final _languageBlock = locator<LanguageBloc>();
+  @override
+  void initState() {
+    _languageBlock.add(LoadLanguages());
+    super.initState();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +49,7 @@ class ChooseLanguageScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if(isCloseButton)
+                    if(widget.isCloseButton)
                       IconButton(
                         onPressed: () {
                           context.pop();
@@ -53,8 +67,6 @@ class ChooseLanguageScreen extends StatelessWidget {
                   ],
                 ),
                 30.height,
-
-
                 RichText(
                   text: TextSpan(
                     children: [
@@ -69,64 +81,80 @@ class ChooseLanguageScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                20.height,
-
-
-                chooseLanguageTile(
-                  isSelected: state.index == 0 ? true : false,
-                  text1: AppString.label.english,
-                  text2: AppString.label.english,
-                  onTap: () {
-                    context.read<LanguageBloc>().add(
-                      const ChangeIndex(index: 0),
+                // 20.height,
+                //
+                //
+                // chooseLanguageTile(
+                //   isSelected: state.index == 0 ? true : false,
+                //   text1: AppString.label.english,
+                //   text2: AppString.label.english,
+                //   onTap: () {
+                //     context.read<LanguageBloc>().add(
+                //       const ChangeIndex(index: 0),
+                //     );
+                //     context.read<LocaleBloc>().add(
+                //       ChangeLocale(const Locale('en')),
+                //     );
+                //   },
+                //   imageString: AppImage.png.englishLanguage,
+                // ),
+                // 20.height,
+                //
+                // chooseLanguageTile(
+                //   isSelected: state.index == 1 ? true : false,
+                //   text1: AppString.label.hindi2,
+                //   text2: AppString.label.hindi,
+                //   onTap: () {
+                //     // context.read<LanguageBloc>().add(
+                //     //   const ChangeIndex(index: 1),
+                //     // );
+                //     // context.read<LocaleBloc>().add(ChangeLocale(const Locale('hi')));
+                //   },
+                //   imageString: AppImage.png.hindiLanguage,
+                // ),
+                // 20.height,
+                //
+                // chooseLanguageTile(
+                //   isSelected: state.index == 2 ? true : false,
+                //   text1: AppString.label.tamil,
+                //   text2: AppString.label.tamil2,
+                //   onTap: () {
+                //     // context.read<LanguageBloc>().add(
+                //     //   const ChangeIndex(index: 2),
+                //     // );
+                //     // context.read<LocaleBloc>().add(ChangeLocale(const Locale('ta')));
+                //   },
+                //   imageString: AppImage.png.tamilLanguage,
+                // ),
+                30.height,
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  separatorBuilder: (context, index) => 15.height,
+                  itemCount: state.languages.length,
+                  itemBuilder: (context, index) {
+                    final lang = state.languages[index];
+                    return chooseLanguageTile(
+                      text1: lang.languageText,
+                      text2: lang.name,
+                      isSelected: state.index == index,
+                      imageString: getImgPath(lang.name),
+                      onTap: () {
+                        // context.read<LanguageBloc>().add(ChangeIndex(index: index));
+                        // context.read<LocaleBloc>().add(ChangeLocale(const Locale('en')));
+                        // Add logic to switch locale if needed
+                      },
                     );
-                    context.read<LocaleBloc>().add(
-                      ChangeLocale(const Locale('en')),
-                    );
                   },
-                  imageString: AppImage.png.englishLanguage,
                 ),
-                20.height,
-
-                chooseLanguageTile(
-                  isSelected: state.index == 1 ? true : false,
-                  text1: AppString.label.hindi2,
-                  text2: AppString.label.hindi,
-                  onTap: () {
-                    // context.read<LanguageBloc>().add(
-                    //   const ChangeIndex(index: 1),
-                    // );
-                    // context.read<LocaleBloc>().add(ChangeLocale(const Locale('hi')));
-                  },
-                  imageString: AppImage.png.hindiLanguage,
-                ),
-                20.height,
-
-                chooseLanguageTile(
-                  isSelected: state.index == 2 ? true : false,
-                  text1: AppString.label.tamil,
-                  text2: AppString.label.tamil2,
-                  onTap: () {
-                    // context.read<LanguageBloc>().add(
-                    //   const ChangeIndex(index: 2),
-                    // );
-                    // context.read<LocaleBloc>().add(ChangeLocale(const Locale('ta')));
-                  },
-                  imageString: AppImage.png.tamilLanguage,
-                ),
-
-                Expanded(child: SizedBox()),
-
-
+                Spacer(),
                 Column(
                   children: [
-
                     Text(
                       context.appText.chooseLanguage,
                       style: AppTextStyle.textDarkGreyColor14w400,
                     ).align(Alignment.center),
                     10.height,
-
                     AppButton(
                       title: context.appText.next,
                       onPressed: () {
@@ -189,12 +217,22 @@ class ChooseLanguageScreen extends StatelessWidget {
           ),
           subtitle:
               text2.isNotEmpty
-                  ? Text(text2, style: AppTextStyle.textGreyColor14w400)
+                  ? text1 == 'English'? null : Text(text2, style: AppTextStyle.textGreyColor14w400)
                   : null,
           title: Text(text1, style: AppTextStyle.textBlackColor20w500),
           trailing: Image.asset(width: 78.w, height: 50.h, imageString),
         ),
       ),
     );
+  }
+
+  String getImgPath(String name){
+    if(name.contains('Tamil')){
+      return AppImage.png.tamilLanguage;
+    }else if(name.contains('Hindi')){
+      return AppImage.png.hindiLanguage;
+    }else{
+      return AppImage.png.englishLanguage;
+    }
   }
 }

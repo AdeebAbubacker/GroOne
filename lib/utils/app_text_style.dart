@@ -229,6 +229,7 @@ class AppTextStyle {
   static TextStyle bodyGreyColorW500 = body.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500);
   static TextStyle bodyBlackColorW500 = body.copyWith(color: Colors.black, fontWeight: FontWeight.w500);
   static TextStyle bodyPrimaryColor = body.copyWith(color: AppColors.primaryColor, fontWeight: FontWeight.w500);
+  static TextStyle bodyPurpleColor = body.copyWith(color: AppColors.purpleColor, fontWeight: FontWeight.w500);
 
   /// --- Button ---
   // Primary

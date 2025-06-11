@@ -33,9 +33,6 @@ class KavachOrdersListScreen extends StatefulWidget {
 }
 class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with TickerProviderStateMixin {
   final _ordersBloc = locator<KavachOrderListBloc>();
-  // final _scrollController = ScrollController();
-  bool _firstBuild = true;
-
   late TabController _tabController;
 
   @override

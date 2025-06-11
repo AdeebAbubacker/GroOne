@@ -30,8 +30,8 @@ class AppButtonStyle {
   static ButtonStyle primaryTextButton = primary.copyWith(
       elevation: WidgetStateProperty.all(0),
       padding: WidgetStateProperty.all(EdgeInsets.zero),
-      fixedSize: WidgetStateProperty.all(const Size(80, 25)),
-      shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)))
+      fixedSize: WidgetStateProperty.all(const Size(100, 20)),
+      shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
   );
 
   /// Secondary

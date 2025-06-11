@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
@@ -81,6 +82,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void disposeFunction() => frameCallback(() {});
 
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return parts.take(2).map((e) => e[0].toUpperCase()).join();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +115,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // profile options widget
             profileOptionWidget(context),
+
+            30.height
           ],
         ),
       ),
@@ -118,8 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bloc: lpHomeLocator,
       builder: (context, state) {
       return Column(
-        spacing: 15.h,
+        spacing: 10.h,
         children: [
+          Text(
+            widget.profileData.details!.companyName,
+            style: AppTextStyle.h5,
+          ),
           Text(
             widget.profileData.customer!.customerName,
             style: AppTextStyle.blackColor15w500,
@@ -129,14 +143,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
             },
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.primaryColor,
               ),
               child: Text(
-                "${context.appText.blueMembershipId} : qwesd123",
-                style: AppTextStyle.whiteColor14w400,
+                "${context.appText.blueMembershipId} : ${widget.profileData.customer!.blueId ?? "--"}",
+                style: AppTextStyle.h5WhiteColor,
               ),
             ),
           ),
@@ -195,6 +209,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             text: "Master",
             onTap: () {
               Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
+            },
+          ),
+          dividerWidget(),
+          profileWidget(
+            imageString: AppImage.svg.routes,
+            text: "Routes",
+            onTap: () {
+              ///todo - routes to be done later
             },
           ),
           dividerWidget(),
@@ -287,120 +309,204 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String profileImage = "";
 
   Widget buildUploadProfilePictureWidget({required BuildContext context}) {
-    return BlocConsumer(
-      bloc: kycBloc,
-      builder: (context, state) {
-        return SizedBox(
-          height: profileSize,
-          width: profileSize,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              BlocConsumer(
-                bloc: lpHomeLocator,
-                builder: (context, state) {
-                  return commonCacheNetworkImage(
-                    path: profileImage ?? "",
-                    height: profileSize,
-                    width: profileSize,
-                    radius: 100,
-                    errorImage: AppImage.png.userProfileError,
-                  );
-                },
-                listener: (context, state) {
-                  if (state is ProfileDetailSuccess) {
-                    profileImage =
-                        state
-                            .profileDetailResponse
-                            .data!
-                            .details!
-                            .profileImageUrl ??
-                            "";
-                    widget.profileData = state.profileDetailResponse.data!;
-                  }
-                },
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: InkWell(
-                  onTap: () {
-                    commonBottomSheet(
-                      context: context,
-                      barrierDismissible: true,
-                      screen: const UploadFileAndImageBottomSheet(),
-                    ).then((value) async {
-                      if (value != null && value["path"] != null) {
-                        File file = File(value["path"]);
-                        pickImage = file;
-
-                        final croppedFile = await ImageCropper().cropImage(
-                          sourcePath: pickImage.path,
-                          aspectRatio: const CropAspectRatio(
-                            ratioX: 1,
-                            ratioY: 1,
-                          ),
-
-                          uiSettings: [
-                            AndroidUiSettings(
-                              toolbarTitle: 'Crop Image',
-                              toolbarColor: AppColors.primaryColor,
-                              toolbarWidgetColor: Colors.white,
-                              initAspectRatio: CropAspectRatioPreset.ratio16x9,
-                              lockAspectRatio: true,
-                            ),
-                            IOSUiSettings(title: 'Crop Image'),
-                          ],
-                        );
-
-                        if (croppedFile != null) {
-                          setState(() {
-                            _croppedImage = File(croppedFile.path);
-                            kycBloc.uploadFile(_croppedImage!);
-                          });
-                        }
-                      } else {
-                        // viewModel.setPickImageUIState(null);
-                      }
-                    });
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      color: AppColors.secondaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(
-                      AppIcons.svg.camera,
-                      colorFilter: AppColors.svg(Colors.white),
-                    ).paddingAll(7),
-                  ).paddingBottom(15),
-                ),
-              ),
-            ],
+    return SizedBox(
+      height: profileSize,
+      width: profileSize,
+      child: Container(
+        height: profileSize,
+        width: profileSize,
+        decoration: BoxDecoration(
+          color: AppColors.profileBgGrey,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          _getInitials(widget.profileData.details?.companyName ?? ''),
+          style: GoogleFonts.ubuntu(
+            fontSize: profileSize * 0.35,
+            color: AppColors.black,
+            fontWeight: FontWeight.w400,
           ),
-        );
-      },
-      listener: (context, state) {
-        // if (state is UploadFileSuccess) {
-        //   profileBloc.add(
-        //     ProfileImageUploadRequested(
-        //       userId: lpHomeLocator.userId ?? "",
-        //       profileImageUploadRequest: ProfileImageUploadRequest(
-        //         imageUrl: state.uploadFileModel.data!.url ?? "",
-        //       ),
-        //     ),
-        //   );
-        //   Future.delayed(Duration(seconds: 1), () {
-        //     ToastMessages.success(message: "File uploaded successfully");
-        //     lpHomeLocator.add(
-        //       ProfileDetailRequested(lpHomeLocator.userId ?? ""),
-        //     );
-        //   });
-        // } else if (state is AddharOtpError) {
-        //   ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-        // }
-      },
+        ),
+      )
     );
   }
+
+  // Widget buildUploadProfilePictureWidget({required BuildContext context}) {
+  //   return BlocConsumer(
+  //     bloc: kycBloc,
+  //     builder: (context, state) {
+  //       return InkWell(
+  //         onTap: () {
+  //           commonBottomSheet(
+  //             context: context,
+  //             barrierDismissible: true,
+  //             screen: const UploadFileAndImageBottomSheet(),
+  //           ).then((value) async {
+  //             if (value != null && value["path"] != null) {
+  //               File file = File(value["path"]);
+  //               pickImage = file;
+  //
+  //               final croppedFile = await ImageCropper().cropImage(
+  //                 sourcePath: pickImage.path,
+  //                 aspectRatio: const CropAspectRatio(
+  //                   ratioX: 1,
+  //                   ratioY: 1,
+  //                 ),
+  //
+  //                 uiSettings: [
+  //                   AndroidUiSettings(
+  //                     toolbarTitle: 'Crop Image',
+  //                     toolbarColor: AppColors.primaryColor,
+  //                     toolbarWidgetColor: Colors.white,
+  //                     initAspectRatio: CropAspectRatioPreset.ratio16x9,
+  //                     lockAspectRatio: true,
+  //                   ),
+  //                   IOSUiSettings(title: 'Crop Image'),
+  //                 ],
+  //               );
+  //
+  //               if (croppedFile != null) {
+  //                 setState(() {
+  //                   _croppedImage = File(croppedFile.path);
+  //                   kycBloc.uploadFile(_croppedImage!);
+  //                 });
+  //               }
+  //             } else {
+  //               // viewModel.setPickImageUIState(null);
+  //             }
+  //           });
+  //         },
+  //         child: SizedBox(
+  //           height: profileSize,
+  //           width: profileSize,
+  //           child: Stack(
+  //             alignment: Alignment.center,
+  //             children: [
+  //               BlocConsumer(
+  //                 bloc: lpHomeLocator,
+  //                 builder: (context, state) {
+  //                   return profileImage.isEmpty
+  //                       ? Container(
+  //                     height: profileSize,
+  //                     width: profileSize,
+  //                     decoration: BoxDecoration(
+  //                       color: AppColors.profileBgGrey,
+  //                       shape: BoxShape.circle,
+  //                     ),
+  //                     alignment: Alignment.center,
+  //                     child: Text(
+  //                       _getInitials(widget.profileData.details?.companyName ?? ''),
+  //                       style: TextStyle(
+  //                         fontSize: profileSize * 0.35,
+  //                         color: AppColors.black,
+  //                         fontWeight: FontWeight.bold,
+  //                       ),
+  //                     ),
+  //                   )
+  //                       : commonCacheNetworkImage(
+  //                     path: profileImage,
+  //                     height: profileSize,
+  //                     width: profileSize,
+  //                     radius: 100,
+  //                     errorImage: AppImage.png.userProfileError,
+  //                   );
+  //                 },
+  //                 listener: (context, state) {
+  //                   if (state is ProfileDetailSuccess) {
+  //                     profileImage =
+  //                         state
+  //                             .profileDetailResponse
+  //                             .data!
+  //                             .details!
+  //                             .profileImageUrl ??
+  //                             "";
+  //                     widget.profileData = state.profileDetailResponse.data!;
+  //                   }
+  //                 },
+  //               ),
+  //               // Align(
+  //               //   alignment: Alignment.bottomRight,
+  //               //   child: InkWell(
+  //               //     onTap: () {
+  //               //       commonBottomSheet(
+  //               //         context: context,
+  //               //         barrierDismissible: true,
+  //               //         screen: const UploadFileAndImageBottomSheet(),
+  //               //       ).then((value) async {
+  //               //         if (value != null && value["path"] != null) {
+  //               //           File file = File(value["path"]);
+  //               //           pickImage = file;
+  //               //
+  //               //           final croppedFile = await ImageCropper().cropImage(
+  //               //             sourcePath: pickImage.path,
+  //               //             aspectRatio: const CropAspectRatio(
+  //               //               ratioX: 1,
+  //               //               ratioY: 1,
+  //               //             ),
+  //               //
+  //               //             uiSettings: [
+  //               //               AndroidUiSettings(
+  //               //                 toolbarTitle: 'Crop Image',
+  //               //                 toolbarColor: AppColors.primaryColor,
+  //               //                 toolbarWidgetColor: Colors.white,
+  //               //                 initAspectRatio: CropAspectRatioPreset.ratio16x9,
+  //               //                 lockAspectRatio: true,
+  //               //               ),
+  //               //               IOSUiSettings(title: 'Crop Image'),
+  //               //             ],
+  //               //           );
+  //               //
+  //               //           if (croppedFile != null) {
+  //               //             setState(() {
+  //               //               _croppedImage = File(croppedFile.path);
+  //               //               kycBloc.uploadFile(_croppedImage!);
+  //               //             });
+  //               //           }
+  //               //         } else {
+  //               //           // viewModel.setPickImageUIState(null);
+  //               //         }
+  //               //       });
+  //               //     },
+  //               //     child: Container(
+  //               //       height: 40,
+  //               //       width: 40,
+  //               //       decoration: const BoxDecoration(
+  //               //         color: AppColors.secondaryColor,
+  //               //         shape: BoxShape.circle,
+  //               //       ),
+  //               //       child: SvgPicture.asset(
+  //               //         AppIcons.svg.camera,
+  //               //         colorFilter: AppColors.svg(Colors.white),
+  //               //       ).paddingAll(7),
+  //               //     ).paddingBottom(15),
+  //               //   ),
+  //               // ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //     listener: (context, state) {
+  //       // if (state is UploadFileSuccess) {
+  //       //   profileBloc.add(
+  //       //     ProfileImageUploadRequested(
+  //       //       userId: lpHomeLocator.userId ?? "",
+  //       //       profileImageUploadRequest: ProfileImageUploadRequest(
+  //       //         imageUrl: state.uploadFileModel.data!.url ?? "",
+  //       //       ),
+  //       //     ),
+  //       //   );
+  //       //   Future.delayed(Duration(seconds: 1), () {
+  //       //     ToastMessages.success(message: "File uploaded successfully");
+  //       //     lpHomeLocator.add(
+  //       //       ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+  //       //     );
+  //       //   });
+  //       // } else if (state is AddharOtpError) {
+  //       //   ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+  //       // }
+  //     },
+  //   );
+  // }
 }

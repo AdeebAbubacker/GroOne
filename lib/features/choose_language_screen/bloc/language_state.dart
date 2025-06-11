@@ -5,17 +5,43 @@ part of 'language_bloc.dart';
 
 enum CounterStatus { initial, isLoading, isSuccess, isFailed }
 
+// class LanguageState extends Equatable {
+//   const LanguageState({this.index = 0, this.status = CounterStatus.initial});
+//
+//   final int index;
+//   final CounterStatus status;
+//
+//   LanguageState copyWith({int? counter, CounterStatus? status}) => LanguageState(
+//     index: counter ?? this.index,
+//     status: status ?? this.status,
+//   );
+//
+//   @override
+//   List<Object?> get props => [index, status];
+// }
+
 class LanguageState extends Equatable {
-  const LanguageState({this.index = 0, this.status = CounterStatus.initial});
+  const LanguageState({
+    this.index = 0,
+    this.status = CounterStatus.initial,
+    this.languages = const [],
+  });
 
   final int index;
   final CounterStatus status;
+  final List<LanguageModel> languages;
 
-  LanguageState copyWith({int? counter, CounterStatus? status}) => LanguageState(
-    index: counter ?? this.index,
-    status: status ?? this.status,
-  );
+  LanguageState copyWith({
+    int? counter,
+    CounterStatus? status,
+    List<LanguageModel>? languages,
+  }) =>
+      LanguageState(
+        index: counter ?? this.index,
+        status: status ?? this.status,
+        languages: languages ?? this.languages,
+      );
 
   @override
-  List<Object?> get props => [index, status];
+  List<Object?> get props => [index, status, languages];
 }

@@ -54,6 +54,7 @@ class SvgIcons {
   final String commodity = "${_svgBasePath}commodity.svg";
   final String dateAndTime = "${_svgBasePath}date_and_time.svg";
   final String kgWeight = "${_svgBasePath}kg_weight.svg";
+  final String weight = "${_svgBasePath}weight_icon.svg";
   final String truck = "${_svgBasePath}truck.svg";
   final String markerLocation = "${_svgBasePath}marker_location.svg";
   final String myLocation = "${_svgBasePath}my_location.svg";
@@ -72,6 +73,7 @@ class SvgIcons {
   final String truck22Feet = "${_svgBasePath}truck_22_feet.svg";
   final String truck24Feet = "${_svgBasePath}truck_24_feet.svg";
   final String truck32Feet = "${_svgBasePath}truck_32_feet.svg";
+  final String notification = "${_svgBasePath}notification_icon.svg";
 
 
 }
