@@ -24,6 +24,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -150,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Get Otp Button
                     AppButton(
                       isLoading: isLoading,
-                      title: context.appText.getOtp,
+                      title: "Get OTP",
                       style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
                       onPressed: () {
                         if(phoneNumber.text.length==10 && checkBoxBool==true){
@@ -175,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: AppTextStyle.blackColor14w400,
                           ),
                           TextSpan(
-                            text: context.appText.termsAndConditions,
+                            text: "Terms & Conditions",
                             style: AppTextStyle.primaryColor14w400UnderLine,
                             recognizer:
                                 TapGestureRecognizer()
@@ -189,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: AppTextStyle.blackColor14w400,
                           ),
                           TextSpan(
-                            text: context.appText.privacyPolicy,
+                            text: "Privacy Policy",
                             style: AppTextStyle.primaryColor14w400UnderLine,
                             recognizer:
                                 TapGestureRecognizer()

@@ -37,7 +37,7 @@ class AppButton extends StatelessWidget {
         style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
         child: isLoading == true
             ?  CupertinoActivityIndicator(color: Colors.white)
-            : richTextWidget ?? Text(title.capitalize, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
+            : richTextWidget ?? Text(title ?? "", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
           style: textStyle ?? (style == AppButtonStyle.outline ? AppTextStyle.buttonPrimaryColorTextColor : AppTextStyle.buttonWhiteTextColor),
         ),
       ),

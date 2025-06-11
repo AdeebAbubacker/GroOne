@@ -47,7 +47,8 @@ class AppColors {
   static const Color extraLightGreyTextColor = Colors.black38;
 
   // Body & Appbar color
-  static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
+  //static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
+  static const Color scaffoldBackgroundColor = Colors.white;
   static const Color appBarBackgroundColor = Colors.white;
 
   // Button Color

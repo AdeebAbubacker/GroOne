@@ -176,18 +176,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   children: [
                     30.height,
                     Text(
-                      context.appText.otpVerification,
+                      "Mobile OTP Verification",
                       style: AppTextStyle.textBlackColor30w500,
                     ),
                     20.height,
                     Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            textAlign: TextAlign.start,
-                            context.appText.enterOtpSendNumber,
-                            style: AppTextStyle.textBlackColor18w400,
-                          ),
+                        Text(
+                          textAlign: TextAlign.start,
+                          context.appText.enterOtpSendNumber,
+                          style: AppTextStyle.textBlackColor18w400,
                         ),
 
                         Text(

@@ -57,9 +57,9 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(context.appText.ourValueAddedServices, style: AppTextStyle.body1),
+                child: Text("Value Added Services", style: AppTextStyle.body1),
               ),
-              Icon(Icons.arrow_forward_outlined),
+              // Icon(Icons.arrow_forward_outlined),
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),
           20.height,
@@ -75,6 +75,24 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                     15.width,
 
                     _buildServicesWidget(
+                      title: context.appText.gps,
+                      imageString: AppImage.png.gps,
+                      onClick: () {
+                        context.push(AppRouteName.gps);
+                      },
+                    ),
+                    15.width,
+
+                    _buildServicesWidget(
+                      title: "Fuel Card",
+                      imageString: AppImage.png.enDhan,
+                      onClick: () {
+                        context.push(AppRouteName.enDhanCard);
+                      },
+                    ),
+                    15.width,
+
+                    _buildServicesWidget(
                       title: context.appText.buyFastTag,
                       imageString: AppImage.png.buyFastTag,
                       onClick: () {
@@ -85,43 +103,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
 
 
                     _buildServicesWidget(
-                      title: context.appText.enDan,
-                      imageString: AppImage.png.enDhan,
-                      onClick: () {
-                        context.push(AppRouteName.enDhanCard);
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: context.appText.gps,
-                      imageString: AppImage.png.gps,
-                      onClick: () {
-                        context.push(AppRouteName.gps);
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: context.appText.instantLoan,
-                      imageString: AppImage.png.insuranceLoan,
-                      onClick: () {
-                        context.push(AppRouteName.instantLoan);
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: context.appText.insurance,
-                      imageString: AppImage.png.insurance,
-                      onClick: () {
-                        context.push(AppRouteName.insurance);
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: context.appText.kavach,
+                      title: "Tank Lock",
                       imageString: AppImage.png.kavach,
                       onClick: () {
                         Navigator.push(context, CupertinoPageRoute(builder: (context) => KavachOrdersListScreen(), settings: RouteSettings(name: 'KavachOrderListScreen')),
@@ -129,6 +111,31 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                       },
                     ),
                     15.width,
+
+
+
+
+
+                    //
+                    // _buildServicesWidget(
+                    //   title: context.appText.instantLoan,
+                    //   imageString: AppImage.png.insuranceLoan,
+                    //   onClick: () {
+                    //     context.push(AppRouteName.instantLoan);
+                    //   },
+                    // ),
+                    // 15.width,
+                    //
+                    // _buildServicesWidget(
+                    //   title: context.appText.insurance,
+                    //   imageString: AppImage.png.insurance,
+                    //   onClick: () {
+                    //     context.push(AppRouteName.insurance);
+                    //   },
+                    // ),
+                    15.width,
+
+
 
                   ],
                 ),
@@ -166,8 +173,8 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
     return InkWell(
       onTap: onClick,
       child: Container(
-        width: 110,
-        height: 100,
+        width: 100,
+        height: 90,
         decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +182,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
             Image.asset(imageString, width: 30),
             10.height,
             
-            Text(title,textAlign: TextAlign.center, style: AppTextStyle.body3),
+            Text(title,textAlign: TextAlign.center, style: AppTextStyle.h6),
           ],
         ),
       ),
