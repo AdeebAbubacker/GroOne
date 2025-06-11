@@ -32,7 +32,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: commonContainerDecoration(borderColor: AppColors.borderColor, borderWidth: 1),
+      decoration: commonContainerDecoration(borderColor: AppColors.primaryColor, borderWidth: 1),
       child: Column(
         children: [
           Row(
@@ -53,11 +53,11 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                 Row(
+                 Wrap(
                    children: [
-                     Text(widget.data.pickUpAddr, style: AppTextStyle.blackColor15w500, maxLines: 1).expand(),
+                     Text(widget.data.pickUpAddr, style: AppTextStyle.blackColor15w500,maxLines: 2,),
                      Icon(Icons.arrow_right_alt_outlined, color: AppColors.primaryColor).paddingSymmetric(horizontal: 2),
-                     Text(widget.data.dropAddr, maxLines: 1, style: AppTextStyle.blackColor15w500).expand(),
+                     Text(widget.data.dropAddr, style: AppTextStyle.blackColor15w500,maxLines: 2,),
                    ],
                  ),
                   Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
@@ -68,17 +68,16 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
 
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
-
           Row(
             children: [
-              detailWidget(text: widget.data.truckType!.type, iconSvg: AppIcons.svg.deliveryTruckSpeed),
-              detailWidget(text: widget.data.truckType!.subType, iconSvg: AppIcons.svg.deliveryTruckSpeed)
+              detailWidget(text: widget.data.truckType?.type??"--", iconSvg: AppIcons.svg.deliveryTruckSpeed),
+              detailWidget(text: widget.data.truckType?.subType??"--", iconSvg: AppIcons.svg.deliveryTruckSpeed)
             ],
           ),
           10.height,
           Row(
             children: [
-              detailWidget(text: widget.data.commodity!.name, iconSvg: AppIcons.svg.package),
+              detailWidget(text: widget.data.commodity?.name??"--", iconSvg: AppIcons.svg.package),
               detailWidget(text: "${widget.data.consignmentWeight} Tonn", iconSvg: AppIcons.svg.weight)
             ],
           ),
@@ -97,12 +96,15 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
           Row(
             children: [
               IconButton(
-                onPressed: () async => await callRedirect(widget.data.customer!.mobileNumber),
+                // onPressed: () async => await callRedirect(widget.data.customer!.mobileNumber),
+                onPressed: () {
+
+                },
                 icon: Container(
                   alignment: Alignment.center,
                   padding: EdgeInsetsGeometry.all(5),
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: AppColors.primaryColor,width: 1.5)),
-                  child: SvgPicture.asset(AppIcons.svg.support , width: 30,colorFilter: AppColors.svg(AppColors.primaryColor),),
+                  child: SvgPicture.asset(AppIcons.svg.support , width: 25,colorFilter: AppColors.svg(AppColors.primaryColor),),
                 ),
               ),
               10.width,
@@ -119,15 +121,14 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
       ),
     );
   }
-}
-
-Widget detailWidget({required String text,required String iconSvg,}){
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-      SvgPicture.asset(iconSvg, width: 18, colorFilter: AppColors.svg(AppColors.black)),
-      10.width,
-      Text(text, style: AppTextStyle.body),
-    ],
-  ).expand();
+  Widget detailWidget({required String text,required String iconSvg,}){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SvgPicture.asset(iconSvg, width: 18, colorFilter: AppColors.svg(AppColors.black)),
+        10.width,
+        Text(text, style: AppTextStyle.body),
+      ],
+    ).expand();
+  }
 }

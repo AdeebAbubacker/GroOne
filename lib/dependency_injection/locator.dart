@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/choose_language_screen/repository/language_repository.dart';
+import 'package:gro_one_app/features/choose_language_screen/service/language_service.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -88,6 +90,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -103,12 +106,13 @@ void initLocator() {
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
 
     // Bloc
-    locator.registerLazySingleton(() => LanguageBloc());
+    locator.registerLazySingleton(() => LanguageBloc(locator<LanguageRepository>()));
     locator.registerLazySingleton(() => RoleBloc());
     locator.registerLazySingleton(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerLazySingleton(() => OtpBloc(locator<OtpRepository>()));

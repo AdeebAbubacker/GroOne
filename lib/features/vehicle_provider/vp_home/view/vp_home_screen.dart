@@ -12,10 +12,12 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_all_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/trip_scheduling_screen.dart';
@@ -107,7 +109,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: _buildAppBar(context),
+        // appBar: _buildAppBar(context),
         body: _buildBody(context),
     );
   }
@@ -309,7 +311,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     // if (state.vpMyLoadResponse.data.length > 2)
                     TextButton(
                       onPressed: () {
-                        // Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
+                       
                       },
                       style: AppButtonStyle.primaryTextButton,
                       child: Text("View All", style: AppTextStyle.h5WhiteColor),
@@ -336,7 +338,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     }
 
                     return ListView.separated(
-                      itemCount: vpMyLoadResponse!.data.length > 2 ? 2 : vpMyLoadResponse!.data.length,
+                      itemCount: vpMyLoadResponse!.data.length > 3 ? 3 : vpMyLoadResponse!.data.length,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       separatorBuilder: (context, index) => 20.height,
@@ -508,7 +510,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.appText.recentAddedLoad, style: AppTextStyle.body1).expand(),
+              Text(context.appText.availableLoads, style: AppTextStyle.body1).expand(),
 
               // See More
               TextButton(
@@ -521,8 +523,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
             ],
           ),
-          10.height,
-          buildSearchBarAndFilterWidget(context),
+          // 10.height,
+          // buildSearchBarAndFilterWidget(context),
           20.height,
 
           // List
@@ -538,7 +540,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               if (state is VpRecentLoadListSuccess) {
                 if(state.vpRecentLoadResponse.data.isNotEmpty){
                   return ListView.separated(
-                    itemCount: state.vpRecentLoadResponse.data.length,
+                    itemCount: state.vpRecentLoadResponse.data.length > 3? 3 : state.vpRecentLoadResponse.data.length,
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     separatorBuilder: (context, index) => 20.height,
