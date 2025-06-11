@@ -16,6 +16,22 @@ class VpCreationError extends VpCreationState {
   final ErrorType errorType;
   VpCreationError(this.errorType);
 }
+sealed class VpCompanyTypeState {}
+
+/// Vp Company Type State
+class VpCompanyTypeInitial extends VpCreationState {}
+
+class VpCompanyTypeLoading extends VpCreationState {}
+
+class VpCompanyTypeSuccess extends VpCreationState {
+  final LpCompanyTypeResponse companyType;
+  VpCompanyTypeSuccess(this.companyType);
+}
+
+class VpCompanyTypeError extends VpCreationState {
+  final ErrorType errorType;
+  VpCompanyTypeError(this.errorType);
+}
 
 /// Logout State
 class LogoutInitial extends VpCreationState {}

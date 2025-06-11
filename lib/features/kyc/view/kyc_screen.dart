@@ -61,10 +61,6 @@ class _KycScreenState extends State<KycScreen> {
   final FocusNode tanFocusNode = FocusNode();
   final FocusNode panFocusNode = FocusNode();
 
-  // bool verifiedPan = false;
-  // bool verifiedGst = false;
-  // bool verifiedTan = false;
-
 
   List<dynamic> gstDoc = [];
   List<dynamic> panDoc = [];
@@ -159,7 +155,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "GST verified successfully");
     }
     if (kycBloc.state.gstState?.status == Status.ERROR) {
-      ToastMessages.error(message: getErrorMsg(errorType: kycBloc.state.gstState!.errorType!));
+      ToastMessages.error(message: "GST not verify");
     }
   }
 
@@ -172,7 +168,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "TAN verified successfully");
     }
     if (kycBloc.state.tanState?.status == Status.ERROR) {
-      ToastMessages.error(message: getErrorMsg(errorType: kycBloc.state.tanState!.errorType!));
+      ToastMessages.error(message: "TAN not verify");
     }
   }
 
@@ -185,7 +181,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "Pan verified successfully");
     }
     if (kycBloc.state.panState?.status == Status.ERROR) {
-      ToastMessages.error(message: getErrorMsg(errorType: kycBloc.state.panState!.errorType!));
+      ToastMessages.error(message: "PAN not verify");
     }
   }
 
@@ -200,17 +196,10 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  // List<dynamic> gstDoc = [];
-  // List<dynamic> panDoc = [];
-  // List<dynamic> tanDoc = [];
-  // List<dynamic> checkDocLink = [];
-  // List<dynamic> tdsDocLink = [];
-  // List<dynamic> tds = [];
-  // String uploadLink = "";
-  //
 
   Widget _buildBodyWidget(){
     return SafeArea(
+      bottom: false,
       child: SingleChildScrollView(
         padding: EdgeInsets.all(commonSafeAreaPadding),
         child: BlocConsumer<KycCubit, KycState>(
@@ -384,7 +373,7 @@ class _KycScreenState extends State<KycScreen> {
                         }
                       },
                     ),
-                    10.height,
+                    30.height,
                   ],
                 );
               },

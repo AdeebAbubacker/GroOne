@@ -98,6 +98,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     mobileNumberTextController.text = widget.mobileNumber;
     loadTruckTypeBloc.add(LoadTruckType());
     vpCreationBloc.add(GetTruckTypeEvent());
+    vpCreationBloc.add(VpCompanyTypeEvent());
   });
 
   void disposeFunction() => frameCallback(() {

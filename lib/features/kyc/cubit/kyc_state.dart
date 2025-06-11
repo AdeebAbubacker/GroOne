@@ -3,9 +3,9 @@ part of 'kyc_cubit.dart';
 class KycState extends Equatable {
   final UIState<AadhaarOtpModel>? aadhaarOtpState;
   final UIState<AadhaarVerifyOtpModel>? aadhaarVerifyOtpState;
-  final UIState<VerifyGstModel>? gstState;
-  final UIState<VerifyTanModel>? tanState;
-  final UIState<VerifyPanModel>? panState;
+  final UIState<bool>? gstState;
+  final UIState<bool>? tanState;
+  final UIState<bool>? panState;
   final UIState<UploadFileModel>? fileUploadState;
   final UIState<SubmitKycModel>? submitKycState;
   final bool? verifiedPan;
@@ -28,9 +28,9 @@ class KycState extends Equatable {
   KycState copyWith({
     UIState<AadhaarOtpModel>? aadhaarOtpState,
     UIState<AadhaarVerifyOtpModel>? aadhaarVerifyOtpState,
-    UIState<VerifyGstModel>? gstState,
-    UIState<VerifyTanModel>? tanState,
-    UIState<VerifyPanModel>? panState,
+    UIState<bool>? gstState,
+    UIState<bool>? tanState,
+    UIState<bool>? panState,
     UIState<UploadFileModel>? fileUploadState,
     UIState<SubmitKycModel>? submitKycState,
     bool? verifiedPan,

@@ -112,7 +112,7 @@ void initLocator() {
     locator.registerLazySingleton(() => RoleBloc());
     locator.registerLazySingleton(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerLazySingleton(() => OtpBloc(locator<OtpRepository>()));
-    locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>(), locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerLazySingleton(() => LpCreateBloc(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));

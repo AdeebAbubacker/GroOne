@@ -27,4 +27,14 @@ class LPHomeCubit extends Cubit<LPHomeState> {
     await Future.delayed(const Duration(seconds: 3));
     emit(state.copyWith(showSuccessKyc: false));
   }
+
+  void setDestination(Map<String, dynamic>? destination) {
+    emit(state.copyWith(destination: destination));
+  }
+
+  void setPickup(Map<String, dynamic>? pickup) {
+    emit(state.copyWith(pickup: pickup));
+  }
+
+
 }

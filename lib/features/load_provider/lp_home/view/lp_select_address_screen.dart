@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,8 +21,8 @@ import '../../../../utils/app_json.dart';
 class LPSelectAddressScreen extends StatefulWidget {
   final String title;
   final String? address;
-
-  const LPSelectAddressScreen({super.key, required this.title, this.address});
+  final String? location;
+  const LPSelectAddressScreen({super.key, required this.title, this.address, this.location});
 
   @override
   State<LPSelectAddressScreen> createState() =>
@@ -26,6 +30,9 @@ class LPSelectAddressScreen extends StatefulWidget {
 }
 
 class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
+
+  final lpHomeCubit = locator<LPHomeCubit>();
+
   GoogleMapController? _mapController;
   LatLng? _centerLatLng;
   String _locationField = '';
@@ -46,6 +53,10 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (widget.address != null) {
+        addressTextController.text = widget.address!;
+        searchTextController.text = widget.location!;
+      }
       await _handleCurrentLocation();
     });
   }
@@ -78,7 +89,9 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     final address = await MapHelper.getAddressFromLatLng(latLng);
     setState(() {
       _locationField = address;
-      searchTextController.text = address;
+      if (widget.address == null) {
+        searchTextController.text = address;
+      }
     });
     _setMarker(latLng);
   }
@@ -144,7 +157,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                     : GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: _centerLatLng!,
-                        zoom: 15,
+                        zoom: 10,
                       ),
                       onMapCreated:(controller) async {
                         _mapController = controller;
@@ -193,6 +206,13 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                     AppTextField(
                       controller: searchTextController,
                       hintText: "Search location...",
+                      decoration: commonInputDecoration(
+                        suffixIcon: Icon(Icons.clear, size: 20),
+                        suffixIconColor: AppColors.lightGreyIconBackgroundColor,
+                        suffixOnTap: (){
+                          searchTextController.clear();
+                        }
+                      ),
                       onChanged: (value) {
                         if (value.length > 2) {
                           _fetchSuggestions(value);
@@ -226,67 +246,47 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         ),
                       ),
                     12.height,
+
                     AppTextField(
                       controller: addressTextController,
                       labelText: "Address",
                       maxLines: 3,
                     ),
                     30.height,
+
                     AppButton(
                       title: "Continue",
                       onPressed: () {
-                        final manualAddress = addressTextController.text.trim();
-                        final locationAddress = _locationField.trim();
-                        final isValid =
-                            locationAddress.isNotEmpty &&
-                            locationAddress != 'No address found';
-                        // if (widget.title == "Pickup Point") {
-                        //   if (manualAddress.isNotEmpty) {
-                        //     context.pop({
-                        //       "address": manualAddress,
-                        //       "latLng": latLngData,
-                        //     });
-                        //   } else if (isValid) {
-                        //     context.pop({
-                        //       "address": locationAddress,
-                        //       "latLng": latLngData,
-                        //     });
-                        //   } else {
-                        //     _showError(
-                        //       "Failed to fetch current location address.",
-                        //     );
-                        //   }
-                        // } else {
-                        //   if (manualAddress.isEmpty && !isValid) {
-                        //     _showError(
-                        //       "Please provide or select a location address.",
-                        //     );
-                        //   } else {
-                        //     final resultAddress =
-                        //         manualAddress.isNotEmpty
-                        //             ? manualAddress
-                        //             : locationAddress;
-                        //     context.pop({
-                        //       "address": resultAddress,
-                        //       "latLng": latLngData,
-                        //     });
-                        //   }
-                        // }
+                        final manualAddress = addressTextController.text;
+                        final locationAddress = _locationField;
+                        final isValid = locationAddress.isNotEmpty && locationAddress != 'No address found';
+                        print("title ${widget.title}");
+                        setState(() {});
 
-                        if (manualAddress.isEmpty && !isValid) {
-                          _showError(
-                            "Please provide or select a location address.",
-                          );
-                        } else {
-                          final resultAddress =
-                          manualAddress.isNotEmpty
-                              ? manualAddress
-                              : locationAddress;
-                          context.pop({
-                            "address": resultAddress,
-                            "latLng": latLngData,
-                          });
+                        if (manualAddress.isEmpty) {
+                          _showError("Please provide a address");
+                          return;
                         }
+                        if (!isValid){
+                          _showError("Please select a valid location address.");
+                          return;
+                        }
+
+                        Map<String, dynamic> data = {
+                          "address": manualAddress,
+                          "location": locationAddress,
+                          "latLng": latLngData,
+                        };
+
+
+                        if(widget.title == "Pickup Point"){
+                          lpHomeCubit.setPickup(data);
+                          Navigator.of(context).pop(true);
+                        } else {
+                          lpHomeCubit.setDestination(data);
+                          Navigator.of(context).pop(true);
+                        }
+
                       },
                     ),
                     15.height

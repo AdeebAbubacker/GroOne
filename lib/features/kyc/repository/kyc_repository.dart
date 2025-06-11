@@ -43,7 +43,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyGstModel>> verifyGST(VerifyGstApiRequest request) async {
+  Future<Result<bool>> verifyGST(VerifyGstApiRequest request) async {
     try {
       return await _kycService.verifyGst(request);
     } catch (e) {
@@ -52,7 +52,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyTanModel>> verifyTan(VerifyTanApiRequest request) async {
+  Future<Result<bool>> verifyTan(VerifyTanApiRequest request) async {
     try {
       return await _kycService.verifyTan(request);
     } catch (e) {
@@ -61,7 +61,7 @@ class KycRepository {
     }
   }
 
-  Future<Result<VerifyPanModel>> verifyPan(VerifyPanApiRequest request) async {
+  Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
     try {
       return await _kycService.verifyPan(request);
     } catch (e) {

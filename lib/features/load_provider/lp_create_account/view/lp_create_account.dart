@@ -160,11 +160,38 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
+          // Company Name
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: companyNameTextController,
+            labelText: context.appText.companyName+"*",
+            hintText: "${context.appText.enter} ${context.appText.companyName}",
+          ),
+          20.height,
+
+          // Company Type
+          AppDropdown(
+            validator: (value) => Validator.fieldRequired(value),
+            labelText: "${context.appText.companyType}*",
+            hintText: context.appText.selectCompanyType,
+            dropdownValue: companyTypeDropDownValue,
+            decoration: commonInputDecoration(fillColor: Colors.white),
+            dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
+                value: e.id.toString(),
+                child: Text(e.companyType, style: AppTextStyle.body)),
+            ).toList(),
+            onChanged: (onChangeValue) {
+              companyTypeDropDownValue = onChangeValue;
+              setState(() {});
+            },
+          ),
+          20.height,
+
           // Name
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
-            labelText: context.appText.fullName,
+            labelText: context.appText.fullName+"*",
             hintText:  context.appText.fullNameHint,
           ),
           20.height,
@@ -198,39 +225,12 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: emailTextController,
-            labelText: context.appText.email,
+            labelText: context.appText.email+" Id*",
             hintText: context.appText.emailHint,
             keyboardType: TextInputType.emailAddress,
           ),
           20.height,
 
-          // Company Name
-          AppTextField(
-            validator: (value) => Validator.fieldRequired(value),
-            controller: companyNameTextController,
-            labelText: context.appText.companyName,
-            hintText: "${context.appText.enter} ${context.appText.companyName}",
-          ),
-          20.height,
-
-
-          // Company Type
-          AppDropdown(
-            validator: (value) => Validator.fieldRequired(value),
-            labelText: context.appText.companyName,
-            hintText: context.appText.selectCompanyType,
-            dropdownValue: companyTypeDropDownValue,
-            decoration: commonInputDecoration(fillColor: Colors.white),
-            dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
-              value: e.id.toString(),
-              child: Text(e.companyType, style: AppTextStyle.body)),
-            ).toList(),
-            onChanged: (onChangeValue) {
-              companyTypeDropDownValue = onChangeValue;
-              setState(() {});
-            },
-          ),
-          20.height,
 
           // Pin code
           AppTextField(
@@ -240,7 +240,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
               LengthLimitingTextInputFormatter(6),
              ],
             keyboardType: TextInputType.number,
-            labelText: context.appText.pincode,
+            labelText: context.appText.pincode+"*",
           ),
 
         ],

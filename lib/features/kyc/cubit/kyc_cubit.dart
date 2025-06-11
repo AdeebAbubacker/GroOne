@@ -78,7 +78,7 @@ class KycCubit extends Cubit<KycState> {
   Future<void> verifyGst(VerifyGstApiRequest request) async {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _kycRepository.verifyGST(request);
-    if (result is Success<VerifyGstModel>) {
+    if (result is Success<bool>) {
       emit(state.copyWith(gstState: UIState.success(result.value)));
       emit(state.copyWith(verifiedGst: true));
     }
@@ -91,7 +91,7 @@ class KycCubit extends Cubit<KycState> {
   Future<void> verifyTan(VerifyTanApiRequest request) async {
     emit(state.copyWith(tanState: UIState.loading()));
     Result result = await _kycRepository.verifyTan(request);
-    if (result is Success<VerifyTanModel>) {
+    if (result is Success<bool>) {
       emit(state.copyWith(tanState: UIState.success(result.value)));
       emit(state.copyWith(verifiedTan: true));
     }
@@ -104,7 +104,7 @@ class KycCubit extends Cubit<KycState> {
   Future<void> verifyPan(VerifyPanApiRequest request) async {
     emit(state.copyWith(panState: UIState.loading()));
     Result result = await _kycRepository.verifyPan(request);
-    if (result is Success<VerifyPanModel>) {
+    if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
       emit(state.copyWith(verifiedPan: true));
     }
