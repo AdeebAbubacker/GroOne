@@ -14,6 +14,7 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -58,12 +59,14 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final attachedTruckTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
 
+
   final MultiSelectController<String> truckTypeController = MultiSelectController<String>();
   final MultiSelectController<String>  preferredLanesTypeController = MultiSelectController<String>();
 
   String? preferredLanesDropDownValue;
   String? truckTypeDropDownValue;
   String? uploadedRcFile;
+  String? companyTypeDropDownValue;
 
 
   List<dynamic> multiFilesList = [];
@@ -99,6 +102,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     loadTruckTypeBloc.add(LoadTruckType());
     vpCreationBloc.add(GetTruckTypeEvent());
     vpCreationBloc.add(VpCompanyTypeEvent());
+
+    print("call company type");
+
   });
 
   void disposeFunction() => frameCallback(() {
@@ -260,6 +266,43 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           hintText: "${context.appText.enter} ${context.appText.companyName}",
         ),
         20.height,
+
+        // Company Type
+        BlocConsumer<VpCreationBloc, VpCreationState>(
+          bloc: vpCreationBloc,
+          listener: (context, state) {
+            print("State : ${state}");
+            if (state is VpCompanyTypeError) {
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            }
+          },
+          builder: (context, state) {
+            print("State : ${state}");
+            if(state is VpCompanyTypeSuccess){
+              return Column(
+                children: [
+                  AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value),
+                    labelText: "${context.appText.companyType}*",
+                    hintText: context.appText.selectCompanyType,
+                    dropdownValue: companyTypeDropDownValue,
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: state.companyType.data.map((e) => DropdownMenuItem(
+                        value: e.id.toString(),
+                        child: Text(e.companyType, style: AppTextStyle.body)),
+                    ).toList(),
+                    onChanged: (onChangeValue) {
+                      companyTypeDropDownValue = onChangeValue;
+                      setState(() {});
+                    },
+                  ),
+                ],
+              );
+            }
+            return const SizedBox();
+          },
+        ),
+
 
         // TrucK Type
         BlocListener<VpCreationBloc, VpCreationState>(

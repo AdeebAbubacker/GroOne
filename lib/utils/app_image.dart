@@ -96,6 +96,7 @@ class SvgImages {
   final String logOut = "${_svgImageBasePath}logOut.svg";
   final String location = "${_svgImageBasePath}location.svg";
   final String logOutImage = "${_svgImageBasePath}log_out.svg";
+  final String customerSupport = "${_svgImageBasePath}customer_support.svg";
 }
 
 class JpgImage {

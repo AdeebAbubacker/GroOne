@@ -32,7 +32,7 @@ class AppLabelText {
   final String refresh = "Refresh";
   final String attachment = "Attachment";
   final String documents = "Documents";
-  final String docSupport = "*Only support .jpg, .png & .heic files not more than 5 mb.";
+  final String docSupport = "*Only support .jpg, .png & .heic & pdf files not more than 5 mb.";
   final String imageSupport = "*Only support .jpg, .png & .heic";
   final String imageSize = "Image size should be less than 8MB";
   final String fileSize = "File size should be less than 8MB";

@@ -17,6 +17,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -68,8 +69,82 @@ class _KycScreenState extends State<KycScreen> {
   List<dynamic> checkDocLink = [];
   List<dynamic> tdsDocLink = [];
   List<dynamic> tds = [];
+
   String uploadLink = "";
-  
+
+  String? selectedState;
+  String? selectedCity;
+
+  final List<String> stateList = [
+    "Maharashtra",
+    "Madhya Pradesh",
+    "Karnataka",
+    "Tamil Nadu",
+    "Gujarat",
+    "Rajasthan",
+    "Uttar Pradesh"
+  ];
+
+  final Map<String, List<String>> cityMap = {
+    "Maharashtra": [
+      "Mumbai",
+      "Pune",
+      "Nagpur",
+      "Nashik",
+      "Aurangabad",
+      "Thane"
+    ],
+    "Madhya Pradesh": [
+      "Indore",
+      "Bhopal",
+      "Jabalpur",
+      "Gwalior",
+      "Ujjain",
+      "Sagar"
+    ],
+    "Karnataka": [
+      "Bangalore",
+      "Mysore",
+      "Hubli",
+      "Mangalore",
+      "Belgaum",
+      "Tumkur"
+    ],
+    "Tamil Nadu": [
+      "Chennai",
+      "Coimbatore",
+      "Madurai",
+      "Salem",
+      "Tirunelveli",
+      "Vellore"
+    ],
+    "Gujarat": [
+      "Ahmedabad",
+      "Surat",
+      "Vadodara",
+      "Rajkot",
+      "Gandhinagar",
+      "Bhavnagar"
+    ],
+    "Rajasthan": [
+      "Jaipur",
+      "Udaipur",
+      "Jodhpur",
+      "Kota",
+      "Bikaner",
+      "Ajmer"
+    ],
+    "Uttar Pradesh": [
+      "Lucknow",
+      "Kanpur",
+      "Varanasi",
+      "Agra",
+      "Noida",
+      "Meerut"
+    ],
+  };
+
+
 
   @override
   void initState() {
@@ -259,20 +334,60 @@ class _KycScreenState extends State<KycScreen> {
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressLine1TextController,
-                                labelText: "Address Line 1*",
-                                hintText: "Enter Address Line 1",
-                              ),
-                              AppTextField(
-                                validator: (value) => Validator.fieldRequired(value),
-                                controller: addressLine2TextController,
-                                labelText: "Address Line 2*",
-                                hintText: "Enter Address Line 2",
+                                labelText: "Address Name*",
+                                hintText: "Enter Address name 1",
                               ),
 
                               AppTextField(
-                                controller: addressLine3TextController,
-                                labelText: "Address Line 3",
-                                hintText: "Enter Address Line 3",
+                                validator: (value) => Validator.fieldRequired(value),
+                                controller: addressLine2TextController,
+                                labelText: "Full Address*",
+                                hintText: "Enter full address",
+                              ),
+
+                              // AppTextField(
+                              //   controller: addressLine3TextController,
+                              //   labelText: "Address Line 3",
+                              //   hintText: "Enter Address Line 3",
+                              // ),
+
+                              // STATE DROPDOWN
+                              AppDropdown(
+                                validator: (value) => Validator.fieldRequired(value),
+                                labelText: "State*",
+                                hintText: "Select State",
+                                dropdownValue: selectedState,
+                                decoration: commonInputDecoration(fillColor: Colors.white),
+                                dropDownList: stateList.map((state) {
+                                  return DropdownMenuItem(
+                                    value: state,
+                                    child: Text(state, style: AppTextStyle.body),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  selectedState = value;
+                                  selectedCity = null; // Reset city when state changes
+                                  setState(() {});
+                                },
+                              ),
+
+                              // CITY DROPDOWN
+                              AppDropdown(
+                                validator: (value) => Validator.fieldRequired(value),
+                                labelText: "City*",
+                                hintText: "Select City",
+                                dropdownValue: selectedCity,
+                                decoration: commonInputDecoration(fillColor: Colors.white),
+                                dropDownList: (selectedState != null) ? cityMap[selectedState]!.map((city) {
+                                  return DropdownMenuItem(
+                                    value: city,
+                                    child: Text(city, style: AppTextStyle.body),
+                                  );
+                                }).toList() : [],
+                                onChanged: (value) {
+                                  selectedCity = value;
+                                  setState(() {});
+                                },
                               ),
 
                               AppTextField(
@@ -280,7 +395,7 @@ class _KycScreenState extends State<KycScreen> {
                                   FilteringTextInputFormatter.digitsOnly,
                                   LengthLimitingTextInputFormatter(6),
                                 ],
-                                keyboardType: TextInputType.number,
+                                keyboardType: iosNumberKeyboard,
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
                                 labelText: "Pin Code*",
@@ -422,6 +537,7 @@ class _KycScreenState extends State<KycScreen> {
 
         // Upload GST
         UploadAttachmentFiles(
+           title: "Upload GST Document",
             multiFilesList: gstDoc,
             isSingleFile: true,
             isLoading: kycState.fileUploadState?.status == Status.LOADING
@@ -460,6 +576,7 @@ class _KycScreenState extends State<KycScreen> {
 
         // Upload TAN Doc
         UploadAttachmentFiles(
+          title: "Upload TAN Document",
           multiFilesList: tanDoc,
           isSingleFile: true,
           isLoading: kycState.fileUploadState?.status == Status.LOADING,
@@ -496,17 +613,18 @@ class _KycScreenState extends State<KycScreen> {
 
         // Upload PAN Doc
         UploadAttachmentFiles(
+          title: "Upload PAN Document",
           multiFilesList: panDoc,
           isSingleFile: true,
           isLoading: kycState.fileUploadState?.status == Status.LOADING,
         ),
 
 
-        20.height,
+        30.height,
 
         Builder(
             builder: (context){
-              if(kycBloc.userRole != null && kycBloc.userRole != "2") {
+              if(kycBloc.userRole != null && kycBloc.userRole == "2") {
                 return Column(
                   children: [
 

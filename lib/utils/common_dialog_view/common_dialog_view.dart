@@ -10,14 +10,15 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class CommonDialogView extends StatefulWidget {
   final String? message;
   final String? heading;
-  final void Function()? onContinue;
-  final void Function()? afterDismiss;
-  final Widget? child;
-  final GestureTapCallback? onClickYesButton;
   final bool? showYesNoButtonButtons;
   final String? yesButtonText;
   final String? noButtonText;
-  const CommonDialogView({super.key, this.child, this.onClickYesButton, this.showYesNoButtonButtons = false, this.yesButtonText, this.noButtonText, this.message, this.heading, this.onContinue, this.afterDismiss,});
+  final String? onSingleButtonText;
+  final Widget? child;
+  final void Function()? onTapSingleButton;
+  final void Function()? afterDismiss;
+  final GestureTapCallback? onClickYesButton;
+  const CommonDialogView({super.key, this.child, this.onClickYesButton, this.showYesNoButtonButtons = false, this.yesButtonText, this.noButtonText, this.message, this.heading, this.onTapSingleButton, this.afterDismiss, this.onSingleButtonText,});
 
   @override
   State<CommonDialogView> createState() => _CommonDialogViewState();
@@ -37,24 +38,26 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           20.height,
         ],
 
-        if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.greenColor20w700),
-          20.height,
-        ],
-
-
         if(widget.heading != null)...[
-          Text(widget.heading!, textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+          Text(widget.heading!, textAlign: TextAlign.center, style: AppTextStyle.h3),
+          10.height,
+        ],
+
+        if(widget.message != null)...[
+          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
           20.height,
         ],
 
 
-        if(widget.onContinue != null)...[
+
+
+
+        if(widget.onTapSingleButton != null)...[
           AppButton(
-            onPressed:widget.onContinue ?? (){},
-            title: context.appText.continueText,
+            onPressed:widget.onTapSingleButton ?? (){},
+            title: widget.onSingleButtonText ?? context.appText.continueText,
           ),
-          20.height,
+          10.height,
         ],
         
 

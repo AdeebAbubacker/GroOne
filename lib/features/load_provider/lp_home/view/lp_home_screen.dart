@@ -42,6 +42,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_video.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -119,7 +120,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   @override
   void dispose() {
-    disposeFunction();
+    disposeFunction(context);
     _controller.removeListener(() {});
     _controller.dispose();
     super.dispose();
@@ -135,7 +136,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     await lpHomeCubit.startKycSuccessTimer();
   });
 
-  void disposeFunction() => frameCallback(() {
+  void disposeFunction(BuildContext context) => frameCallback(() {
     dateTimeTextController.clear();
     weightTextController.clear();
     lpHomeCubit.setDestination(null);
@@ -147,6 +148,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     rateDiscoveryPrice = null;
     truckType = null;
     truckLength = null;
+    commonHideKeyboard(context);
   });
 
 
@@ -163,6 +165,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         setState((){});
       }
     });
+  }
+
+
+  void supportDialog(BuildContext context){
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        heading: "Call Customer Support",
+        message: "Contact our Customer support agent",
+        onSingleButtonText: "Call",
+        onTapSingleButton: (){
+          Navigator.of(context).pop();
+        },
+        child: SvgPicture.asset(AppImage.svg.customerSupport),
+      ),
+    );
   }
 
 
@@ -368,30 +386,31 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 ),
                 15.height,
 
-
                 Builder(
-                    builder: (context){
-                      if(getLoadResponse != null){
-                        if (getLoadResponse!.data.isNotEmpty) {
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: getLoadResponse!.data.length,
-                            separatorBuilder: (BuildContext context, int index) => 20.height,
-                            itemBuilder: (context, index) {
-                              final loadData = getLoadResponse!.data[index];
-                              return buildUpcomingShipmentListBody(loadData, context);
-                            },
-                          );
-                        } else {
-                          return genericErrorWidget(error: NotFoundError());
-                        }
+                  builder: (context) {
+                    if (getLoadResponse != null) {
+                      if (getLoadResponse!.data.isNotEmpty) {
+                        final reversedList = getLoadResponse!.data.reversed.toList();
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: reversedList.length,
+                          separatorBuilder: (BuildContext context, int index) => 20.height,
+                          itemBuilder: (context, index) {
+                            final loadData = reversedList[index];
+                            return buildUpcomingShipmentListBody(loadData, context);
+                          },
+                        );
                       } else {
-                        return genericErrorWidget(error: GenericError());
+                        return genericErrorWidget(error: NotFoundError());
                       }
-                    },
+                    } else {
+                      return genericErrorWidget(error: GenericError());
+                    }
+                  },
                 )
+
 
                 ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
               ],
@@ -414,7 +433,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   Widget buildUpcomingShipmentListBody(LoadData loadData, BuildContext context) {
     return Container(
       padding: EdgeInsets.all(15),
-      decoration: commonContainerDecoration(color: AppColors.scaffoldBackgroundColor),
+      decoration: commonContainerDecoration(color: Colors.white, borderColor: AppColors.primaryColor),
       child: Column(
         children: [
 
@@ -426,25 +445,33 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
+                //  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
                   Text("GD12456", style: AppTextStyle.h5,  maxLines: 1),
+                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
                 ],
               ).expand(),
 
 
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
-                child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
-                ),
-              ),
-              10.width,
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              //   decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
+              //   child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
+              //   ),
+              // ),
+              // 10.width,
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text("Vehicle Provider", style: AppTextStyle.body4,  maxLines: 1),
-                  Text("Raj Sharma", style: AppTextStyle.h5,  maxLines: 1),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: commonContainerDecoration(color: AppColors.purpleColor.withAlpha(50)),
+                    child: Text("Matching...", style: AppTextStyle.body4PrimaryColor.copyWith(color: AppColors.purpleColor)),
+                  ),
+                  5.height,
+                  Text("98:00", style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+                  // Text("Vehicle Provider", style: AppTextStyle.body4,  maxLines: 1),
+                  // Text("Raj Sharma", style: AppTextStyle.h5,  maxLines: 1),
                 ],
               ).expand(),
             ],
@@ -458,61 +485,89 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4GreyColor),
-                  Text(loadData.pickUpAddr, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis),
-                ],
-              ).expand(),
 
-              Icon(Icons.arrow_forward, color: AppColors.primaryColor).paddingSymmetric(horizontal: 15),
+                  //Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4GreyColor),
+                  Row(
+                    children: [
+                      Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
+                      5.width,
+                      Text(loadData.pickUpAddr, style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ],
+              ),
+
+              commonDivider().paddingSymmetric(horizontal: 10).expand(),
+
+              //Icon(Icons.arrow_forward, color: AppColors.primaryColor).paddingSymmetric(horizontal: 15),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--",  style: AppTextStyle.body4GreyColor),
-                  Text(loadData.dropAddr,  style: AppTextStyle.body, maxLines: 1),
+                 // Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--",  style: AppTextStyle.body4GreyColor),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
+                      5.width,
+                      Text(loadData.dropAddr,  style: AppTextStyle.body, maxLines: 1),
+                    ],
+                  ),
                 ],
-              ).expand(),
+              ),
             ],
           ),
           20.height,
-
-
-          if (memoDone)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          
+          Container(
+            decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Text("Average Price", style: AppTextStyle.body1Normal),
+                Text("₹1200-1500", style: AppTextStyle.h3PrimaryColor),
+              ],
+            ).paddingSymmetric(horizontal: 20, vertical: 10),
+          ),
 
-                  AppButton(
-                    buttonHeight: 40,
-                    style: AppButtonStyle.outline,
-                    title: "Pay Now",
-                    onPressed: () {
-                      context.push(AppRouteName.lpPayNowAndTrackLoad);
-                    },
-                  ).expand(),
-                  15.width,
+          //20.height,
 
-                  AppButton(
-                    buttonHeight: 40,
-                    style: AppButtonStyle.outline,
-                    title: "Track Load",
-                    onPressed: () {
-                      context.push(AppRouteName.lpPayNowAndTrackLoad);
-                    },
-                  ).expand(),
 
-                ],
-              )
-            else
-               AppButton(
-                 buttonHeight: 40,
-                 style: AppButtonStyle.outline,
-                 title: context.appText.iAgreeTripToGo,
-                 onPressed: () {
-                   AppDialog.show(context, child: AdvancePaymentDialog());
-                   //showAdvancePaymentDialogue(context: context);
-                 },
-               ),
+          // if (memoDone)
+          //   Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //     children: [
+          //
+          //         AppButton(
+          //           buttonHeight: 40,
+          //           style: AppButtonStyle.outline,
+          //           title: "Pay Now",
+          //           onPressed: () {
+          //             context.push(AppRouteName.lpPayNowAndTrackLoad);
+          //           },
+          //         ).expand(),
+          //         15.width,
+          //
+          //         AppButton(
+          //           buttonHeight: 40,
+          //           style: AppButtonStyle.outline,
+          //           title: "Track Load",
+          //           onPressed: () {
+          //             context.push(AppRouteName.lpPayNowAndTrackLoad);
+          //           },
+          //         ).expand(),
+          //
+          //       ],
+          //     )
+          //   else
+          //      AppButton(
+          //        buttonHeight: 40,
+          //        style: AppButtonStyle.outline,
+          //        title: context.appText.iAgreeTripToGo,
+          //        onPressed: () {
+          //          AppDialog.show(context, child: AdvancePaymentDialog());
+          //          //showAdvancePaymentDialogue(context: context);
+          //        },
+          //      ),
 
         ],
       ),
@@ -583,11 +638,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               location: state.destination?['location'],
                             ), isForward: true)).then((onValue){
                               if(onValue != null && onValue == true){
-                                lpHomeCubit.setDestination(onValue);
+                                setState(() {});
+                                dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
+                                rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                               }
-                              setState(() {});
-                              dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
-                              rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                             });
 
                           },
@@ -816,7 +870,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     AppButton(
                       title: "Support",
                       style: AppButtonStyle.outline,
-                      onPressed: (){},
+                      onPressed: (){
+                        supportDialog(context);
+                      },
                     ).expand(),
 
                     10.width,
@@ -826,7 +882,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       bloc: loadPostingBloc,
                       listener: (context, state) {
                         if (state is CreateLoadSuccess) {
-                          disposeFunction();
+                          disposeFunction(context);
                         }
                       },
                       builder: (context, state) {
@@ -883,8 +939,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                               Navigator.push(context, commonRoute(LoadSummaryScreen(
                                 apiRequest: request,
-                                senderAddress:  lpHomeCubit.state.pickup?['address'] ?? "",
-                                receiverAddress:  lpHomeCubit.state.destination?['address'] ?? "",
+                                pickupAddress:  lpHomeCubit.state.pickup!['address'] ?? "",
+                                pickupLocation: lpHomeCubit.state.pickup!['location'] ?? "",
+                                destinationAddress:  lpHomeCubit.state.destination!['address'] ?? "",
+                                destinationLocation: lpHomeCubit.state.destination!['location'] ?? "",
                                 vehicleType: truckType ?? "",
                                 vehicleLength: truckLength ?? "",
                                 approxWeight: weightTextController.text,
@@ -893,8 +951,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 date : dateTimeTextController.text,
                               ), isForward: true)).then((onValue){
                                 loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
-                                if(onValue!=null && onValue == true){
-                                  disposeFunction();
+                                if(onValue != null && onValue == true){
+                                  if(!context.mounted) return;
+                                  disposeFunction(context);
                                 }
                               });
 
@@ -927,7 +986,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
           // Need Support Next
           TextButton(
-            onPressed: (){},
+            onPressed: (){
+              supportDialog(context);
+            },
             child: Text("Need Our Customer Support Help?",style: AppTextStyle.h6PrimaryColor),
           ).align(Alignment.center),
 

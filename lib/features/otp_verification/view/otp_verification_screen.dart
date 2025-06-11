@@ -49,6 +49,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final otpBloc = locator<OtpBloc>();
   String otpString = "";
 
+  bool clearOtp = false;
+
   int _start = 52;
   Timer? _timer;
 
@@ -208,6 +210,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     20.height,
                     Center(
                       child: OtpTextField(
+                        clearText: clearOtp,
                         decoration: InputDecoration(hintText: "-"),
                         numberOfFields: 4,
                         showFieldAsBox: true,

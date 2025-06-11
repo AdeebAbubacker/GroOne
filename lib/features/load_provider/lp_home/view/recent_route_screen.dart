@@ -269,12 +269,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return AppButton(
       title: "Select Different Route",
       onPressed: (){
-      Navigator.of(context).pushReplacement(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
-        if(onValue != null){
-          pickup = onValue;
-        }
-        setState(() {});
-      });
+      Navigator.of(context).pushReplacement(commonRoute(LPSelectAddressScreen(title: "Pickup Point"), isForward: true));
         // if(pickup != null && destination != null){
         //   Map data = {
         //     "pickup": pickup,

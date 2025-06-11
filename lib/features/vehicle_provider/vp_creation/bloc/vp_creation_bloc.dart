@@ -21,6 +21,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     on<LogoutAPIRequested>(logOutApiCall);
     on<GetTruckTypeEvent>(fetchTruckType);
     on<VpResetEvent>(resetUIState);
+    on<VpCompanyTypeEvent>(fetchCompanyTypeApiCall);
   }
 
 
