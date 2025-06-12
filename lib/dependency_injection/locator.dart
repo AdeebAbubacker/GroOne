@@ -16,7 +16,6 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
-import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
@@ -48,18 +47,22 @@ import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/features/splash/splash_repository.dart';
 import 'package:gro_one_app/features/splash/splash_service.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/repository/vp_all_load_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/service/vp_all_load_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+
+import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
 var locator = GetIt.instance;
 
@@ -91,6 +94,7 @@ void initLocator() {
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
+    locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -107,6 +111,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
+    locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(),locator<UserInformationRepository>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -137,6 +142,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KavachCheckoutAddAddressBloc(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachOrderBloc(locator<KavachRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => KavachOrderListBloc(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => VpLoadBloc(locator<VpLoadRepository>()));
 
     // Cubit
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));

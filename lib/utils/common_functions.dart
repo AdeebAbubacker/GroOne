@@ -24,7 +24,9 @@ import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'app_dialog.dart';
 import 'app_image.dart';
+import 'common_dialog_view/common_dialog_view.dart';
 
 
 /// Field Focus change
@@ -511,11 +513,6 @@ Color getKavachOrderStatusColor(String status) {
       return AppColors.primaryColor;
   }
 }
-
-
-
-
-
 
 
 void commonSupportDialog(BuildContext context){

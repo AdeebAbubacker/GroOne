@@ -14,10 +14,10 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/r
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
@@ -26,6 +26,7 @@ import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checko
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
+import 'features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
 class MultiBlocWrapper extends StatelessWidget {
   final Widget child;
@@ -62,6 +63,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LPHomeCubit>(create: (_) => locator<LPHomeCubit>()),
         BlocProvider<KavachOrderBloc>(create: (_) => locator<KavachOrderBloc>()),
         BlocProvider<KavachOrderListBloc>(create: (_) => locator<KavachOrderListBloc>()),
+        BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
       ],
       child: child,
     );

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_all_loads_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/vp_all_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -91,6 +91,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
+      elevation: 0,
       automaticallyImplyLeading: false,
       title: Image.asset(AppIcons.png.appIcon,height: 30,),
       actions: [
@@ -120,7 +121,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
               onTap: () {
                 Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true),
                 ).then((v) {
-                  frameCallback(() => lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+                  frameCallback(() => lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
                 });
               },
               child: commonCacheNetworkImage(

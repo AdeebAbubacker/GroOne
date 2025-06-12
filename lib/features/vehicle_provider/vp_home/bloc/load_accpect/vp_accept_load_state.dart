@@ -16,3 +16,5 @@ class VpAcceptLoadSuccess extends VpAcceptLoadState {
   final VpLoadAcceptModel vpLoadAcceptModel;
   VpAcceptLoadSuccess(this.vpLoadAcceptModel);
 }
+
+Set<String> loadingLoadIds = {};
