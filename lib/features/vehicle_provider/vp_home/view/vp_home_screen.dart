@@ -45,31 +45,27 @@ import '../bloc/vp_home_bloc/vp_home_bloc.dart';
 
 
 class VpHomeScreen extends StatefulWidget {
-  const VpHomeScreen({super.key});
+  final void Function(int bottomTabIndex, {int? allLoadsSubTabIndex}) onViewAllOrSeeMore;
+  const VpHomeScreen({super.key, required this.onViewAllOrSeeMore});
 
   @override
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
 class _VpHomeScreenState extends State<VpHomeScreen> {
-
-  late VideoPlayerController _controller;
-
   String profileImage = "";
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
-
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-
-
   final searchController = TextEditingController();
   ProfileDetailModel? profileResponse;
   VpMyLoadResponse? vpMyLoadResponse;
+  bool showKycSuccessBanner = false;
+
 
   @override
   void initState() {
-    initializeVideoPlayer(context);
     initFunction();
     super.initState();
   }
@@ -80,23 +76,30 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     super.dispose();
   }
 
-  // void initFunction() => frameCallback(() async {
-  //   await lpHomeBloc.getUserId() ?? "";
-  //   vpRecentLoadListBloc.add(VpRecentLoadEvent());
-  //   vpHomeScreenBloc.add(VpMyLoadListRequested());
-  //   lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
-  // });
 
   void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
-
     final completer = Completer();
     final subscription = lpHomeBloc.stream.listen((state) {
       if (state is ProfileDetailSuccess) {
         profileResponse = state.profileDetailResponse;
+        final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
+        if (isKycDone) {
+          setState(() {
+            showKycSuccessBanner = true;
+          });
+          Future.delayed(const Duration(seconds: 5), () {
+            if (mounted) {
+              setState(() {
+                showKycSuccessBanner = false;
+              });
+            }
+          });
+        }
         completer.complete();
       }
     });
+
     lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
     await completer.future;
     await subscription.cancel();
@@ -108,65 +111,42 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   void disposeFunction() => frameCallback(() {});
 
 
-  void initializeVideoPlayer(BuildContext context){
-    _controller = VideoPlayerController.asset(AppVideo.kycBlinking)
-      ..initialize().then((_) {
-        if (mounted) {
-          _controller.play();
-        }
-        setState(() {});
-      });
-    _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized && mounted) {
-        _controller.play();
-        setState(() {});
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        // appBar: _buildAppBar(context),
-        body: _buildBody(context),
-    );
-  }
-
-  /// Body
-  Widget _buildBody(BuildContext context) {
-    return  RefreshIndicator(
-        onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
-        },
-        child: SafeArea(
-          child:
-              Column(
-                children: [
-                  Builder(
-                      builder: (context) {
-                        if ( profileResponse != null ) {
-                          if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
-                            if (profileResponse!.data!.customer!.isKyc == 3) {
-                              return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
-                            } else {
-                              return buildKYCStatusWidget();
-                            }
-                          }
-                        }
-                        return SizedBox();
+    return RefreshIndicator(
+      onRefresh: () async {
+        vpRecentLoadListBloc.add(VpRecentLoadEvent());
+        vpHomeScreenBloc.add(VpMyLoadListRequested());
+      },
+      child: SafeArea(
+        child:
+        Column(
+          children: [
+            Builder(
+                builder: (context) {
+                  if ( profileResponse != null ) {
+                    if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
+                      if (profileResponse!.data!.customer!.isKyc == 3) {
+                        return showKycSuccessBanner
+                            ? SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h)
+                            : const SizedBox.shrink();
+                      } else {
+                        return buildKYCStatusWidget();
                       }
-                  ),
-
-                  OurValueAddedServicesWidget(),
-                  20.height,
-                  _buildRecentAddedLoadWidget(context),
-                  20.height,
-                  _buildMyLoadsWidget(context),
-                ],
-              ).withScroll(),
-        ),
-      );
+                    }
+                  }
+                  return SizedBox();
+                }
+            ),
+            OurValueAddedServicesWidget(),
+            20.height,
+            _buildRecentAddedLoadWidget(context),
+            20.height,
+            _buildMyLoadsWidget(context),
+          ],
+        ).withScroll(),
+      ),
+    );
   }
 
   /// KYC Widget
@@ -231,7 +211,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
                     TextButton(
                       onPressed: () {
-
+                        widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
                       },
                       style: AppButtonStyle.primaryTextButton,
                       child: Text("View All", style: AppTextStyle.h5WhiteColor),
@@ -351,8 +331,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 Text(context.appText.availableLoads, style: AppTextStyle.body1).expand(),
                 TextButton(
                   onPressed: () {
-                    // final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
-                    // Navigator.push(context, commonRoute(AvailableLoadsScreen(isKycDone: isKycDone,), isForward: true));
+                    widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
                   },
                   style: AppButtonStyle.primaryTextButton,
                   child: Text(context.appText.seeMore, style: AppTextStyle.h5WhiteColor),
@@ -388,74 +367,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           ],
         ).paddingSymmetric(horizontal: commonSafeAreaPadding),
       ),
-    );
-  }
-
-  /// AppBar
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return CommonAppBar(
-      isLeading: false,
-      leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-      actions: [
-        // KYC
-        if( _controller.value.isInitialized)
-          kycWidget(
-            controller: _controller,
-            onTap: () {
-              commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-                lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
-                );
-              });
-            },
-          ),
-        10.width,
-
-        // Profile
-        BlocConsumer<LpHomeBloc, HomeState>(
-          listener: (context, state) {
-            if (state is ProfileDetailSuccess) {
-              profileResponse = state.profileDetailResponse;
-              profileImage =
-                  state.profileDetailResponse.data!.details!.profileImageUrl ??
-                      "";
-              setState(() {});
-            }
-            if (state is ProfileDetailError) {
-              ToastMessages.error(
-                message: getErrorMsg(errorType: state.errorType),
-              );
-            }
-          },
-          bloc: lpHomeBloc,
-          builder: (context, state) {
-            return InkWell(
-              onTap: () {
-                Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true),
-                ).then((v) {
-                  frameCallback(() => lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
-                });
-              },
-              child: commonCacheNetworkImage(
-                radius: 50,
-                height: 40,
-                width: 40,
-                path: profileImage,
-                errorImage: AppImage.png.userProfileError,
-              ),
-            );
-          },
-        ),
-        15.width,
-
-        // Notification
-        AppIconButton(
-          onPressed: (){},
-          style: AppButtonStyle.circularIconButtonStyle,
-          icon: Icons.notifications,
-          iconColor: AppColors.primaryColor,
-        ),
-        15.width,
-      ],
     );
   }
 }

@@ -20,7 +20,8 @@ import '../bloc/vp_all_loads_event.dart';
 import '../bloc/vp_all_loads_state.dart';
 
 class VpAllLoadsScreen extends StatefulWidget {
-  const VpAllLoadsScreen({super.key});
+  final int initialTabIndex;
+  const VpAllLoadsScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<VpAllLoadsScreen> createState() => _VpAllLoadsScreenState();
@@ -41,13 +42,13 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
   void initState() {
     super.initState();
     vpLoadBloc = locator<VpLoadBloc>();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this,initialIndex: widget.initialTabIndex);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         _loadDataByTab(_tabController.index);
       }
     });
-    _loadDataByTab(0); // load initial tab
+    _loadDataByTab(widget.initialTabIndex); // load initial tab
   }
 
   @override
