@@ -1,43 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
-import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
 
-import '../../../../../routing/app_route_name.dart';
-import '../../../../../utils/app_dialog.dart';
+import '../../../../../utils/app_button.dart';
+import '../../../../../utils/app_button_style.dart';
+import '../../../../../utils/app_colors.dart';
 import '../../../../../utils/app_icons.dart';
-import '../../../../../utils/common_dialog_view/common_dialog_view.dart';
-import '../../../../../utils/common_dialog_view/success_dialog_view.dart';
+import '../../../../../utils/app_image.dart';
+import '../../../../../utils/app_text_style.dart';
+import '../../../../../utils/common_functions.dart';
+import '../../../../../utils/common_widgets.dart';
+import '../../../../../utils/constant_variables.dart';
 
-class MyLoadsListBody extends StatefulWidget {
-  const MyLoadsListBody({
+class VpAllLoadMyLoadWidget extends StatefulWidget {
+  const VpAllLoadMyLoadWidget({
     super.key,
     required this.data,
     required this.onClickAssignDriver,
   });
 
-  final VpLoadsList data;
+  final VpRecentLoadData data;
   final void Function()? onClickAssignDriver;
 
   @override
-  State<MyLoadsListBody> createState() => _MyLoadsListBodyState();
+  State<VpAllLoadMyLoadWidget> createState() => _VpAllLoadMyLoadWidgetState();
 }
 
-class _MyLoadsListBodyState extends State<MyLoadsListBody> {
+class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -177,9 +169,9 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 buttonHeight: 40,
                 onPressed: widget.onClickAssignDriver ?? () {},
                 title:
-                    widget.data.assignStatus == 0
-                        ? "Assign Driver"
-                        : "Start Trip",
+                widget.data.assignStatus == 0
+                    ? "Assign Driver"
+                    : "Start Trip",
                 style: AppButtonStyle.primary,
               ).expand(),
             ],

@@ -16,7 +16,7 @@ class LpHomeBloc extends Bloc<HomeEvent, HomeState> {
 
   LpHomeBloc(this._lpHomeRepository, this._userInformationRepository) : super(HomeInitial()) {
 
-    on<ProfileDetailRequested>((event, emit) async {
+    on<GetProfileDetailApiRequest>((event, emit) async {
       emit(ProfileLoading());
       Result result = await _lpHomeRepository.getUserDetails(userId: event.userId);
       if (result is Success<ProfileDetailModel>) {

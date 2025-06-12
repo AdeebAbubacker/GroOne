@@ -27,7 +27,7 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
   }
 
   void initFunction(BuildContext context) => frameCallback(() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 3));
     if(!context.mounted) return;
     widget.afterDismiss?.call();
   });

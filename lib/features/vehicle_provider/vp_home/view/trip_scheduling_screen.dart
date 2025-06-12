@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
- 
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
@@ -31,6 +27,8 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
+
+import '../bloc/vp_home_bloc/vp_home_bloc.dart';
 
 class TripSchedulingScreen extends StatefulWidget {
   const TripSchedulingScreen({
@@ -78,7 +76,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
 
   void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
-    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+    lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
     vpHomeScreenBloc.add(
       VpVehicleListRequested(userId: lpHomeBloc.userId ?? ""),
     );

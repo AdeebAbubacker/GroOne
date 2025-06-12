@@ -4,9 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -23,7 +21,8 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class AvailableLoadsScreen extends StatefulWidget {
-  const AvailableLoadsScreen({super.key});
+  final bool isKycDone;
+  const AvailableLoadsScreen({super.key, required this.isKycDone});
 
   @override
   State<AvailableLoadsScreen> createState() => _AvailableLoadsScreenState();
@@ -108,7 +107,7 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
                         physics: ScrollPhysics(),
                         separatorBuilder: (context, index) => 20.height,
                         itemBuilder: (context, index) {
-                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index]);
+                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone,);
                         },
                       ),
                     );

@@ -21,14 +21,13 @@ class ProfileDetailModel {
     );
   }
 
-  factory ProfileDetailModel.fromJson(Map<String, dynamic> json){
+  factory ProfileDetailModel.fromJson(Map<String, dynamic> json) {
     return ProfileDetailModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : ProfileDetailsData.fromJson(json["data"]),
     );
   }
-
 }
 
 class ProfileDetailsData {
@@ -50,13 +49,12 @@ class ProfileDetailsData {
     );
   }
 
-  factory ProfileDetailsData.fromJson(Map<String, dynamic> json){
+  factory ProfileDetailsData.fromJson(Map<String, dynamic> json) {
     return ProfileDetailsData(
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       details: json["details"] == null ? null : Details.fromJson(json["details"]),
     );
   }
-
 }
 
 class Customer {
@@ -68,6 +66,7 @@ class Customer {
     required this.blueId,
     required this.password,
     required this.otp,
+    this.emailOtp, // New field
     required this.otpAttempt,
     required this.roleId,
     required this.isKyc,
@@ -86,6 +85,7 @@ class Customer {
   final dynamic blueId;
   final dynamic password;
   final num otp;
+  final dynamic emailOtp; // New field
   final num otpAttempt;
   final num roleId;
   final num isKyc;
@@ -104,6 +104,7 @@ class Customer {
     dynamic? blueId,
     dynamic? password,
     num? otp,
+    dynamic? emailOtp, // New field
     num? otpAttempt,
     num? roleId,
     num? isKyc,
@@ -122,6 +123,7 @@ class Customer {
       blueId: blueId ?? this.blueId,
       password: password ?? this.password,
       otp: otp ?? this.otp,
+      emailOtp: emailOtp ?? this.emailOtp, // New field
       otpAttempt: otpAttempt ?? this.otpAttempt,
       roleId: roleId ?? this.roleId,
       isKyc: isKyc ?? this.isKyc,
@@ -134,7 +136,7 @@ class Customer {
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json){
+  factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
@@ -143,6 +145,7 @@ class Customer {
       blueId: json["blueId"],
       password: json["password"],
       otp: json["otp"] ?? 0,
+      emailOtp: json["email_otp"], // Handle null or empty string for email_otp
       otpAttempt: json["otpAttempt"] ?? 0,
       roleId: json["roleId"] ?? 0,
       isKyc: json["isKyc"] ?? 0,
@@ -154,7 +157,6 @@ class Customer {
       kycType: json["kycType"] == null ? null : KycType.fromJson(json["kycType"]),
     );
   }
-
 }
 
 class KycType {
@@ -176,13 +178,12 @@ class KycType {
     );
   }
 
-  factory KycType.fromJson(Map<String, dynamic> json){
+  factory KycType.fromJson(Map<String, dynamic> json) {
     return KycType(
       id: json["id"] ?? 0,
       kycType: json["kyc_type"] ?? "",
     );
   }
-
 }
 
 class Details {
@@ -364,7 +365,7 @@ class Details {
     );
   }
 
-  factory Details.fromJson(Map<String, dynamic> json){
+  factory Details.fromJson(Map<String, dynamic> json) {
     return Details(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
@@ -410,5 +411,4 @@ class Details {
       detailsCompanyTypeId: json["company_type_id"] ?? 0,
     );
   }
-
 }

@@ -21,22 +21,22 @@ import '../../../../kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import '../../../../kyc/view/kyc_pending_dialogue.dart';
 import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
-class RecentAddedLoadListBody extends StatefulWidget {
+class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
   final bool isKycDone;
 
-  const RecentAddedLoadListBody({
+  const VpAllLoadAvailableLoadWidget({
     super.key,
     required this.data,
     required this.isKycDone,
   });
 
   @override
-  State<RecentAddedLoadListBody> createState() =>
-      _RecentAddedLoadListBodyState();
+  State<VpAllLoadAvailableLoadWidget> createState() =>
+      _VpAllLoadAvailableLoadWidgetState();
 }
 
-class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
+class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWidget> {
   final bloc = locator<VpAcceptLoadBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
 

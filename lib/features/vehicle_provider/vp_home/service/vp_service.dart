@@ -18,11 +18,9 @@ class VpHomeService {
 
   Future<Result<VpMyLoadResponse>> getVpMyLoad({required String userID}) async {
     try {
-      _apiService.clearCache();
-      final result = await _apiService.get(ApiUrls.vpLoadList,queryParams: {'customerId':userID});
+      final result = await _apiService.get(ApiUrls.vpLoadList,queryParams: {'customerId':userID},forceRefresh: true);
 
       if (result is Success) {
-        _apiService.clearCache();
         return await _apiService.getResponseStatus(
           result.value,
           (data) => VpMyLoadResponse.fromJson(data),
@@ -103,7 +101,7 @@ class VpHomeService {
 
   Future<Result<VpRecentLoadResponse>> getVpRecentLoads() async {
     try {
-      final result = await _apiService.get(ApiUrls.vpRecentLoads);
+      final result = await _apiService.get(ApiUrls.vpRecentLoads,forceRefresh: true);
 
       if (result is Success) {
         return await _apiService.getResponseStatus(

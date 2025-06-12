@@ -115,7 +115,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
           setState(() {});
           context.pop();
           context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
-            lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
+            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
             aadhaarNumberTextController.clear();
             aadhaarNumberOtpTextController.clear();
           });

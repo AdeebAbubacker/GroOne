@@ -129,7 +129,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId() ?? "";
-    lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+    lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
@@ -237,7 +237,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         InkWell(
           onTap: (){
             Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-              frameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+              frameCallback(() =>  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
             });
           },
           child: commonCacheNetworkImage(radius: 50,
@@ -257,7 +257,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       onRefresh: () async {
         loadCommodityBloc.add(LoadCommodity());
         loadTruckTypeBloc.add(LoadTruckType());
-        lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? ""));
+        lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
         loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? "1"));
       },
       child: SingleChildScrollView(
@@ -963,7 +963,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                   onPressed: () {
                                     context.pop();
                                     commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-                                      lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"),
+                                      lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
                                       );
                                     });
                                   },

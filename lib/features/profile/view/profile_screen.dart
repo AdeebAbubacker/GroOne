@@ -193,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ).then((onValue) {
                     lpHomeLocator.add(
-                      ProfileDetailRequested(lpHomeLocator.userId ?? ""),
+                      GetProfileDetailApiRequest(lpHomeLocator.userId ?? ""),
                     );
                     if (lpHomeLocator.state is ProfileDetailSuccess) {
                       setState(() {});

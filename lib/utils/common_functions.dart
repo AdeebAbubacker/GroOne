@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'app_dialog.dart';
+import 'app_image.dart';
+import 'common_dialog_view/common_dialog_view.dart';
 
 
 /// Field Focus change
@@ -505,4 +510,20 @@ Color getKavachOrderStatusColor(String status) {
     default:
       return AppColors.primaryColor;
   }
+}
+
+
+void commonSupportDialog(BuildContext context){
+  AppDialog.show(
+    context,
+    child: CommonDialogView(
+      heading: "Call Customer Support",
+      message: "Contact our Customer support agent",
+      onSingleButtonText: "Call",
+      onTapSingleButton: (){
+        Navigator.of(context).pop();
+      },
+      child: SvgPicture.asset(AppImage.svg.customerSupport),
+    ),
+  );
 }
