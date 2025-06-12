@@ -10,4 +10,7 @@ class AppJSON{
   static const String requestApprovedLoader = "${_jsonBasePath}requestApprovedLoader.json";
   static const String mapStyle = "${_jsonBasePath}map_style.json";
   static const String groSplash = "${_jsonBasePath}gro.json";
+  static const String kyc = "${_jsonBasePath}kyc_animation.json";
+  static const String splash = "${_jsonBasePath}splash_animation.json";
+  static const String success = "${_jsonBasePath}success_animation.json";
 }

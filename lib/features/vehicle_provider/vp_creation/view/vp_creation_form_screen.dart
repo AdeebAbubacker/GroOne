@@ -27,6 +27,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
@@ -108,15 +109,15 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   });
 
   void disposeFunction() => frameCallback(() {
-    nameTextController.dispose();
-    mobileNumberTextController.dispose();
-    companyNameTextController.dispose();
-    ownedTruckTextController.dispose();
-    attachedTruckTextController.dispose();
-    pinCodeTextController.dispose();
+    nameTextController.clear();
+    mobileNumberTextController.clear();
+    companyNameTextController.clear();
+    ownedTruckTextController.clear();
+    attachedTruckTextController.clear();
+    pinCodeTextController.clear();
     truckTypeController.dispose();
     truckTypeController.dispose();
-    emailTextController.dispose();
+    emailTextController.clear();
     preferredLanesDropDownValue = null;
     uploadedRcFile = null;
     multiFilesList.clear();
@@ -200,31 +201,44 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: nameTextController,
           labelText: context.appText.fullName,
           hintText: context.appText.fullNameHint,
+          mandatoryStar: true,
         ),
         20.height,
 
         // Phone Number
-        AppTextField(
-          readOnly: true,
-          validator: (value)=> Validator.phone(value),
-          controller: mobileNumberTextController,
-          labelText: context.appText.phoneNumber,
-          maxLength: 10,
-          inputFormatters: [phoneNumberInputFormatter],
-          keyboardType: TextInputType.phone,
-          decoration: commonInputDecoration(
-            hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-            prefixIcon: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(AppImage.png.flag),
-                10.width,
-                Text("+91", style: AppTextStyle.textBlackColor16w400),
-              ],
-            ).paddingOnly(left: 20, right: 5),
-          ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(" Phone Number", style: AppTextStyle.textFiled),
+            6.height,
+            MobileNumberTextField(
+              controller: mobileNumberTextController,
+              countryFlagAssetPath: AppImage.png.flag,
+              readOnly: true,
+            ),
+          ],
         ),
+        // AppTextField(
+        //   readOnly: true,
+        //   validator: (value)=> Validator.phone(value),
+        //   controller: mobileNumberTextController,
+        //   labelText: context.appText.phoneNumber,
+        //   maxLength: 10,
+        //   inputFormatters: [phoneNumberInputFormatter],
+        //   keyboardType: TextInputType.phone,
+        //   decoration: commonInputDecoration(
+        //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+        //     prefixIcon: Row(
+        //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         Image.asset(AppImage.png.flag),
+        //         10.width,
+        //         Text("+91", style: AppTextStyle.textBlackColor16w400),
+        //       ],
+        //     ).paddingOnly(left: 20, right: 5),
+        //   ),
+        // ),
         20.height,
 
         // Email
@@ -232,8 +246,12 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           validator: (value) => Validator.fieldRequired(value),
           controller: emailTextController,
           labelText: context.appText.email,
-          hintText: context.appText.emailHint,
+          mandatoryStar: true,
           keyboardType: TextInputType.emailAddress,
+          decoration: commonInputDecoration(
+            hintText: context.appText.emailHint,
+            suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
+          ),
         ),
         20.height,
 
@@ -243,7 +261,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
           hintText: "${context.appText.enter} ${context.appText.pinCode}",
-          keyboardType: TextInputType.number,
+          mandatoryStar: true,
+          keyboardType: iosNumberKeyboard,
         ),
       ],
     );
@@ -264,6 +283,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: companyNameTextController,
           labelText: context.appText.companyName,
           hintText: "${context.appText.enter} ${context.appText.companyName}",
+          mandatoryStar: true,
         ),
         20.height,
 
@@ -285,6 +305,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                     validator: (value) => Validator.fieldRequired(value),
                     labelText: "${context.appText.companyType}*",
                     hintText: context.appText.selectCompanyType,
+                    mandatoryStar: true,
                     dropdownValue: companyTypeDropDownValue,
                     decoration: commonInputDecoration(fillColor: Colors.white),
                     dropDownList: state.companyType.data.map((e) => DropdownMenuItem(
@@ -320,6 +341,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   labelText: context.appText.truckType,
                   hintText: context.appText.selectTruckType,
                   controller: truckTypeController,
+                  mandatoryStar: true,
                   items: state.truckTypeModel.data.map((e) => DropdownItem<String>(
                     value: e, // or e.id
                     label: e,
@@ -356,7 +378,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: ownedTruckTextController,
           labelText: context.appText.ownedTrucks,
           hintText: "${context.appText.enter} ${context.appText.ownedTrucks}",
-          keyboardType: TextInputType.number,
+          mandatoryStar: true,
+          keyboardType: iosNumberKeyboard,
         ),
         20.height,
 
@@ -366,7 +389,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: attachedTruckTextController,
           labelText: context.appText.attachedTrucks,
           hintText: "${context.appText.enter} ${context.appText.attachedTrucks}",
-          keyboardType: TextInputType.number,
+          mandatoryStar: true,
+          keyboardType: iosNumberKeyboard,
         ),
         20.height,
 
@@ -375,6 +399,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           labelText: context.appText.preferredLanes,
           hintText: context.appText.selectLaneType,
           controller: preferredLanesTypeController,
+          mandatoryStar: true,
           items: preferredLanesList,
           onSelectionChange: (selected) {
             CustomLog.debug(this, 'Selected lane: $selected');

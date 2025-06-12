@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -102,6 +103,25 @@ class LpHomeService{
       final result = await _apiService.get(url);
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> LoadTruckTypeListModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Fetch Recent Route
+  Future<Result<RecentRoutesModel?>> fetchRecentRouteData() async {
+    try {
+      final url = ApiUrls.getRecentRoute;
+      final result = await _apiService.get(url);
+      if (result is Success) {
+        return  await _apiService.getResponseStatus(result.value, (data)=> RecentRoutesModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

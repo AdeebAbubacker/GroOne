@@ -247,7 +247,7 @@ class AppTextStyle {
 
   /// Text Field & Dropdown
   static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
-  static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 14);
+  static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 12);
   static TextStyle textFieldHintBlackColor = GoogleFonts.ubuntu(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 14);
 
 }

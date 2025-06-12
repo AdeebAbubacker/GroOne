@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -61,6 +62,14 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     });
   }
 
+
+  void printPrettyJson(dynamic data) {
+    const encoder = JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(data);
+    log('Data:\n$prettyJson');
+  }
+
+
   Future<void> _handleCurrentLocation() async {
     final pos = await MapHelper.getCurrentLocation();
     if (pos != null) {
@@ -105,6 +114,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       setState(() {
         suggestions = data['predictions'];
       });
+      printPrettyJson(suggestions);
     } else {
       setState(() => suggestions = []);
     }

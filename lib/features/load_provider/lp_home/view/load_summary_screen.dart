@@ -55,22 +55,35 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
   String calculateTenPercentOfAverage(String priceRange) {
     try {
-      final parts = priceRange.replaceAll(' ', '').split('-');
-      if (parts.length != 2) return "Invalid range";
+      final cleaned = priceRange.replaceAll(' ', '');
 
-      final min = int.tryParse(parts[0]) ?? 0;
-      final max = int.tryParse(parts[1]) ?? 0;
+      if (cleaned.contains('-')) {
+        // Case: Range format like "1500-2000"
+        final parts = cleaned.split('-');
+        if (parts.length != 2) return "Invalid range";
 
-      if (min == 0 || max == 0) return "Invalid range";
+        final min = int.tryParse(parts[0]) ?? 0;
+        final max = int.tryParse(parts[1]) ?? 0;
 
-      final avg = ((min + max) / 2).round();
-      final tenPercent = (avg * 0.10).round();
+        if (min == 0 || max == 0) return "Invalid range";
 
-      return "Rs. $tenPercent";
+        final avg = ((min + max) / 2).round();
+        final tenPercent = (avg * 0.10).round();
+
+        return "Rs. $tenPercent";
+      } else {
+        // Case: Single value like "1000"
+        final value = int.tryParse(cleaned) ?? 0;
+        if (value == 0) return "Invalid price";
+
+        final tenPercent = (value * 0.10).round();
+        return "Rs. $tenPercent";
+      }
     } catch (e) {
       return "Calculation error";
     }
   }
+
 
 
 

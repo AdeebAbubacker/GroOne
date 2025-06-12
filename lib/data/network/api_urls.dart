@@ -95,6 +95,7 @@ class ApiUrls {
   static final String  loadTruckType = "${_loadBaseUrl}truck-type/";
   static final String  truckType = "${loadTruckType}distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery";
+  static final String  getRecentRoute = "$_loadBaseUrl$_load/distinct-source-destination";
 
   // Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";

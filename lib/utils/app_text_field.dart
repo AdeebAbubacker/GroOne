@@ -23,6 +23,7 @@ class AppTextField extends StatelessWidget {
   final FocusNode? nextFocus;
   final InputDecoration? decoration;
   final TextInputType? keyboardType;
+  final bool? mandatoryStar;
   final bool? readOnly;
   final bool? showCursor;
   final bool? autofocus;
@@ -58,15 +59,26 @@ class AppTextField extends StatelessWidget {
       this.maxLength,
       this.textInputAction,
       this.hintText,
-      this.onChanged, this.autofillHints});
+      this.onChanged,
+    this.autofillHints,
+    this.mandatoryStar = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (labelText != null) Text(" ${labelText.capitalizeFirst}", style:labelTextStyle ?? AppTextStyle.textFiled),
-        if (labelText != null) 6.height,
+        if (labelText != null)
+          Row(
+            children: [
+              Text(" ${labelText.capitalize}", style:labelTextStyle ?? AppTextStyle.textFiled),
+              if(mandatoryStar == true)
+              Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            ],
+          ),
+        if (labelText != null)
+          6.height,
         TextFormField(
           validator: validator,
           inputFormatters: inputFormatters ?? [],

@@ -11,6 +11,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
   final TextStyle? labelTextStyle;
   final String? hintText;
   final MultiSelectController<T> controller;
+  final bool? mandatoryStar;
   final List<DropdownItem<T>> items;
   final void Function(List<T>)? onSelectionChange;
   final String? Function(List<DropdownItem<T>>?)? validator;
@@ -27,7 +28,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
     this.onSelectionChange,
     this.validator,
     this.prefixIcon,
-    this.headerText,
+    this.headerText, this.mandatoryStar = false,
   });
 
   @override
@@ -36,7 +37,13 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (labelText != null)
-          Text(" ${labelText!.capitalizeFirst}", style: labelTextStyle ?? AppTextStyle.body3),
+          Row(
+            children: [
+              Text(" ${labelText.capitalize}", style:labelTextStyle ?? AppTextStyle.textFiled),
+              if(mandatoryStar == true)
+                Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            ],
+          ),
         if (labelText != null) 6.height,
         MultiDropdown<T>(
           controller: controller,

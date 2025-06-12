@@ -27,6 +27,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'legal_detail_screen.dart';
@@ -73,7 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
           customerSupportWidget(
             onTap: () {
-              showCustomerCareBottomSheet(context);
+              commonSupportDialog(context);
+             // showCustomerCareBottomSheet(context);
             },
           ),
           20.width,
@@ -103,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, state) {
           final isLoading = state is LogInLoading;
           return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -117,35 +120,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Login Heading
                     Text(context.appText.loginSingUp, style: AppTextStyle.h2W600),
+                    10.height,
 
                     // Login Sub Heading
                     Text(context.appText.enterMobileNumber, style: AppTextStyle.body1Normal),
-                    15.height,
+                    5.height,
 
                     // Phone Number
-                    AppTextField(
-                      validator: (value)=> Validator.phone(value),
+                    MobileNumberTextField(
+                      countryFlagAssetPath: AppImage.png.flag,
                       controller: phoneNumber,
-                      labelText: context.appText.phoneNumber,
-                      maxLength: 10,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      keyboardType: iosNumberKeyboard,
-                      decoration: commonInputDecoration(
-                        hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-                        prefixIcon: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(AppImage.png.flag),
-                            10.width,
-                            Text("+91", style: AppTextStyle.textFieldHintBlackColor),
-                          ],
-                        ).paddingOnly(left: 20, right: 5),
-                      ),
+
+                      onChanged: (value) {
+                        setState(() {});
+                      },
                     ),
+                    // AppTextField(
+                    //   validator: (value)=> Validator.phone(value),
+                    //   controller: phoneNumber,
+                    //   labelText: context.appText.phoneNumber,
+                    //   maxLength: 10,
+                    //   inputFormatters: [
+                    //     FilteringTextInputFormatter.digitsOnly,
+                    //     LengthLimitingTextInputFormatter(10),
+                    //   ],
+                    //   keyboardType: iosNumberKeyboard,
+                    //   decoration: commonInputDecoration(
+                    //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+                    //     prefixIcon: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    //       mainAxisSize: MainAxisSize.min,
+                    //       children: [
+                    //         Image.asset(AppImage.png.flag),
+                    //         10.width,
+                    //         Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                    //       ],
+                    //     ).paddingOnly(left: 20, right: 5),
+                    //   ),
+                    // ),
                     20.height,
 
                     // Get Otp Button
@@ -216,8 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               SizedBox(height: MediaQuery.of(context).size.height * 0.075),
-              Image.asset(AppImage.png.signUpBanner),
-              10.height,
+              Image.asset(AppImage.png.signUpBanner).align(Alignment.bottomCenter),
             ],
           ).withScroll(physics: NeverScrollableScrollPhysics());
         },

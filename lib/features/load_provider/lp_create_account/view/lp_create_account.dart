@@ -18,6 +18,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
 
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
@@ -118,7 +119,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           20.width,
           customerSupportWidget(
             onTap: () {
-              showCustomerCareBottomSheet(context);
+             commonSupportDialog(context);
             },
           ),
           20.width,
@@ -164,7 +165,8 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: companyNameTextController,
-            labelText: context.appText.companyName+"*",
+            labelText: context.appText.companyName,
+            mandatoryStar: true,
             hintText: "${context.appText.enter} ${context.appText.companyName}",
           ),
           20.height,
@@ -172,9 +174,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           // Company Type
           AppDropdown(
             validator: (value) => Validator.fieldRequired(value),
-            labelText: "${context.appText.companyType}*",
+            labelText: context.appText.companyType,
             hintText: context.appText.selectCompanyType,
             dropdownValue: companyTypeDropDownValue,
+            mandatoryStar: true,
             decoration: commonInputDecoration(fillColor: Colors.white),
             dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
                 value: e.id.toString(),
@@ -191,33 +194,46 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
-            labelText: context.appText.fullName+"*",
+            labelText: context.appText.fullName,
             hintText:  context.appText.fullNameHint,
+            mandatoryStar: true,
           ),
           20.height,
 
           // Phone Number
-          AppTextField(
-            readOnly: true,
-            validator: (value)=> Validator.phone(value),
-            controller: phoneNumberTextController,
-            labelText: context.appText.phoneNumber,
-            maxLength: 10,
-            inputFormatters: [phoneNumberInputFormatter],
-            keyboardType: TextInputType.phone,
-            decoration: commonInputDecoration(
-              hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-              prefixIcon: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(AppImage.png.flag),
-                  10.width,
-                  Text("+91", style: AppTextStyle.textFieldHintBlackColor),
-                ],
-              ).paddingOnly(left: 20, right: 5),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(" Phone Number", style: AppTextStyle.textFiled),
+              6.height,
+              MobileNumberTextField(
+                controller: phoneNumberTextController,
+                countryFlagAssetPath: AppImage.png.flag,
+                readOnly: true,
+              ),
+            ],
           ),
+          // AppTextField(
+          //   readOnly: true,
+          //   validator: (value)=> Validator.phone(value),
+          //   controller: phoneNumberTextController,
+          //   labelText: context.appText.phoneNumber,
+          //   maxLength: 10,
+          //   inputFormatters: [phoneNumberInputFormatter],
+          //   keyboardType: TextInputType.phone,
+          //   decoration: commonInputDecoration(
+          //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+          //     prefixIcon: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: [
+          //         Image.asset(AppImage.png.flag),
+          //         10.width,
+          //         Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+          //       ],
+          //     ).paddingOnly(left: 20, right: 5),
+          //   ),
+          // ),
           20.height,
 
 
@@ -225,9 +241,13 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: emailTextController,
-            labelText: context.appText.email+" Id*",
-            hintText: context.appText.emailHint,
+            labelText: context.appText.email,
+            mandatoryStar: true,
             keyboardType: TextInputType.emailAddress,
+            decoration: commonInputDecoration(
+                hintText: context.appText.emailHint,
+                suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
+            ),
           ),
           20.height,
 
@@ -235,12 +255,15 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           // Pin code
           AppTextField(
             validator: (value) => Validator.pincode(value),
-            controller: pinCodeTextController,inputFormatters: [
+            controller: pinCodeTextController,
+            labelText: context.appText.pincode,
+            hintText: "Enter Your Pincode",
+            inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(6),
              ],
-            keyboardType: TextInputType.number,
-            labelText: context.appText.pincode+"*",
+            mandatoryStar: true,
+            keyboardType: iosNumberKeyboard,
           ),
 
         ],

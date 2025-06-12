@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -82,6 +83,17 @@ class LpHomeRepository{
       return await _lpHomeService.fetchRateDiscoveryData(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request rate discovery data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Recent Route data
+  Future<Result<RecentRoutesModel?>> getRecentRouteData() async {
+    try {
+      return await _lpHomeService.fetchRecentRouteData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request recent route data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -13,7 +13,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creati
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -90,19 +92,31 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void homeRedirection(OtpResponse data, BuildContext context,{required tempFlag}) => frameCallback((){
     if (data.data?.user?.role == 1) {
+
       if (tempFlag) {
         context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});
       } else {
-        context.push(AppRouteName.lpBottomNavigationBar);
+        AppDialog.show(
+            context,
+            child: SuccessDialogView(message: "Login Successfully", heading: "Now you can explore the rates and post loads", afterDismiss: ()=> context.push(AppRouteName.lpBottomNavigationBar)),
+        );
       }
+
     } else if (data.data?.user?.role == 2) {
+
       if (tempFlag) {
         Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString(),mobileNumber:widget.mobileNumber), isForward: true));
       } else {
-        context.push(AppRouteName.vpBottomNavigationBar);
+        AppDialog.show(
+          context,
+          child: SuccessDialogView(message: "Login Successfully", heading: "Now you can explore the rates and post loads", afterDismiss: ()=> context.push(AppRouteName.vpBottomNavigationBar)),
+        );
       }
+
     }
   });
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +136,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           20.width,
           customerSupportWidget(
             onTap: () {
-              showCustomerCareBottomSheet(context);
+              commonSupportDialog(context);
             },
           ),
           20.width,
@@ -141,15 +155,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             if (state.otpResponse.data!.user!.tempflg) {
                homeRedirection(state.otpResponse, context,tempFlag: state.otpResponse.data!.user!.tempflg);
             } else {
-              showSuccessDialog(
-                onTap: () {
-                //  context.push(AppRouteName.lpBottomNavigationBar);
-                },
-                context,
-                text: context.appText.loginSuccessful,
-                subheading: context.appText.loginSuccessfulSubHeading,
-              );
-              await Future.delayed(Duration(seconds: 2));
+              // showSuccessDialog(
+              //   onTap: () {
+              //   //  context.push(AppRouteName.lpBottomNavigationBar);
+              //   },
+              //   context,
+              //   text: context.appText.loginSuccessful,
+              //   subheading: context.appText.loginSuccessfulSubHeading,
+              // );
+            //  await Future.delayed(Duration(seconds: 2));
               if(!context.mounted) return;
               homeRedirection(state.otpResponse, context,tempFlag:state.otpResponse.data!.user!.tempflg);
             }

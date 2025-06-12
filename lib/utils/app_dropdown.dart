@@ -13,6 +13,7 @@ class AppDropdown extends StatelessWidget {
   final FocusNode? nextFocus;
   final InputDecoration? decoration;
   final Widget? prefixIcon;
+  final bool? mandatoryStar;
   final String? dropdownValue;
   final List<DropdownMenuItem<String>> dropDownList;
   final String? Function(String?)? validator;
@@ -36,6 +37,7 @@ class AppDropdown extends StatelessWidget {
     this.onChanged,
     this.onSaved,
     this.onTap,
+    this.mandatoryStar = false,
   });
 
   @override
@@ -44,9 +46,12 @@ class AppDropdown extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (labelText != null)
-          Text(
-            " ${labelText.capitalizeFirst}",
-            style: labelTextStyle ?? AppTextStyle.body3,
+          Row(
+            children: [
+              Text(" ${labelText.capitalizeFirst}", style: labelTextStyle ?? AppTextStyle.body3),
+              if(mandatoryStar == true)
+                Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            ],
           ),
         if (labelText != null) 6.height,
         DropdownButtonHideUnderline(

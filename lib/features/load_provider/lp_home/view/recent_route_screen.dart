@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -28,7 +33,8 @@ class RecentRouteScreen extends StatefulWidget {
 
 class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
-  final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   final searchController = TextEditingController();
 
@@ -36,6 +42,11 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   Map<String, dynamic>? pickup;
 
   int? selectedRecentRoutes;
+
+  String? pickupLocation;
+  String? pickupLatLong;
+  String? destinationLocation;
+  String? destinationLatLong;
 
   @override
   void setState(fn) {
@@ -57,16 +68,20 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
 
   void initFunction() => frameCallback(() async {
-
+    lpHomeCubit.fetchRecentRoute();
   });
 
   void disposeFunction() => frameCallback(() {
 
   });
 
-  void updateSelectedRouteState(int index){
+  void updateSelectedRouteState(int index, RecentRouteData data){
     setState(() {
       selectedRecentRoutes = index;
+      pickupLocation = data.pickUpAddr;
+      destinationLocation = data.dropAddr;
+      pickupLatLong = data.pickUpLatlon;
+      destinationLatLong = data.dropLatlon;
     });
     commonHapticFeedback();
   }
@@ -107,33 +122,63 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   /// Recent Loads
   Widget _buildRecentRouteList(){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Title
-        Text("Recent route", style: AppTextStyle.body2),
-        10.height,
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      listener: (context, state) { },
+      builder: (context, state) {
+        if(state.recentRouteState != null && state.recentRouteState?.status != null){
+          switch (state.recentRouteState!.status){
+            case Status.LOADING :
+              return CircularProgressIndicator();
+            case Status.SUCCESS :
+              if(state.recentRouteState?.data != null){
+                if(state.recentRouteState!.data!.data.isNotEmpty){
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Title
+                      Text("Recent route", style: AppTextStyle.body2),
+                      10.height,
 
-        ListView.separated(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.only(bottom: 100),
-          itemCount: 4,
-          separatorBuilder: (BuildContext context, int index) => 20.height,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: ()=> updateSelectedRouteState(index),
-              child: _buildListBody(index: index),
-            );
-          },
-        ),
-      ],
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.only(bottom: 100),
+                        itemCount: state.recentRouteState!.data!.data.length,
+                        separatorBuilder: (BuildContext context, int index) => 20.height,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteState!.data!.data[index]),
+                            child: _buildListBody(index: index, data: state.recentRouteState!.data!.data[index]),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                } else {
+                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction());
+                }
+              } else {
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+              }
+            case Status.ERROR :
+              if(state.recentRouteState?.errorType != null){
+                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
+              }else{
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+              }
+            default :
+              return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+          }
+        } else {
+          return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+        }
+      },
     );
   }
 
 
   /// Recent Load List Body
-  Widget _buildListBody({required int index}){
+  Widget _buildListBody({required int index, required RecentRouteData data}){
     return Container(
       padding: EdgeInsets.all(10),
       decoration: commonContainerDecoration(
@@ -141,12 +186,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           borderColor: selectedRecentRoutes == index ? AppColors.primaryColor : AppColors.borderColor,
       ),
       child: GestureDetector(
-        onTap: ()=> updateSelectedRouteState(index),
+        onTap: ()=> updateSelectedRouteState(index, data),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text("Chennai -Bangalore", style: AppTextStyle.h5),
-            10.height,
+            // if (data.pickUpAddr.isNotEmpty && data.dropAddr.isNotEmpty)
+            // Text("${data.pickUpAddr} - ${ data.dropAddr}".capitalize, style: AppTextStyle.h5),
+            // 10.height,
             Row(
               children: [
 
@@ -160,7 +206,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Source
                     BookShipmentWidget(
                       heading: context.appText.source,
-                      subHeading: "Mumbai",
+                      subHeading: data.pickUpAddr,
                       onClick: () {
 
                       },
@@ -171,7 +217,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Destination
                     BookShipmentWidget(
                       heading: context.appText.destination,
-                      subHeading: "Pune",
+                      subHeading: data.dropAddr,
                       onClick: () {
 
                       },
@@ -266,17 +312,39 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   // }
 
   Widget _buildSelectButton(BuildContext context){
-    return AppButton(
-      title: "Select Different Route",
-      onPressed: (){
-      Navigator.of(context).pushReplacement(commonRoute(LPSelectAddressScreen(title: "Pickup Point"), isForward: true));
-        // if(pickup != null && destination != null){
-        //   Map data = {
-        //     "pickup": pickup,
-        //     "destination": destination,
-        //   };
-        //   Navigator.of(context).pop(data);
-        }
+    return Row(
+      children: [
+        AppButton(
+          title:  "Confirm",
+          style:  selectedRecentRoutes != null ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+          onPressed: (){
+            Map<String, dynamic> pickup = {
+              "address": pickupLocation,
+              "location": pickupLocation,
+              "latLng": pickupLatLong,
+            };
+            lpHomeCubit.setPickup(pickup);
+
+            Map<String, dynamic> destination = {
+              "address": destinationLocation,
+              "location": destinationLocation,
+              "latLng": destinationLatLong,
+            };
+            lpHomeCubit.setDestination(destination);
+
+            Navigator.of(context).pop(true);
+          }
+        ).expand(),
+        10.width,
+
+
+        AppButton(
+          title:  "Select Different",
+          onPressed: (){
+          Navigator.of(context).pushReplacement(commonRoute(LPSelectAddressScreen(title: "Pickup Point"), isForward: true));
+         }
+        ).expand(),
+      ],
     ).bottomNavigationPadding();
   }
 

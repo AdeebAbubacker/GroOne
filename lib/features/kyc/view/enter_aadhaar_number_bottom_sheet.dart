@@ -50,6 +50,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   final TextEditingController aadhaarNumberOtpTextController = TextEditingController();
 
   String? requestID;
+  String? aadhaarValue;
 
   bool showOtpFieldAadhaar = false;
 
@@ -137,13 +138,17 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: aadhaarNumberTextController,
-            keyboardType: TextInputType.number,
+            keyboardType: iosNumberKeyboard,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              AadhaarInputFormatter()
+            ],
             labelText: context.appText.aadhaarLabel,
             hintText: "XXXX XXXX XXXX XXXX",
             maxLength: 14,
-            inputFormatters: [AadhaarInputFormatter()],
             onChanged: (value) {
-              aadhaarNumberTextController.text = value;
+              final aadhaar = value.replaceAll(' ', '');
+              aadhaarValue = aadhaar;
               setState(() {});
             },
           ),
@@ -157,11 +162,11 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
             title: context.appText.verifyAadhaar,
             onPressed: () async {
               if(aadhaarNumberTextController.text.length == 14){
-                Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
-                // if (formKey.currentState!.validate()) {
-                //   final request = AddharOtpApiRequest(force: false, aadhaar: aadhaarNumberTextController.text);
-                //   await kycBloc.sendAadhaarOtp(request);
-                // }
+               // Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
+                if (formKey.currentState!.validate()) {
+                  final request = AddharOtpApiRequest(force: false, aadhaar: aadhaarValue ?? "");
+                  await kycBloc.sendAadhaarOtp(request);
+                }
               }
             },
           ),
@@ -214,8 +219,8 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
             if(aadhaarNumberOtpTextController.text.length == 6){
               final apiRequest =  AddharVerifyOtpApiRequest(
                 requestId: requestID ?? "",
-                otp: aadhaarNumberOtpTextController.text,
-                aadhaar: aadhaarNumberTextController.text,
+                otp: aadhaarNumberOtpTextController.text.trim(),
+                aadhaar: aadhaarValue ?? "",
               );
               kycBloc.verifyAadhaarOtp(apiRequest);
             }

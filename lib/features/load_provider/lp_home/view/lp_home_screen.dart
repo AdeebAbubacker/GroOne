@@ -43,6 +43,7 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -168,21 +169,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-  void supportDialog(BuildContext context){
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        heading: "Call Customer Support",
-        message: "Contact our Customer support agent",
-        onSingleButtonText: "Call",
-        onTapSingleButton: (){
-          Navigator.of(context).pop();
-        },
-        child: SvgPicture.asset(AppImage.svg.customerSupport),
-      ),
-    );
-  }
 
+  String _getInitials(String name) {
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return parts.take(2).map((e) => e[0].toUpperCase()).join();
+  }
 
 
   @override
@@ -210,43 +202,73 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             );
           }
         },
-        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+        child: InkWell(
+          onTap: (){
+            // AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully"));
+          },
+            child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding)),
       ),
       actions: [
 
         // KYC
-        if( _controller.value.isInitialized)
-          Builder(
-            builder: (builder){
-              if(profileResponse != null && profileResponse?.data != null) {
-                if(profileResponse?.data?.customer != null && (profileResponse!.data!.customer!.isKyc != 3)){
-                  return kycWidget(
-                    controller: _controller,
-                    onTap: () {
-                      commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                    },
-                  );
+        BlocProvider<LPHomeCubit>.value(
+          value: locator<LPHomeCubit>(), // singleton from locator
+          child: BlocConsumer<LPHomeCubit, LPHomeState>(
+            listener: (context, state) { },
+            builder: (context, state) {
+              if (profileResponse != null && profileResponse?.data != null) {
+                if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc != 3) {
+                  if (state.showSuccessKyc) {
+                    return kycWidget(
+                      controller: _controller,
+                      onTap: () {
+                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                      },
+                    );
+                  } else {
+                    return 0.width;
+                  }
+                } else {
+                  return buildKYCStatusWidget();
                 }
               }
               return Container();
-            }
+            },
+          ),
         ),
-        10.width,
 
         // Profile
-        InkWell(
-          onTap: (){
-            Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-              frameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
-            });
+        BlocConsumer<LpHomeBloc, HomeState>(
+          bloc: lpHomeBloc,
+          listener: (context, state) { },
+          builder: (context, state) {
+            if (state is ProfileDetailSuccess) {
+              return Row(
+                children: [
+                10.width,
+
+                // Profile
+                InkWell(
+                    onTap: (){
+                      Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
+                        frameCallback(() =>  lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "")));
+                      });
+                    },
+                    child: Container(
+                        height: 40,
+                        width: 40,
+                        alignment: Alignment.center,
+                        decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                        child: Text(_getInitials(state.profileDetailResponse.data?.customer?.customerName ?? ''))
+                ).paddingRight(commonSafeAreaPadding),
+              ),
+            ],
+            );
+            }
+            return Container();
           },
-          child: commonCacheNetworkImage(radius: 50,
-              height: 40,
-              width: 40,
-              path: profileImage ?? "",
-              errorImage: AppImage.png.userProfileError
-          ).paddingRight(commonSafeAreaPadding),
-        ),
+        )
+       
       ],
     );
   }
@@ -618,8 +640,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             //   Navigator.of(context).push(createRoute(RecentRouteScreen()));
                             // }
 
-                            Navigator.of(context).push(createRoute(RecentRouteScreen()));
-
+                            Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue){
+                              if(onValue != null && onValue == true){
+                                if(onValue != null && onValue == true){
+                                  setState(() {});
+                                  dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
+                                  rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
+                                }
+                              }
+                            });
 
                           },
                         ),
@@ -871,7 +900,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       title: "Support",
                       style: AppButtonStyle.outline,
                       onPressed: (){
-                        supportDialog(context);
+                        commonSupportDialog(context);
                       },
                     ).expand(),
 
@@ -987,7 +1016,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Need Support Next
           TextButton(
             onPressed: (){
-              supportDialog(context);
+              commonSupportDialog(context);
             },
             child: Text("Need Our Customer Support Help?",style: AppTextStyle.h6PrimaryColor),
           ).align(Alignment.center),

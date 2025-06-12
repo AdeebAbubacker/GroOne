@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -40,7 +41,7 @@ InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor,
     }else if(suffixIcon is IconData){
       return InkWell(
         onTap: suffixOnTap ?? (){},
-        child: Icon(suffixIcon).paddingAll(15),
+        child: Icon(suffixIcon, color: suffixIconColor).paddingAll(15),
       );
     }else if(suffixIcon is Widget){
       return InkWell(
@@ -59,7 +60,7 @@ InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor,
     contentPadding: const EdgeInsets.all(14),
     filled: true,
     prefixIcon: prefixIcon,
-    hintText: hintText.capitalizeFirst,
+    hintText: hintText.capitalize,
     hintStyle: hintStyle ?? AppTextStyle.textFieldHint,
     fillColor: fillColor ?? AppColors.textFieldFillColor,
     counterText: '',
@@ -261,14 +262,16 @@ Widget appLoader() {
 // }
 
 Widget kycWidget({required Function() onTap, required VideoPlayerController controller}){
-  return InkWell(onTap: onTap,
-    child: Container(
-      height: 55,
-      width: 55,
-      color: Colors.red,
-      alignment: Alignment.center,
-      child: VideoPlayer(controller),
-    ),
+  return InkWell(
+    onTap: onTap,
+    // child: Container(
+    //   height: 55,
+    //   width: 55,
+    //   color: Colors.red,
+    //   alignment: Alignment.center,
+    //   child: VideoPlayer(controller),
+    // ),
+    child: Lottie.asset(AppJSON.kyc, width: 55, frameRate: FrameRate(120)),
   );
 }
 

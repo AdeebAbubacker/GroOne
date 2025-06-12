@@ -23,8 +23,10 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -230,7 +232,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "GST verified successfully");
     }
     if (kycBloc.state.gstState?.status == Status.ERROR) {
-      ToastMessages.error(message: "GST not verify");
+      ToastMessages.alert(message: "Invalid GST Number");
     }
   }
 
@@ -243,7 +245,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "TAN verified successfully");
     }
     if (kycBloc.state.tanState?.status == Status.ERROR) {
-      ToastMessages.error(message: "TAN not verify");
+      ToastMessages.alert(message: "Invalid TAN Number");
     }
   }
 
@@ -256,7 +258,7 @@ class _KycScreenState extends State<KycScreen> {
       ToastMessages.success(message: "Pan verified successfully");
     }
     if (kycBloc.state.panState?.status == Status.ERROR) {
-      ToastMessages.error(message: "PAN not verify");
+      ToastMessages.alert(message: "Invalid PAN Number");
     }
   }
 
@@ -290,7 +292,7 @@ class _KycScreenState extends State<KycScreen> {
                 }else{
                   companyId = 0;
                 }
-                print("companyId: $companyId");
+                CustomLog.info(this, "companyId: $companyId");
                 return Column(
                   children: [
                     Form(
@@ -334,14 +336,16 @@ class _KycScreenState extends State<KycScreen> {
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressLine1TextController,
-                                labelText: "Address Name*",
+                                mandatoryStar: true,
+                                labelText: "Address Name",
                                 hintText: "Enter Address name 1",
                               ),
 
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressLine2TextController,
-                                labelText: "Full Address*",
+                                mandatoryStar: true,
+                                labelText: "Full Address",
                                 hintText: "Enter full address",
                               ),
 
@@ -354,8 +358,9 @@ class _KycScreenState extends State<KycScreen> {
                               // STATE DROPDOWN
                               AppDropdown(
                                 validator: (value) => Validator.fieldRequired(value),
-                                labelText: "State*",
+                                labelText: "State",
                                 hintText: "Select State",
+                                mandatoryStar: true,
                                 dropdownValue: selectedState,
                                 decoration: commonInputDecoration(fillColor: Colors.white),
                                 dropDownList: stateList.map((state) {
@@ -374,8 +379,9 @@ class _KycScreenState extends State<KycScreen> {
                               // CITY DROPDOWN
                               AppDropdown(
                                 validator: (value) => Validator.fieldRequired(value),
-                                labelText: "City*",
+                                labelText: "City",
                                 hintText: "Select City",
+                                mandatoryStar: true,
                                 dropdownValue: selectedCity,
                                 decoration: commonInputDecoration(fillColor: Colors.white),
                                 dropDownList: (selectedState != null) ? cityMap[selectedState]!.map((city) {
@@ -398,7 +404,8 @@ class _KycScreenState extends State<KycScreen> {
                                 keyboardType: iosNumberKeyboard,
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
-                                labelText: "Pin Code*",
+                                mandatoryStar: true,
+                                labelText: "Pin Code",
                                 hintText: "Enter Pin Code",
                               ),
                             ],
@@ -412,28 +419,32 @@ class _KycScreenState extends State<KycScreen> {
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
-                                labelText: "Account Number*",
+                                mandatoryStar: true,
+                                labelText: "Account Number",
                                 hintText: "Enter Account Number",
                               ),
 
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: bankNameTextController,
-                                labelText: "Bank Name*",
+                                mandatoryStar: true,
+                                labelText: "Bank Name",
                                 hintText: "Enter Bank Name",
                               ),
 
                               AppTextField(
                                   validator: (value) => Validator.fieldRequired(value),
                                   controller: branchNameTextController,
-                                  labelText: "Branch Name*",
+                                  mandatoryStar: true,
+                                  labelText: "Branch Name",
                                   hintText: "Enter Branch Name"
                               ),
 
                               AppTextField(
                                   validator: (value) => Validator.fieldRequired(value),
                                   controller: ifscCodeTextController,
-                                  labelText: "IFSC Code*",
+                                  mandatoryStar: true,
+                                  labelText: "IFSC Code",
                                   hintText: "Enter IFSC code"
                               ),
 
@@ -681,7 +692,13 @@ class _KycScreenState extends State<KycScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(rightText, style: AppTextStyle.textFiled),
+            Row(
+              children: [
+                Text(rightText, style: AppTextStyle.textFiled),
+                5.width,
+                Text("*", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+              ],
+            ),
             Text(
               leftText ?? "",
               style: AppTextStyle.textFiled.copyWith(color: !readOnly ? AppColors.activeRedColor : AppColors.activeGreenColor),
