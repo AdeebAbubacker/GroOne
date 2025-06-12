@@ -64,7 +64,7 @@ class Customer {
   final dynamic password;
   final num otp;
   final num otpAttempt;
-  final bool isKyc;
+  final num isKyc;
   final num roleId;
   final bool tempFlg;
   final num status;
@@ -82,7 +82,7 @@ class Customer {
       password: json["password"],
       otp: json["otp"] ?? 0,
       otpAttempt: json["otpAttempt"] ?? 0,
-      isKyc: json["isKyc"] ?? false,
+      isKyc: json["isKyc"] ?? 0,
       roleId: json["roleId"] ?? 0,
       tempFlg: json["tempFlg"] ?? false,
       status: json["status"] ?? 0,
