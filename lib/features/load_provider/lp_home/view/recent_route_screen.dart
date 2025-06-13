@@ -47,6 +47,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   String? pickupLatLong;
   String? destinationLocation;
   String? destinationLatLong;
+  String? laneId;
 
   @override
   void setState(fn) {
@@ -82,6 +83,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
       destinationLocation = data.dropAddr;
       pickupLatLong = data.pickUpLatlon;
       destinationLatLong = data.dropLatlon;
+      laneId = data.id.toString();
     });
     commonHapticFeedback();
   }
@@ -98,20 +100,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   /// Body
   Widget _buildBodyWidget(BuildContext context){
     return SafeArea(
-      child: Column(
-        children: [
-          10.height,
-          _buildSearchBarWidget(),
-          20.height,
-
-          // // Add Different Route
-          // _buildAddDifferentLocationWidget(context),
-          // 20.height,
-
-          // Recent Load List
-          _buildRecentRouteList(),
-        ],
-      ).withScroll(padding: EdgeInsets.all(commonSafeAreaPadding)),
+      minimum: EdgeInsets.all(commonSafeAreaPadding),
+      child: _buildRecentRouteList(),
     );
   }
 
@@ -128,20 +118,23 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
         if(state.recentRouteState != null && state.recentRouteState?.status != null){
           switch (state.recentRouteState!.status){
             case Status.LOADING :
-              return CircularProgressIndicator();
+              return CircularProgressIndicator().center();
             case Status.SUCCESS :
               if(state.recentRouteState?.data != null){
                 if(state.recentRouteState!.data!.data.isNotEmpty){
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      10.height,
+                      _buildSearchBarWidget(),
+                      20.height,
+
                       // Title
                       Text("Recent route", style: AppTextStyle.body2),
                       10.height,
 
                       ListView.separated(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.only(bottom: 100),
                         itemCount: state.recentRouteState!.data!.data.length,
                         separatorBuilder: (BuildContext context, int index) => 20.height,
@@ -155,22 +148,22 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     ],
                   );
                 } else {
-                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction());
+                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction()).expand();
                 }
               } else {
-                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
               }
             case Status.ERROR :
               if(state.recentRouteState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
+                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction()).expand();
               }else{
-                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
               }
             default :
-              return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+              return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
           }
         } else {
-          return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
+          return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
         }
       },
     );
@@ -322,6 +315,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
               "address": pickupLocation,
               "location": pickupLocation,
               "latLng": pickupLatLong,
+              "laneId": laneId,
             };
             lpHomeCubit.setPickup(pickup);
 
@@ -329,6 +323,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
               "address": destinationLocation,
               "location": destinationLocation,
               "latLng": destinationLatLong,
+              "laneId": laneId,
             };
             lpHomeCubit.setDestination(destination);
 

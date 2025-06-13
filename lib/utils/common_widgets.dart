@@ -176,7 +176,7 @@ Widget genericErrorWidget({ErrorType? error, void Function()? onRefresh, void Fu
       Text(getErrorMsg(errorType: error ?? GenericError()), textAlign: TextAlign.center, style: AppTextStyle.body2),
       50.height,
       if (onRefresh != null)
-        AppButton(title: AppString.label.refresh, onPressed: onRefresh, style: AppButtonStyle.secondary),
+        AppButton(title: AppString.label.refresh, onPressed: onRefresh, style: AppButtonStyle.primary),
       20.height,
       if(goBack != null)
       AppButton(title: AppString.label.back, onPressed: goBack),
@@ -271,10 +271,18 @@ Widget kycWidget({required Function() onTap, required VideoPlayerController cont
     //   alignment: Alignment.center,
     //   child: VideoPlayer(controller),
     // ),
-    child: Lottie.asset(AppJSON.kyc, width: 55, frameRate: FrameRate(120)),
+    child: Container(
+        height: 45,
+        width: 45,
+        decoration: commonContainerDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(100)),
+        child: Lottie.asset(AppJSON.kyc, width: 45, frameRate: FrameRate(120))),
   );
 }
 
 Widget kycSuccessStatusWidget(){
   return SvgPicture.asset(AppImage.svg.kycSuccessStatus, width: double.infinity, height: 50);
+}
+
+Widget kycInProgressStatusWidget(){
+  return SvgPicture.asset(AppImage.svg.kycInProgressStatus, width: double.infinity, height: 50);
 }

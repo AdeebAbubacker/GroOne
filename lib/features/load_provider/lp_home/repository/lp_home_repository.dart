@@ -10,11 +10,13 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeRepository{
   final LpHomeService _lpHomeService;
-  LpHomeRepository(this._lpHomeService);
+  final UserInformationRepository _userInformationRepository;
+  LpHomeRepository(this._lpHomeService, this._userInformationRepository);
 
   Future<Result<ProfileDetailModel>> getUserDetails({required String userId}) async {
     try {
@@ -25,7 +27,7 @@ class LpHomeRepository{
     }
   }
 
-  Future<Result<GetLoadResponse>> getLoads({required String userId}) async {
+  Future<Result<LPGetLoadModel>> getLoads({required String userId}) async {
     try {
       return await _lpHomeService.getLoads(id: userId);
     } catch (e) {
@@ -91,7 +93,7 @@ class LpHomeRepository{
   /// Get Recent Route data
   Future<Result<RecentRoutesModel?>> getRecentRouteData() async {
     try {
-      return await _lpHomeService.fetchRecentRouteData();
+      return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
       CustomLog.error(this, "Failed to request recent route data", e);
       return Error(ErrorWithMessage(message: e.toString()));

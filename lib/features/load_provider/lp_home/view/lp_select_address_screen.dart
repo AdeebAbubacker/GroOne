@@ -267,13 +267,16 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                     AppButton(
                       title: "Continue",
                       onPressed: () {
-                        final manualAddress = addressTextController.text;
+
                         final locationAddress = _locationField;
+
                         final isValid = locationAddress.isNotEmpty && locationAddress != 'No address found';
-                        print("title ${widget.title}");
+
+                        debugPrint("title ${widget.title}");
+                        debugPrint("locationAddress ${locationAddress}");
                         setState(() {});
 
-                        if (manualAddress.isEmpty) {
+                        if (addressTextController.text.isEmpty) {
                           _showError("Please provide a address");
                           return;
                         }
@@ -283,7 +286,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         }
 
                         Map<String, dynamic> data = {
-                          "address": manualAddress,
+                          "address": addressTextController.text,
                           "location": locationAddress,
                           "latLng": latLngData,
                         };

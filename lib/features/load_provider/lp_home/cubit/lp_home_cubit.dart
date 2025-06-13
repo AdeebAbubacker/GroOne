@@ -50,5 +50,10 @@ class LPHomeCubit extends Cubit<LPHomeState> {
     emit(state.copyWith(pickup: pickup));
   }
 
+  void clearPickUpAndDestination() {
+    emit(state.copyWith(destination: null));
+    emit(state.copyWith(pickup: null));
+  }
+
 
 }

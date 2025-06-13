@@ -95,9 +95,10 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       automaticallyImplyLeading: false,
       title: Image.asset(AppIcons.png.appIcon,height: 30,),
       actions: [
-        IconButton(onPressed: () {
-
-        }, icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),),
+        IconButton(
+          onPressed: () {},
+          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        ),
         15.width,
         // Profile
         BlocConsumer<LpHomeBloc, HomeState>(

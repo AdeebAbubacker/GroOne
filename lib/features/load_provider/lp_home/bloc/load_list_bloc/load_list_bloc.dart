@@ -20,7 +20,7 @@ class LoadListBloc extends Bloc<LoadListEvent, LoadListState> {
         userId: event.userId ?? "",
       );
 
-      if (result is Success<GetLoadResponse>) {
+      if (result is Success<LPGetLoadModel>) {
         emit(GetLoadSuccess(result.value));
       } else if (result is Error) {
         emit(GetLoadError(result.type));

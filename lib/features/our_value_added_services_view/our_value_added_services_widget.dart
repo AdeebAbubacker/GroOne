@@ -46,7 +46,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
+      decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0), shadow: true),
       child: Column(
         children: [
           20.height,

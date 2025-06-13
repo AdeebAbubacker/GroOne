@@ -9,7 +9,7 @@ class GetLoadLoading extends LoadListState {}
 class GetLoadDetailsLoading extends LoadListState {}
 
 class GetLoadSuccess extends LoadListState {
-  final GetLoadResponse getLoadResponse;
+  final LPGetLoadModel getLoadResponse;
 
   GetLoadSuccess(this.getLoadResponse);
 }

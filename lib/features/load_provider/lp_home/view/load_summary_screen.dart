@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/load_summary_widget.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -52,6 +53,9 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
   final noteTextController = TextEditingController();
 
+  String? dateAndTime;
+  String? sendDateAndTimeInApi;
+
 
   String calculateTenPercentOfAverage(String priceRange) {
     try {
@@ -77,7 +81,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
         if (value == 0) return "Invalid price";
 
         final tenPercent = (value * 0.10).round();
-        return "Rs. $tenPercent";
+        return "$tenPercent";
       }
     } catch (e) {
       return "Calculation error";
@@ -153,8 +157,30 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
             buildReadOnlyField("Consignment weight", "${widget.approxWeight} MT"),
             buildReadOnlyField("Commodity", widget.category),
             buildReadOnlyField("Pickup date & time", widget.date),
-            buildReadOnlyField("Expected Delivery Date & Time", widget.date, fillColor: Colors.white),
-            buildReadOnlyField("Handling Charges", calculateTenPercentOfAverage(widget.price), fillColor: Colors.white),
+
+            InkWell(
+                onTap: () async {
+
+                  final String? date = await commonDatePicker(
+                    context,
+                    firstDate: DateTime.now(),
+                    initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateAndTime ?? DateTime.now().toString()),
+                  );
+
+                  if(!context.mounted) return;
+                  final String? time = await commonTimePicker(context);
+
+                  if (date != null && time != null) {
+                    dateAndTime = "$date - $time";
+                    sendDateAndTimeInApi = DateTimeHelper.convertToDatabaseFormat(date);
+                    print(sendDateAndTimeInApi);
+                  }
+                  setState(() {});
+                },
+              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white)
+            ),
+
+            buildReadOnlyField("Handling Charges","Rs. ${calculateTenPercentOfAverage(widget.price)}", fillColor: Colors.white),
 
             // Notes Field
             AppTextField(
@@ -230,7 +256,11 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
-                final req = widget.apiRequest.copyWith(note: noteTextController.text);
+                final req = widget.apiRequest.copyWith(
+                  note: noteTextController.text,
+                  handlingCharges: int.parse(calculateTenPercentOfAverage(widget.price)),
+                  expectedDeliveryDateTime: sendDateAndTimeInApi ?? ""
+                );
                 await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
                 await Future.delayed(const Duration(seconds: 3));
                 if (!context.mounted) return;

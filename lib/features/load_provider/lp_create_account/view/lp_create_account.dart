@@ -78,10 +78,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   });
 
   void disposeFunction() => frameCallback(() {
-    nameTextController.dispose();
-    companyNameTextController.dispose();
-    phoneNumberTextController.dispose();
-    pinCodeTextController.dispose();
+    nameTextController.clear();
+    companyNameTextController.clear();
+    phoneNumberTextController.clear();
+    pinCodeTextController.clear();
     preferredLanesList.clear();
     companyTypeDropDownValue = null;
   });

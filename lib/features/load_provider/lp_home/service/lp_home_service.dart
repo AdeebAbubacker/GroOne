@@ -39,13 +39,13 @@ class LpHomeService{
 
 
   /// Gwt Load
-  Future<Result<GetLoadResponse>> getLoads({required String id}) async {
+  Future<Result<LPGetLoadModel>> getLoads({required String id}) async {
     try {
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
         _apiService.clearCache();
-        return  await _apiService.getResponseStatus(result.value, (data)=> GetLoadResponse.fromJson(data));
+        return  await _apiService.getResponseStatus(result.value, (data)=> LPGetLoadModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -116,10 +116,10 @@ class LpHomeService{
 
 
   /// Fetch Recent Route
-  Future<Result<RecentRoutesModel?>> fetchRecentRouteData() async {
+  Future<Result<RecentRoutesModel?>> fetchRecentRouteData(String userId) async {
     try {
       final url = ApiUrls.getRecentRoute;
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(url, queryParams: {'customerId': userId});
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> RecentRoutesModel.fromJson(data));
       } else if (result is Error) {

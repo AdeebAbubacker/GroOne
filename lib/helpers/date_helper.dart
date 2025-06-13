@@ -40,8 +40,20 @@ class DateTimeHelper {
     return formattedTime;
   }
 
-  /// Convert to database format
+  /// Convert to API/database format: "2025-06-14T20:00:00.000Z"
   static String convertToDatabaseFormat(String date) {
+    try {
+      DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
+      // Convert to UTC and format as ISO 8601
+      return parsedDate.toUtc().toIso8601String(); // e.g., "2025-06-14T00:00:00.000Z"
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
+
+  /// Convert to database format
+  static String convertToDatabaseFormat2(String date) {
     try {
       DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
       return DateFormat("yyyy-MM-dd").format(parsedDate);

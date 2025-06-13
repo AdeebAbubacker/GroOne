@@ -13,6 +13,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.consignmentWeight,
      this.note,
      this.rate,
+    this.expectedDeliveryDateTime,
+    this.handlingCharges,
+    this.laneId
   });
 
   final num? customerId;
@@ -26,6 +29,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final num? consignmentWeight;
   final String? note;
   final String? rate;
+  final String? expectedDeliveryDateTime;
+  final num? handlingCharges;
+  final num? laneId;
 
   CreateLoadApiRequest copyWith({
     num? customerId,
@@ -39,6 +45,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     num? consignmentWeight,
     String? note,
     String? rate,
+    String? expectedDeliveryDateTime,
+    num? handlingCharges,
+    num? laneId,
   }) {
     return CreateLoadApiRequest(
       customerId: customerId ?? this.customerId,
@@ -52,6 +61,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       note: note ?? this.note,
       rate: rate ?? this.rate,
+      expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
+      handlingCharges: handlingCharges ?? this.handlingCharges,
+      laneId: laneId ?? this.laneId,
     );
   }
 
@@ -67,7 +79,10 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "dueDate": dueDate,
     "consignmentWeight": consignmentWeight,
     "notes": note,
-    "rate": rate
+    "rate": rate,
+    "expectedDeliveryDateTime": expectedDeliveryDateTime,
+    "handlingCharges": handlingCharges,
+    "laneId": laneId
     // "sourceAddres" : {
     //   "city" : "",
     //   "state" : "",

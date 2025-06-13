@@ -39,8 +39,8 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  //static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
-  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification/";
+  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/doc";
   static String get _fleet => "/fleet";
 
 
@@ -78,11 +78,11 @@ class ApiUrls {
   static final String  login = "$_baseUrlWithAuth/login";
   static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
-  static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
-  static final String  gst = "$_verification/gst";
-  static final String  tan = "$_verification/tan";
-  static final String  pan = "$_verification/pan";
+  static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
+  static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
+  static final String  gst = "$_kucDocUpload/gst";
+  static final String  tan = "$_kucDocUpload/tan";
+  static final String  pan = "$_kucDocUpload/pan";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
 
