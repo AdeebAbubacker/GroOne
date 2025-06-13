@@ -246,7 +246,16 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
                 hintText: context.appText.emailHint,
-                suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
+                suffixIcon: Icon(Icons.verified, size: 15, color : AppColors.greyIconColor)
+                // suffixIcon: Row(
+                //   mainAxisAlignment: MainAxisAlignment.end,
+                //   children: [
+                //     Text("Verify", style: AppTextStyle.body3),
+                //     5.width,
+                //     Icon(Icons.verified, size: 15, color : AppColors.greyIconColor),
+                //   ],
+                // ),
+
             ),
           ),
           20.height,

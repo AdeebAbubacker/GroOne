@@ -66,7 +66,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 0 ? true : false,
-                  text1: context.appText.lpTextHeading,
+                  text1: "Load Provider",
                   text2: context.appText.lpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 0));
@@ -75,7 +75,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 1 ? true : false,
-                  text1: context.appText.vpTextHeading,
+                  text1: "Truck Provider",
                   text2: context.appText.vpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 1));
@@ -84,7 +84,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 2 ? true : false,
-                  text1: context.appText.vpLpHeading,
+                  text1: "Both Load & Truck Provider",
                   text2: context.appText.vpLp,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 2));
@@ -93,7 +93,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 3 ? true : false,
-                  text1: context.appText.fleetHeading,
+                  text1: "Require Fleet Products",
                   text2: context.appText.fleet,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 3));
@@ -176,7 +176,7 @@ class ChooseRoleScreen extends StatelessWidget {
               title: Row(
                 children: [
                   60.width,
-                  Expanded(child: Text(text1, style: AppTextStyle.body2)),
+                  Expanded(child: Text(text1, style: AppTextStyle.h5)),
                 ],
               ),
             ),

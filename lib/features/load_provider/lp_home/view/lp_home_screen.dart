@@ -85,6 +85,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
 
+
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
 
@@ -139,6 +140,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
+    lpHomeCubit.fetchRecentRoute();
     await lpHomeCubit.startKycSuccessTimer();
   });
 
@@ -416,13 +418,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             //   Navigator.of(context).push(createRoute(RecentRouteScreen()));
                             // }
 
+
+
                             Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue){
                               if(onValue != null && onValue == true){
                                 debugPrint("Pick up : ${state.pickup}");
                                 debugPrint("Destination : ${state.destination}");
-                                dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
-                                rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
-                                setState(() {});
                               }
                             });
 
@@ -444,8 +445,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             ), isForward: true)).then((onValue){
                               if(onValue != null && onValue == true){
                                  debugPrint("Destination: ${state.destination}");
-                                dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
-                                rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                               }
                               setState(() {});
                             });
@@ -465,6 +464,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
               // Commodity selection
@@ -508,7 +508,47 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   },
                 ),
               ).expand(),
-              15.width,
+              10.width,
+
+              // Consignment weight (MT)
+              Container(
+                height: 55,
+                padding: EdgeInsets.all(10),
+                decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(AppIcons.svg.kgWeight),
+                    12.width,
+                    TextFormField(
+                      controller: weightTextController,
+                      autofocus: false,
+                      keyboardType: iosNumberKeyboard,
+                      inputFormatters: [
+                        phoneNumberInputFormatter
+                      ],
+                      decoration: InputDecoration(
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                        hintText: context.appText.consignmentWeightWithMT,
+                        hintStyle: AppTextStyle.body,
+                        maintainHintHeight: true,
+                      ),
+                    ).expand(),
+
+                    Text("MT ", style: AppTextStyle.body3GreyColor)
+                  ],
+                ),
+              ).expand(),
+
+
+            ],
+          ),
+
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
 
               // Truck selection
               BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
@@ -548,18 +588,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           )));
                           setState(() {});
                         },
-                      ).paddingBottom(10);
+                      );
                     }
                     return const SizedBox();
                   },
                 ),
               ).expand(),
-            ],
-          ),
-
-
-          Row(
-            children: [
+              10.width,
 
               // Date and Time
               InkWell(
@@ -578,6 +613,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     dateTimeTextController.text = "$date - $time";
                     selectedDate = date;
                     selectedTime = time;
+                    dynamic req = RateDiscoveryApiRequest(pickup: "bangalore", drop: "chennai");
+                    rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
                   }
                   setState(() {});
                 },
@@ -595,36 +632,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   ),
                 ),
               ).expand(),
-              15.width,
 
-              // Consignment weight (MT)
-              Container(
-                height: 55,
-                padding: EdgeInsets.all(10),
-                decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AppIcons.svg.kgWeight),
-                    12.width,
-                    TextFormField(
-                      controller: weightTextController,
-                      autofocus: false,
-                      keyboardType: iosNumberKeyboard,
-                      inputFormatters: [
-                        phoneNumberInputFormatter
-                      ],
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
-                        hintText: context.appText.consignmentWeightWithMT,
-                        hintStyle: AppTextStyle.body,
-                        maintainHintHeight: true,
-                      ),
-                    ).expand(),
-                  ],
-                ),
-              ).expand(),
+
+
             ],
           ),
           20.height,
@@ -736,7 +746,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 pickUpAddr:  lpHomeCubit.state.pickup?['address'] ?? "",
                                 pickUpLatlon:   lpHomeCubit.state.pickup?['latLng']??"",
                                 dropAddr:   lpHomeCubit.state.destination?['address'] ?? "",
-                                dropLatlon:  lpHomeCubit.state. destination?['latLng']??"",
+                                dropLatlon:  lpHomeCubit.state. destination?['latLng'] ??"",
                                 dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
                                 consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
                                 rate: rateDiscoveryPrice ?? "0000 - 0000",

@@ -35,7 +35,6 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   final lpHomeCubit = locator<LPHomeCubit>();
 
-
   final searchController = TextEditingController();
 
   Map<String, dynamic>? destination;
@@ -148,22 +147,22 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     ],
                   );
                 } else {
-                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction()).expand();
+                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction());
                 }
               } else {
-                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             case Status.ERROR :
               if(state.recentRouteState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction()).expand();
+                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
               }else{
-                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
+                return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             default :
-              return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
+              return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
           }
         } else {
-          return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction()).expand();
+          return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
         }
       },
     );

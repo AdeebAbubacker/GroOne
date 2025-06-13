@@ -18,6 +18,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../dependency_injection/locator.dart';
@@ -308,11 +309,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ],
                 ),
               ),
-
-              Expanded(child: SizedBox.shrink()),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.1),
               Image.asset(AppImage.png.signUpBanner),
             ],
-          );
+          ).withScroll();
         },
       ),
     );

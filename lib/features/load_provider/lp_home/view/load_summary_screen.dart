@@ -52,6 +52,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   final loadPostingBloc = locator<LoadPostingBloc>();
 
   final noteTextController = TextEditingController();
+  final handlingChargesTextController = TextEditingController();
 
   String? dateAndTime;
   String? sendDateAndTimeInApi;
@@ -180,7 +181,26 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white)
             ),
 
-            buildReadOnlyField("Handling Charges","Rs. ${calculateTenPercentOfAverage(widget.price)}", fillColor: Colors.white),
+            AppTextField(
+              controller: handlingChargesTextController,
+              hintText: "Enter Handling Charges",
+              labelText: "Handling Charges",
+              onChanged: (value){
+                print("Chrage : ${calculateTenPercentOfAverage(widget.price)}");
+
+                if (handlingChargesTextController.text.isNotEmpty){
+                  if (int.parse(handlingChargesTextController.text) > int.parse(calculateTenPercentOfAverage(widget.price))){
+                    ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
+                    return;
+                  } else {
+                    handlingChargesTextController.text = value;
+                  }
+                }
+                setState(() {});
+              },
+            ),
+
+           // buildReadOnlyField("Handling Charges","Rs. ${calculateTenPercentOfAverage(widget.price)}", fillColor: Colors.white),
 
             // Notes Field
             AppTextField(
