@@ -5,5 +5,7 @@ abstract class VpLoadEvent {}
 class FetchVpLoads extends VpLoadEvent {
   final int type;
   final String search;
-  FetchVpLoads({required this.type, this.search = ""});
+  final bool forceRefresh;
+
+  FetchVpLoads({required this.type, this.search = "", this.forceRefresh = false});
 }

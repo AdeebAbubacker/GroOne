@@ -13,21 +13,18 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/available_loads_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -35,8 +32,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:video_player/video_player.dart';
-
 import '../../../../utils/app_dialog.dart';
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../bloc/load_accpect/vp_accept_load_bloc.dart';
@@ -45,31 +40,27 @@ import '../bloc/vp_home_bloc/vp_home_bloc.dart';
 
 
 class VpHomeScreen extends StatefulWidget {
-  const VpHomeScreen({super.key});
+  final void Function(int bottomTabIndex, {int? allLoadsSubTabIndex}) onViewAllOrSeeMore;
+  const VpHomeScreen({super.key, required this.onViewAllOrSeeMore});
 
   @override
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
 class _VpHomeScreenState extends State<VpHomeScreen> {
-
-  late VideoPlayerController _controller;
-
   String profileImage = "";
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
-
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-
-
   final searchController = TextEditingController();
-  ProfileDetailModel? profileResponse;
+  // ProfileDetailModel? profileResponse;
   VpMyLoadResponse? vpMyLoadResponse;
+  bool showKycSuccessBanner = false;
+
 
   @override
   void initState() {
-    initializeVideoPlayer(context);
     initFunction();
     super.initState();
   }
@@ -80,26 +71,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     super.dispose();
   }
 
-  // void initFunction() => frameCallback(() async {
-  //   await lpHomeBloc.getUserId() ?? "";
-  //   vpRecentLoadListBloc.add(VpRecentLoadEvent());
-  //   vpHomeScreenBloc.add(VpMyLoadListRequested());
-  //   lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
-  // });
 
   void initFunction() => frameCallback(() async {
-    await lpHomeBloc.getUserId() ?? "";
-
-    final completer = Completer();
-    final subscription = lpHomeBloc.stream.listen((state) {
-      if (state is ProfileDetailSuccess) {
-        profileResponse = state.profileDetailResponse;
-        completer.complete();
-      }
-    });
-    lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
-    await completer.future;
-    await subscription.cancel();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
   });
@@ -108,65 +81,35 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   void disposeFunction() => frameCallback(() {});
 
 
-  void initializeVideoPlayer(BuildContext context){
-    _controller = VideoPlayerController.asset(AppVideo.kycBlinking)
-      ..initialize().then((_) {
-        if (mounted) {
-          _controller.play();
-        }
-        setState(() {});
-      });
-    _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized && mounted) {
-        _controller.play();
-        setState(() {});
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        // appBar: _buildAppBar(context),
-        body: _buildBody(context),
+    return RefreshIndicator(
+      onRefresh: () async {
+        vpRecentLoadListBloc.add(VpRecentLoadEvent());
+        vpHomeScreenBloc.add(VpMyLoadListRequested());
+      },
+      child: SafeArea(
+        child:
+        Column(
+          children: [
+            Builder(
+                builder: (context) {
+                  if (VpVariables.isKycVerified) {
+                    return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
+                  } else {
+                    return buildKYCStatusWidget();
+                  }
+                }
+            ),
+            OurValueAddedServicesWidget(),
+            20.height,
+            _buildRecentAddedLoadWidget(context),
+            20.height,
+            _buildMyLoadsWidget(context),
+          ],
+        ).withScroll(),
+      ),
     );
-  }
-
-  /// Body
-  Widget _buildBody(BuildContext context) {
-    return  RefreshIndicator(
-        onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
-        },
-        child: SafeArea(
-          child:
-              Column(
-                children: [
-                  Builder(
-                      builder: (context) {
-                        if ( profileResponse != null ) {
-                          if (profileResponse!.data != null && profileResponse!.data!.customer != null) {
-                            if (profileResponse!.data!.customer!.isKyc == 3) {
-                              return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
-                            } else {
-                              return buildKYCStatusWidget();
-                            }
-                          }
-                        }
-                        return SizedBox();
-                      }
-                  ),
-
-                  OurValueAddedServicesWidget(),
-                  20.height,
-                  _buildRecentAddedLoadWidget(context),
-                  20.height,
-                  _buildMyLoadsWidget(context),
-                ],
-              ).withScroll(),
-        ),
-      );
   }
 
   /// KYC Widget
@@ -231,7 +174,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
                     TextButton(
                       onPressed: () {
-
+                        widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
                       },
                       style: AppButtonStyle.primaryTextButton,
                       child: Text("View All", style: AppTextStyle.h5WhiteColor),
@@ -267,7 +210,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                         return MyLoadsListBody(
                           data: data,
                           onClickAssignDriver: () {
-                            final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
+                            final isKycDone = VpVariables.isKycVerified;
                             if (isKycDone) {
                               // Navigator.of(context).push(createRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!)));
                             } else {
@@ -351,8 +294,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 Text(context.appText.availableLoads, style: AppTextStyle.body1).expand(),
                 TextButton(
                   onPressed: () {
-                    // final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
-                    // Navigator.push(context, commonRoute(AvailableLoadsScreen(isKycDone: isKycDone,), isForward: true));
+                    widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
                   },
                   style: AppButtonStyle.primaryTextButton,
                   child: Text(context.appText.seeMore, style: AppTextStyle.h5WhiteColor),
@@ -376,7 +318,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     itemBuilder: (context, index) {
                       return RecentAddedLoadListBody(
                         data: loads[index],
-                        isKycDone: profileResponse?.data?.customer?.isKyc == 3,
+                        isKycDone: VpVariables.isKycVerified,
                       );
                     },
                   );
@@ -388,74 +330,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           ],
         ).paddingSymmetric(horizontal: commonSafeAreaPadding),
       ),
-    );
-  }
-
-  /// AppBar
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return CommonAppBar(
-      isLeading: false,
-      leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-      actions: [
-        // KYC
-        if( _controller.value.isInitialized)
-          kycWidget(
-            controller: _controller,
-            onTap: () {
-              commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-                lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
-                );
-              });
-            },
-          ),
-        10.width,
-
-        // Profile
-        BlocConsumer<LpHomeBloc, HomeState>(
-          listener: (context, state) {
-            if (state is ProfileDetailSuccess) {
-              profileResponse = state.profileDetailResponse;
-              profileImage =
-                  state.profileDetailResponse.data!.details!.profileImageUrl ??
-                      "";
-              setState(() {});
-            }
-            if (state is ProfileDetailError) {
-              ToastMessages.error(
-                message: getErrorMsg(errorType: state.errorType),
-              );
-            }
-          },
-          bloc: lpHomeBloc,
-          builder: (context, state) {
-            return InkWell(
-              onTap: () {
-                Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true),
-                ).then((v) {
-                  frameCallback(() => lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
-                });
-              },
-              child: commonCacheNetworkImage(
-                radius: 50,
-                height: 40,
-                width: 40,
-                path: profileImage,
-                errorImage: AppImage.png.userProfileError,
-              ),
-            );
-          },
-        ),
-        15.width,
-
-        // Notification
-        AppIconButton(
-          onPressed: (){},
-          style: AppButtonStyle.circularIconButtonStyle,
-          icon: Icons.notifications,
-          iconColor: AppColors.primaryColor,
-        ),
-        15.width,
-      ],
     );
   }
 }

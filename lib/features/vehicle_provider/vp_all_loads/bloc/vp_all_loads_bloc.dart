@@ -11,7 +11,7 @@ class VpLoadBloc extends Bloc<VpLoadEvent, VpLoadState> {
   VpLoadBloc(this.repo) : super(VpLoadInitial()) {
     on<FetchVpLoads>((event, emit) async {
       emit(VpLoadLoading());
-      final result = await repo.fetchLoads(type: event.type, search: event.search);
+      final result = await repo.fetchLoads(type: event.type, search: event.search, forceRefresh: event.forceRefresh);
       if (result is Success<List<VpRecentLoadData>>) {
         emit(VpLoadLoaded(result.value));
       } else {
