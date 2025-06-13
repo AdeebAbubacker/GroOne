@@ -10,11 +10,12 @@ class VpLoadService {
     required String customerId,
     required int type,
     String search = "",
+    bool forceRefresh = false
   }) async {
     try {
       final response = await _apiService.get(
         'https://gro-devapi.letsgro.co/load/api/v1/load/vp/load?customerId=$customerId&type=$type&search=$search',
-        forceRefresh: false,
+        forceRefresh: forceRefresh,
       );
 
       if (response is Success) {

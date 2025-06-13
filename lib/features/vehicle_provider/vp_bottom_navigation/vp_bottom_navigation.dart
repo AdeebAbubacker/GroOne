@@ -37,7 +37,6 @@ class VPBottomNavigationBar extends StatefulWidget {
 class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   String profileImage = "";
   ProfileDetailModel? profileResponse;
-  // late final List<Widget> pages;
   int selectedIndex = 0;
   int vpAllLoadsInitialTabIndex = 0;
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -88,6 +87,8 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     final subscription = lpHomeBloc.stream.listen((state) {
       if (state is ProfileDetailSuccess) {
         profileResponse = state.profileDetailResponse;
+        bool isKyc = profileResponse?.data?.customer?.isKyc==3;
+        VpVariables.setIsKycVerified(isKyc);
         completer.complete();
       }
     });
@@ -272,5 +273,14 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         ],
       ),
     );
+  }
+}
+
+
+class VpVariables {
+  static bool isKycVerified = false;
+
+  static setIsKycVerified(bool isKyc){
+    isKycVerified = isKyc;
   }
 }

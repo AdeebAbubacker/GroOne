@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -23,12 +24,10 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
 class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
-  final bool isKycDone;
 
   const VpAllLoadAvailableLoadWidget({
     super.key,
     required this.data,
-    required this.isKycDone,
   });
 
   @override
@@ -179,7 +178,8 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                   AppButton(
                     buttonHeight: 40,
                     onPressed: () {
-                      if (widget.isKycDone) {
+                      print(VpVariables.isKycVerified);
+                      if (VpVariables.isKycVerified) {
                         setState(() {
                           loadingLoadIds.add(widget.data.id.toString());
                         });

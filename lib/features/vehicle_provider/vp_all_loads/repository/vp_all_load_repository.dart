@@ -12,8 +12,9 @@ class VpLoadRepository {
   Future<Result<List<VpRecentLoadData>>> fetchLoads({
     required int type,
     String search = "",
+    bool forceRefresh = false
   }) async {
     final customerId = await userRepo.getUserID() ?? '';
-    return service.fetchLoads(customerId: customerId, type: type, search: search);
+    return service.fetchLoads(customerId: customerId, type: type, search: search,forceRefresh: forceRefresh);
   }
 }

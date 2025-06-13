@@ -9,18 +9,25 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_button_style.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_dialog.dart';
 import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_search_bar.dart';
+import '../../../../utils/common_dialog_view/success_dialog_view.dart';
+import '../../../../utils/common_functions.dart';
 import '../../../../utils/constant_variables.dart';
+import '../../../../utils/toast_messages.dart';
 import '../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import '../../../load_provider/lp_home/model/profile_detail_response_model.dart';
+import '../../vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
+import '../../vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import '../bloc/vp_all_loads_bloc.dart';
 import '../bloc/vp_all_loads_event.dart';
 import '../bloc/vp_all_loads_state.dart';
 
 class VpAllLoadsScreen extends StatefulWidget {
   final int initialTabIndex;
+
   const VpAllLoadsScreen({super.key, this.initialTabIndex = 0});
 
   @override
@@ -42,13 +49,17 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
   void initState() {
     super.initState();
     vpLoadBloc = locator<VpLoadBloc>();
-    _tabController = TabController(length: 4, vsync: this,initialIndex: widget.initialTabIndex);
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
-        _loadDataByTab(_tabController.index);
+        _loadDataByTab(index: _tabController.index);
       }
     });
-    _loadDataByTab(widget.initialTabIndex); // load initial tab
+    _loadDataByTab(index: widget.initialTabIndex); // load initial tab
   }
 
   @override
@@ -67,10 +78,10 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     });
   }
 
-  void _loadDataByTab(int index) {
+  void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final type = index + 1;
     final search = searchController.text;
-    vpLoadBloc.add(FetchVpLoads(type: type, search: search));
+    vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
 
@@ -123,7 +134,38 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: List.generate(4, (index) => buildTab()),
+                children: [
+                  BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
+                    bloc: locator<VpAcceptLoadBloc>(),
+                    listener: (context, state) {
+                      if (state is VpAcceptLoadSuccess) {
+                        _loadDataByTab(index: 0, forceRefresh: true);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (context.mounted) {
+                            AppDialog.show(
+                              context,
+                              child: SuccessDialogView(
+                                message: 'Load Accepted Successfully',
+                                afterDismiss: () {
+                                  if (context.mounted) Navigator.pop(context);
+                                },
+                              ),
+                            );
+                          }
+                        });
+                      }
+                      if (state is VpAcceptLoadError) {
+                        ToastMessages.error(
+                          message: getErrorMsg(errorType: state.errorType),
+                        );
+                      }
+                    },
+                    child: buildTab(),
+                  ),
+                  buildTab(),
+                  buildTab(),
+                  buildTab(),
+                ],
               ),
             ),
           ],
@@ -166,15 +208,14 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             itemBuilder: (context, index) {
               if (_tabController.index == 0) {
                 return VpAllLoadAvailableLoadWidget(
-                  data: state.loads[index],
-                  isKycDone: false,
+                  data: state.loads[index]
                 ).paddingSymmetric(vertical: 7);
               } else if (_tabController.index == 1) {
                 return VpAllLoadMyLoadWidget(
                   data: state.loads[index],
                   onClickAssignDriver: () {},
                 ).paddingSymmetric(vertical: 7);
-              } else{
+              } else {
                 return null;
               }
             },
