@@ -1,5 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
@@ -9,6 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide Result;
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -36,6 +39,7 @@ class LpHomeRepository{
     }
   }
 
+
   Future<Result<LoadDetailResponse>> getLoadDetails({required String userId}) async {
     try {
       return await _lpHomeService.getLoadDetail(id: userId);
@@ -46,7 +50,7 @@ class LpHomeRepository{
   }
 
 
-  /// Get Load Commodity data
+  /// Get Load Commodity data Repo
   Future<Result<LoadCommodityListModel>> getLoadCommodityData() async {
     try {
       return await _lpHomeService.fetchLoadCommodityData();
@@ -57,7 +61,7 @@ class LpHomeRepository{
   }
 
 
-  /// Get Truck Type data
+  /// Get Truck Type data Repo
   Future<Result<LoadTruckTypeListModel>> getTruckTypeData() async {
     try {
       return await _lpHomeService.fetchTruckTypeData();
@@ -68,7 +72,7 @@ class LpHomeRepository{
   }
 
 
-  /// Get Truck Type data
+  /// Get Truck Type data Repo
   Future<Result<CreateLoadModel>> getCreateLoadData(CreateLoadApiRequest request) async {
     try {
       return await _lpHomeService.fetchCreateLoadData(request);
@@ -79,7 +83,7 @@ class LpHomeRepository{
   }
 
 
-  /// Fetch Rate Discovery data
+  /// Fetch Rate Discovery data Repo
   Future<Result<RateDiscoveryModel>> getRateDiscoveryData(RateDiscoveryApiRequest request) async {
     try {
       return await _lpHomeService.fetchRateDiscoveryData(request);
@@ -90,12 +94,34 @@ class LpHomeRepository{
   }
 
 
-  /// Get Recent Route data
+  /// Get Recent Route data Repo
   Future<Result<RecentRoutesModel?>> getRecentRouteData() async {
     try {
       return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
       CustomLog.error(this, "Failed to request recent route data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Auto Complete Data Repo
+  Future<Result<AutoCompleteModel>> getAutoCompleteData(String input) async {
+    try {
+      return await _lpHomeService.fetchMapAutoCompleteData(input);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request auto complete data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Location Verify data Repo
+  Future<Result<VerifyLocationModel>> getVerifyLocationData(VerifyLocationApiRequest request) async {
+    try {
+      return await _lpHomeService.fetchVerifyLocationData(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request verify location data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

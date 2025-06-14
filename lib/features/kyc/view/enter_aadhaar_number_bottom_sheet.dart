@@ -111,16 +111,16 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
 
         final verifyState = state.aadhaarOtpState;
 
-        if (verifyState?.status == Status.SUCCESS) {
-          showOtpFieldAadhaar = false;
-          setState(() {});
-          context.pop();
-          context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
-            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
-            aadhaarNumberTextController.clear();
-            aadhaarNumberOtpTextController.clear();
-          });
-        }
+        // if (verifyState?.status == Status.SUCCESS) {
+        //   showOtpFieldAadhaar = false;
+        //   setState(() {});
+        //   context.pop();
+        //   context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
+        //     lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
+        //     aadhaarNumberTextController.clear();
+        //     aadhaarNumberOtpTextController.clear();
+        //   });
+        // }
       },
     );
   }

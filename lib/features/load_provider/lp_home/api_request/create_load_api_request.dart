@@ -15,7 +15,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.rate,
     this.expectedDeliveryDateTime,
     this.handlingCharges,
-    this.laneId
+    this.laneId,
+    this.pickUpLocation,
+    this.dropLocation,
   });
 
   final num? customerId;
@@ -25,6 +27,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? pickUpLatlon;
   final String? dropAddr;
   final String? dropLatlon;
+  final String? pickUpLocation;
+  final String? dropLocation;
   final String? dueDate;
   final num? consignmentWeight;
   final String? note;
@@ -48,6 +52,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     String? expectedDeliveryDateTime,
     num? handlingCharges,
     num? laneId,
+    String? pickUpLocation,
+    String? dropLocation,
   }) {
     return CreateLoadApiRequest(
       customerId: customerId ?? this.customerId,
@@ -64,6 +70,8 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       laneId: laneId ?? this.laneId,
+      pickUpLocation: pickUpLocation ?? this.pickUpLocation,
+      dropLocation: dropLocation ?? this.dropLocation,
     );
   }
 
@@ -82,21 +90,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "rate": rate,
     "expectedDeliveryDateTime": expectedDeliveryDateTime,
     "handlingCharges": handlingCharges,
-    "laneId": laneId
-    // "sourceAddres" : {
-    //   "city" : "",
-    //   "state" : "",
-    //   "pincode" : "",
-    //   "fulladdress" : "",
-    //   "pickLatlong" : ""
-    // },
-    // "destinationAddres" : {
-    //   "city" : "",
-    //   "state" : "",
-    //   "pincode" : "",
-    //   "fulladdress" : "",
-    //   "dropLatlong" : ""
-    // }
+    "laneId": laneId,
+    "pickUpLocation": pickUpLocation,
+    "dropLocation": dropLocation,
   };
 
 }

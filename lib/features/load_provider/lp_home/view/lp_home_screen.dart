@@ -739,13 +739,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 return;
                               }
 
+                              // Api Request
                               final request = CreateLoadApiRequest(
                                 customerId: int.parse(lpHomeBloc.userId.toString()),
                                 commodityId: int.parse(commodityId ?? "0"),
                                 truckTypeId: int.parse(truckTypeId ?? "0"),
                                 pickUpAddr:  lpHomeCubit.state.pickup?['address'] ?? "",
+                                pickUpLocation:  lpHomeCubit.state.pickup?['location'] ?? "",
                                 pickUpLatlon:   lpHomeCubit.state.pickup?['latLng']??"",
                                 dropAddr:   lpHomeCubit.state.destination?['address'] ?? "",
+                                dropLocation:   lpHomeCubit.state.destination?['location'] ?? "",
                                 dropLatlon:  lpHomeCubit.state. destination?['latLng'] ??"",
                                 dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
                                 consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
@@ -754,6 +757,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               );
 
 
+                              // Pass Data in to next page
                               Navigator.push(context, commonRoute(LoadSummaryScreen(
                                 apiRequest: request,
                                 pickupAddress:  lpHomeCubit.state.pickup!['address'] ?? "",

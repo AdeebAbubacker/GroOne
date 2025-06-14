@@ -90,7 +90,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Recent Routes", isCrossLeadingIcon: true),
+      appBar: CommonAppBar(title: "Recent Routes", isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSelectButton(context),
     );
@@ -143,7 +143,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                             child: _buildListBody(index: index, data: state.recentRouteState!.data!.data[index]),
                           );
                         },
-                      ),
+                      ).expand(),
                     ],
                   );
                 } else {

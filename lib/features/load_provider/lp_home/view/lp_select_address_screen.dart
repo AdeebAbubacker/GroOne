@@ -54,6 +54,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      lpHomeCubit.mapAutoComplete("mum");
       if (widget.address != null) {
         addressTextController.text = widget.address!;
         searchTextController.text = widget.location!;
