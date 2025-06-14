@@ -206,40 +206,40 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // Phone Number
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(" Phone Number", style: AppTextStyle.textFiled),
-            6.height,
-            MobileNumberTextField(
-              controller: mobileNumberTextController,
-              countryFlagAssetPath: AppImage.png.flag,
-              readOnly: true,
-            ),
-          ],
-        ),
-        // AppTextField(
-        //   readOnly: true,
-        //   validator: (value)=> Validator.phone(value),
-        //   controller: mobileNumberTextController,
-        //   labelText: context.appText.phoneNumber,
-        //   maxLength: 10,
-        //   inputFormatters: [phoneNumberInputFormatter],
-        //   keyboardType: TextInputType.phone,
-        //   decoration: commonInputDecoration(
-        //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-        //     prefixIcon: Row(
-        //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //       mainAxisSize: MainAxisSize.min,
-        //       children: [
-        //         Image.asset(AppImage.png.flag),
-        //         10.width,
-        //         Text("+91", style: AppTextStyle.textBlackColor16w400),
-        //       ],
-        //     ).paddingOnly(left: 20, right: 5),
-        //   ),
+        // Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(" Phone Number", style: AppTextStyle.textFiled),
+        //     6.height,
+        //     MobileNumberTextField(
+        //       controller: mobileNumberTextController,
+        //       countryFlagAssetPath: AppImage.png.flag,
+        //       readOnly: true,
+        //     ),
+        //   ],
         // ),
-        20.height,
+        AppTextField(
+          readOnly: true,
+          validator: (value)=> Validator.phone(value),
+          controller: mobileNumberTextController,
+          labelText: context.appText.phoneNumber,
+          maxLength: 10,
+          inputFormatters: [phoneNumberInputFormatter],
+          keyboardType: TextInputType.phone,
+          decoration: commonInputDecoration(
+            hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+            prefixIcon: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(AppImage.png.flag),
+                10.width,
+                Text("+91", style: AppTextStyle.textBlackColor16w400),
+              ],
+            ).paddingOnly(left: 20, right: 5),
+          ),
+        ),
+         20.height,
 
         // Email
         AppTextField(

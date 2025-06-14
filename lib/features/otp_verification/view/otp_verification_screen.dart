@@ -205,8 +205,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
                         Text(
                           maskPhoneNumber(widget.mobileNumber),
-                          style: AppTextStyle.primaryColor18w400UnderLine
-                              .copyWith(decoration: TextDecoration.none),
+                          style: AppTextStyle.primaryColor18w400UnderLine.copyWith(decoration: TextDecoration.none),
                         ),
                       ],
                     ),

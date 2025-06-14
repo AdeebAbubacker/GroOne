@@ -127,46 +127,48 @@ class _LoginScreenState extends State<LoginScreen> {
                     5.height,
 
                     // Phone Number
-                    MobileNumberTextField(
-                      countryFlagAssetPath: AppImage.png.flag,
+                    // MobileNumberTextField(
+                    //   countryFlagAssetPath: AppImage.png.flag,
+                    //   controller: phoneNumber,
+                    //   onChanged: (value){
+                    //     setState(() {});
+                    //   },
+                    // ),
+                    AppTextField(
+                      validator: (value)=> Validator.phone(value),
                       controller: phoneNumber,
-
-                      onChanged: (value) {
+                      //labelText: context.appText.phoneNumber,
+                      maxLength: 10,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      keyboardType: iosNumberKeyboard,
+                      decoration: commonInputDecoration(
+                        hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+                        prefixIcon: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(AppImage.png.flag),
+                            10.width,
+                            Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                          ],
+                        ).paddingOnly(left: 20, right: 5),
+                      ),
+                      onChanged: (v){
                         setState(() {});
                       },
                     ),
-                    // AppTextField(
-                    //   validator: (value)=> Validator.phone(value),
-                    //   controller: phoneNumber,
-                    //   labelText: context.appText.phoneNumber,
-                    //   maxLength: 10,
-                    //   inputFormatters: [
-                    //     FilteringTextInputFormatter.digitsOnly,
-                    //     LengthLimitingTextInputFormatter(10),
-                    //   ],
-                    //   keyboardType: iosNumberKeyboard,
-                    //   decoration: commonInputDecoration(
-                    //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-                    //     prefixIcon: Row(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    //       mainAxisSize: MainAxisSize.min,
-                    //       children: [
-                    //         Image.asset(AppImage.png.flag),
-                    //         10.width,
-                    //         Text("+91", style: AppTextStyle.textFieldHintBlackColor),
-                    //       ],
-                    //     ).paddingOnly(left: 20, right: 5),
-                    //   ),
-                    // ),
                     20.height,
 
                     // Get Otp Button
                     AppButton(
                       isLoading: isLoading,
                       title: "Get OTP",
-                      style:(phoneNumber.text.length==10 && checkBoxBool==true)?AppButtonStyle.primary:AppButtonStyle.disableButton,
+                      style:(phoneNumber.text.length == 10 && checkBoxBool == true) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
                       onPressed: () {
-                        if(phoneNumber.text.length==10 && checkBoxBool==true){
+                        if(phoneNumber.text.length == 10 && checkBoxBool == true){
                           loginBloc.add(
                             LoginInRequested(apiRequest: LoginApiRequest(
                               mobile:phoneNumber.text,

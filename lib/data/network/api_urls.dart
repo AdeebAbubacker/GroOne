@@ -47,7 +47,7 @@ class ApiUrls {
   // Base URL
   static String get _baseUrl => _fetchUrl;
 
-  static String get _baseUrlWithAuth => "$_fetchUrl$_customer$_path$_v1$_auth$_customer";
+  static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth$_customer";
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
 
   static final String  baseUrl = _baseUrl;
@@ -60,6 +60,11 @@ class ApiUrls {
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
+  /// Onboarding
+  static final String emailVerification = "$_baseUrl$_customer$_path$_v1/email-otp/send";
+  static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1/email-otp/verify";
+
+
   /// VP Endpoints
   static final String createVpAccount = "$_customerBaseUrl$_vp/";
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
@@ -67,7 +72,6 @@ class ApiUrls {
   static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/driver/";
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
-
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
 
   //submit Kyc

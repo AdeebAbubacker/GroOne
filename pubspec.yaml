@@ -63,6 +63,7 @@ dependencies:
   share_plus: ^11.0.0
   multi_dropdown: ^3.0.1
   flutter_switch: ^0.3.2
+  pinput: ^3.0.1
 
   # Routing
   go_router: ^15.1.2
