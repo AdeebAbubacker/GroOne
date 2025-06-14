@@ -26,7 +26,8 @@ import 'package:pinput/pinput.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String emailAddress;
-  const EmailVerificationScreen({super.key, required this.emailAddress});
+  final String userId;
+  const EmailVerificationScreen({super.key, required this.emailAddress, required this.userId});
 
 
   @override
@@ -60,11 +61,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   });
 
-
-  Future verifyCode() async {
-    final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text);
-    await  cubit.verifyOtp(request);
-  }
 
   void setOtpCode(String pin){
     if(pin.length == 4) {
@@ -132,7 +128,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           buildResendCodeButtonWidget(),
           Container().expand(flex: 2),
           Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth).expand(flex: 3),
-          10.height,
+          20.height,
         ],
       ),
     );
@@ -165,17 +161,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget buildVerifyCodeButtonWidget(){
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
+      listenWhen: (previous, current) =>  previous.verifyOtpState != current.verifyOtpState,
       listener: (context, state) {
         if (state.verifyOtpState?.status == Status.SUCCESS) {
-           // Navigator.of(context).pop(true);
-            debugPrint("OTP Verified");
+            Navigator.of(context).pop(true);
         }
         if (state.verifyOtpState?.status == Status.ERROR) {
-            if (state.verifyOtpState?.errorType != null) {
-              ToastMessages.error(message: getErrorMsg(errorType: state.verifyOtpState!.errorType!));
-            } else {
-              ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
-            }
+          final error = state.verifyOtpState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
       },
       builder: (context, state) {
@@ -185,8 +178,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           title: context.appText.verifyCode,
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
-          onPressed: !isLoading && isCodeLengthValid ? () {
-            verifyCode();
+          onPressed: !isLoading && isCodeLengthValid ? () async {
+            final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text, customerId: int.parse(widget.userId));
+            await  cubit.verifyOtp(request);
           } : (){},
         );
       },
@@ -198,6 +192,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget buildResendCodeButtonWidget() {
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
+      listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
       listener: (context, state) {},
       builder: (context, state) {
         return AppButton(

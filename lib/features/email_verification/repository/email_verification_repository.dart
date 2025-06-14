@@ -12,21 +12,33 @@ class EmailVerificationRepository {
   final UserInformationRepository _userInformationRepository;
   EmailVerificationRepository(this._emailVerificationService, this._userInformationRepository);
 
-
-  Future<Result<EmailOtpModel>> getEmailVerificationData(String email) async {
+  /// Send Email Otp Repo
+  Future<Result<EmailOtpModel>> getSendOtpData(String email) async {
     try {
-      return await _emailVerificationService.sendOtp(email);
+      return await _emailVerificationService.fetchSendOtp(email);
     } catch (e) {
-      CustomLog.error(this, "Failed to request email verification", e);
+      CustomLog.error(this, "Failed to request send email otp", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
 
-  Future<Result<VerifyEmailOtpModel>> verifyEmailOtp(VerifyEmailOtpApiRequest request) async {
+  /// Resend Email Otp Repo
+  Future<Result<EmailOtpModel>> getResendOtpData(String email) async {
+    try {
+      return await _emailVerificationService.fetchResendOtpData(email);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request send email otp", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Verify Email Otp Repo
+  Future<Result<VerifyEmailOtpModel>> getVerifyOtpData(VerifyEmailOtpApiRequest request) async {
     try {
       String customerId = await _userInformationRepository.getUserID() ?? "0";
-      return await _emailVerificationService.verifyOtp(request.copyWith(customerId: int.parse(customerId)));
+      return await _emailVerificationService.fetchVerifyOtpData(request.copyWith(customerId: int.parse(customerId)));
     } catch (e) {
       CustomLog.error(this, "Failed to request email verification", e);
       return Error(ErrorWithMessage(message: e.toString()));

@@ -95,11 +95,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (data.data?.user?.role == 1) {
 
       if (tempFlag) {
-        context.push(AppRouteName.lpCreateAccount, extra: {"id": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});
+        context.push(AppRouteName.lpCreateAccount, extra: {"userId": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});
       } else {
         AppDialog.show(
             context,
-            child: SuccessDialogView(message: "Login Successfully", heading: "Now you can explore the rates and post loads", afterDismiss: ()=> context.push(AppRouteName.lpBottomNavigationBar)),
+            child: SuccessDialogView(
+                message: "Login Successfully",
+                heading: "Now you can explore the rates and post loads",
+                afterDismiss: ()=> context.push(AppRouteName.lpBottomNavigationBar),
+            ),
         );
       }
 
@@ -110,7 +114,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       } else {
         AppDialog.show(
           context,
-          child: SuccessDialogView(message: "Login Successfully", heading: "Now you can explore the rates and post loads", afterDismiss: ()=> context.push(AppRouteName.vpBottomNavigationBar)),
+          child: SuccessDialogView(
+              message: "Login Successfully",
+              heading: "Now you can explore the rates and post loads",
+              afterDismiss: ()=> context.push(AppRouteName.vpBottomNavigationBar),
+          ),
         );
       }
 

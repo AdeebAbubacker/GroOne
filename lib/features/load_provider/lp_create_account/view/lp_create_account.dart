@@ -38,9 +38,9 @@ import '../../../choose_language_screen/view/choose_language_screen.dart';
 import '../model/lp_company_type_response.dart';
 
 class LpCreateAccount extends StatefulWidget {
-  final String id;
+  final String userId;
   final String mobileNumber;
-  const LpCreateAccount({super.key, required this.id,required this.mobileNumber});
+  const LpCreateAccount({super.key, required this.userId,required this.mobileNumber});
 
 
   @override
@@ -52,7 +52,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   final _formKey = GlobalKey<FormState>();
 
   final lpCreateBloc = locator<LpCreateBloc>();
-  final cubit = locator<EmailVerificationCubit>();
+  final verifyEmailCubit = locator<EmailVerificationCubit>();
 
 
   final nameTextController = TextEditingController();
@@ -65,7 +65,6 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
   String? companyTypeDropDownValue;
 
-  bool verifyEmail = false;
 
   @override
   void initState() {
@@ -93,15 +92,9 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     pinCodeTextController.clear();
     preferredLanesList.clear();
     companyTypeDropDownValue = null;
+    verifyEmailCubit.resetState();
   });
 
-  // Send Otp Api Call
-  Future<void> sendOtpApiCall(BuildContext context, String email) async {
-    await cubit.sendOtp(email);
-    if (cubit.state.emailOtpState?.status == Status.SUCCESS) {
-
-    }
-  }
 
   // Navigate to home screen
   void navigateToHomeScreen(BuildContext context) => frameCallback(() {
@@ -158,7 +151,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   20.height,
                   buildCreateFormWidget(context),
                   50.height,
-                  buildSubmitButton(),
+                  buildSubmitButtonWidget(),
                   50.height,
                   Image.asset(AppImage.png.signUpBanner),
                 ],
@@ -255,66 +248,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
 
           // Email
-          BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
-            bloc: cubit,
-            listenWhen: (previous, current) => previous != current,
-            listener:  (context, state) {
-
-            },
-            builder: (context, state) {
-              return AppTextField(
-                validator: (value) => Validator.fieldRequired(value),
-                controller: emailTextController,
-                labelText: context.appText.email,
-                mandatoryStar: true,
-                keyboardType: TextInputType.emailAddress,
-                decoration: commonInputDecoration(
-                    hintText: context.appText.emailHint,
-                    //suffixIcon: Icon(Icons.verified, size: 15, color : AppColors.greyIconColor)
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(!(state.emailOtpState?.status == Status.LOADING) ? "Verify": "Loading", style: AppTextStyle.body3),
-                        5.width,
-                        Icon(Icons.verified, size: 15, color : verifyEmail ? AppColors.greenColor : AppColors.greyIconColor),
-                      ],
-                    ),
-                  suffixOnTap: () async {
-                      final String? validation = Validator.email(emailTextController.text);
-                      if(validation == null){
-                        await cubit.sendOtp(emailTextController.text);
-
-                        if (state.emailOtpState?.status != null){
-                          if (state.emailOtpState?.status == Status.SUCCESS) {
-                            if(!context.mounted) return;
-                            Navigator.of(context).push(commonRoute(EmailVerificationScreen(emailAddress: emailTextController.text), isForward: true)).then((onValue){
-                              if(onValue != null && onValue == true){
-                                verifyEmail = true;
-                              } else {
-                                verifyEmail = false;
-                              }
-                              setState(() {});
-                            });
-                          }
-                          if (state.emailOtpState?.status == Status.ERROR) {
-                            if (state.emailOtpState?.errorType != null){
-                              ToastMessages.error(message: getErrorMsg(errorType: state.emailOtpState!.errorType!));
-                            } else {
-                              ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
-                            }
-                          }
-                        }
-
-                      } else {
-                        ToastMessages.alert(message: validation);
-                      }
-                  }
-
-                ),
-              );
-            }
-          ),
+          buildEmailTextFieldWidget(),
           20.height,
 
 
@@ -337,8 +271,61 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     );
   }
 
-  /// Submit Button
-  Widget buildSubmitButton() {
+  // Email Text Field
+  Widget buildEmailTextFieldWidget() {
+    return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
+        bloc: verifyEmailCubit,
+        listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
+        listener:  (context, state) async {
+          final status = state.sendOtpState?.status;
+
+          if (status == Status.SUCCESS) {
+            if (!context.mounted) return;
+            final result = await Navigator.of(context).push(commonRoute(EmailVerificationScreen(userId: widget.userId,emailAddress: emailTextController.text), isForward: true));
+            verifyEmailCubit.setVerifiedEmail(result == true);
+          }
+
+          if (status == Status.ERROR) {
+            final error = state.sendOtpState?.errorType;
+            verifyEmailCubit.setVerifiedEmail(false);
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          }
+        },
+        builder: (context, state) {
+          return AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: emailTextController,
+            labelText: context.appText.email,
+            mandatoryStar: true,
+            keyboardType: TextInputType.emailAddress,
+            decoration: commonInputDecoration(
+                hintText: context.appText.emailHint,
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? "Verify": "Loading", style: AppTextStyle.body3),
+                    5.width,
+                    Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
+                  ],
+                ),
+                suffixOnTap: () async {
+                  final String? validation = Validator.email(emailTextController.text);
+                  if(validation == null){
+                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                  } else {
+                    ToastMessages.alert(message: validation);
+                  }
+                }
+
+            ),
+          );
+        }
+    );
+  }
+
+  // Submit Button
+  Widget buildSubmitButtonWidget() {
     return BlocConsumer<LpCreateBloc, LpCreateState>(
       bloc: lpCreateBloc,
       listener: (context, state) {
@@ -367,7 +354,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
                 pincode: pinCodeTextController.text,
               );
-              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.id));
+              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.userId));
             }
           },
         );

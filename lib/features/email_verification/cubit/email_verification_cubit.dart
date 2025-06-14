@@ -15,12 +15,6 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
   Timer? _timer;
   EmailVerificationCubit(this._repository) : super(EmailVerificationState());
 
-  @override
-  Future<void> close() {
-    _timer?.cancel();
-    return super.close();
-  }
-
 
   // Set Otp
   void setOtp(String? value) {
@@ -30,6 +24,11 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
   // Enable verify button
   void enableVerifyButton(bool value){
     emit(state.copyWith(isVerifyButtonEnabled: value));
+  }
+
+  // Enable verify button
+  void setVerifiedEmail(bool value){
+    emit(state.copyWith(isVerifiedEmail: value));
   }
 
 
@@ -53,29 +52,37 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
 
   // Sent Otp Api Call
   Future<void> sendOtp(String email) async {
-    emit(state.copyWith(emailOtpState: UIState<EmailOtpModel>.loading()));
-    Result result = await _repository.getEmailVerificationData(email);
+    emit(state.copyWith(sendOtpState: UIState.loading()));
+    Result result = await _repository.getSendOtpData(email);
     if (result is Success<EmailOtpModel>) {
-      emit(state.copyWith(emailOtpState: UIState<EmailOtpModel>.success(result.value)));
+      emit(state.copyWith(sendOtpState: UIState.success(result.value)));
     }
     if (result is Error) {
-      emit(state.copyWith(emailOtpState: UIState<EmailOtpModel>.error(result.type)));
+      emit(state.copyWith(sendOtpState: UIState.error(result.type)));
     }
   }
 
 
   // Sent Otp Api Call
   Future<void> verifyOtp(VerifyEmailOtpApiRequest request) async {
-    emit(state.copyWith(emailOtpState: UIState<VerifyEmailOtpModel>.loading()));
-    Result result = await _repository.verifyEmailOtp(request);
+    emit(state.copyWith(verifyOtpState: UIState.loading()));
+    Result result = await _repository.getVerifyOtpData(request);
     if (result is Success<VerifyEmailOtpModel>) {
-      emit(state.copyWith(emailOtpState: UIState<VerifyEmailOtpModel>.success(result.value)));
+      emit(state.copyWith(verifyOtpState: UIState.success(result.value)));
     }
     if (result is Error) {
-      emit(state.copyWith(emailOtpState: UIState<VerifyEmailOtpModel>.error(result.type)));
+      emit(state.copyWith(verifyOtpState: UIState.error(result.type)));
     }
   }
 
+
+  // Reset UI
+  void resetState(){
+    setOtp(null);
+    enableVerifyButton(false);
+    setVerifiedEmail(false);
+    emit(state.copyWith(sendOtpState: null, verifyOtpState: null));
+  }
 
 
 }

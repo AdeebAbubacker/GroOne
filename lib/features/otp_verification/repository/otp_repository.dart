@@ -22,9 +22,7 @@ class OtpRepository {
         if (result.value != null) {
           dynamic saveUserResult;
           if (result.value?.data?.user?.tempflg == false) {
-            saveUserResult = await _authRepository.saveUserInfoFromLogin(
-              result.value!,
-            );
+            saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
             if (saveUserResult is Success) {
               return result;
             }
