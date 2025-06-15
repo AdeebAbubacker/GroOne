@@ -4,6 +4,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class MobileNumberTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -53,41 +54,39 @@ class MobileNumberTextField extends StatelessWidget {
           ),
         ),
         10.width,
-        Expanded(
-          child: TextFormField(
-            controller: controller,
-            focusNode: focusNode,
-            validator: validator,
-            onChanged: onChanged,
-            readOnly: readOnly ?? false,
-            keyboardType: iosNumberKeyboard,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10),
-            ],
-            style: AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
-            cursorColor: AppColors.lightGreyTextColor,
-            decoration: InputDecoration(
-              fillColor: (disableView ?? false ) ? AppColors.greyIconBackgroundColor : Colors.white,
-              hintText: hintText ?? "Enter your mobile number",
-              hintStyle: AppTextStyle.textFieldHint,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.borderColor),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(color: AppColors.borderColor), // same as default
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          validator: validator,
+          onChanged: onChanged,
+          readOnly: readOnly ?? false,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ],
+          style: AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
+          cursorColor: AppColors.lightGreyTextColor,
+          decoration: InputDecoration(
+            fillColor: (disableView ?? false ) ? AppColors.greyIconBackgroundColor : Colors.white,
+            hintText: hintText ?? "Enter your mobile number",
+            hintStyle: AppTextStyle.textFieldHint,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: AppColors.borderColor),
             ),
-
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: AppColors.borderColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(6),
+              borderSide: BorderSide(color: AppColors.borderColor), // same as default
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
-        ),
+
+        ).expand(),
       ],
     );
   }

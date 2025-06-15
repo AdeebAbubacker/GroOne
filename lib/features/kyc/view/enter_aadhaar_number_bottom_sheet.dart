@@ -88,16 +88,15 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
         final otpState = state.aadhaarOtpState;
 
         final isLoading = otpState?.status == Status.LOADING;
-
         if (showOtpFieldAadhaar) {
           return _buildAadhaarVerificationWidget(isLoading, context);
         } else {
           return _buildAadhaarFormWidget(isLoading, context);
         }
+
       },
       listener: (context, state) {
         final otpState = state.aadhaarOtpState;
-
         if (otpState?.status == Status.SUCCESS) {
           final result = otpState?.data;
           requestID = result?.data?.requestId;
@@ -111,16 +110,17 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
 
         final verifyState = state.aadhaarOtpState;
 
-        // if (verifyState?.status == Status.SUCCESS) {
-        //   showOtpFieldAadhaar = false;
-        //   setState(() {});
-        //   context.pop();
-        //   context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
-        //     lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
-        //     aadhaarNumberTextController.clear();
-        //     aadhaarNumberOtpTextController.clear();
-        //   });
-        // }
+        if (verifyState?.status == Status.SUCCESS) {
+          showOtpFieldAadhaar = false;
+          setState(() {});
+          context.pop();
+
+          context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
+            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
+            aadhaarNumberTextController.clear();
+            aadhaarNumberOtpTextController.clear();
+          });
+        }
       },
     );
   }

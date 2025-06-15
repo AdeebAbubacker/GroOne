@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
+import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -34,10 +38,10 @@ import '../../../choose_language_screen/view/choose_language_screen.dart';
 import '../model/lp_company_type_response.dart';
 
 class LpCreateAccount extends StatefulWidget {
-  const LpCreateAccount({super.key, required this.id,required this.mobileNumber});
-
-  final String id;
+  final String userId;
   final String mobileNumber;
+  const LpCreateAccount({super.key, required this.userId,required this.mobileNumber});
+
 
   @override
   State<LpCreateAccount> createState() => _LpCreateAccountState();
@@ -46,7 +50,10 @@ class LpCreateAccount extends StatefulWidget {
 class _LpCreateAccountState extends State<LpCreateAccount> {
 
   final _formKey = GlobalKey<FormState>();
+
   final lpCreateBloc = locator<LpCreateBloc>();
+  final verifyEmailCubit = locator<EmailVerificationCubit>();
+
 
   final nameTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
@@ -57,6 +64,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   List<CompanyType> preferredLanesList = [];
 
   String? companyTypeDropDownValue;
+
 
   @override
   void initState() {
@@ -84,7 +92,9 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     pinCodeTextController.clear();
     preferredLanesList.clear();
     companyTypeDropDownValue = null;
+    verifyEmailCubit.resetState();
   });
+
 
   // Navigate to home screen
   void navigateToHomeScreen(BuildContext context) => frameCallback(() {
@@ -141,7 +151,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   20.height,
                   buildCreateFormWidget(context),
                   50.height,
-                  buildSubmitButton(),
+                  buildSubmitButtonWidget(),
                   50.height,
                   Image.asset(AppImage.png.signUpBanner),
                 ],
@@ -201,63 +211,44 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           20.height,
 
           // Phone Number
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(" Phone Number", style: AppTextStyle.textFiled),
-              6.height,
-              MobileNumberTextField(
-                controller: phoneNumberTextController,
-                countryFlagAssetPath: AppImage.png.flag,
-                readOnly: true,
-              ),
-            ],
-          ),
-          // AppTextField(
-          //   readOnly: true,
-          //   validator: (value)=> Validator.phone(value),
-          //   controller: phoneNumberTextController,
-          //   labelText: context.appText.phoneNumber,
-          //   maxLength: 10,
-          //   inputFormatters: [phoneNumberInputFormatter],
-          //   keyboardType: TextInputType.phone,
-          //   decoration: commonInputDecoration(
-          //     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-          //     prefixIcon: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //       mainAxisSize: MainAxisSize.min,
-          //       children: [
-          //         Image.asset(AppImage.png.flag),
-          //         10.width,
-          //         Text("+91", style: AppTextStyle.textFieldHintBlackColor),
-          //       ],
-          //     ).paddingOnly(left: 20, right: 5),
-          //   ),
+          // Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Text(" Phone Number", style: AppTextStyle.textFiled),
+          //     6.height,
+          //     MobileNumberTextField(
+          //       controller: phoneNumberTextController,
+          //       countryFlagAssetPath: AppImage.png.flag,
+          //       readOnly: true,
+          //     ),
+          //   ],
           // ),
+          AppTextField(
+            readOnly: true,
+            validator: (value)=> Validator.phone(value),
+            controller: phoneNumberTextController,
+            labelText: context.appText.phoneNumber,
+            maxLength: 10,
+            inputFormatters: [phoneNumberInputFormatter],
+            keyboardType: TextInputType.phone,
+            decoration: commonInputDecoration(
+              hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+              prefixIcon: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(AppImage.png.flag),
+                  10.width,
+                  Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                ],
+              ).paddingOnly(left: 20, right: 5),
+            ),
+          ),
           20.height,
 
 
           // Email
-          AppTextField(
-            validator: (value) => Validator.fieldRequired(value),
-            controller: emailTextController,
-            labelText: context.appText.email,
-            mandatoryStar: true,
-            keyboardType: TextInputType.emailAddress,
-            decoration: commonInputDecoration(
-                hintText: context.appText.emailHint,
-                suffixIcon: Icon(Icons.verified, size: 15, color : AppColors.greyIconColor)
-                // suffixIcon: Row(
-                //   mainAxisAlignment: MainAxisAlignment.end,
-                //   children: [
-                //     Text("Verify", style: AppTextStyle.body3),
-                //     5.width,
-                //     Icon(Icons.verified, size: 15, color : AppColors.greyIconColor),
-                //   ],
-                // ),
-
-            ),
-          ),
+          buildEmailTextFieldWidget(),
           20.height,
 
 
@@ -280,8 +271,61 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     );
   }
 
-  /// Submit Button
-  Widget buildSubmitButton() {
+  // Email Text Field
+  Widget buildEmailTextFieldWidget() {
+    return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
+        bloc: verifyEmailCubit,
+        listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
+        listener:  (context, state) async {
+          final status = state.sendOtpState?.status;
+
+          if (status == Status.SUCCESS) {
+            if (!context.mounted) return;
+            final result = await Navigator.of(context).push(commonRoute(EmailVerificationScreen(userId: widget.userId,emailAddress: emailTextController.text), isForward: true));
+            verifyEmailCubit.setVerifiedEmail(result == true);
+          }
+
+          if (status == Status.ERROR) {
+            final error = state.sendOtpState?.errorType;
+            verifyEmailCubit.setVerifiedEmail(false);
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          }
+        },
+        builder: (context, state) {
+          return AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: emailTextController,
+            labelText: context.appText.email,
+            mandatoryStar: true,
+            keyboardType: TextInputType.emailAddress,
+            decoration: commonInputDecoration(
+                hintText: context.appText.emailHint,
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? "Verify": "Loading", style: AppTextStyle.body3),
+                    5.width,
+                    Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
+                  ],
+                ),
+                suffixOnTap: () async {
+                  final String? validation = Validator.email(emailTextController.text);
+                  if(validation == null){
+                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                  } else {
+                    ToastMessages.alert(message: validation);
+                  }
+                }
+
+            ),
+          );
+        }
+    );
+  }
+
+  // Submit Button
+  Widget buildSubmitButtonWidget() {
     return BlocConsumer<LpCreateBloc, LpCreateState>(
       bloc: lpCreateBloc,
       listener: (context, state) {
@@ -310,7 +354,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
                 pincode: pinCodeTextController.text,
               );
-              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.id));
+              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.userId));
             }
           },
         );

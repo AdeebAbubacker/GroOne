@@ -153,9 +153,9 @@ class AppRoutes {
         path: AppRouteName.lpCreateAccount,
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
-          final String id = data["id"];
+          final String id = data["userId"];
           final String mobileNumber = data["mobileNumber"];
-          return LpCreateAccount(id: id, mobileNumber: mobileNumber);
+          return LpCreateAccount(userId: id, mobileNumber: mobileNumber);
         },
       ),
 

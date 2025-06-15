@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
@@ -64,6 +65,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachOrderBloc>(create: (_) => locator<KavachOrderBloc>()),
         BlocProvider<KavachOrderListBloc>(create: (_) => locator<KavachOrderListBloc>()),
         BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
+        BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
       ],
       child: child,
     );

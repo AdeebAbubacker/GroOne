@@ -9,6 +9,7 @@ class UIState<T>{
 
   UIState(this.status, this.data, this.errorType);
 
+  UIState.initial() :  status = Status.INITIAL;
   UIState.loading() :  status = Status.LOADING;
   UIState.success(this.data) :  status = Status.SUCCESS;
   UIState.error(this.errorType) :  status = Status.ERROR;
