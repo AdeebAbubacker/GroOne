@@ -4,7 +4,8 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/email_verification/api_request/verify_email_otp_api_request.dart';
-import 'package:gro_one_app/features/email_verification/model/email_otp_model.dart';
+import 'package:gro_one_app/features/email_verification/model/resend_email_otp_model.dart';
+import 'package:gro_one_app/features/email_verification/model/send_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/model/verify_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/repository/email_verification_repository.dart';
 
@@ -33,16 +34,16 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
 
 
   // Start Timer
-  void startTimer({int startFrom = 10}) {
+  void startTimer({int startFrom = 30}) {
     _timer?.cancel();
-    emit(state.copyWith(timerValue : startFrom, isVerifyButtonEnabled: false));
+    emit(state.copyWith(timerValue : startFrom, isVerifyButtonEnabled: false, isResendButtonEnabled: true));
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       final newTime = state.timerValue - 1;
 
       if (newTime <= 0) {
         timer.cancel();
-        emit(state.copyWith(timerValue: 0, isVerifyButtonEnabled: true));
+        emit(state.copyWith(timerValue: 0, isVerifyButtonEnabled: true, isResendButtonEnabled: false));
       } else {
         emit(state.copyWith(timerValue: newTime));
       }
@@ -54,11 +55,25 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
   Future<void> sendOtp(String email) async {
     emit(state.copyWith(sendOtpState: UIState.loading()));
     Result result = await _repository.getSendOtpData(email);
-    if (result is Success<EmailOtpModel>) {
+    if (result is Success<SendEmailOtpModel>) {
       emit(state.copyWith(sendOtpState: UIState.success(result.value)));
     }
     if (result is Error) {
       emit(state.copyWith(sendOtpState: UIState.error(result.type)));
+    }
+  }
+
+
+
+  // Resend Otp Api Call
+  Future<void> resendOtp(String email) async {
+    emit(state.copyWith(resendOtpState: UIState.loading()));
+    Result result = await _repository.getResendOtpData(email);
+    if (result is Success<ResendEmailOtpModel>) {
+      emit(state.copyWith(resendOtpState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(resendOtpState: UIState.error(result.type)));
     }
   }
 
@@ -78,10 +93,11 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
 
   // Reset UI
   void resetState(){
+    _timer?.cancel();
     setOtp(null);
     enableVerifyButton(false);
     setVerifiedEmail(false);
-    emit(state.copyWith(sendOtpState: null, verifyOtpState: null));
+    emit(state.copyWith(sendOtpState: null, verifyOtpState: null, resendOtpState: null, isVerifiedEmail: false, isResendButtonEnabled: false, isVerifyButtonEnabled: false));
   }
 
 

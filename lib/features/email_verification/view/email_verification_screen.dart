@@ -54,7 +54,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
 
   void initFunction() => frameCallback(() {
-
+    cubit.startTimer(startFrom: 30);
   });
 
   void disposeFunction() => frameCallback(() {
@@ -192,37 +192,33 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget buildResendCodeButtonWidget() {
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
-      listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
-      listener: (context, state) {},
+      listenWhen: (previous, current) =>  previous.resendOtpState != current.resendOtpState,
+      listener: (context, state) {
+        if (state.resendOtpState?.status == Status.SUCCESS) {
+          cubit.startTimer(startFrom: 30);
+        }
+        if (state.resendOtpState?.status == Status.ERROR) {
+          final error = state.resendOtpState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
       builder: (context, state) {
+        final bool isLoading = state.resendOtpState?.status == Status.LOADING;
         return AppButton(
           style: AppButtonStyle.outline,
-          richTextWidget: state.isResendButtonEnabled
-              ? Text(context.appText.resend, style: AppTextStyle.buttonPrimaryColorTextColor)
+          richTextWidget: !state.isResendButtonEnabled
+              ? Text((isLoading ? "Loading.." : context.appText.resend), style: AppTextStyle.buttonPrimaryColorTextColor)
               : RichText(
             text: TextSpan(
-              style: const TextStyle(fontSize: 16.0),
               children: [
-                TextSpan(
-                  text: context.appText.resend,
-                  style: AppTextStyle.buttonPrimaryColorTextColor,
-                ),
-                TextSpan(
-                  text: context.appText.inText,
-                  style: AppTextStyle.buttonPrimaryColorTextColor.copyWith(color: Colors.grey),
-                ),
-                TextSpan(
-                  text: '${state.timerValue}',
-                  style: const TextStyle(color: Colors.green),
-                ),
-                TextSpan(
-                  text: context.appText.second,
-                  style: const TextStyle(color: Colors.grey),
-                ),
+                TextSpan(text: context.appText.resend, style: AppTextStyle.buttonPrimaryColorTextColor),
+                TextSpan(text: context.appText.inText, style: AppTextStyle.buttonPrimaryColorTextColor.copyWith(color: Colors.grey)),
+                TextSpan(text: ' ${state.timerValue} ', style: AppTextStyle.button.copyWith(color: Colors.green)),
+                TextSpan(text: context.appText.second, style: AppTextStyle.button.copyWith(color: Colors.grey)),
               ],
             ),
           ),
-          onPressed: state.isResendButtonEnabled ? ()=> cubit.startTimer() : (){},
+          onPressed: !state.isResendButtonEnabled ? () async => await cubit.resendOtp(widget.emailAddress) : (){},
         );
       },
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);

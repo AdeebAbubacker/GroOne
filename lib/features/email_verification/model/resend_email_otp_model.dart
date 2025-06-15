@@ -1,5 +1,5 @@
-class EmailOtpModel {
-  EmailOtpModel({
+class ResendEmailOtpModel {
+  ResendEmailOtpModel({
     required this.success,
     required this.message,
     required this.data,
@@ -9,20 +9,20 @@ class EmailOtpModel {
   final String message;
   final Data? data;
 
-  EmailOtpModel copyWith({
+  ResendEmailOtpModel copyWith({
     bool? success,
     String? message,
     Data? data,
   }) {
-    return EmailOtpModel(
+    return ResendEmailOtpModel(
       success: success ?? this.success,
       message: message ?? this.message,
       data: data ?? this.data,
     );
   }
 
-  factory EmailOtpModel.fromJson(Map<String, dynamic> json){
-    return EmailOtpModel(
+  factory ResendEmailOtpModel.fromJson(Map<String, dynamic> json){
+    return ResendEmailOtpModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

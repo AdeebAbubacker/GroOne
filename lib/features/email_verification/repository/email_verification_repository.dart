@@ -1,6 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/email_verification/api_request/verify_email_otp_api_request.dart';
-import 'package:gro_one_app/features/email_verification/model/email_otp_model.dart';
+import 'package:gro_one_app/features/email_verification/model/resend_email_otp_model.dart';
+import 'package:gro_one_app/features/email_verification/model/send_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/model/verify_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/service/email_verification_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -13,7 +14,7 @@ class EmailVerificationRepository {
   EmailVerificationRepository(this._emailVerificationService, this._userInformationRepository);
 
   /// Send Email Otp Repo
-  Future<Result<EmailOtpModel>> getSendOtpData(String email) async {
+  Future<Result<SendEmailOtpModel>> getSendOtpData(String email) async {
     try {
       return await _emailVerificationService.fetchSendOtp(email);
     } catch (e) {
@@ -24,7 +25,7 @@ class EmailVerificationRepository {
 
 
   /// Resend Email Otp Repo
-  Future<Result<EmailOtpModel>> getResendOtpData(String email) async {
+  Future<Result<ResendEmailOtpModel>> getResendOtpData(String email) async {
     try {
       return await _emailVerificationService.fetchResendOtpData(email);
     } catch (e) {

@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
+import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
@@ -13,10 +16,12 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -51,6 +56,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final vpCreationBloc = locator<VpCreationBloc>();
   final uploadRcTruckFileBloc = locator<UploadRcTruckFileBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
+  final verifyEmailCubit = locator<EmailVerificationCubit>();
 
   final nameTextController = TextEditingController();
   final mobileNumberTextController = TextEditingController();
@@ -124,6 +130,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     preferredLanesList.clear();
     vpCreationBloc.add(VpResetEvent());
     uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
+    verifyEmailCubit.resetState();
   });
 
 
@@ -242,17 +249,18 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
          20.height,
 
         // Email
-        AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
-          controller: emailTextController,
-          labelText: context.appText.email,
-          mandatoryStar: true,
-          keyboardType: TextInputType.emailAddress,
-          decoration: commonInputDecoration(
-            hintText: context.appText.emailHint,
-            suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
-          ),
-        ),
+        buildEmailTextFieldWidget(),
+        // AppTextField(
+        //   validator: (value) => Validator.fieldRequired(value),
+        //   controller: emailTextController,
+        //   labelText: context.appText.email,
+        //   mandatoryStar: true,
+        //   keyboardType: TextInputType.emailAddress,
+        //   decoration: commonInputDecoration(
+        //     hintText: context.appText.emailHint,
+        //     suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
+        //   ),
+        // ),
         20.height,
 
         // Pin code Truck
@@ -265,6 +273,59 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           keyboardType: iosNumberKeyboard,
         ),
       ],
+    );
+  }
+
+  /// Email Text Field
+  Widget buildEmailTextFieldWidget() {
+    return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
+        bloc: verifyEmailCubit,
+        listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
+        listener:  (context, state) async {
+          final status = state.sendOtpState?.status;
+
+          if (status == Status.SUCCESS) {
+            if (!context.mounted) return;
+            final result = await Navigator.of(context).push(commonRoute(EmailVerificationScreen(userId: widget.id,emailAddress: emailTextController.text), isForward: true));
+            verifyEmailCubit.setVerifiedEmail(result == true);
+          }
+
+          if (status == Status.ERROR) {
+            final error = state.sendOtpState?.errorType;
+            verifyEmailCubit.setVerifiedEmail(false);
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          }
+        },
+        builder: (context, state) {
+          return AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: emailTextController,
+            labelText: context.appText.email,
+            mandatoryStar: true,
+            keyboardType: TextInputType.emailAddress,
+            decoration: commonInputDecoration(
+                hintText: context.appText.emailHint,
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text((state.sendOtpState?.status ==  Status.SUCCESS) ? "Verify": "Loading..", style: AppTextStyle.body3),
+                    5.width,
+                    Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
+                  ],
+                ),
+                suffixOnTap: () async {
+                  final String? validation = Validator.email(emailTextController.text);
+                  if(validation == null){
+                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                  } else {
+                    ToastMessages.alert(message: validation);
+                  }
+                }
+
+            ),
+          );
+        }
     );
   }
 
