@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/email_verification/api_request/verify_email_otp_api_request.dart';
@@ -11,7 +11,7 @@ import 'package:gro_one_app/features/email_verification/repository/email_verific
 
 part 'email_verification_state.dart';
 
-class EmailVerificationCubit extends Cubit<EmailVerificationState> {
+class EmailVerificationCubit extends BaseCubit<EmailVerificationState> {
   final EmailVerificationRepository _repository;
   Timer? _timer;
   EmailVerificationCubit(this._repository) : super(EmailVerificationState());
@@ -52,52 +52,73 @@ class EmailVerificationCubit extends Cubit<EmailVerificationState> {
 
 
   // Sent Otp Api Call
+  void _setSendOtpUIState(UIState<SendEmailOtpModel>? uiState){
+    emit(state.copyWith(sendOtpState: uiState));
+  }
   Future<void> sendOtp(String email) async {
-    emit(state.copyWith(sendOtpState: UIState.loading()));
+    _setSendOtpUIState(UIState.loading());
     Result result = await _repository.getSendOtpData(email);
     if (result is Success<SendEmailOtpModel>) {
-      emit(state.copyWith(sendOtpState: UIState.success(result.value)));
+      _setSendOtpUIState(UIState.success(result.value));
     }
     if (result is Error) {
-      emit(state.copyWith(sendOtpState: UIState.error(result.type)));
+      _setSendOtpUIState(UIState.error(result.type));
     }
   }
 
 
 
   // Resend Otp Api Call
+  void _setResendOtpUIState(UIState<ResendEmailOtpModel>? uiState){
+    emit(state.copyWith(resendOtpState: uiState));
+  }
   Future<void> resendOtp(String email) async {
-    emit(state.copyWith(resendOtpState: UIState.loading()));
+    _setResendOtpUIState(UIState.loading());
     Result result = await _repository.getResendOtpData(email);
     if (result is Success<ResendEmailOtpModel>) {
-      emit(state.copyWith(resendOtpState: UIState.success(result.value)));
+      _setResendOtpUIState(UIState.success(result.value));
     }
     if (result is Error) {
-      emit(state.copyWith(resendOtpState: UIState.error(result.type)));
+      _setResendOtpUIState(UIState.error(result.type));
     }
   }
 
 
-  // Sent Otp Api Call
+  // Verify Otp Api Call
+  void _setVerifyOtpUIState(UIState<VerifyEmailOtpModel>? uiState){
+    emit(state.copyWith(verifyOtpState: uiState));
+  }
   Future<void> verifyOtp(VerifyEmailOtpApiRequest request) async {
-    emit(state.copyWith(verifyOtpState: UIState.loading()));
+    _setVerifyOtpUIState(UIState.loading());
     Result result = await _repository.getVerifyOtpData(request);
     if (result is Success<VerifyEmailOtpModel>) {
-      emit(state.copyWith(verifyOtpState: UIState.success(result.value)));
+      _setVerifyOtpUIState(UIState.success(result.value));
     }
     if (result is Error) {
-      emit(state.copyWith(verifyOtpState: UIState.error(result.type)));
+      _setVerifyOtpUIState(UIState.error(result.type));
     }
+  }
+
+  // Reset Resend and Verify Otp UI State
+  void resetResendAndVerifyOtpUIState(){
+    emit(state.copyWith(
+      verifyOtpState: resetUIState<VerifyEmailOtpModel>(state.verifyOtpState),
+      resendOtpState: resetUIState<ResendEmailOtpModel>(state.resendOtpState),
+    ));
   }
 
 
   // Reset UI
   void resetState(){
     _timer?.cancel();
-    setOtp(null);
-    enableVerifyButton(false);
-    setVerifiedEmail(false);
-    emit(state.copyWith(sendOtpState: null, verifyOtpState: null, resendOtpState: null, isVerifiedEmail: false, isResendButtonEnabled: false, isVerifyButtonEnabled: false));
+    emit(state.copyWith(
+      sendOtpState: resetUIState<SendEmailOtpModel>(state.sendOtpState),
+      verifyOtpState: resetUIState<VerifyEmailOtpModel>(state.verifyOtpState),
+      resendOtpState: resetUIState<ResendEmailOtpModel>(state.resendOtpState),
+      isVerifiedEmail: false,
+      isResendButtonEnabled: false,
+      isVerifyButtonEnabled: false,
+    ));
   }
 
 

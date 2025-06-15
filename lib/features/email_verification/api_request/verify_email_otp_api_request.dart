@@ -1,4 +1,6 @@
-class VerifyEmailOtpApiRequest {
+import 'package:gro_one_app/data/model/serializable.dart';
+
+class VerifyEmailOtpApiRequest extends Serializable<VerifyEmailOtpApiRequest>{
   VerifyEmailOtpApiRequest({
     required this.email,
     required this.otp,
@@ -21,6 +23,7 @@ class VerifyEmailOtpApiRequest {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     "email": email ?? "",
     "otp": otp ?? "",

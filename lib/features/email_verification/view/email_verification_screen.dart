@@ -58,7 +58,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   });
 
   void disposeFunction() => frameCallback(() {
-
+    otpTextController.dispose();
+    cubit.resetResendAndVerifyOtpUIState();
   });
 
 
@@ -195,6 +196,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       listenWhen: (previous, current) =>  previous.resendOtpState != current.resendOtpState,
       listener: (context, state) {
         if (state.resendOtpState?.status == Status.SUCCESS) {
+          otpTextController.clear();
           cubit.startTimer(startFrom: 30);
         }
         if (state.resendOtpState?.status == Status.ERROR) {

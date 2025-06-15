@@ -12,8 +12,8 @@ class LPHomeState extends Equatable {
   const LPHomeState({this.truckTypeState, this.showSuccessKyc = false, this.destination, this.pickup, this.recentRouteState});
 
   LPHomeState copyWith({
-    recentRouteState,
-    truckTypeState,
+    UIState<RecentRoutesModel>? recentRouteState,
+    UIState<LoadTruckTypeListModel>? truckTypeState,
     bool? showSuccessKyc,
     Map<String, dynamic>? destination,
     Map<String, dynamic>? pickup,
