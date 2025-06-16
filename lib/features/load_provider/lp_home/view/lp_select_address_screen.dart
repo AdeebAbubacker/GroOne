@@ -2,13 +2,30 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
@@ -44,6 +61,9 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   Set<Marker> _markers = {};
 
   final String _apiKey = "AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY";
+
+  String laneId = '0';
+
 
   Future<void> _setMapStyle(GoogleMapController controller) async {
     String style = await rootBundle.loadString(AppJSON.mapStyle);
@@ -99,7 +119,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     setState(() {
       _locationField = address;
       if (widget.address == null) {
-        searchTextController.text = address;
+        //searchTextController.text = address;
       }
     });
     _setMarker(latLng);
@@ -121,6 +141,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   }
 
   Future<void> _onSuggestionTap(String placeId, String description) async {
+    debugPrint('Place tapped: $description - $placeId');
     final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
@@ -152,162 +173,283 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     _updateAddress(position.target);
   }
 
+
+
+  // Verify Location api call
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required LocationDetails locationDetails}) async {
+    final apiRequest = VerifyLocationApiRequest(
+        placeId: placeId,
+        locationdetails: locationDetails
+    );
+    await lpHomeCubit.verifyLocation(apiRequest);
+    Status? status = lpHomeCubit.state.verifyLocationUIState?.status;
+    if (status != null) {
+      if(status == Status.SUCCESS){
+        final data = lpHomeCubit.state.verifyLocationUIState?.data?.data;
+        if(data != null && data.locationdetails != null){
+          searchTextController.text = locationDetails.name;
+          lpHomeCubit.setLocationDetailId(data.locationdetails!.id);
+          if(data.lane != null){
+            lpHomeCubit.setLaneId(data.lane?.id);
+          }
+          lpHomeCubit.resetAutoCompleteState();
+          CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
+        }
+      }
+      if(status == Status.ERROR){
+        final error = lpHomeCubit.state.verifyLocationUIState?.errorType;
+        if(error is BadRequestError){
+          if(!context.mounted) return;
+          serviceableDialog(context);
+        } else {
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+
+        }
+      }
+    }
+
+  }
+
+
+  // Service not available dialog
+  void serviceableDialog(BuildContext context) {
+    AppDialog.show(
+        context,
+        child: CommonDialogView(
+          heading: "This area is not serviceable now",
+          headingColor: AppColors.orangeTextColor,
+          message: "We will let you know once we start operating here",
+          onSingleButtonText: "Change Location",
+          onTapSingleButton: (){
+            lpHomeCubit.resetAutoCompleteState();
+            searchTextController.clear();
+            Navigator.pop(context);
+          },
+          child: SvgPicture.asset(AppImage.svg.kycPending, width: 200),
+        ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: widget.title),
       body: Stack(
         children: [
-          Positioned.fill(
-            top: 0,
-            bottom: 320.h,
-            child:
-                _centerLatLng == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: _centerLatLng!,
-                        zoom: 10,
-                      ),
-                      onMapCreated:(controller) async {
-                        _mapController = controller;
-                        await _setMapStyle(controller);
-                      },
-                      onCameraMove: _onCameraMove,
-                      markers: _markers,
-                      zoomControlsEnabled: false,
-                    ),
-          ),
-          Positioned(
-            top: 15,
-            right: 15,
-            child: Column(
-              children: [
-                _floatingButton(
-                  Icons.add,
-                  () => MapHelper.zoomIn(_mapController!),
-                ),
-                8.height,
-                _floatingButton(
-                  Icons.remove,
-                  () => MapHelper.zoomOut(_mapController!),
-                ),
-                8.height,
-                _floatingButton(Icons.my_location, _handleCurrentLocation),
-              ],
-            ),
-          ),
+
+          // Map
+          buildGoogleMapWidget(),
+
+          // Map Navigation
+          buildMapNavigationWidget(),
+
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
-              padding: EdgeInsets.all(18),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
+              padding: EdgeInsets.all(commonSafeAreaPadding),
+              decoration: commonContainerDecoration(),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Location", style: AppTextStyle.textBlackColor14w400),
-                    6.height,
-                    AppTextField(
-                      controller: searchTextController,
-                      hintText: "Search location...",
-                      decoration: commonInputDecoration(
-                        suffixIcon: Icon(Icons.clear, size: 20),
-                        suffixIconColor: AppColors.lightGreyIconBackgroundColor,
-                        suffixOnTap: (){
-                          searchTextController.clear();
-                        }
-                      ),
-                      onChanged: (value) {
-                        if (value.length > 2) {
-                          _fetchSuggestions(value);
-                        } else {
-                          setState(() => suggestions = []);
-                        }
-                      },
-                    ),
-                    if (suggestions.isNotEmpty)
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 120.h),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ListView.builder(
-                            itemCount: suggestions.length,
-                            physics: const ClampingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final item = suggestions[index];
-                              return ListTile(
-                                title: Text(item['description']),
-                                onTap: () => _onSuggestionTap(
-                                  item['place_id'],
-                                  item['description'],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    12.height,
+                    // Location Text Field
+                    buildLocationTextFieldWidget(context),
 
+                    // Suggestion List
+                    buildSuggestionListWidget(),
+                    20.height,
+
+                    // Address Text Field
                     AppTextField(
                       controller: addressTextController,
+                      hintText: "Enter your address...",
                       labelText: "Address",
-                      maxLines: 3,
+                      maxLines: 2,
                     ),
-                    30.height,
+                    40.height,
 
-                    AppButton(
-                      title: "Continue",
-                      onPressed: () {
-
-                        final locationAddress = _locationField;
-
-                        final isValid = locationAddress.isNotEmpty && locationAddress != 'No address found';
-
-                        debugPrint("title ${widget.title}");
-                        debugPrint("locationAddress ${locationAddress}");
-                        setState(() {});
-
-                        if (addressTextController.text.isEmpty) {
-                          _showError("Please provide a address");
-                          return;
-                        }
-                        if (!isValid){
-                          _showError("Please select a valid location address.");
-                          return;
-                        }
-
-                        Map<String, dynamic> data = {
-                          "address": addressTextController.text,
-                          "location": locationAddress,
-                          "latLng": latLngData,
-                        };
-
-
-                        if(widget.title == "Pickup Point"){
-                          lpHomeCubit.setPickup(data);
-                          Navigator.of(context).pop(true);
-                        } else {
-                          lpHomeCubit.setDestination(data);
-                          Navigator.of(context).pop(true);
-                        }
-
-                      },
-                    ),
-                    15.height
+                    // Select Location Button
+                    buildSelectLocationButton(context),
+                    30.height
                   ],
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildGoogleMapWidget(){
+    return Positioned.fill(
+      top: 0,
+      bottom: 320.h,
+      child: Builder(
+        builder: (context) {
+          if (_centerLatLng == null) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _centerLatLng!,
+                zoom: 10,
+              ),
+              onMapCreated: (controller) async {
+                _mapController = controller;
+                await _setMapStyle(controller);
+              },
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              myLocationButtonEnabled: false,
+              onCameraMove: _onCameraMove,
+              markers: _markers,
+              zoomControlsEnabled: false,
+            );
+          }
+        },
+      )
+    );
+  }
+
+
+  Widget buildLocationTextFieldWidget(BuildContext context){
+    return AppTextField(
+      controller: searchTextController,
+      labelText: "Location",
+      decoration: commonInputDecoration(
+          suffixIcon: Icon(Icons.clear, size: 20),
+          hintText: "Search location...",
+          suffixOnTap: (){
+            searchTextController.clear();
+            lpHomeCubit.resetAutoCompleteState();
+          }
+      ),
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          lpHomeCubit.fetchAutoComplete(value);
+        } else {
+          lpHomeCubit.resetAutoCompleteState();
+        }
+      },
+    );
+  }
+
+
+  Widget buildSuggestionListWidget(){
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      bloc: lpHomeCubit,
+      listenWhen: (previous, current) =>  previous.autoCompleteUIState != current.autoCompleteUIState,
+      listener: (context , state){
+        final status = state.autoCompleteUIState?.status;
+        if (status == Status.ERROR) {
+          final error = state.autoCompleteUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
+      builder: (context, state){
+
+        if(state.autoCompleteUIState != null && state.autoCompleteUIState!.status == Status.SUCCESS){
+          if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.data!.predictions.isNotEmpty){
+            return  ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 200),
+              child: Container(
+                decoration: commonContainerDecoration(shadow: true),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount:  state.autoCompleteUIState!.data!.data!.predictions.length,
+                  itemBuilder: (context, index) {
+                    final item =  state.autoCompleteUIState!.data!.data!.predictions[index];
+                    return ListTile(
+                      title: Text(item.description, style: AppTextStyle.body),
+                      onTap: () async {
+                        final locationDetails = LocationDetails(
+                            id : widget.title == "Pickup Point" ? 0 : state.locationId,
+                            name: item.description,
+                            slug: item.description.toLowerCase(),
+                        );
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, locationDetails: locationDetails);
+                       // _onSuggestionTap(item.placeId, item.description);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ).paddingTop(10).isAnimate();
+          }
+        }
+       return Container();
+      },
+    );
+  }
+
+
+  Widget buildSelectLocationButton(BuildContext context){
+    return AppButton(
+      title: "Continue",
+      onPressed: () {
+
+
+        final locationAddress = _locationField;
+
+        final isValid = locationAddress.isNotEmpty && locationAddress != 'No address found';
+
+        debugPrint("title ${widget.title}");
+        debugPrint("locationAddress $locationAddress");
+
+        if (addressTextController.text.isEmpty) {
+          _showError("Please provide a address");
+          return;
+        }
+        if (!isValid){
+          _showError("Please select a valid location address.");
+          return;
+        }
+
+        final destinationData = DestinationModel(
+            address: addressTextController.text.capitalize,
+            location: searchTextController.text.capitalize,
+            latLng: latLngData,
+            laneId: lpHomeCubit.state.laneId
+
+        );
+
+        final pickupData = PickUpModel(
+            address: addressTextController.text.capitalize,
+            location: searchTextController.text.capitalize,
+            latLng: latLngData,
+            laneId: lpHomeCubit.state.laneId
+
+        );
+
+
+        if(widget.title == "Pickup Point"){
+          lpHomeCubit.setPickup(pickupData);
+          Navigator.of(context).pop(true);
+        } else {
+          lpHomeCubit.setDestination(destinationData);
+          Navigator.of(context).pop(true);
+        }
+
+      },
+    );
+  }
+
+
+  Widget buildMapNavigationWidget(){
+    return Positioned(
+      top: 15,
+      right: 15,
+      child: Column(
+        children: [
+          _floatingButton(Icons.add, () => MapHelper.zoomIn(_mapController!)),
+          8.height,
+          _floatingButton(Icons.remove, () => MapHelper.zoomOut(_mapController!)),
+          8.height,
+          _floatingButton(Icons.my_location, _handleCurrentLocation),
         ],
       ),
     );

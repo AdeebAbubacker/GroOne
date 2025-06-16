@@ -5,11 +5,13 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class CommonDialogView extends StatefulWidget {
   final String? message;
   final String? heading;
+  final Color? headingColor;
   final bool? showYesNoButtonButtons;
   final String? yesButtonText;
   final String? noButtonText;
@@ -18,7 +20,7 @@ class CommonDialogView extends StatefulWidget {
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
   final GestureTapCallback? onClickYesButton;
-  const CommonDialogView({super.key, this.child, this.onClickYesButton, this.showYesNoButtonButtons = false, this.yesButtonText, this.noButtonText, this.message, this.heading, this.onTapSingleButton, this.afterDismiss, this.onSingleButtonText,});
+  const CommonDialogView({super.key, this.child, this.onClickYesButton, this.showYesNoButtonButtons = false, this.yesButtonText, this.noButtonText, this.message, this.heading, this.onTapSingleButton, this.afterDismiss, this.onSingleButtonText, this.headingColor,});
 
   @override
   State<CommonDialogView> createState() => _CommonDialogViewState();
@@ -35,12 +37,12 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         if(widget.child != null)...[
           widget.child!,
-          20.height,
+          30.height,
         ],
 
         if(widget.heading != null)...[
-          Text(widget.heading!, textAlign: TextAlign.center, style: AppTextStyle.h3),
-          10.height,
+          Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: AppTextStyle.h3.copyWith(color: widget.headingColor ?? Colors.black, fontSize: 25)),
+          20.height,
         ],
 
         if(widget.message != null)...[

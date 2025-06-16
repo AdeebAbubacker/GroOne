@@ -1,21 +1,21 @@
 class PickUpModel {
   PickUpModel({
-    required this.address,
-    required this.location,
-    required this.latLng,
-    required this.laneId,
+     this.address,
+     this.location,
+     this.latLng,
+     this.laneId,
   });
 
   final String? address;
   final String? location;
   final String? latLng;
-  final String? laneId;
+  final num? laneId;
 
   PickUpModel copyWith({
     String? address,
     String? location,
     String? latLng,
-    String? laneId,
+    num? laneId,
   }) {
     return PickUpModel(
       address: address ?? this.address,
@@ -25,20 +25,10 @@ class PickUpModel {
     );
   }
 
-  factory PickUpModel.fromJson(Map<String, dynamic> json){
-    return PickUpModel(
-      address: json["address"],
-      location: json["location"],
-      latLng: json["latLng"],
-      laneId: json["laneId"],
-    );
-  }
+  @override
+  String toString() {
+    return 'PickUpModel { address: $address, location: $location, latLng: $latLng, laneId: $laneId}';
 
-  Map<String, dynamic> toJson() => {
-    "address": address,
-    "location": location,
-    "latLng": latLng,
-    "laneId": laneId,
-  };
+  }
 
 }

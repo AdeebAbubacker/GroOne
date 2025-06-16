@@ -36,6 +36,7 @@ class ApiUrls {
   static String get _auth => "/auth";
   static String get _vp => "/vp";
   static String get _lp => "/lp";
+  static String get _map => "/map";
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
@@ -49,6 +50,7 @@ class ApiUrls {
 
   static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth$_customer";
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
+  static String get _mapBaseUrl => "$_baseUrl$_load$_path$_v1$_map";
 
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
@@ -75,8 +77,13 @@ class ApiUrls {
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
 
-  //submit Kyc
+  ///submit Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
+
+  /// Map
+  static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
+  static final String verifyLocation = "$_mapBaseUrl/verify-location";
+
 
   /// LP Endpoints
   static final String  createLpAccount = "$_customerBaseUrl$_lp/";
@@ -99,7 +106,7 @@ class ApiUrls {
   static final String  loadCommodity = "${_loadBaseUrl}commodity";
   static final String  loadTruckType = "${_loadBaseUrl}truck-type/";
   static final String  truckType = "${loadTruckType}distinct/types";
-  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery";
+  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
   static final String  getRecentRoute = "$_loadBaseUrl$_load/distinct-source-destination";
 
   // Load

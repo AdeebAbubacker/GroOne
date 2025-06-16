@@ -37,10 +37,13 @@ class RecentRouteData {
     required this.customerId,
     required this.commodityId,
     required this.truckTypeId,
+    required this.loadId,
     required this.pickUpAddr,
     required this.assignStatus,
+    required this.pickUpLocation,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
@@ -53,6 +56,7 @@ class RecentRouteData {
     required this.expectedDeliveryDateTime,
     required this.handlingCharges,
     required this.acceptedBy,
+    required this.laneId,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -62,10 +66,13 @@ class RecentRouteData {
   final num customerId;
   final num commodityId;
   final num truckTypeId;
+  final dynamic loadId;
   final String pickUpAddr;
   final num assignStatus;
+  final dynamic pickUpLocation;
   final String pickUpLatlon;
   final String dropAddr;
+  final dynamic dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
@@ -74,10 +81,11 @@ class RecentRouteData {
   final num status;
   final num loadStatus;
   final String vehicleLength;
-  final DateTime? pickUpDateTime;
+  final dynamic pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
   final num handlingCharges;
   final num acceptedBy;
+  final num laneId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
@@ -87,10 +95,13 @@ class RecentRouteData {
     num? customerId,
     num? commodityId,
     num? truckTypeId,
+    dynamic? loadId,
     String? pickUpAddr,
     num? assignStatus,
+    dynamic? pickUpLocation,
     String? pickUpLatlon,
     String? dropAddr,
+    dynamic? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
@@ -99,10 +110,11 @@ class RecentRouteData {
     num? status,
     num? loadStatus,
     String? vehicleLength,
-    DateTime? pickUpDateTime,
+    dynamic? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
     num? acceptedBy,
+    num? laneId,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
@@ -112,10 +124,13 @@ class RecentRouteData {
       customerId: customerId ?? this.customerId,
       commodityId: commodityId ?? this.commodityId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
+      loadId: loadId ?? this.loadId,
       pickUpAddr: pickUpAddr ?? this.pickUpAddr,
       assignStatus: assignStatus ?? this.assignStatus,
+      pickUpLocation: pickUpLocation ?? this.pickUpLocation,
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
+      dropLocation: dropLocation ?? this.dropLocation,
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
@@ -128,6 +143,7 @@ class RecentRouteData {
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      laneId: laneId ?? this.laneId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -140,10 +156,13 @@ class RecentRouteData {
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
+      loadId: json["loadId"],
       pickUpAddr: json["pickUpAddr"] ?? "",
       assignStatus: json["assignStatus"] ?? 0,
+      pickUpLocation: json["pickUpLocation"] ?? "" ,
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
+      dropLocation: json["dropLocation"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
@@ -152,10 +171,11 @@ class RecentRouteData {
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",
-      pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
+      pickUpDateTime: json["pickUpDateTime"],
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"] ?? 0,
+      laneId: json["laneId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],

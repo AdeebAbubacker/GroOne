@@ -5,6 +5,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
@@ -43,10 +45,12 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   int? selectedRecentRoutes;
 
   String? pickupLocation;
+  String? pickupAddress;
   String? pickupLatLong;
   String? destinationLocation;
+  String? destinationAddress;
   String? destinationLatLong;
-  String? laneId;
+  int? laneId;
 
   @override
   void setState(fn) {
@@ -76,21 +80,51 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   });
 
   void updateSelectedRouteState(int index, RecentRouteData data){
-    setState(() {
-      selectedRecentRoutes = index;
-      pickupLocation = data.pickUpAddr;
-      destinationLocation = data.dropAddr;
-      pickupLatLong = data.pickUpLatlon;
-      destinationLatLong = data.dropLatlon;
-      laneId = data.id.toString();
-    });
+    selectedRecentRoutes = index;
+
+    pickupLocation = data.pickUpLocation;
+    pickupAddress = data.pickUpAddr;
+    pickupLatLong = data.pickUpLatlon;
+
+    destinationLocation = data.dropLocation;
+    destinationAddress = data.dropAddr;
+    destinationLatLong = data.dropLatlon;
+
+    laneId = data.id;
+
+    setState(() {});
     commonHapticFeedback();
+  }
+
+
+  String pickUpLocationText(RecentRouteData data){
+    if (data.pickUpAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
+      return "${data.pickUpLocation}, ${data.pickUpAddr}";
+    } else if (data.pickUpAddr.isNotEmpty){
+      return data.pickUpAddr;
+    } else if (data.pickUpLocation.isNotEmpty){
+      return data.pickUpLocation;
+    } else {
+      return "";
+    }
+  }
+
+  String destinationLocationText(RecentRouteData data){
+    if (data.dropAddr.isNotEmpty && data.dropLocation.isNotEmpty){
+      return "${data.dropLocation}, ${data.dropAddr}";
+    } else if (data.dropAddr.isNotEmpty){
+      return data.dropAddr;
+    } else if (data.dropLocation.isNotEmpty){
+      return data.dropLocation;
+    } else {
+      return "";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Recent Routes", isCrossLeadingIcon: true),
+      appBar: CommonAppBar(title: "Recent Routes", isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSelectButton(context),
     );
@@ -114,13 +148,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) { },
       builder: (context, state) {
-        if(state.recentRouteState != null && state.recentRouteState?.status != null){
-          switch (state.recentRouteState!.status){
+        if(state.recentRouteUIState != null && state.recentRouteUIState?.status != null){
+          switch (state.recentRouteUIState!.status){
             case Status.LOADING :
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
-              if(state.recentRouteState?.data != null){
-                if(state.recentRouteState!.data!.data.isNotEmpty){
+              if(state.recentRouteUIState?.data != null){
+                if(state.recentRouteUIState!.data!.data.isNotEmpty){
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -135,15 +169,15 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                       ListView.separated(
                         shrinkWrap: true,
                         padding: EdgeInsets.only(bottom: 100),
-                        itemCount: state.recentRouteState!.data!.data.length,
+                        itemCount: state.recentRouteUIState!.data!.data.length,
                         separatorBuilder: (BuildContext context, int index) => 20.height,
                         itemBuilder: (context, index) {
                           return GestureDetector(
-                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteState!.data!.data[index]),
-                            child: _buildListBody(index: index, data: state.recentRouteState!.data!.data[index]),
+                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteUIState!.data!.data[index]),
+                            child: _buildListBody(index: index, data: state.recentRouteUIState!.data!.data[index]),
                           );
                         },
-                      ),
+                      ).expand(),
                     ],
                   );
                 } else {
@@ -153,8 +187,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             case Status.ERROR :
-              if(state.recentRouteState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
+              if(state.recentRouteUIState?.errorType != null){
+                return genericErrorWidget(error: state.recentRouteUIState!.errorType, onRefresh: ()=> initFunction());
               }else{
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
@@ -198,7 +232,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Source
                     BookShipmentWidget(
                       heading: context.appText.source,
-                      subHeading: data.pickUpAddr,
+                      subHeading: pickUpLocationText(data),
                       onClick: () {
 
                       },
@@ -209,7 +243,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Destination
                     BookShipmentWidget(
                       heading: context.appText.destination,
-                      subHeading: data.dropAddr,
+                      subHeading: destinationLocationText(data),
                       onClick: () {
 
                       },
@@ -225,84 +259,6 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     );
   }
 
-  /// Add Different Location Manually
-  // Widget _buildAddDifferentLocationWidget(BuildContext context){
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-  //     children: [
-  //       // Title
-  //       Text("Add different route", style: AppTextStyle.body2),
-  //       10.height,
-  //
-  //       Container(
-  //         padding: EdgeInsets.all(10),
-  //         decoration: commonContainerDecoration(
-  //             color: AppColors.lightPrimaryColor2,
-  //             borderColor: selectedRecentRoutes != null ? AppColors.borderColor : AppColors.primaryColor,
-  //         ),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.stretch,
-  //           children: [
-  //             Text("Chennai -Bangalore", style: AppTextStyle.h5),
-  //             10.height,
-  //             Row(
-  //               children: [
-  //
-  //                 // Source or destination vertical line
-  //                 Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
-  //                 10.width,
-  //
-  //                 Column(
-  //                   children: [
-  //
-  //                     // Source
-  //                     BookShipmentWidget(
-  //                       heading: context.appText.source,
-  //                       subHeading: widget.pickup ??  (pickup?['address']) ?? context.appText.selectPickUpPoint,
-  //                       onClick: () {
-  //                         Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
-  //                           if(onValue != null){
-  //                             pickup = onValue;
-  //                           }
-  //                           setState(() {});
-  //                         });
-  //                       },
-  //                     ),
-  //
-  //                     commonDivider(),
-  //
-  //                     // Destination
-  //                     BookShipmentWidget(
-  //                       heading: context.appText.destination,
-  //                       subHeading: widget.destination  ?? (destination?['address']) ?? context.appText.selectDestination,
-  //                       onClick: () {
-  //                         Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
-  //                           if(onValue != null){
-  //                             destination = onValue;
-  //                           }
-  //                           setState(() {});
-  //                           dynamic req = RateDiscoveryApiRequest(
-  //                             // pickup: pickup?.toLowerCase(),
-  //                             // drop: destination?.toLowerCase(),
-  //                             pickup: "bangalore",
-  //                             drop: "chennai",
-  //                           );
-  //                           rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
-  //                         });
-  //                       },
-  //                     ),
-  //
-  //                   ],
-  //                 ).expand(),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildSelectButton(BuildContext context){
     return Row(
       children: [
@@ -310,21 +266,23 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           title:  "Confirm",
           style:  selectedRecentRoutes != null ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: (){
-            Map<String, dynamic> pickup = {
-              "address": pickupLocation,
-              "location": pickupLocation,
-              "latLng": pickupLatLong,
-              "laneId": laneId,
-            };
-            lpHomeCubit.setPickup(pickup);
 
-            Map<String, dynamic> destination = {
-              "address": destinationLocation,
-              "location": destinationLocation,
-              "latLng": destinationLatLong,
-              "laneId": laneId,
-            };
-            lpHomeCubit.setDestination(destination);
+            final destinationData = DestinationModel(
+                address: destinationAddress,
+                location: destinationLocation,
+                latLng: destinationLatLong,
+                laneId: laneId
+            );
+            lpHomeCubit.setDestination(destinationData);
+
+
+            final pickupData = PickUpModel(
+                address: pickupAddress,
+                location: pickupLocation,
+                latLng: pickupLatLong,
+                laneId: laneId
+            );
+            lpHomeCubit.setPickup(pickupData);
 
             Navigator.of(context).pop(true);
           }

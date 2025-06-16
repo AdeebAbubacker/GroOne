@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/load_summary_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -50,6 +51,7 @@ class LoadSummaryScreen extends StatefulWidget {
 class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
   final loadPostingBloc = locator<LoadPostingBloc>();
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   final noteTextController = TextEditingController();
   final handlingChargesTextController = TextEditingController();
@@ -174,7 +176,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                   if (date != null && time != null) {
                     dateAndTime = "$date - $time";
                     sendDateAndTimeInApi = DateTimeHelper.convertToDatabaseFormat(date);
-                    print(sendDateAndTimeInApi);
+                    debugPrint(sendDateAndTimeInApi);
                   }
                   setState(() {});
                 },
@@ -186,7 +188,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               hintText: "Enter Handling Charges",
               labelText: "Handling Charges",
               onChanged: (value){
-                print("Chrage : ${calculateTenPercentOfAverage(widget.price)}");
+                debugPrint("Handling Charges of 10% : ${calculateTenPercentOfAverage(widget.price)}");
 
                 if (handlingChargesTextController.text.isNotEmpty){
                   if (int.parse(handlingChargesTextController.text) > int.parse(calculateTenPercentOfAverage(widget.price))){
@@ -276,13 +278,19 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
+                if (sendDateAndTimeInApi == null) {
+                  ToastMessages.alert(message: "Expected Delivery Date is required");
+                  return;
+                }
                 final req = widget.apiRequest.copyWith(
                   note: noteTextController.text,
                   handlingCharges: int.parse(calculateTenPercentOfAverage(widget.price)),
                   expectedDeliveryDateTime: sendDateAndTimeInApi ?? ""
                 );
                 await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
+
                 await Future.delayed(const Duration(seconds: 3));
+                lpHomeCubit.clearPickUpAndDestination();
                 if (!context.mounted) return;
                 Navigator.of(context).pop(true);
                 Navigator.of(context).pop(true);
@@ -295,81 +303,4 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   }
 
 
-
-  //
-  // // Detail Widget
-  // Widget detailWidget(BuildContext context) {
-  //   return Column(
-  //     spacing: 15,
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       LoadSummaryWidget(
-  //         title: context.appText.addressDetails,
-  //         heading1: context.appText.senderAddress,
-  //         heading2: context.appText.unloadingPt,
-  //         subheading1: widget.senderAddress,
-  //         subheading2: widget.receiverAddress,
-  //       ),
-  //
-  //       LoadSummaryWidget(
-  //         title: context.appText.vehicleDetails,
-  //         heading1: context.appText.vehicleType,
-  //         heading2: context.appText.vehicleLength,
-  //         subheading1: widget.vehicleType,
-  //         subheading2: widget.vehicleLength,
-  //       ),
-  //
-  //       LoadSummaryWidget(
-  //         title: context.appText.packageDetails,
-  //         heading1: context.appText.approxWeight,
-  //         heading2: context.appText.category,
-  //         subheading1: "${widget.approxWeight} ${context.appText.tons}",
-  //         subheading2: widget.category,
-  //       ),
-  //
-  //
-  //       LoadSummaryWidget(
-  //         title: context.appText.priceDetail,
-  //         heading1: context.appText.suggestedPrice,
-  //         heading2: context.appText.loadingDate,
-  //         subheading1: widget.price,
-  //         subheading2: widget.date,
-  //       ),
-  //
-  //     ],
-  //   );
-  // }
-  //
-  // // Button
-  // Widget buildButtonWidget(BuildContext context){
-  //   return  BlocConsumer<LoadPostingBloc, LoadPostingState>(
-  //     bloc: loadPostingBloc,
-  //     listener: (context, state) {
-  //       if (state is CreateLoadError) {
-  //         frameCallback(() {
-  //           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-  //         });
-  //       }
-  //       if (state is CreateLoadSuccess){
-  //         //disposeFunction();
-  //         AppDialog.show(context, child: SuccessDialogView());
-  //       }
-  //     },
-  //     builder: (context, state) {
-  //       final isLoading = state is CreateLoadLoading;
-  //       return AppButton(
-  //         title: context.appText.confirm,
-  //         isLoading: isLoading,
-  //         onPressed: isLoading ? (){} : () async {
-  //           final CreateLoadApiRequest req = widget.apiRequest.copyWith(note: noteTextController.text);
-  //           await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
-  //           await Future.delayed(const Duration(seconds: 2));
-  //           if(!context.mounted) return;
-  //           Navigator.of(context).pop(true);
-  //           // http://gro-devapi.letsgro.co/load/api/v1/commodity
-  //         },
-  //       );
-  //     },
-  //   ).bottomNavigationPadding();
-  // }
 }
