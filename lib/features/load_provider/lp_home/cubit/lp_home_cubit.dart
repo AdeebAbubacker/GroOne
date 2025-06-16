@@ -1,12 +1,14 @@
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
@@ -24,18 +26,24 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
   void setDestination(DestinationModel? destination) {
-    if (destination == null) return;
     emit(state.copyWith(destination: destination));
   }
 
   void setPickup(PickUpModel? pickup) {
-    if (pickup == null) return;
     emit(state.copyWith(pickup: pickup));
   }
 
   void clearPickUpAndDestination() {
     emit(state.copyWith(destination: null));
     emit(state.copyWith(pickup: null));
+  }
+
+  void setLocationDetailId(num? id){
+    emit(state.copyWith(locationId: id ?? 0));
+  }
+
+  void setLaneId(num? id){
+    emit(state.copyWith(laneId: id ?? 0));
   }
 
 
@@ -101,6 +109,22 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _seVerifyLocationUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Fetch Rate Discovery Api Call
+  void _setRateDiscoveryUIState(UIState<RateDiscoveryModel>? uiState){
+    emit(state.copyWith(rateDiscoveryUIState: uiState));
+  }
+  Future<void> fetchRateDiscovery(RateDiscoveryApiRequest request) async {
+    _setRateDiscoveryUIState(UIState.loading());
+    dynamic result = await _repo.getRateDiscoveryData(request);
+    if (result is Success<RateDiscoveryModel>) {
+      _setRateDiscoveryUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setRateDiscoveryUIState(UIState.error(result.type));
     }
   }
 

@@ -1,9 +1,9 @@
 class PickUpModel {
   PickUpModel({
-    required this.address,
-    required this.location,
-    required this.latLng,
-    required this.laneId,
+     this.address,
+     this.location,
+     this.latLng,
+     this.laneId,
   });
 
   final String? address;
@@ -23,6 +23,12 @@ class PickUpModel {
       latLng: latLng ?? this.latLng,
       laneId: laneId ?? this.laneId,
     );
+  }
+
+  @override
+  String toString() {
+    return 'PickUpModel { address: $address, location: $location, latLng: $latLng, laneId: $laneId}';
+
   }
 
 }

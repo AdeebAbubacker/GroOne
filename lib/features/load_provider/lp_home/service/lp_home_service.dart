@@ -216,7 +216,7 @@ class LpHomeService{
   /// Fetch Verify Location
   Future<Result<VerifyLocationModel>> fetchVerifyLocationData(VerifyLocationApiRequest request) async {
     try {
-      final url = ApiUrls.verification;
+      final url = ApiUrls.verifyLocation;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> VerifyLocationModel.fromJson(data));

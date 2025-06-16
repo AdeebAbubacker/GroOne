@@ -21,7 +21,9 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:http/http.dart' as http;
@@ -60,7 +62,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
   final String _apiKey = "AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY";
 
-  String laneId = '';
+  String laneId = '0';
 
 
   Future<void> _setMapStyle(GoogleMapController controller) async {
@@ -117,7 +119,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     setState(() {
       _locationField = address;
       if (widget.address == null) {
-        searchTextController.text = address;
+        //searchTextController.text = address;
       }
     });
     _setMarker(latLng);
@@ -184,9 +186,15 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     if (status != null) {
       if(status == Status.SUCCESS){
         final data = lpHomeCubit.state.verifyLocationUIState?.data?.data;
-        searchTextController.text = data!.locationdetails!.name;
-        laneId = data.locationdetails!.id.toString();
-        lpHomeCubit.resetAutoCompleteState();
+        if(data != null && data.locationdetails != null){
+          searchTextController.text = locationDetails.name;
+          lpHomeCubit.setLocationDetailId(data.locationdetails!.id);
+          if(data.lane != null){
+            lpHomeCubit.setLaneId(data.lane?.id);
+          }
+          lpHomeCubit.resetAutoCompleteState();
+          CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}");
+        }
       }
       if(status == Status.ERROR){
         final error = lpHomeCubit.state.verifyLocationUIState?.errorType;
@@ -359,6 +367,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                       title: Text(item.description, style: AppTextStyle.body),
                       onTap: () async {
                         final locationDetails = LocationDetails(
+                            id : widget.title == "Pickup Point" ? 0 : state.locationId,
                             name: item.description,
                             slug: item.description.toLowerCase(),
                         );
@@ -401,17 +410,18 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         }
 
         final destinationData = DestinationModel(
-            address: addressTextController.text,
-            location: searchTextController.text,
+            address: addressTextController.text.capitalize,
+            location: searchTextController.text.capitalize,
             latLng: latLngData,
-            laneId: laneId
+            laneId: lpHomeCubit.state.laneId
+
         );
 
         final pickupData = PickUpModel(
-            address: addressTextController.text,
-            location: searchTextController.text,
+            address: addressTextController.text.capitalize,
+            location: searchTextController.text.capitalize,
             latLng: latLngData,
-            laneId:  laneId
+
         );
 
 

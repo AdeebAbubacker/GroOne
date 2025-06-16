@@ -45,10 +45,12 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   int? selectedRecentRoutes;
 
   String? pickupLocation;
+  String? pickupAddress;
   String? pickupLatLong;
   String? destinationLocation;
+  String? destinationAddress;
   String? destinationLatLong;
-  String? laneId;
+  int? laneId;
 
   @override
   void setState(fn) {
@@ -78,15 +80,45 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   });
 
   void updateSelectedRouteState(int index, RecentRouteData data){
-    setState(() {
-      selectedRecentRoutes = index;
-      pickupLocation = data.pickUpAddr;
-      destinationLocation = data.dropAddr;
-      pickupLatLong = data.pickUpLatlon;
-      destinationLatLong = data.dropLatlon;
-      laneId = data.id.toString();
-    });
+    selectedRecentRoutes = index;
+
+    pickupLocation = data.pickUpLocation;
+    pickupAddress = data.pickUpAddr;
+    pickupLatLong = data.pickUpLatlon;
+
+    destinationLocation = data.dropLocation;
+    destinationAddress = data.dropAddr;
+    destinationLatLong = data.dropLatlon;
+
+    laneId = data.id;
+
+    setState(() {});
     commonHapticFeedback();
+  }
+
+
+  String pickUpLocationText(RecentRouteData data){
+    if (data.pickUpAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
+      return "${data.pickUpLocation}, ${data.pickUpAddr}";
+    } else if (data.pickUpAddr.isNotEmpty){
+      return data.pickUpAddr;
+    } else if (data.pickUpLocation.isNotEmpty){
+      return data.pickUpLocation;
+    } else {
+      return "";
+    }
+  }
+
+  String destinationLocationText(RecentRouteData data){
+    if (data.dropAddr.isNotEmpty && data.dropLocation.isNotEmpty){
+      return "${data.dropLocation}, ${data.dropAddr}";
+    } else if (data.dropAddr.isNotEmpty){
+      return data.dropAddr;
+    } else if (data.dropLocation.isNotEmpty){
+      return data.dropLocation;
+    } else {
+      return "";
+    }
   }
 
   @override
@@ -200,7 +232,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Source
                     BookShipmentWidget(
                       heading: context.appText.source,
-                      subHeading: data.pickUpAddr,
+                      subHeading: pickUpLocationText(data),
                       onClick: () {
 
                       },
@@ -211,7 +243,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     // Destination
                     BookShipmentWidget(
                       heading: context.appText.destination,
-                      subHeading: data.dropAddr,
+                      subHeading: destinationLocationText(data),
                       onClick: () {
 
                       },
@@ -314,7 +346,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           onPressed: (){
 
             final destinationData = DestinationModel(
-                address: destinationLocation,
+                address: destinationAddress,
                 location: destinationLocation,
                 latLng: destinationLatLong,
                 laneId: laneId
@@ -323,10 +355,9 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
 
             final pickupData = PickUpModel(
-                address: pickupLocation,
+                address: pickupAddress,
                 location: pickupLocation,
                 latLng: pickupLatLong,
-                laneId:  laneId
             );
             lpHomeCubit.setPickup(pickupData);
 

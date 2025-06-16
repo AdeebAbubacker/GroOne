@@ -33,7 +33,7 @@ class _AppDialogState extends State<AppDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonBottomSheetRadius)),
-        contentPadding: EdgeInsets.all(commonSafeAreaPadding),
+        contentPadding: EdgeInsets.all(20),
         content: widget.child,
       ),
     );
