@@ -193,7 +193,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             lpHomeCubit.setLaneId(data.lane?.id);
           }
           lpHomeCubit.resetAutoCompleteState();
-          CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}");
+          CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
         }
       }
       if(status == Status.ERROR){
@@ -421,6 +421,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             address: addressTextController.text.capitalize,
             location: searchTextController.text.capitalize,
             latLng: latLngData,
+            laneId: lpHomeCubit.state.laneId
 
         );
 

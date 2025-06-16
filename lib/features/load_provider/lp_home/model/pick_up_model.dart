@@ -9,13 +9,13 @@ class PickUpModel {
   final String? address;
   final String? location;
   final String? latLng;
-  final String? laneId;
+  final num? laneId;
 
   PickUpModel copyWith({
     String? address,
     String? location,
     String? latLng,
-    String? laneId,
+    num? laneId,
   }) {
     return PickUpModel(
       address: address ?? this.address,

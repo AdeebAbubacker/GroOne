@@ -42,13 +42,13 @@ class LpHomeService{
 
 
   /// Gwt Load
-  Future<Result<LPGetLoadModel>> getLoads({required String id}) async {
+  Future<Result<LpGetLoadModel>> getLoads({required String id}) async {
     try {
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
         _apiService.clearCache();
-        return  await _apiService.getResponseStatus(result.value, (data)=> LPGetLoadModel.fromJson(data));
+        return  await _apiService.getResponseStatus(result.value, (data)=> LpGetLoadModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

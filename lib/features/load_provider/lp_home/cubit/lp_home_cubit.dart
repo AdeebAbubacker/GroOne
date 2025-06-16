@@ -34,8 +34,12 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
   void clearPickUpAndDestination() {
-    emit(state.copyWith(destination: null));
-    emit(state.copyWith(pickup: null));
+    emit(state.copyWith(
+      pickup: null,
+      destination: null,
+      locationId: null,
+      laneId: null,
+    ));
   }
 
   void setLocationDetailId(num? id){

@@ -68,7 +68,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   late VideoPlayerController _controller;
   ProfileDetailModel? profileResponse;
-  LPGetLoadModel? getLoadResponse;
+  LpGetLoadModel? getLoadResponse;
 
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
@@ -273,10 +273,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     if (!checkValidation()) {
       return;
     }
-    // if (profileResponse!.data!.customer!.isKyc != 3) {
-    //   kycBottomSheet(context);
-    //   return;
-    // }
+
+    // 3 Complete KYC | 2 In Progress kyc | 1 Pending Kyc
+    if (profileResponse!.data!.customer!.isKyc == 3) {
+      kycBottomSheet(context);
+      return;
+    }
 
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
@@ -559,9 +561,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                             if (state.recentRouteUIState?.data != null){
                               if (state.recentRouteUIState!.data!.data.isNotEmpty) {
-                                Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue){
+                                Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue) async {
                                   if(onValue != null && onValue == true){
                                     debugPrint("Pick up : ${state.pickup.toString()}");
+                                    if (state.destination?.laneId != null){
+                                      await fetchRateDiscovery(state.destination!.laneId.toString());
+                                    } else {
+                                      CustomLog.debug(this, "Destination lane id is null");
+                                    }
                                     setState(() {});
                                   }
                                 });
@@ -574,9 +581,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 });
                               }
                             }
-
-
-
                           },
                         ),
 
@@ -589,11 +593,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               ? ("${state.destination!.location!.isNotEmpty ? "${state.destination?.location.capitalize}, " : ""}${state.destination?.address.toString().capitalize}")
                               :  context.appText.selectDestination,
                           onClick: () {
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination?.address, location: state.destination?.location), isForward: true)).then((onValue){
+                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination?.address, location: state.destination?.location), isForward: true)).then((onValue) async {
                               if(onValue != null && onValue == true){
                                  debugPrint("Destination: ${state.destination.toString()}");
                                  if (state.destination?.laneId != null){
-                                   fetchRateDiscovery(state.destination!.laneId.toString());
+                                   await fetchRateDiscovery(state.destination!.laneId.toString());
+                                   lpHomeCubit.clearPickUpAndDestination();
                                  } else {
                                    CustomLog.debug(this, "Destination lane id is null");
                                  }

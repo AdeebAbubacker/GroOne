@@ -1,5 +1,5 @@
-class LPGetLoadModel {
-  LPGetLoadModel({
+class LpGetLoadModel {
+  LpGetLoadModel({
     required this.success,
     required this.message,
     required this.data,
@@ -9,20 +9,20 @@ class LPGetLoadModel {
   final String message;
   final List<LoadData> data;
 
-  LPGetLoadModel copyWith({
+  LpGetLoadModel copyWith({
     bool? success,
     String? message,
     List<LoadData>? data,
   }) {
-    return LPGetLoadModel(
+    return LpGetLoadModel(
       success: success ?? this.success,
       message: message ?? this.message,
       data: data ?? this.data,
     );
   }
 
-  factory LPGetLoadModel.fromJson(Map<String, dynamic> json){
-    return LPGetLoadModel(
+  factory LpGetLoadModel.fromJson(Map<String, dynamic> json){
+    return LpGetLoadModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? [] : List<LoadData>.from(json["data"]!.map((x) => LoadData.fromJson(x))),
@@ -53,11 +53,11 @@ class LoadData {
     required this.expectedDeliveryDateTime,
     required this.handlingCharges,
     required this.acceptedBy,
-    required this.laneId,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
     required this.loadStatusDetails,
+    required this.customer,
   });
 
   final int id;
@@ -80,11 +80,11 @@ class LoadData {
   final DateTime? expectedDeliveryDateTime;
   final num handlingCharges;
   final num acceptedBy;
-  final num laneId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
   final LoadStatusDetails? loadStatusDetails;
+  final Customer? customer;
 
   LoadData copyWith({
     int? id,
@@ -107,11 +107,11 @@ class LoadData {
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
     num? acceptedBy,
-    num? laneId,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
     LoadStatusDetails? loadStatusDetails,
+    Customer? customer,
   }) {
     return LoadData(
       id: id ?? this.id,
@@ -134,11 +134,11 @@ class LoadData {
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
-      laneId: laneId ?? this.laneId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
+      customer: customer ?? this.customer,
     );
   }
 
@@ -164,11 +164,44 @@ class LoadData {
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"] ?? 0,
-      laneId: json["laneId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
+      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+    );
+  }
+
+}
+
+class Customer {
+  Customer({
+    required this.id,
+    required this.customerName,
+    required this.createdAt,
+  });
+
+  final int id;
+  final String customerName;
+  final DateTime? createdAt;
+
+  Customer copyWith({
+    int? id,
+    String? customerName,
+    DateTime? createdAt,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      customerName: customerName ?? this.customerName,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  factory Customer.fromJson(Map<String, dynamic> json){
+    return Customer(
+      id: json["id"] ?? 0,
+      customerName: json["customerName"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
     );
   }
 

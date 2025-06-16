@@ -30,7 +30,7 @@ class LpHomeRepository{
     }
   }
 
-  Future<Result<LPGetLoadModel>> getLoads({required String userId}) async {
+  Future<Result<LpGetLoadModel>> getLoads({required String userId}) async {
     try {
       return await _lpHomeService.getLoads(id: userId);
     } catch (e) {

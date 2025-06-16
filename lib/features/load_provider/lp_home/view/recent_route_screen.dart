@@ -259,84 +259,6 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     );
   }
 
-  /// Add Different Location Manually
-  // Widget _buildAddDifferentLocationWidget(BuildContext context){
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.stretch,
-  //     children: [
-  //       // Title
-  //       Text("Add different route", style: AppTextStyle.body2),
-  //       10.height,
-  //
-  //       Container(
-  //         padding: EdgeInsets.all(10),
-  //         decoration: commonContainerDecoration(
-  //             color: AppColors.lightPrimaryColor2,
-  //             borderColor: selectedRecentRoutes != null ? AppColors.borderColor : AppColors.primaryColor,
-  //         ),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.stretch,
-  //           children: [
-  //             Text("Chennai -Bangalore", style: AppTextStyle.h5),
-  //             10.height,
-  //             Row(
-  //               children: [
-  //
-  //                 // Source or destination vertical line
-  //                 Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
-  //                 10.width,
-  //
-  //                 Column(
-  //                   children: [
-  //
-  //                     // Source
-  //                     BookShipmentWidget(
-  //                       heading: context.appText.source,
-  //                       subHeading: widget.pickup ??  (pickup?['address']) ?? context.appText.selectPickUpPoint,
-  //                       onClick: () {
-  //                         Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: pickup?['address']), isForward: true)).then((onValue){
-  //                           if(onValue != null){
-  //                             pickup = onValue;
-  //                           }
-  //                           setState(() {});
-  //                         });
-  //                       },
-  //                     ),
-  //
-  //                     commonDivider(),
-  //
-  //                     // Destination
-  //                     BookShipmentWidget(
-  //                       heading: context.appText.destination,
-  //                       subHeading: widget.destination  ?? (destination?['address']) ?? context.appText.selectDestination,
-  //                       onClick: () {
-  //                         Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: destination?['address']), isForward: true)).then((onValue){
-  //                           if(onValue != null){
-  //                             destination = onValue;
-  //                           }
-  //                           setState(() {});
-  //                           dynamic req = RateDiscoveryApiRequest(
-  //                             // pickup: pickup?.toLowerCase(),
-  //                             // drop: destination?.toLowerCase(),
-  //                             pickup: "bangalore",
-  //                             drop: "chennai",
-  //                           );
-  //                           rateDiscoveryBloc.add(RateDiscoveryEvent(apiRequest: req));
-  //                         });
-  //                       },
-  //                     ),
-  //
-  //                   ],
-  //                 ).expand(),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildSelectButton(BuildContext context){
     return Row(
       children: [
@@ -358,6 +280,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 address: pickupAddress,
                 location: pickupLocation,
                 latLng: pickupLatLong,
+                laneId: laneId
             );
             lpHomeCubit.setPickup(pickupData);
 
