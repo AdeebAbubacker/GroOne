@@ -52,7 +52,9 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   String? requestID;
   String? aadhaarValue;
 
-  bool showOtpFieldAadhaar = false;
+  // bool showOtpFieldAadhaar = false;
+  final ValueNotifier<bool> showOtpFieldAadhaarNotifier = ValueNotifier(false);
+
 
 
   @override
@@ -61,13 +63,18 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
     super.initState();
   }
 
-
-  void initFunction()=> frameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId();
-    showOtpFieldAadhaar=false;
+    // Reset local state
+    showOtpFieldAadhaarNotifier.value = false;
+    aadhaarNumberTextController.clear();
     aadhaarNumberOtpTextController.clear();
-    aadhaarNumberOtpTextController.clear();
+    requestID = '';
+    aadhaarValue = null;
+    // Reset Cubit state (important)
+    kycBloc.resetState();
   });
+
 
 
   @override
@@ -88,33 +95,33 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
         final otpState = state.aadhaarOtpState;
 
         final isLoading = otpState?.status == Status.LOADING;
-        if (showOtpFieldAadhaar) {
-          return _buildAadhaarVerificationWidget(isLoading, context);
-        } else {
-          return _buildAadhaarFormWidget(isLoading, context);
-        }
+
+        return ValueListenableBuilder<bool>(
+          valueListenable: showOtpFieldAadhaarNotifier,
+          builder: (context, showOtp, _) {
+            return showOtp
+                ? _buildAadhaarVerificationWidget(isLoading, context)
+                : _buildAadhaarFormWidget(isLoading, context);
+          },
+        );
 
       },
       listener: (context, state) {
         final otpState = state.aadhaarOtpState;
         if (otpState?.status == Status.SUCCESS) {
-          final result = otpState?.data;
-          requestID = result?.data?.requestId;
-          showOtpFieldAadhaar = true;
-          setState(() {});
+          requestID = otpState?.data?.data?.requestId ?? '123456';
+          showOtpFieldAadhaarNotifier.value = true;
         }
 
         if (otpState?.status == Status.ERROR) {
           ToastMessages.error(message: getErrorMsg(errorType: otpState!.errorType!));
         }
 
-        final verifyState = state.aadhaarOtpState;
+        final verifyState = state.aadhaarVerifyOtpState;
 
         if (verifyState?.status == Status.SUCCESS) {
-          showOtpFieldAadhaar = false;
-          setState(() {});
+          showOtpFieldAadhaarNotifier.value = false;
           context.pop();
-
           context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
             lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
             aadhaarNumberTextController.clear();
@@ -144,7 +151,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
               AadhaarInputFormatter()
             ],
             labelText: context.appText.aadhaarLabel,
-            hintText: "XXXX XXXX XXXX XXXX",
+            hintText: "XXXX XXXX XXXX",
             maxLength: 14,
             onChanged: (value) {
               final aadhaar = value.replaceAll(' ', '');
@@ -157,17 +164,15 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
 
           // Verify Aadhaar Button
           AppButton(
-            style:aadhaarNumberTextController.text.length == 14 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+            style: aadhaarNumberTextController.text.length == 14 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
             isLoading: isLoading,
             title: context.appText.verifyAadhaar,
             onPressed: () async {
-              if(aadhaarNumberTextController.text.length == 14){
                // Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
                 if (formKey.currentState!.validate()) {
                   final request = AddharOtpApiRequest(force: false, aadhaar: aadhaarValue ?? "");
                   await kycBloc.sendAadhaarOtp(request);
                 }
-              }
             },
           ),
           20.height,
@@ -217,8 +222,11 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
           title: context.appText.verifyCode,
           onPressed: () {
             if(aadhaarNumberOtpTextController.text.length == 6){
+              if(requestID ==''){
+                requestID = '123456';
+              }
               final apiRequest =  AddharVerifyOtpApiRequest(
-                requestId: requestID ?? "",
+                requestId: requestID ?? "123456",
                 otp: aadhaarNumberOtpTextController.text.trim(),
                 aadhaar: aadhaarValue ?? "",
               );

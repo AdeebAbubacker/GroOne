@@ -34,13 +34,17 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_dialog.dart';
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
+import '../../../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../../../load_provider/lp_home/cubit/lp_home_state.dart';
+import '../../../load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import '../bloc/load_accpect/vp_accept_load_bloc.dart';
 import '../bloc/load_accpect/vp_accept_load_state.dart';
 import '../bloc/vp_home_bloc/vp_home_bloc.dart';
 
-
 class VpHomeScreen extends StatefulWidget {
-  final void Function(int bottomTabIndex, {int? allLoadsSubTabIndex}) onViewAllOrSeeMore;
+  final void Function(int bottomTabIndex, {int? allLoadsSubTabIndex})
+  onViewAllOrSeeMore;
+
   const VpHomeScreen({super.key, required this.onViewAllOrSeeMore});
 
   @override
@@ -54,10 +58,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
   final searchController = TextEditingController();
-  // ProfileDetailModel? profileResponse;
+  ProfileDetailModel? profileResponse;
   VpMyLoadResponse? vpMyLoadResponse;
   bool showKycSuccessBanner = false;
-
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   @override
   void initState() {
@@ -71,15 +75,15 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     super.dispose();
   }
 
-
   void initFunction() => frameCallback(() async {
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
+    await lpHomeBloc.getUserId() ?? "";
+    lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
+    await lpHomeCubit.startKycSuccessTimer();
   });
 
-
   void disposeFunction() => frameCallback(() {});
-
 
   @override
   Widget build(BuildContext context) {
@@ -90,61 +94,60 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       },
       child: SafeArea(
         child:
-        Column(
-          children: [
-            Builder(
-                builder: (context) {
-                  if (VpVariables.isKycVerified) {
-                    return SvgPicture.asset(AppImage.svg.kycSuccessStatus, height: 50.h);
-                  } else {
-                    return buildKYCStatusWidget();
-                  }
+            BlocConsumer<LpHomeBloc, HomeState>(
+              bloc: lpHomeBloc,
+              listener: (context, state) {
+                if (state is ProfileDetailSuccess) {
+                  profileResponse = state.profileDetailResponse;
+                  profileImage =
+                      state
+                          .profileDetailResponse
+                          .data!
+                          .details!
+                          .profileImageUrl ??
+                      "";
+                  setState(() {});
                 }
-            ),
-            OurValueAddedServicesWidget(),
-            20.height,
-            _buildRecentAddedLoadWidget(context),
-            20.height,
-            _buildMyLoadsWidget(context),
-          ],
-        ).withScroll(),
-      ),
-    );
-  }
-
-  /// KYC Widget
-  Widget buildKYCStatusWidget() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      color: AppColors.appRedColor,
-      height: 50,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(AppImage.png.alertTriangle, width: 20),
-          10.width,
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: context.appText.your,
-                  style: AppTextStyle.textDarkGreyColor14w500,
-                ),
-                TextSpan(
-                  text: "  ${context.appText.kyc}  ",
-                  style: AppTextStyle.textDarkGreyColor14w500.copyWith(
-                    color: AppColors.orangeTextColor,
-                  ),
-                ),
-                TextSpan(
-                  text: context.appText.stillPending,
-                  style: AppTextStyle.textDarkGreyColor14w500,
-                ),
-              ],
-            ),
-          ),
-        ],
+                if (state is ProfileDetailError) {
+                  ToastMessages.error(
+                    message: getErrorMsg(errorType: state.errorType),
+                  );
+                }
+              },
+              builder: (context, state) {
+                return Column(
+                  children: [
+                    BlocBuilder<LPHomeCubit, LPHomeState>(
+                      builder: (context, state) {
+                        if (profileResponse != null &&
+                            profileResponse?.data != null) {
+                          if (profileResponse?.data?.customer != null &&
+                              profileResponse!.data!.customer!.isKyc == 3) {
+                            if (state.showSuccessKyc) {
+                              return kycSuccessStatusWidget();
+                            } else {
+                              return 0.height;
+                            }
+                          } else if (profileResponse!.data!.customer!.isKyc ==
+                              2) {
+                            return kycInProgressStatusWidget();
+                          } else {
+                            return IncompleteKycStatusWidget();
+                          }
+                        }
+                        return 20.height;
+                      },
+                    ),
+                    20.height,
+                    OurValueAddedServicesWidget(),
+                    20.height,
+                    _buildMyLoadsWidget(context),
+                    20.height,
+                    _buildRecentAddedLoadWidget(context),
+                  ],
+                );
+              },
+            ).withScroll(),
       ),
     );
   }
@@ -161,7 +164,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       builder: (context, state) {
         if (state is VpMyLoadListSuccess) {
           return Container(
-            decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
+            decoration: commonContainerDecoration(
+              borderRadius: BorderRadius.circular(0),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -171,14 +176,18 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
+                    Text(
+                      context.appText.myLoads,
+                      textAlign: TextAlign.start,
+                      style: AppTextStyle.body1,
+                    ),
                     TextButton(
                       onPressed: () {
                         widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
                       },
                       style: AppButtonStyle.primaryTextButton,
                       child: Text("View All", style: AppTextStyle.h5WhiteColor),
-                    )
+                    ),
                   ],
                 ),
                 10.height,
@@ -201,7 +210,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     }
 
                     return ListView.separated(
-                      itemCount: vpMyLoadResponse!.data.length > 3 ? 3 : vpMyLoadResponse!.data.length,
+                      itemCount:
+                          vpMyLoadResponse!.data.length > 3
+                              ? 3
+                              : vpMyLoadResponse!.data.length,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       separatorBuilder: (context, index) => 20.height,
@@ -223,7 +235,11 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                                       context: context,
                                       screen: EnterAadhaarNumberBottomSheet(),
                                     ).then((_) {
-                                      lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
+                                      lpHomeBloc.add(
+                                        GetProfileDetailApiRequest(
+                                          lpHomeBloc.userId ?? "0",
+                                        ),
+                                      );
                                     });
                                   },
                                 ),
@@ -241,10 +257,12 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           );
         }
         if (state is VpMyLoadListError) {
-           return genericErrorWidget(error: state.errorType);
+          return genericErrorWidget(error: state.errorType);
         }
         if (state is VpMyLoadListLoading) {
-           return CircularProgressIndicator().paddingSymmetric(vertical: 100).center();
+          return CircularProgressIndicator()
+              .paddingSymmetric(vertical: 100)
+              .center();
         } else {
           return genericErrorWidget(error: GenericError());
         }
@@ -275,9 +293,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           });
         }
         if (state is VpAcceptLoadError) {
-          ToastMessages.error(
-            message: getErrorMsg(errorType: state.errorType),
-          );
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
       },
       child: Container(
@@ -291,13 +307,19 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(context.appText.availableLoads, style: AppTextStyle.body1).expand(),
+                Text(
+                  context.appText.availableLoads,
+                  style: AppTextStyle.body1,
+                ).expand(),
                 TextButton(
                   onPressed: () {
                     widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
                   },
                   style: AppButtonStyle.primaryTextButton,
-                  child: Text(context.appText.seeMore, style: AppTextStyle.h5WhiteColor),
+                  child: Text(
+                    context.appText.seeMore,
+                    style: AppTextStyle.h5WhiteColor,
+                  ),
                 ),
               ],
             ),
@@ -305,11 +327,14 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
             BlocBuilder<VpRecentLoadListBloc, VpRecentLoadListState>(
               bloc: vpRecentLoadListBloc,
               builder: (context, state) {
-                if (state is VpRecentLoadListLoading) return CircularProgressIndicator().center();
-                if (state is VpRecentLoadListError) return genericErrorWidget(error: state.errorType);
+                if (state is VpRecentLoadListLoading)
+                  return CircularProgressIndicator().center();
+                if (state is VpRecentLoadListError)
+                  return genericErrorWidget(error: state.errorType);
                 if (state is VpRecentLoadListSuccess) {
                   final loads = state.vpRecentLoadResponse.data;
-                  if (loads.isEmpty) return genericErrorWidget(error: NotFoundError());
+                  if (loads.isEmpty)
+                    return genericErrorWidget(error: NotFoundError());
                   return ListView.separated(
                     itemCount: loads.length > 3 ? 3 : loads.length,
                     shrinkWrap: true,
@@ -333,8 +358,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     );
   }
 }
-
-
 
 // Widget _buildMyLoadsWidget(BuildContext context) {
 //   return BlocConsumer(

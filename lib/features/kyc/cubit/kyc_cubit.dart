@@ -137,7 +137,8 @@ class KycCubit extends Cubit<KycState> {
     }
   }
 
-
-
+  void resetState() {
+    emit(KycState());
+  }
 
 }
