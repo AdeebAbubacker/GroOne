@@ -25,20 +25,5 @@ class DestinationModel {
     );
   }
 
-  factory DestinationModel.fromJson(Map<String, dynamic> json){
-    return DestinationModel(
-      address: json["address"],
-      location: json["location"],
-      latLng: json["latLng"],
-      laneId: json["laneId"],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "address": address,
-    "location": location,
-    "latLng": latLng,
-    "laneId": laneId,
-  };
 
 }

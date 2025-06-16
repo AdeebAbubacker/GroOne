@@ -25,20 +25,4 @@ class PickUpModel {
     );
   }
 
-  factory PickUpModel.fromJson(Map<String, dynamic> json){
-    return PickUpModel(
-      address: json["address"],
-      location: json["location"],
-      latLng: json["latLng"],
-      laneId: json["laneId"],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "address": address,
-    "location": location,
-    "latLng": latLng,
-    "laneId": laneId,
-  };
-
 }

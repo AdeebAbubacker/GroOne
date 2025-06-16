@@ -5,6 +5,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
@@ -114,13 +116,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) { },
       builder: (context, state) {
-        if(state.recentRouteState != null && state.recentRouteState?.status != null){
-          switch (state.recentRouteState!.status){
+        if(state.recentRouteUIState != null && state.recentRouteUIState?.status != null){
+          switch (state.recentRouteUIState!.status){
             case Status.LOADING :
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
-              if(state.recentRouteState?.data != null){
-                if(state.recentRouteState!.data!.data.isNotEmpty){
+              if(state.recentRouteUIState?.data != null){
+                if(state.recentRouteUIState!.data!.data.isNotEmpty){
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -135,12 +137,12 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                       ListView.separated(
                         shrinkWrap: true,
                         padding: EdgeInsets.only(bottom: 100),
-                        itemCount: state.recentRouteState!.data!.data.length,
+                        itemCount: state.recentRouteUIState!.data!.data.length,
                         separatorBuilder: (BuildContext context, int index) => 20.height,
                         itemBuilder: (context, index) {
                           return GestureDetector(
-                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteState!.data!.data[index]),
-                            child: _buildListBody(index: index, data: state.recentRouteState!.data!.data[index]),
+                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteUIState!.data!.data[index]),
+                            child: _buildListBody(index: index, data: state.recentRouteUIState!.data!.data[index]),
                           );
                         },
                       ).expand(),
@@ -153,8 +155,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             case Status.ERROR :
-              if(state.recentRouteState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
+              if(state.recentRouteUIState?.errorType != null){
+                return genericErrorWidget(error: state.recentRouteUIState!.errorType, onRefresh: ()=> initFunction());
               }else{
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
@@ -310,21 +312,23 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           title:  "Confirm",
           style:  selectedRecentRoutes != null ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: (){
-            Map<String, dynamic> pickup = {
-              "address": pickupLocation,
-              "location": pickupLocation,
-              "latLng": pickupLatLong,
-              "laneId": laneId,
-            };
-            lpHomeCubit.setPickup(pickup);
 
-            Map<String, dynamic> destination = {
-              "address": destinationLocation,
-              "location": destinationLocation,
-              "latLng": destinationLatLong,
-              "laneId": laneId,
-            };
-            lpHomeCubit.setDestination(destination);
+            final destinationData = DestinationModel(
+                address: destinationLocation,
+                location: destinationLocation,
+                latLng: destinationLatLong,
+                laneId: laneId
+            );
+            lpHomeCubit.setDestination(destinationData);
+
+
+            final pickupData = PickUpModel(
+                address: pickupLocation,
+                location: pickupLocation,
+                latLng: pickupLatLong,
+                laneId:  laneId
+            );
+            lpHomeCubit.setPickup(pickupData);
 
             Navigator.of(context).pop(true);
           }

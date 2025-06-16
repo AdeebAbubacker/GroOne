@@ -4,40 +4,13 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  static const Color textBlackDetailColor =Color(0xFF090909);
-  static const Color textGreyDetailColor =Color(0xFF545759);
-
-  static const Color borderDisableColor=Color(0xFF9D9D9D);
-  static const Color lightBlackColor=Color(0xFF515151);
-  static const Color veryLightGreyColor=Color(0xFF646464);
-  static const Color blackishWhite=Color(0xFFF8F8F8);
-  static const Color backgroundColor=Color(0xFFF7F8FA);
-  static const Color purpleColor=Color(0xFF6929C4);
-  static const Color textRed=Color(0xFFA2191F);
-  static const Color iconRed=Color(0xFFE31B25);
-  static const Color textGreen=Color(0xFF0E6027);
-  static const Color boxGreen=Color(0xFFA7F0BB);
-  static const Color appRedColor=Color(0xFFF9D1D3);
-  static const Color primaryDarkColor=Color(0xFF0369A1);
-  static const Color textBlackColor = Color(0xFF2B2B2B);
-  static const Color black = Color(0xFF000000);
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color textDarkGreyColor = Color(0xFF575757);
-  static const Color orangeTextColor = Color(0xFFEA7144);
-  static const textGreyColor=Color(0xFF909090);
-  static const dividerColor=Color(0xFFC9C9C9);
-  static const buttonDisableColor=Color(0xFFA7A7A7);
-  static const backGroundBlue=Color(0xFFF8F9FF);
-  static const greenColor=Color(0xFF027A48);
-  static final Color disableColor = Color(0xFFB8B8B8);
-
-  // Root Color
+  /// Base Color
   static const Color primaryColor =Color(0xFF003CFF);
   static const Color secondaryColor = Color(0xff4D4D4D);
   static const Color lightPrimaryColor = Color(0xffD6EEFB);
   static const Color lightPrimaryColor2 = Color(0xFFF8F9FF);
 
-  // Text Color
+  /// Text Color
   static const Color primaryTextColor = Color(0xff292D32);
   static const Color greyTextColor = Colors.black38;
   static const Color lightGreyTextColor = Color(0xff606060);
@@ -46,17 +19,17 @@ class AppColors {
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;
 
-  // Body & Appbar color
+  /// Body & Appbar color
   //static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
   static const Color scaffoldBackgroundColor = Colors.white;
   static const Color appBarBackgroundColor = Colors.white;
 
-  // Button Color
+  /// Button Color
   static const Color primaryButtonColor = primaryColor;
   static const Color secondaryButtonColor = Color(0xff222831);
   static const Color deActiveButtonColor = Colors.black26;
 
-  // Border and Shadow Color
+  /// Border and Shadow Color
   static const Color shadowColor = Color(0xffdfdfdf);
   static const Color borderColor = Color(0xffDBDBDB);
   static const Color lightBorderColor = Colors.black26;
@@ -64,11 +37,11 @@ class AppColors {
   static const Color lightDividerColor = Colors.black12;
   static const Color darkDividerColor = Color(0xff707070);
 
-  // Shimmer Color
+  /// Shimmer Color
   static final Color shimmerBaseColor = Colors.grey.shade100;
   static const Color shimmerHighlightColor = Colors.white10;
 
-  // Icon Color
+  /// Icon Color
   static const Color primaryIconColor = Color(0xff0369A1);
   static const Color iconColor = Color(0xff606060);
   static const Color defaultIconTint = Colors.white;
@@ -99,7 +72,32 @@ class AppColors {
   static const Color profileBgGrey=Color(0xFFD2D2D2);
   static const Color primaryLightColor =Color(0xFFE9F3FA);
   static const Color textPurpleColor =Color(0xFF9C27B0);
+  static const Color orangeTextColor = Color(0xFFEA7144);
+  static const Color textBlackDetailColor =Color(0xFF090909);
+  static const Color textGreyDetailColor =Color(0xFF545759);
 
+  static const Color borderDisableColor=Color(0xFF9D9D9D);
+  static const Color lightBlackColor=Color(0xFF515151);
+  static const Color veryLightGreyColor=Color(0xFF646464);
+  static const Color blackishWhite=Color(0xFFF8F8F8);
+  static const Color backgroundColor=Color(0xFFF7F8FA);
+  static const Color purpleColor=Color(0xFF6929C4);
+  static const Color textRed=Color(0xFFA2191F);
+  static const Color iconRed=Color(0xFFE31B25);
+  static const Color textGreen=Color(0xFF0E6027);
+  static const Color boxGreen=Color(0xFFA7F0BB);
+  static const Color appRedColor=Color(0xFFF9D1D3);
+  static const Color primaryDarkColor=Color(0xFF0369A1);
+  static const Color textBlackColor = Color(0xFF2B2B2B);
+  static const Color black = Color(0xFF000000);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color textDarkGreyColor = Color(0xFF575757);
+  static const textGreyColor=Color(0xFF909090);
+  static const dividerColor=Color(0xFFC9C9C9);
+  static const buttonDisableColor=Color(0xFFA7A7A7);
+  static const backGroundBlue=Color(0xFFF8F9FF);
+  static const greenColor=Color(0xFF027A48);
+  static final Color disableColor = Color(0xFFB8B8B8);
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {

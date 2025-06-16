@@ -27,22 +27,18 @@ class VerifyLocationApiRequest {
 
 class LocationDetails {
   LocationDetails({
-    required this.id,
     required this.name,
     required this.slug,
   });
 
-  final int id;
   final String name;
   final String slug;
 
   LocationDetails copyWith({
-    int? id,
     String? name,
     String? slug,
   }) {
     return LocationDetails(
-      id: id ?? this.id,
       name: name ?? this.name,
       slug: slug ?? this.slug,
     );
@@ -50,7 +46,6 @@ class LocationDetails {
 
 
   Map<String, dynamic> toJson() => {
-    "id": id,
     "name": name,
     "slug": slug,
   };

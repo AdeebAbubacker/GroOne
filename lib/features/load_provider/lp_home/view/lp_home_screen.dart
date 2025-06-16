@@ -1,8 +1,5 @@
-import 'package:dotted_line/dotted_line.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -27,13 +24,11 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_scr
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/recent_route_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/truck_type_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/advance_payment_dailog.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/our_value_added_service_widget.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -41,13 +36,10 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_video.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -409,7 +401,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         // Source
                         BookShipmentWidget(
                           heading: context.appText.source,
-                          subHeading: state.pickup != null ? ("${state.pickup!['location'].toString().capitalizeFirst}, ${state.pickup!["address"].toString().capitalizeFirst}") :  context.appText.selectPickUpPoint,
+                          subHeading: state.pickup != null ? ("${state.pickup!.location.capitalizeFirst}, ${state.pickup!.address.toString().capitalizeFirst}") :  context.appText.selectPickUpPoint,
                           onClick: () {
 
                             // if (state.pickup != null){
@@ -435,13 +427,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         // Destination
                         BookShipmentWidget(
                           heading: context.appText.destination,
-                          subHeading: state.destination != null ? ("${state.destination!['location'].toString().capitalizeFirst}, ${state.destination!["address"].toString().capitalizeFirst}") :  context.appText.selectDestination,
+                          subHeading: state.destination != null ? ("${state.destination?.location.toString().capitalizeFirst}, ${state.destination?.address.toString().capitalizeFirst}") :  context.appText.selectDestination,
                           onClick: () {
 
                             Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
                               title: "Select Destination",
-                              address: state.destination?['address'],
-                              location: state.destination?['location'],
+                              address: state.destination?.address,
+                              location: state.destination?.location,
                             ), isForward: true)).then((onValue){
                               if(onValue != null && onValue == true){
                                  debugPrint("Destination: ${state.destination}");
@@ -744,26 +736,26 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 customerId: int.parse(lpHomeBloc.userId.toString()),
                                 commodityId: int.parse(commodityId ?? "0"),
                                 truckTypeId: int.parse(truckTypeId ?? "0"),
-                                pickUpAddr:  lpHomeCubit.state.pickup?['address'] ?? "",
-                                pickUpLocation:  lpHomeCubit.state.pickup?['location'] ?? "",
-                                pickUpLatlon:   lpHomeCubit.state.pickup?['latLng']??"",
-                                dropAddr:   lpHomeCubit.state.destination?['address'] ?? "",
-                                dropLocation:   lpHomeCubit.state.destination?['location'] ?? "",
-                                dropLatlon:  lpHomeCubit.state. destination?['latLng'] ??"",
+                                pickUpAddr:  lpHomeCubit.state.pickup?.address ?? "",
+                                pickUpLocation:  lpHomeCubit.state.pickup?.location ?? "",
+                                pickUpLatlon:   lpHomeCubit.state.pickup?.latLng ??"",
+                                dropAddr:   lpHomeCubit.state.destination?.address ?? "",
+                                dropLocation:   lpHomeCubit.state.destination?.location ?? "",
+                                dropLatlon:  lpHomeCubit.state. destination?.latLng ??"",
                                 dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
                                 consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
                                 rate: rateDiscoveryPrice ?? "0000 - 0000",
-                                laneId: int.parse(lpHomeCubit.state.pickup?["laneId"] ?? "0")
+                                laneId: int.parse(lpHomeCubit.state.pickup?.laneId ?? "0")
                               );
 
 
                               // Pass Data in to next page
                               Navigator.push(context, commonRoute(LoadSummaryScreen(
                                 apiRequest: request,
-                                pickupAddress:  lpHomeCubit.state.pickup!['address'] ?? "",
-                                pickupLocation: lpHomeCubit.state.pickup!['location'] ?? "",
-                                destinationAddress:  lpHomeCubit.state.destination!['address'] ?? "",
-                                destinationLocation: lpHomeCubit.state.destination!['location'] ?? "",
+                                pickupAddress:  lpHomeCubit.state.pickup?.address ?? "",
+                                pickupLocation: lpHomeCubit.state.pickup?.location ?? "",
+                                destinationAddress:  lpHomeCubit.state.destination?.address ?? "",
+                                destinationLocation: lpHomeCubit.state.destination?.location ?? "",
                                 vehicleType: truckType ?? "",
                                 vehicleLength: truckLength ?? "",
                                 approxWeight: weightTextController.text,
