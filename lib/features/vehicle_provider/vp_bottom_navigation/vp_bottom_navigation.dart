@@ -173,7 +173,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                     profileResponse!.data!.customer!.isKyc == 3) {
                   if (state.showSuccessKyc) {
                     return kycWidget(
-                      controller: _controller,
                       onTap: () {
                         commonBottomSheetWithBGBlur(
                           context: context,
@@ -186,7 +185,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                   }
                 } else {
                   return kycWidget(
-                    controller: _controller,
                     onTap: () {
                       commonBottomSheetWithBGBlur(
                         context: context,
