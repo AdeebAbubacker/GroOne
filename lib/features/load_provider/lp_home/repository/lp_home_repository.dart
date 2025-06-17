@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_lo
 import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
@@ -122,6 +123,17 @@ class LpHomeRepository{
       return await _lpHomeService.fetchVerifyLocationData(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request verify location data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Load Weight Repo
+  Future<Result<LoadWeightModel>> getLoadWeightData() async {
+    try {
+      return await _lpHomeService.fetchLoadWeightData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request get load weight data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

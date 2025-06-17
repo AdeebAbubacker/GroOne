@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.d
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
@@ -58,6 +59,11 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
+  }
+
+  // Select Weight
+  void selectWeight(LoadWeightData weight) {
+    emit(state.copyWith(selectedWeight: weight));
   }
 
 
@@ -139,6 +145,22 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _setRateDiscoveryUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Fetch Rate Discovery Api Call
+  void _setLoadWeightUIState(UIState<LoadWeightModel>? uiState){
+    emit(state.copyWith(loadWeightUIState: uiState));
+  }
+  Future<void> fetchLoadWeight() async {
+    _setLoadWeightUIState(UIState.loading());
+    dynamic result = await _repo.getLoadWeightData();
+    if (result is Success<LoadWeightModel>) {
+      _setLoadWeightUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setLoadWeightUIState(UIState.error(result.type));
     }
   }
 

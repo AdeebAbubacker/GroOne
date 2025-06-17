@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_lo
 import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
@@ -220,6 +221,25 @@ class LpHomeService{
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> VerifyLocationModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Fetch Weight Load
+  Future<Result<LoadWeightModel>> fetchLoadWeightData() async {
+    try {
+      final url = ApiUrls.getWeight;
+      final result = await _apiService.get(url);
+      if (result is Success) {
+        return  await _apiService.getResponseStatus(result.value, (data)=> LoadWeightModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

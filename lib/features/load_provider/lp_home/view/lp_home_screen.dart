@@ -19,6 +19,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.d
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
@@ -29,7 +30,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shi
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_weight_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -130,9 +133,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
-    lpHomeCubit.fetchRecentRoute();
     await lpHomeCubit.startKycSuccessTimer();
-    lpHomeCubit.fetchRecentRoute();
+    await lpHomeCubit.fetchRecentRoute();
+    await lpHomeCubit.fetchLoadWeight();
     clearAllValues();
   });
 
@@ -341,6 +344,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   // Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
+      elevation: 1.0,
       isLeading: false,
       leading: BlocListener<VpCreationBloc, VpCreationState>(
         bloc: vpHomeBloc,
@@ -368,7 +372,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
         ),
 
-        // KYC
+        // KYC Blinking
         BlocProvider<LPHomeCubit>.value(
           value: locator<LPHomeCubit>(), // singleton from locator
           child: BlocConsumer<LPHomeCubit, LPHomeState>(
@@ -377,19 +381,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               if (profileResponse != null && profileResponse?.data != null) {
                 if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc == 3) {
                   if (state.showSuccessKyc) {
-                    return kycWidget(
-                      onTap: () {
-                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                      },
-                    );
+                    return 0.width;
                   } else {
                     return 0.width;
                   }
+                } else if (profileResponse!.data!.customer!.isKyc == 2){
+                  return 0.width; // kycInProgressStatusWidget
                 } else {
                   return kycWidget(
-                    onTap: () {
-                      commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                    },
+                    onTap: () =>  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()),
                   );
                 }
               }
@@ -587,10 +587,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               }
                               setState(() {});
                             });
-
                           },
                         ),
-
 
                       ],
                     ).expand();
@@ -651,34 +649,73 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
               // Consignment weight (MT)
-              Container(
-                height: 55,
-                padding: EdgeInsets.all(10),
-                decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(AppIcons.svg.kgWeight),
-                    12.width,
-                    TextFormField(
-                      controller: weightTextController,
-                      autofocus: false,
-                      keyboardType: iosNumberKeyboard,
-                      inputFormatters: [
-                        phoneNumberInputFormatter
-                      ],
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
-                        hintText: context.appText.consignmentWeightWithMT,
-                        hintStyle: AppTextStyle.body,
-                        maintainHintHeight: true,
-                      ),
-                    ).expand(),
+              // Container(
+              //   height: 55,
+              //   padding: EdgeInsets.all(10),
+              //   decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+              //   child: Row(
+              //     children: [
+              //       SvgPicture.asset(AppIcons.svg.kgWeight),
+              //       12.width,
+              //       TextFormField(
+              //         controller: weightTextController,
+              //         autofocus: false,
+              //         keyboardType: iosNumberKeyboard,
+              //         inputFormatters: [
+              //           phoneNumberInputFormatter
+              //         ],
+              //         decoration: InputDecoration(
+              //           isDense: true,
+              //           contentPadding: EdgeInsets.zero,
+              //           border: InputBorder.none,
+              //           hintText: context.appText.consignmentWeightWithMT,
+              //           hintStyle: AppTextStyle.body,
+              //           maintainHintHeight: true,
+              //         ),
+              //       ).expand(),
+              //
+              //       Text("MT ", style: AppTextStyle.body3GreyColor)
+              //     ],
+              //   ),
+              // ).expand(),
+              // Consignment weight (MT)
+              BlocConsumer<LPHomeCubit, LPHomeState>(
+                bloc: lpHomeCubit,
+                listener: (context, state) {
 
-                    Text("MT ", style: AppTextStyle.body3GreyColor)
-                  ],
-                ),
+                },
+                builder: (context, state) {
+                  if (state.loadWeightUIState != null && state.loadWeightUIState?.status == Status.SUCCESS) {
+                    final weights = state.loadWeightUIState?.data?.data;
+                    return LPWeightDropdown(
+                      preFixIcon: AppIcons.svg.kgWeight,
+                      hintText: "Consignment weight (MT)",
+                      onSelect: (LoadWeightData weight) async {
+                        weightTextController.text = weight.value.toString();
+                        setState(() {});
+                      },
+                      dataList: weights!,
+                      selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
+                      onTab: () {
+                        Navigator.of(context).push(
+                          createRoute(
+                            WeightSelectionScreen(
+                              dataList: weights,
+                              onSelect: (weight) {
+                                lpHomeCubit.selectWeight(weight);
+                                weightTextController.text = weight.value.toString();
+                                setState(() {});
+                              },
+                              cubit: lpHomeCubit,
+                            ),
+                          ),
+                        );
+                      },
+                      cubit: lpHomeCubit,
+                    );
+                  }
+                  return const SizedBox();
+                },
               ).expand(),
 
 

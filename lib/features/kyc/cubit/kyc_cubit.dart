@@ -201,9 +201,6 @@ class KycCubit extends Cubit<KycState> {
   }
 
 
-
-
-
   // Submit Kyc
   Future<void> submitKyc(SubmitKycApiRequest request, String userId) async {
     emit(state.copyWith(submitKycState: UIState.loading()));

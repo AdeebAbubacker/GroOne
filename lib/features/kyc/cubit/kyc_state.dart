@@ -69,9 +69,9 @@ class KycState extends Equatable {
       panState: panState ?? this.panState,
       fileUploadState: fileUploadState ?? this.fileUploadState,
       submitKycState: submitKycState ?? this.submitKycState,
-      verifiedPan: verifiedPan ?? false,
-      verifiedGst: verifiedGst ?? false,
-      verifiedTan: verifiedTan ?? false,
+      verifiedPan: verifiedPan ?? this.verifiedPan,
+      verifiedGst: verifiedGst ?? this.verifiedGst,
+      verifiedTan: verifiedTan ?? this.verifiedTan,
     );
   }
 

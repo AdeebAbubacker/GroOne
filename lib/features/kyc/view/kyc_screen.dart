@@ -356,6 +356,46 @@ class _KycScreenState extends State<KycScreen> {
     }
   }
 
+  // Verify KYC Api Call
+  Future verifyKycApiCall() async {
+    if (int.parse(kycCubit.userRole ?? "0") == 1
+        ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
+        : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
+    } else {
+      if (kycCubit.state.verifiedGst! && kycCubit.state.verifiedTan! && kycCubit.state.verifiedPan!) {
+        if (_formKey.currentState!.validate()) {
+
+          final kycRequest = SubmitKycApiRequest(
+            aadhar: widget.aadhaarNumber,
+            address1: addressLine1TextController.text,
+            address2: addressLine2TextController.text,
+            address3: addressLine3TextController.text,
+            bankAccount: accountNumberTextController.text,
+            bankName: bankNameTextController.text,
+            branchName: branchNameTextController.text,
+            chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
+            tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
+            gstin: gstInTextController.text,
+            gstinDocLink: gstDoc.first['path'],
+            ifscCode: ifscCodeTextController.text,
+            isAadhar: true,
+            isGstin: kycCubit.state.verifiedGst!,
+            isPan:  kycCubit.state.verifiedPan!,
+            isTan:  kycCubit.state.verifiedTan!,
+            pan: panTextController.text,
+            panDocLink: panDoc.first['path'],
+            tan: tanTextController.text,
+            tanDocLink: tanDoc.first['path'],
+          );
+
+          kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+        }
+      } else {
+        ToastMessages.alert(message: "Please verify all document before submit");
+      }
+    }
+  }
+
 
 
   @override
@@ -364,6 +404,7 @@ class _KycScreenState extends State<KycScreen> {
       backgroundColor: AppColors.white,
       appBar: CommonAppBar(backgroundColor: AppColors.white, title: context.appText.uploadDocument),
       body: _buildBodyWidget(),
+      bottomNavigationBar: buildSubmitKycButton(),
     );
   }
 
@@ -600,51 +641,6 @@ class _KycScreenState extends State<KycScreen> {
                     ),
                     30.height,
 
-                    AppButton(
-                      style:  AppButtonStyle.primary,
-                      title: context.appText.submit,
-                      onPressed: () async {
-                        if (int.parse(kycCubit.userRole ?? "0") == 1
-                            ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
-                            : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
-                        } else {
-                          if (kycCubit.state.verifiedGst! && kycCubit.state.verifiedTan! && kycCubit.state.verifiedPan!) {
-                            if (_formKey.currentState!.validate()) {
-
-                              final kycRequest = SubmitKycApiRequest(
-                                aadhar: widget.aadhaarNumber,
-                                address1: addressLine1TextController.text,
-                                address2: addressLine2TextController.text,
-                                address3: addressLine3TextController.text,
-                                bankAccount: accountNumberTextController.text,
-                                bankName: bankNameTextController.text,
-                                branchName: branchNameTextController.text,
-                                chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
-                                tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
-                                gstin: gstInTextController.text,
-                                gstinDocLink: gstDoc.first['path'],
-                                ifscCode: ifscCodeTextController.text,
-                                isAadhar: true,
-                                isGstin: kycCubit.state.verifiedGst!,
-                                isPan:  kycCubit.state.verifiedPan!,
-                                isTan:  kycCubit.state.verifiedTan!,
-                                pan: panTextController.text,
-                                panDocLink: panDoc.first['path'],
-                                tan: tanTextController.text,
-                                tanDocLink: tanDoc.first['path'],
-                              );
-
-                              kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
-                            }
-                          } else {
-                            ToastMessages.error(
-                              message: "Please verify all document before submit",
-                            );
-                          }
-                        }
-                      },
-                    ),
-                    30.height,
                   ],
                 );
               },
@@ -654,6 +650,34 @@ class _KycScreenState extends State<KycScreen> {
       ),
     );
   }
+
+
+  Widget buildSubmitKycButton(){
+    return  BlocConsumer<KycCubit, KycState>(
+        bloc: kycCubit,
+        listenWhen: (previous, current) =>  previous.submitKycState != current.submitKycState,
+        listener:  (context, state) async {
+          final status = state.submitKycState?.status;
+          if (status == Status.SUCCESS) {
+            Navigator.pop(context);
+          }
+          if (status == Status.ERROR) {
+            final error = state.submitKycState?.errorType;
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          }
+        },
+        builder: (context, state) {
+          return AppButton(
+            style:  AppButtonStyle.primary,
+            title: context.appText.submit,
+            onPressed: () async {
+              verifyKycApiCall();
+            },
+          );
+        }
+    ).bottomNavigationPadding();
+  }
+
 
   Widget _buildAadhaarWidget(){
     return buildTextFieldWithLabelWidget(

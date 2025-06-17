@@ -26,25 +26,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   final splashViewModel = locator<SplashViewModel>();
 
-  late VideoPlayerController _controller;
-
   @override
   void initState() {
-    _controller = VideoPlayerController.asset(AppImage.png.splash)
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {});
-          _controller.play();
-        }
-      });
-    _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration &&
-          _controller.value.isInitialized &&
-          mounted) {
-        setState((){});
-        //context.push(AppRouteName.chooseLanguage);
-      }
-    });
     init(context);
     super.initState();
   }
@@ -56,8 +39,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _controller.removeListener(() {}); // if you store the listener separately
-    _controller.dispose();
     super.dispose();
   }
 
