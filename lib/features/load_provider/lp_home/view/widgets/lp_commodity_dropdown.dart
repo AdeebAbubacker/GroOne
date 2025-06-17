@@ -28,7 +28,7 @@ class LPCommodityDropdown extends StatelessWidget {
           children: [
             SvgPicture.asset(preFixIcon),
             10.width,
-            Text(selectedText ?? hintText, style: AppTextStyle.body).expand(),
+            Text(selectedText ?? hintText, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
             Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
           ],
         ),

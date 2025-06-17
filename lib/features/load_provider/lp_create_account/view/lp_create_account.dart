@@ -40,7 +40,8 @@ import '../model/lp_company_type_response.dart';
 class LpCreateAccount extends StatefulWidget {
   final String userId;
   final String mobileNumber;
-  const LpCreateAccount({super.key, required this.userId,required this.mobileNumber});
+  final String roleId;
+  const LpCreateAccount({super.key, required this.userId,required this.mobileNumber, required this.roleId});
 
 
   @override
@@ -232,6 +233,8 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             inputFormatters: [phoneNumberInputFormatter],
             keyboardType: TextInputType.phone,
             decoration: commonInputDecoration(
+              focusColor: AppColors.borderColor,
+              fillColor: AppColors.lightGreyColor,
               hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
               prefixIcon: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -353,6 +356,8 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 companyName: companyNameTextController.text,
                 companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
                 pincode: pinCodeTextController.text,
+                email: emailTextController.text,
+                roleId: int.parse(widget.roleId)
               );
               lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.userId));
             }

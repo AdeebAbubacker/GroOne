@@ -522,8 +522,8 @@ void commonSupportDialog(BuildContext context){
       heading: "Call Customer Support",
       message: "Contact our Customer support agent",
       onSingleButtonText: "Call",
-      onTapSingleButton: (){
-        Navigator.of(context).pop();
+      onTapSingleButton: () async {
+        await callRedirect("180012304567");
       },
       child: SvgPicture.asset(AppImage.svg.customerSupport),
     ),

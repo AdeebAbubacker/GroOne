@@ -261,7 +261,7 @@ Widget appLoader() {
 //   return Container();
 // }
 
-Widget kycWidget({required Function() onTap, required VideoPlayerController controller}){
+Widget kycWidget({required Function() onTap}){
   return InkWell(
     onTap: onTap,
     // child: Container(

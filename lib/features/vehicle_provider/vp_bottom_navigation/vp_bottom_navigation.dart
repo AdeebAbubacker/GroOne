@@ -187,9 +187,11 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                   if (profileResponse!.data!.customer!.isKyc == 3) {
                     return 0.width;
                   } else {
-                    return kycWidget(onTap: () {
+                    return kycWidget(
+                      onTap: () {
                       commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                    }, controller: _controller);
+                    },
+                    );
                   }
                 }
               }

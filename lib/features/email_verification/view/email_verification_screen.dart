@@ -180,6 +180,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: !isLoading && isCodeLengthValid ? () async {
+            print("User Id : ${widget.userId}");
             final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text, customerId: int.parse(widget.userId));
             await  cubit.verifyOtp(request);
           } : (){},

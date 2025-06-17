@@ -38,8 +38,7 @@ class EmailVerificationRepository {
   /// Verify Email Otp Repo
   Future<Result<VerifyEmailOtpModel>> getVerifyOtpData(VerifyEmailOtpApiRequest request) async {
     try {
-      String customerId = await _userInformationRepository.getUserID() ?? "0";
-      return await _emailVerificationService.fetchVerifyOtpData(request.copyWith(customerId: int.parse(customerId)));
+      return await _emailVerificationService.fetchVerifyOtpData(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request email verification", e);
       return Error(ErrorWithMessage(message: e.toString()));

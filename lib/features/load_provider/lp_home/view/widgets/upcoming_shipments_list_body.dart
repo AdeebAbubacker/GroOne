@@ -1,5 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -44,19 +45,24 @@ class UpcomingShipmentsListBody extends StatelessWidget {
               // ),
               // 10.width,
 
-              if(loadData.loadStatusDetails != null)
+              if(loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: commonContainerDecoration(color: AppColors.purpleColor.withAlpha(50)),
-                      child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color: AppColors.purpleColor)),
+                      decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
+                      child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
                     ),
                     5.height,
-                    Text("98:00", style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-                    // Text("Vehicle Provider", style: AppTextStyle.body4,  maxLines: 1),
-                    // Text("Raj Sharma", style: AppTextStyle.h5,  maxLines: 1),
+
+                    if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
+                      Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                    else
+                    if (loadData.loadStatusDetails?.loadType == "KYC Pending")
+                      if(loadData.customer?.createdAt != null)
+                        Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+
                   ],
                 ).expand(),
             ],

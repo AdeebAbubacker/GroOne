@@ -41,7 +41,7 @@ class ApiUrls {
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
-  static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/doc";
+  static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
 
 
@@ -100,12 +100,12 @@ class ApiUrls {
 
 
   /// Load Creation
-  static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1/";
+  static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
 
   // Load Form pick list
-  static final String  loadCommodity = "${_loadBaseUrl}commodity";
-  static final String  loadTruckType = "${_loadBaseUrl}truck-type/";
-  static final String  truckType = "${loadTruckType}distinct/types";
+  static final String  loadCommodity = "$_loadBaseUrl/commodity";
+  static final String  loadTruckType = "$_loadBaseUrl/truck-type/";
+  static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
   static final String  getRecentRoute = "$_loadBaseUrl$_load/distinct-source-destination";
 

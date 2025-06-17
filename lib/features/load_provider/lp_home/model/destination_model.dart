@@ -6,8 +6,8 @@ class DestinationModel {
      this.laneId,
   });
 
-  final String? address;
-  final String? location;
+   final String? address;
+   final String? location;
   final String? latLng;
   final num? laneId;
 

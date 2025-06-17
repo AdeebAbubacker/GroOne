@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/load_summary_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -60,38 +61,23 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   String? sendDateAndTimeInApi;
 
 
-  String calculateTenPercentOfAverage(String priceRange) {
-    try {
-      final cleaned = priceRange.replaceAll(' ', '');
 
-      if (cleaned.contains('-')) {
-        // Case: Range format like "1500-2000"
-        final parts = cleaned.split('-');
-        if (parts.length != 2) return "Invalid range";
-
-        final min = int.tryParse(parts[0]) ?? 0;
-        final max = int.tryParse(parts[1]) ?? 0;
-
-        if (min == 0 || max == 0) return "Invalid range";
-
-        final avg = ((min + max) / 2).round();
-        final tenPercent = (avg * 0.10).round();
-
-        return "Rs. $tenPercent";
-      } else {
-        // Case: Single value like "1000"
-        final value = int.tryParse(cleaned) ?? 0;
-        if (value == 0) return "Invalid price";
-
-        final tenPercent = (value * 0.10).round();
-        return "$tenPercent";
-      }
-    } catch (e) {
-      return "Calculation error";
+  Future<void> postLoadApiCall() async {
+    if (sendDateAndTimeInApi == null) {
+      ToastMessages.alert(message: "Expected Delivery Date is required");
+      return;
     }
+    if(handlingChargesTextController.text.isEmpty){
+      ToastMessages.alert(message: "Handling Charges is required");
+      return;
+    }
+    final req = widget.apiRequest.copyWith(
+        note: noteTextController.text,
+        handlingCharges: int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price)),
+        expectedDeliveryDateTime: sendDateAndTimeInApi ?? ""
+    );
+    await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
   }
-
-
 
 
 
@@ -122,7 +108,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
     );
   }
 
-// inside buildBodyWidget:
+///  buildBodyWidget:
   Widget buildBodyWidget(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
@@ -188,10 +174,10 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               hintText: "Enter Handling Charges",
               labelText: "Handling Charges",
               onChanged: (value){
-                debugPrint("Handling Charges of 10% : ${calculateTenPercentOfAverage(widget.price)}");
+                debugPrint("Handling Charges of 10% : ${LpHomeHelper.calculateTenPercentOfAverage(widget.price)}");
 
                 if (handlingChargesTextController.text.isNotEmpty){
-                  if (int.parse(handlingChargesTextController.text) > int.parse(calculateTenPercentOfAverage(widget.price))){
+                  if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
                     ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
                     return;
                   } else {
@@ -219,7 +205,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
     );
   }
 
-// Reusable read-only field UI (mimicking input style)
+/// Reusable read-only field UI (mimicking input style)
   Widget buildReadOnlyField(String label, String value,{Color? fillColor}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,38 +222,38 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
     );
   }
 
-// inside buildButtonWidget:
+
+/// inside buildButtonWidget:
   Widget buildButtonWidget(BuildContext context) {
     return BlocConsumer<LoadPostingBloc, LoadPostingState>(
       bloc: loadPostingBloc,
-      listener: (context, state) {
+      listenWhen: (previous, current) =>  previous != current,
+      listener: (context, state) async {
         if (state is CreateLoadError) {
-          frameCallback(() {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-          });
+          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
         if (state is CreateLoadSuccess) {
-          AppDialog.show(context, child: SuccessDialogView());
+          AppDialog.show(
+            context,
+            child: SuccessDialogView(
+              message: 'Load Created Successfully',
+              afterDismiss: () {
+                Navigator.of(context).pop(true);
+                Navigator.of(context).pop(true);
+              },
+            ),
+          );
+          lpHomeCubit.clearPickUpAndDestination();
         }
       },
       builder: (context, state) {
         final isLoading = state is CreateLoadLoading;
+        final successState = state is CreateLoadSuccess;
         return Row(
           children: [
             AppButton(
               onPressed: () {
-                AppDialog.show(
-                  context,
-                  child: CommonDialogView(
-                    heading: "Call Customer Support",
-                    message: "contact our Customer support agent",
-                    onSingleButtonText: "Call",
-                    onTapSingleButton: (){
-                      Navigator.of(context).pop();
-                    },
-                    child: SvgPicture.asset(AppImage.svg.customerSupport),
-                  ),
-                );
+                commonSupportDialog(context);
               },
               style: AppButtonStyle.outline,
               title: "Customer Support",
@@ -278,22 +264,9 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
-                if (sendDateAndTimeInApi == null) {
-                  ToastMessages.alert(message: "Expected Delivery Date is required");
-                  return;
-                }
-                final req = widget.apiRequest.copyWith(
-                  note: noteTextController.text,
-                  handlingCharges: int.parse(calculateTenPercentOfAverage(widget.price)),
-                  expectedDeliveryDateTime: sendDateAndTimeInApi ?? ""
-                );
-                await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
 
-                await Future.delayed(const Duration(seconds: 3));
-                lpHomeCubit.clearPickUpAndDestination();
-                if (!context.mounted) return;
-                Navigator.of(context).pop(true);
-                Navigator.of(context).pop(true);
+                await postLoadApiCall();
+
               },
             ).expand(),
           ],

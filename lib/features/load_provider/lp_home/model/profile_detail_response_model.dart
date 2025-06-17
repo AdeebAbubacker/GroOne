@@ -21,13 +21,14 @@ class ProfileDetailModel {
     );
   }
 
-  factory ProfileDetailModel.fromJson(Map<String, dynamic> json) {
+  factory ProfileDetailModel.fromJson(Map<String, dynamic> json){
     return ProfileDetailModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : ProfileDetailsData.fromJson(json["data"]),
     );
   }
+
 }
 
 class ProfileDetailsData {
@@ -49,12 +50,13 @@ class ProfileDetailsData {
     );
   }
 
-  factory ProfileDetailsData.fromJson(Map<String, dynamic> json) {
+  factory ProfileDetailsData.fromJson(Map<String, dynamic> json){
     return ProfileDetailsData(
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       details: json["details"] == null ? null : Details.fromJson(json["details"]),
     );
   }
+
 }
 
 class Customer {
@@ -66,7 +68,7 @@ class Customer {
     required this.blueId,
     required this.password,
     required this.otp,
-    this.emailOtp, // New field
+    required this.emailOtp,
     required this.otpAttempt,
     required this.roleId,
     required this.isKyc,
@@ -85,7 +87,7 @@ class Customer {
   final dynamic blueId;
   final dynamic password;
   final num otp;
-  final dynamic emailOtp; // New field
+  final dynamic emailOtp;
   final num otpAttempt;
   final num roleId;
   final num isKyc;
@@ -104,7 +106,7 @@ class Customer {
     dynamic? blueId,
     dynamic? password,
     num? otp,
-    dynamic? emailOtp, // New field
+    dynamic? emailOtp,
     num? otpAttempt,
     num? roleId,
     num? isKyc,
@@ -123,7 +125,7 @@ class Customer {
       blueId: blueId ?? this.blueId,
       password: password ?? this.password,
       otp: otp ?? this.otp,
-      emailOtp: emailOtp ?? this.emailOtp, // New field
+      emailOtp: emailOtp ?? this.emailOtp,
       otpAttempt: otpAttempt ?? this.otpAttempt,
       roleId: roleId ?? this.roleId,
       isKyc: isKyc ?? this.isKyc,
@@ -136,7 +138,7 @@ class Customer {
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json) {
+  factory Customer.fromJson(Map<String, dynamic> json){
     return Customer(
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
@@ -145,7 +147,7 @@ class Customer {
       blueId: json["blueId"],
       password: json["password"],
       otp: json["otp"] ?? 0,
-      emailOtp: json["email_otp"], // Handle null or empty string for email_otp
+      emailOtp: json["email_otp"],
       otpAttempt: json["otpAttempt"] ?? 0,
       roleId: json["roleId"] ?? 0,
       isKyc: json["isKyc"] ?? 0,
@@ -157,6 +159,7 @@ class Customer {
       kycType: json["kycType"] == null ? null : KycType.fromJson(json["kycType"]),
     );
   }
+
 }
 
 class KycType {
@@ -178,12 +181,13 @@ class KycType {
     );
   }
 
-  factory KycType.fromJson(Map<String, dynamic> json) {
+  factory KycType.fromJson(Map<String, dynamic> json){
     return KycType(
       id: json["id"] ?? 0,
       kycType: json["kyc_type"] ?? "",
     );
   }
+
 }
 
 class Details {
@@ -222,6 +226,10 @@ class Details {
     required this.uploadRc,
     required this.pincode,
     required this.address1,
+    required this.fullAddress,
+    required this.addressName,
+    required this.city,
+    required this.state,
     required this.address2,
     required this.address3,
     required this.profileImageUrl,
@@ -266,6 +274,10 @@ class Details {
   final dynamic uploadRc;
   final String pincode;
   final dynamic address1;
+  final dynamic fullAddress;
+  final dynamic addressName;
+  final dynamic city;
+  final dynamic state;
   final dynamic address2;
   final dynamic address3;
   final dynamic profileImageUrl;
@@ -310,6 +322,10 @@ class Details {
     dynamic? uploadRc,
     String? pincode,
     dynamic? address1,
+    dynamic? fullAddress,
+    dynamic? addressName,
+    dynamic? city,
+    dynamic? state,
     dynamic? address2,
     dynamic? address3,
     dynamic? profileImageUrl,
@@ -354,6 +370,10 @@ class Details {
       uploadRc: uploadRc ?? this.uploadRc,
       pincode: pincode ?? this.pincode,
       address1: address1 ?? this.address1,
+      fullAddress: fullAddress ?? this.fullAddress,
+      addressName: addressName ?? this.addressName,
+      city: city ?? this.city,
+      state: state ?? this.state,
       address2: address2 ?? this.address2,
       address3: address3 ?? this.address3,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
@@ -365,7 +385,7 @@ class Details {
     );
   }
 
-  factory Details.fromJson(Map<String, dynamic> json) {
+  factory Details.fromJson(Map<String, dynamic> json){
     return Details(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
@@ -401,6 +421,10 @@ class Details {
       uploadRc: json["uploadRc"],
       pincode: json["pincode"] ?? "",
       address1: json["address1"],
+      fullAddress: json["fullAddress"],
+      addressName: json["addressName"],
+      city: json["city"],
+      state: json["state"],
       address2: json["address2"],
       address3: json["address3"],
       profileImageUrl: json["profileImageUrl"],
@@ -411,4 +435,5 @@ class Details {
       detailsCompanyTypeId: json["company_type_id"] ?? 0,
     );
   }
+
 }
