@@ -46,6 +46,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
       decoration: commonContainerDecoration(
         borderColor: AppColors.primaryColor,
         borderWidth: 1,
+        color: AppColors.blackishWhite,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

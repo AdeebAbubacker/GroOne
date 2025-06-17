@@ -37,6 +37,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
       decoration: commonContainerDecoration(
         borderColor: AppColors.primaryColor,
         borderWidth: 1,
+        color: AppColors.blackishWhite,
       ),
       child: Column(
         children: [
@@ -52,10 +53,10 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('GD 34567', style: AppTextStyle.h5),
-                  Text(
-                    'TN 04 Y 2344',
-                    style: AppTextStyle.textDarkGreyColor14w500,
-                  ),
+                  // Text(
+                  //   'TN 04 Y 2344',
+                  //   style: AppTextStyle.textDarkGreyColor14w500,
+                  // ),
                   Text(
                     formatDateTimeKavach(widget.data.dueDate!.toString()),
                     style: AppTextStyle.primaryColor12w400,

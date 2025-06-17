@@ -191,7 +191,7 @@ class AppTextStyle {
   // H6
   static TextStyle h6 = GoogleFonts.ubuntu(fontWeight: FontWeight.w600, color: AppColors.primaryTextColor, fontSize: 12);
   static TextStyle h6GreyColor = h6.copyWith(color: AppColors.greyTextColor);
-  static TextStyle h6WhiteColor = h6.copyWith(color: Colors.white);
+  static TextStyle h6WhiteColor = h6.copyWith(color: Colors.white,fontSize: 12);
   static TextStyle h6PrimaryColor = h6.copyWith(color: AppColors.primaryColor);
 
   /// --- Body ---

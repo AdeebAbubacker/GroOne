@@ -44,6 +44,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
       decoration: commonContainerDecoration(
         borderColor: AppColors.primaryColor,
+        color: AppColors.blackishWhite,
         borderWidth: 1,
       ),
       child: Column(
@@ -60,10 +61,10 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('GD 34567', style: AppTextStyle.h5),
-                  Text(
-                    'TN 04 Y 2344',
-                    style: AppTextStyle.textDarkGreyColor14w500,
-                  ),
+                  // Text(
+                  //   'TN 04 Y 2344',
+                  //   style: AppTextStyle.textDarkGreyColor14w500,
+                  // ),
                   Text(
                     formatDateTimeKavach(widget.data.dueDate!.toString()),
                     style: AppTextStyle.primaryColor12w400,
