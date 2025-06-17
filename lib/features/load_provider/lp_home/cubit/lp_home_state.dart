@@ -15,8 +15,8 @@ class LPHomeState extends Equatable {
   final UIState<VerifyLocationModel>? verifyLocationUIState;
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
   final bool showSuccessKyc;
-  final DestinationModel? destination;
-  final PickUpModel? pickup;
+  final UIState<DestinationModel>? destination;
+  final UIState<PickUpModel>? pickup;
   final num? locationId;
   final num? laneId;
   const LPHomeState({
@@ -39,8 +39,8 @@ class LPHomeState extends Equatable {
     UIState<VerifyLocationModel>? verifyLocationUIState,
     UIState<RateDiscoveryModel>? rateDiscoveryUIState,
     bool? showSuccessKyc,
-    DestinationModel? destination,
-    PickUpModel? pickup,
+    UIState<DestinationModel>? destination,
+    UIState<PickUpModel>? pickup,
     num? locationId,
     num? laneId,
   }) {

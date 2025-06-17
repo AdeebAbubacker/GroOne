@@ -5,6 +5,11 @@ import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
+import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
 
 import '../../../data/model/result.dart';
@@ -78,12 +83,61 @@ class KycRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-  Future<Result<UploadFileModel>> getUploadData(File file) async {
+
+
+  /// Upload GST Repo
+  Future<Result<UploadGSTDocumentModel>> getUploadGstData(File file) async {
     try {
-      return await _kycService.fetchUploadFileData(file);
+      return await _kycService.fetchUploadGstData(file);
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload rc truck data", e);
+      CustomLog.error(this, "Failed to get upload document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+
+  /// Upload TAN Repo
+  Future<Result<UploadTANDocumentModel>> getUploadTanData(File file) async {
+    try {
+      return await _kycService.fetchUploadTanData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Upload PAN Repo
+  Future<Result<UploadPANDocumentModel>> getUploadPanData(File file) async {
+    try {
+      return await _kycService.fetchUploadPanData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Upload TDS Repo
+  Future<Result<UploadTDSDocumentModel>> getUploadTdsData(File file) async {
+    try {
+      return await _kycService.fetchUploadTdsData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Upload Cancelled Repo
+  Future<Result<UploadCancelledCheckedDocumentModel>> getUploadCancelledCheckedData(File file) async {
+    try {
+      return await _kycService.fetchUploadCancelledCheckedData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 }

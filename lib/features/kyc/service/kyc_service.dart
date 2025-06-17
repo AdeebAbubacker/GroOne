@@ -2,9 +2,15 @@ import 'dart:io';
 
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
+import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
+import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
 
 import '../../../data/model/result.dart';
@@ -106,23 +112,95 @@ class KycService {
     }
   }
 
-  // Fetch Upload File
-  Future<Result<UploadFileModel>> fetchUploadFileData(File files) async {
+  // Fetch Upload  Gst File
+  Future<Result<UploadGSTDocumentModel>> fetchUploadGstData(File file) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, files, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file");
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> UploadFileModel.fromJson(data));
+        return await _apiService.getResponseStatus(result.value, (data) => UploadGSTDocumentModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
+
+  // Fetch Upload Pan File
+  Future<Result<UploadPANDocumentModel>> fetchUploadPanData(File file) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(url, file, pathName: "file");
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => UploadPANDocumentModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  // Fetch Upload tds File
+  Future<Result<UploadTDSDocumentModel>> fetchUploadTdsData(File file) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(url, file, pathName: "file");
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => UploadTDSDocumentModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  // Fetch Upload Cancelled Check File
+  Future<Result<UploadCancelledCheckedDocumentModel>> fetchUploadCancelledCheckedData(File file) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(url, file, pathName: "file");
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => UploadCancelledCheckedDocumentModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+  // Fetch Upload Tan File
+  Future<Result<UploadTANDocumentModel>> fetchUploadTanData(File file) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(url, file, pathName: "file");
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => UploadTANDocumentModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
 
 
   //submit KYC form

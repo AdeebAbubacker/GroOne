@@ -114,7 +114,7 @@ class ErrorTypeMsg {
   final String loginAttemptError = "Login attempt unsuccessful, Please try again later";
   final String noInternetConnection = "No internet connection.";
   final String networkError = "Your internet not working,\n Please try again later.";
-  final String notFound = "No record found, Please try again later.";
+  final String notFound = "No record found.";
   final String genericError = "Something went wrong!!";
   final String conflictError = "Oops! It seems there's a conflict";
   final String deserializationError = "Oops! Deserialization Error,\n Something went wrong while loading the data."; // Deserialization (JSON/String → Object)

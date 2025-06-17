@@ -59,7 +59,7 @@ class _LPTruckTypeDropdownState extends State<LPTruckTypeDropdown> {
               children: [
                 SvgPicture.asset(widget.preFixIcon),
                 10.width,
-                Text(widget.selectedText ?? widget.hintText, style: AppTextStyle.body).expand(),
+                Text(widget.selectedText ?? widget.hintText, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
                 Icon(Icons.keyboard_arrow_down, color: AppColors.greyIconColor, size: 20),
               ],
             ),

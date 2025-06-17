@@ -93,7 +93,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                     15.width,
 
                     _buildServicesWidget(
-                      title: context.appText.buyFastTag,
+                      title: "Fast tag",
                       imageString: AppImage.png.buyFastTag,
                       onClick: () {
                         context.push(AppRouteName.buyFastag);

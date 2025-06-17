@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: MediaQuery.of(context).size.height * 0.075),
               Image.asset(AppImage.png.signUpBanner).align(Alignment.bottomCenter),
             ],
-          ).withScroll(physics: NeverScrollableScrollPhysics());
+          ).withScroll();
         },
       ),
     );

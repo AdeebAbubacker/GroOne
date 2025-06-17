@@ -66,7 +66,6 @@ class HomeScreenLoadProvider extends StatefulWidget {
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
-  late VideoPlayerController _controller;
   ProfileDetailModel? profileResponse;
   LpGetLoadModel? getLoadResponse;
 
@@ -114,7 +113,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   @override
   void initState() {
-    initializeVideoPlayer(context);
     initFunction();
     super.initState();
   }
@@ -122,8 +120,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   @override
   void dispose() {
     disposeFunction(context);
-    _controller.removeListener(() {});
-    _controller.dispose();
     super.dispose();
   }
 
@@ -137,6 +133,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     lpHomeCubit.fetchRecentRoute();
     await lpHomeCubit.startKycSuccessTimer();
     lpHomeCubit.fetchRecentRoute();
+    clearAllValues();
   });
 
   void disposeFunction(BuildContext context) => frameCallback(() {
@@ -154,7 +151,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     commonHideKeyboard(context);
   });
 
-  void clearAllValues(BuildContext context){
+  void clearAllValues(){
     dateTimeTextController.clear();
     weightTextController.clear();
     lpHomeCubit.clearPickUpAndDestination();
@@ -167,24 +164,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     rateDiscoveryPrice = null;
     truckType = null;
     truckLength = null;
-    commonHideKeyboard(context);
+    lpHomeCubit.state.copyWith(destination: null);
+    lpHomeCubit.state.copyWith(pickup: null);
+    CustomLog.debug(this, "Clear All Values");
     setState(() {});
-  }
-
-
-  void initializeVideoPlayer(BuildContext context){
-    _controller = VideoPlayerController.asset(AppVideo.kycBlinking)
-      ..initialize().then((_) {
-        if (mounted) {
-          _controller.play();
-          setState(() {});
-        }
-      });
-    _controller.addListener(() {
-      if (_controller.value.position == _controller.value.duration && _controller.value.isInitialized && mounted) {
-        setState((){});
-      }
-    });
   }
 
 
@@ -198,8 +181,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   // For Get Rate Discovery validation
   bool isFormValid() {
-    final pickup = lpHomeCubit.state.pickup;
-    final destination = lpHomeCubit.state.destination;
+    final pickup = lpHomeCubit.state.pickup?.data;
+    final destination = lpHomeCubit.state.destination?.data;
     bool checkAllField = pickup != null &&
         destination != null &&
         commodityId != null &&
@@ -242,10 +225,21 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-  Future<void> fetchRateDiscovery(String laneId) async {
-    if (!isFormValid()) return;
+  Future<void> fetchRateDiscovery() async {
+    CustomLog.debug(this, "Fetch Rate Discovery - Form Valid : ${isFormValid()}");
+    if (!isFormValid()) {
+      CustomLog.debug(this, "All Fields are not valid");
+      return;
+    }
+
+    if (lpHomeCubit.state.laneId == null){
+      ToastMessages.error(message: "Something went wrong, Land Id is null");
+      CustomLog.debug(this, "Land Id is null");
+      return;
+    }
+
     final req = RateDiscoveryApiRequest(
-      laneId: laneId,
+      laneId: lpHomeCubit.state.laneId.toString(),
       truckTypeId: truckTypeId ?? "",
       commodityId: commodityId,
       weightId: '1',
@@ -254,11 +248,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     if (lpHomeCubit.state.rateDiscoveryUIState != null) {
       Status? status = lpHomeCubit.state.rateDiscoveryUIState!.status;
       if (status != null) {
-         if (status == Status.SUCCESS) {
-           if (lpHomeCubit.state.rateDiscoveryUIState!.data != null  && lpHomeCubit.state.rateDiscoveryUIState!.data!.data != null) {
-             // lpHomeCubit.setLaneId(lpHomeCubit.state.rateDiscoveryUIState!.data!.data!.id);
-             // CustomLog.debug(this, "Save Lane Id : ${lpHomeCubit.state.laneId}");
-           }
+         if (status == Status.ERROR) {
+           final error = lpHomeCubit.state.rateDiscoveryUIState?.errorType;
+           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
          }
       }
     }
@@ -275,22 +267,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     }
 
     // 3 Complete KYC | 2 In Progress kyc | 1 Pending Kyc
-    if (profileResponse!.data!.customer!.isKyc == 3) {
-      kycBottomSheet(context);
-      return;
-    }
+    // if (profileResponse!.data!.customer!.isKyc != 3) {
+    //   kycBottomSheet(context);
+    //   return;
+    // }
 
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
         customerId: int.parse(lpHomeBloc.userId.toString()),
         commodityId: int.parse(commodityId ?? "0"),
         truckTypeId: int.parse(truckTypeId ?? "0"),
-        pickUpAddr:  lpHomeCubit.state.pickup?.address ?? "",
-        pickUpLocation:  lpHomeCubit.state.pickup?.location ?? "",
-        pickUpLatlon:   lpHomeCubit.state.pickup?.latLng ??"",
-        dropAddr:   lpHomeCubit.state.destination?.address ?? "",
-        dropLocation:   lpHomeCubit.state.destination?.location ?? "",
-        dropLatlon:  lpHomeCubit.state. destination?.latLng ??"",
+        pickUpAddr:  lpHomeCubit.state.pickup?.data?.address ?? "",
+        pickUpLocation:  lpHomeCubit.state.pickup?.data?.location ?? "",
+        pickUpLatlon:   lpHomeCubit.state.pickup?.data?.latLng ??"",
+        dropAddr:   lpHomeCubit.state.destination?.data?.address ?? "",
+        dropLocation:   lpHomeCubit.state.destination?.data?.location ?? "",
+        dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
         dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
         consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
         rate: rateDiscoveryPrice ?? "0000 - 0000",
@@ -300,10 +292,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     // Pass Data in to next page
     Navigator.push(context, commonRoute(LoadSummaryScreen(
       apiRequest: request,
-      pickupAddress:  lpHomeCubit.state.pickup?.address ?? "",
-      pickupLocation: lpHomeCubit.state.pickup?.location ?? "",
-      destinationAddress:  lpHomeCubit.state.destination?.address ?? "",
-      destinationLocation: lpHomeCubit.state.destination?.location ?? "",
+      pickupAddress:  lpHomeCubit.state.pickup?.data?.address ?? "",
+      pickupLocation: lpHomeCubit.state.pickup?.data?.location ?? "",
+      destinationAddress:  lpHomeCubit.state.destination?.data?.address ?? "",
+      destinationLocation: lpHomeCubit.state.destination?.data?.location ?? "",
       vehicleType: truckType ?? "",
       vehicleLength: truckLength ?? "",
       approxWeight: weightTextController.text,
@@ -314,7 +306,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
       if(onValue != null && onValue == true){
         if(!context.mounted) return;
-        clearAllValues(context);
+        clearAllValues();
       }
     });
 
@@ -386,7 +378,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc == 3) {
                   if (state.showSuccessKyc) {
                     return kycWidget(
-                      controller: _controller,
                       onTap: () {
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                       },
@@ -396,7 +387,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   }
                 } else {
                   return kycWidget(
-                    controller: _controller,
                     onTap: () {
                       commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                     },
@@ -475,6 +465,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 children: [
                   10.height,
 
+                  // Kyc Status Label
                   BlocProvider<LPHomeCubit>.value(
                     value: locator<LPHomeCubit>(), // singleton from locator
                     child: BlocConsumer<LPHomeCubit, LPHomeState>(
@@ -499,11 +490,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     ),
                   ),
                   20.height,
+
                   OurValueAddedServicesWidget(),
                   20.height,
 
                   bookShipmentSectionWidget(context),
                   20.height,
+
                   buildUpComingShipmentListWidget(),
                   20.height,
                 ],
@@ -544,43 +537,38 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 BlocConsumer<LPHomeCubit, LPHomeState>(
                   bloc: lpHomeCubit,
                   listener: (context, state){
-                    print("state.pickup");
-                    print(state.pickup);
+
                   },
                   builder: (context, state){
+                    String? pickupLocation;
+                    String? destinationLocation;
+
+                    if (state.pickup?.status == Status.SUCCESS && state.pickup?.data != null){
+                      pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
+                    }
+
+
+                    if (state.destination?.status == Status.SUCCESS && state.destination?.data != null){
+                        destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
+                    }
+
                     return Column(
                       children: [
 
                         // Source (Pick Up)
                         BookShipmentWidget(
                           heading: context.appText.source,
-                          subHeading: state.pickup != null
-                              ? ("${state.pickup!.location!.isNotEmpty ? "${state.pickup!.location.capitalize}, " : ""}${state.pickup!.address.toString().capitalize}")
-                              :  context.appText.selectPickUpPoint,
+                          subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
                           onClick: () {
-
                             if (state.recentRouteUIState?.data != null){
                               if (state.recentRouteUIState!.data!.data.isNotEmpty) {
-                                Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue) async {
-                                  if(onValue != null && onValue == true){
-                                    debugPrint("Pick up : ${state.pickup.toString()}");
-                                    if (state.destination?.laneId != null){
-                                      await fetchRateDiscovery(state.destination!.laneId.toString());
-                                    } else {
-                                      CustomLog.debug(this, "Destination lane id is null");
-                                    }
-                                    setState(() {});
-                                  }
-                                });
-                              } else {
-                                Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.address, location: state.pickup?.location), isForward: true)).then((onValue){
-                                  if(onValue != null && onValue == true){
-                                    debugPrint("Pick up: ${state.pickup.toString()}");
-                                  }
-                                  setState(() {});
-                                });
+                                Navigator.of(context).push(createRoute(RecentRouteScreen()));
                               }
                             }
+                            Navigator.of(context).push(createRoute(RecentRouteScreen()));
+
+                          //  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup!.data?.address, location: state.pickup!.data?.location), isForward: true));
+
                           },
                         ),
 
@@ -589,19 +577,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         // Destination
                         BookShipmentWidget(
                           heading: context.appText.destination,
-                          subHeading: state.destination != null
-                              ? ("${state.destination!.location!.isNotEmpty ? "${state.destination?.location.capitalize}, " : ""}${state.destination?.address.toString().capitalize}")
-                              :  context.appText.selectDestination,
+                          subHeading: destinationLocation ?? context.appText.selectDestination,
                           onClick: () {
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination?.address, location: state.destination?.location), isForward: true)).then((onValue) async {
+                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
                               if(onValue != null && onValue == true){
                                  debugPrint("Destination: ${state.destination.toString()}");
-                                 if (state.destination?.laneId != null){
-                                   await fetchRateDiscovery(state.destination!.laneId.toString());
-                                   lpHomeCubit.clearPickUpAndDestination();
-                                 } else {
-                                   CustomLog.debug(this, "Destination lane id is null");
-                                 }
                               } else {
                                 lpHomeCubit.setDestination(null);
                               }
@@ -657,17 +637,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             onSelect:  (index) async {
                               selectedCommodity = commodities[index].name;
                               commodityId = commodities[index].id.toString();
+                              fetchRateDiscovery();
                               setState(() {});
                             },
                           )));
                         },
-                      ).paddingBottom(10);
+                      ).paddingOnly(right: 10).expand();
                     }
-                    return const SizedBox();
+                    return Container();
                   },
                 ),
-              ).expand(),
-              10.width,
+              ),
+
 
               // Consignment weight (MT)
               Container(
@@ -703,6 +684,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
             ],
           ),
+          10.height,
 
 
           Row(
@@ -724,7 +706,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       final truckTypesList = state.loadTruckTypeListModel.data;
                       return LPTruckTypeDropdown(
                         preFixIcon: AppIcons.svg.truck,
-                        hintText: hintTruck,
+                        hintText: "Truck Type",
                         onSelect: (TruckTypeData truck) async {
                           selectedTruck = "${truck.type} ${truck.subType}";
                           truckTypeId = truck.id.toString();
@@ -742,18 +724,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               truckTypeId = truck.id.toString();
                               truckType = truck.type;
                               truckLength = truck.subType;
+                              fetchRateDiscovery();
                               setState(() {});
                             },
                           )));
-                          setState(() {});
                         },
-                      );
+                      ).paddingOnly(right: 10).expand();
                     }
                     return const SizedBox();
                   },
                 ),
-              ).expand(),
-              10.width,
+              ),
 
               // Date and Time
               InkWell(
@@ -769,10 +750,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   final String? time = await commonTimePicker(context);
 
                   if (date != null && time != null) {
-                    dateTimeTextController.text = "$date - $time";
+                    dateTimeTextController.text = "$date";
                     selectedDate = date;
                     selectedTime = time;
                   }
+                  fetchRateDiscovery();
                   setState(() {});
                 },
                 child: Container(
@@ -784,7 +766,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor)),
                       10.width,
 
-                      Text(dateTimeTextController.text.isEmpty ? context.appText.dateAndTime : dateTimeTextController.text, style: AppTextStyle.body3).expand(),
+                      Text(dateTimeTextController.text.isEmpty ? "Pick-up date" : dateTimeTextController.text, style: AppTextStyle.body3, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
                     ],
                   ),
                 ),
@@ -857,7 +839,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             listenWhen: (previous, current) => previous != current,
                             listener: (context, state) {
                               if (state is CreateLoadSuccess) {
-                                clearAllValues(context);
                               }
                             },
                             builder: (context, state) {
@@ -883,17 +864,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               }
             }
           ),
-          20.height,
-
-
-          // Need Support Next
-          TextButton(
-            onPressed: (){
-              commonSupportDialog(context);
-            },
-            child: Text("Need Our Customer Support Help?",style: AppTextStyle.h5PrimaryColor),
-          ).align(Alignment.center),
-
 
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),

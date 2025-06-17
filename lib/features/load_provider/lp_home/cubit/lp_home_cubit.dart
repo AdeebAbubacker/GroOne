@@ -25,14 +25,21 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     emit(state.copyWith(showSuccessKyc: false));
   }
 
+  // Set Destination
   void setDestination(DestinationModel? destination) {
-    emit(state.copyWith(destination: destination));
+    emit(state.copyWith(
+      destination: destination != null ? UIState.success(destination) : UIState.initial(),
+    ));
   }
 
+  // Set Pick up
   void setPickup(PickUpModel? pickup) {
-    emit(state.copyWith(pickup: pickup));
+    emit(state.copyWith(
+      pickup: pickup != null ? UIState.success(pickup) : UIState.initial(),
+    ));
   }
 
+  // Clear Pickup & Destination
   void clearPickUpAndDestination() {
     emit(state.copyWith(
       pickup: null,
@@ -42,10 +49,13 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     ));
   }
 
+
+  // Set Location Id
   void setLocationDetailId(num? id){
     emit(state.copyWith(locationId: id ?? 0));
   }
 
+  // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
   }
@@ -133,12 +143,14 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
 
+  // Reset Auto Complete UI State
   void resetAutoCompleteState(){
     emit(state.copyWith(autoCompleteUIState: resetUIState<AutoCompleteModel>(state.autoCompleteUIState)));
   }
 
 
-  // Reset UI
+
+  // Reset Complete UI State
   void resetState(){
     emit(state.copyWith(
       recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteUIState),

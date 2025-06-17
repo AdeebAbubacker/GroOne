@@ -85,6 +85,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "dropAddr": dropAddr,
     "dropLatlon": dropLatlon,
     "dueDate": dueDate,
+    "pickUpDateTime": dueDate,
     "consignmentWeight": consignmentWeight,
     "notes": note,
     "rate": rate,

@@ -82,6 +82,12 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    lpHomeCubit.resetAutoCompleteState();
+    super.dispose();
+  }
+
 
   void printPrettyJson(dynamic data) {
     const encoder = JsonEncoder.withIndent('  ');
@@ -124,46 +130,46 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     });
     _setMarker(latLng);
   }
-
-  Future<void> _fetchSuggestions(String input) async {
-    final url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${Uri.encodeComponent(input)}&key=$_apiKey&language=en';
-    final response = await http.get(Uri.parse(url));
-    final data = json.decode(response.body);
-
-    if (data['status'] == 'OK') {
-      setState(() {
-        suggestions = data['predictions'];
-      });
-      printPrettyJson(suggestions);
-    } else {
-      setState(() => suggestions = []);
-    }
-  }
-
-  Future<void> _onSuggestionTap(String placeId, String description) async {
-    debugPrint('Place tapped: $description - $placeId');
-    final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
-    final response = await http.get(Uri.parse(url));
-    final data = json.decode(response.body);
-
-    if (data['status'] == 'OK') {
-      final location = data['result']['geometry']['location'];
-      final latLng = LatLng(location['lat'], location['lng']);
-      final formattedAddress = data['result']['formatted_address'];
-
-      setState(() {
-        _centerLatLng = latLng;
-        latLngData = "${latLng.latitude},${latLng.longitude}";
-        _locationField = formattedAddress;
-        searchTextController.text = description;
-        suggestions.clear();
-      });
-      if (_mapController != null) {
-        await MapHelper.animateTo(_mapController!, latLng);
-      }
-      _setMarker(latLng);
-    }
-  }
+  //
+  // Future<void> _fetchSuggestions(String input) async {
+  //   final url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${Uri.encodeComponent(input)}&key=$_apiKey&language=en';
+  //   final response = await http.get(Uri.parse(url));
+  //   final data = json.decode(response.body);
+  //
+  //   if (data['status'] == 'OK') {
+  //     setState(() {
+  //       suggestions = data['predictions'];
+  //     });
+  //     printPrettyJson(suggestions);
+  //   } else {
+  //     setState(() => suggestions = []);
+  //   }
+  // }
+  //
+  // Future<void> _onSuggestionTap(String placeId, String description) async {
+  //   debugPrint('Place tapped: $description - $placeId');
+  //   final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
+  //   final response = await http.get(Uri.parse(url));
+  //   final data = json.decode(response.body);
+  //
+  //   if (data['status'] == 'OK') {
+  //     final location = data['result']['geometry']['location'];
+  //     final latLng = LatLng(location['lat'], location['lng']);
+  //     final formattedAddress = data['result']['formatted_address'];
+  //
+  //     setState(() {
+  //       _centerLatLng = latLng;
+  //       latLngData = "${latLng.latitude},${latLng.longitude}";
+  //       _locationField = formattedAddress;
+  //       searchTextController.text = description;
+  //       suggestions.clear();
+  //     });
+  //     if (_mapController != null) {
+  //       await MapHelper.animateTo(_mapController!, latLng);
+  //     }
+  //     _setMarker(latLng);
+  //   }
+  // }
 
   void _onCameraMove(CameraPosition position) {
     setState(() {
@@ -173,6 +179,16 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     _updateAddress(position.target);
   }
 
+
+
+
+  LatLng? getLatLngFromGMapResponse(dynamic data) {
+    final location = data?.gMapResponse?.result?.geometry?.location;
+    if (location?.lat != null && location?.lng != null) {
+      return LatLng(location!.lat.toDouble(), location.lng.toDouble());
+    }
+    return null;
+  }
 
 
   // Verify Location api call
@@ -187,13 +203,20 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       if(status == Status.SUCCESS){
         final data = lpHomeCubit.state.verifyLocationUIState?.data?.data;
         if(data != null && data.locationdetails != null){
+          LatLng? latLng = getLatLngFromGMapResponse(data);
+          if (latLng != null) {
+            if (_mapController != null) {
+              await MapHelper.animateTo(_mapController!, latLng);
+            }
+            _setMarker(latLng);
+          }
           searchTextController.text = locationDetails.name;
           lpHomeCubit.setLocationDetailId(data.locationdetails!.id);
           if(data.lane != null){
             lpHomeCubit.setLaneId(data.lane?.id);
+            CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
           }
           lpHomeCubit.resetAutoCompleteState();
-          CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
         }
       }
       if(status == Status.ERROR){
@@ -329,7 +352,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
           }
       ),
       onChanged: (value) {
-        if (value.isNotEmpty) {
+        if (value.isNotEmpty && value.length > 3) {
           lpHomeCubit.fetchAutoComplete(value);
         } else {
           lpHomeCubit.resetAutoCompleteState();
@@ -355,7 +378,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         if(state.autoCompleteUIState != null && state.autoCompleteUIState!.status == Status.SUCCESS){
           if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.data!.predictions.isNotEmpty){
             return  ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 200),
+              constraints: BoxConstraints(maxHeight: state.autoCompleteUIState!.data!.data!.predictions.isEmpty ? 200  : 200 ),
               child: Container(
                 decoration: commonContainerDecoration(shadow: true),
                 child: ListView.builder(
@@ -372,7 +395,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                             slug: item.description.toLowerCase(),
                         );
                         await verifyLocationApiCall(context: context, placeId: item.placeId, locationDetails: locationDetails);
-                       // _onSuggestionTap(item.placeId, item.description);
+
                       },
                     );
                   },
@@ -400,10 +423,11 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         debugPrint("title ${widget.title}");
         debugPrint("locationAddress $locationAddress");
 
-        if (addressTextController.text.isEmpty) {
-          _showError("Please provide a address");
+        if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
+          _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
           return;
         }
+
         if (!isValid){
           _showError("Please select a valid location address.");
           return;

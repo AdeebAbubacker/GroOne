@@ -95,7 +95,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (data.data?.user?.role == 1) {
 
       if (tempFlag) {
-        context.push(AppRouteName.lpCreateAccount, extra: {"userId": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber});
+        context.push(AppRouteName.lpCreateAccount, extra: {"userId": data.data!.user!.id.toString(),"mobileNumber":widget.mobileNumber, "roleId":widget.roleId});
       } else {
         AppDialog.show(
             context,

@@ -154,8 +154,9 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final String id = data["userId"];
+          final String roleId = data["roleId"];
           final String mobileNumber = data["mobileNumber"];
-          return LpCreateAccount(userId: id, mobileNumber: mobileNumber);
+          return LpCreateAccount(userId: id, mobileNumber: mobileNumber, roleId: roleId);
         },
       ),
 
