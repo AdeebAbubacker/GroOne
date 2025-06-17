@@ -34,6 +34,14 @@ class AppButtonStyle {
       shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
   );
 
+  //see all
+  static ButtonStyle primaryTextButtonSmall = primary.copyWith(
+      elevation: WidgetStateProperty.all(0),
+      padding: WidgetStateProperty.all(EdgeInsets.zero),
+      minimumSize: WidgetStateProperty.all(const Size(80, 10)),
+      shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
+  );
+
   /// Secondary
   static ButtonStyle secondary = ElevatedButton.styleFrom(
       enableFeedback: true,

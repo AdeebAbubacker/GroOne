@@ -131,7 +131,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                   padding: EdgeInsets.only(top: 8.0),
                   child: Icon(CupertinoIcons.cube),
                 ),
-                label: context.appText.loads,
+                label: context.appText.myLoads,
               ),
               BottomNavigationBarItem(
                 icon: Padding(

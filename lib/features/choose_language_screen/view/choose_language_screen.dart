@@ -13,9 +13,12 @@ import '../../../core/localization_bloc/localization_bloc.dart';
 import '../../../core/localization_bloc/localization_event.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
+import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_string.dart';
+import '../../../utils/common_functions.dart';
+import '../../../utils/extra_utils.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
   const ChooseLanguageScreen({super.key, this.isCloseButton = false});
@@ -36,6 +39,21 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0.0,
+        isLeading: false,
+        actions: [
+          customerSupportWidget(
+            onTap: () {
+              commonSupportDialog(context);
+            },
+          ),
+          20.width,
+          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          30.width,
+        ],
+      ),
       body: SafeArea(
         minimum: EdgeInsets.all(commonSafeAreaPadding),
         child: BlocBuilder<LanguageBloc, LanguageState>(
@@ -43,30 +61,30 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                30.height,
-
-                // App bar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if(widget.isCloseButton)
-                      IconButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        icon: Icon(Icons.clear),
-                      )
-                    else
-                      10.width,
-
-                    Image.asset(
-                      AppImage.png.appIcon,
-                      width: 74.25.w,
-                      height: 33.h,
-                    ),
-                  ],
-                ),
-                30.height,
+                // 30.height,
+                //
+                // // App bar
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     if(widget.isCloseButton)
+                //       IconButton(
+                //         onPressed: () {
+                //           context.pop();
+                //         },
+                //         icon: Icon(Icons.clear),
+                //       )
+                //     else
+                //       10.width,
+                //
+                //     Image.asset(
+                //       AppImage.png.appIcon,
+                //       width: 74.25.w,
+                //       height: 33.h,
+                //     ),
+                //   ],
+                // ),
+                20.height,
                 RichText(
                   text: TextSpan(
                     children: [

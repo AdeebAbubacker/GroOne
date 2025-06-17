@@ -37,6 +37,8 @@ class VpAllLoadsScreen extends StatefulWidget {
 class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _tabScrollController = ScrollController();
+
 
   String profileImage = "";
   final searchController = TextEditingController();
@@ -58,6 +60,9 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
       if (_tabController.indexIsChanging) {
         _loadDataByTab(index: _tabController.index);
       }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tabScrollController.jumpTo(50); // or .animateTo(...) for animation
     });
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
   }
@@ -92,43 +97,56 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
         child: Column(
           children: [
             10.height,
-            TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              indicator: const BoxDecoration(),
-              // remove default indicator
-              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-              tabs: List.generate(4, (index) {
-                final tabLabels = [
-                  'Available Loads',
-                  'My Loads',
-                  'Confirmed',
-                  'Assigned',
-                ];
-                final isSelected = _tabController.index == index;
-                return Tab(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected
-                              ? AppColors.primaryColor
-                              : const Color(0xFFEFEFEF),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      tabLabels[index],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.w500,
+            Container(
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
+              margin: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _tabScrollController,
+                child: TabBar(
+                  controller: _tabController,
+                  dividerHeight: 0,
+                  isScrollable: true,
+                  indicator: const BoxDecoration(),
+                  // remove default indicator
+                  // labelPadding: const EdgeInsets.symmetric(horizontal: 5),
+                  labelPadding: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                  tabs: List.generate(4, (index) {
+                    final tabLabels = [
+                      'Available Loads',
+                      'My Loads',
+                      'Confirmed',
+                      'Assigned',
+                    ];
+                    final isSelected = _tabController.index == index;
+                    return Tab(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected
+                                  ? AppColors.primaryColor
+                                  : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          tabLabels[index],
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }),
+                    );
+                  }),
+                ),
+              ),
             ),
             buildSearchBarAndFilterWidget(context),
             Expanded(

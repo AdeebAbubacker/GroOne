@@ -48,6 +48,7 @@ class AppColors {
   static const Color greyIconBackgroundColor = Color(0xffe3e3e8);
   static const Color lightGreyIconColor = Colors.black26;
   static final Color lightGreyIconBackgroundColor = Colors.grey.shade100;
+  static final Color lightGreyBackgroundColor = Color(0xfff3f3f3);
   static const Color greyIconColor = Colors.black38;
 
   // Activity Color

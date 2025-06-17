@@ -228,11 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-
-              SizedBox(height: MediaQuery.of(context).size.height * 0.075),
-              Image.asset(AppImage.png.signUpBanner).align(Alignment.bottomCenter),
+              Container().expand(flex: 2),
+              Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth).expand(flex: 3),
+              20.height,
             ],
-          ).withScroll(physics: NeverScrollableScrollPhysics());
+          );
         },
       ),
     );

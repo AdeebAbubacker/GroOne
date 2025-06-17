@@ -49,17 +49,16 @@ class ChooseRoleScreen extends StatelessWidget {
           30.width,
         ],
       ),
+      bottomSheet: Container(color: AppColors.white,child: Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).paddingBottom(25)),
       body: BlocBuilder<RoleBloc, RoleState>(
         builder: (context, state) {
           return Padding(
             padding: EdgeInsets.all(commonSafeAreaPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               spacing: 10.h,
               children: [
-                30.height,
-
+                20.height,
                 Text(
                   context.appText.chooseRoleText,
                   style: AppTextStyle.textBlackColors20w400,
@@ -100,8 +99,7 @@ class ChooseRoleScreen extends StatelessWidget {
                   },
                   imageString: AppImage.png.fleet,
                 ),
-                50.height,
-
+                30.height,
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
@@ -109,9 +107,9 @@ class ChooseRoleScreen extends StatelessWidget {
                   },
                 ),
 
-                50.height,
+                // 50.height,
 
-                Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center(),
+                // Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center(),
                // Center(child: Image.asset(AppImage.png.hinduja)),
               ],
             ),
