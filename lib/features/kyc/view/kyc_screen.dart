@@ -20,9 +20,12 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -398,6 +401,22 @@ class _KycScreenState extends State<KycScreen> {
 
 
 
+  // Navigate to home screen when kyc is done
+  void navigateToHomeScreen(BuildContext context) => frameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: "KYC submitted for verification",
+        heading: "Will get back to you within 48 hours.",
+        onContinue: (){
+          Navigator.of(context).pop(true);
+        },
+      ),
+    );
+  });
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -659,7 +678,7 @@ class _KycScreenState extends State<KycScreen> {
         listener:  (context, state) async {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
-            Navigator.pop(context);
+            navigateToHomeScreen(context);
           }
           if (status == Status.ERROR) {
             final error = state.submitKycState?.errorType;

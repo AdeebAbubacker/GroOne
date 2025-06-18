@@ -177,8 +177,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   String _getInitials(String name) {
     final parts = name.trim().split(' ');
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return parts.take(2).map((e) => e[0].toUpperCase()).join();
+    print("Parts : ${parts}");
+
+    if(parts.isNotEmpty){
+      if (parts.length == 1) return parts.first[0].toUpperCase();
+      return parts.take(2).map((e) => e[0].toUpperCase()).join();
+    } else {
+      return "";
+    }
+
   }
 
 
@@ -287,7 +294,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         dropLocation:   lpHomeCubit.state.destination?.data?.location ?? "",
         dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
         dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
-        consignmentWeight: int.parse(weightTextController.text.isEmpty ? "0" : weightTextController.text),
+        consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
         rate: rateDiscoveryPrice ?? "0000 - 0000",
         laneId: lpHomeCubit.state.laneId
     );
@@ -420,10 +427,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         width: 45,
                         alignment: Alignment.center,
                         decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
-                        child: Text(_getInitials(state.profileDetailResponse.data?.details?.companyName ?? ''),
+                        child: Text(''),
                     )
                 ).paddingRight(commonSafeAreaPadding),
-              ),
             ]);
             }
             return Container();
@@ -448,7 +454,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           listener: (context, state) {
             if (state is ProfileDetailSuccess) {
               profileResponse = state.profileDetailResponse;
-              profileImage = state.profileDetailResponse.data!.details!.profileImageUrl ?? "";
+              profileImage = state.profileDetailResponse.data?.details?.profileImageUrl ?? "";
               setState(() {});
             }
             if (state is ProfileDetailError) {
@@ -565,9 +571,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 Navigator.of(context).push(createRoute(RecentRouteScreen()));
                               }
                             }
-                            Navigator.of(context).push(createRoute(RecentRouteScreen()));
-
-                          //  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup!.data?.address, location: state.pickup!.data?.location), isForward: true));
+                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup!.data?.address, location: state.pickup!.data?.location), isForward: true));
 
                           },
                         ),
@@ -689,7 +693,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     final weights = state.loadWeightUIState?.data?.data;
                     return LPWeightDropdown(
                       preFixIcon: AppIcons.svg.kgWeight,
-                      hintText: "Consignment weight (MT)",
+                      hintText: "Weight  (MT)",
                       onSelect: (LoadWeightData weight) async {
                         weightTextController.text = weight.value.toString();
                         setState(() {});
@@ -927,6 +931,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
 
                     // See More
+                    if (getLoadResponse != null && getLoadResponse!.data.isNotEmpty)
                     TextButton(
                       onPressed: () {
                       },
