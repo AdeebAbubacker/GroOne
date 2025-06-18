@@ -109,9 +109,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     loadTruckTypeBloc.add(LoadTruckType());
     vpCreationBloc.add(GetTruckTypeEvent());
     vpCreationBloc.add(VpCompanyTypeEvent());
-
-    print("call company type");
-
+    verifyEmailCubit.resetState();
   });
 
   void disposeFunction() => frameCallback(() {
