@@ -25,6 +25,7 @@ class PngImages {
   final String document = "${_pngImageBasePath}document.png";
   final String doc = "${_pngImageBasePath}doc.png";
   final String truck = "${_pngImageBasePath}truck.png";
+  final String newTruck = "${_pngImageBasePath}new_truck.png";
   final String privacy = "${_pngImageBasePath}privacy.png";
   final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
   final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";
@@ -73,6 +74,7 @@ class PngImages {
 
   // App
   final String kavachProduct = "${_pngImageBasePath}kavach_product.png";
+  final String kavachNewProduct = "${_pngImageBasePath}kavach_new_product.png";
   final String kavachModel = "${_pngImageBasePath}kavach_model.png";
   final String groBanner = "${_pngImageBasePath}gro_banner.png";
 

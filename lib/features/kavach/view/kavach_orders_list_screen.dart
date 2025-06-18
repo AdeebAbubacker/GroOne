@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../dependency_injection/locator.dart';
@@ -69,17 +71,18 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
         builder: (context, state) {
           if (state is KavachOrderListLoading) {
             return Scaffold(
-              appBar: CommonAppBar(title: context.appText.kavach,
+              appBar: CommonAppBar(title: context.appText.tankLock,
                 actions: [
-                  AppIconButton(
-                    onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-                    icon: Icon(Icons.add, color: Colors.white),
-                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                  ),
+                  // AppIconButton(
+                  //   onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+                  //   icon: Icon(Icons.add, color: Colors.white),
+                  //   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                  // ),
                   AppIconButton(
                     onPressed: () {},
                     icon: AppIcons.svg.support,
-                    style: AppButtonStyle.circularIconButtonStyle,
+                    iconColor: AppColors.primaryButtonColor,
+                    //style: AppButtonStyle.circularIconButtonStyle,
                   ),
                   10.width,
                 ],),
@@ -87,18 +90,19 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
             );
           } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
             return Scaffold(
-              appBar: CommonAppBar(title: context.appText.kavach,
+              appBar: CommonAppBar(title: context.appText.tankLock,
                 actions: [
+                // AppIconButton(
+                //   onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+                //   icon: Icon(Icons.add, color: Colors.white),
+                //   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                // ),
                 AppIconButton(
-                  onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-                  icon: Icon(Icons.add, color: Colors.white),
-                  style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                ),
-                AppIconButton(
-                  onPressed: () {},
-                  icon: AppIcons.svg.support,
-                  style: AppButtonStyle.circularIconButtonStyle,
-                ),
+                    onPressed: () {},
+                    icon: AppIcons.svg.support,
+                    iconColor: AppColors.primaryButtonColor,
+                    //style: AppButtonStyle.circularIconButtonStyle,
+                  ),
                 10.width,
               ],),
               body: kavachBenifitsWidget(context),
@@ -134,15 +138,16 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
                   }),
                 ),
                 actions: [
-                  AppIconButton(
-                    onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-                    icon: Icon(Icons.add, color: Colors.white),
-                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                  ),
+                  // AppIconButton(
+                  //   onPressed: () => Navigator.of(context).push(commonRoute(KavachModelsScreen())),
+                  //   icon: Icon(Icons.add, color: Colors.white),
+                  //   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                  // ),
                   AppIconButton(
                     onPressed: () {},
                     icon: AppIcons.svg.support,
-                    style: AppButtonStyle.circularIconButtonStyle,
+                    iconColor: AppColors.primaryButtonColor,
+                    //style: AppButtonStyle.circularIconButtonStyle,
                   ),
                   10.width,
                 ],
@@ -168,11 +173,21 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         buildKavachProductImageWidget(),
+        6.height,
         buildKavachBenefitsDetailsWidget(context),
-        buildGroBannerImageWidget()
+        buildGroBannerImageWidget(),
+
+        AppButton(
+          title: "Get your Tank Lock Now",
+            onPressed: (){
+              Navigator.of(context).push(
+              commonRoute(KavachChooseYourPreferenceScreen()));
+            }
+        ).paddingOnly(left: 10.0, right: 10.0, bottom: 8.0)
       ],
     );
   }
+
   Widget buildKavachProductImageWidget(){
     return Container(
       width: double.infinity,
@@ -181,12 +196,13 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Image.asset(AppImage.png.truck, width: 150),
-          Image.asset(AppImage.png.kavachProduct, width: 70).paddingOnly(top: 80, right: 140),
+          Image.asset(AppImage.png.newTruck,  width: double.infinity, height: double.infinity,fit: BoxFit.cover,),
+          Image.asset(AppImage.png.kavachNewProduct, width: 70).paddingOnly(top: 110, right: 0, left: 280),
         ],
       ),
     );
   }
+  
   Widget buildKavachBenefitsDetailsWidget(BuildContext context){
     Widget innerUIWidget({required String icon,required String title, required String subTitle}){
       return Row(
@@ -219,7 +235,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.benefitsOfKavach, style: AppTextStyle.body1),
+        Text(context.appText.benefitsofTankLock, style: AppTextStyle.body1),
         20.height,
         innerUIWidget(icon: AppIcons.png.lockAndKey, title: context.appText.benefitsOfKavachHeading1, subTitle: context.appText.benefitsOfKavachSubHeading1),
         20.height,

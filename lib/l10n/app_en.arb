@@ -33,6 +33,8 @@
   "gps": "GPS",
   "instantLoan": "Instant Loan",
   "kavach": "KAVACH",
+  "tankLock" : "Tank Lock",
+  "benefitsofTankLock" : "Benefits of Tank Lock",
   "insurance": "Insurance",
   "loginSuccessful": "LOGIN SUCCESSFUL",
   "loginSuccessfulSubHeading": "Now you can explore the rates\nand post loads",
