@@ -9,6 +9,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? attachedTrucks;
   final String? preferredLanes;
   final String? uploadRc;
+  final String? emailId;
   VpCreationApiRequest({
     this.customerName,
     this.mobileNumber,
@@ -18,6 +19,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
      this.attachedTrucks,
      this.preferredLanes,
     this.uploadRc,
+    this.emailId,
   });
 
   @override
@@ -30,7 +32,8 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "ownedTrucks": int.tryParse(ownedTrucks ?? "") ?? 0,
       "attachedTrucks": int.tryParse(attachedTrucks ?? "") ?? 0,
       "preferredLanes": [10],
-      "uploadRc": uploadRc ?? ""
+      "uploadRc": uploadRc ?? "",
+      "emailId": emailId ?? ""
     };
   }
 
@@ -43,6 +46,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     String? attachedTrucks,
     String? preferredLanes,
     String? uploadRc,
+    String? emailId,
   }) {
     return VpCreationApiRequest(
       customerName: customerName ?? this.customerName,
@@ -53,6 +57,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       attachedTrucks: attachedTrucks ?? this.attachedTrucks,
       preferredLanes: preferredLanes ?? this.preferredLanes,
       uploadRc: uploadRc ?? this.uploadRc,
+      emailId: emailId ?? this.emailId,
     );
   }
 }

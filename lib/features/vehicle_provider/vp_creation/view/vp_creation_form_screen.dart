@@ -149,6 +149,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
         preferredLanes: preferredLanesDropDownValue,
+        emailId: emailTextController.text,
         uploadRc: uploadedRcFile,
       );
       vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
