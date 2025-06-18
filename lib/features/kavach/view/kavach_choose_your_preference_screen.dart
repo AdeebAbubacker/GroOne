@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_models_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -147,7 +149,9 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
                         child: AppButton(
                           title: 'Apply',
                           style: AppButtonStyle.primary,
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.of(context).push(commonRoute(KavachModelsScreen()));
+                          },
                         ),
                       ),
                     ],
