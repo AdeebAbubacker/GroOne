@@ -697,9 +697,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       setState(() {});
                     },
                     dataList: weights,
-                    selectedText: weightTextController.text.isEmpty
-                        ? null
-                        : "${weightTextController.text} MT",
+                    selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
                     onTab: () {
                       Navigator.of(context).push(
                         createRoute(
@@ -719,8 +717,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   ).expand();
                 },
               )
-
-
             ],
           ),
           10.height,
