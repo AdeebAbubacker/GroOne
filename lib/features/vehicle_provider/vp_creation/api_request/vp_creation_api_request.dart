@@ -31,7 +31,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "truckType": [5],
       "ownedTrucks": int.tryParse(ownedTrucks ?? "") ?? 0,
       "attachedTrucks": int.tryParse(attachedTrucks ?? "") ?? 0,
-      "preferredLanes": [10],
+      "preferredLanes": [1],
       "uploadRc": uploadRc ?? "",
       "emailId": emailId ?? ""
     };
