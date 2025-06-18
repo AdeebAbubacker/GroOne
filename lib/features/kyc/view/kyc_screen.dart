@@ -361,42 +361,45 @@ class _KycScreenState extends State<KycScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
-    if (int.parse(kycCubit.userRole ?? "0") == 1
-        ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
-        : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
-    } else {
-      if (kycCubit.state.verifiedGst! && kycCubit.state.verifiedTan! && kycCubit.state.verifiedPan!) {
-        if (_formKey.currentState!.validate()) {
 
-          final kycRequest = SubmitKycApiRequest(
-            aadhar: widget.aadhaarNumber,
-            address1: addressLine1TextController.text,
-            address2: addressLine2TextController.text,
-            address3: addressLine3TextController.text,
-            bankAccount: accountNumberTextController.text,
-            bankName: bankNameTextController.text,
-            branchName: branchNameTextController.text,
-            chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
-            tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
-            gstin: gstInTextController.text,
-            gstinDocLink: gstDoc.first['path'],
-            ifscCode: ifscCodeTextController.text,
-            isAadhar: true,
-            isGstin: kycCubit.state.verifiedGst!,
-            isPan:  kycCubit.state.verifiedPan!,
-            isTan:  kycCubit.state.verifiedTan!,
-            pan: panTextController.text,
-            panDocLink: panDoc.first['path'],
-            tan: tanTextController.text,
-            tanDocLink: tanDoc.first['path'],
-          );
+    final kycRequest = SubmitKycApiRequest(
+      aadhar: widget.aadhaarNumber,
+      address1: addressLine1TextController.text,
+      address2: addressLine2TextController.text,
+      address3: addressLine3TextController.text,
+      bankAccount: accountNumberTextController.text,
+      bankName: bankNameTextController.text,
+      branchName: branchNameTextController.text,
+      chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
+      tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
+      gstin: gstInTextController.text,
+      gstinDocLink: gstDoc.isNotEmpty ?  gstDoc.first['path'] : null,
+      ifscCode: ifscCodeTextController.text,
+      isAadhar: true,
+      isGstin: kycCubit.state.verifiedGst,
+      isPan:  kycCubit.state.verifiedPan,
+      isTan:  kycCubit.state.verifiedTan,
+      pan: panTextController.text,
+      panDocLink:  panDoc.isNotEmpty ?   panDoc.first['path'] : null,
+      tan: tanTextController.text,
+      tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
+    );
 
-          kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
-        }
-      } else {
-        ToastMessages.alert(message: "Please verify all document before submit");
-      }
-    }
+    kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+
+    // if (int.parse(kycCubit.userRole ?? "0") == 1
+    //     ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
+    //     : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
+    // } else {
+    //   if (kycCubit.state.verifiedGst! && kycCubit.state.verifiedTan! && kycCubit.state.verifiedPan!) {
+    //     if (_formKey.currentState!.validate()) {
+    //
+    //
+    //     }
+    //   } else {
+    //     ToastMessages.alert(message: "Please verify all document before submit");
+    //   }
+   // }
   }
 
 
@@ -409,6 +412,7 @@ class _KycScreenState extends State<KycScreen> {
         message: "KYC submitted for verification",
         heading: "Will get back to you within 48 hours.",
         onContinue: (){
+          Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
         },
       ),
@@ -423,11 +427,12 @@ class _KycScreenState extends State<KycScreen> {
       backgroundColor: AppColors.white,
       appBar: CommonAppBar(backgroundColor: AppColors.white, title: context.appText.uploadDocument),
       body: _buildBodyWidget(),
-      bottomNavigationBar: buildSubmitKycButton(),
+      bottomNavigationBar: buildSubmitKycButtonWidget(),
     );
   }
 
 
+  // Build Body
   Widget _buildBodyWidget(){
     return SafeArea(
       bottom: false,
@@ -455,7 +460,7 @@ class _KycScreenState extends State<KycScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          //companyTypeId:1=Sole Proprietor-GST, PAN, TAN, Aadhaar
+                          // companyTypeId:1 [sole Proprietor-GST, PAN, TAN, Aadhaar]
                           if(companyId == 1)...[
                             _buildAadhaarWidget(),
                             30.height,
@@ -531,13 +536,14 @@ class _KycScreenState extends State<KycScreen> {
                                 } else {
                                   return Container();
                                 }
-
                               }),
+
 
                           // Primary Address
                           _buildMultipleTextFieldWidget(
                             text: "Primary Address",
                             children: [
+                              // Address Name
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressLine1TextController,
@@ -546,6 +552,7 @@ class _KycScreenState extends State<KycScreen> {
                                 hintText: "Enter Address name 1",
                               ),
 
+                              // Full Address
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressLine2TextController,
@@ -554,13 +561,8 @@ class _KycScreenState extends State<KycScreen> {
                                 hintText: "Enter full address",
                               ),
 
-                              // AppTextField(
-                              //   controller: addressLine3TextController,
-                              //   labelText: "Address Line 3",
-                              //   hintText: "Enter Address Line 3",
-                              // ),
 
-                              // STATE DROPDOWN
+                              // State Dropdown
                               AppDropdown(
                                 validator: (value) => Validator.fieldRequired(value),
                                 labelText: "State",
@@ -671,7 +673,8 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
-  Widget buildSubmitKycButton(){
+  // Submit KYC Button
+  Widget buildSubmitKycButtonWidget(){
     return  BlocConsumer<KycCubit, KycState>(
         bloc: kycCubit,
         listenWhen: (previous, current) =>  previous.submitKycState != current.submitKycState,
@@ -698,6 +701,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // Aadhaar Text Field
   Widget _buildAadhaarWidget(){
     return buildTextFieldWithLabelWidget(
       readOnly: true,
@@ -707,6 +711,8 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
+
+  // GST Text Field & Upload GST
   Widget _buildGstWidget(){
     return BlocConsumer<KycCubit, KycState>(
       bloc: kycCubit,
@@ -714,7 +720,6 @@ class _KycScreenState extends State<KycScreen> {
       builder: (context, state) {
         return Column(
           children: [
-
             // Enter GST Number
             buildTextFieldWithLabelWidget(
                 leftText: state.verifiedGst != null && state.verifiedGst! ? "Verified" : "Un-Verified",
@@ -739,9 +744,7 @@ class _KycScreenState extends State<KycScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING
             ),
-
             30.height,
-
           ],
         );
       }
@@ -749,6 +752,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // TAN Text Field & Upload TAN
   Widget _buildTanWidget(){
     return BlocConsumer<KycCubit, KycState>(
         bloc: kycCubit,
@@ -756,7 +760,6 @@ class _KycScreenState extends State<KycScreen> {
         builder: (context, state) {
         return Column(
           children: [
-
             // Enter TAN number
             buildTextFieldWithLabelWidget(
                 leftText: state.verifiedTan != null && state.verifiedTan! ? "Verified" : "Un-Verified",
@@ -792,6 +795,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // PAN Text Field & Upload PAN
   Widget _buildPanWidget(){
     return BlocConsumer<KycCubit, KycState>(
         bloc: kycCubit,
@@ -799,7 +803,6 @@ class _KycScreenState extends State<KycScreen> {
         builder: (context, state) {
         return Column(
           children: [
-
             // Enter PAN number
             buildTextFieldWithLabelWidget(
                 leftText: state.verifiedPan != null && state.verifiedPan! ? "Verified" : "Un-Verified",
@@ -826,7 +829,6 @@ class _KycScreenState extends State<KycScreen> {
               isSingleFile: true,
               isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
             ),
-
           ],
         );
       }
@@ -834,6 +836,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // Multiple Text Field
   Widget  _buildMultipleTextFieldWidget({required String text, String? leftText, required List<Widget> children}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -846,6 +849,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // Text Field With Label
   Widget buildTextFieldWithLabelWidget({required String rightText, String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
     return Column(
       children: [
