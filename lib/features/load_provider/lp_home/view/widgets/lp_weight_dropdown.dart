@@ -34,7 +34,6 @@ class LPWeightDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // for showing the weight drop down
     return BlocBuilder<LPHomeCubit, LPHomeState>(
       bloc: cubit,
       builder: (context, state) {
@@ -46,20 +45,7 @@ class LPWeightDropdown extends StatelessWidget {
             borderColor: AppColors.borderColor,
           ),
           child: InkWell(
-            onTap: () {
-              Navigator.of(context).push(
-                createRoute(
-                  WeightSelectionScreen(
-                    dataList: dataList,
-                    onSelect: (weight) {
-                      cubit.selectWeight(weight);
-                      onSelect(weight);
-                    },
-                    cubit: cubit,
-                  ),
-                ),
-              );
-            },
+            onTap: onTab,
             child: Row(
               children: [
                 SvgPicture.asset(
@@ -68,9 +54,13 @@ class LPWeightDropdown extends StatelessWidget {
                   colorFilter: AppColors.svg(AppColors.primaryIconColor),
                 ),
                 10.width,
-                Text(cubit.state.selectedWeight != null ? "${cubit.state.selectedWeight?.value} MT" : hintText,
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: AppTextStyle.body3.copyWith(color: cubit.state.selectedWeight != null ? AppColors.black : AppColors.black),
+                Text(
+                  cubit.state.selectedWeight != null
+                      ? "${cubit.state.selectedWeight?.value} MT"
+                      : hintText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.body3.copyWith(color: AppColors.black),
                 ).expand(),
                 Icon(
                   Icons.keyboard_arrow_down,

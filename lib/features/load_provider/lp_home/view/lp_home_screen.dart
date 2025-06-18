@@ -685,42 +685,40 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               // Consignment weight (MT)
               BlocConsumer<LPHomeCubit, LPHomeState>(
                 bloc: lpHomeCubit,
-                listener: (context, state) {
-
-                },
+                listener: (context, state) {},
                 builder: (context, state) {
-                  if (state.loadWeightUIState != null && state.loadWeightUIState?.status == Status.SUCCESS) {
-                    final weights = state.loadWeightUIState?.data?.data;
-                    return LPWeightDropdown(
-                      preFixIcon: AppIcons.svg.kgWeight,
-                      hintText: "Weight  (MT)",
-                      onSelect: (LoadWeightData weight) async {
-                        weightTextController.text = weight.value.toString();
-                        setState(() {});
-                      },
-                      dataList: weights!,
-                      selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
-                      onTab: () {
-                        Navigator.of(context).push(
-                          createRoute(
-                            WeightSelectionScreen(
-                              dataList: weights,
-                              onSelect: (weight) {
-                                lpHomeCubit.selectWeight(weight);
-                                weightTextController.text = weight.value.toString();
-                                setState(() {});
-                              },
-                              cubit: lpHomeCubit,
-                            ),
+                  final weights = state.loadWeightUIState?.data?.data ?? [];
+
+                  return LPWeightDropdown(
+                    preFixIcon: AppIcons.svg.kgWeight,
+                    hintText: "Weight (MT)",
+                    onSelect: (LoadWeightData weight) async {
+                      weightTextController.text = weight.value.toString();
+                      setState(() {});
+                    },
+                    dataList: weights,
+                    selectedText: weightTextController.text.isEmpty
+                        ? null
+                        : "${weightTextController.text} MT",
+                    onTab: () {
+                      Navigator.of(context).push(
+                        createRoute(
+                          WeightSelectionScreen(
+                            dataList: weights,
+                            onSelect: (weight) {
+                              lpHomeCubit.selectWeight(weight);
+                              weightTextController.text = weight.value.toString();
+                              setState(() {});
+                            },
+                            cubit: lpHomeCubit,
                           ),
-                        );
-                      },
-                      cubit: lpHomeCubit,
-                    );
-                  }
-                  return const SizedBox();
+                        ),
+                      );
+                    },
+                    cubit: lpHomeCubit,
+                  ).expand();
                 },
-              ).expand(),
+              )
 
 
             ],
