@@ -38,6 +38,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_re
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/login_repository.dart';
@@ -101,6 +103,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
     locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -119,6 +122,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
     locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(),locator<UserInformationRepository>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -155,7 +159,6 @@ void initLocator() {
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => KycCubit(locator<KycRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
-
 
 
     CustomLog.info(locator, "All instances registered.");
