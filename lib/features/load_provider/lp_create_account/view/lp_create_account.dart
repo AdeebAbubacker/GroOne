@@ -315,7 +315,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 suffixOnTap: () async {
                   final String? validation = Validator.email(emailTextController.text);
                   if(validation == null){
-                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                     verifyEmailCubit.sendOtp(emailTextController.text);
                   } else {
                     ToastMessages.alert(message: validation);
                   }

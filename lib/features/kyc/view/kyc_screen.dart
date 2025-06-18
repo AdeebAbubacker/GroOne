@@ -849,7 +849,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
-  /// Text Field With Label
+  // Text Field With Label
   Widget buildTextFieldWithLabelWidget({required String rightText, String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
     return Column(
       children: [

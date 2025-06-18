@@ -175,8 +175,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        title: context.appText.createAccount, scrolledUnderElevation: 0.0, backgroundColor: Colors.transparent),
+      appBar: CommonAppBar(title: context.appText.createAccount, scrolledUnderElevation: 0.0, backgroundColor: Colors.transparent),
       body: SafeArea(
         bottom: false,
         child: Form(
@@ -197,7 +196,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     );
   }
 
-  /// Name and Phone Number
+  // Name and Phone Number
   Widget buildNameAndPhoneNumberWidget(){
     return Column(
       children: [
@@ -275,7 +274,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     );
   }
 
-  /// Email Text Field
+  // Email Text Field
   Widget buildEmailTextFieldWidget() {
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
         bloc: verifyEmailCubit,
@@ -329,7 +328,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
 
-  /// Business Details
+  // Business Details
   Widget buildBusinessDetailsWidget(BuildContext context){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,7 +475,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
 
-  /// Business Proof
+  // Business Proof
   Widget buildBusinessProofWidget(){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +521,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
 
-  /// Submit Button
+  // Submit Button
   Widget buildSubmitButton() {
     return BlocConsumer<VpCreationBloc, VpCreationState>(
       bloc: vpCreationBloc,
