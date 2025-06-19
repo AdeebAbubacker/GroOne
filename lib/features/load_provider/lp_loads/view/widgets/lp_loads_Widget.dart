@@ -2,6 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -12,8 +13,8 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-class LpLoadsWidget extends StatelessWidget{
-  const LpLoadsWidget({super.key, required this.type});
+class LPLoadListBodyWidget extends StatelessWidget{
+  const LPLoadListBodyWidget({super.key, required this.type});
 
   final int type;
 
@@ -39,10 +40,9 @@ class LpLoadsWidget extends StatelessWidget{
           ],
         )
     );
-
-
   }
 
+  /// Load ID Details
   Widget buildLoadIdDetailsWidget() {
     return Row(
       children: [
@@ -51,9 +51,7 @@ class LpLoadsWidget extends StatelessWidget{
             color: Color(0xffDFE6FF),
             borderRadius: BorderRadius.circular(100),
           ),
-          child: SvgPicture
-              .asset(AppIcons.svg.orderBox)
-              .paddingAll(10),
+          child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
         ),
         15.width,
         Column(
@@ -103,16 +101,13 @@ class LpLoadsWidget extends StatelessWidget{
     );
   }
 
+  /// PickUp and Drop Address
   Widget buildPickupAndDropAddressWidget() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(Icons.gps_fixed, color: AppColors.greenColor,
-            size: 20),
-        Text(
-          " Bangalore, Karnataka",
-          style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ),
+        Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
+        Text(" Bangalore, Karnataka", style: AppTextStyle.body4.copyWith(fontSize: 12)),
         DottedLine(
           direction: Axis.horizontal,
           lineLength: double.infinity,
@@ -122,14 +117,12 @@ class LpLoadsWidget extends StatelessWidget{
           dashGapLength: 3.0,
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
-        Text(
-          "Chennai, Tamil Nadu",
-          style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ),
+        Text("Chennai, Tamil Nadu", style: AppTextStyle.body4.copyWith(fontSize: 12)),
       ],
     );
   }
 
+  /// Rate
   Widget buildRateWidget() {
     return Container(
       decoration: commonContainerDecoration(
@@ -142,9 +135,7 @@ class LpLoadsWidget extends StatelessWidget{
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(
             type == 1 ? "${indianCurrencySymbol}79,000 - ${indianCurrencySymbol}85,000" : "${indianCurrencySymbol}79,000",
-            style: AppTextStyle.h4.copyWith(
-              color: AppColors.primaryColor,
-            ),
+            style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
           ),
         ],
       ).paddingAll(8),
@@ -152,14 +143,14 @@ class LpLoadsWidget extends StatelessWidget{
     );
   }
 
-  Widget buildAgreeButtonWidget(context) {
+  /// Agree Button
+  Widget buildAgreeButtonWidget(BuildContext context) {
     return Row(
       children: [
         AppButton(
           buttonHeight: 40,
           onPressed: () {},
-
-          title: 'I Agree',
+          title: context.appText.iAgree,
         ).expand(),
         10.width,
         IconButton(
