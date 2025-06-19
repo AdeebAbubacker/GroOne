@@ -1,11 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -26,6 +32,8 @@ class LpLoadsScreen extends StatefulWidget {
 class _LpLoadsScreenState extends State<LpLoadsScreen>
     with SingleTickerProviderStateMixin {
   final searchController = TextEditingController();
+  Timer? _debounce;
+
   TabController? _tabController;
   final tabLabels = [
     'All Loads',
@@ -56,35 +64,56 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
+
     _tabController!.addListener(() {
       if (_tabController!.indexIsChanging) {
+        final selectedType = _tabController!.index;
+        if (selectedType == 3) {
+          context.read<LpLoadCubit>().getLpLoadsByType(type: selectedType + 2);
+        } else {
+          context.read<LpLoadCubit>().getLpLoadsByType(type: selectedType + 1);
+        }
         setState(() {});
       }
     });
-    setState(() {});
+    context.read<LpLoadCubit>().getLpLoadsByType(type: widget.initialTabIndex+1);
   });
+
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      final type = _tabController!.index + 1;
+        context.read<LpLoadCubit>().getLpLoadsByType(type: type, search: query);
+    });
+    setState(() {});
+  }
 
   void disposeFunction() => frameCallback(() {
     searchController.dispose();
+    _debounce?.cancel();
     _tabController?.dispose();
   });
 
-  void _onSearchChanged(String query) {}
+  void filterPopUp() {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            10.height,
-            buildTabBarWidget(),
-            buildSearchBarAndFilterWidget(context),
-            buildLoadListWidget(),
-          ],
-        ),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen()));
+          },
+          child: Column(
+            children: [
+              10.height,
+              buildTabBarWidget(),
+              buildSearchBarAndFilterWidget(context),
+              buildLoadListWidget(),
+            ],
+          ),
       ),
-    );
+    ));
   }
 
   /// Tab Bar
@@ -146,23 +175,28 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       return const SizedBox();
     }
 
-    return ListView.builder(
-      padding: EdgeInsets.all(commonSafeAreaPadding),
-      shrinkWrap: true,
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        switch (_tabController!.index) {
-          case 0:
-            return LPLoadListBodyWidget(type: 0).paddingSymmetric(vertical: 7);
-          case 1:
-            return LPLoadListBodyWidget(type: 1).paddingSymmetric(vertical: 7);
-          case 2:
-            return LPLoadListBodyWidget(type: 2).paddingSymmetric(vertical: 7);
-          case 3:
-            return LPLoadListBodyWidget(type: 3).paddingSymmetric(vertical: 7);
-          default:
-            return const SizedBox();
+    return BlocBuilder<LpLoadCubit, LpLoadState>(
+      builder: (context, state) {
+        final uiState = state.lpLoadResponse;
+
+        if (uiState == null || uiState.status == Status.LOADING) {
+          return const Center(child: CircularProgressIndicator());
         }
+
+        final loadList = uiState.data ?? [];
+
+        if (loadList.isEmpty) {
+          return const Center(child: Text("No loads found."));
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.all(commonSafeAreaPadding),
+          shrinkWrap: true,
+          itemCount: loadList.length,
+          itemBuilder: (context, index) {
+            return LPLoadListBodyWidget(loadItem: loadList[index]).paddingSymmetric(vertical: 7);
+          },
+        );
       },
     ).expand();
   }

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -14,9 +18,9 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class LPLoadListBodyWidget extends StatelessWidget{
-  const LPLoadListBodyWidget({super.key, required this.type});
+  const LPLoadListBodyWidget({super.key, required this.loadItem});
 
-  final int type;
+  final LpLoadItem loadItem;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +39,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             20.height,
             buildRateWidget(),
             10.height,
-            if(type == 3)
+            if(loadItem.loadStatus == 5)
             buildAgreeButtonWidget(context)
           ],
         )
@@ -60,7 +64,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             Wrap(
               children: [
                 Text(
-                  'GD12456',
+                  'GD ${loadItem.loadId}',
                   style: AppTextStyle.h5,
                   maxLines: 2,
                 ),
@@ -68,7 +72,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             ),
             8.height,
             Text(
-              '12 Jul 2025, 6:30 AM',
+             loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(loadItem.dueDate!) : "--",
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.primaryColor,
               ),
@@ -79,22 +83,17 @@ class LPLoadListBodyWidget extends StatelessWidget{
           children: [
             Container(
               decoration: commonContainerDecoration(
-                color: AppColors.lightPurpleColor,
+                color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt())
               ),
               width: 100.w,
               child: Text(
-                type == 1 ? 'Matching..' : type == 2 ? 'Confirmed' : 'Assigned',
-                style: TextStyle(color: AppColors.purpleColor),
+                LpLoadsHelper.getLoadTypeDisplayText(loadItem.loadStatus.toInt()),
+                style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt())),
               ).center().paddingAll(4),
             ),
             5.height,
-            if(type == 1)
-              Text(
-                "43 Mins to Match",
-                style: AppTextStyle.body4.copyWith(
-                  color: AppColors.activeDarkGreenColor,
-                ),
-              ),
+            if(loadItem.loadStatus == 2)
+            Text(LpHomeHelper.getMatchingTime(loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
           ],
         ),
       ],
@@ -107,7 +106,11 @@ class LPLoadListBodyWidget extends StatelessWidget{
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
-        Text(" Bangalore, Karnataka", style: AppTextStyle.body4.copyWith(fontSize: 12)),
+        5.width,
+        Text(
+          loadItem.pickUpAddr,
+          style: AppTextStyle.body4.copyWith(fontSize: 12),
+        ),
         DottedLine(
           direction: Axis.horizontal,
           lineLength: double.infinity,
@@ -117,7 +120,10 @@ class LPLoadListBodyWidget extends StatelessWidget{
           dashGapLength: 3.0,
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
-        Text("Chennai, Tamil Nadu", style: AppTextStyle.body4.copyWith(fontSize: 12)),
+        Text(
+          loadItem.dropAddr,
+          style: AppTextStyle.body4.copyWith(fontSize: 12),
+        ),
       ],
     );
   }
@@ -134,7 +140,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(
-            type == 1 ? "${indianCurrencySymbol}79,000 - ${indianCurrencySymbol}85,000" : "${indianCurrencySymbol}79,000",
+            "₹ ${loadItem.rate}",
             style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
           ),
         ],

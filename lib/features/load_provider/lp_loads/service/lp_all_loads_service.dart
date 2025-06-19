@@ -1,8 +1,39 @@
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 
 class LpLoadService {
   final ApiService _apiService;
   LpLoadService(this._apiService);
+
+  Future<Result<List<LpLoadItem>>> fetchLoads({
+    required String customerId,
+    required int type,
+    String search = "",
+    bool forceRefresh = false
+  }) async {
+
+    try {
+      final url = ApiUrls.lpLoadList;
+      final response = await _apiService.get(
+        '$url?page=1&limit=20&search=$search&loadStatus=$type&customerId=$customerId',
+        forceRefresh: forceRefresh,
+      );
+
+      if (response is Success) {
+        final data = response.value['data']['data'] as List;
+        final loads = data.map((e) => LpLoadItem.fromJson(e)).toList();
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
 }
 

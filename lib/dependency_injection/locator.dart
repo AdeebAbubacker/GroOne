@@ -38,6 +38,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_re
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
@@ -159,6 +160,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => KycCubit(locator<KycRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
+    locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
 
 
     CustomLog.info(locator, "All instances registered.");
