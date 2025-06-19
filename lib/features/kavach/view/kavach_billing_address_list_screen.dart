@@ -14,7 +14,7 @@ import '../../../utils/common_widgets.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
 import '../model/kavach_address_model.dart';
-import 'kavach_add_shipping_address_bottom_sheet.dart';
+import 'kavach_add_address_bottom_sheet.dart';
 
 class KavachBillingAddressListScreen extends StatelessWidget {
   const KavachBillingAddressListScreen({super.key});
@@ -23,6 +23,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.billingAddress,
+      hideDivider: false,
       body: SizedBox(
           height: 500.h,
           child: _buildBody(context: context)),
@@ -30,63 +31,67 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   }
 
   Widget _buildBody({required BuildContext context}) {
-    return BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
-      builder: (context, state) {
-        if (state is KavachCheckoutBillingAddressLoading) {
-          return const CircularProgressIndicator();
-        }
+    return Column(
+      children: [
+        AppButton(
+          onPressed: () async {
+            await commonBottomSheetWithBGBlur(
+              context: context,
+              screen: KavachAddAddressBottomSheet(
+                addrType: 2, // Shipping address type
+                title: context.appText.billingAddress,
+              ),
+            );
+            context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+          },
+          title: context.appText.addNewAddress,
+          style: AppButtonStyle.outline,
+        ),
+        BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
+          builder: (context, state) {
+            if (state is KavachCheckoutBillingAddressLoading) {
+              return const CircularProgressIndicator();
+            }
 
-        if (state is KavachCheckoutBillingAddressSelected) {
-          final addresses = state.addresses;
+            if (state is KavachCheckoutBillingAddressSelected) {
+              final addresses = state.addresses;
 
-          return Column(
-            children: [
-              AppButton(
-                onPressed: () async {
-                  await commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: KavachAddAddressBottomSheet(
-                    addrType: 2, // Shipping address type
-                    title: context.appText.billingAddress,
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shrinkWrap: true,
+                      itemCount: addresses.length,
+                      separatorBuilder: (context, index) => 10.height,
+                      itemBuilder: (context, index) {
+                        final address = addresses[index];
+                        return AddressListItem(address: address);
+                      },
+                    ),
                   ),
-                  );
-                  context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
-                },
-                title: context.appText.addNewAddress,
-                style: AppButtonStyle.outline,
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shrinkWrap: true,
-                  itemCount: addresses.length,
-                  separatorBuilder: (context, index) => 10.height,
-                  itemBuilder: (context, index) {
-                    final address = addresses[index];
-                    return AddressListItem(address: address);
-                  },
-                ),
-              ),
-              20.height,
-              AppButton(
-                onPressed: () {
-                  final selectedAddress = context.read<KavachCheckoutBillingAddressBloc>().state;
-                  if (selectedAddress is KavachCheckoutBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
-                  } else {
-                    // Handle if nothing is selected (optional)
-                  }
-                },
-                title: context.appText.deliverHere,
-                style: AppButtonStyle.primary,
-              ),
-              20.height,
-            ],
-          );
-        }
+                  20.height,
+                  AppButton(
+                    onPressed: () {
+                      final selectedAddress = context.read<KavachCheckoutBillingAddressBloc>().state;
+                      if (selectedAddress is KavachCheckoutBillingAddressSelected) {
+                        Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
+                      } else {
+                        // Handle if nothing is selected (optional)
+                      }
+                    },
+                    title: context.appText.deliverHere,
+                    style: AppButtonStyle.primary,
+                  ),
+                  20.height,
+                ],
+              );
+            }
 
-        return const SizedBox.shrink();
-      },
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
     );
   }
 }
