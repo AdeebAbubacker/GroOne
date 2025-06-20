@@ -19,7 +19,7 @@ import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
-import 'package:gro_one_app/features/profile/view/widgets/log_out_dialogue_ui.dart';
+import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -34,6 +34,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -82,26 +83,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void disposeFunction() => frameCallback(() {});
 
-  String _getInitials(String name) {
-    final parts = name.trim().split(' ');
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return parts.take(2).map((e) => e[0].toUpperCase()).join();
+
+  void logoutDialogPopUp(){
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        yesButtonText: context.appText.logOut,
+        noButtonText: context.appText.cancel,
+        showYesNoButtonButtons: true,
+        hideCloseButton: true,
+        onClickYesButton: () {
+          context.pop();
+          vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
+          );
+        },
+        child: LogOutDialogueUi(),
+      ),
+    );
   }
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.profile,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-        toolbarHeight: 50.h,
-      ),
+      appBar: CommonAppBar(title: context.appText.profile),
 
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Column(
           spacing: 15.h,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             30.height
           ],
         ),
-      ),
+      ).withScroll(),
     );
   }
 
@@ -130,10 +138,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return Column(
         spacing: 10.h,
         children: [
+
+          if( widget.profileData.details != null)
           Text(
             widget.profileData.details!.companyName,
             style: AppTextStyle.h5,
           ),
+
           Text(
             widget.profileData.customer!.customerName,
             style: AppTextStyle.blackColor15w500,
@@ -177,7 +188,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           10.height,
           BlocConsumer<LpHomeBloc, HomeState>(
-
             listener:_listener,
             bloc: lpHomeLocator,
             builder: (context, state) {
@@ -185,12 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 imageString: AppImage.svg.user,
                 text: context.appText.myAccount,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    commonRoute(
-                      LpMyAccount(profileData: widget.profileData),
-                      isForward: true,
-                    ),
+                  Navigator.push(context, commonRoute(LpMyAccount(profileData: widget.profileData), isForward: true),
                   ).then((onValue) {
                     lpHomeLocator.add(
                       GetProfileDetailApiRequest(lpHomeLocator.userId ?? ""),
@@ -204,6 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.master,
             text: "Master",
@@ -211,7 +217,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
             },
           ),
+
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.routes,
             text: "Routes",
@@ -219,7 +227,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ///todo - routes to be done later
             },
           ),
+
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.myDocuments,
             text: "My Documents",
@@ -227,7 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
           ),
+
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.transaction,
             text: context.appText.transactions,
@@ -235,7 +247,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
             },
           ),
+
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.settings,
             text: context.appText.settings,
@@ -243,13 +257,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.of(context).push(commonRoute(LpSetting(), isForward: true));
             },
           ),
+
           dividerWidget(),
+
           profileWidget(
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
               Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
-              },
+            },
           ),
           dividerWidget(),
           BlocListener<VpCreationBloc, VpCreationState>(
@@ -272,21 +288,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               imageString: AppImage.svg.logOut,
               text: context.appText.logOut,
               onTap: () {
-                
-                AppDialog.show(
-                    context, 
-                    child: CommonDialogView(
-                      yesButtonText: context.appText.logOut,
-                      noButtonText: context.appText.cancel,
-                      showYesNoButtonButtons: true,
-                      onClickYesButton: () {
-                        context.pop();
-                        vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
-                        );
-                      },
-                      child: LogOutDialogueUi(),
-                    ),
-                );
+                logoutDialogPopUp();
               },
               showArrow: false,
             ),
@@ -302,7 +304,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: AppColors.dividerColor,
       thickness: 0.5,
       indent: 20,
-      endIndent: 20,
     );
   }
 
@@ -321,7 +322,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          _getInitials(widget.profileData.details?.companyName ?? ''),
+          getInitialsFromName(this, name : widget.profileData.details?.companyName ?? ''),
           style: GoogleFonts.ubuntu(
             fontSize: profileSize * 0.35,
             color: AppColors.black,

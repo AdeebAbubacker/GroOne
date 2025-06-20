@@ -4,6 +4,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -13,6 +14,8 @@ class CommonDialogView extends StatefulWidget {
   final String? heading;
   final Color? headingColor;
   final bool? showYesNoButtonButtons;
+  final bool? hideCloseButton;
+  final bool? yesButtonLoading;
   final String? yesButtonText;
   final String? noButtonText;
   final String? onSingleButtonText;
@@ -20,7 +23,22 @@ class CommonDialogView extends StatefulWidget {
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
   final GestureTapCallback? onClickYesButton;
-  const CommonDialogView({super.key, this.child, this.onClickYesButton, this.showYesNoButtonButtons = false, this.yesButtonText, this.noButtonText, this.message, this.heading, this.onTapSingleButton, this.afterDismiss, this.onSingleButtonText, this.headingColor,});
+  const CommonDialogView({
+    super.key,
+    this.child,
+    this.onClickYesButton,
+    this.showYesNoButtonButtons = false,
+    this.yesButtonText,
+    this.noButtonText,
+    this.message,
+    this.heading,
+    this.onTapSingleButton,
+    this.afterDismiss,
+    this.onSingleButtonText,
+    this.headingColor,
+    this.hideCloseButton = false,
+    this.yesButtonLoading = false,
+  });
 
   @override
   State<CommonDialogView> createState() => _CommonDialogViewState();
@@ -32,8 +50,12 @@ class _CommonDialogViewState extends State<CommonDialogView> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppIconButton(onPressed: ()=> Navigator.of(context).pop(), icon: Icons.close).align(Alignment.topRight),
-        10.height,
+
+        if(!widget.hideCloseButton!)...[
+          AppIconButton(onPressed: ()=> Navigator.of(context).pop(), icon: Icons.close).align(Alignment.topRight),
+          10.height,
+        ],
+
 
         if(widget.child != null)...[
           widget.child!,
@@ -49,8 +71,6 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
           20.height,
         ],
-
-
 
 
 
@@ -70,7 +90,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           children: [
             // No Button
             AppButton(
-              buttonHeight: 40,
+              buttonHeight: commonButtonHeight2,
               style: AppButtonStyle.outline,
               title: widget.noButtonText ?? context.appText.no,
               onPressed: () {
@@ -81,7 +101,8 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
             // Yes Button
             AppButton(
-              buttonHeight: 40,
+              buttonHeight: commonButtonHeight2,
+              isLoading: widget.yesButtonLoading,
               onPressed: widget.onClickYesButton ?? (){},
               title: widget.yesButtonText ?? context.appText.yes,
             ).expand(),

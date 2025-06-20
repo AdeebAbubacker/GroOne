@@ -1,24 +1,23 @@
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/model/login_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
-import 'package:gro_one_app/features/otp_verification/api_request/otp_request.dart';
-import 'package:gro_one_app/features/otp_verification/model/otp_response.dart';
+import 'package:gro_one_app/features/otp_verification/api_request/mobile_otp_verification_api_request.dart';
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
-import '../service/otp_service.dart';
+import '../service/mobile_otp_verification_service.dart';
 
-class OtpRepository {
-  final OtpService _otpService;
+class MobileOtpVerificationRepository {
+  final MobileOtpVerificationService _otpService;
   final AuthRepository _authRepository;
+  MobileOtpVerificationRepository(this._otpService, this._authRepository);
 
-  OtpRepository(this._otpService, this._authRepository);
-
-  // Submit Otp
-  Future<Result<OtpResponse?>> sendOtp(OtpRequest request) async {
+  /// Submit Otp Repo
+  Future<Result<MobileOtpVerificationModel?>> sendOtp(OtpRequest request) async {
     try {
       Result<dynamic> result = await _otpService.fetchSendOtpData(request);
-      if (result is Success<OtpResponse?>) {
+      if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
           dynamic saveUserResult;
           if (result.value?.data?.user?.tempflg == false) {
@@ -34,7 +33,6 @@ class OtpRepository {
           }
         }
       }
-
       if (result is Error) {
         return Error(result.type);
       }
@@ -45,7 +43,7 @@ class OtpRepository {
     }
   }
 
-  // Resend Otp
+  /// Resend Otp Repo
   Future<Result<LoginApiResponseModel>> resendOtp(
     LoginApiRequest request,
   ) async {
@@ -56,4 +54,6 @@ class OtpRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+
 }

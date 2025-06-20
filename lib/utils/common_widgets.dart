@@ -19,6 +19,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pinput/pinput.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
 
@@ -261,16 +262,11 @@ Widget appLoader() {
 //   return Container();
 // }
 
+
+/// KYC Widget
 Widget kycWidget({required Function() onTap}){
   return InkWell(
     onTap: onTap,
-    // child: Container(
-    //   height: 55,
-    //   width: 55,
-    //   color: Colors.red,
-    //   alignment: Alignment.center,
-    //   child: VideoPlayer(controller),
-    // ),
     child: Container(
         height: 45,
         width: 45,
@@ -286,3 +282,27 @@ Widget kycSuccessStatusWidget(){
 Widget kycInProgressStatusWidget(){
   return SvgPicture.asset(AppImage.svg.kycInProgressStatus, width: double.infinity, height: 50);
 }
+
+
+/// OTP Decoration
+final defaultPinTheme = PinTheme(
+  width: 56,
+  height: 56,
+  textStyle: const TextStyle(fontSize: 20, color: Colors.black),
+  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300, width: 2), borderRadius: BorderRadius.circular(10)),
+);
+
+final focusedPinTheme = defaultPinTheme.copyDecorationWith(
+  border: Border.all(color: AppColors.primaryColor, width: 2),
+  borderRadius: BorderRadius.circular(10),
+);
+
+final submittedPinTheme = defaultPinTheme.copyWith(
+  decoration: defaultPinTheme.decoration?.copyWith(
+    color: Colors.white,
+    border: Border.all(color: AppColors.primaryColor, width: 2),
+  ),
+);
+
+
+

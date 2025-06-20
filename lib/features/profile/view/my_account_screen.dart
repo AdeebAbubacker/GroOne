@@ -42,34 +42,9 @@ class _LpMyAccountState extends State<LpMyAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.myAccount,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-        toolbarHeight: 50.h,
-        // actions: [
-        //   InkWell(
-        //     onTap: () {
-        //       Navigator.push(
-        //         context,
-        //         commonRoute(
-        //           LpEditMyAccount(profileData:widget.profileData),
-        //           isForward: true,
-        //         ),
-        //       );
-        //     },
-        //     child: Text(
-        //       context.appText.edit,
-        //       style: AppTextStyle.primaryColor18w500UnderLine,
-        //     ),
-        //   ).paddingOnly(right: 10),
-        // ],
-      ),
-
+      appBar: CommonAppBar(title:  context.appText.myAccount),
       body: SingleChildScrollView(
-        padding: EdgeInsetsGeometry.all(commonSafeAreaPadding),
+        padding: EdgeInsets.all(commonSafeAreaPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20.h,

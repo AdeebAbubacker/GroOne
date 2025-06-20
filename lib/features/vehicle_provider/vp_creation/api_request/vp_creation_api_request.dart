@@ -4,6 +4,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? customerName;
   final String? mobileNumber;
   final String? companyName;
+  final String? companyTypeId;
   final String? truckType;
   final String? ownedTrucks;
   final String? attachedTrucks;
@@ -14,6 +15,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     this.customerName,
     this.mobileNumber,
      this.companyName,
+     this.companyTypeId,
      this.truckType,
      this.ownedTrucks,
      this.attachedTrucks,
@@ -28,6 +30,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "customerName": customerName ?? "",
       "mobileNumber": mobileNumber?.trim() ?? "",
       "companyName": companyName ?? "",
+      "companyTypeId" : companyTypeId ?? "",
       "truckType": [5],
       "ownedTrucks": int.tryParse(ownedTrucks ?? "") ?? 0,
       "attachedTrucks": int.tryParse(attachedTrucks ?? "") ?? 0,
@@ -41,6 +44,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     String? customerName,
     String? mobileNumber,
     String? companyName,
+    String? companyTypeId,
     String? truckType,
     String? ownedTrucks,
     String? attachedTrucks,
@@ -52,6 +56,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       customerName: customerName ?? this.customerName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
       companyName: companyName ?? this.companyName,
+      companyTypeId: companyTypeId ?? this.companyTypeId,
       truckType: truckType ?? this.truckType,
       ownedTrucks: ownedTrucks ?? this.ownedTrucks,
       attachedTrucks: attachedTrucks ?? this.attachedTrucks,

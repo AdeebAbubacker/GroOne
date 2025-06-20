@@ -6,19 +6,19 @@ import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
 import '../../../utils/app_string.dart';
 import '../../../utils/custom_log.dart';
-import '../api_request/otp_request.dart';
-import '../model/otp_response.dart';
+import '../api_request/mobile_otp_verification_api_request.dart';
+import '../model/mobile_otp_verification_model.dart';
 
-class OtpService {
+class MobileOtpVerificationService {
   final ApiService _apiService;
-  OtpService(this._apiService);
+  MobileOtpVerificationService(this._apiService);
 
   //
-  Future<Result<OtpResponse>> fetchSendOtpData(OtpRequest request) async {
+  Future<Result<MobileOtpVerificationModel>> fetchSendOtpData(OtpRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.login, body: request);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => OtpResponse.fromJson(data));
+        return await _apiService.getResponseStatus(result.value, (data) => MobileOtpVerificationModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -175,7 +177,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.createAccount, scrolledUnderElevation: 0.0, backgroundColor: Colors.transparent),
+      appBar: CommonAppBar(title: context.appText.createAccount),
       body: SafeArea(
         bottom: false,
         child: Form(
@@ -200,6 +202,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   Widget buildNameAndPhoneNumberWidget(){
     return Column(
       children: [
+
         // Name
         AppTextField(
           validator: (value)=> Validator.fieldRequired(value),
@@ -211,18 +214,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // Phone Number
-        // Column(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: [
-        //     Text(" Phone Number", style: AppTextStyle.textFiled),
-        //     6.height,
-        //     MobileNumberTextField(
-        //       controller: mobileNumberTextController,
-        //       countryFlagAssetPath: AppImage.png.flag,
-        //       readOnly: true,
-        //     ),
-        //   ],
-        // ),
         AppTextField(
           readOnly: true,
           validator: (value)=> Validator.phone(value),
@@ -232,6 +223,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           inputFormatters: [phoneNumberInputFormatter],
           keyboardType: TextInputType.phone,
           decoration: commonInputDecoration(
+            fillColor: AppColors.lightGreyBackgroundColor,
+            focusColor: AppColors.borderColor,
             hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
             prefixIcon: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -248,17 +241,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
         // Email
         buildEmailTextFieldWidget(),
-        // AppTextField(
-        //   validator: (value) => Validator.fieldRequired(value),
-        //   controller: emailTextController,
-        //   labelText: context.appText.email,
-        //   mandatoryStar: true,
-        //   keyboardType: TextInputType.emailAddress,
-        //   decoration: commonInputDecoration(
-        //     hintText: context.appText.emailHint,
-        //     suffixIcon: Icon(Icons.warning_amber_rounded, size: 20, color :Colors.orange),
-        //   ),
-        // ),
         20.height,
 
         // Pin code Truck
@@ -268,11 +250,17 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           labelText: context.appText.pinCode,
           hintText: "${context.appText.enter} ${context.appText.pinCode}",
           mandatoryStar: true,
-          keyboardType: iosNumberKeyboard,
+          maxLength: 6,
+          keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly
+          ],
+
         ),
       ],
     );
   }
+
 
   // Email Text Field
   Widget buildEmailTextFieldWidget() {
@@ -307,7 +295,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status ==  Status.LOADING) ? "Verify": "Loading..", style: AppTextStyle.body3),
+                    Text(!(state.sendOtpState?.status ==  Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3),
                     5.width,
                     Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
                   ],
@@ -320,7 +308,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                     ToastMessages.alert(message: validation);
                   }
                 }
-
             ),
           );
         }
@@ -349,20 +336,19 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         // Company Type
         BlocConsumer<VpCreationBloc, VpCreationState>(
           bloc: vpCreationBloc,
+          buildWhen: (previous, current) => current is VpCompanyTypeSuccess,
           listener: (context, state) {
-            print("State : ${state}");
             if (state is VpCompanyTypeError) {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
           builder: (context, state) {
-            print("State : ${state}");
             if(state is VpCompanyTypeSuccess){
               return Column(
                 children: [
                   AppDropdown(
                     validator: (value) => Validator.fieldRequired(value),
-                    labelText: "${context.appText.companyType}*",
+                    labelText: context.appText.companyType,
                     hintText: context.appText.selectCompanyType,
                     mandatoryStar: true,
                     dropdownValue: companyTypeDropDownValue,
@@ -382,54 +368,54 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             return const SizedBox();
           },
         ),
+        20.height,
+
+
 
 
         // TrucK Type
-        BlocListener<VpCreationBloc, VpCreationState>(
+        BlocConsumer<VpCreationBloc, VpCreationState>(
           bloc: vpCreationBloc,
+          buildWhen: (previous, current) => current is TruckTypeSuccess,
           listener: (context, state) {
             if (state is TruckTypeError) {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
-          child: BlocBuilder<VpCreationBloc, VpCreationState>(
-            bloc: vpCreationBloc,
-            builder: (context, state) {
-              if (state is TruckTypeSuccess) {
-                return AppMultiSelectionDropdown<String>(
-                  labelText: context.appText.truckType,
-                  hintText: context.appText.selectTruckType,
-                  controller: truckTypeController,
-                  mandatoryStar: true,
-                  items: state.truckTypeModel.data.map((e) => DropdownItem<String>(
-                    value: e, // or e.id
-                    label: e,
-                  )).toList(),
-                  onSelectionChange: (selected) {
-                    if (selected.isNotEmpty) {
-                      selectedTruckTypeList = selected.toSet().toList();
-                      truckTypeDropDownValue = selected.first;
-                    } else {
-                      truckTypeDropDownValue = null;
-                      selectedTruckTypeList.clear();
-                    }
-                    CustomLog.debug(this, 'Selected truck type: $selectedTruckTypeList');
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "${context.appText.truckType} ${context.appText.pinCode}";
-                    }
-                    return null;
-                  },
-                );
-              }
-              return const SizedBox();
-            },
-          ),
+          builder: (context, state) {
+            if (state is TruckTypeSuccess) {
+              return AppMultiSelectionDropdown<String>(
+                labelText: context.appText.truckType,
+                hintText: context.appText.selectTruckType,
+                controller: truckTypeController,
+                mandatoryStar: true,
+                items: state.truckTypeModel.data.map((e) => DropdownItem<String>(
+                  value: e, // or e.id
+                  label: e,
+                )).toList(),
+                onSelectionChange: (selected) {
+                  if (selected.isNotEmpty) {
+                    selectedTruckTypeList = selected.toSet().toList();
+                    truckTypeDropDownValue = selected.first;
+                  } else {
+                    truckTypeDropDownValue = null;
+                    selectedTruckTypeList.clear();
+                  }
+                  CustomLog.debug(this, 'Selected truck type: $selectedTruckTypeList');
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "${context.appText.truckType} ${context.appText.pinCode}";
+                  }
+                  return null;
+                },
+              );
+            }
+            return const SizedBox();
+          },
         ),
-
-
         20.height,
+
 
         // Owned Truck
         AppTextField(
@@ -438,7 +424,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           labelText: context.appText.ownedTrucks,
           hintText: "${context.appText.enter} ${context.appText.ownedTrucks}",
           mandatoryStar: true,
-          keyboardType: iosNumberKeyboard,
+          keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly
+          ],
         ),
         20.height,
 
@@ -449,7 +438,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           labelText: context.appText.attachedTrucks,
           hintText: "${context.appText.enter} ${context.appText.attachedTrucks}",
           mandatoryStar: true,
-          keyboardType: iosNumberKeyboard,
+          keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly
+          ],
         ),
         20.height,
 
