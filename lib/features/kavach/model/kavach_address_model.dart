@@ -52,13 +52,13 @@ import 'package:equatable/equatable.dart';
 class KavachAddressModel extends Equatable {
   final int id;
   final String customerName;
-  final String mobileNumber;
+  final String? mobileNumber;
   final int customerId;
   final String addr1;
-  final String addr2;
+  final String? addr2;
   final String city;
   final String state;
-  final String country;
+  final String? country;
   final String? gstin;
   final String pincode;
   final int addrType;
@@ -69,13 +69,13 @@ class KavachAddressModel extends Equatable {
   const KavachAddressModel({
     required this.id,
     required this.customerName,
-    required this.mobileNumber,
+    this.mobileNumber,
     required this.customerId,
     required this.addr1,
-    required this.addr2,
+    this.addr2,
     required this.city,
     required this.state,
-    required this.country,
+    this.country,
     this.gstin,
     required this.pincode,
     required this.addrType,
@@ -87,16 +87,22 @@ class KavachAddressModel extends Equatable {
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
       id: json['id'],
-      customerName: json['customerName'],
-      mobileNumber: json['mobileNumber'],
+      customerName: json['customerName'] ?? '',
+      mobileNumber: json['mobileNumber'] == null || json['mobileNumber'].toString().isEmpty
+          ? null
+          : json['mobileNumber'],
       customerId: json['customerId'],
-      addr1: json['addr1'],
-      addr2: json['addr2'],
-      city: json['city'],
-      state: json['state'],
-      country: json['country'],
+      addr1: json['addr1'] ?? '',
+      addr2: json['addr2'] == null || json['addr2'].toString().isEmpty
+          ? null
+          : json['addr2'],
+      city: json['city'] ?? '',
+      state: json['state'] ?? '',
+      country: json['country'] == null || json['country'].toString().isEmpty
+          ? null
+          : json['country'],
       gstin: json['gstin'],
-      pincode: json['pincode'],
+      pincode: json['pincode'] ?? '',
       addrType: json['addrType'],
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
@@ -104,7 +110,24 @@ class KavachAddressModel extends Equatable {
     );
   }
 
-  String get fullAddress => '$addr1, $addr2, $city, $state, $country - $pincode';
+  // String get fullAddress {
+  //   final addressParts = [
+  //     addr1,
+  //     if (addr2 != null && addr2!.isNotEmpty) addr2,
+  //     city,
+  //     state,
+  //     if (country != null && country!.isNotEmpty) country,
+  //     '- $pincode',
+  //   ];
+  //   return addressParts.where((part) => part != null && part.toString().trim().isNotEmpty).join(', ');
+  // }
+  String get fullAddress {
+    return '''
+$addr1
+$city, $state - $pincode
+''';
+  }
+
 
   @override
   List<Object?> get props => [
@@ -125,3 +148,5 @@ class KavachAddressModel extends Equatable {
     deletedAt,
   ];
 }
+
+

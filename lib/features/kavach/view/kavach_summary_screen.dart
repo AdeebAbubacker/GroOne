@@ -162,7 +162,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.blackColor15w500,),
+                  Text(context.appText.shippingAddress, style: AppTextStyle.textFiled,),
                   10.height,
                   _buildAddressCard(widget.shippingAddress),
                   15.height,
@@ -201,7 +201,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               totalPrice: totalAmount,
               categoryId: 1,
               shippingPersonIncharge: widget.shippingAddress.customerName,
-              shippingPersonContactNo: widget.shippingAddress.mobileNumber,
+              shippingPersonContactNo: widget.shippingAddress.mobileNumber??'',
               customerInfo: {
                 "CompanyName": "ABC Logistics Pvt Ltd",
                 "contactNumber": "9876543210",

@@ -1,11 +1,18 @@
+import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
+import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
 import '../api_request/kavach_add_address_api_request.dart';
+import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
+import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
+import '../model/kavach_truck_type_model.dart';
+import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
 class KavachService {
@@ -201,6 +208,74 @@ class KavachService {
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch customer orders", e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<TruckTypeModel>>> fetchTruckTypes() async {
+    try {
+      final response = await _apiService.get(
+        'https://gro-devapi.letsgro.co/load/api/v1/truck-type',
+      );
+      if (response is Success) {
+        final data = response.value['data'] as List;
+        final truckTypes = data.map((e) => TruckTypeModel.fromJson(e)).toList();
+        return Success(truckTypes);
+      }
+      return Error(response is Error ? response.type : GenericError());
+    } catch (_) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<CommodityModel>>> fetchCommodities() async {
+    try {
+      final response = await _apiService.get(
+        'https://gro-devapi.letsgro.co/load/api/v1/commodity',
+      );
+      if (response is Success) {
+        final data = response.value['data'] as List;
+        final commodities = data.map((e) => CommodityModel.fromJson(e)).toList();
+        return Success(commodities);
+      }
+      return Error(response is Error ? response.type : GenericError());
+    } catch (_) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<KavachVehicleDocumentUploadModel>> fetchUploadGstData(File file) async {
+    try {
+      final result = await _apiService.multipart(ApiUrls.upload, file, pathName: "file");
+      if (result is Success) {
+        return _apiService.getResponseStatus(
+          result.value,
+              (data) => KavachVehicleDocumentUploadModel.fromJson(data),
+        );
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Upload error", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
+    try {
+      final response = await _apiService.post(
+        'https://gro-devapi.letsgro.co/customer/api/v1/vp-master/vehicle',
+        body: request.toJson(),
+      );
+
+      if (response is Success) {
+        return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
       return Error(DeserializationError());
     }
   }

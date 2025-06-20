@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
@@ -7,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../data/model/result.dart';
@@ -297,15 +295,13 @@ class _KavachAddAddressBottomSheetState
                   if (!formKey.currentState!.validate()) return;
                   final request = KavachAddAddressApiRequest(
                     customerName: customerNameController.text.trim(),
-                    mobileNumber: mobileNoController.text.trim(),
                     addr1: addressLine1Controller.text.trim(),
-                    addr2: addressLine2Controller.text.trim(),
                     city: cityController.text.trim(),
                     state: stateController.text.trim(),
                     pincode: pinCodeController.text.trim(),
                     addrType: widget.addrType,
                     country: countryController.text.trim(),
-                    gstIn: gstNoController.text.trim()
+                    gstin: gstNoController.text.trim()
                   );
                   context.read<KavachCheckoutAddAddressBloc>().add(
                     AddKavachAddress(request),

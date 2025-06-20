@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:http/http.dart' as http;
 import '../../../data/model/result.dart';
@@ -7,9 +9,12 @@ import '../../../utils/custom_log.dart';
 import '../../login/model/login_model.dart';
 import '../../login/repository/user_information_repository.dart';
 import '../api_request/kavach_add_address_api_request.dart';
+import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
+import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
+import '../model/kavach_truck_type_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
 class KavachRepository {
@@ -72,6 +77,21 @@ class KavachRepository {
     );
   }
 
+  Future<Result<List<TruckTypeModel>>> fetchTruckTypes() {
+    return _service.fetchTruckTypes();
+  }
+
+  Future<Result<List<CommodityModel>>> fetchCommodities() {
+    return _service.fetchCommodities();
+  }
+
+  Future<Result<KavachVehicleDocumentUploadModel>> getUploadGstData(File file) {
+    return _service.fetchUploadGstData(file);
+  }
+
+  Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
+    return _service.addVehicle(request);
+  }
 
 }
 
