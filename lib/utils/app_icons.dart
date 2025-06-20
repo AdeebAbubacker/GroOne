@@ -8,8 +8,10 @@ class AppIcons {
 
 /// PNG Icons
 class PngIcons {
-  // Base Icon
+
   static const String _pngBasePath = "assets/icons/png/";
+
+  // Base Icon
   final String brokenImage = "${_pngBasePath}imageBreak.png";
   final String appIcon = "${_pngBasePath}appIcon.png";
 
@@ -24,16 +26,20 @@ class PngIcons {
 
 }
 
+
 /// GIF Icons
 class GifIcons {
   static const String _gifBasePath = "assets/icons/gif/";
   final String appIcon = "${_gifBasePath}lntAnimateLogo.gif";
 }
 
+
 /// SVG Icons
 class SvgIcons {
-  // Base Icon
+
   static const String _svgBasePath = "assets/icons/svg/";
+
+  // Base Icon
   final String search = "${_svgBasePath}search.svg";
   final String goBack = "${_svgBasePath}goBack.svg";
   final String galleryAdd = "${_svgBasePath}galleryAdd.svg";

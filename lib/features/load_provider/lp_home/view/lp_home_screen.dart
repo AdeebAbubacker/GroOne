@@ -37,13 +37,17 @@ import 'package:gro_one_app/features/our_value_added_services_view/our_value_add
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_video.dart';
+import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -175,19 +179,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-
-  String _getInitials(String name) {
-    final parts = name.trim().split(' ');
-    print("Parts : ${parts}");
-
-    if(parts.isNotEmpty){
-      if (parts.length == 1) return parts.first[0].toUpperCase();
-      return parts.take(2).map((e) => e[0].toUpperCase()).join();
-    } else {
-      return "";
-    }
-
-  }
 
 
   // For Get Rate Discovery validation
@@ -341,6 +332,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
+  // Blue Membership Dialog
+  void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        child: BlueMembershipDialogView(blueId: blueId),
+      ),
+    );
+  });
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -475,6 +478,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         if (profileResponse != null && profileResponse?.data != null) {
                           if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc == 3) {
                             if (state.showSuccessKyc) {
+
+                              if(profileResponse?.data?.customer?.blueId != null){
+                                blueMembershipDialog(context, profileResponse!.data!.customer!.blueId.toString());
+                              }
+
                               return kycSuccessStatusWidget();
                             } else {
                               return 0.height;
@@ -838,8 +846,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             builder: (context, state) {
                               if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
                                 String? suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price;
-                                rateDiscoveryPrice = suggestedPrice ?? "00000 - 00000";
-                                return Text("₹$rateDiscoveryPrice", style: AppTextStyle.body1);
+                                rateDiscoveryPrice = suggestedPrice ?? "00000";
+                                return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
                               }
                               return  Container();
                             },

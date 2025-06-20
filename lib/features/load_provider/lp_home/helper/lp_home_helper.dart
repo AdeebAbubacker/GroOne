@@ -22,37 +22,39 @@ class LpHomeHelper {
     }
   }
 
-  // Get Matching Time
+
+// Get Matching Time (120-minute timer)
   static String getMatchingTime(String createdAtString) {
-   try {
-     // Parse createdAt
-     DateTime createdAt = DateTime.parse(createdAtString).toLocal();
+    try {
+      // Parse createdAt and convert to local time
+      DateTime createdAt = DateTime.parse(createdAtString).toLocal();
 
-     // Add 3 hours
-     DateTime targetTime = createdAt.add(const Duration(hours: 3));
+      // Add 120 minutes (2 hours)
+      DateTime targetTime = createdAt.add(const Duration(minutes: 120));
 
-     // Get current time
-     DateTime now = DateTime.now();
+      // Get current time
+      DateTime now = DateTime.now();
 
-     // Calculate difference
-     Duration difference = targetTime.difference(now);
+      // Calculate remaining time
+      Duration difference = targetTime.difference(now);
 
-     if (difference.isNegative) {
-       return "00:00:00";
-     }
+      if (difference.isNegative) {
+        return "00:00:00";
+      }
 
-     int hours = difference.inHours;
-     int minutes = difference.inMinutes % 60;
+      int hours = difference.inHours;
+      int minutes = difference.inMinutes % 60;
 
-     if (hours > 0) {
-       return "$hours hr ${minutes.toString().padLeft(2, '0')} min left";
-     } else {
-       return "$minutes min left";
-     }
-   } catch (e) {
-     return "Invalid time";
-   }
- }
+      if (hours > 0) {
+        return "$hours hr ${minutes.toString().padLeft(2, '0')} min left";
+      } else {
+        return "$minutes min left";
+      }
+    } catch (e) {
+      return "Invalid time";
+    }
+  }
+
 
 
  // Get Load type
@@ -70,7 +72,6 @@ class LpHomeHelper {
        return 'Unknown';
    }
  }
-
 
 
 
@@ -138,6 +139,17 @@ static Color getLoadStatusTextColor(String loadType) {
    } catch (e) {
      return "Calculation error";
    }
+ }
+
+
+ // Get Location Display
+ static String getPickUpAndDropLocationDisplay({required String? address, required String? location}) {
+   final cleanedLocation = location?.trim() ?? '';
+   final cleanedAddress = address?.trim() ?? '';
+
+   if (cleanedAddress.isEmpty) return cleanedLocation;
+   if (cleanedLocation.isEmpty) return cleanedAddress;
+   return "$cleanedAddress, $cleanedLocation";
  }
 
 
