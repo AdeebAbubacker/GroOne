@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +35,6 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
@@ -69,7 +69,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final pinCodeTextController = TextEditingController();
 
 
-  final MultiSelectController<String> truckTypeController = MultiSelectController<String>();
+  final MultiSelectController<int> truckTypeController = MultiSelectController<int>();
   final MultiSelectController<String>  preferredLanesTypeController = MultiSelectController<String>();
 
   String? preferredLanesDropDownValue;
@@ -79,7 +79,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   List<dynamic> multiFilesList = [];
-  List<String> selectedTruckTypeList = [];
+  List<int> selectedTruckTypeList = [];
+
   final List<DropdownItem<String>> preferredLanesList = [
     DropdownItem(label: 'Chennai - Mumbai', value: '1'),
     DropdownItem(label: 'Chennai -  Pune', value: '2'),
@@ -109,7 +110,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void initFunction() => frameCallback(() {
     mobileNumberTextController.text = widget.mobileNumber;
     loadTruckTypeBloc.add(LoadTruckType());
-    vpCreationBloc.add(GetTruckTypeEvent());
     vpCreationBloc.add(VpCompanyTypeEvent());
     verifyEmailCubit.resetState();
   });
@@ -141,16 +141,21 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
         return;
       }
+      if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
+        ToastMessages.alert(message: "Please verify your email");
+        return;
+      }
       final request = VpCreationApiRequest(
         customerName: nameTextController.text,
         mobileNumber: mobileNumberTextController.text,
         companyName: companyNameTextController.text,
         companyTypeId: companyTypeDropDownValue,
-        truckType: truckTypeDropDownValue,
+        truckType: selectedTruckTypeList,
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
         preferredLanes: preferredLanesDropDownValue,
         emailId: emailTextController.text,
+        pincode: pinCodeTextController.text,
         uploadRc: uploadedRcFile,
       );
       vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
@@ -375,29 +380,28 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
         // TrucK Type
-        BlocConsumer<VpCreationBloc, VpCreationState>(
-          bloc: vpCreationBloc,
-          buildWhen: (previous, current) => current is TruckTypeSuccess,
+        BlocConsumer<LoadTruckTypeBloc, LoadTruckTypeState>(
+          bloc: loadTruckTypeBloc,
+          buildWhen: (previous, current) => current is LoadTruckTypeSuccess,
           listener: (context, state) {
-            if (state is TruckTypeError) {
+            if (state is LoadTruckTypeError) {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
           builder: (context, state) {
-            if (state is TruckTypeSuccess) {
-              return AppMultiSelectionDropdown<String>(
+            if (state is LoadTruckTypeSuccess) {
+              return AppMultiSelectionDropdown<int>(
                 labelText: context.appText.truckType,
                 hintText: context.appText.selectTruckType,
                 controller: truckTypeController,
                 mandatoryStar: true,
-                items: state.truckTypeModel.data.map((e) => DropdownItem<String>(
-                  value: e, // or e.id
-                  label: e,
+                items: state.loadTruckTypeListModel.data.map((e) => DropdownItem<int>(
+                  value: e.id,
+                  label: "${e.type} ${e.subType}",
                 )).toList(),
                 onSelectionChange: (selected) {
                   if (selected.isNotEmpty) {
-                    selectedTruckTypeList = selected.toSet().toList();
-                    truckTypeDropDownValue = selected.first;
+                    selectedTruckTypeList = selected; // already List<int>
                   } else {
                     truckTypeDropDownValue = null;
                     selectedTruckTypeList.clear();

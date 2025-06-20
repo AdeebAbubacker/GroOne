@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -50,6 +51,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final kycCubit = locator<KycCubit>();
+  final lpHomeCubit = locator<LPHomeCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   final TextEditingController aadhaarNumberTextController = TextEditingController();
@@ -172,6 +174,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchCompanyTypeId();
     nodeManage();
     aadhaarNumberTextController.text = widget.aadhaarNumber;
+    await Future.delayed(Duration(milliseconds: 200));
+    setState(() {});
   });
   
   void disposeFunction()=> frameCallback((){
@@ -187,11 +191,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     bankNameTextController.dispose();
     branchNameTextController.dispose();
     ifscCodeTextController.dispose();
-
     gstFocusNode.dispose();
     tanFocusNode.dispose();
     panFocusNode.dispose();
-
     kycCubit.resetState();
   });
 
@@ -210,17 +212,14 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     bankNameTextController.clear();
     branchNameTextController.clear();
     ifscCodeTextController.clear();
-
     selectedState = null;
     selectedCity = null;
-
     gstDoc.clear();
     panDoc.clear();
     tanDoc.clear();
     checkDocLink.clear();
     tdsDocLink.clear();
     tds.clear();
-
     uploadLink = "";
   });
 
@@ -404,32 +403,31 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
-
-    final kycRequest = SubmitKycApiRequest(
-      aadhar: widget.aadhaarNumber,
-      address1: addressLine1TextController.text,
-      address2: addressLine2TextController.text,
-      address3: addressLine3TextController.text,
-      bankAccount: accountNumberTextController.text,
-      bankName: bankNameTextController.text,
-      branchName: branchNameTextController.text,
-      chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
-      tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
-      gstin: gstInTextController.text,
-      gstinDocLink: gstDoc.isNotEmpty ?  gstDoc.first['path'] : null,
-      ifscCode: ifscCodeTextController.text,
-      isAadhar: true,
-      isGstin: kycCubit.state.verifiedGst,
-      isPan:  kycCubit.state.verifiedPan,
-      isTan:  kycCubit.state.verifiedTan,
-      pan: panTextController.text,
-      panDocLink:  panDoc.isNotEmpty ?  panDoc.first['path'] : null,
-      tan: tanTextController.text,
-      tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
-    );
-
-    kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
-
+    if(_formKey.currentState!.validate()){
+      final kycRequest = SubmitKycApiRequest(
+        aadhar: widget.aadhaarNumber,
+        address1: addressLine1TextController.text,
+        address2: addressLine2TextController.text,
+        address3: addressLine3TextController.text,
+        bankAccount: accountNumberTextController.text,
+        bankName: bankNameTextController.text,
+        branchName: branchNameTextController.text,
+        chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
+        tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
+        gstin: gstInTextController.text,
+        gstinDocLink: gstDoc.isNotEmpty ?  gstDoc.first['path'] : null,
+        ifscCode: ifscCodeTextController.text,
+        isAadhar: true,
+        isGstin: kycCubit.state.verifiedGst,
+        isPan:  kycCubit.state.verifiedPan,
+        isTan:  kycCubit.state.verifiedTan,
+        pan: panTextController.text,
+        panDocLink:  panDoc.isNotEmpty ?  panDoc.first['path'] : null,
+        tan: tanTextController.text,
+        tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
+      );
+      kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+    }
   }
 
 
@@ -791,6 +789,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
             clearAllFormValues();
+            lpHomeCubit.fetchProfileDetail();
             navigateToHomeScreen(context);
           }
           if (status == Status.ERROR) {

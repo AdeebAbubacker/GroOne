@@ -418,10 +418,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       title: "Continue",
       onPressed: () {
 
-
-
         debugPrint("title ${widget.title}");
-
 
         if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
           _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");

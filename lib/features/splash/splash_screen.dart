@@ -5,14 +5,11 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
-import 'package:video_player/video_player.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -111,19 +108,5 @@ class _SplashScreenState extends State<SplashScreen> {
           filterQuality: FilterQuality.high,
       ),
     );
-    // return Scaffold(
-    //   body: _controller.value.isInitialized
-    //       ? SizedBox.expand(
-    //     child: FittedBox(
-    //       fit: BoxFit.cover,
-    //       child: SizedBox(
-    //         width: _controller.value.size.width,
-    //         height: _controller.value.size.height,
-    //         child: VideoPlayer(_controller),
-    //       ),
-    //     ),
-    //   )
-    //       : const Center(child: CircularProgressIndicator()),
-    // );
   }
 }

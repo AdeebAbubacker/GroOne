@@ -250,6 +250,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               },
             ),
           );
+          lpHomeCubit.fetchGetLoadList();
           lpHomeCubit.clearPickUpAndDestination();
         }
       },

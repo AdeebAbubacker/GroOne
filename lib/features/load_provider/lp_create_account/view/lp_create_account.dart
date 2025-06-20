@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -350,6 +351,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () {
             if (_formKey.currentState!.validate()) {
+              if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
+                ToastMessages.alert(message: "Please verify your email");
+                return;
+              }
               final apiRequest = CreateRequest(
                 customerName: nameTextController.text,
                 mobileNumber: phoneNumberTextController.text,

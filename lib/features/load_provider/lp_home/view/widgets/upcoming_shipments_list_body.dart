@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -49,6 +49,7 @@ class UpcomingShipmentsListBody extends StatelessWidget {
               // ),
               // 10.width,
 
+              // KYC Hours Timer
               if(loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -60,25 +61,16 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                     ),
                     5.height,
 
+                    // Matching Timer
                     if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
                       // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
                       BlocBuilder<LPHomeCubit, LPHomeState>(
-                        buildWhen: (p, c) => p.remainingTime != c.remainingTime,
+                        buildWhen: (p, c) => p.matchingText != c.matchingText,
                         builder: (context, state) {
-                          final remaining = state.remainingTime ?? Duration.zero;
-
-                          if (remaining == Duration.zero) {
-                            return Text("00:00:00", style: AppTextStyle.body4.copyWith(color: Colors.red));
-                          }
-
-                          final hours = remaining.inHours;
-                          final minutes = remaining.inMinutes % 60;
-                          final seconds = remaining.inSeconds % 60;
-
                           return Text(
-                            "$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}",
+                            state.matchingText ?? "00:00:00",
                             style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                          ).paddingRight(5);
+                          );
                         },
                       )
                     else

@@ -59,7 +59,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         if(widget.child != null)...[
           widget.child!,
-          30.height,
+          20.height,
         ],
 
         if(widget.heading != null)...[

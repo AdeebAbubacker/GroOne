@@ -1,26 +1,28 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide Result;
+import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeService{
   final ApiService _apiService;
-  LpHomeService(this._apiService);
+  final SecuredSharedPreferences _securedSharedPref;
+  LpHomeService(this._apiService, this._securedSharedPref);
 
   /// Fetch Profile
   Future<Result<ProfileDetailModel>> getProfileDetails({required String id}) async {
@@ -28,8 +30,19 @@ class LpHomeService{
       final url = ApiUrls.getProfile+id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        _apiService.clearCache();
-        return  await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
+        dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
+        // Save Blue Id
+        if (data is Success<ProfileDetailModel>) {
+          if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
+            await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
+            CustomLog.debug(this, "Saved Blue Id: ${data.value.data!.customer!.blueId}");
+          }
+          return Success(data.value);
+        }
+        if (data is Error) {
+          return Error(data.type);
+        }
+        return Error(GenericError());
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -48,7 +61,6 @@ class LpHomeService{
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        _apiService.clearCache();
         return  await _apiService.getResponseStatus(result.value, (data)=> LpGetLoadModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);

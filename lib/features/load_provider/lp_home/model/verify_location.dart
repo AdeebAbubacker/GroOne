@@ -72,12 +72,12 @@ class GMapResponse {
   });
 
   final List<dynamic> htmlAttributions;
-  final Result? result;
+  final LocationResult? result;
   final String status;
 
   GMapResponse copyWith({
     List<dynamic>? htmlAttributions,
-    Result? result,
+    LocationResult? result,
     String? status,
   }) {
     return GMapResponse(
@@ -90,15 +90,15 @@ class GMapResponse {
   factory GMapResponse.fromJson(Map<String, dynamic> json){
     return GMapResponse(
       htmlAttributions: json["html_attributions"] == null ? [] : List<dynamic>.from(json["html_attributions"]!.map((x) => x)),
-      result: json["result"] == null ? null : Result.fromJson(json["result"]),
+      result: json["result"] == null ? null : LocationResult.fromJson(json["result"]),
       status: json["status"] ?? "",
     );
   }
 
 }
 
-class Result {
-  Result({
+class LocationResult {
+  LocationResult({
     required this.addressComponents,
     required this.adrAddress,
     required this.formattedAddress,
@@ -134,7 +134,7 @@ class Result {
   final String vicinity;
   final String website;
 
-  Result copyWith({
+  LocationResult copyWith({
     List<AddressComponent>? addressComponents,
     String? adrAddress,
     String? formattedAddress,
@@ -152,7 +152,7 @@ class Result {
     String? vicinity,
     String? website,
   }) {
-    return Result(
+    return LocationResult(
       addressComponents: addressComponents ?? this.addressComponents,
       adrAddress: adrAddress ?? this.adrAddress,
       formattedAddress: formattedAddress ?? this.formattedAddress,
@@ -172,8 +172,8 @@ class Result {
     );
   }
 
-  factory Result.fromJson(Map<String, dynamic> json){
-    return Result(
+  factory LocationResult.fromJson(Map<String, dynamic> json){
+    return LocationResult(
       addressComponents: json["address_components"] == null ? [] : List<AddressComponent>.from(json["address_components"]!.map((x) => AddressComponent.fromJson(x))),
       adrAddress: json["adr_address"] ?? "",
       formattedAddress: json["formatted_address"] ?? "",
