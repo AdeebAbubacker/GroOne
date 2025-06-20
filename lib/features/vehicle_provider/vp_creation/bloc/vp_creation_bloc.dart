@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/load_provider/lp_create_account/repository/
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/log_out_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -22,6 +23,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     on<GetTruckTypeEvent>(fetchTruckType);
     on<VpResetEvent>(resetUIState);
     on<VpCompanyTypeEvent>(fetchCompanyTypeApiCall);
+    on<GetTruckPrefLaneEvent>(fetchTruckPrefLane);
   }
 
 
@@ -57,6 +59,18 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
     Result result = await _repository.getTruckTypeData();
     if (result is Success<TruckTypeModel>) {
       emit(TruckTypeSuccess(result.value));
+    }
+    if (result is Error) {
+      emit(VpCreationError(result.type));
+    }
+  }
+
+  // Get Truck Pref Api Call
+  Future<void> fetchTruckPrefLane(GetTruckPrefLaneEvent event, Emitter<VpCreationState> emit) async {
+    emit(TruckPrefLaneLoading());
+    Result result = await _repository.getPrefTruckLaneData(event.location);
+    if (result is Success<TruckPrefLaneModel>) {
+      emit(TruckPrefLaneSuccess(result.value));
     }
     if (result is Error) {
       emit(VpCreationError(result.type));
