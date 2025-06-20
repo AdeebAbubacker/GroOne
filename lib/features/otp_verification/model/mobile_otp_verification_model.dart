@@ -1,5 +1,5 @@
-class OtpResponse {
-  OtpResponse({
+class MobileOtpVerificationModel {
+  MobileOtpVerificationModel({
     required this.success,
     required this.message,
     required this.data,
@@ -9,20 +9,20 @@ class OtpResponse {
   final String message;
   final Data? data;
 
-  OtpResponse copyWith({
+  MobileOtpVerificationModel copyWith({
     bool? success,
     String? message,
     Data? data,
   }) {
-    return OtpResponse(
+    return MobileOtpVerificationModel(
       success: success ?? this.success,
       message: message ?? this.message,
       data: data ?? this.data,
     );
   }
 
-  factory OtpResponse.fromJson(Map<String, dynamic> json){
-    return OtpResponse(
+  factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){
+    return MobileOtpVerificationModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),

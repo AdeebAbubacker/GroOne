@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_screen.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -10,7 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/lp_track_load_sc
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import 'package:gro_one_app/features/login/view/login_screen.dart';
-import 'package:gro_one_app/features/otp_verification/view/otp_verification_screen.dart';
+import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/gps/view/gps_screen.dart';
@@ -45,7 +45,7 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final String addharNumber = data["addharNumber"] ?? "";
-          return KycScreen(aadhaarNumber: addharNumber);
+          return KycUploadDocumentScreen(aadhaarNumber: addharNumber);
         },
       ),
 
@@ -167,7 +167,7 @@ class AppRoutes {
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
           final String roleId = data["roleId"];
-          return OtpVerificationScreen(
+          return MobileOtpVerificationScreen(
             otp: otp,
             mobileNumber: mobileNumber,
             roleId: roleId,

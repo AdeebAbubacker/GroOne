@@ -48,6 +48,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -365,15 +366,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             );
           }
         },
-        child: InkWell(
-          onTap: (){
-
-            // AppDialog.show(context, child: SuccessDialogView(message: "Load Accepted Successfully"));
-          },
-            child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding)),
+        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       ),
+
       actions: [
 
+        // Notification
         IconButton(
           onPressed: () {},
           icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
@@ -416,20 +414,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 10.width,
 
                 // Profile
-                InkWell(
-                    onTap: (){
-                      Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-                        frameCallback(() =>  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
-                      });
-                    },
-                    child: Container(
-                        height: 45,
-                        width: 45,
-                        alignment: Alignment.center,
-                        decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
-                        child: Text(''),
-                    )
-                ).paddingRight(commonSafeAreaPadding),
+                Container(
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                    child: Text(getInitialsFromName(this, name : profileResponse?.data?.details?.companyName ?? '')),
+                ).onClick((){
+                  Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
+                    frameCallback(() =>  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
+                  });
+                }).paddingRight(commonSafeAreaPadding),
             ]);
             }
             return Container();

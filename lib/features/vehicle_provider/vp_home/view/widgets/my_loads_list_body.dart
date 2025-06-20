@@ -158,7 +158,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 },
                 icon: Container(
                   alignment: Alignment.center,
-                  padding: EdgeInsetsGeometry.all(5),
+                  padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(

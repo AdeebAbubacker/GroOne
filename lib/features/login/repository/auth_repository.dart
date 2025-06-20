@@ -1,7 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
-import 'package:gro_one_app/features/otp_verification/model/otp_response.dart';
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -16,7 +16,7 @@ class AuthRepository {
 
 
   /// Save user data
-  Future<Result<bool>> saveUserInfoFromLogin(OtpResponse user) async {
+  Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
       final userData = user.data;
       if (userData?.user == null) {

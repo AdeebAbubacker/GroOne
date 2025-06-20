@@ -13,7 +13,7 @@ class OtpLoading extends OtpState {}
 class OtpResendLoading extends OtpState {}
 
 class OtpSuccess extends OtpState {
-  final OtpResponse otpResponse;
+  final MobileOtpVerificationModel otpResponse;
 
   OtpSuccess(this.otpResponse);
 }

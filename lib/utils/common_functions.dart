@@ -514,7 +514,7 @@ Color getKavachOrderStatusColor(String status) {
   }
 }
 
-
+/// Common Support Dialog
 void commonSupportDialog(BuildContext context){
   AppDialog.show(
     context,
@@ -528,4 +528,16 @@ void commonSupportDialog(BuildContext context){
       child: SvgPicture.asset(AppImage.svg.customerSupport),
     ),
   );
+}
+
+
+String getInitialsFromName(Object instance, {required String name}) {
+  CustomLog.debug(instance, "Name is $name, Length is ${name.length}");
+  if (name.trim().isEmpty) return '?'; // or return ''; if you prefer
+
+  final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
+
+  if (parts.length == 1) return parts[0][0].toUpperCase();
+
+  return parts.take(2).map((e) => e[0].toUpperCase()).join();
 }
