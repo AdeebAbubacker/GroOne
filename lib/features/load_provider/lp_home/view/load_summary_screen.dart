@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,12 +11,14 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.d
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/load_summary_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -128,7 +131,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                   Text("Suggested Price", style: AppTextStyle.h3PrimaryColor),
                   5.height,
                   Text(
-                    widget.price,
+                    PriceHelper.formatINR(widget.price),
                     style: AppTextStyle.h4.copyWith(
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -139,8 +142,8 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
             ),
 
             // Form-style details using TextFields
-            buildReadOnlyField("Loading Point", "${widget.pickupAddress},  ${widget.pickupLocation}"),
-            buildReadOnlyField("Unloading point", "${widget.destinationAddress},  ${widget.destinationLocation}"),
+            buildReadOnlyField("Loading Point", LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.pickupAddress, location: widget.pickupLocation)),
+            buildReadOnlyField("Unloading point", LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.destinationAddress, location: widget.destinationLocation)),
             buildReadOnlyField("Vehicle type", widget.vehicleType),
             buildReadOnlyField("Vehicle Length", widget.vehicleLength),
             buildReadOnlyField("Consignment weight", "${widget.approxWeight} MT"),
@@ -173,6 +176,10 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               controller: handlingChargesTextController,
               hintText: "Enter Handling Charges",
               labelText: "Handling Charges",
+              keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
               onChanged: (value){
                 debugPrint("Handling Charges of 10% : ${LpHomeHelper.calculateTenPercentOfAverage(widget.price)}");
 
@@ -215,7 +222,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: commonContainerDecoration(color: fillColor ?? AppColors.greyIconBackgroundColor, borderRadius: BorderRadius.circular(commonTexFieldRadius), borderColor: AppColors.borderDisableColor),
+          decoration: commonContainerDecoration(color: fillColor ?? AppColors.lightGreyBackgroundColor, borderRadius: BorderRadius.circular(commonTexFieldRadius), borderColor: AppColors.borderDisableColor),
           child: Text(value, style: AppTextStyle.textFiled),
         ),
       ],

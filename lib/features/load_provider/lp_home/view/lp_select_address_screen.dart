@@ -110,6 +110,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     }
   }
 
+
   void _setMarker(LatLng pos) {
     final marker = Marker(
       markerId: const MarkerId("selected_location"),
@@ -209,6 +210,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
               await MapHelper.animateTo(_mapController!, latLng);
             }
             _setMarker(latLng);
+            setState(() {});
           }
           searchTextController.text = locationDetails.name;
           lpHomeCubit.setLocationDetailId(data.locationdetails!.id);
@@ -306,6 +308,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       ),
     );
   }
+
 
   Widget buildGoogleMapWidget(){
     return Positioned.fill(
@@ -416,25 +419,17 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       onPressed: () {
 
 
-        final locationAddress = _locationField;
-
-        final isValid = locationAddress.isNotEmpty && locationAddress != 'No address found';
 
         debugPrint("title ${widget.title}");
-        debugPrint("locationAddress $locationAddress");
 
-        if(addressTextController.text.isEmpty){
-          _showError("Please select a valid location address.");
-          return;
-        }
 
         if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
           _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
           return;
         }
 
-        if (!isValid){
-          _showError("Please select a valid location address.");
+        if (searchTextController.text.isEmpty){
+          _showError("Please select location address.");
           return;
         }
 

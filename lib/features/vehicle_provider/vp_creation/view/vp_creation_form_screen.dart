@@ -145,6 +145,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         customerName: nameTextController.text,
         mobileNumber: mobileNumberTextController.text,
         companyName: companyNameTextController.text,
+        companyTypeId: companyTypeDropDownValue,
         truckType: truckTypeDropDownValue,
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
