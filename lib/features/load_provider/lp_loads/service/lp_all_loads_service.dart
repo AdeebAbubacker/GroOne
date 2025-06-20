@@ -1,6 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 
 class LpLoadService {
@@ -24,6 +25,32 @@ class LpLoadService {
       if (response is Success) {
         final data = response.value['data']['data'] as List;
         final loads = data.map((e) => LpLoadItem.fromJson(e)).toList();
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LoadMemoData>> fetchMemoDetails({
+    required int loadId,
+    bool forceRefresh = false
+  }) async {
+
+    try {
+      final url = ApiUrls.lpLoadMemo;
+      final response = await _apiService.get(
+        '$url/$loadId/memo',
+        forceRefresh: forceRefresh,
+      );
+
+      if (response is Success) {
+        final data = response.value['data'];
+        final loads = data.map((e) => LoadMemoData.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

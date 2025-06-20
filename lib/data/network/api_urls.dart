@@ -76,7 +76,6 @@ class ApiUrls {
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
-  static final String lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
 
   ///submit Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
@@ -98,6 +97,9 @@ class ApiUrls {
   static final String  pan = "$_kucDocUpload/pan";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
+  static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
+  static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
+
 
 
   /// Load Creation
