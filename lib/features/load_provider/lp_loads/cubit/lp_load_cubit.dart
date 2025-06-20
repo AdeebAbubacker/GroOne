@@ -29,4 +29,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.error(result.type));
     }
   }
+
+  // update the selected tab
+  void updateSelectedTabIndex(int index) {
+    emit(state.copyWith(selectedTabIndex: index));
+  }
+
 }

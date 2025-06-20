@@ -1,11 +1,13 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_timeline_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -23,6 +25,12 @@ class LpLoadsLocationDetailsScreen extends StatefulWidget {
 class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScreen> {
 
   GoogleMapController? _mapController;
+
+
+  Future<void> _setMapStyle(GoogleMapController controller) async {
+    String style = await rootBundle.loadString(AppJSON.mapStyle);
+    controller.setMapStyle(style);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +61,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
               ),
               onMapCreated: (controller) async {
                 _mapController = controller;
+                await _setMapStyle(controller);
               },
               zoomGesturesEnabled: true,
               scrollGesturesEnabled: true,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
@@ -33,6 +34,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     with SingleTickerProviderStateMixin {
   final searchController = TextEditingController();
   Timer? _debounce;
+  final lpLoadLocator = locator<LpLoadCubit>();
+
 
   TabController? _tabController;
   final tabLabels = [
@@ -68,24 +71,24 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     _tabController!.addListener(() {
       if (_tabController!.indexIsChanging) {
         final selectedType = _tabController!.index;
+
+        lpLoadLocator.updateSelectedTabIndex(selectedType);
         if (selectedType == 3) {
-          context.read<LpLoadCubit>().getLpLoadsByType(type: selectedType + 2);
+          lpLoadLocator.getLpLoadsByType(type: selectedType + 2);
         } else {
-          context.read<LpLoadCubit>().getLpLoadsByType(type: selectedType + 1);
+          lpLoadLocator.getLpLoadsByType(type: selectedType + 1);
         }
-        setState(() {});
       }
     });
-    context.read<LpLoadCubit>().getLpLoadsByType(type: widget.initialTabIndex+1);
+    lpLoadLocator.getLpLoadsByType(type: widget.initialTabIndex+1);
   });
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final type = _tabController!.index + 1;
-        context.read<LpLoadCubit>().getLpLoadsByType(type: type, search: query);
+      lpLoadLocator.getLpLoadsByType(type: type, search: query);
     });
-    setState(() {});
   }
 
   void disposeFunction() => frameCallback(() {
@@ -125,28 +128,32 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     return Container(
       height: 40.h,
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
-      child: TabBar(
-        controller: _tabController!,
-        isScrollable: true,
-        physics: ClampingScrollPhysics(),  // tighter scroll behavior
-        indicator: const BoxDecoration(),
-        dividerHeight: 0,
-        tabs: List.generate(8, (index) {
-          final isSelected = _tabController!.index == index;
-          return Tab(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: commonContainerDecoration(
-                color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tabLabels[index],
-                style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
-              ),
-            ),
+      child: BlocBuilder<LpLoadCubit, LpLoadState>(
+          builder: (context, state) {
+          return TabBar(
+            controller: _tabController!,
+            isScrollable: true,
+            physics: ClampingScrollPhysics(),  // tighter scroll behavior
+            indicator: const BoxDecoration(),
+            dividerHeight: 0,
+            tabs: List.generate(8, (index) {
+              final isSelected = state.selectedTabIndex == index;
+              return Tab(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: commonContainerDecoration(
+                    color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    tabLabels[index],
+                    style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
+                  ),
+                ),
+              );
+            }),
           );
-        }),
+        }
       ),
     ).paddingOnly(top: 15.h, right: 15.w, left: 15.w);
   }
