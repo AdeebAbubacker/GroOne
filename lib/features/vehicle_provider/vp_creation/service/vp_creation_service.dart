@@ -57,8 +57,9 @@ class VpCreationService {
     // Fetch TruckPrefLaneModel
   Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
     try {
-      final baseUrl = "https://gro-devapi.letsgro.co/ratediscovery/api/v1/lane";
-      final url = location?.isNotEmpty == true ? "$baseUrl?search=$location" : baseUrl;
+      final url = location?.isNotEmpty == true
+    ? "${ApiUrls.truckPrefLane}?search=$location"
+    : ApiUrls.truckPrefLane;
       final result = await _apiService.get(url);
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> TruckPrefLaneModel.fromJson(data));

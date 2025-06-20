@@ -76,7 +76,7 @@ class ApiUrls {
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
-  static final String truckPrefLane="$_baseUrl$_path$_v1/lane";
+  static final String truckPrefLane="$_baseUrl$_rateDiscovery$_path$_v1/lane";
 
   ///submit Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
