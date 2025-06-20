@@ -18,10 +18,12 @@ import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/v
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
+import '../features/vehicle_provider/vp_details/view/load_details_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -31,7 +33,6 @@ class AppRoutes {
     initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
-
       // Splash
       GoRoute(
         path: AppRouteName.splash,
@@ -156,7 +157,11 @@ class AppRoutes {
           final String id = data["userId"];
           final String roleId = data["roleId"];
           final String mobileNumber = data["mobileNumber"];
-          return LpCreateAccount(userId: id, mobileNumber: mobileNumber, roleId: roleId);
+          return LpCreateAccount(
+            userId: id,
+            mobileNumber: mobileNumber,
+            roleId: roleId,
+          );
         },
       ),
 
@@ -182,7 +187,18 @@ class AppRoutes {
           return const DefaultScreen();
         },
       ),
-
+      GoRoute(
+        path: AppRouteName.loadDetailsScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return  LoadDetailsScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.tripScheduleScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return TripScheduleScreen();
+        },
+      ),
     ],
   );
 }

@@ -76,6 +76,9 @@ class PngImages {
   final String kavachModel = "${_pngImageBasePath}kavach_model.png";
   final String groBanner = "${_pngImageBasePath}gro_banner.png";
 
+  /// assign driver vp
+  final String dummyTruckLoad = "${_pngImageBasePath}dummy_truck_load.png";
+
 
 
 }
@@ -101,6 +104,8 @@ class SvgImages {
   final String location = "${_svgImageBasePath}location.svg";
   final String logOutImage = "${_svgImageBasePath}log_out.svg";
   final String customerSupport = "${_svgImageBasePath}customer_support.svg";
+
+
 }
 
 class JpgImage {

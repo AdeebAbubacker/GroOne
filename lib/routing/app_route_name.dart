@@ -37,6 +37,11 @@ class AppRouteName{
 
   ///LP TripSchedulingScreen
 
-  static const String tripSchedulingScreen = "/tripSchedulingScreen";
+
+
+
+  /// assign Driver
+  static const String loadDetailsScreen = "/loadDetailsScreen";
+  static const String tripScheduleScreen = "/tripScheduleScreen";
 
 }

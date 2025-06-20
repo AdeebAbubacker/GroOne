@@ -153,6 +153,7 @@
   "addressLine": "Address Line",
   "city": "City",
   "state": "State",
+
   "useMyCurrentLocation": "Use My Current Location",
   "summary": "Summary",
   "total": "Total",

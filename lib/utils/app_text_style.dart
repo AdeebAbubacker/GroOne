@@ -13,7 +13,8 @@ class AppTextStyle {
     color: AppColors.black,
     fontSize: 12.sp,
     fontWeight: FontWeight.w700,
-  ); static TextStyle orangeTextColor26w700 = TextStyle(
+  );
+  static TextStyle orangeTextColor26w700 = TextStyle(
     color: AppColors.orangeTextColor,
     fontSize: 26.sp,
     fontWeight: FontWeight.w700,
