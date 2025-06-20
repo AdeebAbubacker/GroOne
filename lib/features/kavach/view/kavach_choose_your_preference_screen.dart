@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_state.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_models_screen.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
-import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
+import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
+import 'package:gro_one_app/utils/widgets/common_app_bar.dart';
+import '../../../dependency_injection/locator.dart';
+
 
 class KavachChooseYourPreferenceScreen extends StatefulWidget {
   const KavachChooseYourPreferenceScreen({super.key});
@@ -23,146 +26,117 @@ class KavachChooseYourPreferenceScreen extends StatefulWidget {
 }
 
 class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPreferenceScreen> {
-  // Sample dropdown values
-  String? selectedMake = 'TATA';
-  String? selectedModel;
-  String? selectedEngine;
-  String? selectedTankType;
-  String? selectedDeviceType;
+  late final KavachProductsListBloc _bloc;
 
-  final List<DropdownMenuItem<String>> makeList = [
-    DropdownMenuItem(value: 'TATA', child: Text('TATA')),
-    DropdownMenuItem(value: 'ASHOK LEYLAND', child: Text('ASHOK LEYLAND')),
-    DropdownMenuItem(value: 'EICHER', child: Text('EICHER')),
-  ];
-  final List<DropdownMenuItem<String>> modelList = [
-    DropdownMenuItem(value: 'Select', child: Text('Select')),
-    DropdownMenuItem(value: 'Model X', child: Text('Model X')),
-    DropdownMenuItem(value: 'Model Y', child: Text('Model Y')),
-  ];
-  final List<DropdownMenuItem<String>> engineList = [
-    DropdownMenuItem(value: 'Select', child: Text('Select')),
-    DropdownMenuItem(value: 'Diesel', child: Text('Diesel')),
-    DropdownMenuItem(value: 'Petrol', child: Text('Petrol')),
-  ];
-  final List<DropdownMenuItem<String>> tankTypeList = [
-    DropdownMenuItem(value: 'cross Linked polymer/Plastic', child: Text('cross Linked polymer/Plastic')),
-    DropdownMenuItem(value: 'Steel', child: Text('Steel')),
-  ];
-  final List<DropdownMenuItem<String>> deviceTypeList = [
-    DropdownMenuItem(value: 'Neck/Drain Plug/ Full Kit', child: Text('Neck/Drain Plug/ Full Kit')),
-    DropdownMenuItem(value: 'Neck Only', child: Text('Neck Only')),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Get the bloc from the dependency injection
+    _bloc = locator<KavachProductsListBloc>();
+    // Fetch masters data when the screen initializes
+    _bloc.add(FetchMastersData());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.tankLock,
-                actions: [
-                AppIconButton(
-                  onPressed: () {},
-                  icon: AppIcons.svg.support,
-                  iconColor: AppColors.primaryColor,
+      backgroundColor: AppColors.blackishWhite,
+      appBar: CommonAppBar(
+        centreTile: false,
+        title: context.appText.tankLock,
+        actions: [
+          AppIconButton(
+            onPressed: () {},
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryColor,
+          ),
+          10.width,
+        ],
+      ),
+      body: SafeArea(
+        child: BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
+          bloc: _bloc,
+          builder: (context, state) {
+            // Handle different UI states based on the masters data status
+            if (state.mastersLoading) {
+              // Show loading indicator while fetching data
+              return const AppLoadingWidget();
+
+            } else if (state.mastersError != null) {
+              // Show error widget with retry option
+              return AppErrorWidget(
+                error: state.mastersError!,
+                onRetry: () => _bloc.add(FetchMastersData()),
+              );
+            } else if (state.mastersData != null) {
+
+              // Show the banner and choose your preference form with fetched data
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    //to show the image
+                    _buildBannerSection(),
+
+                    20.height,
+
+                    ChooseYourPreferenceForm(
+                      vehicleFilters: state.mastersData!.data.vehicleFilters,
+                      onPreferenceChanged: (preferences) {
+                        // Handle preference changes from the form
+                        _bloc.add(UpdateUserPreferences(preferences));
+                      },
+                      onApply: () {
+                        // Navigate to models screen when preferences are applied
+                        // Pass the current preferences to the models screen
+                        final currentPreferences = state.userPreferences;
+                        Navigator.of(context).push(
+                          commonRoute(
+                            KavachModelsScreen(
+                              initialPreferences: currentPreferences,
+                            ),
+                          ),
+                        );
+                      },
+                      onCancel: () {
+                        // Go back to previous screen when cancelled
+                        Navigator.of(context).pop();
+                      },
+                      onSupport: () {
+                        // Handle support button when BS6 is selected
+                        // You can navigate to support screen or show support dialog
+                        print('Support requested for BS6 engine type');
+                    
+                       
+                      },
+                    ),
+
+                    20.height,
+                    
+                  ],
                 ),
-                10.width,
-              ],),
-    
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Banner Image
-            Container(
-              width: double.infinity,
-              height: 180,
-              decoration: BoxDecoration(
-                color: AppColors.lightPrimaryColor,
-                image: DecorationImage(
-                  image: AssetImage(AppImage.png.newTruck),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            15.height,
-            // Form Card
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              decoration: commonContainerDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                shadow: true,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text('Choose your preference', style: AppTextStyle.h4)),
-                  15.height,
-                  AppDropdown(
-                    labelText: 'Make',
-                    mandatoryStar: true,
-                    dropdownValue: selectedMake,
-                    dropDownList: makeList,
-                    onChanged: (val) => setState(() => selectedMake = val),
-                  ),
-                   10.height,
-                  AppDropdown(
-                    labelText: 'Model',
-                    mandatoryStar: true,
-                    dropdownValue: selectedModel,
-                    dropDownList: modelList,
-                    onChanged: (val) => setState(() => selectedModel = val),
-                  ),
-                  10.height,
-                  AppDropdown(
-                    labelText: 'Engine',
-                    dropdownValue: selectedEngine,
-                    dropDownList: engineList,
-                    onChanged: (val) => setState(() => selectedEngine = val),
-                  ),
-                  10.height,
-                  AppDropdown(
-                    labelText: 'Tank Type',
-                    dropdownValue: selectedTankType,
-                    dropDownList: tankTypeList,
-                    onChanged: (val) => setState(() => selectedTankType = val),
-                  ),
-                 10.height,
-                  AppDropdown(
-                    labelText: 'Device Type',
-                    dropdownValue: selectedDeviceType,
-                    dropDownList: deviceTypeList,
-                    onChanged: (val) => setState(() => selectedDeviceType = val),
-                  ),
-                 10.height,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          title: 'Cancel',
-                          style: AppButtonStyle.outline,
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                      20.width,
-                      Expanded(
-                        child: AppButton(
-                          title: 'Apply',
-                          style: AppButtonStyle.primary,
-                          onPressed: () {
-                            Navigator.of(context).push(commonRoute(KavachModelsScreen()));
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            20.height,
-          ],
+              );
+            } else {
+              // Show nothing while initializing
+              return const SizedBox();
+            }
+          },
         ),
       ),
+    );
+  }
+
+  /// Builds the banner section with truck image and kavach product overlay
+  Widget _buildBannerSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    return Container(
+      width: double.infinity,
+      height: screenHeight * 0.22, // Responsive height using MediaQuery
+      decoration: BoxDecoration(
+        color: AppColors.lightPrimaryColor,
+      ),
+      child: Image.asset( AppImage.png.newTruck, width: double.infinity,   height: double.infinity,   fit: BoxFit.cover, ),
     );
   }
 }

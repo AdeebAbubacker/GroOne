@@ -74,6 +74,7 @@ class PngImages {
 
   // App
   final String kavachProduct = "${_pngImageBasePath}kavach_product.png";
+  final String kavachNewProduct1 = "${_pngImageBasePath}kavach_new_product_image.png";
   final String kavachNewProduct = "${_pngImageBasePath}kavach_new_product.png";
   final String kavachModel = "${_pngImageBasePath}kavach_model.png";
   final String groBanner = "${_pngImageBasePath}gro_banner.png";

@@ -34,6 +34,7 @@
   "instantLoan": "तत्काल ऋण",
   "kavach": "कवच",
   "tankLock" : "टैंक लॉक",
+  "benefitsofTankLock" : "टैंक लॉक के लाभ",
   "insurance": "बीमा",
   "loginSuccessful": "लॉगिन सफल",
   "loginSuccessfulSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं",
@@ -206,10 +207,13 @@
   "iWillDoItLater" : "I’ll do it later",
   "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
   "verifyAadhaar" : "Verify Aadhaar",
-  "uploadYourDocument" : "Upload Your Documents"
-
-
-
-
-
+  "uploadYourDocument" : "Upload Your Documents",
+  "chooseYourPreference": "अपनी पसंद चुनें",
+  "make": "निर्माता",
+  "model": "मॉडल",
+  "engine": "इंजन",
+  "tankType": "टैंक प्रकार",
+  "deviceType": "डिवाइस प्रकार",
+  "getYourTankLockNow": "अभी अपना टैंक लॉक प्राप्त करें",
+  "buyNewTankLock": "नया टैंक लॉक खरीदें"
 }

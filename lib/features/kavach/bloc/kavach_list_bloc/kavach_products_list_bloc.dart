@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import '../../../../data/model/result.dart';
 import '../../../../utils/toast_messages.dart';
 import '../../model/kavach_product_model.dart';
+import '../../model/masters_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
 import 'kavach_products_list_state.dart';
@@ -11,6 +12,8 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
 
   KavachProductsListBloc(this.repository) : super(KavachProductsListState.initial()) {
     on<FetchKavachProducts>(_onFetch);
+    on<FetchMastersData>(_onFetchMastersData);
+    on<UpdateUserPreferences>(_onUpdateUserPreferences);
     on<IncrementQuantity>(_onIncrement);
     on<DecrementQuantity>(_onDecrement);
     on<TryIncrementQuantity>((event, emit) async {
@@ -36,7 +39,36 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     on<UpdateKavachQuantities>((event, emit) {
       // Emit updated quantities including zeros to reset them properly
       emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
-    }); }
+    });
+  }
+
+  /// Fetches masters data for vehicle preferences
+  Future<void> _onFetchMastersData(FetchMastersData event, Emitter<KavachProductsListState> emit) async {
+    emit(state.copyWith(mastersLoading: true, mastersError: null));
+
+    final result = await repository.getMasters();
+
+    if (result is Success<MastersModel>) {
+      emit(state.copyWith(
+        mastersData: result.value,
+        mastersLoading: false,
+      ));
+    } else if (result is Error<MastersModel>) {
+      emit(state.copyWith(
+        mastersError: result.type,
+        mastersLoading: false,
+      ));
+    }
+  }
+
+  /// Updates user preferences and optionally refetches products with filters
+  void _onUpdateUserPreferences(UpdateUserPreferences event, Emitter<KavachProductsListState> emit) {
+    emit(state.copyWith(userPreferences: event.preferences));
+    
+    // Optionally refetch products with new preferences as filters
+    // This could be implemented if the API supports preference-based filtering
+    // add(FetchKavachProducts(search: "", page: 1, isLoadMore: false));
+  }
 
   // Future<void> _onFetch(FetchKavachProducts event, Emitter<KavachProductsListState> emit) async {
   //   if (state.loading) return;
@@ -73,8 +105,7 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
 
     emit(state.copyWith(loading: true, error: null));
 
-    final result = await repository.fetchProducts(search: event.search, page: event.page);
-
+    final result = await repository.fetchProducts(search: event.search, page: event.page,preferences: event.preferences,);
     if (result is Success<List<KavachProduct>>) {
       final products = result.value;
       final newProductList = event.isLoadMore

@@ -119,4 +119,8 @@ class ApiUrls {
   //Kavach
   // https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
+
+
+  // choose your preference api
+  static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
 }

@@ -211,5 +211,13 @@
   "iWillDoItLater" : "I’ll do it later",
   "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
   "verifyAadhaar" : "Verify Aadhaar",
-  "uploadYourDocument" : "Upload Your Documents"
+  "uploadYourDocument" : "Upload Your Documents",
+  "chooseYourPreference": "Choose your preference",
+  "make": "Make",
+  "model": "Model",
+  "engine": "Engine",
+  "tankType": "Tank Type",
+  "deviceType": "Device Type",
+  "getYourTankLockNow" : "Get your Tank Lock now",
+  "buyNewTankLock" : "Buy New Tank Lock"
 }

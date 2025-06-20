@@ -8,19 +8,48 @@ import '../api_request/kavach_add_address_api_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_vehicle_model.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:dio/dio.dart';
+import 'package:gro_one_app/features/kavach/model/masters_model.dart';
 
 class KavachService {
   final ApiService _apiService;
   KavachService(this._apiService);
 
-  Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1}) async {
+  Future<Result<List<KavachProduct>>> fetchProducts({String search = "",  int page = 1, Map<String, String?>? preferences}) async {
     try {
-      final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/fleet/api/v1/product/list?fleetProductId=2&page=$page&limit=10&search=$search',
-      );
-      // final response = await _apiService.get(
-      //   'https://gro-devapi.letsgro.co/fleet/fleet/api/v1/product/list?fleetProductId=2&page=$page&limit=10&search=$search',
-      // );
+      // Build query parameters
+      final queryParams = <String, String>{
+        'fleetProductId': '2',
+        'page': page.toString(),
+        'limit': '10',
+        if (search.isNotEmpty) 'search': search,
+      };
+
+      // Add preference parameters if provided
+      if (preferences != null) {
+        if (preferences['make'] != null) {
+          queryParams['vehicle_make'] = preferences['make']!;
+        }
+        if (preferences['model'] != null) {
+          queryParams['vehicle_model'] = preferences['model']!;
+        }
+        if (preferences['tankType'] != null) {
+          queryParams['vehicle_tank_type'] = preferences['tankType']!;
+        }
+        if (preferences['engine'] != null) {
+          queryParams['vehicle_engine'] = preferences['engine']!;
+        }
+        if (preferences['deviceType'] != null) {
+          queryParams['vehicle_device_type'] = preferences['deviceType']!;
+        }
+      }
+
+      // Construct URL with query parameters
+      final uri = Uri.parse('https://gro-devapi.letsgro.co/fleet/api/v1/product/list')
+          .replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
         final data = response.value;
@@ -207,5 +236,24 @@ class KavachService {
   }
 
 
+  /// Makes a GET request to fetch masters data from the API
+  /// 
+  /// This method calls the masters endpoint to retrieve:
+  ///models, tank types, device types, engine types
+  Future<Result<MastersModel>> getMasters() async {
+    try {
+      final result = await _apiService.get(ApiUrls.choosePreference);
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => MastersModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch masters data", e);
+      return Error(DeserializationError());
+    }
+  }
 }
 
