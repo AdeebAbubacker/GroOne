@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -538,16 +539,16 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           bloc: kycCubit,
           listener: (context, state) { },
           builder: (context, kycState) {
-            return BlocBuilder<LpHomeBloc, HomeState>(
-              bloc: lpHomeBloc,
+            return BlocBuilder<LPHomeCubit, LPHomeState>(
+              bloc: lpHomeCubit,
               buildWhen: (previous, current) {
                 return previous != current;
               },
               builder: (context, lpHomeState){
-                if(lpHomeState is ProfileDetailSuccess){
-                  companyId  = lpHomeState.profileDetailResponse.data?.details?.companyTypeId;
+                if(lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId != null){
+                  companyId  = lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId;
                 }else{
-                  companyId = 0;
+                  companyId = null;
                 }
                 CustomLog.info(this, "companyId: $companyId");
                 return Column(
