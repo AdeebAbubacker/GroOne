@@ -409,7 +409,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             builder: (context, state) {
               if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
                 if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
-                  if (state.profileDetailUIState?.data?.data?.customer != null) {
+                  if (state.profileDetailUIState?.data?.data?.details != null) {
                     return Row(
                       children: [
                         10.width,
@@ -420,7 +420,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           width: 40,
                           alignment: Alignment.center,
                           decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
-                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.customer!.customerName)),
+                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
                         ).onClick((){
                           Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
                             frameCallback(() =>  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
@@ -895,7 +895,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       return CircularProgressIndicator().center();
                     case Status.SUCCESS :
                       if(state.lpGetLoadUIState?.data != null){
-                        print(state.lpGetLoadUIState!.data!.data);
                         if(state.lpGetLoadUIState!.data!.data.isNotEmpty){
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,

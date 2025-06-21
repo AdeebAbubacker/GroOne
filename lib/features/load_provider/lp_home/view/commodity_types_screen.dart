@@ -24,7 +24,7 @@ class CommodityTypesScreen extends StatefulWidget {
 class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
 
 
-  int selectedIndex = 0;
+  int? selectedIndex;
 
   List<String> commodityIconsList = [
     AppIcons.svg.agriculture,
