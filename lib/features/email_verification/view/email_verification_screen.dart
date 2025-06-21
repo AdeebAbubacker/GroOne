@@ -208,14 +208,15 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       },
       builder: (context, state) {
         final bool isLoading = state.resendOtpState?.status == Status.LOADING;
+        final bool resendButtonEnabled = state.isResendButtonEnabled;
         return AppButton(
-          style: AppButtonStyle.outline,
+          style: resendButtonEnabled ?  AppButtonStyle.disableOutline : AppButtonStyle.outline,
           richTextWidget: !state.isResendButtonEnabled
-              ? Text((isLoading ? "Loading.." : context.appText.resend), style: AppTextStyle.buttonPrimaryColorTextColor)
+              ? Text((isLoading ? "Loading.." : context.appText.resend), style: resendButtonEnabled ? AppTextStyle.buttonDisableColorTextColor : AppTextStyle.buttonPrimaryColorTextColor)
               : RichText(
             text: TextSpan(
               children: [
-                TextSpan(text: context.appText.resend, style: AppTextStyle.buttonPrimaryColorTextColor),
+                TextSpan(text: context.appText.resend, style:  resendButtonEnabled ? AppTextStyle.buttonDisableColorTextColor :   AppTextStyle.buttonPrimaryColorTextColor),
                 TextSpan(text: context.appText.inText, style: AppTextStyle.buttonPrimaryColorTextColor.copyWith(color: Colors.grey)),
                 TextSpan(text: ' ${state.timerValue} ', style: AppTextStyle.button.copyWith(color: Colors.green)),
                 TextSpan(text: context.appText.second, style: AppTextStyle.button.copyWith(color: Colors.grey)),

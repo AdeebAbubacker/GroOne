@@ -41,66 +41,120 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
       decoration: commonContainerDecoration(
         borderColor: AppColors.primaryColor,
         color: AppColors.blackishWhite,
         borderWidth: 1,
       ),
       child: Column(
+        spacing: 3,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(
-                AppImage.png.truckMyLoad,
-                width: 50.w,
-              ).paddingSymmetric(vertical: 10),
-              10.width,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('GD 34567', style: AppTextStyle.h5),
-                  // Text(
-                  //   'TN 04 Y 2344',
-                  //   style: AppTextStyle.textDarkGreyColor14w500,
-                  // ),
-                  Text(
-                    formatDateTimeKavach(widget.data.dueDate!.toString()),
-                    style: AppTextStyle.primaryColor12w400,
-                  ),
-                ],
-              ).expand(),
-              5.width,
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Wrap(
+
+          ListTile(
+
+            minVerticalPadding: 0.0,
+            tileColor: Colors.red,
+            style:ListTileStyle.drawer,
+            contentPadding: EdgeInsets.zero,
+            horizontalTitleGap: 5,
+            minTileHeight: 60,
+            titleAlignment: ListTileTitleAlignment.bottom,
+            leading:   Image.asset(
+              AppImage.png.truckMyLoad,
+              width: 50.w,
+            ).paddingSymmetric(vertical: 10),
+            title: Text('${widget.data.loadId}', style: AppTextStyle.h5),
+            subtitle: Text(
+                        formatDateTimeKavach(widget.data.dueDate!.toString()),
+                        style: AppTextStyle.primaryColor12w400,
+                      ),
+            trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        widget.data.pickUpAddr,
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
-                      Icon(
-                        Icons.arrow_right_alt_outlined,
-                        color: AppColors.primaryColor,
-                      ).paddingSymmetric(horizontal: 2),
-                      Text(
-                        widget.data.dropAddr,
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
+
+                      Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
                     ],
                   ),
-                  Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
-                ],
-              ).expand(),
+
+
+          ),
+
+          //
+          // Row(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //
+          //     10.width,
+          //     Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         Text('${widget.data.loadId}', style: AppTextStyle.h5),
+          //
+          //         Text(
+          //           formatDateTimeKavach(widget.data.dueDate!.toString()),
+          //           style: AppTextStyle.primaryColor12w400,
+          //         ),
+          //
+          //
+          //       ],
+          //     ).expand(),
+          //     5.width,
+          //     Column(
+          //       mainAxisAlignment: MainAxisAlignment.start,
+          //       crossAxisAlignment: CrossAxisAlignment.end,
+          //       children: [
+          //
+          //         Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+          //       ],
+          //     ).expand(),
+          //   ],
+          // ),
+
+          Row(
+            children: [
+
+              Expanded(
+                child: Text(
+                  widget.data.pickUpAddr,
+
+                  style: AppTextStyle.blackColor15w500.copyWith(
+
+                    fontSize: 12
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Expanded(
+                child: Icon(
+                  Icons.arrow_right_alt_outlined,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    widget.data.dropAddr,
+                    style: AppTextStyle.blackColor15w500.copyWith(
+                        fontSize: 12
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              
             ],
           ),
 
-          commonDivider(),
+
+          commonDivider(
+            height: 3
+          ),
+
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
           Row(
             children: [

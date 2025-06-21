@@ -272,9 +272,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
-
                 await postLoadApiCall();
-
               },
             ).expand(),
           ],

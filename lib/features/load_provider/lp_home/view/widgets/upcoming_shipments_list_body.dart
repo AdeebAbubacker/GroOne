@@ -41,7 +41,9 @@ titleAlignment: ListTileTitleAlignment.bottom,
             leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
             title:Align(
                 alignment: Alignment.topLeft,
-                child: Text("GD12456", style: AppTextStyle.h5,  maxLines: 1)),
+                child:     (loadData.loadId.isNotEmpty) ?
+          Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
+            ),
             subtitle:Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
             trailing:      (loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty) ?
               Column(

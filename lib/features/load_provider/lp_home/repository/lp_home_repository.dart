@@ -114,7 +114,7 @@ class LpHomeRepository{
 
 
   /// Get Recent Route data Repo
-  Future<Result<RecentRoutesModel?>> getRecentRouteData() async {
+  Future<Result<RecentRoutesModel>> getRecentRouteData() async {
     try {
       return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
