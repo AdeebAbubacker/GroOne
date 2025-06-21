@@ -211,6 +211,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<ProfileDetailModel>) {
+
       _setProfileDetailUIState(UIState.success(result.value));
     }
     if (result is Error) {

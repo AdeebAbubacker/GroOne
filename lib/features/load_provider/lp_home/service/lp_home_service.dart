@@ -35,7 +35,7 @@ class LpHomeService{
         if (data is Success<ProfileDetailModel>) {
           if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
             await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
-            CustomLog.debug(this, "Saved Blue Id: ${data.value.data!.customer!.blueId}");
+            // CustomLog.debug(this, "Saved Blue Id: ${data.value.data!.customer!.blueId}");
           }
           return Success(data.value);
         }

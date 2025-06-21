@@ -382,6 +382,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     physics: NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
+
+
                       return RecentAddedLoadListBody(
                         data: loads[index],
                         isKycDone: VpVariables.isKycVerified,
