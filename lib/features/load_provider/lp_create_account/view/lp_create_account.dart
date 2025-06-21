@@ -301,8 +301,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             controller: emailTextController,
             labelText: context.appText.email,
             mandatoryStar: true,
+            readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
+                focusColor: state.isVerifiedEmail ? AppColors.borderColor : AppColors.primaryColor,
                 hintText: context.appText.emailHint,
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -314,7 +316,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                       decorationColor: AppColors.primaryColor,
                     )),
                     5.width,
-                    Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
+                    Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.primaryColor : AppColors.greyIconColor),
                   ],
                 ),
                 suffixOnTap: () async {
@@ -355,7 +357,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () {
             if (_formKey.currentState!.validate()) {
-              if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
+              if(!verifyEmailCubit.state.isVerifiedEmail){
                 ToastMessages.alert(message: "Please verify your email");
                 return;
               }

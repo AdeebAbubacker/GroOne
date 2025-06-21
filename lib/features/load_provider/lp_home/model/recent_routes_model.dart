@@ -65,8 +65,8 @@ class RecentRouteData {
 
   final int id;
   final String loadId;
-  final String laneId;
-  final num rateId;
+  final num laneId;
+  final dynamic rateId;
   final num customerId;
   final num commodityId;
   final num truckTypeId;
@@ -95,8 +95,8 @@ class RecentRouteData {
   RecentRouteData copyWith({
     int? id,
     String? loadId,
-    String? laneId,
-    num? rateId,
+    num? laneId,
+    dynamic? rateId,
     num? customerId,
     num? commodityId,
     num? truckTypeId,
@@ -158,8 +158,8 @@ class RecentRouteData {
     return RecentRouteData(
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
-      laneId: json["laneId"] ?? "",
-      rateId: json["rateId"] ?? 0,
+      laneId: json["laneId"] ?? 0,
+      rateId: json["rateId"],
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,

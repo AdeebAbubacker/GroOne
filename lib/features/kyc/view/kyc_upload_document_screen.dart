@@ -88,6 +88,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   String? selectedState;
   String? selectedCity;
 
+  dynamic companyId;
+
   final List<String> stateList = [
     "Maharashtra",
     "Madhya Pradesh",
@@ -405,9 +407,70 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     }
   }
 
+  bool validateDocs({
+    required String userRole,          // "2" for VP, anything else for LP
+    required int companyId,            // 1=sole, 2=individual …
+    // document lists
+    required List gstDoc,
+    required List panDoc,
+    required List tanDoc,
+    required List checkDocLink,
+    required List tdsDocLink,
+  }) {
+    // helper to toast & fail fast
+    bool need(String msg, bool ok) {
+      if (!ok) ToastMessages.alert(message: 'Please upload $msg');
+      return ok;
+    }
+
+    // VP FLOW  ──────────────────────────────────────────────────────────────
+    if (userRole == "2") {
+      if (companyId == 2) {
+        return need('Aadhaar', true) &                     // always true – already taken on previous screen
+        need('Cancelled Cheque', checkDocLink.isNotEmpty);
+      }
+
+      final gstOk  = need('GST document',   gstDoc.isNotEmpty);
+      final panOk  = need('PAN document',   panDoc.isNotEmpty);
+      final chkOk  = need('Cancelled Cheque', checkDocLink.isNotEmpty);
+      final tdsOk  = need('TDS certificate', tdsDocLink.isNotEmpty);
+      return gstOk & panOk & chkOk & tdsOk;                 // for Sole + Others
+    }
+
+    // LP FLOW  ──────────────────────────────────────────────────────────────
+    if (companyId == 2) {
+      return true;                                         // only Aadhaar needed
+    }
+    if (companyId == 1) {
+      final gstOk = need('GST document', gstDoc.isNotEmpty);
+      final panOk = need('PAN document', panDoc.isNotEmpty);
+      final tanOk = need('TAN document', tanDoc.isNotEmpty);
+      return gstOk & panOk & tanOk;                        // Aadhaar already present
+    }
+
+    // all other company types for LP
+    final gstOk = need('GST document', gstDoc.isNotEmpty);
+    final panOk = need('PAN document', panDoc.isNotEmpty);
+    final tanOk = need('TAN document', tanDoc.isNotEmpty);
+    return gstOk & panOk & tanOk;
+  }
+
+
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
     if(_formKey.currentState!.validate()){
+
+      final ok = validateDocs(
+        userRole: kycCubit.userRole ?? '',
+        companyId: companyId,
+        gstDoc: gstDoc,
+        panDoc: panDoc,
+        tanDoc: tanDoc,
+        checkDocLink: checkDocLink,
+        tdsDocLink: tdsDocLink,
+      );
+      if (!ok) return;
+
       final kycRequest = SubmitKycApiRequest(
         aadhar: widget.aadhaarNumber,
         address1: addressLine1TextController.text,
@@ -481,7 +544,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 return previous != current;
               },
               builder: (context, lpHomeState){
-                dynamic companyId;
                 if(lpHomeState is ProfileDetailSuccess){
                   companyId  = lpHomeState.profileDetailResponse.data?.details?.companyTypeId;
                 }else{
@@ -674,9 +736,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                             text: "Bank Details",
                             children: [
                               AppTextField(
-                                validator: (value) => Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
-                                mandatoryStar: true,
+                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                 labelText: "Account Number",
                                 hintText: "Enter Account Number",
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
@@ -687,25 +749,25 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               ),
 
                               AppTextField(
-                                validator: (value) => Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                 controller: bankNameTextController,
-                                mandatoryStar: true,
+                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                 labelText: "Bank Name",
                                 hintText: "Enter Bank Name",
                               ),
 
                               AppTextField(
-                                  validator: (value) => Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                   controller: branchNameTextController,
-                                  mandatoryStar: true,
+                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                   labelText: "Branch Name",
                                   hintText: "Enter Branch Name"
                               ),
 
                               AppTextField(
-                                  validator: (value) => Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                   controller: ifscCodeTextController,
-                                  mandatoryStar: true,
+                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                   labelText: "IFSC Code",
                                   hintText: "Enter IFSC code",
                                   inputFormatters: [
@@ -850,6 +912,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                     if(result is Success) {
                       await verifyGstApiCall(gstInTextController.text);
                     }
+                  }  else {
+                    ToastMessages.alert(message: "Please enter GSTIN and upload document");
                   }
                 }
             ),

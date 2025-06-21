@@ -35,7 +35,8 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   //  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
-                  Text("GD12456", style: AppTextStyle.h5,  maxLines: 1),
+                  if(loadData.loadId.isNotEmpty)
+                  Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1),
                   Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
                 ],
               ).expand(),

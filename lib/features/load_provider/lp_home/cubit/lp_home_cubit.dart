@@ -130,7 +130,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     _setRecentUIState(UIState.loading());
     emit(state.copyWith(recentRouteState: UIState.loading()));
     dynamic result = await _repo.getRecentRouteData();
-    if (result is Success<RecentRoutesModel?>) {
+    if (result is Success<RecentRoutesModel>) {
       _setRecentUIState(UIState.success(result.value));
     }
     if (result is Error) {
