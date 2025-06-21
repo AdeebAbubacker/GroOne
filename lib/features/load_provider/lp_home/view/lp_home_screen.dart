@@ -58,6 +58,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -619,8 +620,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
                   bloc: loadCommodityBloc,
                   builder: (context, state) {
+
                     if (state is LoadCommoditySuccess) {
                       final commodities = state.commodityListModel.data;
+
                       return LPCommodityDropdown(
                         preFixIcon: AppIcons.svg.commodity,
                         hintText: hintCommodity,
@@ -634,6 +637,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         onTab: () {
                           Navigator.of(context).push(createRoute(CommodityTypesScreen(
                             dataList: commodities,
+                            selectedIndex: commodities.indexWhere((element) => element.id.toString()==commodityId),
                             onSelect:  (index) async {
                               selectedCommodity = commodities[index].name;
                               commodityId = commodities[index].id.toString();
@@ -748,9 +752,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   );
 
                   if(!context.mounted) return;
-                  final String? time = await commonTimePicker(context);
+                   String? time = await commonTimePicker(context);
 
-                  if (date != null && time != null) {
+
+                  if (date != null ) {
                     dateTimeTextController.text = date;
                     selectedDate = date;
                     selectedTime = time;

@@ -264,7 +264,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                 commonSupportDialog(context);
               },
               style: AppButtonStyle.outline,
-              title: "Customer Support",
+              title: "Support",
             ).expand(),
             15.width,
 

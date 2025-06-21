@@ -32,7 +32,11 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/ifsc_code_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/pan_card_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/tan_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -831,6 +835,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter GST Number
             buildTextFieldWithLabelWidget(
+              maxLength: 15,
+                inputFormatters: [
+                  UpperCaseTextFormatter(),
+                  GSTInputFormatter()
+                ],
                 leftText: state.verifiedGst != null && state.verifiedGst! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedGst != null && state.verifiedGst!,
                 rightText: "GSTIN",
@@ -870,6 +879,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter TAN number
             buildTextFieldWithLabelWidget(
+              maxLength: 10,
+                inputFormatters: [
+                  UpperCaseTextFormatter(),
+                  TANInputFormatter(),
+                ],
                 leftText: state.verifiedTan != null && state.verifiedTan! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedTan != null && state.verifiedTan!,
                 rightText: "TAN",
@@ -912,10 +926,17 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
+              inputFormatters: [
+                UpperCaseTextFormatter(),
+                PANCardInputFormatter(),
+              ],
+              maxLength: 10,
                 leftText: state.verifiedPan != null && state.verifiedPan! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedPan != null && state.verifiedPan!,
                 rightText: "PAN",
                 controller: panTextController,
+
+
                 suffixOnTap: () async {
                   if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(panDoc);
@@ -957,7 +978,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Text Field With Label
-  Widget buildTextFieldWithLabelWidget({required String rightText, String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
+  Widget buildTextFieldWithLabelWidget({
+    int? maxLength,
+    required String rightText,
+    List<TextInputFormatter>? inputFormatters,
+    String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
     return Column(
       children: [
         Row(
@@ -978,8 +1003,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         ),
         6.height,
         AppTextField(
+          maxLength:maxLength ,
           validator: (value) => Validator.fieldRequired(value),
           readOnly: readOnly,
+          inputFormatters:inputFormatters,
           currentFocus: currentFocus,
           controller: controller,
           decoration: commonInputDecoration(

@@ -39,6 +39,7 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                   Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
                 ],
               ).expand(),
+              
 
 
               // Container(
