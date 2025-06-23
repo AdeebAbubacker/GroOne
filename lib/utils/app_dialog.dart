@@ -26,7 +26,7 @@ class _AppDialogState extends State<AppDialog> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: widget.dismissible,
       onPopInvoked : (didPop){
         // logic
       },

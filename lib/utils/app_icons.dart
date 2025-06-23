@@ -80,6 +80,7 @@ class SvgIcons {
   final String truck24Feet = "${_svgBasePath}truck_24_feet.svg";
   final String truck32Feet = "${_svgBasePath}truck_32_feet.svg";
   final String notification = "${_svgBasePath}notification_icon.svg";
+  final String distance = "${_svgBasePath}distance.svg";
 
 
 }
