@@ -14,17 +14,18 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../utils/app_image.dart';
 import '../../model/masters_model.dart';
+import '../../model/choose_preference_model.dart';
 
 /// A reusable form widget for choosing preferences used in both
 /// KavachChooseYourPreferenceScreen and KavachModelsScreen
 class ChooseYourPreferenceForm extends StatefulWidget {
-  final Function(Map<String, String?>) onPreferenceChanged;
+  final Function(ChoosePreferenceModel) onPreferenceChanged;
   final Function() onApply;
   final Function() onCancel;
   final Function()? onSupport;
   final bool showTitle;
   final Map<String, VehicleFilter> vehicleFilters;
-  final Map<String, String?>? initialValues;
+  final ChoosePreferenceModel? initialValues;
 
   const ChooseYourPreferenceForm({
     Key? key,
@@ -53,25 +54,28 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     super.initState();
     // Use initial values if provided, otherwise start with null values
     if (widget.initialValues != null) {
-      selectedMake = widget.initialValues!['make'];
-      selectedModel = widget.initialValues!['model'];
-      selectedEngine = widget.initialValues!['engine'];
-      selectedTankType = widget.initialValues!['tankType'];
-      selectedDeviceType = widget.initialValues!['deviceType'];
+      selectedMake = widget.initialValues!.make;
+      selectedModel = widget.initialValues!.model;
+      selectedEngine = widget.initialValues!.engine;
+      selectedTankType = widget.initialValues!.tankType;
+      selectedDeviceType = widget.initialValues!.deviceType;
     }
     _updatePreferences();
   }
 
+  /// Updates the preferences and notifies the parent widget
   void _updatePreferences() {
-    widget.onPreferenceChanged({
-      'make': selectedMake,
-      'model': selectedModel,
-      'engine': selectedEngine,
-      'tankType': selectedTankType,
-      'deviceType': selectedDeviceType,
-    });
+    final preferences = ChoosePreferenceModel(
+      make: selectedMake,
+      model: selectedModel,
+      engine: selectedEngine,
+      tankType: selectedTankType,
+      deviceType: selectedDeviceType,
+    );
+    widget.onPreferenceChanged(preferences);
   }
 
+  /// Checks if the form has valid selections (make and model are required)
   bool get _isFormValid {
     return selectedMake != null && selectedModel != null;
   }
@@ -89,7 +93,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
+            // Title section - only shown when showTitle is true
+            if (widget.showTitle) ...[
               Center(
                 child: Text(
                   context.appText.chooseYourPreference,
@@ -97,22 +102,29 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
                 ),
               ),
               15.height,
+            ],
         
+            // Vehicle make dropdown
             _buildMakeDropdown(context),
             10.height,
 
+            // Vehicle model dropdown
             _buildModelDropdown(context),
             10.height,
 
+            // Engine type dropdown
             _buildEngineDropdown(context),
             10.height,
 
+            // Tank type dropdown
             _buildTankTypeDropdown(context),
             10.height,
 
+            // Device type dropdown
             _buildDeviceTypeDropdown(context),
             20.height,
 
+            // Action buttons (Cancel/Apply or Support)
             _buildActionButtons(context),
           ],
         ),
@@ -120,6 +132,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the vehicle make dropdown widget
   Widget _buildMakeDropdown(BuildContext context) {
     final makes = widget.vehicleFilters.keys.toList();
     
@@ -140,7 +153,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       onChanged: (val) {
         setState(() {
           selectedMake = val;
-          // Reset dependent fields
+          // Reset dependent fields when make changes
           selectedModel = null;
           selectedEngine = null;
           selectedTankType = null;
@@ -151,6 +164,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the vehicle model dropdown widget
   Widget _buildModelDropdown(BuildContext context) {
     final vehicleFilter = selectedMake != null 
         ? widget.vehicleFilters[selectedMake]
@@ -180,6 +194,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the engine type dropdown widget
   Widget _buildEngineDropdown(BuildContext context) {
     final vehicleFilter = selectedMake != null 
         ? widget.vehicleFilters[selectedMake]
@@ -208,6 +223,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the tank type dropdown widget
   Widget _buildTankTypeDropdown(BuildContext context) {
     final vehicleFilter = selectedMake != null 
         ? widget.vehicleFilters[selectedMake]
@@ -236,6 +252,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the device type dropdown widget
   Widget _buildDeviceTypeDropdown(BuildContext context) {
     final vehicleFilter = selectedMake != null 
         ? widget.vehicleFilters[selectedMake]
@@ -264,6 +281,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     );
   }
 
+  /// Builds the action buttons section
   Widget _buildActionButtons(BuildContext context) {
     // Check if BS6 is selected in engine type - handle different variations
     final isBS6Selected = selectedEngine != null && 
@@ -291,16 +309,16 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
             } else if (!_isFormValid) {
               // Show validation popup
               AppDialog.show(
-              context,
-              child: CommonDialogView(
-              heading: 'Validation Error',
-              message: 'Please select Make and Model',
-              onSingleButtonText: "OK",
-              onTapSingleButton: (){
-                Navigator.of(context).pop();
-                },
-              ),
-            );
+                context,
+                child: CommonDialogView(
+                  heading: 'Validation Error',
+                  message: 'Please select Make and Model',
+                  onSingleButtonText: "OK",
+                  onTapSingleButton: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              );
             } else {
               widget.onApply();
             }

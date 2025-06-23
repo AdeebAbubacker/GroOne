@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../../../data/model/result.dart';
 import '../../model/kavach_product_model.dart';
 import '../../model/masters_model.dart';
+import '../../model/choose_preference_model.dart';
 import 'package:collection/collection.dart';
 
 class KavachProductsListState extends Equatable {
@@ -19,7 +20,7 @@ class KavachProductsListState extends Equatable {
   final ErrorType? mastersError;
   
   // User preferences
-  final Map<String, String?> userPreferences;
+  final ChoosePreferenceModel userPreferences;
 
   const KavachProductsListState({
     required this.products,
@@ -32,7 +33,7 @@ class KavachProductsListState extends Equatable {
     this.mastersData,
     this.mastersLoading = false,
     this.mastersError,
-    this.userPreferences = const {},
+    this.userPreferences = const ChoosePreferenceModel(),
   });
 
   factory KavachProductsListState.initial() {
@@ -47,7 +48,7 @@ class KavachProductsListState extends Equatable {
       mastersData: null,
       mastersLoading: false,
       mastersError: null,
-      userPreferences: {},
+      userPreferences: ChoosePreferenceModel(),
     );
   }
 
@@ -62,7 +63,7 @@ class KavachProductsListState extends Equatable {
     MastersModel? mastersData,
     bool? mastersLoading,
     ErrorType? mastersError,
-    Map<String, String?>? userPreferences,
+    ChoosePreferenceModel? userPreferences,
   }) {
     return KavachProductsListState(
       products: products ?? this.products,
@@ -74,7 +75,7 @@ class KavachProductsListState extends Equatable {
       error: error,
       mastersData: mastersData ?? this.mastersData,
       mastersLoading: mastersLoading ?? this.mastersLoading,
-      mastersError: mastersError ?? this.mastersError,
+      mastersError: mastersError,
       userPreferences: userPreferences ?? this.userPreferences,
     );
   }
@@ -82,8 +83,8 @@ class KavachProductsListState extends Equatable {
   @override
   List<Object?> get props => [
     products,
-    MapEquality().equals(quantities, quantities) ? Object() : quantities,
-    MapEquality().equals(availableStocks, availableStocks) ? Object() : availableStocks,
+    quantities,
+    availableStocks,
     loading,
     hasMore,
     currentPage,
@@ -91,7 +92,7 @@ class KavachProductsListState extends Equatable {
     mastersData,
     mastersLoading,
     mastersError,
-    MapEquality().equals(userPreferences, userPreferences) ? Object() : userPreferences,
+    userPreferences,
   ];
 }
 

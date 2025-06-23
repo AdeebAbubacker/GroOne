@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_models_filter_bottom_sheet_Screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
+import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -29,7 +30,7 @@ import '../repository/kavach_repository.dart';
 import 'package:intl/intl.dart';
 
 class KavachModelsScreen extends StatelessWidget {
-  final Map<String, String?>? initialPreferences;
+  final ChoosePreferenceModel? initialPreferences;
   
   const KavachModelsScreen({
     super.key,
@@ -46,7 +47,7 @@ class KavachModelsScreen extends StatelessWidget {
 }
 
 class KavachModelsScreenContent extends StatefulWidget {
-  final Map<String, String?>? initialPreferences;
+  final ChoosePreferenceModel? initialPreferences;
   
   const KavachModelsScreenContent({
     super.key,
@@ -89,6 +90,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     super.dispose();
   }
 
+  /// Handles scroll events for pagination
   void _onScroll() {
     if (_isBottom) {
       final bloc = context.read<KavachProductsListBloc>();
@@ -102,11 +104,13 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     }
   }
 
+  /// Debounces search input to avoid excessive API calls
   void debounce(VoidCallback callback) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), callback);
   }
 
+  /// Checks if the user has scrolled to the bottom of the list
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
@@ -140,13 +144,16 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
       body: SafeArea(
         child: Column(
           children: [
+            // Search bar and filter section
             buildSearchBarAndFilterWidget(context),
             15.height,
+            // Main content area
             Expanded(child: buildBodyWidget(context)),
        
           ],
         ).paddingAll(commonSafeAreaPadding),
       ),
+      // Bottom navigation with buy button
       bottomNavigationBar: BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
         builder: (context, state) {
           final totalQuantity = state.quantities.values.fold<int>(0, (sum, qty) => sum + qty);
@@ -164,9 +171,11 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     );
   }
 
+  /// Builds the search bar and filter widget
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
     return Row(
       children: [
+        // Search bar
         AppSearchBar(
           searchController: searchController,
           onChanged: (text) {
@@ -180,6 +189,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
           },
         ).expand(),
         15.width,
+        // Filter button
         AppIconButton(
           onPressed: () {
             // Show choose preference form in bottom sheet
@@ -206,7 +216,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       ));
                     },
                     onCancel: () {
-                      Navigator.of(context).pop(); // Close bottom sheet
+                      Navigator.of(context).pop(); 
                     },
                     onSupport: () {
                       // Handle support button when BS6 is selected
@@ -223,13 +233,11 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                           },
                         ),
                       );
+
                     },
                   ),
                 ),
               );
-            } else {
-              // Show loading or error message if masters data is not available
-              print('Masters data not available');
             }
           },
           style: AppButtonStyle.primaryIconButtonStyle,
@@ -306,12 +314,12 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
             }
             final product = state.products[index];
             final qty = state.quantities[product.id] ?? 0;
-            final availableStock = state.availableStocks[product.id] ?? 0; // Get available stock from state
+            final availableStock = state.availableStocks[product.id] ?? 0;
 
             return KavachModelsListBody(
               product: product,
               quantity: qty,
-              availableStock: availableStock, // Pass it here
+              availableStock: availableStock, 
             );
           },
         );
