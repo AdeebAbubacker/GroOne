@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -15,7 +16,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class CommodityTypesScreen extends StatefulWidget {
   final List<LoadCommodityList> dataList;
   final Function(int) onSelect;
-  const CommodityTypesScreen({super.key, required this.dataList, required this.onSelect});
+  final int? selectedIndex;
+  const CommodityTypesScreen({
+    super.key, required this.dataList, required this.onSelect,this.selectedIndex});
 
   @override
   State<CommodityTypesScreen> createState() => _CommodityTypesScreenState();
@@ -24,7 +27,7 @@ class CommodityTypesScreen extends StatefulWidget {
 class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
 
 
-  int selectedIndex = 0;
+  int? selectedIndex;
 
   List<String> commodityIconsList = [
     AppIcons.svg.agriculture,
@@ -33,6 +36,22 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
     AppIcons.svg.log,
     AppIcons.svg.bottles
   ];
+
+  @override
+  void initState() {
+    selectedIndex=widget.selectedIndex;
+    selectDefaultCommodity();
+    super.initState();
+  }
+
+  selectDefaultCommodity(){
+
+    if(selectedIndex==-1 && widget.dataList.isNotEmpty){
+
+      selectedIndex=0;
+
+    }
+  }
 
 
   @override
@@ -104,6 +123,7 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
     return AppButton(
       title: context.appText.select,
       onPressed: (){
+        widget.onSelect(selectedIndex??0);
         Navigator.of(context).pop();},
     ).bottomNavigationPadding();
   }

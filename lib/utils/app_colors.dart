@@ -100,6 +100,8 @@ class AppColors {
   static const backGroundBlue=Color(0xFFF8F9FF);
   static const greenColor=Color(0xFF027A48);
   static final Color disableColor = Color(0xFFB8B8B8);
+  static final Color grayColor = Color(0xFF8E8E93);
+
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {

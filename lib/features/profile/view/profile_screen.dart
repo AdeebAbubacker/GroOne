@@ -9,7 +9,8 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
@@ -57,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _croppedImage;
   final lpHomeLocator = locator<LpHomeBloc>();
   final kycBloc = locator<KycCubit>();
+  final lpHomeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final profileBloc = locator<ProfileBloc>();
 
@@ -197,12 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () {
                   Navigator.push(context, commonRoute(LpMyAccount(profileData: widget.profileData), isForward: true),
                   ).then((onValue) {
-                    lpHomeLocator.add(
-                      GetProfileDetailApiRequest(lpHomeLocator.userId ?? ""),
-                    );
-                    if (lpHomeLocator.state is ProfileDetailSuccess) {
-                      setState(() {});
-                    }
+                    lpHomeCubit.fetchProfileDetail();
                   });
                 },
               );

@@ -12,6 +12,12 @@ class VpCreationRequested extends VpCreationEvent {
 // Truck Type
 class GetTruckTypeEvent extends VpCreationEvent {}
 
+// Truck Pref Lane Type
+class GetTruckPrefLaneEvent extends VpCreationEvent {
+  final String? location;
+  GetTruckPrefLaneEvent({this.location});
+}
+
 // Logout Event
 class LogoutRequested extends VpCreationEvent {}
 

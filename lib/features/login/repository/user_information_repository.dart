@@ -32,5 +32,10 @@ class UserInformationRepository {
   }
 
 
+  Future<String?> getBlueID() async {
+    return  await _securedSharedPref.get(AppString.sessionKey.blueId);
+  }
+
+
 
 }

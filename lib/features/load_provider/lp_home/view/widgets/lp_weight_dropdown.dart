@@ -55,9 +55,7 @@ class LPWeightDropdown extends StatelessWidget {
                 ),
                 10.width,
                 Text(
-                  cubit.state.selectedWeight != null
-                      ? "${cubit.state.selectedWeight?.value} MT"
-                      : hintText,
+                  cubit.state.selectedWeight != null ? "${cubit.state.selectedWeight?.value} MT" : hintText,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyle.body3.copyWith(color: AppColors.black),

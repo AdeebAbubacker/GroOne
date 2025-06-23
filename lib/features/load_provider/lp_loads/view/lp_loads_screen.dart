@@ -81,6 +81,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       }
     });
     lpLoadLocator.getLpLoadsByType(type: widget.initialTabIndex+1);
+    setState(() {});
   });
 
   void _onSearchChanged(String query) {
@@ -103,19 +104,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen()));
-          },
-          child: Column(
-            children: [
-              10.height,
-              buildTabBarWidget(),
-              buildSearchBarAndFilterWidget(context),
-              buildLoadListWidget(),
-            ],
-          ),
-      ),
+        child: Column(
+          children: [
+            10.height,
+            buildTabBarWidget(),
+            buildSearchBarAndFilterWidget(context),
+            buildLoadListWidget(),
+          ],
+        ),
     ));
   }
 
@@ -201,7 +197,18 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           shrinkWrap: true,
           itemCount: loadList.length,
           itemBuilder: (context, index) {
-            return LPLoadListBodyWidget(loadItem: loadList[index]).paddingSymmetric(vertical: 7);
+            final loadItem = loadList[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  commonRoute(
+                    LpLoadsLocationDetailsScreen(loadItem: loadItem),
+                  ),
+                );
+              },
+              child: LPLoadListBodyWidget(loadItem: loadItem).paddingSymmetric(vertical: 7),
+            );
           },
         );
       },

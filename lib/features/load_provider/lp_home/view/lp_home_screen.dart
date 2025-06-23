@@ -9,7 +9,6 @@ import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
@@ -17,10 +16,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_response_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
@@ -45,7 +42,6 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_video.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -57,9 +53,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:video_player/video_player.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -74,15 +68,14 @@ class HomeScreenLoadProvider extends StatefulWidget {
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
-  ProfileDetailModel? profileResponse;
-  LpGetLoadModel? getLoadResponse;
+  // ProfileDetailModel? profileResponse;
+  // LpGetLoadModel? getLoadResponse;
 
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
-  final loadDetailBloc = locator<LoadListBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
 
@@ -92,6 +85,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   int selectedPercentage = 80;
   int baseAmount = 15000;
+  int isKycValid = 0;
 
   String hintCommodity = 'Commodity';
   String hintTruck = 'Truck';
@@ -107,11 +101,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedDate;
   String? selectedTime;
   String? laneId;
+  String? sessionBlueId;
 
   bool checkBoxBool = false;
   bool memoDone = false;
   bool hideKycSuccessStatus = false;
-
 
 
   @override
@@ -133,16 +127,21 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
-    await lpHomeBloc.getUserId() ?? "";
-    lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
+    lpHomeCubit.resetState();
+    lpHomeCubit.fetchProfileDetail();
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
-    loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? ""));
-    await lpHomeCubit.startKycSuccessTimer();
-    await lpHomeCubit.fetchRecentRoute();
-    await lpHomeCubit.fetchLoadWeight();
+    lpHomeCubit.fetchGetLoadList();
+    lpHomeCubit.startKycSuccessTimer();
+    lpHomeCubit.fetchRecentRoute();
+    lpHomeCubit.fetchLoadWeight();
+    lpHomeCubit.getBlueId();
     clearAllValues();
   });
+
+  void refreshLoadList(){
+    lpHomeCubit.fetchGetLoadList();
+  }
 
   void disposeFunction(BuildContext context) => frameCallback(() {
     dateTimeTextController.dispose();
@@ -156,7 +155,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     rateDiscoveryPrice = null;
     truckType = null;
     truckLength = null;
-    commonHideKeyboard(context);
   });
 
   void clearAllValues(){
@@ -174,6 +172,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     truckLength = null;
     lpHomeCubit.state.copyWith(destination: null);
     lpHomeCubit.state.copyWith(pickup: null);
+    lpHomeCubit.state.copyWith(selectedWeight: null);
+    lpHomeCubit.resetState();
     CustomLog.debug(this, "Clear All Values");
     setState(() {});
   }
@@ -229,6 +229,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   Future<void> fetchRateDiscovery() async {
     CustomLog.debug(this, "Fetch Rate Discovery - Form Valid : ${isFormValid()}");
+
     if (!isFormValid()) {
       CustomLog.debug(this, "All Fields are not valid");
       return;
@@ -264,19 +265,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   // Load Post Api Call
   Future<void> postLoad(BuildContext context) async {
+
     if (!checkValidation()) {
       return;
     }
 
     // 3 Complete KYC | 2 In Progress kyc | 1 Pending Kyc
-    // if (profileResponse!.data!.customer!.isKyc != 3) {
-    //   kycBottomSheet(context);
-    //   return;
-    // }
+    if (isKycValid == 1) {
+      kycBottomSheet(context);
+      return;
+    }
 
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
-        customerId: int.parse(lpHomeBloc.userId.toString()),
         commodityId: int.parse(commodityId ?? "0"),
         truckTypeId: int.parse(truckTypeId ?? "0"),
         pickUpAddr:  lpHomeCubit.state.pickup?.data?.address ?? "",
@@ -305,10 +306,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       price: rateDiscoveryPrice ?? "0000 - 0000",
       date : dateTimeTextController.text,
     ), isForward: true)).then((onValue){
-      loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId??"0"));
       if(onValue != null && onValue == true){
-        if(!context.mounted) return;
         clearAllValues();
+        setState(() {});
       }
     });
 
@@ -330,6 +330,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       context: context,
     );
   }
+
 
 
   // Blue Membership Dialog
@@ -382,57 +383,77 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
         // KYC Blinking
         BlocProvider<LPHomeCubit>.value(
+          value: locator<LPHomeCubit>(),   // singleton from get_it
+          child: BlocConsumer<LPHomeCubit, LPHomeState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              final profileState = state.profileDetailUIState;
+
+              if (profileState == null ||
+                  profileState.status != Status.SUCCESS ||
+                  profileState.data == null ||
+                  profileState.data?.data == null ||
+                  profileState.data?.data?.customer == null) {
+                return const SizedBox.shrink();
+              }
+
+              final customer = profileState.data!.data!.customer!;
+              final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+              CustomLog.debug(this, 'is KYC : $kycFlag');
+
+              if (kycFlag == 3) {
+                return const SizedBox.shrink();
+              }
+
+              if (kycFlag == 2) {
+                return const SizedBox.shrink();
+              }
+
+              return kycWidget(
+                onTap: () => commonBottomSheetWithBGBlur(
+                  context: context,
+                  screen: EnterAadhaarNumberBottomSheet(),
+                ),
+              );
+
+            },
+          ),
+        ),
+
+        // Profile
+        BlocProvider<LPHomeCubit>.value(
           value: locator<LPHomeCubit>(), // singleton from locator
           child: BlocConsumer<LPHomeCubit, LPHomeState>(
             listener: (context, state) { },
             builder: (context, state) {
-              if (profileResponse != null && profileResponse?.data != null) {
-                if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc == 3) {
-                  if (state.showSuccessKyc) {
-                    return 0.width;
-                  } else {
-                    return 0.width;
+              if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
+                if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
+                  if (state.profileDetailUIState?.data?.data?.details != null) {
+                    return Row(
+                      children: [
+                        10.width,
+
+                        // Profile
+                        Container(
+                          height: 40,
+                          width: 40,
+                          alignment: Alignment.center,
+                          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
+                        ).onClick((){
+                          Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
+                            frameCallback(() =>  lpHomeCubit.fetchProfileDetail());
+                          });
+                        }).paddingRight(commonSafeAreaPadding),
+                      ],
+                    );
                   }
-                } else if (profileResponse!.data!.customer!.isKyc == 2){
-                  return 0.width; // kycInProgressStatusWidget
-                } else {
-                  return kycWidget(
-                    onTap: () =>  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()),
-                  );
                 }
               }
               return 0.width;
             },
           ),
         ),
-
-        // Profile
-        BlocConsumer<LpHomeBloc, HomeState>(
-          bloc: lpHomeBloc,
-          listener: (context, state) { },
-          builder: (context, state) {
-            if (state is ProfileDetailSuccess) {
-              return Row(
-                children: [
-                10.width,
-
-                // Profile
-                Container(
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
-                    child: Text(getInitialsFromName(this, name : profileResponse?.data?.details?.companyName ?? '')),
-                ).onClick((){
-                  Navigator.push(context, commonRoute(ProfileScreen(profileData: profileResponse!.data!), isForward: true)).then((v) {
-                    frameCallback(() =>  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "")));
-                  });
-                }).paddingRight(commonSafeAreaPadding),
-            ]);
-            }
-            return Container();
-          },
-        )
 
       ],
     );
@@ -442,18 +463,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   Widget buildBodyWidget(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        loadCommodityBloc.add(LoadCommodity());
-        loadTruckTypeBloc.add(LoadTruckType());
-        lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? ""));
-        loadDetailBloc.add(GetLoadRequested(lpHomeBloc.userId ?? "1"));
+        initFunction();
+
       },
       child: SingleChildScrollView(
         child: BlocConsumer<LpHomeBloc, HomeState>(
           listener: (context, state) {
             if (state is ProfileDetailSuccess) {
-              profileResponse = state.profileDetailResponse;
-              profileImage = state.profileDetailResponse.data?.details?.profileImageUrl ?? "";
-              setState(() {});
+
             }
             if (state is ProfileDetailError) {
               ToastMessages.error(
@@ -469,36 +486,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 children: [
                   10.height,
 
-                  // Kyc Status Label
-                  BlocProvider<LPHomeCubit>.value(
-                    value: locator<LPHomeCubit>(), // singleton from locator
-                    child: BlocConsumer<LPHomeCubit, LPHomeState>(
-                      listener: (context, state) { },
-                      builder: (context, state) {
-                        if (profileResponse != null && profileResponse?.data != null) {
-                          if (profileResponse?.data?.customer != null && profileResponse!.data!.customer!.isKyc == 3) {
-                            if (state.showSuccessKyc) {
-
-                              if(profileResponse?.data?.customer?.blueId != null){
-                                blueMembershipDialog(context, profileResponse!.data!.customer!.blueId.toString());
-                              }
-
-                              return kycSuccessStatusWidget();
-                            } else {
-                              return 0.height;
-                            }
-                          } else if (profileResponse!.data!.customer!.isKyc == 2){
-                            return kycInProgressStatusWidget();
-
-                          } else {
-                            return IncompleteKycStatusWidget();
-                          }
-                        }
-                        return 20.height;
-                      },
-                    ),
-                  ),
-                  20.height,
+                  buildKycLabelWidget(),
+                  10.height,
 
                   OurValueAddedServicesWidget(),
                   20.height,
@@ -514,6 +503,51 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
         ),
       ),
+    );
+  }
+
+  Widget buildKycLabelWidget(){
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      listener: (context, state) async {
+        final profileState = state.profileDetailUIState;
+        if (profileState != null &&
+            profileState.status == Status.SUCCESS &&
+            profileState.data != null &&
+            profileState.data?.data != null &&
+            profileState.data?.data?.customer != null &&
+            profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
+          if (await lpHomeCubit.getBlueId() == null){
+            if(!context.mounted) return;
+            sessionBlueId = null;
+            blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
+          } else{
+            sessionBlueId = await lpHomeCubit.getBlueId();
+          }
+        }
+      },
+      builder: (context, state) {
+        final profileState = state.profileDetailUIState;
+
+        if (profileState != null &&
+            profileState.status == Status.SUCCESS &&
+            profileState.data != null &&
+            profileState.data?.data != null &&
+            profileState.data?.data?.customer != null) {
+
+          final customer = profileState.data!.data!.customer!;
+
+          isKycValid = customer.isKyc.toInt();
+
+          if (customer.isKyc == 3) {
+            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget() :  0.width;
+          } else if (customer.isKyc == 2) {
+            return kycInProgressStatusWidget();
+          } else {
+            return IncompleteKycStatusWidget();
+          }
+        }
+        return  20.width;
+      },
     );
   }
 
@@ -545,17 +579,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                 BlocConsumer<LPHomeCubit, LPHomeState>(
                   bloc: lpHomeCubit,
-                  listener: (context, state){
-
-                  },
+                  listener: (context, state){},
                   builder: (context, state){
+
                     String? pickupLocation;
                     String? destinationLocation;
 
                     if (state.pickup?.status == Status.SUCCESS && state.pickup?.data != null){
                       pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
                     }
-
 
                     if (state.destination?.status == Status.SUCCESS && state.destination?.data != null){
                         destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
@@ -569,14 +601,37 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           heading: context.appText.source,
                           subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
                           onClick: () {
-                            if (state.recentRouteUIState?.data != null){
-                              if (state.recentRouteUIState!.data!.data.isNotEmpty) {
-                                Navigator.of(context).push(createRoute(RecentRouteScreen()));
-                              }
-                            }
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup!.data?.address, location: state.pickup!.data?.location), isForward: true));
+                            final uiState = state.recentRouteUIState;
 
+                            if (uiState != null) {
+                              switch (uiState.status) {
+                                case Status.SUCCESS:
+                                  if (uiState.data != null && uiState.data!.data.isNotEmpty) {
+                                    CustomLog.debug(this, "Recent Route List : ${uiState.data?.data}");
+                                    Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                  } else {
+                                    ToastMessages.alert(message: "No recent routes found.");
+                                    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                  }
+                                  break;
+
+                                case Status.ERROR:
+                                  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                  break;
+                               case null:
+                                  ToastMessages.success(message: "Please wait, loading recent routes...");
+                                  break;
+                                case Status.INITIAL:
+                                  throw UnimplementedError();
+                                case Status.LOADING:
+                                  // TODO: Handle this case.
+                                  throw UnimplementedError();
+                              }
+                            } else {
+                              Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                            }
                           },
+
                         ),
 
                         commonDivider(),
@@ -624,8 +679,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
                   bloc: loadCommodityBloc,
                   builder: (context, state) {
+
                     if (state is LoadCommoditySuccess) {
                       final commodities = state.commodityListModel.data;
+
                       return LPCommodityDropdown(
                         preFixIcon: AppIcons.svg.commodity,
                         hintText: hintCommodity,
@@ -639,11 +696,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         onTab: () {
                           Navigator.of(context).push(createRoute(CommodityTypesScreen(
                             dataList: commodities,
+                            selectedIndex: commodities.indexWhere((element) => element.id.toString()==commodityId),
                             onSelect:  (index) async {
                               selectedCommodity = commodities[index].name;
                               commodityId = commodities[index].id.toString();
-                              fetchRateDiscovery();
                               setState(() {});
+                              await fetchRateDiscovery();
                             },
                           )));
                         },
@@ -655,36 +713,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               ),
 
 
-              // Consignment weight (MT)
-              // Container(
-              //   height: 55,
-              //   padding: EdgeInsets.all(10),
-              //   decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
-              //   child: Row(
-              //     children: [
-              //       SvgPicture.asset(AppIcons.svg.kgWeight),
-              //       12.width,
-              //       TextFormField(
-              //         controller: weightTextController,
-              //         autofocus: false,
-              //         keyboardType: iosNumberKeyboard,
-              //         inputFormatters: [
-              //           phoneNumberInputFormatter
-              //         ],
-              //         decoration: InputDecoration(
-              //           isDense: true,
-              //           contentPadding: EdgeInsets.zero,
-              //           border: InputBorder.none,
-              //           hintText: context.appText.consignmentWeightWithMT,
-              //           hintStyle: AppTextStyle.body,
-              //           maintainHintHeight: true,
-              //         ),
-              //       ).expand(),
-              //
-              //       Text("MT ", style: AppTextStyle.body3GreyColor)
-              //     ],
-              //   ),
-              // ).expand(),
               // Consignment weight (MT)
               BlocConsumer<LPHomeCubit, LPHomeState>(
                 bloc: lpHomeCubit,
@@ -702,9 +730,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     dataList: weights,
                     selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
                     onTab: () {
-                      Navigator.of(context).push(
-                        createRoute(
-                          WeightSelectionScreen(
+                      Navigator.of(context).push(createRoute(WeightSelectionScreen(
                             dataList: weights,
                             onSelect: (weight) {
                               lpHomeCubit.selectWeight(weight);
@@ -762,8 +788,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               truckTypeId = truck.id.toString();
                               truckType = truck.type;
                               truckLength = truck.subType;
-                              fetchRateDiscovery();
-                              setState(() {});
+                              await fetchRateDiscovery();
                             },
                           )));
                         },
@@ -785,15 +810,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   );
 
                   if(!context.mounted) return;
-                  final String? time = await commonTimePicker(context);
+                   String? time = await commonTimePicker(context);
 
-                  if (date != null && time != null) {
-                    dateTimeTextController.text = "$date";
+
+                  if (date != null ) {
+                    dateTimeTextController.text = date;
                     selectedDate = date;
                     selectedTime = time;
                   }
-                  fetchRateDiscovery();
-                  setState(() {});
+                  await fetchRateDiscovery();
                 },
                 child: Container(
                   height: 55,
@@ -804,13 +829,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor)),
                       10.width,
 
-                      Text(dateTimeTextController.text.isEmpty ? "Pick-up date" : dateTimeTextController.text, style: AppTextStyle.body3, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
+                      Text(dateTimeTextController.text.isEmpty ? "Pick-up date" : dateTimeTextController.text, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
                     ],
                   ),
                 ),
               ).expand(),
-
-
 
             ],
           ),
@@ -911,79 +934,92 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   // Up-coming shipment
   Widget buildUpComingShipmentListWidget() {
-    return BlocConsumer(
-      bloc: loadDetailBloc,
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      bloc: lpHomeCubit,
+      listenWhen: (previous, current) =>  previous.lpGetLoadUIState != current.lpGetLoadUIState,
+      listener: (context, state) {
+        final status = state.lpGetLoadUIState?.status;
+        if (status == Status.ERROR) {
+          final error = state.lpGetLoadUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
       builder: (context, state) {
         return Container(
           decoration: commonContainerDecoration(borderRadius: BorderRadius.zero, shadow: true),
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: commonSafeAreaPadding, horizontal: commonSafeAreaPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
+            child: Builder(
+              builder: (context) {
+                if(state.lpGetLoadUIState != null && state.lpGetLoadUIState?.status != null){
+                  switch (state.lpGetLoadUIState!.status){
+                    case Status.LOADING :
+                      return CircularProgressIndicator().center();
+                    case Status.SUCCESS :
+                      if(state.lpGetLoadUIState?.data != null){
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Title
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
 
-                    // See More
-                    if (getLoadResponse != null && getLoadResponse!.data.isNotEmpty)
-                    TextButton(
-                      onPressed: () {
-                      },
-                      style: AppButtonStyle.primaryTextButton,
-                      child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
-                    ),
+                                // See More
+                                if(state.lpGetLoadUIState!.data!.data.isNotEmpty)
+                                TextButton(
+                                  onPressed: () {
+                                  },
+                                  style: AppButtonStyle.primaryTextButton,
+                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                                ),
 
-                  ],
-                ),
-                15.height,
+                              ],
+                            ),
+                            15.height,
 
-                Builder(
-                  builder: (context) {
-                    if (getLoadResponse != null) {
-                      if (getLoadResponse!.data.isNotEmpty) {
-                        final reversedList = getLoadResponse!.data.reversed.toList();
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.zero,
-                          itemCount: reversedList.length,
-                          separatorBuilder: (BuildContext context, int index) => 20.height,
-                          itemBuilder: (context, index) {
-                            final loadData = reversedList[index];
-                            return UpcomingShipmentsListBody(loadData: loadData);
-                          },
+                            if(state.lpGetLoadUIState!.data!.data.isNotEmpty)
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                padding: EdgeInsets.zero,
+                                itemCount: state.lpGetLoadUIState!.data!.data.length,
+                                separatorBuilder: (BuildContext context, int index) => 20.height,
+                                itemBuilder: (context, index) {
+                                  final loadData = state.lpGetLoadUIState!.data!.data[index];
+                                  return UpcomingShipmentsListBody(loadData: loadData);
+                                },
+                              )
+                            else
+                              buildGenericError(error: NotFoundError())
+                          ],
                         );
                       } else {
-                        return genericErrorWidget(error: NotFoundError());
+                        return buildGenericError(error: ConflictError());
                       }
-                    } else {
-                      return genericErrorWidget(error: GenericError());
-                    }
-                  },
-                )
-
-
-                ///Center(child: Image.asset(width: 201.w,height: 134.h,AppImage.png.noShipment))
-              ],
+                    case Status.ERROR :
+                      if(state.lpGetLoadUIState?.errorType != null){
+                        return buildGenericError(error: state.lpGetLoadUIState!.errorType);
+                      }else{
+                        return  buildGenericError(error: GenericError());
+                      }
+                    default :
+                      return  buildGenericError(error: GenericError());
+                  }
+                } else {
+                  return  buildGenericError(error: GenericError());
+                }
+              },
             ),
           ),
         );
-      },
-      listener: (context, state) {
-        if (state is GetLoadSuccess) {
-          getLoadResponse = state.getLoadResponse;
-          //    loadDetailBloc.add(GetLoadDetailsRequested(getLoadResponse!.data.first.id.toString()));
-        } else if (state is GetLoadError) {
-          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-        }
       },
     );
   }
 
 
+  Widget buildGenericError({dynamic error}) => genericErrorWidget(error: error ?? GenericError(), onRefresh: () => refreshLoadList()).paddingOnly(top: 50);
 
 
 }

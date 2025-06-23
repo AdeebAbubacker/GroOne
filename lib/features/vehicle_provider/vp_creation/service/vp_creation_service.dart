@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/lo
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/log_out_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
@@ -42,6 +43,26 @@ class VpCreationService {
       final result = await _apiService.get(url);
       if (result is Success) {
         return  await _apiService.getResponseStatus(result.value, (data)=> TruckTypeModel.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+    // Fetch TruckPrefLaneModel
+  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
+    try {
+      final url = location?.isNotEmpty == true
+    ? "${ApiUrls.truckPrefLane}?search=$location"
+    : ApiUrls.truckPrefLane;
+      final result = await _apiService.get(url);
+      if (result is Success) {
+        return  await _apiService.getResponseStatus(result.value, (data)=> TruckPrefLaneModel.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
       } else {

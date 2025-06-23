@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 
@@ -27,6 +28,24 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadUIState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to load Memo Details.
+  void _setLoadMemoState(UIState<LoadMemoData>? uiState) {
+    emit(state.copyWith(lpLoadMemoDetails: uiState));
+  }
+
+  // Fetches the LP load Memo Details.
+  Future<void> getLpLoadsMemoDetails({required int loadId}) async {
+    _setLoadUIState(UIState.loading());
+
+    Result result = await _repository.fetchMemoDetails(loadId: loadId);
+
+    if (result is Success<LoadMemoData>) {
+      _setLoadMemoState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadMemoState(UIState.error(result.type));
     }
   }
 

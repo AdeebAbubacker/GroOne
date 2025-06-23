@@ -37,6 +37,8 @@ class ApiService {
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
+
+
     await _cacheManager.clearAll();
   }
 
@@ -55,7 +57,7 @@ class ApiService {
       if(HasInternetConnection.isInternet != true){
         return Error(InternetNetworkError());
       }
-      String cacheKey = await _generateCacheKey(url, queryParams);
+      await clearCache();
       final response = await _dio.get(
         url,
         queryParameters: queryParams,
@@ -64,7 +66,6 @@ class ApiService {
           options: Options(headers: await _getHeaders()),
           maxAge: const Duration(minutes: 30),
           maxStale: const Duration(days: 1),
-          subKey: cacheKey,
           forceRefresh: forceRefresh,
         ),
       );
@@ -91,6 +92,7 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      await clearCache();
       final response = await _dio.post(
         url,
         data: body,
@@ -120,6 +122,7 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      await clearCache();
       final response = await _dio.put(
         url,
         data: body,
@@ -172,6 +175,7 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      await clearCache();
       final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
       CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString");
       FormData formData = FormData();
@@ -234,7 +238,7 @@ class ApiService {
   /// Handle Body Response
   Result<dynamic> _handleBodyResponse(Response response) {
     final prettyBodyString = const JsonEncoder.withIndent('  ').convert(response.data);
-    CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: $prettyBodyString");
+    CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}");
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(response.data);

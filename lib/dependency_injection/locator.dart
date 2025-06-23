@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -28,7 +27,6 @@ import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/kyc/service/kyc_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
@@ -63,6 +61,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
@@ -99,7 +98,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
     locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
-    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
@@ -139,7 +138,6 @@ void initLocator() {
     locator.registerLazySingleton(() => LpCreateBloc(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeBloc(locator<LpHomeRepository>(),locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LoadListBloc(locator<LpHomeRepository>(),));
     locator.registerLazySingleton(() => LpMapSelectPickPointBloc(locator<LPMapSelectAddressRepository>()));
     locator.registerLazySingleton(() => LoadPostingBloc(locator<UserInformationRepository>(), locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => LoadCommodityBloc(locator<LpHomeRepository>()));
@@ -163,6 +161,9 @@ void initLocator() {
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => AssignDriverCubit());
+
+
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

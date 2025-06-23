@@ -47,6 +47,7 @@ class VpLoadsList {
     required this.commodity,
     required this.customer,
     required this.customerDetail,
+    required this.loadId,
   });
 
   final int id;
@@ -63,6 +64,7 @@ class VpLoadsList {
   final String notes;
   final String rate;
   final num status;
+  final String? loadId;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final TruckType? truckType;
@@ -72,6 +74,7 @@ class VpLoadsList {
 
   factory VpLoadsList.fromJson(Map<String, dynamic> json){
     return VpLoadsList(
+      loadId: json['loadId']??"",
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,

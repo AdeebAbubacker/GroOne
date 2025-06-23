@@ -27,7 +27,7 @@ class TruckTypesScreen extends StatefulWidget {
 class _TruckTypesScreenState extends State<TruckTypesScreen> {
 
 
-  int selectedIndex = 0;
+  int? selectedIndex;
   String selectedType = 'Open'; // default selected
   int? selectedSubTypeIndex;
 

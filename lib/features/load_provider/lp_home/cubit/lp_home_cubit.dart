@@ -1,23 +1,35 @@
+import 'dart:async';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 
+
 class LPHomeCubit extends BaseCubit<LPHomeState> {
   final LpHomeRepository _repo;
   LPHomeCubit(this._repo) : super(LPHomeState());
 
+  Timer? _matchTimer;
+
+  @override
+  Future<void> close() {
+    _matchTimer?.cancel();
+    return super.close();
+  }
 
   // Kyc Timer
   Future<void> startKycSuccessTimer() async {
@@ -66,22 +78,38 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     emit(state.copyWith(selectedWeight: weight));
   }
 
-
-  // Start 120 Min Timer
-  Future<void> start120MinTimer() async {
-    const totalDuration = Duration(minutes: 120);
-    final endTime = DateTime.now().add(totalDuration);
-    emit(state.copyWith(remainingTime: totalDuration));
-
-    while (DateTime.now().isBefore(endTime)) {
-      await Future.delayed(const Duration(minutes: 1));
-      final remaining = endTime.difference(DateTime.now());
-      if (remaining.isNegative) break;
-      emit(state.copyWith(remainingTime: remaining));
+  // Get Blue Id
+  Future<String?> getBlueId() async {
+    Result<String> getBlueId = await _repo.getBlueId();
+    if (getBlueId is Success<String>) {
+      emit(state.copyWith(blueId: getBlueId.value));
+      return getBlueId.value;
+    } else {
+      return null;
     }
-
-    emit(state.copyWith(remainingTime: Duration.zero));
   }
+
+
+  // call this once for every load‑card you need
+  void _emitMatching(String createdAtString) {
+    try {
+      final createdAt = DateTime.parse(createdAtString);
+      final deadline = createdAt.add(const Duration(hours: 3)); // 3-hour countdown
+      final text = LpHomeHelper.getMatchingTime(deadline.toIso8601String());
+      emit(state.copyWith(matchingText: text));
+    } catch (e) {
+      emit(state.copyWith(matchingText: "--"));
+    }
+  }
+  void startMatchingTimer(String createdAtString) {
+    _matchTimer?.cancel();
+    _emitMatching(createdAtString); // First call immediately
+    _matchTimer = Timer.periodic(
+      const Duration(seconds: 1),
+          (_) => _emitMatching(createdAtString),
+    );
+  }
+
 
 
   // Fetch Truck Type
@@ -108,7 +136,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     _setRecentUIState(UIState.loading());
     emit(state.copyWith(recentRouteState: UIState.loading()));
     dynamic result = await _repo.getRecentRouteData();
-    if (result is Success<RecentRoutesModel?>) {
+    if (result is Success<RecentRoutesModel>) {
       _setRecentUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -165,7 +193,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
 
-  // Fetch Rate Discovery Api Call
+  // Fetch Weight Api Call
   void _setLoadWeightUIState(UIState<LoadWeightModel>? uiState){
     emit(state.copyWith(loadWeightUIState: uiState));
   }
@@ -177,6 +205,38 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _setLoadWeightUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Fetch Profile Detail Api Call
+  void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
+    emit(state.copyWith(profileDetailUIState: uiState));
+  }
+  Future<void> fetchProfileDetail() async {
+    _setProfileDetailUIState(UIState.loading());
+    dynamic result = await _repo.getUserDetails();
+    if (result is Success<ProfileDetailModel>) {
+      _setProfileDetailUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setProfileDetailUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Fetch Get Load Api Call
+  void _setGetLoadListUIState(UIState<LpGetLoadModel>? uiState){
+    emit(state.copyWith(getLoadListUIState: uiState));
+  }
+  Future<void> fetchGetLoadList() async {
+    _setGetLoadListUIState(UIState.loading());
+    dynamic result = await _repo.getLoads();
+    if (result is Success<LpGetLoadModel>) {
+      _setGetLoadListUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setGetLoadListUIState(UIState.error(result.type));
     }
   }
 
@@ -194,6 +254,10 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
       recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteUIState),
       autoCompleteUIState: resetUIState<AutoCompleteModel>(state.autoCompleteUIState),
       verifyLocationUIState: resetUIState<VerifyLocationModel>(state.verifyLocationUIState),
+      loadWeightUIState: resetUIState<LoadWeightModel>(state.loadWeightUIState),
+      rateDiscoveryUIState: resetUIState<RateDiscoveryModel>(state.rateDiscoveryUIState),
+      truckTypeState: resetUIState<LoadTruckTypeListModel>(state.truckTypeUIState),
+      profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
     ));
   }
 

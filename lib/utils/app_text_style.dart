@@ -13,7 +13,8 @@ class AppTextStyle {
     color: AppColors.black,
     fontSize: 12.sp,
     fontWeight: FontWeight.w700,
-  ); static TextStyle orangeTextColor26w700 = TextStyle(
+  );
+  static TextStyle orangeTextColor26w700 = TextStyle(
     color: AppColors.orangeTextColor,
     fontSize: 26.sp,
     fontWeight: FontWeight.w700,
@@ -238,6 +239,7 @@ class AppTextStyle {
   static TextStyle buttonWhiteTextColor = button.copyWith(color: Colors.white,  inherit: false);
   static TextStyle buttonBlackTextColor = button.copyWith(color: AppColors.primaryTextColor,  inherit: false);
   static TextStyle buttonPrimaryColorTextColor = button.copyWith(color: AppColors.primaryColor,  inherit: false);
+  static TextStyle buttonDisableColorTextColor = button.copyWith(color: AppColors.greyTextColor,  inherit: false);
 
   // Secondary
   static TextStyle secondaryButton = button.copyWith(color: AppColors.primaryTextColor);

@@ -94,7 +94,6 @@ dependencies:
   dio_http_cache:
 
   # Push Notification
-  app_badge_plus: ^1.2.3
 
   # Device
   permission_handler: ^12.0.0+1
@@ -111,8 +110,6 @@ dependencies:
   # create responsive_framework
   flutter_screenutil: ^5.9.3
 
-  # video player
-  video_player: ^2.9.5
   equatable: ^2.0.7
   dotted_line: ^3.2.3
   timeline_tile: ^2.0.0
@@ -125,6 +122,8 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^3.0.0
   local_auth: ^2.3.0
+  webview_flutter: ^4.13.0
+
 
 
 dev_dependencies:

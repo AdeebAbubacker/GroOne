@@ -28,7 +28,11 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       Result result = await _vHomeRepository.getVpMyLoad(await _userInformationRepository.getUserID()??'');
 
       if (result is Success<VpMyLoadResponse>) {
+        result.value.data.sort(
+          (a, b) => b.createdAt!.compareTo(a.createdAt!),
+        );
         emit(VpMyLoadListSuccess(result.value));
+
       } else if (result is Error) {
         emit(VpMyLoadListError(result.type));
       } else {

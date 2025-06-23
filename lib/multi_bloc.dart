@@ -8,7 +8,6 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import 'package:gro_one_app/features/kavach/cubit/choose_preference_cubit.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_list_bloc/load_list_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
@@ -20,6 +19,7 @@ import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'dependency_injection/locator.dart';
@@ -52,7 +52,6 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
         BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
         BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
-        BlocProvider<LoadListBloc>(create: (_) => locator<LoadListBloc>()),
         BlocProvider<RateDiscoveryBloc>(create: (_) => locator<RateDiscoveryBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
@@ -70,6 +69,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
         BlocProvider<ChoosePreferenceCubit>(create: (_) => locator<ChoosePreferenceCubit>()),
+        BlocProvider<AssignDriverCubit>(create: (_) => locator<AssignDriverCubit>()),
       ],
       child: child,
     );

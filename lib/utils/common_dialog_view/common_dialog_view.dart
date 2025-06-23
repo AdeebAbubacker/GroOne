@@ -54,12 +54,14 @@ class _CommonDialogViewState extends State<CommonDialogView> {
         if(!widget.hideCloseButton!)...[
           AppIconButton(onPressed: ()=> Navigator.of(context).pop(), icon: Icons.close).align(Alignment.topRight),
           10.height,
+        ] else...[
+          10.height,
         ],
 
 
         if(widget.child != null)...[
           widget.child!,
-          30.height,
+          20.height,
         ],
 
         if(widget.heading != null)...[
@@ -76,10 +78,10 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         if(widget.onTapSingleButton != null)...[
           AppButton(
+            buttonHeight: commonButtonHeight2,
             onPressed:widget.onTapSingleButton ?? (){},
             title: widget.onSingleButtonText ?? context.appText.continueText,
           ),
-          10.height,
         ],
         
 

@@ -59,6 +59,7 @@ class ApiUrls {
 
   // Common Api
   static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
+  static final String  language = "$_fetchUrl$_customer$_path$_v1/language";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
@@ -76,7 +77,7 @@ class ApiUrls {
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
   static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
   static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
-  static final String lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
+  static final String truckPrefLane="$_baseUrl$_rateDiscovery$_path$_v1/lane";
 
   ///submit Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
@@ -98,6 +99,9 @@ class ApiUrls {
   static final String  pan = "$_kucDocUpload/pan";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
+  static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
+  static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
+
 
 
   /// Load Creation

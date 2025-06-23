@@ -3,20 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_timeline_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
 class LpLoadsLocationDetailsScreen extends StatefulWidget {
-  const LpLoadsLocationDetailsScreen({super.key});
+  final LpLoadItem loadItem;
+
+  const LpLoadsLocationDetailsScreen({super.key, required this.loadItem});
 
   @override
   State<LpLoadsLocationDetailsScreen> createState() => _LpLoadsLocationDetailsScreenState();
@@ -41,7 +57,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
           children: [
             buildGoogleMapWidget(),
             buildTopLocationWidget(),
-            buildBottomLoadDetailsWidget()
+            buildBottomLoadDetailsWidget(),
+            buildSupportWidget(),
           ],
         ),
       ),
@@ -56,7 +73,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
           builder: (context) {
             return GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: LatLng(0,0),
+                target: LatLng(12.993959463114383,80.17066519707441),
                 zoom: 10,
               ),
               onMapCreated: (controller) async {
@@ -90,10 +107,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Navigator.pop(context);
                 },child: Icon(Icons.arrow_back)),
                 8.width,
-                Text('#GRO22334', style: AppTextStyle.body3),
+                Text('#GRO${widget.loadItem.loadId}', style: AppTextStyle.body3),
                 Spacer(),
                 Text(
-                  '12 Jul 2025, 6:30 AM',
+                  widget.loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(widget.loadItem.dueDate!) : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
               ],
@@ -105,8 +122,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Bangalore", style: AppTextStyle.body2.copyWith(color: AppColors.black)),
-                    Text("21-09-2025", style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
+                    Text(widget.loadItem.pickUpAddr.capitalizeFirst, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(
+                        widget.loadItem.pickUpDateTime != null ? DateTimeHelper.getFormattedDate(widget.loadItem.pickUpDateTime!) : "--",
+                        style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
                   ],
                 ),
                 20.width,
@@ -115,8 +134,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Chennai", style: AppTextStyle.body2.copyWith(color: AppColors.black)),
-                    Text("21-09-2025", style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
+                    Text(widget.loadItem.dropAddr.capitalizeFirst, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(
+                        widget.loadItem.expectedDeliveryDateTime != null ? DateTimeHelper.getFormattedDate(widget.loadItem.expectedDeliveryDateTime!) : "--",
+                        style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
                   ],
                 ),
                 Spacer(),
@@ -124,23 +145,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.lightPurpleColor,
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: commonContainerDecoration(
+                          color: LpLoadsHelper.getLoadStatusColor(widget.loadItem.loadStatus.toInt())
                       ),
+                      width: 80.w,
                       child: Text(
-                        'Matching..',
-                        style: AppTextStyle.body4.copyWith(
-                          color: AppColors.purpleColor,
-                        ),
-                      ),
+                        LpLoadsHelper.getLoadTypeDisplayText(widget.loadItem.loadStatus.toInt()),
+                        style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(widget.loadItem.loadStatus.toInt())),
+                      ).center().paddingAll(4),
                     ),
                     4.height,
-                    Text(
-                      '63 Mins to Match',
-                      style: AppTextStyle.body4.copyWith(color: Colors.green),
-                    )
+                    if(widget.loadItem.loadStatus == 2)
+                    Text(LpHomeHelper.getMatchingTime(widget.loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
                   ],
                 )
               ],
@@ -163,158 +179,192 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
         decoration: commonContainerDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Truck Type Row
-              Row(
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(AppImage.png.truck, width: 57.w, height: 42.h),
-                  12.width,
-                  Column(
+                  // Truck Type Row
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
-                      4.height,
-                      Text('Closed - 30 Ft SXL', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                      Image.asset(AppImage.png.truck, width: 57.w, height: 42.h),
+                      12.width,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
+                          4.height,
+                          Text('${widget.loadItem.truckType!.type} - ${widget.loadItem.vehicleLength}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
+                  ),
 
-              16.height,
+                  16.height,
 
-              // Source & Destination card
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: commonContainerDecoration(
-                  color: AppColors.lightPrimaryColor2,
-                  borderColor: AppColors.borderColor,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    Column(
-                      children: [
-                        Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
-                        SizedBox(
-                          height: 70,
-                          child: DottedLine(
-                            direction: Axis.vertical,
-                            lineThickness: 1.0,
-                            dashLength: 4.0,
-                            dashColor: Colors.grey,
-                            dashGapLength: 3.0,
-                          ).paddingOnly(top: 5,bottom: 5),
-                        ),
-
-                        Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
-                      ],
+                  // Source & Destination card
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: commonContainerDecoration(
+                      color: AppColors.lightPrimaryColor2,
+                      borderColor: AppColors.borderColor,
                     ),
-                    10.width,
-
-                    Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        // Source (Pick Up)
+                        Column(
+                          children: [
+                            Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
+                            SizedBox(
+                              height: 70,
+                              child: DottedLine(
+                                direction: Axis.vertical,
+                                lineThickness: 1.0,
+                                dashLength: 4.0,
+                                dashColor: Colors.grey,
+                                dashGapLength: 3.0,
+                              ).paddingOnly(top: 5,bottom: 5),
+                            ),
+
+                            Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
+                          ],
+                        ),
+                        10.width,
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                            6.height,
-                            Text("Coca Cola Bottling Plant, Nemam, Vellavedu, Tamil Nadu 600124", style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+
+                            // Source (Pick Up)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                                6.height,
+                                Text(widget.loadItem.pickUpLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                              ],
+                            ),
+
+                            commonDivider(),
+
+                            // Destination
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                                6.height,
+                                Text(widget.loadItem.dropLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                              ],
+                            ),
+
                           ],
-                        ),
-
-                        commonDivider(),
-
-                        // Destination
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                            6.height,
-                            Text("Coca Cola Bottling Plant, Nemam, Vellavedu, Tamil Nadu 600124", style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                          ],
-                        ),
-
+                        ).expand()
                       ],
-                    ).expand()
-                  ],
-                ),
-              ),
-
-              16.height,
-              Container(
-                decoration: commonContainerDecoration(
-                  color: AppColors.primaryLightColor,
-                  borderRadius: BorderRadius.circular(commonPadding),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text("Agreed Price", style: AppTextStyle.body2),
-                    Text(
-                      "₹75000 - ₹85000",
-                      style: AppTextStyle.h4.copyWith(
-                        color: AppColors.primaryColor,
-                      ),
                     ),
-                  ],
-                ).paddingAll(8),
+                  ),
 
-              ),
+                  16.height,
+                  Container(
+                    decoration: commonContainerDecoration(
+                      color: AppColors.primaryLightColor,
+                      borderRadius: BorderRadius.circular(commonPadding),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text("Agreed Price", style: AppTextStyle.body2),
+                        Text(
+                          "$indianCurrencySymbol${widget.loadItem.rate}",
+                          style: AppTextStyle.h4.copyWith(
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                      ],
+                    ).paddingAll(8),
 
-              16.height,
+                  ),
 
-              // Meta icons row
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 20.h,
-                children: [
-                  Row(
+                  16.height,
+
+                  // Meta icons row
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    spacing: 20.h,
                     children: [
-                      Icon(Icons.local_shipping_outlined, size: 20),
-                      8.width,
-                      Text('Agricultural Products', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                      Row(
+                        children: [
+                          SvgPicture.asset(AppIcons.svg.orderBox, width: 20,color: Colors.black,),
+                          8.width,
+                          Text(widget.loadItem.commodity!.name, style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,color: Colors.black,),
+                          8.width,
+                          Text('${widget.loadItem.consignmentWeight} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
+                          8.width,
+                          Text('534 KM', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                        ],
+                      ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Icon(Icons.scale, size: 20),
-                      8.width,
-                      Text('5 - 6 Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Icon(Icons.pin_drop_outlined, size: 20),
-                      8.width,
-                      Text('534 KM', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
-                    ],
-                  ),
+
+                  25.height,
+
+                  if(widget.loadItem.loadStatus != 2)
+                    ...[
+                      Text("Timeline", style: AppTextStyle.h4),
+                      20.height,
+
+                      LPLoadTimelineWidget(
+                        timelineTitle: ['Load Posted', 'Load Confirmed', 'Driver Assigned','Memo Signed', 'Documents Updated', 'Advance Paid', 'In Transit', 'Hosur', 'Reached Destination', 'POD Uploaded', 'Unloading complete', 'POD Dispatched', 'Load Statement Generated', 'Balance Paid'],
+                        currentTimeline: 1,
+                      )
+                    ]
+
                 ],
-              ),
+              ).paddingAll(16),
+            ).expand(),
+            if(widget.loadItem.loadStatus == 5)
 
-              25.height,
+              AppButton(onPressed: () {
+              // Navigator.push(context, commonRoute(LpLoadValidateMemo()));
+              AppDialog.show(context, child: AdvancePaymentDialog(), dismissible: true);
+              // Navigator.push(context, commonRoute(AdvancePaymentDialog()));
+            }, title: 'Swipe to Agree',).paddingSymmetric(horizontal: 10,vertical: 5)
 
-              Text("Timeline", style: AppTextStyle.h4),
-              20.height,
-
-              LPLoadTimelineWidget(
-                timelineTitle: ['Load Posted', 'Load Confirmed', 'Driver Assigned','Memo Signed', 'Documents Updated', 'Advance Paid', 'In Transit', 'Hosur', 'Reached Destination', 'POD Uploaded', 'Unloading complete', 'POD Dispatched', 'Load Statement Generated', 'Balance Paid'],
-                currentTimeline: 1,
-              )
-
-            ],
-          ).paddingAll(16),
+          ],
         ),
       ),
     );
+  }
+
+  /// Support
+  Widget buildSupportWidget() {
+    return Positioned(right: 5,bottom: 20,top: 0,child: IconButton(
+        onPressed: () {
+          commonSupportDialog(context);
+        },
+        icon: Container(
+          padding: EdgeInsets.all(4),
+          decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+          child: SvgPicture.asset(
+            AppIcons.svg.support,
+            width: 25,
+            colorFilter: AppColors.svg(AppColors.primaryColor),
+          ),
+        )
+    ));
+
   }
 }
 
