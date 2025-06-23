@@ -121,6 +121,7 @@ class _KavachAddedVehiclesScreenState
                 context: context,
                 screen: const KavachAddVehicleBottomSheet(),
                 );
+                kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
               }, child: Text('+ Add Vehicle',style: AppTextStyle.primaryColor14w700,)),
             ],),
             AppSearchBar(

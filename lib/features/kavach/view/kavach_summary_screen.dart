@@ -6,7 +6,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
+
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
@@ -190,8 +190,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("${product.name}", style: AppTextStyle.blackColor15w500),
-                Text(product.id ?? '', style: AppTextStyle.textDarkGreyColor14w500),
+                Text(product.name, style: AppTextStyle.blackColor15w500),
+                Text(product.id, style: AppTextStyle.textDarkGreyColor14w500),
                 5.height,
                 _buildDetailRow("HSN Code",  "-"),
                 _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
@@ -232,7 +232,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               totalPrice: totalAmount,
               categoryId: 1,
               shippingPersonIncharge: widget.shippingAddress.customerName,
-              shippingPersonContactNo: widget.shippingAddress.mobileNumber??'',
+              shippingPersonContactNo: widget.shippingAddress.mobileNumber,
               customerInfo: {
                 "CompanyName": "ABC Logistics Pvt Ltd",
                 "contactNumber": "9876543210",

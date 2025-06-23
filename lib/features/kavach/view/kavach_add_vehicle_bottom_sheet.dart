@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
+import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
@@ -23,8 +25,7 @@ import '../../../utils/upload_attachment_files.dart';
 import '../../../utils/validator.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_state.dart';
-import '../model/kavach_commodity_model.dart';
-import '../model/kavach_truck_type_model.dart';
+import '../model/kavach_truck_length_model.dart';
 
 class KavachAddVehicleBottomSheet extends StatefulWidget {
   const KavachAddVehicleBottomSheet({super.key});
@@ -52,11 +53,12 @@ class _KavachAddVehicleBottomSheetState
   int? selectedTruckTypeId;
   String? commoditiesDropdownValue;
   bool isActive = true;
+  final kavachAddNewVehicleCubit = locator<KavachAddVehicleFormCubit>();
 
   @override
   void initState() {
-    context.read<KavachAddVehicleFormCubit>().fetchCommodities();
-    context.read<KavachAddVehicleFormCubit>().fetchTruckTypes();
+    kavachAddNewVehicleCubit.fetchCommodities();
+    kavachAddNewVehicleCubit.fetchTruckTypes();
     super.initState();
   }
 
@@ -195,8 +197,14 @@ class _KavachAddVehicleBottomSheetState
                                   onChanged: (selected) {
                                     setState(() {
                                       truckLengthDropdownValue = selected;
+
+                                      final selectedModel = state.truckLengths.data!
+                                          .firstWhere((e) => e.subType == selected, orElse: () => TruckLengthModel(id: 0, type: '', subType: ''));
+
+                                      selectedTruckTypeId = selectedModel.id;
                                     });
                                   },
+
                                   validator: (value) =>
                                   value == null || value.isEmpty ? "Please select truck length" : null,
                                 ),
@@ -212,6 +220,7 @@ class _KavachAddVehicleBottomSheetState
                         labelText: "Capacity",
                         // suffix: Text("Metric Tons"),
                         keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         validator:
                             (value) => Validator.fieldRequired(
                               value,
@@ -230,7 +239,7 @@ class _KavachAddVehicleBottomSheetState
                                 state.commodities.data!.map((commodity) {
                                   return DropdownItem<String>(
                                     label: commodity.name,
-                                    value: commodity.name,
+                                    value: commodity.id.toString(),
                                   );
                                 }).toList();
 
@@ -291,22 +300,16 @@ class _KavachAddVehicleBottomSheetState
                 AppButton(
                   onPressed: () async {
                     if (!formKey.currentState!.validate()) return;
+                    if(vehicleDocList.isEmpty){
+                      ToastMessages.alert(message: "Please upload RC document");
+                      return;
+                    }
 
                     final userId = int.tryParse(await context.read<KavachAddVehicleFormCubit>().repository.userInfoRepo.getUserID() ?? '') ?? 0;
-
-                    final allCommodities = context.read<KavachAddVehicleFormCubit>().state.commodities.data ?? [];
-
-                    final selectedCommodityIds = acceptableCommoditiesController.selectedItems
-                        .map((selectedName) {
-                      final match = allCommodities.firstWhere(
-                            (e) => e.name == selectedName,
-                        orElse: () => CommodityModel(id: -1, name: ''),
-                      );
-                      return match.id;
-                    })
-                        .where((id) => id != -1) // filter invalid ones
+                    final selectedCommoditiesIds = acceptableCommoditiesController.selectedItems
+                        .map((idStr) => int.tryParse(idStr.value))
+                        .whereType<int>() // filters out null
                         .toList();
-
                     final rcDocLink = vehicleDocList.first['path'];
 
                     final request = KavachAddVehicleRequest(
@@ -319,21 +322,21 @@ class _KavachAddVehicleBottomSheetState
                       truckType: selectedTruckTypeId??0,
                       truckLength: selectedTruckTypeId??0,
                       capacity: int.tryParse(capacityController.text.trim()) ?? 0,
-                      acceptableCommodities: selectedCommodityIds,
+                      acceptableCommodities: selectedCommoditiesIds,
                       vehicleStatus: isActive ? 1 : 0,
                     );
 
                     print(jsonEncode(request));
-                    // final result = await context.read<KavachAddVehicleFormCubit>().addVehicle(request);
-                    //
-                    // if (result is Success) {
-                    //   // context.pop();
-                    //   ToastMessages.success(message: "Vehicle saved successfully!");
-                    // } else if (result is Error) {
-                    //   ToastMessages.error(
-                    //     message: getErrorMsg(errorType: result.type),
-                    //   );
-                    // }
+                    final result = await kavachAddNewVehicleCubit.addVehicle(request);
+
+                    if (result is Success) {
+                      context.pop();
+                      ToastMessages.success(message: "Vehicle saved successfully!");
+                    } else if (result is Error) {
+                      ToastMessages.error(
+                        message: getErrorMsg(errorType: result.type),
+                      );
+                    }
 
                   },
 

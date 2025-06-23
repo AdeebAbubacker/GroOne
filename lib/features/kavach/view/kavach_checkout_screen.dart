@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sheet.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_billing_address_list_screen.dart';
@@ -10,6 +11,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../data/model/result.dart';
@@ -20,6 +22,7 @@ import '../../../utils/app_check_box.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_field.dart';
 import '../../../utils/app_text_style.dart';
+import '../../../utils/common_functions.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -104,11 +107,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        title: context.appText.checkout,
-        onLeadingTap: () {
-          Navigator.of(context).pop(_quantities);
-        },
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text(context.appText.checkout.capitalize, style: AppTextStyle.appBar.copyWith(color: AppColors.primaryTextColor)),
+         leading : IconButton(
+            onPressed: () {
+              Navigator.of(context).pop(_quantities);
+            },
+            icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
+          ),
+        actions: [
+          IconButton(
+            onPressed: () {
+
+            },
+            icon: SvgPicture.asset(
+              AppIcons.svg.support,
+              width: 25,
+              colorFilter: AppColors.svg(AppColors.primaryColor),
+            ),
+          ),
+          5.width
+        ],
       ),
       bottomNavigationBar: buildPlaceOrderButtonWidget(),
       body: buildBodyWidget(context),
@@ -468,7 +488,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                         Icon(
                           CupertinoIcons.chevron_down,
                           color: AppColors.chevronGreyColor,
-                        ),
+                        ).paddingSymmetric(horizontal: 5),
                       ],
                     ),
                   ),
