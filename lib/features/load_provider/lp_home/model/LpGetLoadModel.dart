@@ -34,13 +34,18 @@ class LpGetLoadModel {
 class LoadData {
   LoadData({
     required this.id,
+    required this.loadId,
+    required this.laneId,
+    required this.rateId,
     required this.customerId,
     required this.commodityId,
     required this.truckTypeId,
     required this.pickUpAddr,
+    required this.pickUpLocation,
     required this.assignStatus,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
@@ -61,13 +66,18 @@ class LoadData {
   });
 
   final int id;
+  final String loadId;
+  final num laneId;
+  final num rateId;
   final num customerId;
   final num commodityId;
   final num truckTypeId;
   final String pickUpAddr;
+  final String pickUpLocation;
   final num assignStatus;
   final String pickUpLatlon;
   final String dropAddr;
+  final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
@@ -76,10 +86,10 @@ class LoadData {
   final num status;
   final num loadStatus;
   final String vehicleLength;
-  final dynamic pickUpDateTime;
+  final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
   final num handlingCharges;
-  final num acceptedBy;
+  final dynamic acceptedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
@@ -88,13 +98,18 @@ class LoadData {
 
   LoadData copyWith({
     int? id,
+    String? loadId,
+    num? laneId,
+    num? rateId,
     num? customerId,
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
+    String? pickUpLocation,
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
@@ -103,10 +118,10 @@ class LoadData {
     num? status,
     num? loadStatus,
     String? vehicleLength,
-    dynamic? pickUpDateTime,
+    DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
-    num? acceptedBy,
+    dynamic? acceptedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
@@ -115,13 +130,18 @@ class LoadData {
   }) {
     return LoadData(
       id: id ?? this.id,
+      loadId: loadId ?? this.loadId,
+      laneId: laneId ?? this.laneId,
+      rateId: rateId ?? this.rateId,
       customerId: customerId ?? this.customerId,
       commodityId: commodityId ?? this.commodityId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       pickUpAddr: pickUpAddr ?? this.pickUpAddr,
+      pickUpLocation: pickUpLocation ?? this.pickUpLocation,
       assignStatus: assignStatus ?? this.assignStatus,
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
+      dropLocation: dropLocation ?? this.dropLocation,
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
@@ -145,13 +165,18 @@ class LoadData {
   factory LoadData.fromJson(Map<String, dynamic> json){
     return LoadData(
       id: json["id"] ?? 0,
+      loadId: json["loadId"] ?? "",
+      laneId: json["laneId"] ?? 0,
+      rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
       pickUpAddr: json["pickUpAddr"] ?? "",
+      pickUpLocation: json["pickUpLocation"] ?? "",
       assignStatus: json["assignStatus"] ?? 0,
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
+      dropLocation: json["dropLocation"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
@@ -160,10 +185,10 @@ class LoadData {
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",
-      pickUpDateTime: json["pickUpDateTime"],
+      pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"] ?? 0,
-      acceptedBy: json["acceptedBy"] ?? 0,
+      acceptedBy: json["acceptedBy"],
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],

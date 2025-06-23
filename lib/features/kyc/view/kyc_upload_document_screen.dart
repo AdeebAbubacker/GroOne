@@ -12,6 +12,8 @@ import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -31,7 +33,11 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/ifsc_code_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/pan_card_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/tan_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -50,6 +56,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final kycCubit = locator<KycCubit>();
+  final lpHomeCubit = locator<LPHomeCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   final TextEditingController aadhaarNumberTextController = TextEditingController();
@@ -81,6 +88,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
   String? selectedState;
   String? selectedCity;
+
+  dynamic companyId;
 
   final List<String> stateList = [
     "Maharashtra",
@@ -172,6 +181,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchCompanyTypeId();
     nodeManage();
     aadhaarNumberTextController.text = widget.aadhaarNumber;
+    await Future.delayed(Duration(milliseconds: 200));
+    setState(() {});
   });
   
   void disposeFunction()=> frameCallback((){
@@ -187,11 +198,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     bankNameTextController.dispose();
     branchNameTextController.dispose();
     ifscCodeTextController.dispose();
-
     gstFocusNode.dispose();
     tanFocusNode.dispose();
     panFocusNode.dispose();
-
     kycCubit.resetState();
   });
 
@@ -210,17 +219,14 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     bankNameTextController.clear();
     branchNameTextController.clear();
     ifscCodeTextController.clear();
-
     selectedState = null;
     selectedCity = null;
-
     gstDoc.clear();
     panDoc.clear();
     tanDoc.clear();
     checkDocLink.clear();
     tdsDocLink.clear();
     tds.clear();
-
     uploadLink = "";
   });
 
@@ -402,34 +408,94 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     }
   }
 
+  bool validateDocs({
+    required String userRole,          // "2" for VP, anything else for LP
+    required int companyId,            // 1=sole, 2=individual …
+    // document lists
+    required List gstDoc,
+    required List panDoc,
+    required List tanDoc,
+    required List checkDocLink,
+    required List tdsDocLink,
+  }) {
+    // helper to toast & fail fast
+    bool need(String msg, bool ok) {
+      if (!ok) ToastMessages.alert(message: 'Please upload $msg');
+      return ok;
+    }
+
+    // VP FLOW  ──────────────────────────────────────────────────────────────
+    if (userRole == "2") {
+      if (companyId == 2) {
+        return need('Aadhaar', true) &                     // always true – already taken on previous screen
+        need('Cancelled Cheque', checkDocLink.isNotEmpty);
+      }
+
+      final gstOk  = need('GST document',   gstDoc.isNotEmpty);
+      final panOk  = need('PAN document',   panDoc.isNotEmpty);
+      final chkOk  = need('Cancelled Cheque', checkDocLink.isNotEmpty);
+      final tdsOk  = need('TDS certificate', tdsDocLink.isNotEmpty);
+      return gstOk & panOk & chkOk & tdsOk;                 // for Sole + Others
+    }
+
+    // LP FLOW  ──────────────────────────────────────────────────────────────
+    if (companyId == 2) {
+      return true;                                         // only Aadhaar needed
+    }
+    if (companyId == 1) {
+      final gstOk = need('GST document', gstDoc.isNotEmpty);
+      final panOk = need('PAN document', panDoc.isNotEmpty);
+      final tanOk = need('TAN document', tanDoc.isNotEmpty);
+      return gstOk & panOk & tanOk;                        // Aadhaar already present
+    }
+
+    // all other company types for LP
+    final gstOk = need('GST document', gstDoc.isNotEmpty);
+    final panOk = need('PAN document', panDoc.isNotEmpty);
+    final tanOk = need('TAN document', tanDoc.isNotEmpty);
+    return gstOk & panOk & tanOk;
+  }
+
+
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
+    if(_formKey.currentState!.validate()){
 
-    final kycRequest = SubmitKycApiRequest(
-      aadhar: widget.aadhaarNumber,
-      address1: addressLine1TextController.text,
-      address2: addressLine2TextController.text,
-      address3: addressLine3TextController.text,
-      bankAccount: accountNumberTextController.text,
-      bankName: bankNameTextController.text,
-      branchName: branchNameTextController.text,
-      chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
-      tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
-      gstin: gstInTextController.text,
-      gstinDocLink: gstDoc.isNotEmpty ?  gstDoc.first['path'] : null,
-      ifscCode: ifscCodeTextController.text,
-      isAadhar: true,
-      isGstin: kycCubit.state.verifiedGst,
-      isPan:  kycCubit.state.verifiedPan,
-      isTan:  kycCubit.state.verifiedTan,
-      pan: panTextController.text,
-      panDocLink:  panDoc.isNotEmpty ?  panDoc.first['path'] : null,
-      tan: tanTextController.text,
-      tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
-    );
+      final ok = validateDocs(
+        userRole: kycCubit.userRole ?? '',
+        companyId: companyId,
+        gstDoc: gstDoc,
+        panDoc: panDoc,
+        tanDoc: tanDoc,
+        checkDocLink: checkDocLink,
+        tdsDocLink: tdsDocLink,
+      );
+      if (!ok) return;
 
-    kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
-
+      final kycRequest = SubmitKycApiRequest(
+        aadhar: widget.aadhaarNumber,
+        address1: addressLine1TextController.text,
+        address2: addressLine2TextController.text,
+        address3: addressLine3TextController.text,
+        bankAccount: accountNumberTextController.text,
+        bankName: bankNameTextController.text,
+        branchName: branchNameTextController.text,
+        chequeDocLink: checkDocLink.isNotEmpty ? checkDocLink.first['path'] : null,
+        tdsDocLink: tdsDocLink.isNotEmpty ? tdsDocLink.first['path'] : null,
+        gstin: gstInTextController.text,
+        gstinDocLink: gstDoc.isNotEmpty ?  gstDoc.first['path'] : null,
+        ifscCode: ifscCodeTextController.text,
+        isAadhar: true,
+        isGstin: kycCubit.state.verifiedGst,
+        isPan:  kycCubit.state.verifiedPan,
+        isTan:  kycCubit.state.verifiedTan,
+        pan: panTextController.text,
+        panDocLink:  panDoc.isNotEmpty ?  panDoc.first['path'] : null,
+        tan: tanTextController.text,
+        tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
+      );
+      kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+    }
   }
 
 
@@ -473,17 +539,16 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           bloc: kycCubit,
           listener: (context, state) { },
           builder: (context, kycState) {
-            return BlocBuilder<LpHomeBloc, HomeState>(
-              bloc: lpHomeBloc,
+            return BlocBuilder<LPHomeCubit, LPHomeState>(
+              bloc: lpHomeCubit,
               buildWhen: (previous, current) {
                 return previous != current;
               },
               builder: (context, lpHomeState){
-                dynamic companyId;
-                if(lpHomeState is ProfileDetailSuccess){
-                  companyId  = lpHomeState.profileDetailResponse.data?.details?.companyTypeId;
+                if(lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId != null){
+                  companyId  = lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId;
                 }else{
-                  companyId = 0;
+                  companyId = null;
                 }
                 CustomLog.info(this, "companyId: $companyId");
                 return Column(
@@ -672,9 +737,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                             text: "Bank Details",
                             children: [
                               AppTextField(
-                                validator: (value) => Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
-                                mandatoryStar: true,
+                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                 labelText: "Account Number",
                                 hintText: "Enter Account Number",
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
@@ -685,25 +750,25 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               ),
 
                               AppTextField(
-                                validator: (value) => Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                 controller: bankNameTextController,
-                                mandatoryStar: true,
+                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                 labelText: "Bank Name",
                                 hintText: "Enter Bank Name",
                               ),
 
                               AppTextField(
-                                  validator: (value) => Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                   controller: branchNameTextController,
-                                  mandatoryStar: true,
+                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                   labelText: "Branch Name",
                                   hintText: "Enter Branch Name"
                               ),
 
                               AppTextField(
-                                  validator: (value) => Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                   controller: ifscCodeTextController,
-                                  mandatoryStar: true,
+                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                   labelText: "IFSC Code",
                                   hintText: "Enter IFSC code",
                                   inputFormatters: [
@@ -791,6 +856,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
             clearAllFormValues();
+            lpHomeCubit.fetchProfileDetail();
             navigateToHomeScreen(context);
           }
           if (status == Status.ERROR) {
@@ -832,6 +898,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter GST Number
             buildTextFieldWithLabelWidget(
+              maxLength: 15,
+                inputFormatters: [
+                  UpperCaseTextFormatter(),
+                  GSTInputFormatter()
+                ],
                 leftText: state.verifiedGst != null && state.verifiedGst! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedGst != null && state.verifiedGst!,
                 rightText: "GSTIN",
@@ -842,6 +913,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                     if(result is Success) {
                       await verifyGstApiCall(gstInTextController.text);
                     }
+                  }  else {
+                    ToastMessages.alert(message: "Please enter GSTIN and upload document");
                   }
                 }
             ),
@@ -871,6 +944,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter TAN number
             buildTextFieldWithLabelWidget(
+              maxLength: 10,
+                inputFormatters: [
+                  UpperCaseTextFormatter(),
+                  TANInputFormatter(),
+                ],
                 leftText: state.verifiedTan != null && state.verifiedTan! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedTan != null && state.verifiedTan!,
                 rightText: "TAN",
@@ -913,10 +991,17 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
+              inputFormatters: [
+                UpperCaseTextFormatter(),
+                PANCardInputFormatter(),
+              ],
+              maxLength: 10,
                 leftText: state.verifiedPan != null && state.verifiedPan! ? "Verified" : "Un-Verified",
                 readOnly: state.verifiedPan != null && state.verifiedPan!,
                 rightText: "PAN",
                 controller: panTextController,
+
+
                 suffixOnTap: () async {
                   if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(panDoc);
@@ -958,7 +1043,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Text Field With Label
-  Widget buildTextFieldWithLabelWidget({required String rightText, String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
+  Widget buildTextFieldWithLabelWidget({
+    int? maxLength,
+    required String rightText,
+    List<TextInputFormatter>? inputFormatters,
+    String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
     return Column(
       children: [
         Row(
@@ -979,8 +1068,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         ),
         6.height,
         AppTextField(
+          maxLength:maxLength ,
           validator: (value) => Validator.fieldRequired(value),
           readOnly: readOnly,
+          inputFormatters:inputFormatters,
           currentFocus: currentFocus,
           controller: controller,
           decoration: commonInputDecoration(

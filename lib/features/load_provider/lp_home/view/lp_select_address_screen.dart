@@ -245,12 +245,13 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
           headingColor: AppColors.orangeTextColor,
           message: "We will let you know once we start operating here",
           onSingleButtonText: "Change Location",
+          hideCloseButton: true,
           onTapSingleButton: (){
-            lpHomeCubit.resetAutoCompleteState();
             searchTextController.clear();
             Navigator.pop(context);
+            lpHomeCubit.resetAutoCompleteState();
           },
-          child: SvgPicture.asset(AppImage.svg.kycPending, width: 200),
+          child: SvgPicture.asset(AppImage.svg.kycPending, width: 150),
         ),
     );
   }
@@ -260,54 +261,62 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: widget.title),
-      body: Stack(
-        children: [
+      body: SafeArea(
+        child: Stack(
+          children: [
 
-          // Map
-          buildGoogleMapWidget(),
+            // Map
+            buildGoogleMapWidget(),
 
-          // Map Navigation
-          buildMapNavigationWidget(),
+            // Map Navigation
+            buildMapNavigationWidget(),
 
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: EdgeInsets.all(commonSafeAreaPadding),
-              decoration: commonContainerDecoration(),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Location Text Field
-                    buildLocationTextFieldWidget(context),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: EdgeInsets.all(commonSafeAreaPadding),
+                decoration: commonContainerDecoration(),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Location Text Field
+                      buildLocationTextFieldWidget(context),
+                      20.height,
 
-                    // Suggestion List
-                    buildSuggestionListWidget(),
-                    20.height,
 
-                    // Address Text Field
-                    AppTextField(
-                      controller: addressTextController,
-                      hintText: "Enter your address...",
-                      labelText: "Address",
-                      maxLines: 2,
-                    ),
-                    40.height,
+                      Stack(
+                        children: [
+                          // Address Text Field
+                          AppTextField(
+                            controller: addressTextController,
+                            hintText: "Enter your address...",
+                            labelText: "Address",
+                            maxLines: 2,
+                          ),
 
-                    // Select Location Button
-                    buildSelectLocationButton(context),
-                    30.height
-                  ],
+                          // Suggestion List
+                          buildSuggestionListWidget(),
+                        ],
+                      ),
+                      50.height,
+
+                      // Select Location Button
+                      buildSelectLocationButton(context),
+                      20.height,
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 
 
   Widget buildGoogleMapWidget(){
@@ -381,7 +390,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         if(state.autoCompleteUIState != null && state.autoCompleteUIState!.status == Status.SUCCESS){
           if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.data!.predictions.isNotEmpty){
             return  ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: state.autoCompleteUIState!.data!.data!.predictions.isEmpty ? 200  : 200 ),
+              constraints: BoxConstraints(maxHeight: 150),
               child: Container(
                 decoration: commonContainerDecoration(shadow: true),
                 child: ListView.builder(
@@ -404,7 +413,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                   },
                 ),
               ),
-            ).paddingTop(10).isAnimate();
+            ).isAnimate();
           }
         }
        return Container();
@@ -418,10 +427,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       title: "Continue",
       onPressed: () {
 
-
-
         debugPrint("title ${widget.title}");
-
 
         if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
           _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");

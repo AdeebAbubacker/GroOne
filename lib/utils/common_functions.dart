@@ -136,7 +136,7 @@ Future<String?> commonTimePicker(BuildContext context, {TimeOfDay? initialTime})
   );
 
   try {
-    if (picked != null && picked != selectedTime) {
+    if (picked != null) {
       // Convert TimeOfDay to 12-hour format
       final now = DateTime.now();
       final formattedTime = DateFormat('hh : mm a').format(DateTime(now.year, now.month, now.day, picked.hour, picked.minute));

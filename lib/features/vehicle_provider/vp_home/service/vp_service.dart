@@ -25,6 +25,7 @@ class VpHomeService {
           result.value,
           (data) => VpMyLoadResponse.fromJson(data),
         );
+
       } else if (result is Error) {
         return Error(result.type);
       } else {

@@ -111,8 +111,6 @@ dependencies:
   # create responsive_framework
   flutter_screenutil: ^5.9.3
 
-  # video player
-  video_player: ^2.9.5
   equatable: ^2.0.7
   dotted_line: ^3.2.3
   timeline_tile: ^2.0.0

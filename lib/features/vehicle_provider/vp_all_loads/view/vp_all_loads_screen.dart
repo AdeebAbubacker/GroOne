@@ -18,7 +18,7 @@ import '../../../../utils/common_functions.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../../utils/toast_messages.dart';
 import '../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import '../../../load_provider/lp_home/model/profile_detail_response_model.dart';
+import '../../../load_provider/lp_home/model/profile_detail_model.dart';
 import '../../vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import '../../vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import '../bloc/vp_all_loads_bloc.dart';

@@ -250,6 +250,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               },
             ),
           );
+          lpHomeCubit.fetchGetLoadList();
           lpHomeCubit.clearPickUpAndDestination();
         }
       },
@@ -263,7 +264,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                 commonSupportDialog(context);
               },
               style: AppButtonStyle.outline,
-              title: "Customer Support",
+              title: "Support",
             ).expand(),
             15.width,
 
@@ -271,9 +272,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
-
                 await postLoadApiCall();
-
               },
             ).expand(),
           ],

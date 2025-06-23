@@ -1,10 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
@@ -16,13 +18,16 @@ class LPHomeState extends Equatable {
   final UIState<VerifyLocationModel>? verifyLocationUIState;
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
   final UIState<LoadWeightModel>? loadWeightUIState;
+  final UIState<ProfileDetailModel>? profileDetailUIState;
+  final UIState<LpGetLoadModel>? lpGetLoadUIState;
   final bool showSuccessKyc;
   final UIState<DestinationModel>? destination;
   final UIState<PickUpModel>? pickup;
   final num? locationId;
   final num? laneId;
   final LoadWeightData? selectedWeight;
-  final Duration? remainingTime;
+  final String? matchingText;
+  final String? blueId;
 
   const LPHomeState({
     this.truckTypeUIState,
@@ -31,13 +36,16 @@ class LPHomeState extends Equatable {
     this.verifyLocationUIState,
     this.rateDiscoveryUIState,
     this.loadWeightUIState,
+    this.profileDetailUIState,
+    this.lpGetLoadUIState,
     this.showSuccessKyc = false,
     this.destination,
     this.pickup,
     this.locationId,
     this.laneId,
     this.selectedWeight,
-    this.remainingTime,
+    this.matchingText,
+    this.blueId,
   });
 
   LPHomeState copyWith({
@@ -47,13 +55,16 @@ class LPHomeState extends Equatable {
     UIState<VerifyLocationModel>? verifyLocationUIState,
     UIState<RateDiscoveryModel>? rateDiscoveryUIState,
     UIState<LoadWeightModel>? loadWeightUIState,
+    UIState<ProfileDetailModel>? profileDetailUIState,
+    UIState<LpGetLoadModel>? getLoadListUIState,
     bool? showSuccessKyc,
     UIState<DestinationModel>? destination,
     UIState<PickUpModel>? pickup,
     num? locationId,
     num? laneId,
     LoadWeightData? selectedWeight,
-    Duration? remainingTime,
+    String? matchingText,
+    String? blueId,
   }) {
     return LPHomeState(
       truckTypeUIState: truckTypeState ?? this.truckTypeUIState,
@@ -62,13 +73,16 @@ class LPHomeState extends Equatable {
       verifyLocationUIState: verifyLocationUIState ?? this.verifyLocationUIState,
       rateDiscoveryUIState: rateDiscoveryUIState ?? this.rateDiscoveryUIState,
       loadWeightUIState: loadWeightUIState ?? this.loadWeightUIState,
+      profileDetailUIState: profileDetailUIState ?? this.profileDetailUIState,
+      lpGetLoadUIState: getLoadListUIState ?? this.lpGetLoadUIState,
       showSuccessKyc: showSuccessKyc ?? this.showSuccessKyc,
       destination: destination ?? this.destination,
       pickup: pickup ?? this.pickup,
       locationId: locationId ?? this.locationId,
       laneId: laneId ?? this.laneId,
       selectedWeight: selectedWeight ?? this.selectedWeight,
-      remainingTime: remainingTime ?? this.remainingTime,
+      matchingText: matchingText ?? this.matchingText,
+      blueId: blueId ?? this.blueId,
     );
   }
 
@@ -80,12 +94,15 @@ class LPHomeState extends Equatable {
     verifyLocationUIState,
     rateDiscoveryUIState,
     loadWeightUIState,
+    profileDetailUIState,
+    lpGetLoadUIState,
     showSuccessKyc,
     destination,
     pickup,
     locationId,
     laneId,
     selectedWeight,
-    remainingTime,
+    matchingText,
+    blueId,
   ];
 }
