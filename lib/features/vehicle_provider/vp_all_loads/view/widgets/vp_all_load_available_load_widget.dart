@@ -179,7 +179,9 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                   AppButton(
                     buttonHeight: 40,
                     onPressed: () {
-                      print(VpVariables.isKycVerified);
+
+
+
                       if (VpVariables.isKycVerified) {
                         setState(() {
                           loadingLoadIds.add(widget.data.id.toString());

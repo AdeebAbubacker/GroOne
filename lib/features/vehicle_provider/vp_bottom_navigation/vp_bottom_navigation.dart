@@ -85,15 +85,21 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LpHomeBloc, HomeState>(
-      bloc: lpHomeBloc,
+
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      bloc: lpHomeCubit,
       listener: (context, state) {
-        if (state is ProfileDetailSuccess) {
-          profileResponse = state.profileDetailResponse;
+
+        if (state.profileDetailUIState?.status==Status.SUCCESS) {
+          profileResponse = state.profileDetailUIState?.data;
           bool isKyc = profileResponse?.data?.customer?.isKyc == 3;
+
+
+
           VpVariables.setIsKycVerified(
             isKycStatus: profileResponse?.data?.customer?.isKyc ?? 0,
             isKyc: isKyc,
+
             profileDetailModel: profileResponse,
           );
         }

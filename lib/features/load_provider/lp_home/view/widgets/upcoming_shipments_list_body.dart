@@ -21,69 +21,94 @@ class UpcomingShipmentsListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Container(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.all(15).copyWith(top: 0),
       decoration: commonContainerDecoration(color: Colors.white, borderColor: AppColors.primaryColor),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          Row(
-            children: [
-              Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
-              10.width,
+          ListTile(
+            minVerticalPadding: 0.0,
+            tileColor: Colors.red,
+            style:ListTileStyle.drawer,
+            contentPadding: EdgeInsets.zero,
+            horizontalTitleGap: 5,
+            minTileHeight: 60,
+titleAlignment: ListTileTitleAlignment.bottom,
 
+            leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
+            title:Align(
+                alignment: Alignment.topLeft,
+                child:     (loadData.loadId.isNotEmpty) ?
+          Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
+            ),
+            subtitle:Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
+            trailing:      (loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty) ?
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  //  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
-                  if(loadData.loadId.isNotEmpty)
-                  Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1),
-                  Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
+                  Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
+          child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
+                  ),
+                  5.height,
+
+                  // Matching Timer
+                  if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
+                  // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+          BlocBuilder<LPHomeCubit, LPHomeState>(
+            buildWhen: (p, c) => p.matchingText != c.matchingText,
+            builder: (context, state) {
+              return Text(
+                state.matchingText ?? "00:00:00",
+                style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
+              );
+            },
+          )
+                  else
+          if (loadData.loadStatusDetails?.loadType == "KYC Pending")
+            if(loadData.customer?.createdAt != null)
+              Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+
                 ],
-              ).expand(),
-              
-
-
-              // Container(
-              //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              //   decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
-              //   child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
-              //   ),
-              // ),
-              // 10.width,
-
-              // KYC Hours Timer
-              if(loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
-                      child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
-                    ),
-                    5.height,
-
-                    // Matching Timer
-                    if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
-                      // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
-                      BlocBuilder<LPHomeCubit, LPHomeState>(
-                        buildWhen: (p, c) => p.matchingText != c.matchingText,
-                        builder: (context, state) {
-                          return Text(
-                            state.matchingText ?? "00:00:00",
-                            style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                          );
-                        },
-                      )
-                    else
-                    if (loadData.loadStatusDetails?.loadType == "KYC Pending")
-                      if(loadData.customer?.createdAt != null)
-                        Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-
-                  ],
-                ).expand(),
-            ],
+              ).expand():SizedBox()
           ),
+
+
+
+
+          // Row(
+          //   children: [
+          //     Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
+          //     10.width,
+          //
+          //     Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         //  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
+          //         Text("GD12456", style: AppTextStyle.h5,  maxLines: 1),
+          //         Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
+          //       ],
+          //     ).expand(),
+          //
+          //
+          //
+          //     // Container(
+          //     //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          //     //   decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
+          //     //   child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
+          //     //   ),
+          //     // ),
+          //     // 10.width,
+          //
+          //     // KYC Hours Timer
+          //
+          //   ],
+          // ),
 
           commonDivider(),
 

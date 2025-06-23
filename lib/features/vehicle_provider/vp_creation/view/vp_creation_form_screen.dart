@@ -88,6 +88,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     DropdownItem(label: 'Mumbai - Pune', value: '4'),
     DropdownItem(label: 'Chennai - Bangalore', value: '5'),
   ];
+
+
   List<String> getUniqueTypes(List<TruckTypeData> dataList) {
     return dataList.map((e) => e.type).toSet().toList();
   }
