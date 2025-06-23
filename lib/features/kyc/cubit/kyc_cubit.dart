@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
@@ -20,14 +19,12 @@ import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart'
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
-import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
-import 'package:gro_one_app/features/kyc/model/verify_pan_response.dart';
-import 'package:gro_one_app/features/kyc/model/verify_tan_response.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 part 'kyc_state.dart';
 
-class KycCubit extends Cubit<KycState> {
+
+class KycCubit extends BaseCubit<KycState> {
   final KycRepository _kycRepository;
   final UserInformationRepository _userInformationRepository;
   KycCubit(this._kycRepository, this._userInformationRepository) : super(KycState());
@@ -213,8 +210,22 @@ class KycCubit extends Cubit<KycState> {
     }
   }
 
-  void resetState() {
-    emit(KycState());
+
+  // Reset State
+  void resetState(){
+    emit(state.copyWith(
+      submitKycState: resetUIState<SubmitKycModel>(state.submitKycState),
+      uploadCancelledUIState: resetUIState<UploadCancelledCheckedDocumentModel>(state.uploadCancelledUIState),
+      uploadTDSDocUIState: resetUIState<UploadTDSDocumentModel>(state.uploadTDSDocUIState),
+      uploadPanDocUIState: resetUIState<UploadPANDocumentModel>(state.uploadPanDocUIState),
+      uploadTanDocUIState: resetUIState<UploadTANDocumentModel>(state.uploadTanDocUIState),
+      uploadGSTDocUIState: resetUIState<UploadGSTDocumentModel>(state.uploadGSTDocUIState),
+      aadhaarVerifyOtpState: resetUIState<AadhaarVerifyOtpModel>(state.aadhaarVerifyOtpState),
+      aadhaarOtpState: resetUIState<AadhaarOtpModel>(state.aadhaarOtpState),
+      verifiedPan: false,
+      verifiedTan: false,
+      verifiedGst: false,
+    ));
   }
 
 }

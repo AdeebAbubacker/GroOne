@@ -38,14 +38,17 @@ import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_re
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/login_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
-import 'package:gro_one_app/features/otp_verification/repository/otp_repository.dart';
-import 'package:gro_one_app/features/otp_verification/service/otp_service.dart';
+import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
+import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
@@ -90,7 +93,7 @@ void initLocator() {
     locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LocationService());
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
-    locator.registerLazySingleton(() => OtpService(locator<ApiService>()));
+    locator.registerLazySingleton(() => MobileOtpVerificationService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
@@ -101,13 +104,14 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
     locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
+    locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
     locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
     locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
-    locator.registerLazySingleton(() => OtpRepository(locator<OtpService>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(() => MobileOtpVerificationRepository(locator<MobileOtpVerificationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
@@ -119,6 +123,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
     locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(),locator<UserInformationRepository>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -127,7 +132,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageBloc(locator<LanguageRepository>()));
     locator.registerLazySingleton(() => RoleBloc());
     locator.registerLazySingleton(() => LoginBloc(locator<LoginInRepository>()));
-    locator.registerLazySingleton(() => OtpBloc(locator<OtpRepository>()));
+    locator.registerLazySingleton(() => OtpBloc(locator<MobileOtpVerificationRepository>()));
     locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>(), locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerLazySingleton(() => LpCreateBloc(locator<LpCreateRepository>()));
@@ -155,6 +160,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
     locator.registerLazySingleton(() => KycCubit(locator<KycRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
+locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+
+
+class BlueMembershipDialogView extends StatefulWidget {
+  final String blueId;
+  final void Function()? afterDismiss;
+  const BlueMembershipDialogView({super.key, required this.blueId, this.afterDismiss});
+
+  @override
+  State<BlueMembershipDialogView> createState() => _BlueMembershipDialogViewState();
+}
+
+class _BlueMembershipDialogViewState extends State<BlueMembershipDialogView> {
+
+
+  @override
+  void initState() {
+    initFunction(context);
+    super.initState();
+  }
+
+  void initFunction(BuildContext context) => frameCallback(() async {
+    await Future.delayed(Duration(seconds: 3));
+    if(!context.mounted) return;
+    Navigator.of(context).pop();
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        30.height,
+
+        SvgPicture.asset(AppImage.svg.blueTick, height: 200),
+        30.height,
+
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          alignment: Alignment.center,
+          decoration: commonContainerDecoration(color: AppColors.primaryColor),
+          child: Text("Blue Membership ID: ${widget.blueId}", style: AppTextStyle.h5WhiteColor),
+        ),
+        20.height,
+
+        Text("Blue membership ID generated Successfully", textAlign: TextAlign.center, style: AppTextStyle.h3),
+        20.height,
+
+        Text("Start exploring premium load options today", style: AppTextStyle.body2GreyColor, textAlign: TextAlign.center),
+      ],
+    );
+  }
+}

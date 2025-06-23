@@ -22,6 +22,7 @@ class LPHomeState extends Equatable {
   final num? locationId;
   final num? laneId;
   final LoadWeightData? selectedWeight;
+  final Duration? remainingTime;
 
   const LPHomeState({
     this.truckTypeUIState,
@@ -36,6 +37,7 @@ class LPHomeState extends Equatable {
     this.locationId,
     this.laneId,
     this.selectedWeight,
+    this.remainingTime,
   });
 
   LPHomeState copyWith({
@@ -51,6 +53,7 @@ class LPHomeState extends Equatable {
     num? locationId,
     num? laneId,
     LoadWeightData? selectedWeight,
+    Duration? remainingTime,
   }) {
     return LPHomeState(
       truckTypeUIState: truckTypeState ?? this.truckTypeUIState,
@@ -65,6 +68,7 @@ class LPHomeState extends Equatable {
       locationId: locationId ?? this.locationId,
       laneId: laneId ?? this.laneId,
       selectedWeight: selectedWeight ?? this.selectedWeight,
+      remainingTime: remainingTime ?? this.remainingTime,
     );
   }
 
@@ -81,6 +85,7 @@ class LPHomeState extends Equatable {
     pickup,
     locationId,
     laneId,
-    selectedWeight
+    selectedWeight,
+    remainingTime,
   ];
 }

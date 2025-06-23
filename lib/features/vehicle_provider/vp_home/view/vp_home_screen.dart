@@ -48,6 +48,7 @@ class VpHomeScreen extends StatefulWidget {
 }
 
 class _VpHomeScreenState extends State<VpHomeScreen> {
+
   String profileImage = "";
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -85,8 +86,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        vpRecentLoadListBloc.add(VpRecentLoadEvent());
-        vpHomeScreenBloc.add(VpMyLoadListRequested());
+        initFunction();
       },
       child: SafeArea(
         child:

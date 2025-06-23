@@ -11,8 +11,17 @@ abstract class AppImage {
 class PngImages {
 
   static const String _pngImageBasePath = "assets/images/png/";
-  ///Prabhat======================+>
+
+  // Base
+  final String appLogoPng = "${_pngImageBasePath}appLogo.png";
+  final String signInHeader = "${_pngImageBasePath}signInHeader.png";
+  final String userProfileError = "${_pngImageBasePath}userPlaceHolder.png";
+  final String backgroundImagePng = "${_pngImageBasePath}backgroundImage.png";
+  final String femalePlaceHolder = "${_pngImageBasePath}femalePlaceHolder.png";
+  final String malePlaceholder = "${_pngImageBasePath}malePlaceHolder.png";
+  final String brokenImage = "${_pngImageBasePath}brokenImage.png";
   final String appIcon = "${_pngImageBasePath}appIcon.png";
+
   final String translateImage = "${_pngImageBasePath}translateImage.png";
   final String customerSupportImage = "${_pngImageBasePath}customerSupportImage.png";
   final String customerSupport = "${_pngImageBasePath}customerSupport.png";
@@ -21,7 +30,6 @@ class PngImages {
   final String upi = "${_pngImageBasePath}upi.png";
   final String netBanking = "${_pngImageBasePath}netBanking.png";
   final String bankImage = "${_pngImageBasePath}bankImage.png";
-
   final String document = "${_pngImageBasePath}document.png";
   final String doc = "${_pngImageBasePath}doc.png";
   final String truck = "${_pngImageBasePath}truck.png";
@@ -29,17 +37,12 @@ class PngImages {
   final String privacy = "${_pngImageBasePath}privacy.png";
   final String shipmentBox = "${_pngImageBasePath}shipmentBox.png";
   final String markAsFavourite = "${_pngImageBasePath}markAsFavourite.png";
-
-
   final String pendingTransaction = "${_pngImageBasePath}pendingTransaction.png";
   final String completedTransaction = "${_pngImageBasePath}completedTransaction.png";
-
-
   final String noShipment = "${_pngImageBasePath}noShipmentFound.png";
   final String alertTriangle = "${_pngImageBasePath}alertTriangle.png";
   final String englishLanguage = "${_pngImageBasePath}englishLanguage.png";
   final String filter = "${_pngImageBasePath}filter.png";
-
   final String tamilLanguage = "${_pngImageBasePath}tamilLanguage.png";
   final String hindiLanguage = "${_pngImageBasePath}hindiLanguage.png";
   final String lp = "${_pngImageBasePath}lp.png";
@@ -60,17 +63,8 @@ class PngImages {
   final String locationIcon = "${_pngImageBasePath}location_icon.png";
   final String kavach = "${_pngImageBasePath}kavach.png";
   final String splash = "${_pngImageBasePath}splash_video.mp4";
-
   final String truckMyLoad = "${_pngImageBasePath}truck_my_loads.png";
 
-  // Base
-  final String appLogoPng = "${_pngImageBasePath}appLogo.png";
-  final String signInHeader = "${_pngImageBasePath}signInHeader.png";
-  final String userProfileError = "${_pngImageBasePath}userPlaceHolder.png";
-  final String backgroundImagePng = "${_pngImageBasePath}backgroundImage.png";
-  final String femalePlaceHolder = "${_pngImageBasePath}femalePlaceHolder.png";
-  final String malePlaceholder = "${_pngImageBasePath}malePlaceHolder.png";
-  final String brokenImage = "${_pngImageBasePath}brokenImage.png";
 
   // App
   final String kavachProduct = "${_pngImageBasePath}kavach_product.png";
@@ -86,6 +80,8 @@ class PngImages {
 class SvgImages {
   static const String _svgImageBasePath = "assets/images/svg/";
   final String appLogo = "${_svgImageBasePath}appLogo.svg";
+
+
   final String kycPending = "${_svgImageBasePath}kyc_pending.svg";
   final String kycSuccess = "${_svgImageBasePath}kyc_success.svg";
   final String kycSuccessStatus = "${_svgImageBasePath}kyc_success_status.svg";
@@ -104,6 +100,7 @@ class SvgImages {
   final String location = "${_svgImageBasePath}location.svg";
   final String logOutImage = "${_svgImageBasePath}log_out.svg";
   final String customerSupport = "${_svgImageBasePath}customer_support.svg";
+  final String blueTick = "${_svgImageBasePath}blue_tick.svg";
 }
 
 class JpgImage {

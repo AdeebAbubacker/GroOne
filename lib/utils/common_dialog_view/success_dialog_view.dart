@@ -61,7 +61,6 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
             onPressed:widget.onContinue ?? (){},
             title: context.appText.continueText,
           ),
-          20.height,
         ],
 
 

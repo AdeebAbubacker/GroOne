@@ -14,7 +14,6 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -24,10 +23,8 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'legal_detail_screen.dart';
@@ -42,8 +39,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final loginBloc = locator<LoginBloc>();
+
   FocusNode focusNode = FocusNode();
+
   TextEditingController phoneNumber = TextEditingController();
+
   bool checkBoxBool = false;
 
   @override
@@ -56,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
     await HasInternetConnection().checkConnectivity();
   });
 
-  final loginBloc = locator<LoginBloc>();
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     20.height,
+
                     RichText(
                       textAlign: TextAlign.start,
                       text: TextSpan(
@@ -215,6 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
+
                     1.height,
                     customCheckbox(
                       context: context,
@@ -228,13 +231,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              Container().expand(flex: 2),
-              Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth).expand(flex: 3),
-              20.height,
+
+              // Bottom Banner Gro Image
+              buildBottomBannerImageWidget()
             ],
           );
         },
       ),
     );
   }
+
+  // Bottom Banner Gro Image
+  Widget buildBottomBannerImageWidget(){
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth),
+    ).expand();
+  }
+
 }

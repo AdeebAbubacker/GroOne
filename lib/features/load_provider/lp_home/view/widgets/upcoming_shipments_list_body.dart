@@ -1,5 +1,8 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/get_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -57,7 +60,26 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                     5.height,
 
                     if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
-                      Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                      // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                      BlocBuilder<LPHomeCubit, LPHomeState>(
+                        buildWhen: (p, c) => p.remainingTime != c.remainingTime,
+                        builder: (context, state) {
+                          final remaining = state.remainingTime ?? Duration.zero;
+
+                          if (remaining == Duration.zero) {
+                            return Text("00:00:00", style: AppTextStyle.body4.copyWith(color: Colors.red));
+                          }
+
+                          final hours = remaining.inHours;
+                          final minutes = remaining.inMinutes % 60;
+                          final seconds = remaining.inSeconds % 60;
+
+                          return Text(
+                            "$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}",
+                            style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
+                          ).paddingRight(5);
+                        },
+                      )
                     else
                     if (loadData.loadStatusDetails?.loadType == "KYC Pending")
                       if(loadData.customer?.createdAt != null)
@@ -117,11 +139,11 @@ class UpcomingShipmentsListBody extends StatelessWidget {
           20.height,
 
           Container(
-            decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
+            decoration: commonContainerDecoration(color: AppColors.lightBlueColor, borderRadius: BorderRadius.circular(5)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Average Price", style: AppTextStyle.body1Normal),
+                Text("Agreed Price", style: AppTextStyle.body1Normal),
                 Text("₹${loadData.rate}", style: AppTextStyle.h3PrimaryColor),
               ],
             ).paddingSymmetric(horizontal: 20, vertical: 10),

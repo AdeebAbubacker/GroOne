@@ -72,50 +72,56 @@ class Customer {
     required this.otpAttempt,
     required this.roleId,
     required this.isKyc,
+    required this.kycRejectReason,
     required this.tempFlg,
     required this.status,
     required this.isLogin,
     required this.createdAt,
     required this.deletedAt,
     required this.kycType,
+    required this.accountType,
   });
 
   final int id;
   final String customerName;
   final String mobileNumber;
-  final dynamic emailId;
-  final dynamic blueId;
+  final String emailId;
+  final String blueId;
   final dynamic password;
   final num otp;
-  final dynamic emailOtp;
+  final String emailOtp;
   final num otpAttempt;
   final num roleId;
   final num isKyc;
+  final dynamic kycRejectReason;
   final bool tempFlg;
   final num status;
   final bool isLogin;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final KycType? kycType;
+  final String accountType;
 
   Customer copyWith({
     int? id,
     String? customerName,
     String? mobileNumber,
-    dynamic? emailId,
-    dynamic? blueId,
+    String? emailId,
+    String? blueId,
     dynamic? password,
     num? otp,
-    dynamic? emailOtp,
+    String? emailOtp,
     num? otpAttempt,
     num? roleId,
     num? isKyc,
+    dynamic? kycRejectReason,
     bool? tempFlg,
     num? status,
     bool? isLogin,
     DateTime? createdAt,
     dynamic? deletedAt,
     KycType? kycType,
+    String? accountType,
   }) {
     return Customer(
       id: id ?? this.id,
@@ -129,12 +135,14 @@ class Customer {
       otpAttempt: otpAttempt ?? this.otpAttempt,
       roleId: roleId ?? this.roleId,
       isKyc: isKyc ?? this.isKyc,
+      kycRejectReason: kycRejectReason ?? this.kycRejectReason,
       tempFlg: tempFlg ?? this.tempFlg,
       status: status ?? this.status,
       isLogin: isLogin ?? this.isLogin,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
       kycType: kycType ?? this.kycType,
+      accountType: accountType ?? this.accountType,
     );
   }
 
@@ -143,20 +151,22 @@ class Customer {
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
-      emailId: json["emailId"],
-      blueId: json["blueId"],
+      emailId: json["emailId"] ?? "",
+      blueId: json["blueId"] ?? "",
       password: json["password"],
       otp: json["otp"] ?? 0,
-      emailOtp: json["email_otp"],
+      emailOtp: json["email_otp"] ?? "",
       otpAttempt: json["otpAttempt"] ?? 0,
       roleId: json["roleId"] ?? 0,
       isKyc: json["isKyc"] ?? 0,
+      kycRejectReason: json["kycRejectReason"],
       tempFlg: json["tempFlg"] ?? false,
       status: json["status"] ?? 0,
       isLogin: json["isLogin"] ?? false,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       kycType: json["kycType"] == null ? null : KycType.fromJson(json["kycType"]),
+      accountType: json["accountType"] ?? "",
     );
   }
 
@@ -244,28 +254,28 @@ class Details {
   final num customerId;
   final String companyName;
   final num companyTypeId;
-  final dynamic gstin;
-  final dynamic gstinDocLink;
-  final dynamic aadhar;
+  final String gstin;
+  final String gstinDocLink;
+  final String aadhar;
   final dynamic aadharDocLink;
-  final dynamic pan;
-  final dynamic panDocLink;
+  final String pan;
+  final String panDocLink;
   final dynamic cheque;
-  final dynamic chequeDocLink;
+  final String chequeDocLink;
   final dynamic drivingLicense;
   final dynamic drivingLicenseDocLink;
   final dynamic tds;
-  final dynamic tdsDocLink;
-  final dynamic tan;
-  final dynamic tanDocLink;
+  final String tdsDocLink;
+  final String tan;
+  final String tanDocLink;
   final bool isAadhar;
   final bool isGstin;
   final bool isTan;
   final bool isPan;
-  final dynamic bankAccount;
-  final dynamic bankName;
-  final dynamic branchName;
-  final dynamic ifscCode;
+  final String bankAccount;
+  final String bankName;
+  final String branchName;
+  final String ifscCode;
   final num status;
   final dynamic truckType;
   final dynamic ownedTrucks;
@@ -273,13 +283,13 @@ class Details {
   final dynamic preferredLanes;
   final dynamic uploadRc;
   final String pincode;
-  final dynamic address1;
+  final String address1;
   final dynamic fullAddress;
   final dynamic addressName;
   final dynamic city;
   final dynamic state;
-  final dynamic address2;
-  final dynamic address3;
+  final String address2;
+  final String address3;
   final dynamic profileImageUrl;
   final dynamic location;
   final DateTime? createdAt;
@@ -292,28 +302,28 @@ class Details {
     num? customerId,
     String? companyName,
     num? companyTypeId,
-    dynamic? gstin,
-    dynamic? gstinDocLink,
-    dynamic? aadhar,
+    String? gstin,
+    String? gstinDocLink,
+    String? aadhar,
     dynamic? aadharDocLink,
-    dynamic? pan,
-    dynamic? panDocLink,
+    String? pan,
+    String? panDocLink,
     dynamic? cheque,
-    dynamic? chequeDocLink,
+    String? chequeDocLink,
     dynamic? drivingLicense,
     dynamic? drivingLicenseDocLink,
     dynamic? tds,
-    dynamic? tdsDocLink,
-    dynamic? tan,
-    dynamic? tanDocLink,
+    String? tdsDocLink,
+    String? tan,
+    String? tanDocLink,
     bool? isAadhar,
     bool? isGstin,
     bool? isTan,
     bool? isPan,
-    dynamic? bankAccount,
-    dynamic? bankName,
-    dynamic? branchName,
-    dynamic? ifscCode,
+    String? bankAccount,
+    String? bankName,
+    String? branchName,
+    String? ifscCode,
     num? status,
     dynamic? truckType,
     dynamic? ownedTrucks,
@@ -321,13 +331,13 @@ class Details {
     dynamic? preferredLanes,
     dynamic? uploadRc,
     String? pincode,
-    dynamic? address1,
+    String? address1,
     dynamic? fullAddress,
     dynamic? addressName,
     dynamic? city,
     dynamic? state,
-    dynamic? address2,
-    dynamic? address3,
+    String? address2,
+    String? address3,
     dynamic? profileImageUrl,
     dynamic? location,
     DateTime? createdAt,
@@ -391,28 +401,28 @@ class Details {
       customerId: json["customerId"] ?? 0,
       companyName: json["companyName"] ?? "",
       companyTypeId: json["companyTypeId"] ?? 0,
-      gstin: json["gstin"],
-      gstinDocLink: json["gstinDocLink"],
-      aadhar: json["aadhar"],
+      gstin: json["gstin"] ?? "",
+      gstinDocLink: json["gstinDocLink"] ?? "",
+      aadhar: json["aadhar"] ?? "",
       aadharDocLink: json["aadharDocLink"],
-      pan: json["pan"],
-      panDocLink: json["panDocLink"],
+      pan: json["pan"] ?? "",
+      panDocLink: json["panDocLink"] ?? "",
       cheque: json["cheque"],
-      chequeDocLink: json["chequeDocLink"],
+      chequeDocLink: json["chequeDocLink"] ?? "",
       drivingLicense: json["drivingLicense"],
       drivingLicenseDocLink: json["drivingLicenseDocLink"],
       tds: json["tds"],
-      tdsDocLink: json["tdsDocLink"],
-      tan: json["tan"],
-      tanDocLink: json["tanDocLink"],
+      tdsDocLink: json["tdsDocLink"] ?? "",
+      tan: json["tan"] ?? "",
+      tanDocLink: json["tanDocLink"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       isGstin: json["isGstin"] ?? false,
       isTan: json["isTan"] ?? false,
       isPan: json["isPan"] ?? false,
-      bankAccount: json["bankAccount"],
-      bankName: json["bankName"],
-      branchName: json["branchName"],
-      ifscCode: json["ifscCode"],
+      bankAccount: json["bankAccount"] ?? "",
+      bankName: json["bankName"] ?? "",
+      branchName: json["branchName"] ?? "",
+      ifscCode: json["ifscCode"] ?? "",
       status: json["status"] ?? 0,
       truckType: json["truckType"],
       ownedTrucks: json["ownedTrucks"],
@@ -420,13 +430,13 @@ class Details {
       preferredLanes: json["preferredLanes"],
       uploadRc: json["uploadRc"],
       pincode: json["pincode"] ?? "",
-      address1: json["address1"],
+      address1: json["address1"] ?? "",
       fullAddress: json["fullAddress"],
       addressName: json["addressName"],
       city: json["city"],
       state: json["state"],
-      address2: json["address2"],
-      address3: json["address3"],
+      address2: json["address2"] ?? "",
+      address3: json["address3"] ?? "",
       profileImageUrl: json["profileImageUrl"],
       location: json["location"],
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),

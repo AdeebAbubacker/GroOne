@@ -11,10 +11,7 @@ import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -22,9 +19,9 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -33,20 +30,22 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/ifsc_code_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
 
-class KycScreen extends StatefulWidget {
-  const KycScreen({super.key, required this.aadhaarNumber});
+class KycUploadDocumentScreen extends StatefulWidget {
+  const KycUploadDocumentScreen({super.key, required this.aadhaarNumber});
   final String aadhaarNumber;
 
   @override
-  State<KycScreen> createState() => _KycScreenState();
+  State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
 }
 
-class _KycScreenState extends State<KycScreen> {
+class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
@@ -176,10 +175,55 @@ class _KycScreenState extends State<KycScreen> {
   });
   
   void disposeFunction()=> frameCallback((){
-    panFocusNode.dispose();
-    tanFocusNode.dispose();
+    aadhaarNumberTextController.dispose();
+    gstInTextController.dispose();
+    tanTextController.dispose();
+    panTextController.dispose();
+    addressLine1TextController.dispose();
+    addressLine2TextController.dispose();
+    addressLine3TextController.dispose();
+    pinCodeTextController.dispose();
+    accountNumberTextController.dispose();
+    bankNameTextController.dispose();
+    branchNameTextController.dispose();
+    ifscCodeTextController.dispose();
+
     gstFocusNode.dispose();
+    tanFocusNode.dispose();
+    panFocusNode.dispose();
+
+    kycCubit.resetState();
   });
+
+
+  // Clear All Values
+  void clearAllFormValues()=> frameCallback(() {
+    aadhaarNumberTextController.clear();
+    gstInTextController.clear();
+    tanTextController.clear();
+    panTextController.clear();
+    addressLine1TextController.clear();
+    addressLine2TextController.clear();
+    addressLine3TextController.clear();
+    pinCodeTextController.clear();
+    accountNumberTextController.clear();
+    bankNameTextController.clear();
+    branchNameTextController.clear();
+    ifscCodeTextController.clear();
+
+    selectedState = null;
+    selectedCity = null;
+
+    gstDoc.clear();
+    panDoc.clear();
+    tanDoc.clear();
+    checkDocLink.clear();
+    tdsDocLink.clear();
+    tds.clear();
+
+    uploadLink = "";
+  });
+
 
 
   // Manage Node
@@ -320,7 +364,6 @@ class _KycScreenState extends State<KycScreen> {
 
 
 
-
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber) async {
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
@@ -380,26 +423,13 @@ class _KycScreenState extends State<KycScreen> {
       isPan:  kycCubit.state.verifiedPan,
       isTan:  kycCubit.state.verifiedTan,
       pan: panTextController.text,
-      panDocLink:  panDoc.isNotEmpty ?   panDoc.first['path'] : null,
+      panDocLink:  panDoc.isNotEmpty ?  panDoc.first['path'] : null,
       tan: tanTextController.text,
       tanDocLink:  tanDoc.isNotEmpty ? tanDoc.first['path'] : null,
     );
 
     kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
 
-    // if (int.parse(kycCubit.userRole ?? "0") == 1
-    //     ? (gstDoc.isEmpty || tanDoc.isEmpty || panDoc.isEmpty)
-    //     : (gstDoc.isEmpty || checkDocLink.isEmpty || panDoc.isEmpty || tdsDocLink.isNotEmpty)) {
-    // } else {
-    //   if (kycCubit.state.verifiedGst! && kycCubit.state.verifiedTan! && kycCubit.state.verifiedPan!) {
-    //     if (_formKey.currentState!.validate()) {
-    //
-    //
-    //     }
-    //   } else {
-    //     ToastMessages.alert(message: "Please verify all document before submit");
-    //   }
-   // }
   }
 
 
@@ -414,6 +444,7 @@ class _KycScreenState extends State<KycScreen> {
         onContinue: (){
           Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
+          kycCubit.resetState();
         },
       ),
     );
@@ -444,6 +475,9 @@ class _KycScreenState extends State<KycScreen> {
           builder: (context, kycState) {
             return BlocBuilder<LpHomeBloc, HomeState>(
               bloc: lpHomeBloc,
+              buildWhen: (previous, current) {
+                return previous != current;
+              },
               builder: (context, lpHomeState){
                 dynamic companyId;
                 if(lpHomeState is ProfileDetailSuccess){
@@ -460,83 +494,97 @@ class _KycScreenState extends State<KycScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          // companyTypeId:1 [sole Proprietor-GST, PAN, TAN, Aadhaar]
-                          if(companyId == 1)...[
-                            _buildAadhaarWidget(),
-                            30.height,
-                            _buildGstWidget(),
-                            10.height,
-                            _buildTanWidget(),
-                            10.height,
-                            _buildPanWidget(),
-                            30.height,
-                          ],
+                          Builder(
+                            builder: (context){
 
-                          // companyTypeId: 2 | Private Proprietor-only Aadhaar, GST, PAN, TAN
-                          if(companyId == 2 || companyId == 3 || companyId == 4)...[
-                            _buildAadhaarWidget(),
-                            20.height,
-                            _buildGstWidget(),
-                            10.height,
-                            _buildTanWidget(),
-                            10.height,
-                            _buildPanWidget(),
-                            30.height,
-                          ],
+                              if(kycCubit.userRole == null){
+                                return Container();
+                              }
 
+                              CustomLog.debug(this, "User Role: ${kycCubit.userRole}");
 
-                          // companyTypeId:3= Limited Proprietor-GST, PAN, TAN
-                          // companyTypeId:4= LLC Proprietor-GST, PAN, TAN
-                          // if(companyId == 3 || companyId == 4)...[
-                          //   _buildGstWidget(kycState),
-                          //   10.height,
-                          //   _buildTanWidget(kycState),
-                          //   10.height,
-                          //   _buildPanWidget(kycState),
-                          // ],
+                              // For VP
+                              if(kycCubit.userRole == "2") {
+                                return Column(
+                                  children: [
 
-
-                          // Cancel check
-                          BlocConsumer<KycCubit, KycState>(
-                              bloc: kycCubit,
-                              listener: (context, state) {},
-                              builder: (context, state) {
-                                final tdsUploadState = state.uploadTDSDocUIState?.status;
-                                final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
-
-                                if(kycCubit.userRole != null && kycCubit.userRole == "2") {
-                                  return Column(
-                                    children: [
-
-                                      // Upload Check Doc
-                                      UploadAttachmentFiles(
-                                        title: "Upload Check Document",
-                                        multiFilesList: checkDocLink,
-                                        isSingleFile: true,
-                                        isLoading: cancelledCheckUploadState == Status.LOADING,
-                                        thenUploadFileToSever: () async {
-                                          await uploadGSTDocumentApiCall(checkDocLink);
-                                        },
-                                      ),
-                                      20.height,
-
-                                      // Upload TDS Doc
-                                      UploadAttachmentFiles(
-                                        title: "Upload TDS Certification",
-                                        multiFilesList: tdsDocLink,
-                                        isSingleFile: true,
-                                        isLoading: tdsUploadState == Status.LOADING,
-                                        thenUploadFileToSever: () async {
-                                          await uploadGSTDocumentApiCall(tdsDocLink);
-                                        },
-                                      ),
-                                      30.height,
+                                    //  VP Individual Proprietor id 2
+                                    if(companyId == 2)...[
+                                      25.height,
+                                      _buildAadhaarWidget(),
+                                      25.height,
+                                      buildCancelledCheckWidget(),
+                                      40.height,
                                     ],
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              }),
+
+
+                                    //  VP Sole Proprietor id = 1
+                                    if(companyId == 1)...[
+                                      _buildAadhaarWidget(),
+                                      25.height,
+                                      _buildGstWidget(),
+                                      25.height,
+                                      _buildPanWidget(),
+                                      25.height,
+                                      buildCancelledCheckWidget(),
+                                      25.height,
+                                      buildTDSCertificationWidget(),
+                                      40.height,
+                                    ],
+
+                                    // VP All Others
+                                    if(companyId != 1 && companyId != 2)...[
+                                      _buildAadhaarWidget(),
+                                      25.height,
+                                      _buildGstWidget(),
+                                      25.height,
+                                      _buildPanWidget(),
+                                      25.height,
+                                      buildTDSCertificationWidget(),
+                                      25.height,
+                                      buildCancelledCheckWidget(),
+                                      40.height,
+                                    ],
+                                  ],
+                                );
+                              }else{
+
+                                // For LP
+                                return Column(
+                                  children: [
+                                    // LP Sole Proprietor id = 1
+                                    if(companyId == 1)...[
+                                      _buildAadhaarWidget(),
+                                      25.height,
+                                      _buildGstWidget(),
+                                      25.height,
+                                      _buildPanWidget(),
+                                      25.height,
+                                      _buildTanWidget(),
+                                      40.height,
+                                    ],
+
+                                    // LP Individual Proprietor id = 2
+                                    if(companyId == 2)...[
+                                      _buildAadhaarWidget(),
+                                      40.height,
+                                    ],
+
+                                    // VP All Others
+                                    if(companyId != 1 && companyId != 2)...[
+                                      _buildGstWidget(),
+                                      25.height,
+                                      _buildPanWidget(),
+                                      25.height,
+                                      _buildTanWidget(),
+                                      40.height,
+                                    ],
+                                  ],
+                                );
+                              }
+
+                            },
+                          ),
 
 
                           // Primary Address
@@ -604,16 +652,16 @@ class _KycScreenState extends State<KycScreen> {
                               ),
 
                               AppTextField(
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(6),
-                                ],
-                                keyboardType: iosNumberKeyboard,
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
                                 mandatoryStar: true,
                                 labelText: "Pin Code",
                                 hintText: "Enter Pin Code",
+                                maxLength: 6,
+                                keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                               ),
                             ],
                           ),
@@ -629,6 +677,11 @@ class _KycScreenState extends State<KycScreen> {
                                 mandatoryStar: true,
                                 labelText: "Account Number",
                                 hintText: "Enter Account Number",
+                                keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  BankAccountNumberFormatter()
+                                ],
                               ),
 
                               AppTextField(
@@ -652,7 +705,11 @@ class _KycScreenState extends State<KycScreen> {
                                   controller: ifscCodeTextController,
                                   mandatoryStar: true,
                                   labelText: "IFSC Code",
-                                  hintText: "Enter IFSC code"
+                                  hintText: "Enter IFSC code",
+                                  inputFormatters: [
+                                    IFSCCodeFormatter()
+                                  ],
+
                               ),
 
                             ],
@@ -673,6 +730,58 @@ class _KycScreenState extends State<KycScreen> {
   }
 
 
+  // Upload TDS
+  Widget buildCancelledCheckWidget(){
+    return BlocConsumer<KycCubit, KycState>(
+      bloc: kycCubit,
+      buildWhen: (previous, current) =>  previous.uploadCancelledUIState != current.uploadCancelledUIState,
+      listener: (context, state) {},
+        builder: (context, state) {
+          final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
+          if(kycCubit.userRole != null && kycCubit.userRole == "2") {
+            return UploadAttachmentFiles(
+              title: "Cancelled Cheque *",
+              multiFilesList: checkDocLink,
+              isSingleFile: true,
+              isLoading: cancelledCheckUploadState == Status.LOADING,
+              thenUploadFileToSever: () async {
+                await uploadGSTDocumentApiCall(checkDocLink);
+              },
+            );
+          } else {
+            return Container();
+          }
+        },
+    );
+  }
+
+
+  // Upload Cancelled Check
+  Widget buildTDSCertificationWidget(){
+    return  BlocConsumer<KycCubit, KycState>(
+      bloc: kycCubit,
+      buildWhen: (previous, current) =>  previous.uploadTDSDocUIState != current.uploadTDSDocUIState,
+      listener: (context, state) {},
+        builder: (context, state) {
+          final tdsUploadState = state.uploadTDSDocUIState?.status;
+          if(kycCubit.userRole != null && kycCubit.userRole == "2") {
+            return UploadAttachmentFiles(
+              title: "TDS Certificate *",
+              multiFilesList: tdsDocLink,
+              isSingleFile: true,
+              isLoading: tdsUploadState == Status.LOADING,
+              thenUploadFileToSever: () async {
+                await uploadGSTDocumentApiCall(tdsDocLink);
+              },
+            );
+          } else {
+            return Container();
+          }
+        },
+    );
+  }
+
+
   // Submit KYC Button
   Widget buildSubmitKycButtonWidget(){
     return  BlocConsumer<KycCubit, KycState>(
@@ -681,6 +790,7 @@ class _KycScreenState extends State<KycScreen> {
         listener:  (context, state) async {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
+            clearAllFormValues();
             navigateToHomeScreen(context);
           }
           if (status == Status.ERROR) {
@@ -744,7 +854,6 @@ class _KycScreenState extends State<KycScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING
             ),
-            30.height,
           ],
         );
       }
@@ -786,7 +895,6 @@ class _KycScreenState extends State<KycScreen> {
               isSingleFile: true,
               isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
             ),
-            30.height,
 
           ],
         );

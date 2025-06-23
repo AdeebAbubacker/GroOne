@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -16,11 +17,13 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:pinput/pinput.dart';
 
@@ -127,16 +130,15 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           20.height,
 
           buildResendCodeButtonWidget(),
-          Container().expand(flex: 2),
-          Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth).expand(flex: 3),
-          20.height,
+
+          buildBottomBannerImageWidget()
         ],
       ),
     );
   }
 
 
-  /// Heading & Email Content
+  // Heading & Email Content
   Widget buildHeadingWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +160,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
 
 
-  /// Verify Code Button
+  // Verify Code Button
   Widget buildVerifyCodeButtonWidget(){
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
@@ -180,7 +182,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: !isLoading && isCodeLengthValid ? () async {
-            print("User Id : ${widget.userId}");
             final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text, customerId: int.parse(widget.userId));
             await  cubit.verifyOtp(request);
           } : (){},
@@ -190,7 +191,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
 
 
-  /// Resend Code Button
+  // Resend Code Button
   Widget buildResendCodeButtonWidget() {
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
@@ -229,28 +230,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
 
 
-  /// OTP Text Filed
+  // OTP Text Filed
   Widget buildOTPTextFieldWidget(){
-
-    final defaultPinTheme = PinTheme(
-      width: 56,
-      height: 56,
-      textStyle: const TextStyle(fontSize: 20, color: Colors.black),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300, width: 2), borderRadius: BorderRadius.circular(10)),
-    );
-
-    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: AppColors.primaryColor, width: 2),
-      borderRadius: BorderRadius.circular(10),
-    );
-
-    final submittedPinTheme = defaultPinTheme.copyWith(
-      decoration: defaultPinTheme.decoration?.copyWith(
-        color: Colors.white,
-        border: Border.all(color: AppColors.primaryColor, width: 2),
-      ),
-    );
-
     return BlocBuilder<EmailVerificationCubit, EmailVerificationState>(
       bloc: cubit,
       builder: (context, state) {
@@ -261,13 +242,24 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           controller: otpTextController,
           autofocus: true,
           length: 4,
-          keyboardType: iosNumberKeyboard,
+          keyboardType: isAndroid  ? TextInputType.number : iosNumberKeyboard,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly
+          ],
           cursor: Text("|", style: TextStyle(fontSize: 20)),
           onChanged: (pin)=> setOtpCode(pin),
           onCompleted: (pin)=> setOtpCode(pin),
         ).center();
       },
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
+  }
+
+  // Bottom Banner Gro Image Widget
+  Widget buildBottomBannerImageWidget(){
+    return Container(
+      alignment: Alignment.bottomCenter,
+      child: Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth),
+    ).expand();
   }
 
 }

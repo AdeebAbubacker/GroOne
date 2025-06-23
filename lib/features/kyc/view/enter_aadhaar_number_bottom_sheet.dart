@@ -11,7 +11,7 @@ import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_screen.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
