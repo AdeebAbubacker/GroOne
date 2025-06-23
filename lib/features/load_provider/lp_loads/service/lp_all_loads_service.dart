@@ -1,8 +1,10 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 
 class LpLoadService {
   final ApiService _apiService;
@@ -44,7 +46,7 @@ class LpLoadService {
 
       if (response is Success) {
         final data = response.value['data'];
-        final loads = data.map((e) => LoadMemoData.fromJson(e)).toList();
+        final loads = LoadMemoData.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -56,5 +58,38 @@ class LpLoadService {
     }
   }
 
+  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+    try {
+      final url = ApiUrls.loadTruckType;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = LoadTruckTypeListModel.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
+    try {
+      final url = ApiUrls.lpLoadRoute;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = LpLoadRouteResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
 }
 

@@ -1,6 +1,8 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
@@ -22,5 +24,13 @@ class  LpLoadRepository {
 
   Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
     return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
+  }
+
+  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+    return service.fetchTruckTypeList();
+  }
+
+  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
+    return service.fetchRouteList();
   }
 }

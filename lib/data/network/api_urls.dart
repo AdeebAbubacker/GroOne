@@ -101,7 +101,7 @@ class ApiUrls {
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
   static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
   static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
-
+  static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
 
 
   /// Load Creation

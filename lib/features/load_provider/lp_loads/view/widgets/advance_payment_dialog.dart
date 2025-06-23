@@ -11,7 +11,10 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class AdvancePaymentDialog extends StatefulWidget {
-  const AdvancePaymentDialog({super.key});
+  const AdvancePaymentDialog({super.key, required this.price, required this.loadId});
+
+  final int price;
+  final String loadId;
 
   @override
   State<AdvancePaymentDialog> createState() => _AdvancePaymentDialogState();
@@ -20,12 +23,11 @@ class AdvancePaymentDialog extends StatefulWidget {
 class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
 
   int selectedPercentage = 90;
-  int totalAmount = 15000;
   int percentAmount = 0;
 
   @override
   Widget build(BuildContext context) {
-    percentAmount = (totalAmount * selectedPercentage ~/ 100);
+    percentAmount =  (widget.price * selectedPercentage ~/ 100);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -43,7 +45,7 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
               onTap: () {
                 setState(() {
                   selectedPercentage = percent;
-                  percentAmount = (totalAmount * selectedPercentage ~/ 100);
+                  percentAmount = (widget.price * selectedPercentage ~/ 100);
                 });
               },
               child: Container(
@@ -64,7 +66,7 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
         AppButton(
           onPressed: (){
             context.pop();
-            Navigator.push(context, commonRoute(LpLoadValidateMemo()));
+            Navigator.push(context, commonRoute(LpLoadValidateMemo(loadId: widget.loadId)));
           },
           title: context.appText.verifyAdvance,
         ),

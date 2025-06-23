@@ -2,6 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
@@ -9,18 +10,42 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:lottie/lottie.dart';
 
 class LPLoadListBodyWidget extends StatelessWidget{
   const LPLoadListBodyWidget({super.key, required this.loadItem});
 
   final LpLoadItem loadItem;
+
+  void agreeLoadPopup(context) {
+    AppDialog.show(context, child: CommonDialogView(
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: "Cancel",
+      yesButtonText: "I Agree Load",
+      child: Column(
+        children: [
+          Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
+          Text("Are you sure you agree to this Load?"),
+        ],
+      ),
+      onClickYesButton: () {
+        Navigator.pop(context);
+        AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+      },
+    ));
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +180,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
       children: [
         AppButton(
           buttonHeight: 40,
-          onPressed: () {},
+          onPressed: () => agreeLoadPopup(context),
           title: context.appText.iAgree,
         ).expand(),
         10.width,
