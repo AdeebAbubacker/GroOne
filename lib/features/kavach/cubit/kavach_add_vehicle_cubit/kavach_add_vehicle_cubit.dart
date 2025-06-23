@@ -4,6 +4,7 @@ import '../../../../data/model/result.dart';
 import '../../../../data/ui_state/ui_state.dart';
 import '../../api_request/kavach_add_vehicle_request.dart';
 import '../../model/kavach_commodity_model.dart';
+import '../../model/kavach_truck_length_model.dart';
 import '../../model/kavach_truck_type_model.dart';
 import '../../model/kavach_vehicle_document_upload_model.dart';
 import '../../repository/kavach_repository.dart';
@@ -18,12 +19,23 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
   Future<void> fetchTruckTypes() async {
     emit(state.copyWith(truckTypes: UIState.loading()));
     final result = await repository.fetchTruckTypes();
-    if (result is Success<List<TruckTypeModel>>) {
+    if (result is Success<List<String>>) {
       emit(state.copyWith(truckTypes: UIState.success(result.value)));
     } else {
       emit(state.copyWith(truckTypes: UIState.error(GenericError())));
     }
   }
+
+  Future<void> fetchTruckLengths(String type) async {
+    emit(state.copyWith(truckLengths: UIState.loading()));
+    final result = await repository.fetchTruckLengths(type);
+    if (result is Success<List<TruckLengthModel>>) {
+      emit(state.copyWith(truckLengths: UIState.success(result.value)));
+    } else {
+      emit(state.copyWith(truckLengths: UIState.error(GenericError())));
+    }
+  }
+
 
   Future<void> fetchCommodities() async {
     emit(state.copyWith(commodities: UIState.loading()));

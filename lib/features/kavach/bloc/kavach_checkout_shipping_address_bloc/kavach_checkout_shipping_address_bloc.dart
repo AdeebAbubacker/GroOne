@@ -34,8 +34,19 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
 
   void _onSelectAddress(SelectKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
     final currentState = state;
+
     if (currentState is KavachCheckoutShippingAddressSelected) {
-      emit(KavachCheckoutShippingAddressSelected(selectedAddress: event.address, addresses: currentState.addresses));
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else {
+      // When there was no prior selected state (e.g., after Clear)
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: [event.address],
+      ));
     }
   }
+
 }

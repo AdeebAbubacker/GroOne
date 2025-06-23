@@ -5,8 +5,8 @@ class KavachAddVehicleRequest {
   final String rcNumber;
   final String rcDocLink;
   final String truckMakeAndModel;
-  final String truckType;
-  final String truckLength;
+  final int truckType;
+  final int truckLength;
   final int capacity;
   final List<int> acceptableCommodities;
   final int vehicleStatus;

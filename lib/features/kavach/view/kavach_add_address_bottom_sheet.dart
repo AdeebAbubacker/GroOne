@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
@@ -106,152 +107,59 @@ class _KavachAddAddressBottomSheetState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // AppTextField(
-                    //   controller: customerNameController,
-                    //   labelText: context.appText.name,
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'Name is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: mobileNoController,
-                    //   labelText: context.appText.mobileNumber,
-                    //   maxLength: 10,
-                    //   keyboardType: TextInputType.number,
-                    //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    //   validator: (value) {
-                    //     if (value == null || value.trim().isEmpty) {
-                    //       return 'Mobile number is required';
-                    //     } else if (value.length != 10) {
-                    //       return 'Mobile number must be 10 digits';
-                    //     } else if (value.startsWith('0')) {
-                    //       return 'Mobile number should not start with 0';
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: addressLine1Controller,
-                    //   labelText: '${context.appText.addressLine} 1',
-                    //   maxLength: 200,
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'Address Line 1 is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: addressLine2Controller,
-                    //   labelText: '${context.appText.addressLine} 2',
-                    //   maxLength: 200,
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'Address Line 2 is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: cityController,
-                    //   labelText: context.appText.city,
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'City is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: stateController,
-                    //   labelText: context.appText.state,
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'State is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: countryController,
-                    //   labelText: 'Country',
-                    //   validator:
-                    //       (value) =>
-                    //           value == null || value.trim().isEmpty
-                    //               ? 'Country is required'
-                    //               : null,
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: pinCodeController,
-                    //   labelText: context.appText.pinCode,
-                    //   keyboardType: TextInputType.number,
-                    //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    //   maxLength: 6,
-                    //   validator: (value) {
-                    //     if (value == null || value.trim().isEmpty) {
-                    //       return 'Pincode is required';
-                    //     } else if (value.length != 6) {
-                    //       return 'Pincode must be 6 digits';
-                    //     }
-                    //     return null;
-                    //   },
-                    // ),
-                    // 10.height,
-                    // AppTextField(
-                    //   controller: gstNoController,
-                    //   hintText:
-                    //       '${context.appText.gstKavach} (${context.appText.optional})',
-                    //   validator: (value) {
-                    //     if (value == null || value.trim().isEmpty) {
-                    //       return null;
-                    //     }
-                    //
-                    //     final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-                    //     if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                    //       return 'Enter valid GSTIN';
-                    //     }
-                    //
-                    //     return null;
-                    //   },
-                    // ),
                     AppTextField(
                       controller: customerNameController,
-                      labelText: context.appText.addressName,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
+                      hintText: context.appText.name,
+                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.name),
+                    ),
+                    10.height,
+                    AppTextField(
+                      controller: mobileNoController,
+                      hintText: context.appText.mobileNumber,
+                      maxLength: 10,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (value) => Validator.phone(value),
                     ),
                     10.height,
                     AppTextField(
                       controller: addressLine1Controller,
-                      labelText: context.appText.address,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.address),
+                      hintText: '${context.appText.addressLine} 1',
+                      maxLength: 200,
+                      validator: (value) => Validator.fieldRequired(value,fieldName: '${context.appText.addressLine} 1'),
+                    ),
+                    10.height,
+                    AppTextField(
+                      controller: addressLine2Controller,
+                      hintText: '${context.appText.addressLine} 2',
+                      maxLength: 200,
+                      validator: (value) => Validator.fieldRequired(value,fieldName: '${context.appText.addressLine} 2'),
                     ),
                     10.height,
                     AppTextField(
                       controller: cityController,
-                      labelText: context.appText.city,
+                      hintText: context.appText.city,
                       validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.city),
                     ),
                     10.height,
                     AppTextField(
                       controller: stateController,
-                      labelText: context.appText.state,
+                      hintText: context.appText.state,
                       validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.state),
                     ),
                     10.height,
                     AppTextField(
                       controller: pinCodeController,
-                      labelText: context.appText.pinCode,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.pinCode),
+                      hintText: context.appText.pinCode,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      maxLength: 6,
+                      validator: (value) => Validator.pincode(value),
                     ),
                     10.height,
                     AppTextField(
                       controller: gstNoController,
-                      labelText:
+                      hintText:
                           '${context.appText.gstKavach} (${context.appText.optional})',
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -261,6 +169,7 @@ class _KavachAddAddressBottomSheetState
                         if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
                           return 'Enter valid GSTIN';
                         }
+
                         return null;
                       },
                     ),
@@ -296,12 +205,14 @@ class _KavachAddAddressBottomSheetState
                   final request = KavachAddAddressApiRequest(
                     customerName: customerNameController.text.trim(),
                     addr1: addressLine1Controller.text.trim(),
+                    addr2: addressLine2Controller.text.trim(),
+                    mobileNumber: mobileNoController.text.trim(),
                     city: cityController.text.trim(),
                     state: stateController.text.trim(),
                     pincode: pinCodeController.text.trim(),
                     addrType: widget.addrType,
-                    country: countryController.text.trim(),
-                    gstin: gstNoController.text.trim()
+                    country: "India",
+                    gstIn: gstNoController.text.trim(),
                   );
                   context.read<KavachCheckoutAddAddressBloc>().add(
                     AddKavachAddress(request),

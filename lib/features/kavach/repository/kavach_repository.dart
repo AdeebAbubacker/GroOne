@@ -14,6 +14,7 @@ import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
+import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_truck_type_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
@@ -77,9 +78,9 @@ class KavachRepository {
     );
   }
 
-  Future<Result<List<TruckTypeModel>>> fetchTruckTypes() {
-    return _service.fetchTruckTypes();
-  }
+  // Future<Result<List<TruckTypeModel>>> fetchTruckTypes() {
+  //   return _service.fetchTruckTypes();
+  // }
 
   Future<Result<List<CommodityModel>>> fetchCommodities() {
     return _service.fetchCommodities();
@@ -92,6 +93,15 @@ class KavachRepository {
   Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
     return _service.addVehicle(request);
   }
+
+  Future<Result<List<String>>> fetchTruckTypes() {
+    return _service.fetchTruckTypeList();
+  }
+
+  Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) {
+    return _service.fetchTruckLengths(type);
+  }
+
 
 }
 

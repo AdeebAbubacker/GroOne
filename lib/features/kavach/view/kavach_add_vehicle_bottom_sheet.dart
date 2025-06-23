@@ -37,7 +37,6 @@ class KavachAddVehicleBottomSheet extends StatefulWidget {
 class _KavachAddVehicleBottomSheetState
     extends State<KavachAddVehicleBottomSheet> {
   final formKey = GlobalKey<FormState>();
-
   final truckNumberController = TextEditingController();
   final truckMakeModelController = TextEditingController();
   final licenseNumberController = TextEditingController();
@@ -50,6 +49,7 @@ class _KavachAddVehicleBottomSheetState
 
   String? truckTypeDropdownValue;
   String? truckLengthDropdownValue;
+  int? selectedTruckTypeId;
   String? commoditiesDropdownValue;
   bool isActive = true;
 
@@ -148,63 +148,48 @@ class _KavachAddVehicleBottomSheetState
                       10.height,
                       BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
                         builder: (context, state) {
-                          if (state.truckTypes.status == Status.LOADING) {
-                            return const CircularProgressIndicator();
-                          } else if (state.truckTypes.status == Status.SUCCESS) {
-                            final truckTypes = state.truckTypes;
+                          final cubit = context.read<KavachAddVehicleFormCubit>();
 
-                            /// Extract distinct truck types
-                            final truckTypeItems =
-                                truckTypes.data!.map((e) => e.type)
-                                    .toSet()
-                                    .map(
-                                      (type) => DropdownMenuItem<String>(
-                                        value: type,
-                                        child: Text(type),
-                                      ),
-                                    )
-                                    .toList();
-
-                            /// Extract distinct truck lengths (subtypes)
-                            final truckLengthItems =
-                                truckTypes.data!.map((e) => e.subType)
-                                    .toSet()
-                                    .map(
-                                      (subType) => DropdownMenuItem<String>(
-                                        value: subType,
-                                        child: Text(subType),
-                                      ),
-                                    )
-                                    .toList();
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                /// Truck Type Dropdown using AppDropdown
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// Truck Type Dropdown
+                              if (state.truckTypes.status == Status.SUCCESS)
                                 AppDropdown(
                                   labelText: 'Truck Type',
                                   dropdownValue: truckTypeDropdownValue,
-                                  dropDownList: truckTypeItems,
+                                  dropDownList: state.truckTypes.data!
+                                      .map((type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type),
+                                  ))
+                                      .toList(),
                                   hintText: 'Select truck type',
                                   mandatoryStar: true,
                                   onChanged: (selected) {
                                     setState(() {
                                       truckTypeDropdownValue = selected;
+                                      truckLengthDropdownValue = null;
                                     });
+                                    cubit.fetchTruckLengths(selected!);
                                   },
-                                  validator:
-                                      (value) =>
-                                          value == null || value.isEmpty
-                                              ? "Please select truck type"
-                                              : null,
+                                  validator: (value) =>
+                                  value == null || value.isEmpty ? "Please select truck type" : null,
                                 ),
-                                const SizedBox(height: 15),
 
-                                /// Truck Length Dropdown using AppDropdown
+                              15.height,
+
+                              /// Truck Length Dropdown
+                              if (state.truckLengths.status == Status.SUCCESS)
                                 AppDropdown(
                                   labelText: 'Truck Length',
                                   dropdownValue: truckLengthDropdownValue,
-                                  dropDownList: truckLengthItems,
+                                  dropDownList: state.truckLengths.data!
+                                      .map((e) => DropdownMenuItem(
+                                    value: e.subType,
+                                    child: Text(e.subType),
+                                  ))
+                                      .toList(),
                                   hintText: 'Select truck length',
                                   mandatoryStar: true,
                                   onChanged: (selected) {
@@ -212,19 +197,11 @@ class _KavachAddVehicleBottomSheetState
                                       truckLengthDropdownValue = selected;
                                     });
                                   },
-                                  validator:
-                                      (value) =>
-                                          value == null || value.isEmpty
-                                              ? "Please select truck length"
-                                              : null,
+                                  validator: (value) =>
+                                  value == null || value.isEmpty ? "Please select truck length" : null,
                                 ),
-                              ],
-                            );
-                          } else if (state.truckTypes.status == Status.ERROR) {
-                            return Text('Error loading Truck Types and Truck Lengths');
-                          }
-
-                          return const SizedBox.shrink();
+                            ],
+                          );
                         },
                       ),
                       10.height,
@@ -317,11 +294,6 @@ class _KavachAddVehicleBottomSheetState
 
                     final userId = int.tryParse(await context.read<KavachAddVehicleFormCubit>().repository.userInfoRepo.getUserID() ?? '') ?? 0;
 
-                    final truckTypeModel = context.read<KavachAddVehicleFormCubit>().state.truckTypes.data?.firstWhere(
-                          (e) => e.type == truckTypeDropdownValue && e.subType == truckLengthDropdownValue,
-                      orElse: () => TruckTypeModel(id: 0, type: '', subType: ''),
-                    );
-
                     final allCommodities = context.read<KavachAddVehicleFormCubit>().state.commodities.data ?? [];
 
                     final selectedCommodityIds = acceptableCommoditiesController.selectedItems
@@ -340,12 +312,12 @@ class _KavachAddVehicleBottomSheetState
                     final request = KavachAddVehicleRequest(
                       customerId: userId,
                       vehicleNumber: truckNumberController.text.trim(),
-                      vehicleTypeId: truckTypeModel?.id ?? 0,
+                      vehicleTypeId: 1,
                       rcNumber: licenseNumberController.text.trim(),
                       rcDocLink: rcDocLink,
                       truckMakeAndModel: truckMakeModelController.text.trim(),
-                      truckType: truckTypeDropdownValue??'', // Replace with actual ID if needed
-                      truckLength: truckLengthDropdownValue ?? '',
+                      truckType: selectedTruckTypeId??0,
+                      truckLength: selectedTruckTypeId??0,
                       capacity: int.tryParse(capacityController.text.trim()) ?? 0,
                       acceptableCommodities: selectedCommodityIds,
                       vehicleStatus: isActive ? 1 : 0,

@@ -11,7 +11,7 @@ import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
-import '../model/kavach_truck_type_model.dart';
+import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
 
@@ -47,7 +47,8 @@ class KavachService {
   Future<Result<List<KavachVehicleModel>>> fetchVehicles(String customerId) async {
     try {
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/customer/api/v1/vp-master/vehicle/$customerId',
+        "${ApiUrls.kavachVehicle}/$customerId",
+        forceRefresh: true,
       );
 
       if (response is Success) {
@@ -66,35 +67,17 @@ class KavachService {
     }
   }
 
-  // Future<Result<List<KavachAddressModel>>> fetchAddresses(String customerId, {required int addrType}) async {
-  //   try {
-  //     final response = await _apiService.get(
-  //       'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
-  //     );
-  //     // final response = await _apiService.get(
-  //     //   'https://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=189&addrType=$addrType',
-  //     // );
-  //
-  //     if (response is Success) {
-  //       final data = response.value;
-  //       final addresses = (data['data'] as List)
-  //           .map((e) => KavachAddressModel.fromJson(e))
-  //           .toList();
-  //       return Success(addresses);
-  //     } else if (response is Error) {
-  //       return Error(response.type);
-  //     } else {
-  //       return Error(GenericError());
-  //     }
-  //   } catch (e) {
-  //     return Error(DeserializationError());
-  //   }
-  // }
   Future<Result<List<KavachAddressModel>>> fetchAddresses(String customerId, {required int addrType}) async {
     try {
+      final queryParameters = {
+        'customerId': customerId,
+        'addrType': addrType.toString(),
+      };
+
       final response = await _apiService.get(
-        'http://gro-devapi.letsgro.co/customer/api/v1/vas?customerId=$customerId&addrType=$addrType',
+        ApiUrls.kavachAddress,
         forceRefresh: true,
+        queryParams: queryParameters
       );
 
       if (response is Success) {
@@ -116,7 +99,7 @@ class KavachService {
   Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
     try {
       final response = await _apiService.post(
-        'https://gro-devapi.letsgro.co/customer/api/v1/vas',
+        ApiUrls.kavachAddress,
         body: request.toJson(),
       );
 
@@ -157,7 +140,7 @@ class KavachService {
   Future<Result<void>> createOrder(KavachOrderRequest request) async {
     try {
       final response = await _apiService.post(
-        'https://gro-devapi.letsgro.co/fleet/api/v1/orders/create',
+        ApiUrls.kavachCreateOrder,
         body: request.toJson(),
       );
       if (response is Success) {
@@ -180,22 +163,26 @@ class KavachService {
     bool forceRefresh = false
   }) async {
     try {
-      final statusParam = status != null ? "&status=$status" : "";
+      // final statusParam = status != null ? "&status=$status" : "";
+      //
+      // final response = await _apiService.get(
+      //   'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit$statusParam',
+      //   forceRefresh: forceRefresh,
+      // );
+      final queryParameters = {
+        'customerId': customerId,
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (status != null) 'status': status.toString(),
+      };
+
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list?customerId=$customerId&page=$page&limit=$limit$statusParam',
+        ApiUrls.kavachOrdersList,
         forceRefresh: forceRefresh,
+        queryParams: queryParameters,
       );
 
 
-      // final response = await _apiService.get(
-      //   '${ApiUrls.kavachOrdersList}$statusParam',
-      //   queryParams: {
-      //     "customerId":customerId,
-      //     "page":page,
-      //     "limit":limit
-      //   },
-      //   forceRefresh: forceRefresh,
-      // );
 
       if (response is Success) {
         final data = response.value;
@@ -212,26 +199,10 @@ class KavachService {
     }
   }
 
-  Future<Result<List<TruckTypeModel>>> fetchTruckTypes() async {
-    try {
-      final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/load/api/v1/truck-type',
-      );
-      if (response is Success) {
-        final data = response.value['data'] as List;
-        final truckTypes = data.map((e) => TruckTypeModel.fromJson(e)).toList();
-        return Success(truckTypes);
-      }
-      return Error(response is Error ? response.type : GenericError());
-    } catch (_) {
-      return Error(DeserializationError());
-    }
-  }
-
   Future<Result<List<CommodityModel>>> fetchCommodities() async {
     try {
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/load/api/v1/commodity',
+        ApiUrls.kavachFetchCommodities,
       );
       if (response is Success) {
         final data = response.value['data'] as List;
@@ -264,7 +235,7 @@ class KavachService {
   Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
     try {
       final response = await _apiService.post(
-        'https://gro-devapi.letsgro.co/customer/api/v1/vp-master/vehicle',
+        ApiUrls.kavachVehicle,
         body: request.toJson(),
       );
 
@@ -279,6 +250,35 @@ class KavachService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<List<String>>> fetchTruckTypeList() async {
+    try {
+      final response = await _apiService.get(ApiUrls.kavachTruckType);
+      if (response is Success) {
+        final data = (response.value['data'] as List).cast<String>();
+        return Success(data);
+      }
+      return Error(response is Error ? response.type : GenericError());
+    } catch (_) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) async {
+    try {
+      final response = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
+      if (response is Success) {
+        final data = (response.value['data'] as List)
+            .map((e) => TruckLengthModel.fromJson(e))
+            .toList();
+        return Success(data);
+      }
+      return Error(response is Error ? response.type : GenericError());
+    } catch (_) {
+      return Error(DeserializationError());
+    }
+  }
+
 
 
 }
