@@ -16,11 +16,12 @@ class AvailableLoadsFilterScreen extends StatefulWidget {
   const AvailableLoadsFilterScreen({super.key});
 
   @override
-  State<AvailableLoadsFilterScreen> createState() => _AvailableLoadsFilterScreenState();
+  State<AvailableLoadsFilterScreen> createState() =>
+      _AvailableLoadsFilterScreenState();
 }
 
-class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen> {
-
+class _AvailableLoadsFilterScreenState
+    extends State<AvailableLoadsFilterScreen> {
   final formKey = GlobalKey<FormState>();
 
   String? vehicleTypeDownValue;
@@ -39,9 +40,8 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
     'SUV',
     'Pickup',
     'Electric Scooter',
-    'Electric Car'
+    'Electric Car',
   ];
-
 
   @override
   void initState() {
@@ -61,10 +61,7 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
     //  Call your init methods
   });
 
-  void disposeFunction() => frameCallback(() {
-  });
-
-
+  void disposeFunction() => frameCallback(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -74,23 +71,25 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
     );
   }
 
-  Widget _buildBody({required BuildContext context}){
+  Widget _buildBody({required BuildContext context}) {
     return Form(
       key: formKey,
       child: Column(
         children: [
-
           // Vehicle Type
           AppDropdown(
-            validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.thisFieldIsRequired),
+            validator:  (value) => Validator.fieldRequired(  value, fieldName: context.appText.thisFieldIsRequired,
+                ),
             labelText: context.appText.vehicleType,
             hintText: context.appText.selectVehicleType,
             dropdownValue: vehicleTypeDownValue,
             decoration: commonInputDecoration(),
-            dropDownList: vehicleTypes.map((e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: AppTextStyle.body),
-            )).toList(),
+            dropDownList:   vehicleTypes  .map(   (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e, style: AppTextStyle.body),
+                      ),
+                    )
+                    .toList(),
             onChanged: (onChangeValue) {
               vehicleTypeDownValue = onChangeValue;
             },
@@ -99,15 +98,16 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
 
           // Lane Type
           AppDropdown(
-            validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.thisFieldIsRequired),
+            validator:  (value) => Validator.fieldRequired(    value,   fieldName: context.appText.thisFieldIsRequired,
+                ),
             labelText: context.appText.lane,
             hintText: context.appText.selectLaneType,
             dropdownValue: laneDownValue,
             decoration: commonInputDecoration(),
-            dropDownList: vehicleTypes.map((e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: AppTextStyle.body),
-            )).toList(),
+            dropDownList:  vehicleTypes    .map(    (e) => DropdownMenuItem(    value: e,   child: Text(e, style: AppTextStyle.body),
+                      ),
+                    )
+                    .toList(),
             onChanged: (onChangeValue) {
               laneDownValue = onChangeValue;
             },
@@ -116,15 +116,24 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
 
           // Road Type
           AppDropdown(
-            validator: (value)=> Validator.fieldRequired(value, fieldName: context.appText.thisFieldIsRequired),
+            validator:
+                (value) => Validator.fieldRequired(
+                  value,
+                  fieldName: context.appText.thisFieldIsRequired,
+                ),
             labelText: context.appText.roadType,
             hintText: context.appText.selectRoadType,
             dropdownValue: roadTypeDownValue,
             decoration: commonInputDecoration(),
-            dropDownList: vehicleTypes.map((e) => DropdownMenuItem(
-              value: e,
-              child: Text(e, style: AppTextStyle.body),
-            )).toList(),
+            dropDownList:
+                vehicleTypes
+                    .map(
+                      (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(e, style: AppTextStyle.body),
+                      ),
+                    )
+                    .toList(),
             onChanged: (onChangeValue) {
               roadTypeDownValue = onChangeValue;
             },
@@ -133,10 +142,9 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
 
           Row(
             children: [
-
               // Cancel
               AppButton(
-                onPressed: ()=> context.pop(),
+                onPressed: () => context.pop(),
                 title: context.appText.cancel,
                 style: AppButtonStyle.outline,
               ).expand(),
@@ -145,17 +153,14 @@ class _AvailableLoadsFilterScreenState extends State<AvailableLoadsFilterScreen>
 
               // Apply
               AppButton(
-                onPressed: (){},
+                onPressed: () {},
                 title: context.appText.apply,
                 style: AppButtonStyle.primary,
-              ).expand()
+              ).expand(),
             ],
           ),
-
         ],
       ),
     );
   }
-
-
 }
