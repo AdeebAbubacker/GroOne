@@ -78,19 +78,13 @@ class _AvailableLoadsFilterScreenState
         children: [
           // Vehicle Type
           AppDropdown(
-            validator:
-                (value) => Validator.fieldRequired(
-                  value,
-                  fieldName: context.appText.thisFieldIsRequired,
+            validator:  (value) => Validator.fieldRequired(  value, fieldName: context.appText.thisFieldIsRequired,
                 ),
             labelText: context.appText.vehicleType,
             hintText: context.appText.selectVehicleType,
             dropdownValue: vehicleTypeDownValue,
             decoration: commonInputDecoration(),
-            dropDownList:
-                vehicleTypes
-                    .map(
-                      (e) => DropdownMenuItem(
+            dropDownList:   vehicleTypes  .map(   (e) => DropdownMenuItem(
                         value: e,
                         child: Text(e, style: AppTextStyle.body),
                       ),
@@ -104,21 +98,13 @@ class _AvailableLoadsFilterScreenState
 
           // Lane Type
           AppDropdown(
-            validator:
-                (value) => Validator.fieldRequired(
-                  value,
-                  fieldName: context.appText.thisFieldIsRequired,
+            validator:  (value) => Validator.fieldRequired(    value,   fieldName: context.appText.thisFieldIsRequired,
                 ),
             labelText: context.appText.lane,
             hintText: context.appText.selectLaneType,
             dropdownValue: laneDownValue,
             decoration: commonInputDecoration(),
-            dropDownList:
-                vehicleTypes
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e, style: AppTextStyle.body),
+            dropDownList:  vehicleTypes    .map(    (e) => DropdownMenuItem(    value: e,   child: Text(e, style: AppTextStyle.body),
                       ),
                     )
                     .toList(),

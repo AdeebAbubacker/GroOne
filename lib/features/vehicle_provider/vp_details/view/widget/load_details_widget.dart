@@ -14,6 +14,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -63,70 +64,61 @@ class LoadDetailsWidget extends StatelessWidget {
                 )),
                 Container(
 
-                 decoration: BoxDecoration(
-                   color:   Colors.white,
-                     boxShadow: state.isLoadAccepted ?   [
-                       BoxShadow(
-                         color: Colors.black.withOpacity(0.1), // light shadow
-                         blurRadius: 30,
-                         offset: Offset(0, -2), // upward shadow (since it's a bottom sheet)
-                       ),
-                     ]:[]
-                 ),
-                  child: Row(
+                 decoration:commonContainerDecoration(
+                   color:  Colors.white,
+                   blurRadius: 30,
+                   shadow: state.isLoadAccepted
+
+                 ), child: Row(
                     spacing: 10,
                     children: [
                       if(!state.isLoadAccepted)
-                        Expanded(
-                          child: AppButton(
-                            title: "Customer Support",
-                            style: AppButtonStyle.outline.copyWith(
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                            onPressed: () {},
-                            textStyle: TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      Expanded(
-                        child: AppButton(
-                          title: state.isLoadAccepted ? "Assign Driver": "Accept Load",
-                          style: AppButtonStyle.primary.copyWith(
+                        AppButton(
+                          title: "Customer Support",
+                          style: AppButtonStyle.outline.copyWith(
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                           ),
-                          onPressed: () {
-                            if(state.isLoadAccepted){
-                              context.push(AppRouteName.tripScheduleScreen);
-                            }else{
-                              AppDialog.show(
-                                context,
-                                child: SuccessDialogView(
-                                  message: 'Load Accepted Successfully',
-                                  afterDismiss: () {
-                                    if (context.mounted){
-                                      Navigator.pop(context);
-                                      cubit.acceptLoad();
-                                    }
-                                  },
-                                ),
-                              );
-                            }
-
-
-                          },
-                          textStyle: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.white,
+                          onPressed: () {},
+                          textStyle: TextStyle(fontSize: 14),
+                        ).expand(),
+                      AppButton(
+                        title: state.isLoadAccepted ? "Assign Driver": "Accept Load",
+                        style: AppButtonStyle.primary.copyWith(
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-                      ),
+                        onPressed: () {
+                          if(state.isLoadAccepted){
+                            context.push(AppRouteName.tripScheduleScreen);
+                          }else{
+                            AppDialog.show(
+                              context,
+                              child: SuccessDialogView(
+                                message: 'Load Accepted Successfully',
+                                afterDismiss: () {
+                                  if (context.mounted){
+                                    Navigator.pop(context);
+                                    cubit.acceptLoad();
+                                  }
+                                },
+                              ),
+                            );
+                          }
+
+
+                        },
+                        textStyle: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.white,
+                        ),
+                      ).expand(),
                     ],
                   ).paddingSymmetric(horizontal: 15,vertical: 12),
                 ),
@@ -138,6 +130,7 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
+  /// Build Request Widget
   Widget _buildRequestWidget(bool isAccepted) {
     return SizedBox(
       height: 80,
@@ -174,119 +167,110 @@ class LoadDetailsWidget extends StatelessWidget {
 
   Widget _buildSourceDestinationWidget(bool isAccepted) {
     return AnimatedContainer(
-      height: isAccepted ? 180: 150,
+      height: isAccepted ? 180: 160,
 
       padding: EdgeInsets.symmetric(vertical: 13),
-      decoration: BoxDecoration(
+      decoration:commonContainerDecoration(
         color: AppColors.backGroundBlue,
-        border: Border.all(color: AppColors.disableColor),
-        borderRadius: BorderRadius.circular(8),
+        borderColor:  AppColors.disableColor,
+        borderRadius: BorderRadius.circular(8)
       ),
+
+
       duration: Duration(milliseconds: 300),
-      child: Expanded(
-        child: Column(
-          children: [
-            if (isAccepted)
-              Container(
-                height: 30,
+      child: Column(
+        children: [
+          if (isAccepted)
+            Container(
+              height: 30,
 
-                padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.symmetric(horizontal: 10),
 
-                decoration: BoxDecoration(
-                  color: Color(0xffE5EBFF),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("LP: Nestle India Pvt ltd",style: AppTextStyle.h3.copyWith(
-                      fontWeight: FontWeight.w100,
-                      fontSize: 13,
-
-                      color: AppColors.primaryColor
-                    ),)),
-              ).paddingSymmetric(
-                horizontal: 13
+              decoration: commonContainerDecoration(
+                color: Color(0xffE5EBFF),
+                borderRadius: BorderRadius.circular(6),
               ),
-            10.height,
 
-            Expanded(
-              child: Row(
+
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("LP: Nestle India Pvt ltd",style: AppTextStyle.h3.copyWith(
+                    fontWeight: FontWeight.w100,
+                    fontSize: 13,
+
+                    color: AppColors.primaryColor
+                  ),)),
+            ).paddingSymmetric(
+              horizontal: 13
+            ),
+          10.height,
+
+          Row(
+            children: [
+              Column(
+                spacing: 3,
                 children: [
-                  Expanded(
-                    child: Column(
-                      spacing: 3,
-                      children: [
-                        SvgPicture.asset(
-                          AppIcons.svg.myLocation,
-                          height: 18,
-                          width: 18,
-                        ),
-                        ...List.generate(
-                          8,
-                          (index) => Container(
-                            height: 3,
-                            width: 1,
-                            color: AppColors.dividerColor,
-                          ),
-                        ),
-                        SvgPicture.asset(
-                          AppIcons.svg.markerLocation,
-                          height: 18,
-                          width: 18,
-                        ),
-                      ],
+                  SvgPicture.asset(
+                    AppIcons.svg.myLocation,
+                    height: 18,
+                    width: 18,
+                  ),
+                  ...List.generate(
+                    8,
+                    (index) => Container(
+                      height: 3,
+                      width: 1,
+                      color: AppColors.dividerColor,
                     ),
                   ),
-                  Expanded(
-                    flex: 7,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            spacing: 5,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Source",
-                                style: AppTextStyle.h3w500.copyWith(
-                                  color: AppColors.textBlackColor,
-                                  fontSize: 14,
-
-                                  fontWeight: FontWeight.w200,
-                                ),
-                              ),
-                              Text("Bangalore"),
-                            ],
-                          ),
-                        ),
-                        Divider(),
-                        Expanded(
-                          child: Column(
-                            spacing: 5,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Destination",
-                                style: AppTextStyle.h3w500.copyWith(
-                                  color: AppColors.textBlackColor,
-                                  fontSize: 14,
-
-                                  fontWeight: FontWeight.w200,
-                                ),
-                              ),
-                              Text("Himachal Pradesh"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  SvgPicture.asset(
+                    AppIcons.svg.markerLocation,
+                    height: 18,
+                    width: 18,
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
+              ).expand(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Source",
+                        style: AppTextStyle.h3w500.copyWith(
+                          color: AppColors.textBlackColor,
+                          fontSize: 14,
+
+                          fontWeight: FontWeight.w200,
+                        ),
+                      ),
+                      Text("Bangalore"),
+                    ],
+                  ).expand(),
+                   commonDivider(),
+                  Column(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Destination",
+                        style: AppTextStyle.h3w500.copyWith(
+                          color: AppColors.textBlackColor,
+                          fontSize: 14,
+
+                          fontWeight: FontWeight.w200,
+                        ),
+                      ),
+                      Text("Himachal Pradesh"),
+                    ],
+                  ).expand(),
+                ],
+              ).expand(flex: 7),
+            ],
+          ).expand(),
+        ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
@@ -296,10 +280,8 @@ class LoadDetailsWidget extends StatelessWidget {
       height: 37,
       padding: EdgeInsets.symmetric(horizontal: 10),
 
-      decoration: BoxDecoration(
-        color: AppColors.lightBlueColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
+      decoration:commonContainerDecoration( color: AppColors.lightBlueColor,borderRadius: BorderRadius.circular(6)),
+
       child: Row(
         mainAxisAlignment:isAccepted ?  MainAxisAlignment.spaceAround:MainAxisAlignment.spaceAround,
         children: [

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_cubit.dart';
@@ -13,8 +14,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/loa
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 
-import '../../../../utils/app_icons.dart';
 
 class LoadDetailsScreen extends StatefulWidget {
   const LoadDetailsScreen({super.key});

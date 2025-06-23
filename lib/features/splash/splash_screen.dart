@@ -12,7 +12,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
-import 'package:video_player/video_player.dart';
+
 
 
 class SplashScreen extends StatefulWidget {
