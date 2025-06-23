@@ -1,6 +1,8 @@
-import '../../../data/model/result.dart';
-import '../../../data/network/api_service.dart';
-import '../model/language_model.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/choose_language_screen/model/language_model.dart';
+
 
 class LanguageService {
   final ApiService _apiService;
@@ -8,11 +10,8 @@ class LanguageService {
 
   Future<Result<List<LanguageModel>>> fetchLanguages() async {
     try {
-      final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/customer/api/v1/language',
-        forceRefresh: true,
-      );
-
+      final url = ApiUrls.language;
+      final response = await _apiService.get(url, forceRefresh: true,);
       if (response is Success) {
         final data = response.value['data'] as List;
         final languages = data.map((e) => LanguageModel.fromJson(e)).toList();
@@ -26,4 +25,5 @@ class LanguageService {
       return Error(DeserializationError());
     }
   }
+
 }
