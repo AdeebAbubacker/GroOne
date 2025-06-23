@@ -36,17 +36,11 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LoadMemoData>> fetchMemoDetails({
-    required int loadId,
-    bool forceRefresh = false
-  }) async {
+  Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
 
     try {
       final url = ApiUrls.lpLoadMemo;
-      final response = await _apiService.get(
-        '$url/$loadId/memo',
-        forceRefresh: forceRefresh,
-      );
+      final response = await _apiService.get('$url/$loadId/memo', forceRefresh: forceRefresh);
 
       if (response is Success) {
         final data = response.value['data'];

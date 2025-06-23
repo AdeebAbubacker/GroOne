@@ -20,10 +20,7 @@ class  LpLoadRepository {
     return service.fetchLoads(customerId: customerId, type: type, search: search,forceRefresh: forceRefresh);
   }
 
-  Future<Result<LoadMemoData>> fetchMemoDetails({
-    required int loadId,
-    bool forceRefresh = false
-  }) async {
+  Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
     return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
   }
 }
