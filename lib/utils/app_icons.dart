@@ -24,6 +24,10 @@ class PngIcons {
   final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
   final String kavachPaymentNetBanking = "${_pngBasePath}payment_netbanking.png";
 
+  //endhan new_user icon
+  final String cardPayment = "${_pngBasePath}card_payment.png";
+  final String tracking = "${_pngBasePath}tracking.png";
+  final String reconcilation = "${_pngBasePath}reconcilation.png";
 }
 
 
@@ -83,7 +87,7 @@ class SvgIcons {
   final String distance = "${_svgBasePath}distance.svg";
   final String share = "${_svgBasePath}share.svg";
   final String locationDistance = "${_svgBasePath}location_distance.svg";
-
+  final String filledSupport = "${_svgBasePath}filled_Support.svg";
 
 
 }

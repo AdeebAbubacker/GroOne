@@ -12,6 +12,10 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
+import '../../utils/app_route.dart';
+import '../en-dhan(fuel)/view/new_user_endhan_screen.dart';
+import '../t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
+
 class OurValueAddedServicesWidget extends StatefulWidget {
   const OurValueAddedServicesWidget({super.key});
 
@@ -87,7 +91,8 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                       title: "Fuel Card",
                       imageString: AppImage.png.enDhan,
                       onClick: () {
-                        context.push(AppRouteName.enDhanCard);
+                        //context.push(AppRouteName.enDhanCard);
+                        Navigator.push(context,commonRoute(NewUserEndhanScreen()));
                       },
                     ),
                     15.width,
