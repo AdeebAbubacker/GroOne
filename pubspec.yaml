@@ -123,6 +123,7 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^3.0.0
   local_auth: ^2.3.0
+  webview_flutter: ^4.13.0
 
 
 
