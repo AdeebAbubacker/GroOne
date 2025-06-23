@@ -79,7 +79,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   String? companyTypeDropDownValue;
 
   List<dynamic> multiFilesList = [];
-  List<String> selectedTruckTypeList = [];
+  List<int> selectedTruckTypeList = [];
 
   List<String> getUniqueTypes(List<TruckTypeData> dataList) {
     return dataList.map((e) => e.type).toSet().toList();

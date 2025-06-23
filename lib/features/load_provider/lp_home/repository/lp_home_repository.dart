@@ -42,7 +42,7 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.getProfileDetails(id: await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
-      CustomLog.error(this, "Failed to request Login In", e);
+      CustomLog.error(this, "Failed to request get user details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

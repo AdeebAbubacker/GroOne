@@ -35,47 +35,43 @@ class UpcomingShipmentsListBody extends StatelessWidget {
             style:ListTileStyle.drawer,
             contentPadding: EdgeInsets.zero,
             horizontalTitleGap: 5,
-            minTileHeight: 60,
-titleAlignment: ListTileTitleAlignment.bottom,
+            minTileHeight: 60, 
+              titleAlignment: ListTileTitleAlignment.bottom,
 
             leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
-            title:Align(
-                alignment: Alignment.topLeft,
-                child:     (loadData.loadId.isNotEmpty) ?
-          Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
+            title :Align(alignment: Alignment.topLeft, child: (loadData.loadId.isNotEmpty) ? Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
             ),
             subtitle:Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
-            trailing:      (loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty) ?
+            trailing: (loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty) ?
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
-          child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
+                    child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
                   ),
                   5.height,
 
                   // Matching Timer
                   if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
                   // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
-          BlocBuilder<LPHomeCubit, LPHomeState>(
-            buildWhen: (p, c) => p.matchingText != c.matchingText,
-            builder: (context, state) {
-              return Text(
-                state.matchingText ?? "00:00:00",
-                style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-              );
-            },
-          )
-                  else
-          if (loadData.loadStatusDetails?.loadType == "KYC Pending")
-            if(loadData.customer?.createdAt != null)
-              Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+                    BlocBuilder<LPHomeCubit, LPHomeState>(
+                      buildWhen: (p, c) => p.matchingText != c.matchingText,
+                      builder: (context, state) {
+                        return Text(
+                          state.matchingText ?? "00:00:00",
+                          style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
+                        );
+                      },
+                    )
 
+                  else if (loadData.loadStatusDetails?.loadType == "KYC Pending")
+                    if(loadData.customer?.createdAt != null)
+                      Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
                 ],
-              ).expand():SizedBox()
+              ) : SizedBox()
           ),
 
 

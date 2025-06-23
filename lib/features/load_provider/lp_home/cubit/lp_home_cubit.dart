@@ -105,22 +105,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
 
-  // Start 120 Min Timer
-  Future<void> start120MinTimer() async {
-    const totalDuration = Duration(minutes: 120);
-    final endTime = DateTime.now().add(totalDuration);
-    emit(state.copyWith(remainingTime: totalDuration));
-
-    while (DateTime.now().isBefore(endTime)) {
-      await Future.delayed(const Duration(minutes: 1));
-      final remaining = endTime.difference(DateTime.now());
-      if (remaining.isNegative) break;
-      emit(state.copyWith(remainingTime: remaining));
-    }
-
-    emit(state.copyWith(remainingTime: Duration.zero));
-  }
-
 
   // Fetch Truck Type
   void _setTruckTypeUIState(UIState<LoadTruckTypeListModel>? uiState){
@@ -227,7 +211,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<ProfileDetailModel>) {
-
       _setProfileDetailUIState(UIState.success(result.value));
     }
     if (result is Error) {
