@@ -8,6 +8,8 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
+import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
@@ -198,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TapGestureRecognizer()
                                   ..onTap = () {
                                     // Handle terms & conditions tap
-                                    Navigator.push(context,commonRoute(LegalDetailScreen(type: 'terms')));
+                                    Navigator.push(context,commonRoute(TermsAndConditionsScreen()));
                                   },
                           ),
                           TextSpan(
@@ -211,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             recognizer:
                                 TapGestureRecognizer()
                                   ..onTap = () {
-                                    Navigator.push(context,commonRoute(LegalDetailScreen(type: 'privacy')));
+                                    Navigator.push(context,commonRoute(PrivacyPolicyScreen()));
                                   },
                           ),
                         ],
