@@ -62,4 +62,16 @@ class TruckTypeError extends VpCreationState {
   TruckTypeError(this.errorType);
 }
 
+// Preffered Truck Lane state
+class TruckPrefLaneInitial extends VpCreationState {}
+class TruckPrefLaneLoading extends VpCreationState {}
+class TruckPrefLaneSuccess extends VpCreationState {
+  final TruckPrefLaneModel truckPrefLaneModel;
+  TruckPrefLaneSuccess(this.truckPrefLaneModel);
+}
+class TruckPrefLaneError extends VpCreationState {
+  final ErrorType errorType;
+  TruckPrefLaneError(this.errorType);
+}
+
 

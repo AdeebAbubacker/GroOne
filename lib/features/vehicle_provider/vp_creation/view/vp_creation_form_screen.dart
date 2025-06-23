@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -77,18 +78,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   String? uploadedRcFile;
   String? companyTypeDropDownValue;
 
-
   List<dynamic> multiFilesList = [];
-  List<int> selectedTruckTypeList = [];
-
-  final List<DropdownItem<String>> preferredLanesList = [
-    DropdownItem(label: 'Chennai - Mumbai', value: '1'),
-    DropdownItem(label: 'Chennai -  Pune', value: '2'),
-    DropdownItem(label: 'Chennai - Delhi', value: '3'),
-    DropdownItem(label: 'Mumbai - Pune', value: '4'),
-    DropdownItem(label: 'Chennai - Bangalore', value: '5'),
-  ];
-
+  List<String> selectedTruckTypeList = [];
 
   List<String> getUniqueTypes(List<TruckTypeData> dataList) {
     return dataList.map((e) => e.type).toSet().toList();
@@ -113,6 +104,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     mobileNumberTextController.text = widget.mobileNumber;
     loadTruckTypeBloc.add(LoadTruckType());
     vpCreationBloc.add(VpCompanyTypeEvent());
+    vpCreationBloc.add(GetTruckPrefLaneEvent());
     verifyEmailCubit.resetState();
   });
 
@@ -129,7 +121,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     preferredLanesDropDownValue = null;
     uploadedRcFile = null;
     multiFilesList.clear();
-    preferredLanesList.clear();
+
     vpCreationBloc.add(VpResetEvent());
     uploadRcTruckFileBloc.add(ResetUploadRcDocumentEvent());
     verifyEmailCubit.resetState();
@@ -137,9 +129,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   // Vp Creation Api call
-  void vpCreationApiCall(){
-    if (formKey.currentState!.validate()){
-      if(uploadedRcFile == null){
+  void vpCreationApiCall() {
+    if (formKey.currentState!.validate()) {
+      if (uploadedRcFile == null) {
         ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
         return;
       }
@@ -160,7 +152,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         pincode: pinCodeTextController.text,
         uploadRc: uploadedRcFile,
       );
-      vpCreationBloc.add(VpCreationRequested(apiRequest: request, id: widget.id));
+      vpCreationBloc.add(
+        VpCreationRequested(apiRequest: request, id: widget.id),
+      );
     }
   }
 
@@ -172,7 +166,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
       child: SuccessDialogView(
         message: context.appText.accountCreatedSuccessfully,
         heading: context.appText.accountCreatedSuccessfullySubHeading,
-        afterDismiss: (){
+        afterDismiss: () {
           context.go(AppRouteName.vpBottomNavigationBar);
           disposeFunction();
         },
@@ -207,13 +201,13 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   }
 
   // Name and Phone Number
-  Widget buildNameAndPhoneNumberWidget(){
+  Widget buildNameAndPhoneNumberWidget() {
     return Column(
       children: [
 
         // Name
         AppTextField(
-          validator: (value)=> Validator.fieldRequired(value),
+          validator: (value) => Validator.fieldRequired(value),
           controller: nameTextController,
           labelText: context.appText.fullName,
           hintText: context.appText.fullNameHint,
@@ -224,7 +218,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         // Phone Number
         AppTextField(
           readOnly: true,
-          validator: (value)=> Validator.phone(value),
+          validator: (value) => Validator.phone(value),
           controller: mobileNumberTextController,
           labelText: context.appText.phoneNumber,
           maxLength: 10,
@@ -245,7 +239,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             ).paddingOnly(left: 20, right: 5),
           ),
         ),
-         20.height,
+        20.height,
 
         // Email
         buildEmailTextFieldWidget(),
@@ -453,20 +447,78 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         20.height,
 
         // Preferred Lane
-        AppMultiSelectionDropdown<String>(
-          labelText: context.appText.preferredLanes,
-          hintText: context.appText.selectLaneType,
-          controller: preferredLanesTypeController,
-          mandatoryStar: true,
-          items: preferredLanesList,
-          onSelectionChange: (selected) {
-            CustomLog.debug(this, 'Selected lane: $selected');
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return "${context.appText.truckType} ${context.appText.pinCode}";
+        // AppMultiSelectionDropdown<String>(
+        //   labelText: context.appText.preferredLanes,
+        //   hintText: context.appText.selectLaneType,
+        //   controller: preferredLanesTypeController,
+        //   mandatoryStar: true,
+        //   items: preferredLanesList,
+        //   onSelectionChange: (selected) {
+        //     CustomLog.debug(this, 'Selected lane: $selected');
+        //   },
+        //   validator: (value) {
+        //     if (value == null || value.isEmpty) {
+        //       return "${context.appText.truckType} ${context.appText.pinCode}";
+        //     }
+        //     return null;
+        //   },
+        // ),
+        BlocConsumer<VpCreationBloc, VpCreationState>(
+          bloc: vpCreationBloc,
+          buildWhen:
+              (previous, current) =>
+                  current is TruckPrefLaneSuccess ||
+                  current is TruckPrefLaneLoading,
+          listener: (context, state) {
+            if (state is TruckPrefLaneError) {
+              ToastMessages.error(
+                message: getErrorMsg(errorType: state.errorType),
+              );
             }
-            return null;
+          },
+          builder: (context, state) {
+            if (state is TruckPrefLaneLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (state is TruckPrefLaneSuccess) {
+              final preferredLaneItems =
+                  ((state.truckPrefLaneModel.data?.data ?? []))
+                      .map(
+                        (e) => DropdownItem<String>(
+                          value: e.id.toString(),
+                          label:
+                              '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
+                        ),
+                      )
+                      .toList();
+
+              return AppMultiSelectionDropdown<String>(
+                labelText: context.appText.preferredLanes,
+                hintText: context.appText.selectLaneType,
+                controller: preferredLanesTypeController,
+                mandatoryStar: true,
+                items: preferredLaneItems,
+                onSelectionChange: (selected) {
+                  CustomLog.debug(this, 'Selected lane: $selected');
+                  if (selected.isNotEmpty) {
+                    preferredLanesDropDownValue = selected.first;
+                  } else {
+                    preferredLanesDropDownValue = null;
+                  }
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "${context.appText.preferredLanes} ${context.appText.pinCode}";
+                  }
+                  return null;
+                },
+              );
+            }
+
+            return const SizedBox();
           },
         ),
       ],
@@ -514,7 +566,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             );
           },
         ),
-
       ],
     );
   }
@@ -542,6 +593,4 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
       },
     ).bottomNavigationPadding();
   }
-
-
 }

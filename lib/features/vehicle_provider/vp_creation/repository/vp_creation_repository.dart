@@ -4,6 +4,7 @@ import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/log_out_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
@@ -47,6 +48,16 @@ class VpCreationRepository {
       return await _vpCreationService.fetchTruckTypeData();
     } catch (e) {
       CustomLog.error(this, "Failed to request get truck type data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  // Get Preftruck Lane Data
+  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location) async {
+    try {
+      return await _vpCreationService.fetchTruckPrefLaneData(location);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request get prefered truck lane data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
