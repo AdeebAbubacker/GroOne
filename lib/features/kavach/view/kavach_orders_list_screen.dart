@@ -23,17 +23,16 @@ import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import '../repository/kavach_repository.dart';
-import 'kavach_models_screen.dart';
 
-
-///testing
 class KavachOrdersListScreen extends StatefulWidget {
   const KavachOrdersListScreen({super.key});
 
   @override
   State<KavachOrdersListScreen> createState() => _KavachOrdersListScreenState();
 }
-class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with TickerProviderStateMixin {
+
+class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
+    with TickerProviderStateMixin {
   final _ordersBloc = locator<KavachOrderListBloc>();
   late TabController _tabController;
 
@@ -53,119 +52,130 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
     super.dispose();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   if (_firstBuild) {
-  //     _firstBuild = false;
-  //     _ordersBloc.add(FetchKavachOrderList(isRefresh: true));
-  //   }
-  // }
-
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _ordersBloc,
-      child: BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
-        builder: (context, state) {
-          if (state is KavachOrderListLoading) {
-            return Scaffold(
-              appBar: CommonAppBar(
-                centreTile: false,
-                title: context.appText.tankLock,
-                actions: [
-                  AppIconButton(
-                    onPressed: () {},
-                    icon: AppIcons.svg.filledSupport,
-                    iconColor: AppColors.primaryButtonColor,
-                  ),
-                  4.width,
-                ],),
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
-            return Scaffold(
-              appBar: CommonAppBar(
-                title: context.appText.tankLock,
-                centreTile: false,
-                actions: [
+    return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
+      builder: (context, state) {
+        if (state is KavachOrderListLoading) {
+          return Scaffold(
+            appBar: CommonAppBar(
+              centreTile: false,
+              title: context.appText.tankLock,
+              actions: [
                 AppIconButton(
-                    onPressed: () {},
-                    icon: AppIcons.svg.filledSupport,
-                    iconColor: AppColors.primaryButtonColor,
-                  ),
+                  onPressed: () {},
+                  icon: AppIcons.svg.filledSupport,
+                  iconColor: AppColors.primaryButtonColor,
+                ),
                 4.width,
-              ],),
-              body: kavachBenifitsWidget(context),
-            );
-         
-          } else {
-            return Scaffold(
-              appBar: CommonAppBar(
-                //elevation: 1.0,
-                title: context.appText.tankLock,
-                centreTile: false,
-                actions: [
-                  AppIconButton(
-                    onPressed: () {},
-                    icon: AppIcons.svg.filledSupport,
-                    iconColor: AppColors.primaryButtonColor,
-                  ),
-                  4.width,
-                ],
-              ),
-              body: Column(
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    indicator: const BoxDecoration(), 
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                    tabs: List.generate(5, (index) {
-                      final tabLabels = ['All', 'Order Placed', 'Dispatched', 'Delivered', 'Installed'];
-                      final isSelected = _tabController.index == index;
-                      return Tab(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(
-                            tabLabels[index],
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
+              ],
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
+          return Scaffold(
+            appBar: CommonAppBar(
+              title: context.appText.tankLock,
+              centreTile: false,
+              actions: [
+                AppIconButton(
+                  onPressed: () {},
+                  icon: AppIcons.svg.filledSupport,
+                  iconColor: AppColors.primaryButtonColor,
+                ),
+                4.width,
+              ],
+            ),
+            body: kavachBenifitsWidget(context),
+          );
+        } else {
+          return Scaffold(
+            appBar: CommonAppBar(
+              //elevation: 1.0,
+              title: context.appText.tankLock,
+              centreTile: false,
+              actions: [
+                AppIconButton(
+                  onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                  },
+                  icon: Icon(Icons.add, color: Colors.white),
+                  style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                ),
+                AppIconButton(
+                  onPressed: () {},
+                  icon: AppIcons.svg.filledSupport,
+                  iconColor: AppColors.primaryButtonColor,
+                ),
+                4.width,
+              ],
+            ),
+            body: Column(
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  indicator: const BoxDecoration(),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+                  tabs: List.generate(5, (index) {
+                    final tabLabels = [
+                      'All',
+                      'Order Placed',
+                      'Dispatched',
+                      'Delivered',
+                      'Installed',
+                    ];
+                    final isSelected = _tabController.index == index;
+                    return Tab(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected
+                                  ? AppColors.primaryColor
+                                  : const Color(0xFFEFEFEF),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          tabLabels[index],
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      );
-                    }),
+                      ),
+                    );
+                  }),
+                ),
+                15.height,
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildTab(status: null),
+                      _buildTab(status: 4),
+                      _buildTab(status: 7),
+                      _buildTab(status: 8),
+                      _buildTab(status: 10),
+                    ],
                   ),
-                  15.height,
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildTab(status: null),
-                        _buildTab(status: 4),
-                        _buildTab(status: 7),
-                        _buildTab(status: 8),
-                        _buildTab(status: 10),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
     );
   }
-  Widget kavachBenifitsWidget(BuildContext context){
+
+  Widget kavachBenifitsWidget(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -176,47 +186,63 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
 
         AppButton(
           title: context.appText.getYourTankLockNow,
-            onPressed: (){
-              Navigator.of(context).push(
-              commonRoute(KavachChooseYourPreferenceScreen()));
-            }
-        ).paddingOnly(left: 10.0, right: 10.0, bottom: 8.0)
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+          },
+        ).paddingOnly(left: 10.0, right: 10.0, bottom: 8.0),
       ],
     );
   }
 
-  Widget buildKavachProductImageWidget(){
+  Widget buildKavachProductImageWidget() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Container(
       width: double.infinity,
-      height: screenHeight * 0.24, 
+      height: screenHeight * 0.24,
       color: AppColors.lightPrimaryColor,
       child: Stack(
         alignment: Alignment.center,
         children: [
           // Background truck image
-          Image.asset( AppImage.png.newTruck, width: double.infinity,  height: double.infinity,  fit: BoxFit.cover,),
+          Image.asset(
+            AppImage.png.newTruck,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
           // Kavach product overlay positioned responsively
-          Positioned(  top: screenHeight * 0.15,  right: screenWidth * 0.05, child: Image.asset(AppImage.png.kavachNewProduct, width: screenWidth * 0.17, ),
+          Positioned(
+            top: screenHeight * 0.15,
+            right: screenWidth * 0.05,
+            child: Image.asset(
+              AppImage.png.kavachNewProduct,
+              width: screenWidth * 0.17,
+            ),
           ),
         ],
       ),
     );
   }
-  
-  Widget buildKavachBenefitsDetailsWidget(BuildContext context){
-    Widget innerUIWidget({required String icon,required String title, required String subTitle}){
+
+  Widget buildKavachBenefitsDetailsWidget(BuildContext context) {
+    Widget innerUIWidget({
+      required String icon,
+      required String title,
+      required String subTitle,
+    }) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Icon
           Container(
             decoration: commonContainerDecoration(
-                color: AppColors.lightPrimaryColor,
-                borderRadius: BorderRadius.circular(100),
-                borderColor: AppColors.primaryColor
+              color: AppColors.lightPrimaryColor,
+              borderRadius: BorderRadius.circular(100),
+              borderColor: AppColors.primaryColor,
             ),
             child: Image.asset(icon, width: 25).paddingAll(15),
           ),
@@ -228,9 +254,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
             children: [
               Text(title, style: AppTextStyle.h5),
               5.height,
-              Text(subTitle, style: AppTextStyle.body3)
+              Text(subTitle, style: AppTextStyle.body3),
             ],
-          ).expand()
+          ).expand(),
         ],
       );
     }
@@ -240,31 +266,43 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
       children: [
         Text(context.appText.benefitsofTankLock, style: AppTextStyle.body1),
         20.height,
-        innerUIWidget(icon: AppIcons.png.lockAndKey, title: context.appText.benefitsOfKavachHeading1, subTitle: context.appText.benefitsOfKavachSubHeading1),
+        innerUIWidget(
+          icon: AppIcons.png.lockAndKey,
+          title: context.appText.benefitsOfKavachHeading1,
+          subTitle: context.appText.benefitsOfKavachSubHeading1,
+        ),
         20.height,
-        innerUIWidget(icon: AppIcons.png.insightGraph, title: context.appText.benefitsOfKavachHeading1, subTitle: context.appText.benefitsOfKavachSubHeading1),
+        innerUIWidget(
+          icon: AppIcons.png.insightGraph,
+          title: context.appText.benefitsOfKavachHeading1,
+          subTitle: context.appText.benefitsOfKavachSubHeading1,
+        ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }
-  Widget buildGroBannerImageWidget(){
+
+  Widget buildGroBannerImageWidget() {
     return Image.asset(AppImage.png.groBanner);
   }
 
+
   Widget _buildTab({int? status}) {
-    // Only fetch initial data for the specific tab here
     return BlocProvider(
       create: (_) => KavachOrderListBloc(locator<KavachRepository>())
-        ..add(FetchKavachOrderList(status: status, isRefresh: true)), // Initial fetch for the tab
-      child: _OrdersListView(),
+        ..add(FetchKavachOrderList(status: status, isRefresh: true)),
+      child: _OrdersListView(status: status),
     );
   }
 }
 
-
 class _OrdersListView extends StatefulWidget {
+  final int? status;
+  const _OrdersListView({this.status});
+
   @override
   State<_OrdersListView> createState() => _OrdersListViewState();
 }
+
 class _OrdersListViewState extends State<_OrdersListView> {
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
@@ -272,6 +310,8 @@ class _OrdersListViewState extends State<_OrdersListView> {
   @override
   void initState() {
     super.initState();
+    context.read<KavachOrderListBloc>().add(
+        FetchKavachOrderList(status: widget.status, forceRefresh: true));
     _scrollController.addListener(_onScroll);
   }
 
@@ -281,19 +321,20 @@ class _OrdersListViewState extends State<_OrdersListView> {
     super.dispose();
   }
 
-  // void _onScroll() {
-  //   if (_isBottom) {
-  //     final bloc = context.read<KavachOrderListBloc>();
-  //     bloc.add(FetchKavachOrderList());
-  //   }
-  // }
-
   void _onScroll() {
     if (_debounce?.isActive ?? false) return;
     _debounce = Timer(const Duration(milliseconds: 200), () {
-      if (_isBottom && !_isLoading) {
+      // if (_isBottom && !_isLoading) {
+      //   context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
+      // }
+      final currentState = context.read<KavachOrderListBloc>().state;
+      if (_isBottom &&
+          !_isLoading &&
+          currentState is KavachOrderListLoaded &&
+          !currentState.hasReachedMax) {
         context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
       }
+
     });
   }
 
@@ -317,13 +358,13 @@ class _OrdersListViewState extends State<_OrdersListView> {
           return const Center(child: CircularProgressIndicator());
         } else if (state is KavachOrderListLoaded) {
           if (state.orders.isEmpty) {
-            return Center(child: Text('No orders found',style: AppTextStyle.h5));
+            return Center(
+              child: Text('No orders found', style: AppTextStyle.h5),
+            );
           }
           return ListView.builder(
             controller: _scrollController,
-            itemCount: state.hasReachedMax
-                ? state.orders.length
-                : state.orders.length + 1,
+            itemCount: state.hasReachedMax ? state.orders.length : state.orders.length + 1,
             itemBuilder: (context, index) {
               if (index >= state.orders.length) {
                 return const Padding(
@@ -343,7 +384,6 @@ class _OrdersListViewState extends State<_OrdersListView> {
     );
   }
 }
-
 
 ///old
 // @override

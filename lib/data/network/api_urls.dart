@@ -122,7 +122,6 @@ class ApiUrls {
   static final String  updateLoad = "$_loadBaseUrl/";
 
   //Kavach
-  // https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
   static String get kavachProductList => "$_baseUrl$_fleet$_path$_v1/product/list";
   static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle";
@@ -130,4 +129,9 @@ class ApiUrls {
   static String get kavachAvailableStock => "$_baseUrl$_fleet$_path$_v1/stocks/available-stock";
   static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
   static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
+  static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vp-master/vehicle";
+  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodity";
+  static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
+  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
+  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
 }
