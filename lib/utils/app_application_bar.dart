@@ -21,7 +21,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
    final double? toolbarHeight;
    final void Function()? onLeadingTap;
    final PreferredSizeWidget? bottom;
-  const CommonAppBar({super.key, this.isLeading ,this.backgroundColor, this.elevation, this.actions, this.title, this.titleColor, this.leading, this.leadingColor, this.onLeadingTap, this.bottom, this.toolbarHeight, this.leadingStyle, this.scrolledUnderElevation,  this.isCrossLeadingIcon = false});
+   final bool? centreTile;
+  const CommonAppBar({super.key, this.isLeading ,this.backgroundColor, this.elevation, this.actions, this.title, this.titleColor, this.leading, this.leadingColor, this.onLeadingTap, this.bottom, this.toolbarHeight, this.leadingStyle, this.scrolledUnderElevation,  this.isCrossLeadingIcon = false, this.centreTile = true});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +53,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: SvgPicture.asset((isCrossLeadingIcon ? AppIcons.svg.clearOutline : AppIcons.svg.goBack), colorFilter: AppColors.svg(leadingColor ?? Colors.black),),
           style: leadingStyle,
       ) : null),
-      centerTitle: true,
+      centerTitle: centreTile,
       title: getWidget(),
       actions: actions,
       bottom: bottom,

@@ -208,7 +208,14 @@
   "iWillDoItLater" : "I’ll do it later",
   "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
   "verifyAadhaar" : "Verify Aadhaar",
-  "uploadYourDocument" : "Upload Your Documents"
-
+  "uploadYourDocument" : "Upload Your Documents",
+  "chooseYourPreference": "உங்கள் விருப்பத்தைத் தேர்ந்தெடுக்கவும்",
+  "make": "தயாரிப்பு",
+  "model": "மாதிரி",
+  "engine": "எஞ்சின்",
+  "tankType": "டாங்க் வகை",
+  "deviceType": "சாதன வகை",
+  "getYourTankLockNow": "இப்போது உங்கள் டாங் லாக் பெறுங்கள்",
+  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்"
 
 }

@@ -13,6 +13,7 @@ import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'multi_bloc.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();

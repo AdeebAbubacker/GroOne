@@ -50,6 +50,7 @@ class AppColors {
   static final Color lightGreyIconBackgroundColor = Colors.grey.shade100;
   static final Color lightGreyBackgroundColor = Color(0xfff3f3f3);
   static const Color greyIconColor = Colors.black38;
+  static const Color greyIconColor2 = Color(0xffEDEDED);
 
   // Activity Color
   static const Color activeGreenColor = CupertinoColors.activeGreen;
