@@ -2,9 +2,11 @@ import '../../model/kavach_address_model.dart';
 
 abstract class KavachCheckoutShippingAddressEvent {}
 
-class FetchKavachAddresses extends KavachCheckoutShippingAddressEvent {}
+class FetchKavachShippingAddresses extends KavachCheckoutShippingAddressEvent {}
 
-class SelectKavachAddress extends KavachCheckoutShippingAddressEvent {
+class SelectKavachShippingAddress extends KavachCheckoutShippingAddressEvent {
   final KavachAddressModel address;
-  SelectKavachAddress(this.address);
+  SelectKavachShippingAddress(this.address);
 }
+
+class ClearKavachShippingAddress extends KavachCheckoutShippingAddressEvent {}
