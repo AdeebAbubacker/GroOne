@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
@@ -49,28 +48,18 @@ class _MyAppState extends State<MyApp> {
     );
     appContext = context;
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return ScreenUtilInit(
-      designSize: Size(
-        MediaQuery.of(context).size.width,
-        MediaQuery.of(context).size.height,
-      ),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return BlocBuilder<LocaleBloc, LocaleState>(
-          builder: (context, state) {
-            return MultiBlocWrapper(
-              child: MaterialApp.router(
-                locale: state.locale,
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                title: "Gro One",
-                debugShowCheckedModeBanner: false,
-                supportedLocales: L10n.all,
-                theme: AppThemeStyle.appTheme,
-                routerConfig: AppRoutes.router,
-              ),
-            );
-          },
+    return BlocBuilder<LocaleBloc, LocaleState>(
+      builder: (context, state) {
+        return MultiBlocWrapper(
+          child: MaterialApp.router(
+            locale: state.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            title: "Gro One",
+            debugShowCheckedModeBanner: true,
+            supportedLocales: L10n.all,
+            theme: AppThemeStyle.appTheme,
+            routerConfig: AppRoutes.router,
+          ),
         );
       },
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -18,12 +17,12 @@ class MyDocumentScreen extends StatelessWidget {
       appBar: CommonAppBar(
         backgroundColor: AppColors.backgroundColor,
         title: Text("My Documents", style: AppTextStyle.textBlackColor18w500),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
-          spacing: 15.h,
+          spacing: 15,
           children: [
             AppTextField(
               decoration: commonInputDecoration(
@@ -45,13 +44,13 @@ class MyDocumentScreen extends StatelessWidget {
       itemBuilder: (context, index) {
       return Container(
           margin: EdgeInsets.only(bottom: 10),
-          padding: EdgeInsets.symmetric( vertical: 10.h),
+          padding: EdgeInsets.symmetric( vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
             color: AppColors.white,
           ),
           child:ListTile(
-            leading:  SvgPicture.asset(AppImage.svg.myDocumentsIcon2, height: 40.h, width: 40.w),
+            leading:  SvgPicture.asset(AppImage.svg.myDocumentsIcon2, height: 40, width: 40),
             title:   Text(
               "GSTIN",
               style: AppTextStyle.h5,

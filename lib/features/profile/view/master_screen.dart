@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
@@ -62,10 +61,10 @@ class _MasterScreenState extends State<MasterScreen> {
         ],
         backgroundColor: Colors.transparent,
         title: Text("Masters", style: AppTextStyle.textBlackColor18w500),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child:BlocConsumer(
             bloc: lpProfileBloc,
             builder: (context, state) {
@@ -97,14 +96,14 @@ class _MasterScreenState extends State<MasterScreen> {
   masterInfoWidget(){
     return   Container(
       margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: AppColors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 15.h,
+        spacing: 15,
         children: [
           Text(
             "Address1",
@@ -114,8 +113,8 @@ class _MasterScreenState extends State<MasterScreen> {
             children: [
               SvgPicture.asset(
                 AppImage.svg.location,
-                height: 47.h,
-                width: 20.h,
+                height: 47,
+                width: 20,
               ),
               Expanded(
                 child: Column(

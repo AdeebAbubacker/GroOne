@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -35,8 +34,8 @@ class _LpSupportState extends State<LpSupport> {
             },
             child: Image.asset(
               AppImage.png.customerSupport,
-              height: 32.h,
-              width: 32.h,
+              height: 32,
+              width: 32,
             ),
           ),
           10.width,
@@ -47,14 +46,14 @@ class _LpSupportState extends State<LpSupport> {
           context.appText.support,
           style: AppTextStyle.textBlackColor18w500,
         ),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
 
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 18.h),
+        padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
 
         child: Column(
-          spacing: 20.h,
+          spacing: 20,
           children: [
             AppTextField(
               decoration: commonInputDecoration(
@@ -65,7 +64,7 @@ class _LpSupportState extends State<LpSupport> {
             ),
 
             SizedBox(
-              height: 30.h,
+              height: 30,
               width: MediaQuery.of(context).size.width,
               child: ListView.builder(
                 shrinkWrap: true,
@@ -73,7 +72,7 @@ class _LpSupportState extends State<LpSupport> {
                 itemCount: tabList.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: EdgeInsets.only(right: 10.w),
+                    padding: EdgeInsets.only(right: 10),
                     child: tabWidget(
                       text: tabList[index],
                       onTap: () {
@@ -88,7 +87,7 @@ class _LpSupportState extends State<LpSupport> {
             ),
 
             Container(
-              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               decoration: BoxDecoration(color: AppColors.white),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

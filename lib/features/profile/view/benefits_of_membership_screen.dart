@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -16,11 +15,11 @@ class BenefitsOfMembershipScreen extends StatelessWidget {
           "Benefits of Membership",
           style: AppTextStyle.textBlackColor18w500,
         ),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
 
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
 
         child:ListView.builder(
 
@@ -58,7 +57,7 @@ class BenefitsOfMembershipScreen extends StatelessWidget {
       subtitleTextStyle: TextStyle(
         color: Color(0xFF575757),
         fontWeight: FontWeight.w400,
-        fontSize: 13.sp,
+        fontSize: 13,
       ),
       ),
     );
