@@ -64,6 +64,9 @@ class AppLabelText {
   final String checkSpellingSearch = 'Check the spelling or try a new search.';
   final String backToHome = 'Back to home';
 
+  // Tank Lock
+  final String tankLock = "Tank Lock";
+  final String chooseYourPreference = "Choose Your Preference";
 
   // App String
 

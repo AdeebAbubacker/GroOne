@@ -7,21 +7,21 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Color? backgroundColor;
-  final double? elevation;
-  final double? scrolledUnderElevation;
-  final List<Widget>? actions;
-  final dynamic title;
-  final Color? titleColor;
-  final Widget? leading;
-  final bool? isLeading;
-  final bool isCrossLeadingIcon;
-  final Color? leadingColor;
-  final ButtonStyle? leadingStyle;
-  final double? toolbarHeight;
-  final void Function()? onLeadingTap;
-  final PreferredSizeWidget? bottom;
-  final bool? centreTile;
+   final Color? backgroundColor;
+   final double? elevation;
+   final double? scrolledUnderElevation;
+   final List<Widget>? actions;
+   final dynamic title;
+   final Color? titleColor;
+   final Widget? leading;
+   final bool? isLeading;
+   final bool isCrossLeadingIcon;
+   final Color? leadingColor;
+   final ButtonStyle? leadingStyle;
+   final double? toolbarHeight;
+   final void Function()? onLeadingTap;
+   final PreferredSizeWidget? bottom;
+   final bool? centreTile;
   const CommonAppBar({super.key, this.isLeading ,this.backgroundColor, this.elevation, this.actions, this.title, this.titleColor, this.leading, this.leadingColor, this.onLeadingTap, this.bottom, this.toolbarHeight, this.leadingStyle, this.scrolledUnderElevation,  this.isCrossLeadingIcon = false, this.centreTile = true});
 
   @override

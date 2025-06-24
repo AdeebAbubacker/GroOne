@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/ka
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import 'package:gro_one_app/features/kavach/cubit/choose_preference_cubit.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
@@ -159,6 +160,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KycCubit(locator<KycRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
+    locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => AssignDriverCubit());
 
 
@@ -167,5 +169,4 @@ void initLocator() {
   } catch (e) {
     CustomLog.error(locator, "ERROR : All instances are not registered.", e);
   }
-
 }
