@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -35,11 +36,13 @@ class TripScheduleScreen extends StatefulWidget {
 
 class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
-  final cubit = locator<LoadDetailsCubit>();
+
 
   List<VehicleDetail> vehicleDetail = [];
   List<DriverDetails> driverDetails = [];
   final vpHomeScreenBloc = locator<VpHomeBloc>();
+  final cubit = locator<LoadDetailsCubit>();
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   String? truckType;
   String? driverType;
@@ -52,11 +55,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
 
   void initFunction() => frameCallback(() async {
+   int? userId= lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id;
     vpHomeScreenBloc.add(
-      VpVehicleListRequested(userId:cubit.state.loadDetailsUIState?.data?.data?.customerId.toString() ??"" ),
+      VpVehicleListRequested(userId:userId.toString() ),
     );
     vpHomeScreenBloc.add(
-      VpDriverDetailsRequested( userId:cubit.state.loadDetailsUIState?.data?.data?.customerId.toString() ??"" ),
+      VpDriverDetailsRequested( userId:userId.toString() ??"" ),
     );
     //  Call your init methods
   });

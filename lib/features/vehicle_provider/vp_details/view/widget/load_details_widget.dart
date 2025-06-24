@@ -31,16 +31,16 @@ class LoadDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+      buildWhen: (previous, current) => previous.isLoadAccepted!=current.isLoadAccepted,
       listener: (context, state) {
         if(state.isLoadAccepted??false){
           AppDialog.show(
             context,
             child: SuccessDialogView(
               message: 'Load Accepted Successfully',
+
               afterDismiss: () {
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
+                 Navigator.pop(context);
               },
             ),
           );
@@ -139,7 +139,7 @@ class LoadDetailsWidget extends StatelessWidget {
                         ),
                       ),
                       onPressed:   () {
-                        print("user id ${lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id}");
+
                         context.push(AppRouteName.tripScheduleScreen);
                         /// TODO:
                         /// temp comment once backend resolved this

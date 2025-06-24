@@ -26,6 +26,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     Result result = await _loadDetailsRepository.fetchLoadDetails(loadId);
     if (result is Success<LoadDetailsResponseModel>) {
       emit(state.copyWith(loadDetailsUIState: UIState.success(result.value)));
+      if(state.loadDetailsUIState?.data?.data?.loadStatus==3){
+        acceptLoad();
+      }
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));
