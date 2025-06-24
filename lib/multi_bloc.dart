@@ -18,7 +18,7 @@ import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'dependency_injection/locator.dart';
@@ -67,7 +67,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
         BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
-        BlocProvider<AssignDriverCubit>(create: (_) => locator<AssignDriverCubit>()),
+        BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
       ],
       child: child,
     );

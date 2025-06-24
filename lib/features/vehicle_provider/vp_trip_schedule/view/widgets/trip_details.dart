@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -24,171 +29,172 @@ class TripDetails extends StatelessWidget {
   }
 
   Widget _tripDetailsWidget(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.blackishWhite,
-        border: Border.all(color: AppColors.primaryColor),
-        borderRadius: BorderRadius.circular(8),
-      ),
+    return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
+      builder: (context, state)  {
+        LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
 
-      child: Column(
-        children: [
-          Row(
-            spacing: 5,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.blackishWhite,
+            border: Border.all(color: AppColors.primaryColor),
+            borderRadius: BorderRadius.circular(8),
+          ),
+
+          child: Column(
             children: [
-              Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Color(0xffDFE6FF),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(child: SvgPicture.asset(AppIcons.svg.orderBox)),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Color(0xffDFE6FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(child: SvgPicture.asset(AppIcons.svg.orderBox)),
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "GD 34567",
-                              style: AppTextStyle.h5w500.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  loadDetails?.loadId??"",
+                                  style: AppTextStyle.h5w500.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
 
+
+                              ],
+                            ),
                             Row(
                               children: [
-                                Text("Bangalore "),
-                                Icon(Icons.arrow_forward, size: 12),
-                                Text("Chennai"),
+                                Expanded(child: Text("${loadDetails?.pickUpLocation} ",maxLines: 1,overflow: TextOverflow.ellipsis,)),
+                                Expanded(child: Icon(Icons.arrow_forward, size: 12)),
+                                Expanded(child: Text("${loadDetails?.dropLocation}",maxLines: 1,overflow: TextOverflow.ellipsis,)),
                               ],
                             ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  "Bloom Cosmetic Pvt Ltd",
-                                  style: AppTextStyle.h5w500.copyWith(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.textGreyDetailColor,
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Bloom Cosmetic Pvt Ltd",
+                                      style: AppTextStyle.h5w500.copyWith(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.textGreyDetailColor,
+                                      ),
+                                    ),
+                                    Text(
+                                      DateTimeHelper.getFormattedDate(loadDetails?.createdAt??DateTime.now()),
+                                      style: AppTextStyle.h3PrimaryColor.copyWith(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w100,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  "12 Jul 2025, 6.30 AM",
-                                  style: AppTextStyle.h3PrimaryColor.copyWith(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w100,
-                                    color: AppColors.primaryColor,
+                                Container(
+                                  height: 38,
+                                  width: 38,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      width: 2,
+                                      color: AppColors.primaryColor,
+                                    ),
                                   ),
+                                  child: SvgPicture.asset(AppImage.svg.support),
                                 ),
                               ],
                             ),
-                            Container(
-                              height: 38,
-                              width: 38,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  width: 2,
-                                  color: AppColors.primaryColor,
-                                ),
-                              ),
-                              child: SvgPicture.asset(AppImage.svg.support),
-                            ),
+
                           ],
                         ),
-
                       ],
                     ),
+                  ),
+                ],
+              ).paddingSymmetric(horizontal: 15, vertical: 20),
+                Divider(
+                  indent: 30,
+                  endIndent: 30,
+                  thickness: 0.5),
+
+             
+
+              Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+
+                  Column(
+                    spacing: 15,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+
+                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,loadDetails?.truckType?.type??""),
+                      _buildTripEntityTiles(AppIcons.svg.package,"${loadDetails?.commodity?.name}")
+                    ],
+                  ),
+
+                  Column(
+                    spacing: 15,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"${loadDetails?.truckType?.subType}"),
+                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.consignmentWeight} Ton"),
+                    ],
+                  ),
+
+
+
+                ],
+              ).paddingSymmetric(horizontal: 20),
+              15.height,
+
+              Container(
+                padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.lightBlueColor,
+                borderRadius: BorderRadius.circular(8)
+              ),
+                child: Column(
+                  spacing: 12,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildPriceBreakDownWidget("Accepted Price","${loadDetails?.rate}"),
+                    // _buildPriceBreakDownWidget("Advance Amount","65,000"),
+                    // _buildPriceBreakDownWidget("Balance Amount","8000"),
                   ],
                 ),
-              ),
-            ],
-          ).paddingSymmetric(horizontal: 15, vertical: 20),
+              ).paddingSymmetric(horizontal: 20),
+              15.height,
 
 
 
 
-
-
-          Divider(
-              indent: 30,
-              endIndent: 30,
-              thickness: 0.5),
-
-          10.height,
-
-          Row(
-            spacing: 10,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-
-              Column(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"Closed Truck"),
-                  _buildTripEntityTiles(AppIcons.svg.package,"Construction Material")
-                ],
-              ),
-
-              Column(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"20 ft SLX"),
-                  _buildTripEntityTiles(AppIcons.svg.weight,"5 Ton"),
-                ],
-              ),
 
 
 
             ],
-          ).paddingSymmetric(horizontal: 20),
-          15.height,
-
-          Container(
-            padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.lightBlueColor,
-            borderRadius: BorderRadius.circular(8)
           ),
-            child: Column(
-              spacing: 12,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildPriceBreakDownWidget("Accepted Price","73000"),
-                _buildPriceBreakDownWidget("Advance Amount","65,000"),
-                _buildPriceBreakDownWidget("Balance Amount","8000"),
-              ],
-            ),
-          ).paddingSymmetric(horizontal: 20),
-          15.height,
-
-
-
-
-
-
-
-        ],
-      ),
+        );
+      }
     );
   }
 

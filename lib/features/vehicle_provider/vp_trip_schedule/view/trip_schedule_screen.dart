@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/widgets/trip_details.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -11,6 +20,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -24,6 +34,33 @@ class TripScheduleScreen extends StatefulWidget {
 }
 
 class _TripScheduleScreenState extends State<TripScheduleScreen> {
+
+  final cubit = locator<LoadDetailsCubit>();
+
+  List<VehicleDetail> vehicleDetail = [];
+  List<DriverDetails> driverDetails = [];
+  final vpHomeScreenBloc = locator<VpHomeBloc>();
+
+  String? truckType;
+  String? driverType;
+
+  @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
+
+
+  void initFunction() => frameCallback(() async {
+    vpHomeScreenBloc.add(
+      VpVehicleListRequested(userId:cubit.state.loadDetailsUIState?.data?.data?.customerId.toString() ??"" ),
+    );
+    vpHomeScreenBloc.add(
+      VpDriverDetailsRequested( userId:cubit.state.loadDetailsUIState?.data?.data?.customerId.toString() ??"" ),
+    );
+    //  Call your init methods
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,126 +72,124 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
   Widget _buildBodyWidget(){
     return SingleChildScrollView(
-      child: Column(
-        spacing: 20,
-        children: [
-          TripDetails(),
+      child: BlocListener(
+        bloc: vpHomeScreenBloc,
+        listener: (context, state) {
+          if (state is VpVehicleListSuccess) {
+            vehicleDetail = state.vehicleListResponse.data;
 
-          AppDropdown(
-            validator: (value) => Validator.fieldRequired(value),
-            labelText: "Truck Number",
-            hintText: "Select Truck Number",
-            dropdownValue: "First",
-            mandatoryStar: true,
-            decoration: commonInputDecoration(fillColor: Colors.white),
-            dropDownList: ["First","Second"].map((e) => DropdownMenuItem(
-                value:e,
-                child: Text(e, style: AppTextStyle.body)),
-            ).toList(),
-            onChanged: (onChangeValue) {
+          }
+          if (state is VpDriverListSuccess) {
+            driverDetails = state.driverListResponse.data;
+          }
+        },
+        child: BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
+              bloc:cubit,
+              builder: (context, state)  {
 
-            },
-          ),
-          AppDropdown(
-            validator: (value) => Validator.fieldRequired(value),
-            labelText: "Driver Name  & Number",
-            hintText: "Select Truck Number",
-            dropdownValue: "First",
-            mandatoryStar: true,
-            decoration: commonInputDecoration(fillColor: Colors.white),
-            dropDownList: ["First","Second"].map((e) => DropdownMenuItem(
-                value:e,
-                child: Text(e, style: AppTextStyle.body)),
-            ).toList(),
-            onChanged: (onChangeValue) {
+              LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
+              print("state.possibleDeliveryDate ${state.possibleDeliveryDate}  ");
+              return Column(
+                spacing: 20,
+                children: [
+                  TripDetails(),
 
-            },
-          ),
-          ///Scheduled Pickup Date
-          InkWell(
-              onTap: () async {
+                  AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value, fieldName: "Truck Number Required*"),
+                    labelTextStyle: AppTextStyle.textBlackColor18w400,
+                    hintText: "Truck Number",
+                    dropdownValue: truckType,
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
+                      value: e.id.toString(),
+                      child: Text(e.vehicleNumber, style: AppTextStyle.body),
+                    ),
+                    ).toList(),
+                    onChanged: (onChangeValue) {
+                      truckType = onChangeValue;
+                    },
+                  ),
+                  AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value),
+                    labelTextStyle: AppTextStyle.textBlackColor18w400,
+                    hintText: context.appText.selectDriver,
+                    dropdownValue: driverType,
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: driverDetails.map((e) => DropdownMenuItem(
+                      value: e.id.toString(),
+                      child: Text(e.name, style: AppTextStyle.body),
+                    ),
+                    ).toList(),
+                    onChanged: (onChangeValue) {
+                      driverType = onChangeValue;
+                    },
+                  ),
+                  ///Scheduled Pickup Date
+                  buildReadOnlyField(
 
-                final String? date = await commonDatePicker(
-                  context,
-                  firstDate: DateTime.now(),
-                  initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
-                );
+                      "Scheduled Pickup Date",DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: AppColors.disableColor),
 
-                if(!context.mounted) return;
-                final String? time = await commonTimePicker(context);
+                  ///Expected Delivery date
 
-                if (date != null && time != null) {
+                  buildReadOnlyField("Expected Delivery date",DateTimeHelper.formatCustomDate(loadDetails?.expectedDeliveryDateTime??DateTime.now()), fillColor: AppColors.disableColor),
 
+                  ///Possible Delivery date
+                  InkWell(
+                      onTap: () async {
 
-                }
+                        final String? date = await commonDatePicker(
+                          context,
+                          firstDate: DateTime.now(),
+                          initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
+                        );
 
-              },
-              child: buildReadOnlyField("Scheduled Pickup Date","Scheduled Pickup Date", fillColor: Colors.white)
-          ),
+                        if(!context.mounted) return;
+                        final String? time = await commonTimePicker(context);
 
-          ///Expected Delivery date
+                        if (date != null && time != null) {
+                          cubit.updatePossibleDeliveryDateDate("$date, $time");
+                        }
 
-          InkWell(
-              onTap: () async {
+                      },
+                      child: buildReadOnlyField("Possible Delivery date", state.possibleDeliveryDate ?? "Possible Pickup Date", fillColor: Colors.white)
+                  ),
 
-                final String? date = await commonDatePicker(
-                  context,
-                  firstDate: DateTime.now(),
-                  initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
-                );
+                  AppButton(
+                    title: "Schedule trip",
+                    style: AppButtonStyle.primary.copyWith(
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      vpHomeScreenBloc.add(
+                        ScheduleTripRequested(
+                          apiRequest: ScheduleTripRequest(
+                            loadId: loadDetails?.id??0,
+                            vehicleId: int.parse(truckType ?? "0"),
+                            driverId: int.parse(driverType ?? "0"),
+                            acceptedBy: int.parse(vpHomeScreenBloc.userId??"0"),
+                            etaForPickUp: DateTime.now(),
+                            expectedDeliveryDate: DateTime.now(),
 
-                if(!context.mounted) return;
-                final String? time = await commonTimePicker(context);
+                          ),
+                        ),
+                      );
+                    },
 
-                if (date != null && time != null) {
-
-
-                }
-
-              },
-              child: buildReadOnlyField("Expected Delivery date","Expected Pickup Date", fillColor: Colors.white)
-          ),
-
-          ///Possible Delivery date
-          InkWell(
-              onTap: () async {
-
-                final String? date = await commonDatePicker(
-                  context,
-                  firstDate: DateTime.now(),
-                  initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
-                );
-
-                if(!context.mounted) return;
-                final String? time = await commonTimePicker(context);
-
-                if (date != null && time != null) {
-
-
-                }
-
-              },
-              child: buildReadOnlyField("Possible Delivery date","Possible Pickup Date", fillColor: Colors.white)
-          ),
-
-
-          AppButton(
-            title: "Schedule trip",
-            style: AppButtonStyle.primary.copyWith(
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            onPressed: () {},
-
-          ),
-          10.height,
+                  ),
+                  10.height,
 
 
-        ],
-      ).paddingSymmetric(horizontal: 15),
+                ],
+              ).paddingSymmetric(horizontal: 15);
+            }
+
+          )
+
+      ),
     );
   }
 
