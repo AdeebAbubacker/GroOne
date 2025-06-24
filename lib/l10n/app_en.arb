@@ -33,6 +33,8 @@
   "gps": "GPS",
   "instantLoan": "Instant Loan",
   "kavach": "KAVACH",
+  "tankLock" : "Tank Lock",
+  "benefitsofTankLock" : "Benefits of Tank Lock",
   "insurance": "Insurance",
   "loginSuccessful": "LOGIN SUCCESSFUL",
   "loginSuccessfulSubHeading": "Now you can explore the rates\nand post loads",
@@ -210,5 +212,13 @@
   "iWillDoItLater" : "I’ll do it later",
   "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
   "verifyAadhaar" : "Verify Aadhaar",
-  "uploadYourDocument" : "Upload Your Documents"
+  "uploadYourDocument" : "Upload Your Documents",
+  "chooseYourPreference": "Choose your preference",
+  "make": "Make",
+  "model": "Model",
+  "engine": "Engine",
+  "tankType": "Tank Type",
+  "deviceType": "Device Type",
+  "getYourTankLockNow" : "Get your Tank Lock now",
+  "buyNewTankLock" : "Buy New Tank Lock"
 }
