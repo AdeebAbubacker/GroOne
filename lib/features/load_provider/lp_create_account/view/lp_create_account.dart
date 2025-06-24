@@ -61,6 +61,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   final emailTextController = TextEditingController();
   final phoneNumberTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
+  AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   List<CompanyType> preferredLanesList = [];
 
@@ -193,6 +194,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   /// Form
   Widget buildCreateFormWidget(BuildContext context) {
     return Form(
+      autovalidateMode: _autoValidateMode,
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,6 +418,14 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           onPressed:
               _isFormValid && !isLoading
                   ? () {
+                    //  Enable autovalidation
+                    setState(() {
+                      _autoValidateMode = AutovalidateMode.onUserInteraction;
+                    });
+                    // Trigger validation
+                    final isValid = _formKey.currentState!.validate();
+
+                    if (!isValid) return;
                     if (_formKey.currentState!.validate()) {
                       if (!verifyEmailCubit.state.isVerifiedEmail) {
                         ToastMessages.alert(
@@ -423,7 +433,10 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                         );
                         return;
                       }
-
+                      setState(() {
+                        // Turn on real-time validation after the first submit attempt
+                        _autoValidateMode = AutovalidateMode.onUserInteraction;
+                      });
                       final apiRequest = CreateRequest(
                         customerName: nameTextController.text,
                         mobileNumber: phoneNumberTextController.text,
