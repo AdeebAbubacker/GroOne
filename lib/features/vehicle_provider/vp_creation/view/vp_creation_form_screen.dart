@@ -299,7 +299,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             controller: emailTextController,
             labelText: context.appText.email,
             mandatoryStar: true,
-
+            readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
                 hintText: context.appText.emailHint,
@@ -307,8 +307,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status ==  Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3),
-                    5.width,
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3.copyWith(
+                      color: AppColors.primaryColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primaryColor,
+                    )),                    5.width,
                     Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
                   ],
                 ),

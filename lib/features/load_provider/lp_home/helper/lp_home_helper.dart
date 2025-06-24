@@ -33,7 +33,7 @@ class LpHomeHelper {
      final createdAt = DateTime.parse(createdAtString).toLocal();
 
      // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
-     final targetTime = createdAt.add(const Duration(hours: 3));
+     final targetTime = createdAt.add(const Duration(hours: 2));
 
      // 3️⃣ compute the remaining time *from now* until that target
      final now        = DateTime.now();

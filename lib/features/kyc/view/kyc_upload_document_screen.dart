@@ -598,8 +598,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                                     // VP All Others
                                     if(companyId != 1 && companyId != 2)...[
-                                      _buildAadhaarWidget(),
-                                      25.height,
                                       _buildGstWidget(),
                                       25.height,
                                       _buildPanWidget(),

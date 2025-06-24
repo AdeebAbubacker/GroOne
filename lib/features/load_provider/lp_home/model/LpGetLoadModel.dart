@@ -67,7 +67,7 @@ class LoadData {
 
   final int id;
   final String loadId;
-  final String laneId;
+  final num laneId;
   final num rateId;
   final num customerId;
   final num commodityId;
@@ -99,7 +99,7 @@ class LoadData {
   LoadData copyWith({
     int? id,
     String? loadId,
-    String? laneId,
+    num? laneId,
     num? rateId,
     num? customerId,
     num? commodityId,
@@ -166,7 +166,7 @@ class LoadData {
     return LoadData(
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
-      laneId: json["laneId"] ?? "",
+      laneId: json["laneId"] ?? 0,
       rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,

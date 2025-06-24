@@ -44,7 +44,7 @@ class Data {
   final int id;
   final num laneId;
   final num truckTypeId;
-  final double price;
+  final num price;
   final Lane? lane;
   final TruckType? truckType;
 
@@ -52,7 +52,7 @@ class Data {
     int? id,
     num? laneId,
     num? truckTypeId,
-    double? price,
+    num? price,
     Lane? lane,
     TruckType? truckType,
   }) {
