@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import 'package:gro_one_app/features/kavach/cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
@@ -68,6 +69,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
         BlocProvider<AssignDriverCubit>(create: (_) => locator<AssignDriverCubit>()),
+        BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
       ],
       child: child,
     );

@@ -210,5 +210,8 @@
   "iWillDoItLater" : "I’ll do it later",
   "verifyAadhaarOtpLabel" : "Enter the OTP sent to your registered Mobile number",
   "verifyAadhaar" : "Verify Aadhaar",
-  "uploadYourDocument" : "Upload Your Documents"
+  "uploadYourDocument" : "Upload Your Documents",
+  "addressName" : "Address Name",
+  "referralCode" : "Referral Code",
+  "sameAsBillingAddress" : "Same As Billing Address"
 }

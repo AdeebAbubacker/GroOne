@@ -68,6 +68,7 @@ class AppColors {
   static const Color uploadedDocBgColor = Color(0xFFF2F5FF);
   static const Color greyContainerBackgroundColor = Color(0xffF5F5F5);
   static const Color lightBlueIconBackgroundColor = Color(0xffE0EFF7);
+  static const Color lightBlueIconBackgroundColor2 = Color(0xffE0E7FE);
   static const Color lightBlueColor = Color(0xffE9F3FA);
   static const Color lightPurpleColor=Color(0xFFE8DAFF);
   static const Color profileBgGrey=Color(0xFFD2D2D2);
@@ -101,6 +102,7 @@ class AppColors {
   static final Color disableColor = Color(0xFFB8B8B8);
   static final Color grayColor = Color(0xFF8E8E93);
 
+  static final Color chevronGreyColor = Color(0xff999999);
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {
