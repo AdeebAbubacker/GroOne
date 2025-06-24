@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -62,7 +61,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
             titleAlignment: ListTileTitleAlignment.bottom,
             leading:   Image.asset(
               AppImage.png.truckMyLoad,
-              width: 50.w,
+              width: 50,
             ).paddingSymmetric(vertical: 10),
             title: Text('${widget.data.loadId}', style: AppTextStyle.h5),
             subtitle: Text(

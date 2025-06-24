@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
@@ -221,7 +220,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     }
 
     return Container(
-      height: 40.h,
+      height: 40,
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
@@ -250,7 +249,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           );
         }
       ),
-    ).paddingOnly(top: 15.h, right: 15.w, left: 15.w);
+    ).paddingOnly(top: 15, right: 15, left: 15);
   }
 
   /// Search and Filter

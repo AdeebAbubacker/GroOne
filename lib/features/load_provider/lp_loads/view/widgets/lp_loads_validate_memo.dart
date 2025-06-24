@@ -12,7 +12,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class LpLoadValidateMemo extends StatefulWidget {
@@ -80,10 +79,10 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
             final  memoDetails = uiState.data;
 
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
             child: SingleChildScrollView(
               child: Column(
-                spacing: 10.h,
+                spacing: 10,
                 children: [
                   buildMainDetailWidget(memoDetails!),
                   buildBankDetailsWidget(memoDetails),
@@ -110,10 +109,10 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   Widget buildMainDetailWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           buildHeadingText('Main Details'),
           buildDMemoDetailWidget(label: "Load ID", value: memoDetails.loadId),
@@ -135,10 +134,10 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   Widget buildBankDetailsWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           buildHeadingText("Bank Details"),
           buildDMemoDetailWidget(label: "Beneficiary Name", value: memoDetails.bankDetails?.beneficiaryName ?? ''),
@@ -155,10 +154,10 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   Widget buildTruckSupplierWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           buildHeadingText("Truck Supplier"),
           buildDMemoDetailWidget(label: "Partner Name", value: memoDetails.truckSupplier?.partnerName ?? ''),
@@ -176,14 +175,14 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 10.h,
+        spacing: 10,
         children: [
           buildHeadingText('Disclaimer'),
           Column(
-            spacing: 5.h,
+            spacing: 5,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(notes.length, (index) {
               return Text(

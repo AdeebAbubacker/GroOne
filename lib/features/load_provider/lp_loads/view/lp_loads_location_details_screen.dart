@@ -219,7 +219,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       decoration: commonContainerDecoration(
                           color: LpLoadsHelper.getLoadStatusColor(widget.loadItem.loadStatus.toInt())
                       ),
-                      width: 80.w,
+                      width: 80,
                       child: Text(
                         LpLoadsHelper.getLoadTypeDisplayText(widget.loadItem.loadStatus.toInt()),
                         style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(widget.loadItem.loadStatus.toInt())),
@@ -260,7 +260,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset(AppImage.png.truck, width: 57.w, height: 42.h),
+                      Image.asset(AppImage.png.truck, width: 57, height: 42),
                       12.width,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,7 +405,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   // Meta icons row
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    spacing: 20.h,
+                    spacing: 20,
                     children: [
                       Row(
                         children: [

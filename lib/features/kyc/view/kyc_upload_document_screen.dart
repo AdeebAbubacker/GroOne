@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -1036,7 +1035,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       children: [
         Text(text, style: AppTextStyle.body1),
         10.height,
-        Column(spacing: 20.h, children: children),
+        Column(spacing: 20, children: children),
       ],
     );
   }
