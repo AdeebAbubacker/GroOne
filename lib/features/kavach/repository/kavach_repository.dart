@@ -132,28 +132,49 @@ class KavachRepository {
     }
   }
 
-  // Future<Result<List<TruckTypeModel>>> fetchTruckTypes() {
-  //   return _service.fetchTruckTypes();
-  // }
-
-  Future<Result<List<CommodityModel>>> fetchCommodities() {
-    return _service.fetchCommodities();
+  Future<Result<List<CommodityModel>>> fetchCommodities() async {
+    try {
+      return await _service.fetchCommodities();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch commodities in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
-  Future<Result<KavachVehicleDocumentUploadModel>> getUploadGstData(File file) {
-    return _service.fetchUploadGstData(file);
+  Future<Result<KavachVehicleDocumentUploadModel>> getUploadGstData(File file) async {
+    try {
+      return await _service.fetchUploadGstData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch GST upload data in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
-    return _service.addVehicle(request);
+    try {
+      return await _service.addVehicle(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to add vehicle in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
-  Future<Result<List<String>>> fetchTruckTypes() {
-    return _service.fetchTruckTypeList();
+  Future<Result<List<String>>> fetchTruckTypes() async {
+    try {
+      return await _service.fetchTruckTypeList();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch truck types in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
-  Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) {
-    return _service.fetchTruckLengths(type);
+  Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) async {
+    try {
+      return await _service.fetchTruckLengths(type);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch truck lengths in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
 
