@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -29,15 +28,15 @@ class LpValidateMemo extends StatelessWidget {
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         backgroundColor: AppColors.backgroundColor,
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
         title: context.appText.memo,
       ),
 
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
         child: SingleChildScrollView(
           child: Column(
-            spacing: 10.h,
+            spacing: 10,
 
             children: [
               mainDetailWidget(),
@@ -64,10 +63,10 @@ class LpValidateMemo extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 10.h,
+        spacing: 10,
         children: [
           headingText(
             text: "Note:-",
@@ -78,12 +77,12 @@ class LpValidateMemo extends StatelessWidget {
           ),
 
           Column(
-            spacing: 5.h,
+            spacing: 5,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(notes.length, (index) {
               return Text(
                 '${index + 1}. ${notes[index]}',
-                style: AppTextStyle.blackColor14w400.copyWith(fontSize: 11.sp),
+                style: AppTextStyle.blackColor14w400.copyWith(fontSize: 11),
               );
             }),
           ),
@@ -127,7 +126,7 @@ class LpValidateMemo extends StatelessWidget {
                         TextSpan(
                           text: 'Verify OTP',
                           style: AppTextStyle.primaryColor16w900.copyWith(
-                            fontSize: 20.sp,
+                            fontSize: 20,
                           ),
                         ),
                         TextSpan(
@@ -170,8 +169,8 @@ class LpValidateMemo extends StatelessWidget {
               child2: InkWell(
                 onTap: () {},
                 child: SizedBox(
-                  height: 50.h,
-                  width: 310.w,
+                  height: 50,
+                  width: 310,
 
                   child: Center(
                     child: Text(
@@ -212,10 +211,10 @@ class LpValidateMemo extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           headingText(
             text: "Main Details",
@@ -245,10 +244,10 @@ class LpValidateMemo extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           headingText(
             text: "Truck Supplier",
@@ -274,10 +273,10 @@ class LpValidateMemo extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           headingText(
             text: "Bank Details",

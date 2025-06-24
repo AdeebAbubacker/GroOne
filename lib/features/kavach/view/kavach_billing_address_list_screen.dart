@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -24,7 +23,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     return AppBottomSheetBody(
       title: context.appText.billingAddress,
       body: SizedBox(
-          height: 500.h,
+          height: 500,
           child: _buildBody(context: context)),
     );
   }

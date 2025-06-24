@@ -1,6 +1,5 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
@@ -85,7 +84,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
               decoration: commonContainerDecoration(
                 color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt())
               ),
-              width: 100.w,
+              width: 100,
               child: Text(
                 LpLoadsHelper.getLoadTypeDisplayText(loadItem.loadStatus.toInt()),
                 style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt())),
