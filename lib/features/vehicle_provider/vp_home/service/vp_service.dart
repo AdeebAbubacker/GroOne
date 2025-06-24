@@ -73,8 +73,9 @@ class VpHomeService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+    } catch (e,stacktress) {
+      print("stacktress $stacktress");
+      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }

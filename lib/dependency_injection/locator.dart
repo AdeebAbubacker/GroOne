@@ -165,8 +165,6 @@ void initLocator() {
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
 
-
-
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {
     CustomLog.error(locator, "ERROR : All instances are not registered.", e);

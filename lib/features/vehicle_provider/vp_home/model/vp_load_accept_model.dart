@@ -82,6 +82,7 @@ class Load {
     required this.acceptedBy,
     required this.createdAt,
     required this.deletedAt,
+    required this.loadStatus,
   });
 
   final int id;
@@ -99,10 +100,12 @@ class Load {
   final String rate;
   final num acceptedBy;
   final DateTime? createdAt;
+  final int? loadStatus;
   final dynamic deletedAt;
 
   Load copyWith({
     int? id,
+    int? loadStatus,
     num? status,
     num? customerId,
     num? commodityId,
@@ -120,6 +123,7 @@ class Load {
     dynamic? deletedAt,
   }) {
     return Load(
+      loadStatus: loadStatus?? this.loadStatus,
       id: id ?? this.id,
       status: status ?? this.status,
       customerId: customerId ?? this.customerId,
@@ -141,6 +145,7 @@ class Load {
 
   factory Load.fromJson(Map<String, dynamic> json){
     return Load(
+      loadStatus: json["loadStatus"] ?? 0,
       id: json["id"] ?? 0,
       status: json["status"] ?? 0,
       customerId: json["customerId"] ?? 0,

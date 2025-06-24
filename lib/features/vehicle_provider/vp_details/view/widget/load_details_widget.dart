@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -28,26 +29,39 @@ class LoadDetailsWidget extends StatelessWidget {
   final LPHomeCubit lpHomeCubit;
   const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit});
 
+
+  changeLoadStatus(BuildContext context,int? id) async {
+    await cubit.changedLoadStatus(id??0,
+      customerId:lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id,
+      loadStatus:cubit.state.loadStatus==LoadStatus.accepted ?   4 :3,
+    ).then((value) {
+      if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
+        AppDialog.show(
+          context,
+          child: SuccessDialogView(
+            message: 'Load Accepted Successfully',
+            afterDismiss: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      }
+    },);
+    if ((cubit.state.loadStatus==LoadStatus.assigned)) {
+      context.push(AppRouteName.tripScheduleScreen);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-      buildWhen: (previous, current) => previous.isLoadAccepted!=current.isLoadAccepted,
+      buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {
-        if(state.isLoadAccepted??false){
-          AppDialog.show(
-            context,
-            child: SuccessDialogView(
-              message: 'Load Accepted Successfully',
 
-              afterDismiss: () {
-                 Navigator.pop(context);
-              },
-            ),
-          );
-        }
       },
       bloc: cubit,
       builder: (context, state) {
+        print("state.vpLoadStatus ${state.vpLoadStatus}");
         LoadDetails? loadDetails;
         if (state.loadDetailsUIState?.status == Status.LOADING) {
           return CircularProgressIndicator().center();
@@ -88,15 +102,15 @@ class LoadDetailsWidget extends StatelessWidget {
               children: [
                 Expanded(child: ListView(
                   children: [
-                    _buildRequestWidget((state.isLoadAccepted ?? false),loadDetails),
+                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails),
 
                     Divider(color: Color(0xffE1E1E1), thickness: 3),
 
                     12.height,
                     _buildSourceDestinationWidget(
-                        (state.isLoadAccepted ?? false),loadDetails),
+                        (state.loadStatus==LoadStatus.accepted),loadDetails),
                     15.height,
-                    _buildQuotedPriceWidget((state.isLoadAccepted ?? false),loadDetails?.rate),
+                    _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate),
                     15.height,
                     _buildLoadEntityWidget(loadDetails),
 
@@ -108,12 +122,12 @@ class LoadDetailsWidget extends StatelessWidget {
                   decoration: commonContainerDecoration(
                       color: Colors.white,
                       blurRadius: 30,
-                      shadow: state.isLoadAccepted
+                      shadow: state.loadStatus==LoadStatus.accepted
 
                   ), child: Row(
                   spacing: 10,
                   children: [
-                    if(!(state.isLoadAccepted ?? false))
+                    if(!(state.loadStatus==LoadStatus.accepted))
                       AppButton(
                         title: "Support",
                         style: AppButtonStyle.outline.copyWith(
@@ -128,7 +142,7 @@ class LoadDetailsWidget extends StatelessWidget {
                       ).expand(),
                     AppButton(
                       isLoading:state.vpLoadStatus?.status==Status.LOADING,
-                      title: (state.isLoadAccepted ?? false)
+                      title: state.loadStatus==LoadStatus.accepted
                           ? "Assign Driver"
                           : "Accept Load",
                       style: AppButtonStyle.primary.copyWith(
@@ -138,19 +152,8 @@ class LoadDetailsWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onPressed:   () {
-
-                        context.push(AppRouteName.tripScheduleScreen);
-                        /// TODO:
-                        /// temp comment once backend resolved this
-                        if ((state.isLoadAccepted ?? false)) {
-
-                        } else {
-                          cubit.changedLoadStatus(loadDetails?.id??0,
-                            customerId:lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id,
-                            loadStatus:(state.isLoadAccepted ??false) ? 4 :3,
-                          );
-                        }
+                      onPressed:   () async {
+                        changeLoadStatus(context,loadDetails?.id??0);
                       },
                       textStyle: TextStyle(
                         fontSize: 14,

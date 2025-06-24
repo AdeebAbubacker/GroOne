@@ -11,4 +11,13 @@ class VpHelper{
 
 
   }
+
+
+
+}
+
+enum LoadStatus {
+  accepted,
+  matching,
+  assigned
 }

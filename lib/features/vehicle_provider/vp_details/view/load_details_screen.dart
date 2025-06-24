@@ -10,11 +10,13 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_details_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
@@ -130,7 +132,7 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                     ),
                   ),
 
-                  if (state.isLoadAccepted ?? false) Spacer(),
+                  if (state.loadStatus==LoadStatus.accepted) Spacer(),
 
                   Padding(
                     padding: const EdgeInsets.only(
@@ -149,7 +151,7 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                     ),
                   ),
 
-                  if (!(state.isLoadAccepted ?? false)) ...[
+                  if (!(state.loadStatus==LoadStatus.accepted)) ...[
                     Spacer(),
 
                     Align(
@@ -185,7 +187,7 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                       loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
-                  if (state.isLoadAccepted ?? false)
+                  if (state.loadStatus==LoadStatus.accepted)
                     LoadStatusLabel(statusType: "Confirmed"),
                 ],
               ).paddingSymmetric(horizontal: 5),
