@@ -18,6 +18,7 @@ class PngIcons {
   // App Icons
   final String insightGraph = "${_pngBasePath}insight_graph.png";
   final String lockAndKey = "${_pngBasePath}lock_and_key.png";
+  final String moreVertical = "${_pngBasePath}more_vertical.png";
 
   //kavach payment icons
   final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
@@ -51,13 +52,16 @@ class SvgIcons {
   final String gallery = "${_svgBasePath}gallery.svg";
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
+  final String addIcon = "${_svgBasePath}plus_icon.svg";
 
   // App Icons
   final String support = "${_svgBasePath}support.svg";
+  final String filledSupport = "${_svgBasePath}filled_support.svg";
   final String orderBox = "${_svgBasePath}order_box.svg";
   final String deliveryTruckSpeed = "${_svgBasePath}delivery_truck_speed.svg";
   final String package = "${_svgBasePath}package.svg";
   final String filter = "${_svgBasePath}filterOutline.svg";
+  final String newFilter = "${_svgBasePath}new_filter.svg";
   final String edit = "${_svgBasePath}edit_outline.svg";
   final String delete = "${_svgBasePath}trash.svg";
   final String infOutline = "${_svgBasePath}infoCircleOutline.svg";
@@ -87,7 +91,7 @@ class SvgIcons {
   final String distance = "${_svgBasePath}distance.svg";
   final String share = "${_svgBasePath}share.svg";
   final String locationDistance = "${_svgBasePath}location_distance.svg";
-  final String filledSupport = "${_svgBasePath}filled_Support.svg";
+  final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
 
 
 }

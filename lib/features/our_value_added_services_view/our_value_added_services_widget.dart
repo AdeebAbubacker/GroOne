@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/fast_tag/fast_tag_screen.dart';
+import 'package:gro_one_app/features/gps/gps_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -82,7 +84,8 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                       title: context.appText.gps,
                       imageString: AppImage.png.gps,
                       onClick: () {
-                        context.push(AppRouteName.gps);
+                        // context.push(AppRouteName.gps);
+                        Navigator.push(context,commonRoute(GpsScreen()));
                       },
                     ),
                     15.width,
@@ -101,7 +104,8 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                       title: "Fast tag",
                       imageString: AppImage.png.buyFastTag,
                       onClick: () {
-                        context.push(AppRouteName.buyFastag);
+                        //context.push(AppRouteName.buyFastag);
+                        Navigator.push(context,commonRoute(FastTagScreen()));
                       },
                     ),
                     15.width,
