@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
 import 'package:http/http.dart' as http;
@@ -8,9 +10,13 @@ import '../../../utils/custom_log.dart';
 import '../../login/model/login_model.dart';
 import '../../login/repository/user_information_repository.dart';
 import '../api_request/kavach_add_address_api_request.dart';
+import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
+import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
+import '../model/kavach_truck_length_model.dart';
+import '../model/kavach_truck_type_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/masters_model.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -25,7 +31,7 @@ class KavachRepository {
   Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1,  ChoosePreferenceModel? preferences, }) async {
     try {
       return await _service.fetchProducts(
-        search: search, 
+        search: search,
         page: page,
         preferences: preferences,
       );
@@ -76,7 +82,7 @@ class KavachRepository {
       }
       // Set the customer ID in the request
       request.customerId = int.tryParse(customerId) ?? 0;
-      
+
       return await _service.addAddress(request);
     } catch (e) {
       CustomLog.error(this, "Failed to add address in repository", e);
@@ -125,6 +131,31 @@ class KavachRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  // Future<Result<List<TruckTypeModel>>> fetchTruckTypes() {
+  //   return _service.fetchTruckTypes();
+  // }
+
+  Future<Result<List<CommodityModel>>> fetchCommodities() {
+    return _service.fetchCommodities();
+  }
+
+  Future<Result<KavachVehicleDocumentUploadModel>> getUploadGstData(File file) {
+    return _service.fetchUploadGstData(file);
+  }
+
+  Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
+    return _service.addVehicle(request);
+  }
+
+  Future<Result<List<String>>> fetchTruckTypes() {
+    return _service.fetchTruckTypeList();
+  }
+
+  Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) {
+    return _service.fetchTruckLengths(type);
+  }
+
 
   /// Fetches masters data for vehicle preferences
   Future<Result<MastersModel>> getMasters() async {

@@ -5,6 +5,7 @@ class KavachOrderVehicle {
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
+    "deviceUniqueNumber": "DEV123456789"
   };
 }
 
@@ -35,6 +36,48 @@ class KavachOrderItem {
   };
 }
 
+// class KavachOrderRequest {
+//   final String orderSource;
+//   final bool isOrderPaid;
+//   final String customerId;
+//   final double totalPrice;
+//   final int categoryId;
+//   final String shippingPersonIncharge;
+//   final String shippingPersonContactNo;
+//   final Map<String, dynamic> customerInfo;
+//   final Map<String, dynamic> billingAddress;
+//   final Map<String, dynamic> shippingAddress;
+//   final List<KavachOrderItem> orders;
+//
+//   KavachOrderRequest({
+//     required this.orderSource,
+//     required this.isOrderPaid,
+//     required this.customerId,
+//     required this.totalPrice,
+//     required this.categoryId,
+//     required this.shippingPersonIncharge,
+//     required this.shippingPersonContactNo,
+//     required this.customerInfo,
+//     required this.billingAddress,
+//     required this.shippingAddress,
+//     required this.orders,
+//   });
+//
+//   Map<String, dynamic> toJson() => {
+//     "orderSource": orderSource,
+//     "isOrderPaid": isOrderPaid,
+//     "customerId": customerId,
+//     "totalPrice": totalPrice,
+//     "categoryId": categoryId,
+//     "shippingPersonIncharge": shippingPersonIncharge,
+//     "shippingPersonContactNo": shippingPersonContactNo,
+//     "customerInfo": customerInfo,
+//     "billingAddress": billingAddress,
+//     "shippingAddress": shippingAddress,
+//     "orders": orders.map((o) => o.toJson()).toList(),
+//   };
+// }
+
 class KavachOrderRequest {
   final String orderSource;
   final bool isOrderPaid;
@@ -47,6 +90,8 @@ class KavachOrderRequest {
   final Map<String, dynamic> billingAddress;
   final Map<String, dynamic> shippingAddress;
   final List<KavachOrderItem> orders;
+  final int createdEmpUserId;
+  final String orderReferencedBy;
 
   KavachOrderRequest({
     required this.orderSource,
@@ -60,6 +105,8 @@ class KavachOrderRequest {
     required this.billingAddress,
     required this.shippingAddress,
     required this.orders,
+    required this.createdEmpUserId,
+    required this.orderReferencedBy,
   });
 
   Map<String, dynamic> toJson() => {
@@ -74,5 +121,8 @@ class KavachOrderRequest {
     "billingAddress": billingAddress,
     "shippingAddress": shippingAddress,
     "orders": orders.map((o) => o.toJson()).toList(),
+    "createdEmpUserId": createdEmpUserId,
+    "orderReferencedBy": orderReferencedBy,
   };
 }
+
