@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -37,13 +36,13 @@ class _LpSettingState extends State<LpSetting> {
           context.appText.settings,
           style: AppTextStyle.textBlackColor18w500,
         ),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 18.h),
+        padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 30.h,
+          spacing: 30,
           children: [
             headingText(text: "Notification"),
             10.width,

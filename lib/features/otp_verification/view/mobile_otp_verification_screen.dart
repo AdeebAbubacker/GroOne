@@ -1,10 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/mobile_otp_verification_api_request.dart';
@@ -159,7 +157,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
           30.width,
         ],
       ),

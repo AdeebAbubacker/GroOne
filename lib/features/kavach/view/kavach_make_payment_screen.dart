@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -125,7 +124,7 @@ class _KavachMakePaymentScreenState extends State<KavachMakePaymentScreen> {
         },),
         Card(
           color: AppColors.lightBlueIconBackgroundColor,
-          child: Image.asset(img, height: 30.h, width: 30.w).paddingAll(10),),
+          child: Image.asset(img, height: 30, width: 30).paddingAll(10),),
         10.width,
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

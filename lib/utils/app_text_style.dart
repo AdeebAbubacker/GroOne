@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
@@ -11,145 +10,145 @@ class AppTextStyle {
 
   static TextStyle black13w700 = TextStyle(
     color: AppColors.black,
-    fontSize: 12.sp,
+    fontSize: 12,
     fontWeight: FontWeight.w700,
   );
   static TextStyle orangeTextColor26w700 = TextStyle(
     color: AppColors.orangeTextColor,
-    fontSize: 26.sp,
+    fontSize: 26,
     fontWeight: FontWeight.w700,
   );  static TextStyle textBlackColor20w500 = TextStyle(
     color: AppColors.textBlackColor,
-    fontSize: 20.sp,
+    fontSize: 20,
     fontWeight: FontWeight.w500,
   );   static TextStyle veryLightGreyColor14w400 = TextStyle(
     color: AppColors.veryLightGreyColor,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   ); static TextStyle lightBlackColor14w500 = TextStyle(
     color: AppColors.lightBlackColor,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle blackColor15w500 = TextStyle(
     color: AppColors.black,
-    fontSize: 15.sp,
+    fontSize: 15,
     fontWeight: FontWeight.w500,
   );
   static TextStyle whiteColor14w400 = TextStyle(
     color: AppColors.white,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   );static TextStyle darkDividerColor16w400 = TextStyle(
     color: AppColors.darkDividerColor,
-    fontSize: 16.sp,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
   );
   static TextStyle textBlackDetailColor16w500 = TextStyle(
     color: AppColors.textBlackDetailColor,
-    fontSize: 16.sp,
+    fontSize: 16,
     fontWeight: FontWeight.w500,
-  );static TextStyle textBlackDetailColor15w500 = textBlackDetailColor16w500.copyWith(fontSize: 15.sp);
+  );static TextStyle textBlackDetailColor15w500 = textBlackDetailColor16w500.copyWith(fontSize: 15);
 
-  static TextStyle textBlackDetailColor14w400 = textBlackDetailColor16w500.copyWith(fontWeight: FontWeight.w400,fontSize: 14.sp);
+  static TextStyle textBlackDetailColor14w400 = textBlackDetailColor16w500.copyWith(fontWeight: FontWeight.w400,fontSize: 14);
   static TextStyle textGreyDetailColor14w400 = TextStyle(
     color: AppColors.textGreyDetailColor,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
-  );static TextStyle textGreyDetailColor12w400 =textGreyDetailColor14w400.copyWith(fontSize: 12.sp);
+  );static TextStyle textGreyDetailColor12w400 =textGreyDetailColor14w400.copyWith(fontSize: 12);
   static TextStyle greenColor20w700 = TextStyle(
     fontWeight: FontWeight.w700,
     color: AppColors.greenColor,
-    fontSize: 20.sp,
-  );static TextStyle textGreyDetailColor10w400 =textGreyDetailColor12w400.copyWith(fontSize: 10.sp);
+    fontSize: 20,
+  );static TextStyle textGreyDetailColor10w400 =textGreyDetailColor12w400.copyWith(fontSize: 10);
   static TextStyle primaryColor16w900 = TextStyle(
     color: AppColors.primaryColor,
-    fontSize: 16.sp,
+    fontSize: 16,
     fontWeight: FontWeight.w900,
   );
   static TextStyle primaryColor12w400 = primaryColor16w900.copyWith(
-    fontSize: 12.sp,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
   );
   static TextStyle primaryColor16w400 = primaryColor12w400.copyWith(
-    fontSize: 16.sp,
+    fontSize: 16,
   );
  static TextStyle primaryColor14w700 = primaryColor16w400.copyWith(
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle blackColor14w400 = TextStyle(
     color: Colors.black,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
-  );  static TextStyle blackColor16w400 =blackColor14w400.copyWith(fontSize: 16.sp);
+  );  static TextStyle blackColor16w400 =blackColor14w400.copyWith(fontSize: 16);
   static TextStyle primaryColor14w400UnderLine = TextStyle(
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.primaryColor,
     decoration: TextDecoration.underline,
   );
   static TextStyle textGreyColor14w400 = TextStyle(
     color: AppColors.textGreyColor,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   );
   static TextStyle primaryColor18w400UnderLine = primaryColor14w400UnderLine
-      .copyWith(fontSize: 18.sp);
+      .copyWith(fontSize: 18);
 
   static TextStyle primaryColor18w500UnderLine = primaryColor18w400UnderLine
       .copyWith(fontWeight: FontWeight.w500);
   static TextStyle textBlackColor18w500 = textBlackColor20w500.copyWith(
-    fontSize: 18.sp,
+    fontSize: 18,
   ); static TextStyle textBlackColor26w700 = textBlackColor20w500.copyWith(
-    fontSize: 26.sp,
+    fontSize: 26,
     fontWeight: FontWeight.w700
   );static TextStyle textBlackColor15w700 = textBlackColor26w700.copyWith(
-    fontSize: 15.sp,
+    fontSize: 15,
 
   );
   static TextStyle textBlackColor18w400 = textBlackColor20w500.copyWith(
-    fontSize: 18.sp,
+    fontSize: 18,
     fontWeight: FontWeight.w400,
   );
 
   static TextStyle textBlackColor16w400 = textBlackColor20w500.copyWith(
-    fontSize: 16.sp,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
   );
   static TextStyle textBlackColor12w400 = textBlackColor16w400.copyWith(
-    fontSize: 12.sp,
+    fontSize: 12,
   );
   static TextStyle textBlackColor16w500 = textBlackColor16w400.copyWith(
     fontWeight: FontWeight.w500,
   );
   static TextStyle textBlackColor14w400 = textBlackColor16w400.copyWith(
-    fontSize: 14.sp,
+    fontSize: 14,
   );
   static TextStyle textBlackColor30w500 = textBlackColor20w500.copyWith(
-    fontSize: 30.sp,
+    fontSize: 30,
   );
   static TextStyle textDarkGreyColor14w400 = TextStyle(
     color: AppColors.textDarkGreyColor,
-    fontSize: 14.sp,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   );
   static TextStyle textDarkGreyColor14w500 = textDarkGreyColor14w400.copyWith(
     fontWeight: FontWeight.w500,
   );
   static TextStyle textDarkGreyColor12w400 = textDarkGreyColor14w400.copyWith(
-    fontSize: 12.h,
+    fontSize: 12,
   );
   static TextStyle textGreyColor14w300 = textGreyColor14w400.copyWith(
     fontWeight: FontWeight.w300,
   );
   static TextStyle textGreyColor12w400 = textGreyColor14w400.copyWith(
-    fontSize: 12.sp,
+    fontSize: 12,
   );
   static TextStyle textGreyColor10w400 = textGreyColor14w400.copyWith(
-    fontSize: 10.sp,
+    fontSize: 10,
   );
   static TextStyle textBlackColors20w400 = textBlackColor20w500.copyWith(
     fontWeight: FontWeight.w400,

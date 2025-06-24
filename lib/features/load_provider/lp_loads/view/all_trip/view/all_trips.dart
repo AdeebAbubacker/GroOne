@@ -1,6 +1,5 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -16,8 +15,8 @@ class AllTrips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
-      child: Column(spacing: 10.h,
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      child: Column(spacing: 10,
         children: [
           Row(
             children: [
@@ -32,13 +31,13 @@ class AllTrips extends StatelessWidget {
                 ),
               ),
               10.width,
-              Container(height: 50.h,
+              Container(height: 50,
                 padding: EdgeInsets.all(10),
 
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppColors.borderColor,width: 0.8)),
-                child: Image.asset(AppImage.png.filter,height: 24.h,width:24.h,),)
+                child: Image.asset(AppImage.png.filter,height: 24,width:24),)
             ],
           ),
          Expanded(
@@ -57,17 +56,17 @@ class AllTrips extends StatelessWidget {
 
   allTripWidget(){
     return  Container(
-      margin: EdgeInsets.symmetric(vertical: 5.h),
-      padding: EdgeInsets.symmetric(vertical: 10.h,horizontal: 10.w),
+      margin: EdgeInsets.symmetric(vertical: 5),
+      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.borderColor,width: 0.8)
       ),
       child:Column(mainAxisAlignment: MainAxisAlignment.start,
-        spacing: 15.h,
+        spacing: 15,
         children: [
           Row(children: [
-            Image.asset(AppImage.png.truck,width: 72.w,height: 49.h,),
+            Image.asset(AppImage.png.truck,width: 72,height: 49),
             5.width,
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +74,7 @@ class AllTrips extends StatelessWidget {
                 Text("Textiles - 20 ft Container",style: AppTextStyle.textBlackColor14w400,),
                 Text("GRO9884",style: AppTextStyle.textGreyColor10w400,),
               ],
-            )),5.width,Container(height: 22.h,width:77.w ,
+            )),5.width,Container(height: 22,width:77 ,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(4),border: Border.all(color: AppColors.primaryColor,width: 0.8)),
               child: Center(child: Text("Upcoming",style: AppTextStyle.primaryColor12w400,)),
 
@@ -99,13 +98,13 @@ class AllTrips extends StatelessWidget {
                 dashGapLength: 2.0,
               ),
             ), 2.width,
-            Image.asset(AppImage.png.locationIcon,height:18.h ,width: 18.w,color: Colors.red,),
+            Image.asset(AppImage.png.locationIcon,height:18,width: 18,color: Colors.red,),
 
             Text("Chennai, Tamil Nadu",style: AppTextStyle.textDarkGreyColor12w400,),  ],),
           AppProgressBar(progress: 0.5),
           Container(
             width: double.infinity,
-            height: 40.h,
+            height: 40,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(08),
                 border: Border.all(color: AppColors.primaryColor)

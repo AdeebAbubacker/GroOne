@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-
 import 'app_colors.dart';
 
 class AppSwitchToggle extends StatelessWidget {
@@ -15,7 +13,7 @@ final Function(bool) onChanged;
       onToggle: onChanged,
       activeColor: AppColors.primaryColor,
       inactiveColor: AppColors.disableColor,
-      height: 22.h,width: 45.w,
+      height: 22,width: 45,
       padding: 0,
       toggleSize: 20.0,
       showOnOff: false,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-
 import 'app_colors.dart';
 
 class RadioButton extends StatelessWidget {
@@ -14,8 +12,8 @@ class RadioButton extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            height: 14.w,
-            width: 14.w,
+            height: 14,
+            width: 14,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
               border: Border.all(

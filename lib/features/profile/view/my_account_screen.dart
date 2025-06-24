@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/edit_my_account.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -47,7 +46,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
         padding: EdgeInsets.all(commonSafeAreaPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 20.h,
+          spacing: 20,
           children: [
             headingText(text: context.appText.personalDetails),
 
