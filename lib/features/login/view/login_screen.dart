@@ -157,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: iosNumberKeyboard,
                       decoration: commonInputDecoration(
                         hintText:
-                            "${context.appText.enter} ${context.appText.phoneNumber}",
+                            "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
                         prefixIcon: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           mainAxisSize: MainAxisSize.min,
