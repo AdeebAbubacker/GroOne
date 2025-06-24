@@ -190,7 +190,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.loadDetailsScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return  LoadDetailsScreen();
+          return LoadDetailsScreen();
         },
       ),
       GoRoute(
