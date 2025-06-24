@@ -60,7 +60,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           builder: (context, state) {
             final uiState = state.lpLoadMemoDetails;
 
-            if (uiState!.status == Status.ERROR) {
+            if (uiState == null || uiState.status == Status.ERROR) {
               return const Center(
                 child: Text("Failed to load memo details.", style: TextStyle(fontSize: 16)),
               );

@@ -4,6 +4,9 @@ import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_otp_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
@@ -30,6 +33,24 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadUIState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to loading LP loads by ID.
+  void _setLoadByIdUIState(UIState<LpLoadGetByIdResponse>? uiState) {
+    emit(state.copyWith(lpLoadById: uiState));
+  }
+
+  // Fetches the LP loads filtered by the given [type].
+  Future<void> getLpLoadsById({required int loadId}) async {
+    _setLoadByIdUIState(UIState.loading());
+
+    Result result = await _repository.fetchLoadById(loadId: loadId);
+
+    if (result is Success<LpLoadGetByIdResponse>) {
+      _setLoadByIdUIState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadByIdUIState(UIState.error(result.type));
     }
   }
 
@@ -90,6 +111,74 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setRouteDetailsState(UIState.success(result.value));
     } else if (result is Error) {
       _setRouteDetailsState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to lp load memo otp.
+  void _setSendOtpState(UIState<LpLoadMemoOtpResponse>? uiState) {
+    emit(state.copyWith(lpLoadMemoSendOtp: uiState));
+  }
+
+  // Send otp to e-sign memo
+  Future<void> sendOtp() async {
+    _setLoadUIState(UIState.loading());
+
+    Result result = await _repository.sendOtp();
+
+    if (result is Success<LpLoadMemoOtpResponse>) {
+      _setSendOtpState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setSendOtpState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to lp load verify Otp.
+  void _setVerifyOtpState(UIState<LpLoadMemoOtpResponse>? uiState) {
+    emit(state.copyWith(lpLoadMemoVerifyOtp: uiState));
+  }
+
+  // Verify otp of e-sign memo
+  Future<void> verifyOtp({required String otp}) async {
+    _setLoadUIState(UIState.loading());
+
+    Result result = await _repository.verifyOtp(otp: otp);
+
+    if (result is Success<LpLoadMemoOtpResponse>) {
+      _setVerifyOtpState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setVerifyOtpState(UIState.error(result.type));
+    }
+  }
+
+
+  // apply filter
+  Future<void> applyFilter({required int fromRoute, required int toRoute, required String truckType, required String loadPostedDate}) async {
+    _setLoadUIState(UIState.loading());
+
+    Result result = await _repository.applyFilter(fromRoute: fromRoute, toRoute: toRoute, truckType: truckType, loadPostedDate: loadPostedDate);
+
+    if (result is Success<List<LpLoadItem>>) {
+      _setLoadUIState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadUIState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to lp load verify Otp.
+  void _setCreditCheckState(UIState<LpLoadCreditCheckResponse>? uiState) {
+    emit(state.copyWith(lpCreditCheck: uiState));
+  }
+
+  // Credit check
+  Future<void> getCreditCheck() async {
+    _setCreditCheckState(UIState.loading());
+
+    Result result = await _repository.getCreditCheck();
+
+    if (result is Success<LpLoadCreditCheckResponse>) {
+      _setCreditCheckState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setCreditCheckState(UIState.error(result.type));
     }
   }
 

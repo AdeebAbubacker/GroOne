@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -9,8 +7,9 @@ import 'package:slide_to_act/slide_to_act.dart';
 class CustomSwipeButton extends StatelessWidget {
   final int price;
   final String loadId;
+  final Future<dynamic>? Function()?  onSubmit;
 
-  const CustomSwipeButton({super.key, required this.price, required this.loadId});
+  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +24,7 @@ class CustomSwipeButton extends StatelessWidget {
       sliderButtonYOffset: -20,
       text: 'Swipe to Agree',
       textStyle: AppTextStyle.body2.copyWith(color: AppColors.primaryColor),
-      onSubmit: () {
-        AppDialog.show(
-          context,
-          child: AdvancePaymentDialog(price: price, loadId: loadId),
-          dismissible: true,
-        );
-      },
+      onSubmit: onSubmit,
     ).paddingAll(10);
   }
 

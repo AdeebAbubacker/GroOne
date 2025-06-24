@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -25,6 +27,26 @@ class MemoOtpDialogWidget extends StatefulWidget {
 
 class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
   final otpController = TextEditingController();
+  final lpLoadLocator = locator<LpLoadCubit>();
+
+  void handleOtpVerification(uiState) {
+    if(uiState?.data?.data?.message == 'OTP verified successfully') {
+      Navigator.of(widget.parentContext, rootNavigator: true).pop();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        AppDialog.show(widget.parentContext, child: SuccessDialogView(
+          heading: "Memo E-Signed successfully",
+          onContinue: () {
+            Navigator.of(widget.parentContext).pop();
+          },
+        ));
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,18 +108,12 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
           AppButton(
             style:(otpController.text.length == 4) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
             title: 'Verify OTP',
-            onPressed: () {
-              if (otpController.text.length == 4) {
-                Navigator.of(widget.parentContext, rootNavigator: true).pop();
 
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  AppDialog.show(widget.parentContext, child: SuccessDialogView(
-                    heading: "Memo E-Signed successfully",
-                    onContinue: () {
-                      Navigator.of(widget.parentContext).pop();
-                    },
-                  ));
-                });
+            onPressed: () async {
+              if (otpController.text.length == 4) {
+                await lpLoadLocator.verifyOtp(otp: otpController.text);
+                final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
+                handleOtpVerification(uiState);
               }
             },
 

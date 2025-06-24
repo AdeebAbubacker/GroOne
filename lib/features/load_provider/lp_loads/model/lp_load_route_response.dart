@@ -44,8 +44,8 @@ class RouteDataList {
   });
 
   final int id;
-  final num fromLocationId;
-  final num toLocationId;
+  final int fromLocationId;
+  final int toLocationId;
   final num status;
   final DateTime? createdAt;
   final dynamic deletedAt;
@@ -54,8 +54,8 @@ class RouteDataList {
 
   RouteDataList copyWith({
     int? id,
-    num? fromLocationId,
-    num? toLocationId,
+    int? fromLocationId,
+    int? toLocationId,
     num? status,
     DateTime? createdAt,
     dynamic? deletedAt,

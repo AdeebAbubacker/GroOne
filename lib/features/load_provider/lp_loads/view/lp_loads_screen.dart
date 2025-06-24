@@ -26,6 +26,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/validator.dart';
+import 'package:intl/intl.dart';
 
 class LpLoadsScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -43,8 +44,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   Timer? _debounce;
   final lpLoadLocator = locator<LpLoadCubit>();
   String? truckTypeDropDownValue;
+  String? selectedDropDownValueId;
   String? routeDropDownValue;
-
+  int? selectedFromLocation;
+  int? selectedToLocation;
 
   TabController? _tabController;
   final tabLabels = [
@@ -138,6 +141,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   ).toList(),
                   onChanged: (onChangeValue) {
                     truckTypeDropDownValue = onChangeValue;
+                    selectedDropDownValueId = onChangeValue;
+                    setState(() {});
                   },
                 );
               }
@@ -168,7 +173,13 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   ).toList(),
                   onChanged: (onChangeValue) {
                     routeDropDownValue = onChangeValue;
-                  },
+                    // Find selected route object
+                    final selectedRoute = routeList.firstWhere(
+                          (element) => element.id.toString() == onChangeValue,
+                    );
+                    selectedFromLocation = selectedRoute.fromLocationId;
+                    selectedToLocation = selectedRoute.toLocationId;
+                    },
                 );
               }
           ),
@@ -187,13 +198,26 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   );
 
                   if (date != null ) {
-                    loadPostedDateController.text = date;
+                    DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
+                    String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+                    loadPostedDateController.text = formattedDate;
+                    setState(() {});
                   }
                 }
             ),
           ),
         ],
       ),
+      onClickYesButton: () {
+
+        Navigator.pop(context);
+        // lpLoadLocator.applyFilter(
+        //     fromRoute: selectedFromLocation ?? 0,
+        //     toRoute: selectedToLocation ?? 0,
+        //     truckType: truckTypeDropDownValue ?? '',
+        //     loadPostedDate: loadPostedDateController.text
+        // );
+      },
     ));
   }
 
@@ -298,14 +322,15 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final loadItem = loadList[index];
             return GestureDetector(
               onTap: () {
+                lpLoadLocator.getLpLoadsById(loadId: loadItem.id);
                 Navigator.push(
                   context,
                   commonRoute(
-                    LpLoadsLocationDetailsScreen(loadItem: loadItem),
+                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator),
                   ),
                 );
               },
-              child: LPLoadListBodyWidget(loadItem: loadItem).paddingSymmetric(vertical: 7),
+              child: LPLoadListBodyWidget(loadItem: loadItem,lpLoadLocator: lpLoadLocator).paddingSymmetric(vertical: 7),
             );
           },
         );
