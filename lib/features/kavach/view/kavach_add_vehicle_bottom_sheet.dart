@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kavach/cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -92,7 +91,7 @@ class _KavachAddVehicleBottomSheetState
       title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
-        height: 550.h,
+        height: 550,
         child: Column(
           children: [
             Expanded(

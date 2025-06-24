@@ -107,6 +107,14 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen> with Ti
                 title: context.appText.tankLock,
                 centreTile: false,
                 actions: [
+                            AppIconButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                    commonRoute(KavachChooseYourPreferenceScreen()));
+                              },
+            icon: Icon(Icons.add, color: Colors.white),
+            style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+          ),
                   AppIconButton(
                     onPressed: () {},
                     icon: AppIcons.svg.filledSupport,

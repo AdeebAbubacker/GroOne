@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_model.dart';
@@ -118,7 +117,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 550.h,
+      height: 550,
       child: Material(
         color: Colors.white,
         child: Column(
