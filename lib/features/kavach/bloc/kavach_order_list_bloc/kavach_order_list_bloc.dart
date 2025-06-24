@@ -38,7 +38,8 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
       if (result is Success<KavachOrderListResponse>) {
         final response = result.value;
         final orders = response.orders;
-        final hasReachedMax = nextPage >= response.meta.totalPages;
+        // final hasReachedMax = nextPage >= response.meta.totalPages;
+        final hasReachedMax = orders.length < response.meta.limit;
 
         if (currentState is KavachOrderListLoaded && !event.isRefresh) {
           emit(
