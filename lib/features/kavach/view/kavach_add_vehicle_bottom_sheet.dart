@@ -89,7 +89,7 @@ class _KavachAddVehicleBottomSheetState
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
-      title: "Add New Vehicle",
+      title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
         height: 550.h,
@@ -103,38 +103,38 @@ class _KavachAddVehicleBottomSheetState
                     children: [
                       AppTextField(
                         controller: truckNumberController,
-                        labelText: "Truck Number",
+                        labelText: context.appText.truckNumber,
                         validator:
                             (value) => Validator.fieldRequired(
                               value,
-                              fieldName: "Truck Number",
+                              fieldName: context.appText.truckNumber,
                             ),
                       ),
                       10.height,
                       AppTextField(
                         controller: truckMakeModelController,
-                        labelText: "Truck Make and model",
+                        labelText: context.appText.truckMakeModel,
                         validator:
                             (value) => Validator.fieldRequired(
                               value,
-                              fieldName: "Truck Make and model",
+                              fieldName: context.appText.truckMakeModel,
                             ),
                       ),
                       10.height,
                       AppTextField(
                         controller: licenseNumberController,
-                        labelText: "License Number",
+                        labelText: context.appText.licenseNumber,
                         validator:
                             (value) => Validator.fieldRequired(
                               value,
-                              fieldName: "License Number",
+                              fieldName: context.appText.licenseNumber,
                             ),
                       ),
                       10.height,
 
                       /// Upload RC (custom logic required to implement file picker)
                       UploadAttachmentFiles(
-                        title: "Upload RC book copy",
+                        title: context.appText.uploadRC,
                         multiFilesList: vehicleDocList,
                         isSingleFile: true,
                         isLoading: context.watch<KavachAddVehicleFormCubit>().state.vehicleDocUpload.status ==
@@ -158,7 +158,7 @@ class _KavachAddVehicleBottomSheetState
                               /// Truck Type Dropdown
                               if (state.truckTypes.status == Status.SUCCESS)
                                 AppDropdown(
-                                  labelText: 'Truck Type',
+                                  labelText: context.appText.truckType,
                                   dropdownValue: truckTypeDropdownValue,
                                   dropDownList: state.truckTypes.data!
                                       .map((type) => DropdownMenuItem(
@@ -166,7 +166,7 @@ class _KavachAddVehicleBottomSheetState
                                     child: Text(type),
                                   ))
                                       .toList(),
-                                  hintText: 'Select truck type',
+                                  hintText: context.appText.selectTruckType,
                                   mandatoryStar: true,
                                   onChanged: (selected) {
                                     setState(() {
@@ -176,7 +176,7 @@ class _KavachAddVehicleBottomSheetState
                                     cubit.fetchTruckLengths(selected!);
                                   },
                                   validator: (value) =>
-                                  value == null || value.isEmpty ? "Please select truck type" : null,
+                                  value == null || value.isEmpty ? context.appText.pleaseSelectTruckType : null,
                                 ),
 
                               15.height,
@@ -184,7 +184,7 @@ class _KavachAddVehicleBottomSheetState
                               /// Truck Length Dropdown
                               if (state.truckLengths.status == Status.SUCCESS)
                                 AppDropdown(
-                                  labelText: 'Truck Length',
+                                  labelText:  context.appText.truckLength,
                                   dropdownValue: truckLengthDropdownValue,
                                   dropDownList: state.truckLengths.data!
                                       .map((e) => DropdownMenuItem(
@@ -192,7 +192,7 @@ class _KavachAddVehicleBottomSheetState
                                     child: Text(e.subType),
                                   ))
                                       .toList(),
-                                  hintText: 'Select truck length',
+                                  hintText:  context.appText.truckLength,
                                   mandatoryStar: true,
                                   onChanged: (selected) {
                                     setState(() {
@@ -206,7 +206,7 @@ class _KavachAddVehicleBottomSheetState
                                   },
 
                                   validator: (value) =>
-                                  value == null || value.isEmpty ? "Please select truck length" : null,
+                                  value == null || value.isEmpty ? context.appText.pleaseSelectTruckLength : null,
                                 ),
                             ],
                           );
@@ -217,14 +217,13 @@ class _KavachAddVehicleBottomSheetState
                       /// Capacity field
                       AppTextField(
                         controller: capacityController,
-                        labelText: "Capacity",
-                        // suffix: Text("Metric Tons"),
+                        labelText: context.appText.capacity,
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         validator:
                             (value) => Validator.fieldRequired(
                               value,
-                              fieldName: "Capacity",
+                              fieldName: context.appText.capacity,
                             ),
                       ),
                       10.height,
@@ -244,7 +243,7 @@ class _KavachAddVehicleBottomSheetState
                                 }).toList();
 
                             return AppMultiSelectionDropdown<String>(
-                              labelText: 'Acceptable commodities',
+                              labelText: context.appText.acceptableCommodities,
                               hintText: context.appText.select,
                               controller: acceptableCommoditiesController,
                               // <- You need to define this
@@ -255,7 +254,7 @@ class _KavachAddVehicleBottomSheetState
                               validator:
                                   (value) =>
                                       value == null || value.isEmpty
-                                          ? 'Please select a commodity'
+                                          ? context.appText.pleaseSelectCommodity
                                           : null,
                             );
                           } else if (state.commodities.status == Status.ERROR) {
@@ -272,7 +271,7 @@ class _KavachAddVehicleBottomSheetState
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text("Active"),
+                          Text(context.appText.active),
                           Switch(
                             value: isActive,
                             onChanged: (val) {
@@ -293,7 +292,7 @@ class _KavachAddVehicleBottomSheetState
               children: [
                 AppButton(
                   onPressed: () => context.pop(),
-                  title: "Cancel",
+                  title: context.appText.cancel,
                   style: AppButtonStyle.outline,
                 ).expand(),
                 20.width,
@@ -301,7 +300,7 @@ class _KavachAddVehicleBottomSheetState
                   onPressed: () async {
                     if (!formKey.currentState!.validate()) return;
                     if(vehicleDocList.isEmpty){
-                      ToastMessages.alert(message: "Please upload RC document");
+                      ToastMessages.alert(message: context.appText.pleaseUploadRc);
                       return;
                     }
 
@@ -331,7 +330,7 @@ class _KavachAddVehicleBottomSheetState
 
                     if (result is Success) {
                       context.pop();
-                      ToastMessages.success(message: "Vehicle saved successfully!");
+                      ToastMessages.success(message: context.appText.vehicleSavedSuccess);
                     } else if (result is Error) {
                       ToastMessages.error(
                         message: getErrorMsg(errorType: result.type),
@@ -340,7 +339,7 @@ class _KavachAddVehicleBottomSheetState
 
                   },
 
-                  title: "Save",
+                  title: context.appText.save,
                   style: AppButtonStyle.primary,
                 ).expand(),
               ],

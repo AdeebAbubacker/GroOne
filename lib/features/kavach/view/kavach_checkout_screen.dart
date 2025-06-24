@@ -407,7 +407,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                         loadVehicleSelection();
                       });
                     } else {
-                      ToastMessages.alert(message: 'Unable to add more items');
+                      ToastMessages.alert(message: context.appText.unableToAddMoreItems);
                     }
                   },
 
@@ -459,7 +459,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                   },
                   readOnly: true,
                   decoration: InputDecoration(
-                    hintText: 'Select Vehicle Reg Num',
+                    hintText: context.appText.selectVehicleRegNum,
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
                         color: AppColors.borderColor,
@@ -509,10 +509,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             context.read<KavachCheckoutShippingAddressBloc>().state;
         final billingState =
             context.read<KavachCheckoutBillingAddressBloc>().state;
-        // final selectedVehicles =
-        //     vehicleDetailsController.selectedItems
-        //         .map((item) => item.value)
-        //         .toList();
         final selectedVehicles = <String>[];
 
         vehicleControllersPerProduct.forEach((productId, controllers) {
@@ -526,58 +522,53 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         // Validate products in cart
         if (_products.isEmpty || _quantities.isEmpty) {
           ToastMessages.alert(
-            message: 'Please add products to your cart to place an order.',
+            message: context.appText.pleaseAddProducts,
           );
           return; // Stop further execution
         }
 
         // Validate shipping address
         if (shippingState is KavachCheckoutShippingAddressEmpty) {
-          ToastMessages.alert(message: 'Please add a shipping address.');
+          ToastMessages.alert(message: context.appText.pleaseAddShippingAddress);
           return;
         }
         if (shippingState is KavachCheckoutShippingAddressLoading) {
           ToastMessages.alert(
-            message: 'Shipping address is still loading. Please wait.',
+            message: context.appText.shippingLoading,
           );
           return;
         }
         if (shippingState is KavachCheckoutShippingAddressError) {
           ToastMessages.alert(
-            message: 'Failed to load shipping address. Please try again.',
+            message: context.appText.shippingLoadFailed,
           );
           return;
         }
 
         // Validate billing address
         if (billingState is KavachCheckoutBillingAddressEmpty) {
-          ToastMessages.alert(message: 'Please add a billing address.');
+          ToastMessages.alert(message: context.appText.pleaseAddBillingAddress);
           return;
         }
         if (billingState is KavachCheckoutBillingAddressLoading) {
           ToastMessages.alert(
-            message: 'Billing address is still loading. Please wait.',
+            message: context.appText.billingLoading,
           );
           return;
         }
         if (billingState is KavachCheckoutBillingAddressError) {
           ToastMessages.alert(
-            message: 'Failed to load billing address. Please try again.',
+            message: context.appText.billingLoadFailed,
           );
           return;
         }
 
-        // Validate vehicle details
-        // if (selectedVehicles.isEmpty) {
-        //   ToastMessages.alert(message: 'Please select at least one vehicle.');
-        //   return;
-        // }
         final allVehiclesFilled = vehicleControllersPerProduct.values.every(
           (controllers) => controllers.every((c) => c.text.trim().isNotEmpty),
         );
         if (!allVehiclesFilled) {
           ToastMessages.alert(
-            message: 'Please enter all vehicle registration numbers.',
+            message: context.appText.pleaseSelectAllVehicles,
           );
           return;
         }
@@ -598,8 +589,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             ),
           );
         } else {
-          // Fallback for any unhandled state combinations (should ideally not be hit with above checks)
-          ToastMessages.alert(message: 'Please complete all required fields.');
+          ToastMessages.alert(message: context.appText.completeAllFields);
         }
       },
     ).bottomNavigationPadding();
@@ -623,7 +613,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             );
           } else {
             ToastMessages.alert(
-              message: "Please select a billing address first.",
+              message: context.appText.pleaseSelectBillingFirst,
             );
           }
         } else {
@@ -673,7 +663,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                   InkWell(
                     onTap: onChangeTap,
                     child: Text(
-                      'Change',
+                      context.appText.change,
                       style: AppTextStyle.primaryColor14w700,
                     ),
                   ),

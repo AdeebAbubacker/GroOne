@@ -68,7 +68,7 @@ class _KavachAddAddressBottomSheetState
       final error = placemarkResult as Error;
       final errorMessage = error.type is ErrorWithMessage
           ? (error.type as ErrorWithMessage).message
-          : "Failed to get location.";
+          : context.appText.failedToGetLocation;
       ToastMessages.error(message: errorMessage);
     }
   }
@@ -85,7 +85,7 @@ class _KavachAddAddressBottomSheetState
         listener: (context, state) {
           if (state is KavachCheckoutAddressAdded) {
             Navigator.of(context).pop();
-            ToastMessages.success(message: 'Address added successfully!');
+            ToastMessages.success(message: context.appText.addressAddedSuccess);
           } else if (state is KavachCheckoutAddressError) {
             ToastMessages.error(message: state.error);
           }
@@ -167,7 +167,7 @@ class _KavachAddAddressBottomSheetState
                         }
                         final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
                         if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                          return 'Enter valid GSTIN';
+                          return  context.appText.enterValidGstin;
                         }
 
                         return null;
