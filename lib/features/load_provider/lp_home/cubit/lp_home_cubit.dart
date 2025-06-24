@@ -92,12 +92,18 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
   // call this once for every load‑card you need
   void _emitMatching(String createdAtString) {
-    final text = LpHomeHelper.getMatchingTime(createdAtString);
-    emit(state.copyWith(matchingText: text));
+    try {
+      final createdAt = DateTime.parse(createdAtString);
+      final deadline = createdAt.add(const Duration(hours: 3)); // 3-hour countdown
+      final text = LpHomeHelper.getMatchingTime(deadline.toIso8601String());
+      emit(state.copyWith(matchingText: text));
+    } catch (e) {
+      emit(state.copyWith(matchingText: "--"));
+    }
   }
   void startMatchingTimer(String createdAtString) {
     _matchTimer?.cancel();
-    _emitMatching(createdAtString);
+    _emitMatching(createdAtString); // First call immediately
     _matchTimer = Timer.periodic(
       const Duration(seconds: 1),
           (_) => _emitMatching(createdAtString),

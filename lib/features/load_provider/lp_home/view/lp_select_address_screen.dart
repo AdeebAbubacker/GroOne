@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -26,8 +25,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -322,7 +319,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   Widget buildGoogleMapWidget(){
     return Positioned.fill(
       top: 0,
-      bottom: 320.h,
+      bottom: 320,
       child: Builder(
         builder: (context) {
           if (_centerLatLng == null) {

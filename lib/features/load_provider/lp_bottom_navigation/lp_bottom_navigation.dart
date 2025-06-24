@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/app_lock_screen/app_lock_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -49,7 +48,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             SystemNavigator.pop();
           },
           child: Column(
-            spacing: 20.h,
+            spacing: 20,
             children: [
               Align(
                 alignment: Alignment.topRight,

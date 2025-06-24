@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -46,7 +45,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
             children: [
               Image.asset(
                 AppImage.png.truckMyLoad,
-                width: 50.w,
+                width: 50,
               ).paddingSymmetric(vertical: 10),
               10.width,
               Column(

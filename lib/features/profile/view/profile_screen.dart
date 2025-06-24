@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -113,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       body: SafeArea(
         child: Column(
-          spacing: 15.h,
+          spacing: 15,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             15.width,
@@ -138,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bloc: lpHomeLocator,
       builder: (context, state) {
       return Column(
-        spacing: 10.h,
+        spacing: 10,
         children: [
 
           if( widget.profileData.details != null)
@@ -181,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
  Widget profileOptionWidget(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(10),

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
@@ -14,9 +16,54 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-class UpcomingShipmentsListBody extends StatelessWidget {
+class UpcomingShipmentsListBody extends StatefulWidget {
   final LoadData loadData;
   const UpcomingShipmentsListBody({super.key, required this.loadData});
+
+  @override
+  State<UpcomingShipmentsListBody> createState() => _UpcomingShipmentsListBodyState();
+}
+
+class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
+
+  final lpHomeCubit = locator<LPHomeCubit>();
+
+  Timer? _ticker;
+  String _countDown = "00:00:00";
+
+  @override
+  void initState() {
+    callTimer();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  void _updateCountDown() {
+    setState(() {
+      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.createdAt!.toIso8601String(),
+      );
+    });
+  }
+
+  void callTimer(){
+    if(widget.loadData.createdAt != null && widget.loadData.loadStatusDetails?.loadType != null){
+      final status = widget.loadData.loadStatusDetails?.loadType;
+      if (status == 'Matching') {
+        //lpHomeCubit.startMatchingTimer(widget.loadData.createdAt!.toIso8601String());
+        _updateCountDown();                                   // first paint
+        _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+          _updateCountDown();
+        });
+      }
+    } else {
+      _ticker = Timer(const Duration(seconds: 0), () {});   // dummy, will cancel
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,76 +82,44 @@ class UpcomingShipmentsListBody extends StatelessWidget {
             style:ListTileStyle.drawer,
             contentPadding: EdgeInsets.zero,
             horizontalTitleGap: 5,
-            minTileHeight: 60, 
+            minTileHeight: 60,
               titleAlignment: ListTileTitleAlignment.bottom,
 
             leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
-            title :Align(alignment: Alignment.topLeft, child: (loadData.loadId.isNotEmpty) ? Text(loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
+            title :Align(alignment: Alignment.topLeft, child: (widget.loadData.loadId.isNotEmpty) ? Text(widget.loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
             ),
-            subtitle:Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
-            trailing: (loadData.loadStatusDetails != null && loadData.loadStatusDetails!.loadType.isNotEmpty) ?
+            subtitle:Text(widget.loadData.dueDate != null ? DateTimeHelper.formatCustomDate(widget.loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
+            trailing: (widget.loadData.loadStatusDetails != null && widget.loadData.loadStatusDetails!.loadType.isNotEmpty) ?
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(loadData.loadStatusDetails!.loadType)),
-                    child: Text(loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(loadData.loadStatusDetails!.loadType))),
+                    decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(widget.loadData.loadStatusDetails!.loadType)),
+                    child: Text(widget.loadData.loadStatusDetails!.loadType, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(widget.loadData.loadStatusDetails!.loadType))),
                   ),
                   5.height,
 
                   // Matching Timer
-                  if (loadData.loadStatusDetails?.loadType == LpHomeHelper.getLoadTypeDisplayText(loadData.loadStatusDetails!.loadType))
-                  // Text(LpHomeHelper.getMatchingTime(loadData.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                  if (widget.loadData.loadStatusDetails?.loadType == "Matching")
                     BlocBuilder<LPHomeCubit, LPHomeState>(
+                      bloc: lpHomeCubit,
                       buildWhen: (p, c) => p.matchingText != c.matchingText,
                       builder: (context, state) {
                         return Text(
-                          state.matchingText ?? "00:00:00",
+                           _countDown,
                           style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
                         );
                       },
                     )
 
-                  else if (loadData.loadStatusDetails?.loadType == "KYC Pending")
-                    if(loadData.customer?.createdAt != null)
-                      Text(LpHomeHelper.getKycPendingTimeLeft(loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+                  else if (widget.loadData.loadStatusDetails?.loadType == "KYC Pending")
+                    if(widget.loadData.customer?.createdAt != null)
+                      Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadData.customer!.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
                 ],
               ) : SizedBox()
           ),
-
-
-
-
-          // Row(
-          //   children: [
-          //     Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
-          //     10.width,
-          //
-          //     Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         //  Text(context.appText.idNumber, style: AppTextStyle.body4, maxLines: 1),
-          //         Text("GD12456", style: AppTextStyle.h5,  maxLines: 1),
-          //         Text(loadData.dueDate != null ? DateTimeHelper.formatCustomDate(loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor),
-          //       ],
-          //     ).expand(),
-          //
-          //
-          //
-          //     // Container(
-          //     //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          //     //   decoration: commonContainerDecoration(color: AppColors.lightPurpleColor, borderRadius: BorderRadius.circular(100)),
-          //     //   child: Text("Sourcing", style: AppTextStyle.body4.copyWith(color: AppColors.purpleColor,),
-          //     //   ),
-          //     // ),
-          //     // 10.width,
-          //
-          //     // KYC Hours Timer
-          //
-          //   ],
-          // ),
 
           commonDivider(),
 
@@ -115,7 +130,7 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                 children: [
                   Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
                   5.width,
-                  Text(loadData.pickUpLocation, style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
+                  Text(widget.loadData.pickUpLocation, style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
                 ],
               ).expand(),
 
@@ -134,7 +149,7 @@ class UpcomingShipmentsListBody extends StatelessWidget {
                 children: [
                   Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
                   5.width,
-                  Text(loadData.dropLocation,  style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
+                  Text(widget.loadData.dropLocation,  style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
                 ],
               ).expand(),
             ],
@@ -147,9 +162,9 @@ class UpcomingShipmentsListBody extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Agreed Price", style: AppTextStyle.body1Normal),
-                Text(PriceHelper.formatINR(loadData.rate), style: AppTextStyle.h3PrimaryColor),
+                Text(PriceHelper.formatINR(widget.loadData.rate), style: AppTextStyle.h3PrimaryColor),
               ],
-            ).paddingSymmetric(horizontal: 20, vertical: 10),
+            ).paddingSymmetric(horizontal: 15, vertical: 10),
           ),
 
         ],

@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
@@ -83,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           20.width,
 
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          Image.asset(AppImage.png.appIcon, width: 74.25, height: 34),
           20.width,
         ],
       ),
@@ -112,11 +111,11 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: 18.0.h,
-                  horizontal: 20.w,
+                  vertical: 18.0,
+                  horizontal: 20,
                 ),
                 child: Column(
-                  spacing: 5.h,
+                  spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     20.height,

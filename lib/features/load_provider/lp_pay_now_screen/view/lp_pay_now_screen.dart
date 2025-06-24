@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -28,7 +27,7 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
   Widget build(BuildContext context) {
     int calculatedAmount = (baseAmount * selectedPercentage ~/ 100);
     return Scaffold(bottomNavigationBar:    Padding(
-      padding: EdgeInsets.symmetric(vertical: 20.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20),
       child: AppButton(
         title: forBalancePayment?"Continue":"Back To Tracking",
         onPressed: () {
@@ -60,13 +59,13 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
       ),
 
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
         child: SingleChildScrollView(
           child: Column(
-            spacing: 15.h,
+            spacing: 15,
             children: [
          Container(
-                padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -163,7 +162,7 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
 
   balancePaymentWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
@@ -177,7 +176,7 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20.h,
+        spacing: 20,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -206,7 +205,7 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
 
   bankDetailsWidget({required String text1, required String text2}) {
     return Row(
-      spacing: 40.w,
+      spacing: 40,
       children: [
         Expanded(
           child: Text(text1, style: AppTextStyle.textGreyDetailColor14w400),
@@ -220,18 +219,18 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
 
   bakWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: AppColors.white,
       ),
       child: Column(
-        spacing: 10.h,
+        spacing: 10,
         children: [
           Row(
-            spacing: 5.w,
+            spacing: 5,
             children: [
-              Image.asset(AppImage.png.bankImage, height: 20.h, width: 20.w),
+              Image.asset(AppImage.png.bankImage, height: 20, width: 20),
               headingText(
                 text: "Bank Details",
                 appStyle: AppTextStyle.textBlackColor15w700,
@@ -248,13 +247,13 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
 
   cardDetailsWidget() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: AppColors.white,
       ),
       child: Column(
-        spacing: 10.h,
+        spacing: 10,
         children: [
           payMethodWidget(
             imageString: AppImage.png.cards,
@@ -294,11 +293,11 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
     return InkWell(
       onTap: onTap,
       child: Row(
-        spacing: 10.w,
+        spacing: 10,
         children: [
           Container(
-            height: 14.w,
-            width: 14.w,
+            height: 14,
+            width: 14,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(50),
               border: Border.all(
@@ -310,10 +309,10 @@ class _LpPayNowScreenState extends State<LpPayNowScreen> {
               ),
             ),
           ),
-          Image.asset(height: 48.h, width: 48.w, imageString),
+          Image.asset(height: 48, width: 48, imageString),
 
           Column(
-            spacing: 2.h,
+            spacing: 2,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(heading, style: AppTextStyle.textBlackDetailColor16w500),
