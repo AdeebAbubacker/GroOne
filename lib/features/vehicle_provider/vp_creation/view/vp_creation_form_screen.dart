@@ -133,11 +133,19 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void vpCreationApiCall() {
     if (formKey.currentState!.validate()) {
       if (uploadedRcFile == null) {
-        ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+        ToastMessages.alert(message: "Please upload RC Document");
         return;
       }
       if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
         ToastMessages.alert(message: "Please verify your email");
+        return;
+      }
+      if(int.parse(ownedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Owned Truck can't be 0");
+        return;
+      }
+      if(int.parse(attachedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Attached Truck can't be 0");
         return;
       }
       final request = VpCreationApiRequest(
@@ -291,6 +299,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             controller: emailTextController,
             labelText: context.appText.email,
             mandatoryStar: true,
+
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
                 hintText: context.appText.emailHint,

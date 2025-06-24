@@ -906,7 +906,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 readOnly: state.verifiedGst != null && state.verifiedGst!,
                 rightText: "GSTIN",
                 controller: gstInTextController,
-                suffixOnTap: () async {
+                suffixOnTap:  state.verifiedGst != null && state.verifiedGst! ? (){} : () async {
                   if (gstDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(gstDoc);
                     if(result is Success) {
