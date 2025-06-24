@@ -210,6 +210,7 @@ class _MobileOtpVerificationScreenState
             }
           }
           if (state is OtpError) {
+            otpTextController.clear();
             otpString = "";
             ToastMessages.error(
               message: getErrorMsg(errorType: state.errorType),
