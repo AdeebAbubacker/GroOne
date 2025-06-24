@@ -18,15 +18,17 @@ class CommodityTypesScreen extends StatefulWidget {
   final Function(int) onSelect;
   final int? selectedIndex;
   const CommodityTypesScreen({
-    super.key, required this.dataList, required this.onSelect,this.selectedIndex});
+    super.key,
+    required this.dataList,
+    required this.onSelect,
+    this.selectedIndex,
+  });
 
   @override
   State<CommodityTypesScreen> createState() => _CommodityTypesScreenState();
 }
 
 class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
-
-
   int? selectedIndex;
 
   List<String> commodityIconsList = [
@@ -34,98 +36,112 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
     AppIcons.svg.parcel,
     AppIcons.svg.barrel,
     AppIcons.svg.log,
-    AppIcons.svg.bottles
+    AppIcons.svg.bottles,
   ];
 
   @override
   void initState() {
-    selectedIndex=widget.selectedIndex;
+    selectedIndex = widget.selectedIndex;
     selectDefaultCommodity();
     super.initState();
   }
 
-  selectDefaultCommodity(){
-
-    if(selectedIndex==-1 && widget.dataList.isNotEmpty){
-
-      selectedIndex=0;
-
+  selectDefaultCommodity() {
+    if (selectedIndex == -1 && widget.dataList.isNotEmpty) {
+      selectedIndex = 0;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Select Commodity Types", isCrossLeadingIcon: true),
+      appBar: CommonAppBar(
+        title: "Select Commodity Types",
+        isCrossLeadingIcon: true,
+      ),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSelectButton(context),
     );
   }
 
-  Widget _buildBodyWidget(BuildContext context){
+  Widget _buildBodyWidget(BuildContext context) {
     return SafeArea(
       minimum: EdgeInsets.all(commonSafeAreaPadding),
       child: Builder(
-          builder: (context) {
-            return GridView.builder(
-              itemCount: widget.dataList.length,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.only(top: 20, bottom: 100),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // 3 items per row
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.3, // Adjust for item width/height
-              ),
-              itemBuilder: (context, index) {
-                var data = widget.dataList[index].copyWith(iconUrl: commodityIconsList[index]);
-                return InkWell(
-                  onTap: () {
-                    widget.onSelect(index);
-                    selectedIndex = index;
-                    setState(() {});
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    decoration: commonContainerDecoration(
-                        borderColor: selectedIndex == index ? AppColors.primaryColor : AppColors.lightDividerColor,
-                        borderWidth: selectedIndex == index  ? 1.5 : 1
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-
-                        // Icon
-                        SvgPicture.asset(data.iconUrl, width: 25 ,colorFilter: AppColors.svg(selectedIndex == index ? AppColors.primaryColor : AppColors.greyIconColor)),
-                        5.height,
-
-                        // Label
-                        Text(
-                          data.name,
-                          style:  selectedIndex == index ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ],
-                    ),
+        builder: (context) {
+          return GridView.builder(
+            itemCount: widget.dataList.length,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.only(top: 20, bottom: 100),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, // 3 items per row
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.3, // Adjust for item width/height
+            ),
+            itemBuilder: (context, index) {
+              var data = widget.dataList[index].copyWith(
+                iconUrl: commodityIconsList[index],
+              );
+              return InkWell(
+                onTap: () {
+                  widget.onSelect(index);
+                  selectedIndex = index;
+                  setState(() {});
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: commonContainerDecoration(
+                    borderColor:
+                        selectedIndex == index
+                            ? AppColors.primaryColor
+                            : AppColors.lightDividerColor,
+                    borderWidth: selectedIndex == index ? 1.5 : 1,
                   ),
-                );
-              },
-            );
-          }
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Icon
+                      SvgPicture.asset(
+                        data.iconUrl,
+                        width: 25,
+                        colorFilter: AppColors.svg(
+                          selectedIndex == index
+                              ? AppColors.primaryColor
+                              : AppColors.greyIconColor,
+                        ),
+                      ),
+                      5.height,
+
+                      // Label
+                      Text(
+                        data.name,
+                        style:
+                            selectedIndex == index
+                                ? AppTextStyle.body3PrimaryColor
+                                : AppTextStyle.body3GreyColor,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildSelectButton(BuildContext context){
+  Widget _buildSelectButton(BuildContext context) {
     return AppButton(
       title: context.appText.select,
-      onPressed: (){
-        widget.onSelect(selectedIndex??0);
-        Navigator.of(context).pop();},
+      onPressed: () {
+        widget.onSelect(selectedIndex ?? 0);
+        Navigator.of(context).pop();
+      },
     ).bottomNavigationPadding();
   }
-
 }
