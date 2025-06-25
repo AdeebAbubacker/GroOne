@@ -3,17 +3,17 @@ import '../../model/kavach_address_model.dart';
 
 abstract class KavachCheckoutShippingAddressState {}
 
-class KavachCheckoutAddressLoading extends KavachCheckoutShippingAddressState {}
+class KavachCheckoutShippingAddressLoading extends KavachCheckoutShippingAddressState {}
 
-class KavachCheckoutAddressEmpty extends KavachCheckoutShippingAddressState {}
+class KavachCheckoutShippingAddressEmpty extends KavachCheckoutShippingAddressState {}
 
-class KavachCheckoutAddressError extends KavachCheckoutShippingAddressState {
+class KavachCheckoutShippingAddressError extends KavachCheckoutShippingAddressState {
   final ErrorType error;
-  KavachCheckoutAddressError(this.error);
+  KavachCheckoutShippingAddressError(this.error);
 }
 
-class KavachCheckoutAddressSelected extends KavachCheckoutShippingAddressState {
+class KavachCheckoutShippingAddressSelected extends KavachCheckoutShippingAddressState {
   final KavachAddressModel selectedAddress;
   final List<KavachAddressModel> addresses;
-  KavachCheckoutAddressSelected({required this.selectedAddress, required this.addresses});
+  KavachCheckoutShippingAddressSelected({required this.selectedAddress, required this.addresses});
 }

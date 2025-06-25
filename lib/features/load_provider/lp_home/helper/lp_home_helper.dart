@@ -33,7 +33,7 @@ class LpHomeHelper {
      final createdAt = DateTime.parse(createdAtString).toLocal();
 
      // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
-     final targetTime = createdAt.add(const Duration(hours: 3));
+     final targetTime = createdAt.add(const Duration(hours: 2));
 
      // 3️⃣ compute the remaining time *from now* until that target
      final now        = DateTime.now();
@@ -114,6 +114,7 @@ static Color getLoadStatusTextColor(String loadType) {
  // Get Calculate Percentage
  static  String calculateTenPercentOfAverage(String priceRange) {
    try {
+     debugPrint("Price Range: $priceRange");
      final cleaned = priceRange.replaceAll(' ', '');
 
      if (cleaned.contains('-')) {
@@ -129,10 +130,12 @@ static Color getLoadStatusTextColor(String loadType) {
        final avg = ((min + max) / 2).round();
        final tenPercent = (avg * 0.10).round();
 
-       return "Rs. $tenPercent";
+       return "$tenPercent";
      } else {
+       double doubleValue = double.parse(priceRange);
+       int rounded = doubleValue.round();
        // Case: Single value like "1000"
-       final value = int.tryParse(cleaned) ?? 0;
+       final value = rounded;
        if (value == 0) return "Invalid price";
 
        final tenPercent = (value * 0.10).round();

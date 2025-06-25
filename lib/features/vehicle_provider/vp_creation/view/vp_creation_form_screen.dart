@@ -133,11 +133,19 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void vpCreationApiCall() {
     if (formKey.currentState!.validate()) {
       if (uploadedRcFile == null) {
-        ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+        ToastMessages.alert(message: "Please upload RC Document");
         return;
       }
       if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
         ToastMessages.alert(message: "Please verify your email");
+        return;
+      }
+      if(int.parse(ownedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Owned Truck can't be 0");
+        return;
+      }
+      if(int.parse(attachedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Attached Truck can't be 0");
         return;
       }
       final request = VpCreationApiRequest(
@@ -291,6 +299,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             controller: emailTextController,
             labelText: context.appText.email,
             mandatoryStar: true,
+            readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
                 hintText: context.appText.emailHint,
@@ -298,8 +307,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status ==  Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3),
-                    5.width,
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3.copyWith(
+                      color: AppColors.primaryColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primaryColor,
+                    )),                    5.width,
                     Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
                   ],
                 ),

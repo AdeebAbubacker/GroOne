@@ -7,18 +7,27 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/validator.dart';
+import 'package:intl/intl.dart';
 
 class LpLoadsScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -32,9 +41,14 @@ class LpLoadsScreen extends StatefulWidget {
 class _LpLoadsScreenState extends State<LpLoadsScreen>
     with SingleTickerProviderStateMixin {
   final searchController = TextEditingController();
+  final loadPostedDateController = TextEditingController();
   Timer? _debounce;
   final lpLoadLocator = locator<LpLoadCubit>();
-
+  String? truckTypeDropDownValue;
+  String? selectedDropDownValueId;
+  String? routeDropDownValue;
+  int? selectedFromLocation;
+  int? selectedToLocation;
 
   TabController? _tabController;
   final tabLabels = [
@@ -72,7 +86,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         final selectedType = _tabController!.index;
 
         lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if (selectedType == 3) {
+        if(selectedType == 0) {}
+        else if (selectedType == 3) {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 2);
         } else {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 1);
@@ -80,6 +95,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       }
     });
     lpLoadLocator.getLpLoadsByType(type: widget.initialTabIndex+1);
+    lpLoadLocator.getTruckType();
+    lpLoadLocator.getRouteDetails();
     setState(() {});
   });
 
@@ -97,21 +114,144 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     _tabController?.dispose();
   });
 
-  void filterPopUp() {}
+  void filterPopUp () {
+    AppDialog.show(context, child: CommonDialogView(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: 'Cancel',
+      yesButtonText: 'Apply',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Filter", style: AppTextStyle.body1.copyWith(fontSize: 20)),
+          10.height,
+          Text("Truck Type", style: AppTextStyle.body3),
+          5.height,
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+              builder: (context, state) {
+                final uiState = state.lpLoadTruckTypes;
+                final truckTypes = uiState?.data?.data ?? [];
+                return AppDropdown(
+                  validator: (value) => Validator.fieldRequired(value),
+                  dropdownValue: truckTypeDropDownValue,
+                  mandatoryStar: true,
+                  decoration: commonInputDecoration(fillColor: Colors.white),
+                  dropDownList: truckTypes.map((e) => DropdownMenuItem(
+                      value: e.id.toString(),
+                      child: Text(e.subType.toString(), style: AppTextStyle.body)),
+                  ).toList(),
+                  onChanged: (onChangeValue) {
+                    truckTypeDropDownValue = onChangeValue;
+                    selectedDropDownValueId = onChangeValue;
+                    setState(() {});
+                  },
+                );
+              }
+          ),
+          15.height,
+          Text("Route", style: AppTextStyle.body3),
+          5.height,
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+              builder: (context, state) {
+                final uiState = state.lpLoadRouteDetails;
+                final routeList = uiState?.data?.routeDataList ?? [];
+                return AppDropdown(
+                  validator: (value) => Validator.fieldRequired(value),
+                  dropdownValue: routeDropDownValue,
+                  mandatoryStar: true,
+                  decoration: commonInputDecoration(fillColor: Colors.white),
+                  dropDownList: routeList.map((e) => DropdownMenuItem(
+                    value: e.id.toString(),
+                    child:  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6, // or any suitable width
+                      child: Text(
+                        "${e.fromLocation?.name ?? ''} → ${e.toLocation?.name ?? ''}",
+                        style: AppTextStyle.body,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      ),
+                    ),),
+                  ).toList(),
+                  onChanged: (onChangeValue) {
+                    routeDropDownValue = onChangeValue;
+                    // Find selected route object
+                    final selectedRoute = routeList.firstWhere(
+                          (element) => element.id.toString() == onChangeValue,
+                    );
+                    selectedFromLocation = selectedRoute.fromLocationId;
+                    selectedToLocation = selectedRoute.toLocationId;
+                    },
+                );
+              }
+          ),
+          15.height,
+          Text("Load Posted Date", style: AppTextStyle.body3),
+          5.height,
+          AppTextField(
+            controller: loadPostedDateController,
+            decoration: commonInputDecoration(
+                suffixIcon: Icon(Icons.calendar_today_outlined),
+                suffixOnTap: () async {
+                  final String? date = await commonDatePicker(
+                    context,
+                    firstDate: DateTime.now(),
+                    initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(loadPostedDateController.text),
+                  );
+
+                  if (date != null ) {
+                    DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
+                    String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
+                    loadPostedDateController.text = formattedDate;
+                    setState(() {});
+                  }
+                }
+            ),
+          ),
+        ],
+      ),
+      onClickYesButton: () {
+
+        Navigator.pop(context);
+        // lpLoadLocator.applyFilter(
+        //     fromRoute: selectedFromLocation ?? 0,
+        //     toRoute: selectedToLocation ?? 0,
+        //     truckType: truckTypeDropDownValue ?? '',
+        //     loadPostedDate: loadPostedDateController.text
+        // );
+      },
+    ));
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+        appBar: buildAppBarWidget(context),
+        body: SafeArea(
         child: Column(
           children: [
-            10.height,
             buildTabBarWidget(),
             buildSearchBarAndFilterWidget(context),
             buildLoadListWidget(),
           ],
         ),
     ));
+  }
+
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+    return CommonAppBar(
+      isLeading: false,
+      leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+      actions: [
+        // Notification
+        IconButton(
+          onPressed: () {},
+          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        ),
+
+      ],
+    );
   }
 
   /// Tab Bar
@@ -163,12 +303,12 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         ).expand(),
         8.width,
         AppIconButton(
-          onPressed: () {},
+          onPressed: filterPopUp,
           style: AppButtonStyle.primaryIconButtonStyle,
           icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
         ),
       ],
-    ).paddingAll(commonSafeAreaPadding);
+    ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
 
   /// Load List
@@ -199,14 +339,15 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final loadItem = loadList[index];
             return GestureDetector(
               onTap: () {
+                lpLoadLocator.getLpLoadsById(loadId: loadItem.id);
                 Navigator.push(
                   context,
                   commonRoute(
-                    LpLoadsLocationDetailsScreen(loadItem: loadItem),
+                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator, loadData: loadItem),
                   ),
                 );
               },
-              child: LPLoadListBodyWidget(loadItem: loadItem).paddingSymmetric(vertical: 7),
+              child: LPLoadListBodyWidget(loadItem: loadItem,lpLoadLocator: lpLoadLocator).paddingSymmetric(vertical: 7),
             );
           },
         );

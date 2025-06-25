@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -11,7 +12,10 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class AdvancePaymentDialog extends StatefulWidget {
-  const AdvancePaymentDialog({super.key});
+  const AdvancePaymentDialog({super.key, required this.price, required this.loadId});
+
+  final int price;
+  final String loadId;
 
   @override
   State<AdvancePaymentDialog> createState() => _AdvancePaymentDialogState();
@@ -20,12 +24,11 @@ class AdvancePaymentDialog extends StatefulWidget {
 class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
 
   int selectedPercentage = 90;
-  int totalAmount = 15000;
   int percentAmount = 0;
 
   @override
   Widget build(BuildContext context) {
-    percentAmount = (totalAmount * selectedPercentage ~/ 100);
+    percentAmount =  (widget.price * selectedPercentage ~/ 100);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -43,7 +46,7 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
               onTap: () {
                 setState(() {
                   selectedPercentage = percent;
-                  percentAmount = (totalAmount * selectedPercentage ~/ 100);
+                  percentAmount = (widget.price * selectedPercentage ~/ 100);
                 });
               },
               child: Container(
@@ -58,13 +61,13 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
           }).toList(),
         ),
         15.height,
-        Text('$indianCurrencySymbol$percentAmount', style: AppTextStyle.h2),
+        Text(PriceHelper.formatINR(percentAmount), style: AppTextStyle.h2),
         40.height,
 
         AppButton(
           onPressed: (){
             context.pop();
-            Navigator.push(context, commonRoute(LpLoadValidateMemo()));
+            Navigator.push(context, commonRoute(LpLoadValidateMemo(loadId: widget.loadId)));
           },
           title: context.appText.verifyAdvance,
         ),

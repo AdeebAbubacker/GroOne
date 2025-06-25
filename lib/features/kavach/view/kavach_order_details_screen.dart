@@ -24,7 +24,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FA),
-      appBar: CommonAppBar(title: "Order Details"),
+      appBar: CommonAppBar(title: context.appText.orderDetails),
       // bottomNavigationBar: _downloadButton(),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -32,17 +32,17 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _orderHeader(),
+              _orderHeader(context),
               12.height,
               _productDetails(context),
               12.height,
               _orderTimeline(),
               12.height,
-              _addressSection(order.shippingAddress),
+              _addressSection(order.shippingAddress, context),
               12.height,
-              _addressSection(order.billingAddress),
+              _addressSection(order.billingAddress, context),
               12.height,
-              _paymentSummary(),
+              _paymentSummary(context),
               40.height,
             ],
           ),
@@ -51,7 +51,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _orderHeader() {
+  Widget _orderHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -66,7 +66,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Order ID: ${order.orderUniqueId}',
+                  '${context.appText.orderId}: ${order.orderUniqueId}',
                   style: AppTextStyle.primaryColor14w700,
                 ),
                 4.height,
@@ -113,12 +113,12 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         children: [
           Text(context.appText.productDetails, style: AppTextStyle.h5),
           8.height,
-          ...order.lineItems.map((p) => _productItem(p)),
+          ...order.lineItems.map((p) => _productItem(p, context)),
           const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total Amount Paid", style: AppTextStyle.h5GreyColor),
+              Text(context.appText.totalAmountPaid, style: AppTextStyle.h5GreyColor),
               Text("₹${order.totalPrice}", style: AppTextStyle.h5),
             ],
           ),
@@ -127,7 +127,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _productItem(KavachOrderListItem p) {
+  Widget _productItem(KavachOrderListItem p, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -151,7 +151,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
             children: [
               Text('₹${p.totalPrice}', style: AppTextStyle.h5),
               Text(
-                'Qty - ${p.quantity}',
+                '${context.appText.qty} - ${p.quantity}',
                 style: AppTextStyle.textGreyColor12w400,
               ),
             ],
@@ -185,6 +185,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                   installationPersonMobile:
                       order.installationContactPersonNumber,
                   installationPersonName: order.installationContactPerson,
+                  context: context
                 ),
             itemCount: order.statusHistory.length,
           ),
@@ -198,6 +199,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     required DateTime date,
     required String subtitle,
     required bool isLast,
+    required BuildContext context,
     String? installationPersonName,
     String? installationPersonMobile,
   }) {
@@ -232,7 +234,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                       Text(title, style: AppTextStyle.blackColor15w500),
                       5.width,
                       Visibility(
-                          visible: title.toLowerCase() == "installation scheduled",
+                          visible: title.toLowerCase() == context.appText.installationScheduled.toLowerCase(),
                           child: Icon(Icons.headset_mic_rounded, size: 16))
                     ],
                   ),
@@ -243,13 +245,13 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                     style: AppTextStyle.textGreyColor14w300,
                   ),
                   Visibility(
-                    visible: title.toLowerCase() == "installation scheduled",
+                    visible: title.toLowerCase() == context.appText.installationScheduled.toLowerCase(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         5.height,
                         Text(
-                          "Installation Person Contact Details",
+                          context.appText.installationPersonContactDetails,
                           style: AppTextStyle.h6,
                         ),
                         Text(installationPersonName ?? '', style: AppTextStyle.h5),
@@ -269,11 +271,15 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _addressSection(KavachOrderListAddress address) {
+  Widget _addressSection(KavachOrderListAddress address, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${address.addressType.capitalize} Address', style: AppTextStyle.h5),
+        // Text('${address.addressType.capitalize} Address', style: AppTextStyle.h5),
+        Text(
+          address.addressType.toLowerCase() == "shipping" ? context.appText.shippingAddress : context.appText.billingAddress,
+          style: AppTextStyle.h5,
+        ),
         10.height,
         Container(
           width: double.infinity,
@@ -305,8 +311,8 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 '${address.country} - ${address.postalCode}',
                 style: AppTextStyle.textGreyColor14w300,
               ),
-              address.gstId!=null && address.gstId!.isNotEmpty?Text(
-                address.gstId!,
+              address.gstId.isNotEmpty?Text(
+                address.gstId,
                 style: AppTextStyle.textGreyColor14w300,
               ):SizedBox.shrink(),
             ],
@@ -316,11 +322,11 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _paymentSummary() {
+  Widget _paymentSummary(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Payment Summary", style: AppTextStyle.h5),
+        Text(context.appText.paymentSummary, style: AppTextStyle.h5),
         10.height,
         Container(
           width: double.infinity,
@@ -331,10 +337,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           ),
           child: Column(
             children:  [
-              PriceRow("Price (${getTotalQuantity()} items)", '₹${order.price}'),
-              PriceRow("GST", '₹${order.totalGst}'),
+              PriceRow("${context.appText.price} (${getTotalQuantity()} ${context.appText.items})", '₹${order.price}'),
+              PriceRow(context.appText.gstKavach, '₹${order.totalGst}'),
               Divider(),
-              PriceRow("Total Amount Paid", '₹${order.totalPrice}'),
+              PriceRow(context.appText.totalAmountPaid, '₹${order.totalPrice}'),
             ],
           ),
         ),
@@ -378,13 +384,4 @@ class PriceRow extends StatelessWidget {
       ),
     );
   }
-
 }
-
-// Shipping address
-// Billing address
-// Product name
-// Product img
-// Status clarification
-// Download Invoice PDF link
-// Separate payment summary - GST, price not there.
