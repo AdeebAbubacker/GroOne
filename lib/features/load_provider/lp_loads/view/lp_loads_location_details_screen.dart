@@ -10,31 +10,25 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_timeline_widget.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:lottie/lottie.dart' as lottie;
 
 
 import '../model/lp_load_get_by_id_response.dart';
@@ -143,39 +137,29 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     await lpLoadLocator.getCreditCheck();
 
     final uiState = lpLoadLocator.state.lpCreditCheck;
-    final loadList = uiState?.data?.availableCreditLimit ?? '';
 
-    int availableCredit = double.parse(loadList).toInt();
-    int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+    if (uiState?.status == Status.LOADING) {}
+    else if (uiState?.status == Status.SUCCESS) {
+      final loadList = uiState?.data?.availableCreditLimit ?? '';
 
-    if(availableCredit < rateValue) {
-      AppDialog.show(context, child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: "Back",
-        yesButtonText: "Customer Support",
-        child: Column(
-          children: [
-            lottie.Lottie.asset(AppJSON.alert, repeat: true, frameRate: lottie.FrameRate(200)),
-            Text("Low credit balance", style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
-            10.height,
-            Text("You cannot post this load due to your low credit balance", textAlign: TextAlign.center, style: AppTextStyle.body3),
-            10.height,
-          ],
-        ),
-        onClickYesButton: () {
-          Navigator.pop(context);
-          commonSupportDialog(context);
-        },
-      ));
-    } else {
-      AppDialog.show(
-        context,
-        child: AdvancePaymentDialog(price: loadItem.rate == "" ? 0 : int.parse(loadItem.rate), loadId: loadItem.loadId),
-        dismissible: true,
-      );
+      int availableCredit = double.parse(loadList).toInt();
+      int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+
+      if (availableCredit < rateValue) {
+        AppDialog.show(context, child: LowCreditDialog());
+      } else {
+        AppDialog.show(
+          context,
+          child: AdvancePaymentDialog(price: loadItem.rate == "" ? 0 : int.parse(loadItem.rate), loadId: '${loadItem.id}'),
+          dismissible: true,
+        );
+      }
     }
-
+    else if (uiState?.status == Status.ERROR) {
+      final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      return;
+    }
   }
 
   @override
@@ -271,7 +255,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loadItem.pickUpAddr, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(loadItem.pickUpAddr.toString().split(',').first, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
                     Text(
                         loadItem.pickUpDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.pickUpDateTime!) : "--",
                         style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
@@ -283,7 +267,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loadItem.dropAddr, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(loadItem.dropAddr.toString().split(',').first, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
                     Text(
                         loadItem.expectedDeliveryDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.expectedDeliveryDateTime!) : "--",
                         style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
@@ -347,7 +331,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                             ...[
                               Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
                               4.height,
-                              Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                              Text('${widget.loadData.acceptedVehicle?.truckType?.type ?? ''} - ${widget.loadData.acceptedVehicle?.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
                             ],
                           if(loadItem.loadStatus > 3)
                             ...[

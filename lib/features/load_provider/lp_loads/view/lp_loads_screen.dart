@@ -86,7 +86,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         final selectedType = _tabController!.index;
 
         lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if (selectedType == 3) {
+        if(selectedType == 0) {}
+        else if (selectedType == 3) {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 2);
         } else {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 1);
@@ -307,7 +308,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
         ),
       ],
-    ).paddingAll(commonSafeAreaPadding);
+    ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
 
   /// Load List

@@ -55,7 +55,7 @@ class LPLoadTimelineWidget extends StatelessWidget {
 
                   5.height,
                   Text(
-                    (item.status == 'completed' && item.timestamp != null)
+                    ((isCompleted || isCurrent) && item.timestamp != null)
                         ? DateTimeHelper.formatCustomDate(item.timestamp!) // assuming a DateTime extension for formatting
                         : '',
                     style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),

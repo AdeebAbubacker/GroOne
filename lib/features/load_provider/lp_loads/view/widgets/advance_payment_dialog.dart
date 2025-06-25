@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -60,7 +61,7 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
           }).toList(),
         ),
         15.height,
-        Text('$indianCurrencySymbol$percentAmount', style: AppTextStyle.h2),
+        Text(PriceHelper.formatINR(percentAmount), style: AppTextStyle.h2),
         40.height,
 
         AppButton(

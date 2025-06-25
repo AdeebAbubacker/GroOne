@@ -120,7 +120,9 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
           ),
           20.height,
           InkWell(
-            onTap: () {},
+            onTap: () async {
+              await lpLoadLocator.sendOtp();
+            },
             child: SizedBox(
               child: Center(
                 child: Text(
