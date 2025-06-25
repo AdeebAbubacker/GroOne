@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_r
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -352,6 +353,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       onClickAssignDriver: () {
                         final isKycDone = VpVariables.isKycVerified;
                         if (isKycDone) {
+                          context.push(AppRouteName.loadDetailsScreen);
                           // Navigate to trip scheduling
                         } else {
                           commonBottomSheetWithBGBlur(

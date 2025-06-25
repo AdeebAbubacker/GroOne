@@ -60,7 +60,6 @@ class LoadDetailsWidget extends StatelessWidget {
       },
       bloc: cubit,
       builder: (context, state) {
-        print("state.vpLoadStatus ${state.vpLoadStatus}");
         LoadDetails? loadDetails;
         if (state.loadDetailsUIState?.status == Status.LOADING) {
           return CircularProgressIndicator().center();
@@ -112,7 +111,6 @@ class LoadDetailsWidget extends StatelessWidget {
                     _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate),
                     15.height,
                     _buildLoadEntityWidget(loadDetails),
-
                     20.height,
 
                   ],
@@ -336,10 +334,11 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   Widget _buildLoadEntityWidget(LoadDetails? loadDetails) {
-    return Wrap(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       spacing: 15,
-      alignment: WrapAlignment.start,
-      crossAxisAlignment: WrapCrossAlignment.center,
+
       children: [
         Row(
           spacing: 3,

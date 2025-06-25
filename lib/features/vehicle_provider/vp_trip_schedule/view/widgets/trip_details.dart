@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
@@ -73,17 +73,18 @@ class TripDetails extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
+                                Row(
+                                  children: [
+                                    Expanded(child: Text("${loadDetails?.pickUpLocation} ",maxLines: 1,overflow: TextOverflow.ellipsis,)),
+                                    Expanded(child: Icon(Icons.arrow_forward, size: 12)),
+                                    Expanded(child: Text("${loadDetails?.dropLocation}",maxLines: 1,overflow: TextOverflow.ellipsis,)),
+                                  ],
+                                ).expand(),
 
 
                               ],
                             ),
-                            Row(
-                              children: [
-                                Expanded(child: Text("${loadDetails?.pickUpLocation} ",maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                                Expanded(child: Icon(Icons.arrow_forward, size: 12)),
-                                Expanded(child: Text("${loadDetails?.dropLocation}",maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                              ],
-                            ),
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -109,8 +110,8 @@ class TripDetails extends StatelessWidget {
                                   ],
                                 ),
                                 Container(
-                                  height: 38,
-                                  width: 38,
+                                  height: 30,
+                                  width: 30,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(

@@ -71,7 +71,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
         BlocProvider<ChoosePreferenceCubit>(create: (_) => locator<ChoosePreferenceCubit>()),
-        BlocProvider<AssignDriverCubit>(create: (_) => locator<AssignDriverCubit>()),
+        BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
         BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
       ],
       child: child,

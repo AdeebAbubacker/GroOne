@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -49,35 +50,30 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
       child: Column(
         spacing: 3,
         children: [
-
           ListTile(
-
             minVerticalPadding: 0.0,
             tileColor: Colors.red,
-            style:ListTileStyle.drawer,
+            style: ListTileStyle.drawer,
             contentPadding: EdgeInsets.zero,
             horizontalTitleGap: 5,
             minTileHeight: 60,
             titleAlignment: ListTileTitleAlignment.bottom,
-            leading:   Image.asset(
+            leading: Image.asset(
               AppImage.png.truckMyLoad,
               width: 50,
             ).paddingSymmetric(vertical: 10),
             title: Text('${widget.data.loadId}', style: AppTextStyle.h5),
             subtitle: Text(
-                        formatDateTimeKavach(widget.data.dueDate!.toString()),
-                        style: AppTextStyle.primaryColor12w400,
-                      ),
+              formatDateTimeKavach(widget.data.dueDate!.toString()),
+              style: AppTextStyle.primaryColor12w400,
+            ),
             trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-
-                      Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
-                    ],
-                  ),
-
-
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+              ],
+            ),
           ),
 
           //
@@ -110,18 +106,13 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
           //     ).expand(),
           //   ],
           // ),
-
           Row(
             children: [
-
               Expanded(
                 child: Text(
                   widget.data.pickUpAddr,
 
-                  style: AppTextStyle.blackColor15w500.copyWith(
-
-                    fontSize: 12
-                  ),
+                  style: AppTextStyle.blackColor15w500.copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -137,49 +128,67 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   alignment: Alignment.centerRight,
                   child: Text(
                     widget.data.dropAddr,
-                    style: AppTextStyle.blackColor15w500.copyWith(
-                        fontSize: 12
-                    ),
+                    style: AppTextStyle.blackColor15w500.copyWith(fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
-              
             ],
           ),
 
-
-          commonDivider(
-            height: 3
-          ),
+          commonDivider(height: 3),
 
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
-          Row(
-            children: [
-              detailWidget(
-                text: widget.data.truckType?.type ?? "--",
-                iconSvg: AppIcons.svg.deliveryTruckSpeed,
-              ),
-              detailWidget(
-                text: widget.data.truckType?.subType ?? "--",
-                iconSvg: AppIcons.svg.deliveryTruckSpeed,
-              ),
-            ],
-          ),
+
           10.height,
+
           Row(
             children: [
-              detailWidget(
-                text: widget.data.commodity?.name ?? "--",
-                iconSvg: AppIcons.svg.package,
-              ),
-              detailWidget(
-                text: "${widget.data.consignmentWeight} Tonn",
-                iconSvg: AppIcons.svg.weight,
+
+              Column(
+                children: [
+                  detailWidget(
+                    text: widget.data.truckType?.type ?? "--",
+                    iconSvg: AppIcons.svg.deliveryTruckSpeed,
+                  ),
+                  detailWidget(
+                    text: widget.data.commodity?.name ?? "--",
+                    iconSvg: AppIcons.svg.package,
+                  ),
+                ],
+              ).expand(),
+              Column(
+                children: [
+                  detailWidget(
+                    text: widget.data.truckType?.subType ?? "--",
+                    iconSvg: AppIcons.svg.deliveryTruckSpeed,
+                  ),
+                  detailWidget(
+                    text: "${widget.data.consignmentWeight} Tonn",
+                    iconSvg: AppIcons.svg.weight,
+                  ),
+                ],
+              ).expand(),
+              GestureDetector(
+                onTap: () {
+
+                  context.push(AppRouteName.loadDetailsScreen,extra: {
+                    "loadId":widget.data.id
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.greyIconColor),
+                  ),
+                  child: Icon(Icons.chevron_right),
+                ),
               ),
             ],
           ),
+
+
           15.height,
           Container(
             padding: EdgeInsets.symmetric(vertical: 5),
@@ -255,6 +264,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
         10.width,
         Text(text, style: AppTextStyle.body),
       ],
-    ).expand();
+    );
   }
 }

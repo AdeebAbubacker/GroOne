@@ -105,6 +105,8 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
             commonDivider(),
             Row(
               children: [
+
+
                 Column(
                   children: [
                     detailWidget(
