@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
@@ -40,9 +41,11 @@ import '../model/lp_load_get_by_id_response.dart';
 
 
 class LpLoadsLocationDetailsScreen extends StatefulWidget {
-  const LpLoadsLocationDetailsScreen({super.key, required this.lpLoadLocator});
-
+  final LpLoadItem loadData;
   final LpLoadCubit lpLoadLocator;
+
+  const LpLoadsLocationDetailsScreen({super.key, required this.lpLoadLocator, required this.loadData});
+
 
   @override
   State<LpLoadsLocationDetailsScreen> createState() => _LpLoadsLocationDetailsScreenState();
@@ -68,7 +71,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     if (latLng.isEmpty || !latLng.contains(',')) {
       return const LatLng(0, 0);
     }
-    final parts = latLng.split(',');
+    final parts = latLng.split(', ');
     return LatLng(double.parse(parts[0].trim()), double.parse(parts[1].trim()));
   }
 
@@ -161,8 +164,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
           ],
         ),
         onClickYesButton: () {
-          // Navigator.pop(context);
-          // AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+          Navigator.pop(context);
+          commonSupportDialog(context);
         },
       ));
     } else {
@@ -253,7 +256,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Navigator.pop(context);
                 },child: Icon(Icons.arrow_back)),
                 8.width,
-                Text('#GRO${loadItem.loadId}', style: AppTextStyle.body3),
+                Text('#${loadItem.loadId}', style: AppTextStyle.body3),
                 Spacer(),
                 Text(
                   loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(loadItem.dueDate!) : "--",
@@ -354,7 +357,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                                   Container(
                                       decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
                                       padding: EdgeInsets.symmetric(horizontal: 2),
-                                      child: Text('TN 12 AK 6465', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                      child: Text(widget.loadData.vehicleProvider?.vehicleNumber ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
                                   5.width,
                                   Text('Closed Body (22Ft)',  style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
                                 ],
@@ -363,7 +366,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               Row(
                                 children: [
                                   Text('Driver:  ', style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
-                                  Text('Krishna Kumar Rajan', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                  Text(widget.loadData.vehicleProvider?.driver ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                 ],
                               ),
                               5.height
@@ -375,7 +378,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                                   padding: EdgeInsets.all(4),
                                   decoration: commonContainerDecoration(
                                       color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
-                                  child: Text("VP: Gogovan Transports",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
+                                  child: Text("VP: ${widget.loadData.vehicleProvider?.companyName ?? ""}",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
                             ]
                         ],
                       ),
@@ -472,7 +475,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       children: [
                         Text("Agreed Price", style: AppTextStyle.body2),
                         Text(
-                          "$indianCurrencySymbol${loadItem.rate}",
+                          PriceHelper.formatINR(loadItem.rate),
                           style: AppTextStyle.h4.copyWith(
                             color: AppColors.primaryColor,
                           ),

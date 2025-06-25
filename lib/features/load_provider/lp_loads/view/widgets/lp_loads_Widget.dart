@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
@@ -54,8 +55,8 @@ class LPLoadListBodyWidget extends StatelessWidget{
           ],
         ),
         onClickYesButton: () {
-          // Navigator.pop(context);
-          // AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+          Navigator.pop(context);
+          commonSupportDialog(context);
         },
       ));
     } else {
@@ -121,7 +122,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             Wrap(
               children: [
                 Text(
-                  'GD ${loadItem.loadId}',
+                  loadItem.loadId,
                   style: AppTextStyle.h5,
                   maxLines: 2,
                 ),
@@ -197,7 +198,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(
-            "₹ ${loadItem.rate}",
+            PriceHelper.formatINR(loadItem.rate),
             style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
           ),
         ],
