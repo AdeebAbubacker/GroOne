@@ -88,7 +88,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
             leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
             title :Align(alignment: Alignment.topLeft, child: (widget.loadData.loadId.isNotEmpty) ? Text(widget.loadData.loadId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
             ),
-            subtitle:Text(widget.loadData.dueDate != null ? DateTimeHelper.formatCustomDate(widget.loadData.dueDate!) : "--", style: AppTextStyle.body4PrimaryColor) ,
+            subtitle:Text(widget.loadData.pickUpDateTime != null ? DateTimeHelper.formatCustomDate(widget.loadData.pickUpDateTime!) : "--", style: AppTextStyle.body4PrimaryColor) ,
             trailing: (widget.loadData.loadStatusDetails != null && widget.loadData.loadStatusDetails!.loadType.isNotEmpty) ?
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
