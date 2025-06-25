@@ -281,7 +281,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the action buttons section
   Widget _buildActionButtons(BuildContext context) {
-    // Check if BS6 is selected in engine type - handle different variations
+    // Check if BS4 is selected in engine type - handle different variations
     final isBS4Selected = selectedEngine != null &&
         (selectedEngine!.toUpperCase().contains('BS4') ||
          selectedEngine!.toUpperCase().contains('BS-4') ||
