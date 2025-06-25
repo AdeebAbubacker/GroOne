@@ -242,15 +242,20 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         final profileState = state.profileDetailUIState;
         if (profileState != null &&
             profileState.status == Status.SUCCESS &&
-            profileState.data != null &&
-            profileState.data?.data != null &&
             profileState.data?.data?.customer != null &&
-            profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
-          print("Blue Id Stored or not: ${await lpHomeCubit.getBlueId()}");
-          if (await lpHomeCubit.getBlueId() != null){
-            if(!context.mounted) return;
-            sessionBlueId = null;
-            blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
+            state.showSuccessKyc) {
+
+          final blueIdFromApi = profileState.data!.data!.customer!.blueId;
+          final blueIdFromStorage = await lpHomeCubit.getBlueId();
+
+          debugPrint("💡 BlueId from API: $blueIdFromApi");
+          debugPrint("💾 BlueId in storage: $blueIdFromStorage");
+
+          // Show dialog if Blue ID is newly stored
+          if ((blueIdFromStorage == null || blueIdFromStorage.isEmpty) && blueIdFromApi.isNotEmpty) {
+            if (!context.mounted) return;
+            sessionBlueId = blueIdFromApi;
+            blueMembershipDialog(context, blueIdFromApi);
           }
         }
       },
