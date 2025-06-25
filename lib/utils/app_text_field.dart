@@ -72,7 +72,7 @@ class AppTextField extends StatelessWidget {
         if (labelText != null)
           Row(
             children: [
-              Text(" ${labelText.capitalize}", style:labelTextStyle ?? AppTextStyle.textFiled),
+              Text(" $labelText", style:labelTextStyle ?? AppTextStyle.textFiled),
               if(mandatoryStar == true)
               Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
             ],
