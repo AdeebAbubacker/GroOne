@@ -7,7 +7,6 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
-import 'package:gro_one_app/features/login/view/widget/otp_send_widget.dart';
 import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -93,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
         bloc: loginBloc,
         listener: (context, state) {
           if (state is LogInSuccess) {
-            CustomToast.otpSuccessToast(context: context);
+            ToastMessages.success(message: "Otp Sent successfully");
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
