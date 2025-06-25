@@ -15,26 +15,36 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
+import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart'
+    hide LocationResult;
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
-class LpHomeService{
+class LpHomeService {
   final ApiService _apiService;
   final SecuredSharedPreferences _securedSharedPref;
   LpHomeService(this._apiService, this._securedSharedPref);
 
   /// Fetch Profile
-  Future<Result<ProfileDetailModel>> getProfileDetails({required String id}) async {
+  Future<Result<ProfileDetailModel>> getProfileDetails({
+    required String id,
+  }) async {
     try {
-      final url = ApiUrls.getProfile+id;
+      final url = ApiUrls.getProfile + id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
+        dynamic data = await _apiService.getResponseStatus(
+          result.value,
+          (data) => ProfileDetailModel.fromJson(data),
+        );
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
-            await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
+          if (data.value.data?.customer != null &&
+              data.value.data!.customer!.blueId.isNotEmpty) {
+            await _securedSharedPref.saveKey(
+              AppString.sessionKey.blueId,
+              data.value.data!.customer!.blueId,
+            );
             // CustomLog.debug(this, "Saved Blue Id: ${data.value.data!.customer!.blueId}");
           }
           return Success(data.value);
@@ -48,50 +58,53 @@ class LpHomeService{
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Gwt Load
   Future<Result<LpGetLoadModel>> getLoads({required String id}) async {
     try {
-      final url = ApiUrls.getLoads+id;
+      final url = ApiUrls.getLoads + id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LpGetLoadModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LpGetLoadModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Get Load Details
   Future<Result<LoadDetailResponse>> getLoadDetail({required String id}) async {
     try {
-      final url = ApiUrls.loadDetail+id;
+      final url = ApiUrls.loadDetail + id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadDetailResponse.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LoadDetailResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Load Commodity
   Future<Result<LoadCommodityListModel>> fetchLoadCommodityData() async {
@@ -99,18 +112,20 @@ class LpHomeService{
       final url = ApiUrls.loadCommodity;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadCommodityListModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LoadCommodityListModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Truck Type
   Future<Result<LoadTruckTypeListModel>> fetchTruckTypeData() async {
@@ -118,37 +133,44 @@ class LpHomeService{
       final url = ApiUrls.loadTruckType;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadTruckTypeListModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LoadTruckTypeListModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Recent Route
   Future<Result<RecentRoutesModel>> fetchRecentRouteData(String userId) async {
     try {
       final url = ApiUrls.getRecentRoute;
-      final result = await _apiService.get(url, queryParams: {'customerId': userId});
+      final result = await _apiService.get(
+        url,
+        queryParams: {'customerId': userId},
+      );
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RecentRoutesModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => RecentRoutesModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Truck Type
   Future<Result<LoadTruckTypeListModel>> fetchRateDiscoveryPriceData() async {
@@ -156,94 +178,112 @@ class LpHomeService{
       final url = ApiUrls.getRateDiscoveryPrice;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadTruckTypeListModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LoadTruckTypeListModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
-
   /// Create Load
-  Future<Result<CreateLoadModel>> fetchCreateLoadData(CreateLoadApiRequest request) async {
+  Future<Result<CreateLoadModel>> fetchCreateLoadData(
+    CreateLoadApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.createLoad;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> CreateLoadModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => CreateLoadModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
-
   /// Fetch fetch rate discovery
-  Future<Result<RateDiscoveryModel>> fetchRateDiscoveryData(RateDiscoveryApiRequest request) async {
+  Future<Result<RateDiscoveryModel>> fetchRateDiscoveryData(
+    RateDiscoveryApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.getRateDiscoveryPrice;
       final result = await _apiService.get(url, queryParams: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RateDiscoveryModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => RateDiscoveryModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Map Auto Complete
-  Future<Result<AutoCompleteModel>> fetchMapAutoCompleteData(String input) async {
+  Future<Result<AutoCompleteModel>> fetchMapAutoCompleteData(
+    String input,
+  ) async {
     try {
       final url = ApiUrls.mapAutoComplete;
-      final result = await _apiService.get(url, queryParams: {"input" : input});
+      final result = await _apiService.get(url, queryParams: {"input": input});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> AutoCompleteModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => AutoCompleteModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
-
   /// Fetch Verify Location
-  Future<Result<VerifyLocationModel>> fetchVerifyLocationData(VerifyLocationApiRequest request) async {
+  Future<Result<VerifyLocationModel>> fetchVerifyLocationData(
+    VerifyLocationApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.verifyLocation;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> VerifyLocationModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => VerifyLocationModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
 
   /// Fetch Weight Load
   Future<Result<LoadWeightModel>> fetchLoadWeightData() async {
@@ -251,18 +291,18 @@ class LpHomeService{
       final url = ApiUrls.getWeight;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadWeightModel.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => LoadWeightModel.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
-
-
-
 }

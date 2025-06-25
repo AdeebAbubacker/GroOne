@@ -43,6 +43,7 @@ class ApiUrls {
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
+  static String get _credit => "/credit";
 
 
   // Base URL
@@ -101,8 +102,11 @@ class ApiUrls {
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
   static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
   static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
-
-
+  static final String  lpLoadById="$_baseUrl$_load$_path$_v1$_load";
+  static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
+  static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
+  static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
+  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";

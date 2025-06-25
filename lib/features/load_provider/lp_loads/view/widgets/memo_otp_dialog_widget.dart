@@ -1,17 +1,52 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 
-class MemoOtpDialogWidget extends StatelessWidget {
-  const MemoOtpDialogWidget({super.key});
+class MemoOtpDialogWidget extends StatefulWidget {
+  final BuildContext parentContext;
+
+  const MemoOtpDialogWidget({super.key, required this.parentContext});
+
+  @override
+  State<MemoOtpDialogWidget> createState() => _MemoOtpDialogWidgetState();
+}
+
+
+class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
+  final otpController = TextEditingController();
+  final lpLoadLocator = locator<LpLoadCubit>();
+
+  void handleOtpVerification(uiState) {
+    if(uiState?.data?.data?.message == 'OTP verified successfully') {
+      Navigator.of(widget.parentContext, rootNavigator: true).pop();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        AppDialog.show(widget.parentContext, child: SuccessDialogView(
+          heading: "Memo E-Signed successfully",
+          onContinue: () {
+            Navigator.of(widget.parentContext).pop();
+          },
+        ));
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,21 +88,35 @@ class MemoOtpDialogWidget extends StatelessWidget {
               fieldHeight: 50,
               fillColor: Color(0xffF8F8F8),
               filled: true,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               margin: EdgeInsets.symmetric(horizontal: 10.0),
               borderColor: AppColors.borderDisableColor,
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              onCodeChanged: (String code) {},
+              onCodeChanged: (String code) {
+                setState(() {
+                  otpController.text = code;
+                });
+              },
               onSubmit: (String verificationCode) {
-                // controller.otp.value.text = verificationCode;
-                // controller.update();
+                setState(() {
+                  otpController.text = verificationCode;
+                });
               }, // end
             ),
           ),
           30.height,
           AppButton(
-            style: AppButtonStyle.primary,
+            style:(otpController.text.length == 4) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
             title: 'Verify OTP',
-            onPressed: () {},
+
+            onPressed: () async {
+              if (otpController.text.length == 4) {
+                await lpLoadLocator.verifyOtp(otp: otpController.text);
+                final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
+                handleOtpVerification(uiState);
+              }
+            },
+
           ),
           20.height,
           InkWell(

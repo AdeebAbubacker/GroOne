@@ -1,3 +1,10 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+
 import 'memo_otp_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -7,8 +14,29 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
-class LpLoadValidateMemo extends StatelessWidget {
-  const LpLoadValidateMemo({super.key});
+class LpLoadValidateMemo extends StatefulWidget {
+  const LpLoadValidateMemo({super.key, required this.loadId});
+
+  final String loadId;
+
+  @override
+  State<LpLoadValidateMemo> createState() => _LpLoadValidateMemoState();
+}
+
+class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
+
+  final lpLoadLocator = locator<LpLoadCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    initFunction();
+  }
+
+  void initFunction() => frameCallback(() {
+    lpLoadLocator.getLpLoadsMemoDetails(loadId: int.parse(widget.loadId));
+  });
+
 
   final List<String> notes = const [
     "Non-receipt of PODs should be intimated within 30 days from the delivered date.",
@@ -28,33 +56,57 @@ class LpLoadValidateMemo extends StatelessWidget {
         centerTitle: true,
       ),
 
-      body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 10,
-            children: [
-              buildMainDetailWidget(),
-              buildBankDetailsWidget(),
-              buildTruckSupplierWidget(),
-              buildNotesWidget(),
-              10.height,
-              AppButton(
-                title: "E-Sign Memo",
-                onPressed: () {
-                  AppDialog.show(context, child: MemoOtpDialogWidget());
-                },
+      body: BlocBuilder<LpLoadCubit, LpLoadState>(
+          builder: (context, state) {
+            final uiState = state.lpLoadMemoDetails;
+
+            if (uiState == null || uiState.status == Status.ERROR) {
+              return const Center(
+                child: Text("Failed to load memo details.", style: TextStyle(fontSize: 16)),
+              );
+            }
+
+            if (uiState == null || uiState.status == Status.LOADING) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
+              return const Center(
+                child: Text("No Memo Found.", style: TextStyle(fontSize: 16)),
+              );
+            }
+
+            final  memoDetails = uiState.data;
+
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 10,
+                children: [
+                  buildMainDetailWidget(memoDetails!),
+                  buildBankDetailsWidget(memoDetails),
+                  buildTruckSupplierWidget(memoDetails),
+                  buildNotesWidget(),
+                  10.height,
+                  AppButton(
+                    title: "E-Sign Memo",
+                    onPressed: () {
+                      AppDialog.show(context, child: MemoOtpDialogWidget(parentContext: context,));
+                    },
+                  ),
+                  40.height,
+                ],
               ),
-              40.height,
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
   }
 
   /// Main Details
-  Widget buildMainDetailWidget() {
+  Widget buildMainDetailWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -63,23 +115,23 @@ class LpLoadValidateMemo extends StatelessWidget {
         spacing: 20,
         children: [
           buildHeadingText('Main Details'),
-          buildDMemoDetailWidget(label: "Load ID", value: "GD12456"),
-          buildDMemoDetailWidget(label: "Transporter", value: "Gogovan india pvt ltd"),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: "MH87 HV 7807"),
-          buildDMemoDetailWidget(label: "MEMO#", value: "09876543212345678"),
-          buildDMemoDetailWidget(label: "Lane", value: "Chennai - Namakkal"),
-          buildDMemoDetailWidget(label: "Total Freight", value: "Rs 30000.00"),
-          buildDMemoDetailWidget(label: "Handling Charges", value: "(-) Rs 1000.00"),
-          buildDMemoDetailWidget(label: "Net Freight", value: "Rs 29000.00"),
-          buildDMemoDetailWidget(label: "Advance (80%)", value: "Rs 27000.00"),
-          buildDMemoDetailWidget(label: "Balance (20%)", value: "Rs 3000.00"),
+          buildDMemoDetailWidget(label: "Load ID", value: memoDetails.loadId),
+          buildDMemoDetailWidget(label: "Transporter", value: memoDetails.transporter),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.vehicleNumber),
+          buildDMemoDetailWidget(label: "MEMO#", value: memoDetails.memoNumber),
+          buildDMemoDetailWidget(label: "Lane", value: memoDetails.lane),
+          buildDMemoDetailWidget(label: "Total Freight", value: memoDetails.totalFreight),
+          buildDMemoDetailWidget(label: "Handling Charges", value: memoDetails.handlingCharges),
+          buildDMemoDetailWidget(label: "Net Freight", value: memoDetails.netFreight),
+          buildDMemoDetailWidget(label: "Advance (80%)", value: memoDetails.advanceAmount),
+          buildDMemoDetailWidget(label: "Balance (20%)", value: memoDetails.balanceAmount ),
         ],
       ),
     );
   }
 
   /// Bank Details
-  Widget buildBankDetailsWidget() {
+  Widget buildBankDetailsWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -88,18 +140,18 @@ class LpLoadValidateMemo extends StatelessWidget {
         spacing: 20,
         children: [
           buildHeadingText("Bank Details"),
-          buildDMemoDetailWidget(label: "Beneficiary Name", value: "Gro Digital Platform"),
-          buildDMemoDetailWidget(label: "Bank Name*", value: "Axis Bank"),
-          buildDMemoDetailWidget(label: "Account Number*", value: "7658036540837458"),
-          buildDMemoDetailWidget(label: "IFSC Code*", value: "UT7346580nfj"),
-          buildDMemoDetailWidget(label: "Branch Name*", value: "T.Nagar"),
+          buildDMemoDetailWidget(label: "Beneficiary Name", value: memoDetails.bankDetails?.beneficiaryName ?? ''),
+          buildDMemoDetailWidget(label: "Bank Name*", value: memoDetails.bankDetails?.bankName ?? ''),
+          buildDMemoDetailWidget(label: "Account Number*", value: memoDetails.bankDetails?.accountNumber ?? ''),
+          buildDMemoDetailWidget(label: "IFSC Code*", value: memoDetails.bankDetails?.ifscCode ?? ''),
+          buildDMemoDetailWidget(label: "Branch Name*", value: memoDetails.bankDetails?.branchName ?? ''),
         ],
       ),
     );
   }
 
   /// Truck Supplier Details
-  Widget buildTruckSupplierWidget() {
+  Widget buildTruckSupplierWidget(LoadMemoData memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -108,9 +160,9 @@ class LpLoadValidateMemo extends StatelessWidget {
         spacing: 20,
         children: [
           buildHeadingText("Truck Supplier"),
-          buildDMemoDetailWidget(label: "Partner Name", value: "Manish Kumar"),
-          buildDMemoDetailWidget(label: "PAN Number", value: "DPXP938650"),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: "MH87HV7808"),
+          buildDMemoDetailWidget(label: "Partner Name", value: memoDetails.truckSupplier?.partnerName ?? ''),
+          buildDMemoDetailWidget(label: "PAN Number", value: memoDetails.truckSupplier?.panNumber ?? ''),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.truckSupplier?.vehicleNumber ?? ''),
         ],
       ),
     );

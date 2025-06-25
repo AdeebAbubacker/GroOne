@@ -1,6 +1,8 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
@@ -8,18 +10,74 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:lottie/lottie.dart';
 
 class LPLoadListBodyWidget extends StatelessWidget{
-  const LPLoadListBodyWidget({super.key, required this.loadItem});
+  const LPLoadListBodyWidget({super.key, required this.loadItem, required this.lpLoadLocator});
 
   final LpLoadItem loadItem;
+  final LpLoadCubit lpLoadLocator;
+
+  void agreeLoadPopup(context) async {
+    await lpLoadLocator.getCreditCheck();
+
+    final uiState = lpLoadLocator.state.lpCreditCheck;
+
+    final loadList = uiState?.data?.availableCreditLimit ?? '';
+
+    int availableCredit = double.parse(loadList).toInt();
+    int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+
+    if(availableCredit < rateValue) {
+      AppDialog.show(context, child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        noButtonText: "Back",
+        yesButtonText: "Customer Support",
+        child: Column(
+          children: [
+            Lottie.asset(AppJSON.alert, repeat: true, frameRate: FrameRate(200)),
+            Text("Low credit balance", style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
+            10.height,
+            Text("You cannot post this load due to your low credit balance", textAlign: TextAlign.center, style: AppTextStyle.body3),
+            10.height,
+          ],
+        ),
+        onClickYesButton: () {
+          // Navigator.pop(context);
+          // AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+        },
+      ));
+    } else {
+      AppDialog.show(context, child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        noButtonText: "Cancel",
+        yesButtonText: "I Agree Load",
+        child: Column(
+          children: [
+            Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
+            Text("Are you sure you agree to this Load?"),
+          ],
+        ),
+        onClickYesButton: () {
+          Navigator.pop(context);
+          AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+        },
+      ));
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +167,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         Text(
           loadItem.pickUpAddr,
           style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ),
+        ).flexible(),
         DottedLine(
           direction: Axis.horizontal,
           lineLength: double.infinity,
@@ -122,7 +180,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         Text(
           loadItem.dropAddr,
           style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ),
+        ).flexible(),
       ],
     );
   }
@@ -154,7 +212,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
       children: [
         AppButton(
           buttonHeight: 40,
-          onPressed: () {},
+          onPressed: () => agreeLoadPopup(context),
           title: context.appText.iAgree,
         ).expand(),
         10.width,

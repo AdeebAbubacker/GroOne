@@ -67,7 +67,6 @@ class HomeScreenLoadProvider extends StatefulWidget {
 }
 
 class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
-
   // ProfileDetailModel? profileResponse;
   // LpGetLoadModel? getLoadResponse;
 
@@ -78,7 +77,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
-
 
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
@@ -107,7 +105,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   bool memoDone = false;
   bool hideKycSuccessStatus = false;
 
-
   @override
   void setState(fn) {
     if (mounted) super.setState(fn);
@@ -125,7 +122,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     super.dispose();
   }
 
-
   void initFunction() => frameCallback(() async {
     lpHomeCubit.resetState();
     lpHomeCubit.fetchProfileDetail();
@@ -139,7 +135,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     clearAllValues();
   });
 
-  void refreshLoadList(){
+  void refreshLoadList() {
     lpHomeCubit.fetchGetLoadList();
   }
 
@@ -157,7 +153,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     truckLength = null;
   });
 
-  void clearAllValues(){
+  void clearAllValues() {
     dateTimeTextController.clear();
     weightTextController.clear();
     lpHomeCubit.clearPickUpAndDestination();
@@ -178,14 +174,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     setState(() {});
   }
 
-
-
-
   // For Get Rate Discovery validation
   bool isFormValid() {
     final pickup = lpHomeCubit.state.pickup?.data;
     final destination = lpHomeCubit.state.destination?.data;
-    bool checkAllField = pickup != null &&
+    bool checkAllField =
+        pickup != null &&
         destination != null &&
         commodityId != null &&
         truckTypeId != null &&
@@ -193,7 +187,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         weightTextController.text.trim().isNotEmpty;
     return checkAllField;
   }
-
 
   // Validation
   bool checkValidation() {
@@ -226,16 +219,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return true;
   }
 
-
   Future<void> fetchRateDiscovery() async {
-    CustomLog.debug(this, "Fetch Rate Discovery - Form Valid : ${isFormValid()}");
+    CustomLog.debug(
+      this,
+      "Fetch Rate Discovery - Form Valid : ${isFormValid()}",
+    );
 
     if (!isFormValid()) {
       CustomLog.debug(this, "All Fields are not valid");
       return;
     }
 
-    if (lpHomeCubit.state.laneId == null){
+    if (lpHomeCubit.state.laneId == null) {
       ToastMessages.error(message: "Something went wrong, Land Id is null");
       CustomLog.debug(this, "Land Id is null");
       return;
@@ -251,21 +246,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     if (lpHomeCubit.state.rateDiscoveryUIState != null) {
       Status? status = lpHomeCubit.state.rateDiscoveryUIState!.status;
       if (status != null) {
-         if (status == Status.ERROR) {
-           final error = lpHomeCubit.state.rateDiscoveryUIState?.errorType;
-           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-         }
+        if (status == Status.ERROR) {
+          final error = lpHomeCubit.state.rateDiscoveryUIState?.errorType;
+          ToastMessages.error(
+            message: getErrorMsg(errorType: error ?? GenericError()),
+          );
+        }
       }
     }
     setState(() {});
   }
 
-
-
-
   // Load Post Api Call
   Future<void> postLoad(BuildContext context) async {
-
     if (!checkValidation()) {
       return;
     }
@@ -278,51 +271,66 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
-        commodityId: int.parse(commodityId ?? "0"),
-        truckTypeId: int.parse(truckTypeId ?? "0"),
-        pickUpAddr:  lpHomeCubit.state.pickup?.data?.address ?? "",
-        pickUpLocation:  lpHomeCubit.state.pickup?.data?.location ?? "",
-        pickUpLatlon:   lpHomeCubit.state.pickup?.data?.latLng ??"",
-        dropAddr:   lpHomeCubit.state.destination?.data?.address ?? "",
-        dropLocation:   lpHomeCubit.state.destination?.data?.location ?? "",
-        dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
-        dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
-        consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
-        rate: rateDiscoveryPrice ?? "0000 - 0000",
-        laneId: lpHomeCubit.state.laneId
+      commodityId: int.parse(commodityId ?? "0"),
+      truckTypeId: int.parse(truckTypeId ?? "0"),
+      pickUpAddr: lpHomeCubit.state.pickup?.data?.address ?? "",
+      pickUpLocation: lpHomeCubit.state.pickup?.data?.location ?? "",
+      pickUpLatlon: lpHomeCubit.state.pickup?.data?.latLng ?? "",
+      dropAddr: lpHomeCubit.state.destination?.data?.address ?? "",
+      dropLocation: lpHomeCubit.state.destination?.data?.location ?? "",
+      dropLatlon: lpHomeCubit.state.destination?.data?.latLng ?? "",
+      dueDate:
+          DateTimeHelper.convertStringToDateTime(
+            dateTimeTextController.text,
+          ).toString(),
+      consignmentWeight: int.parse(
+        lpHomeCubit.state.selectedWeight!.id.toString(),
+      ),
+      rate: rateDiscoveryPrice ?? "0000 - 0000",
+      laneId: lpHomeCubit.state.laneId,
     );
 
     // Pass Data in to next page
-    Navigator.push(context, commonRoute(LoadSummaryScreen(
-      apiRequest: request,
-      pickupAddress:  lpHomeCubit.state.pickup?.data?.address ?? "",
-      pickupLocation: lpHomeCubit.state.pickup?.data?.location ?? "",
-      destinationAddress:  lpHomeCubit.state.destination?.data?.address ?? "",
-      destinationLocation: lpHomeCubit.state.destination?.data?.location ?? "",
-      vehicleType: truckType ?? "",
-      vehicleLength: truckLength ?? "",
-      approxWeight: weightTextController.text,
-      category: selectedCommodity ?? "",
-      price: rateDiscoveryPrice ?? "0000 - 0000",
-      date : dateTimeTextController.text,
-    ), isForward: true)).then((onValue){
-      if(onValue != null && onValue == true){
+    Navigator.push(
+      context,
+      commonRoute(
+        LoadSummaryScreen(
+          apiRequest: request,
+          pickupAddress: lpHomeCubit.state.pickup?.data?.address ?? "",
+          pickupLocation: lpHomeCubit.state.pickup?.data?.location ?? "",
+          destinationAddress:
+              lpHomeCubit.state.destination?.data?.address ?? "",
+          destinationLocation:
+              lpHomeCubit.state.destination?.data?.location ?? "",
+          vehicleType: truckType ?? "",
+          vehicleLength: truckLength ?? "",
+          approxWeight: weightTextController.text,
+          category: selectedCommodity ?? "",
+          price: rateDiscoveryPrice ?? "0000 - 0000",
+          date: dateTimeTextController.text,
+        ),
+        isForward: true,
+      ),
+    ).then((onValue) {
+      if (onValue != null && onValue == true) {
         clearAllValues();
         setState(() {});
       }
     });
-
   }
 
-
   // Kyc Bottom Sheet
-  void kycBottomSheet(BuildContext context){
+  void kycBottomSheet(BuildContext context) {
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
         onPressed: () {
           context.pop();
-          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
+          commonBottomSheetWithBGBlur(
+            context: context,
+            screen: EnterAadhaarNumberBottomSheet(),
+          ).then((value) {
+            lpHomeBloc.add(
+              GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
             );
           });
         },
@@ -331,19 +339,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
-
   // Blue Membership Dialog
-  void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        child: BlueMembershipDialogView(blueId: blueId),
-      ),
-    );
-  });
-
+  void blueMembershipDialog(BuildContext context, String blueId) =>
+      frameCallback(() {
+        AppDialog.show(
+          context,
+          child: CommonDialogView(
+            hideCloseButton: true,
+            child: BlueMembershipDialogView(blueId: blueId),
+          ),
+        );
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -370,20 +376,25 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             );
           }
         },
-        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+        child: Image.asset(
+          AppIcons.png.appIcon,
+        ).paddingLeft(commonSafeAreaPadding),
       ),
 
       actions: [
-
         // Notification
         IconButton(
           onPressed: () {},
-          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+          icon: SvgPicture.asset(
+            AppIcons.svg.notification,
+            width: 30,
+            colorFilter: AppColors.svg(AppColors.black),
+          ),
         ),
 
         // KYC Blinking
         BlocProvider<LPHomeCubit>.value(
-          value: locator<LPHomeCubit>(),   // singleton from get_it
+          value: locator<LPHomeCubit>(), // singleton from get_it
           child: BlocConsumer<LPHomeCubit, LPHomeState>(
             listener: (context, state) {},
             builder: (context, state) {
@@ -410,12 +421,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               }
 
               return kycWidget(
-                onTap: () => commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: EnterAadhaarNumberBottomSheet(),
-                ),
+                onTap:
+                    () => commonBottomSheetWithBGBlur(
+                      context: context,
+                      screen: EnterAadhaarNumberBottomSheet(),
+                    ),
               );
-
             },
           ),
         ),
@@ -424,10 +435,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         BlocProvider<LPHomeCubit>.value(
           value: locator<LPHomeCubit>(), // singleton from locator
           child: BlocConsumer<LPHomeCubit, LPHomeState>(
-            listener: (context, state) { },
+            listener: (context, state) {},
             builder: (context, state) {
-              if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-                if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
+              if (state.profileDetailUIState != null &&
+                  state.profileDetailUIState?.status == Status.SUCCESS) {
+                if (state.profileDetailUIState?.data != null &&
+                    state.profileDetailUIState?.data?.data != null) {
                   if (state.profileDetailUIState?.data?.data?.details != null) {
                     return Row(
                       children: [
@@ -435,16 +448,43 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                         // Profile
                         Container(
-                          height: 40,
-                          width: 40,
-                          alignment: Alignment.center,
-                          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
-                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
-                        ).onClick((){
-                          Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
-                            frameCallback(() =>  lpHomeCubit.fetchProfileDetail());
-                          });
-                        }).paddingRight(commonSafeAreaPadding),
+                              height: 40,
+                              width: 40,
+                              alignment: Alignment.center,
+                              decoration: commonContainerDecoration(
+                                borderRadius: BorderRadius.circular(100),
+                                color: AppColors.greyIconBackgroundColor,
+                              ),
+                              child: Text(
+                                getInitialsFromName(
+                                  this,
+                                  name:
+                                      state
+                                          .profileDetailUIState!
+                                          .data!
+                                          .data!
+                                          .details!
+                                          .companyName,
+                                ),
+                              ),
+                            )
+                            .onClick(() {
+                              Navigator.push(
+                                context,
+                                commonRoute(
+                                  ProfileScreen(
+                                    profileData:
+                                        state.profileDetailUIState!.data!.data!,
+                                  ),
+                                  isForward: true,
+                                ),
+                              ).then((v) {
+                                frameCallback(
+                                  () => lpHomeCubit.fetchProfileDetail(),
+                                );
+                              });
+                            })
+                            .paddingRight(commonSafeAreaPadding),
                       ],
                     );
                   }
@@ -454,7 +494,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             },
           ),
         ),
-
       ],
     );
   }
@@ -464,14 +503,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return RefreshIndicator(
       onRefresh: () async {
         initFunction();
-
       },
       child: SingleChildScrollView(
         child: BlocConsumer<LpHomeBloc, HomeState>(
           listener: (context, state) {
-            if (state is ProfileDetailSuccess) {
-
-            }
+            if (state is ProfileDetailSuccess) {}
             if (state is ProfileDetailError) {
               ToastMessages.error(
                 message: getErrorMsg(errorType: state.errorType),
@@ -506,7 +542,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-  Widget buildKycLabelWidget(){
+  Widget buildKycLabelWidget() {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) async {
         final profileState = state.profileDetailUIState;
@@ -515,12 +551,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             profileState.data != null &&
             profileState.data?.data != null &&
             profileState.data?.data?.customer != null &&
-            profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
-          if (await lpHomeCubit.getBlueId() == null){
-            if(!context.mounted) return;
+            profileState.data!.data!.customer!.blueId.isNotEmpty &&
+            state.showSuccessKyc) {
+          if (await lpHomeCubit.getBlueId() == null) {
+            if (!context.mounted) return;
             sessionBlueId = null;
-            blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
-          } else{
+            blueMembershipDialog(
+              context,
+              profileState.data!.data!.customer!.blueId,
+            );
+          } else {
             sessionBlueId = await lpHomeCubit.getBlueId();
           }
         }
@@ -533,29 +573,32 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             profileState.data != null &&
             profileState.data?.data != null &&
             profileState.data?.data?.customer != null) {
-
           final customer = profileState.data!.data!.customer!;
 
           isKycValid = customer.isKyc.toInt();
 
           if (customer.isKyc == 3) {
-            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget() :  0.width;
+            return (state.showSuccessKyc && sessionBlueId == null)
+                ? kycSuccessStatusWidget()
+                : 0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget();
           } else {
             return IncompleteKycStatusWidget();
           }
         }
-        return  20.width;
+        return 20.width;
       },
     );
   }
 
-
   // Book Shipment
   Widget bookShipmentSectionWidget(BuildContext context) {
     return Container(
-      decoration: commonContainerDecoration(borderRadius: BorderRadius.zero, shadow: true),
+      decoration: commonContainerDecoration(
+        borderRadius: BorderRadius.zero,
+        shadow: true,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -572,54 +615,91 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             ),
             child: Row(
               children: [
-
                 // Source or destination vertical line
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
+                Image.asset(
+                  AppImage.png.bookAShipment,
+                  width: 18,
+                  fit: BoxFit.fitHeight,
+                ),
                 10.width,
 
                 BlocConsumer<LPHomeCubit, LPHomeState>(
                   bloc: lpHomeCubit,
-                  listener: (context, state){},
-                  builder: (context, state){
-
+                  listener: (context, state) {},
+                  builder: (context, state) {
                     String? pickupLocation;
                     String? destinationLocation;
 
-                    if (state.pickup?.status == Status.SUCCESS && state.pickup?.data != null){
-                      pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
+                    if (state.pickup?.status == Status.SUCCESS &&
+                        state.pickup?.data != null) {
+                      pickupLocation =
+                          ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
                     }
 
-                    if (state.destination?.status == Status.SUCCESS && state.destination?.data != null){
-                        destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
+                    if (state.destination?.status == Status.SUCCESS &&
+                        state.destination?.data != null) {
+                      destinationLocation =
+                          ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
                     }
 
                     return Column(
                       children: [
-
                         // Source (Pick Up)
                         BookShipmentWidget(
                           heading: context.appText.source,
-                          subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
+                          subHeading:
+                              pickupLocation ??
+                              context.appText.selectPickUpPoint,
                           onClick: () {
                             final uiState = state.recentRouteUIState;
 
                             if (uiState != null) {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
-                                  if (uiState.data != null && uiState.data!.data.isNotEmpty) {
-                                    CustomLog.debug(this, "Recent Route List : ${uiState.data?.data}");
-                                    Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                  if (uiState.data != null &&
+                                      uiState.data!.data.isNotEmpty) {
+                                    CustomLog.debug(
+                                      this,
+                                      "Recent Route List : ${uiState.data?.data}",
+                                    );
+                                    Navigator.of(
+                                      context,
+                                    ).push(createRoute(RecentRouteScreen()));
                                   } else {
-                                    ToastMessages.alert(message: "No recent routes found.");
-                                    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                    ToastMessages.alert(
+                                      message: "No recent routes found.",
+                                    );
+                                    Navigator.of(context).push(
+                                      commonRoute(
+                                        LPSelectAddressScreen(
+                                          title: "Pickup Point",
+                                          address: state.pickup?.data?.address,
+                                          location:
+                                              state.pickup?.data?.location,
+                                        ),
+                                        isForward: true,
+                                      ),
+                                    );
                                   }
                                   break;
 
                                 case Status.ERROR:
-                                  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                  Navigator.of(context).push(
+                                    commonRoute(
+                                      LPSelectAddressScreen(
+                                        title: "Pickup Point",
+                                        address: state.pickup?.data?.address,
+                                        location: state.pickup?.data?.location,
+                                      ),
+                                      isForward: true,
+                                    ),
+                                  );
                                   break;
-                               case null:
-                                  ToastMessages.success(message: "Please wait, loading recent routes...");
+                                case null:
+                                  ToastMessages.success(
+                                    message:
+                                        "Please wait, loading recent routes...",
+                                  );
                                   break;
                                 case Status.INITIAL:
                                   throw UnimplementedError();
@@ -628,10 +708,18 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                   throw UnimplementedError();
                               }
                             } else {
-                              Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                              Navigator.of(context).push(
+                                commonRoute(
+                                  LPSelectAddressScreen(
+                                    title: "Pickup Point",
+                                    address: state.pickup?.data?.address,
+                                    location: state.pickup?.data?.location,
+                                  ),
+                                  isForward: true,
+                                ),
+                              );
                             }
                           },
-
                         ),
 
                         commonDivider(),
@@ -639,19 +727,34 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         // Destination
                         BookShipmentWidget(
                           heading: context.appText.destination,
-                          subHeading: destinationLocation ?? context.appText.selectDestination,
+                          subHeading:
+                              destinationLocation ??
+                              context.appText.selectDestination,
                           onClick: () {
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
-                              if(onValue != null && onValue == true){
-                                 debugPrint("Destination: ${state.destination.toString()}");
-                              } else {
-                                lpHomeCubit.setDestination(null);
-                              }
-                              setState(() {});
-                            });
+                            Navigator.of(context)
+                                .push(
+                                  commonRoute(
+                                    LPSelectAddressScreen(
+                                      title: "Select Destination",
+                                      address: state.destination!.data?.address,
+                                      location:
+                                          state.destination!.data?.location,
+                                    ),
+                                    isForward: true,
+                                  ),
+                                )
+                                .then((onValue) async {
+                                  if (onValue != null && onValue == true) {
+                                    debugPrint(
+                                      "Destination: ${state.destination.toString()}",
+                                    );
+                                  } else {
+                                    lpHomeCubit.setDestination(null);
+                                  }
+                                  setState(() {});
+                                });
                           },
                         ),
-
                       ],
                     ).expand();
                   },
@@ -661,11 +764,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           ),
           20.height,
 
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // Commodity selection
               BlocListener<LoadCommodityBloc, LoadCommodityState>(
                 bloc: loadCommodityBloc,
@@ -679,7 +780,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
                   bloc: loadCommodityBloc,
                   builder: (context, state) {
-
                     if (state is LoadCommoditySuccess) {
                       final commodities = state.commodityListModel.data;
 
@@ -694,16 +794,24 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         dataList: commodities,
                         selectedText: selectedCommodity,
                         onTab: () {
-                          Navigator.of(context).push(createRoute(CommodityTypesScreen(
-                            dataList: commodities,
-                            selectedIndex: commodities.indexWhere((element) => element.id.toString()==commodityId),
-                            onSelect:  (index) async {
-                              selectedCommodity = commodities[index].name;
-                              commodityId = commodities[index].id.toString();
-                              setState(() {});
-                              await fetchRateDiscovery();
-                            },
-                          )));
+                          Navigator.of(context).push(
+                            createRoute(
+                              CommodityTypesScreen(
+                                dataList: commodities,
+                                selectedIndex: commodities.indexWhere(
+                                  (element) =>
+                                      element.id.toString() == commodityId,
+                                ),
+                                onSelect: (index) async {
+                                  selectedCommodity = commodities[index].name;
+                                  commodityId =
+                                      commodities[index].id.toString();
+                                  setState(() {});
+                                  await fetchRateDiscovery();
+                                },
+                              ),
+                            ),
+                          );
                         },
                       ).paddingOnly(right: 10).expand();
                     }
@@ -711,7 +819,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   },
                 ),
               ),
-
 
               // Consignment weight (MT)
               BlocConsumer<LPHomeCubit, LPHomeState>(
@@ -728,13 +835,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       setState(() {});
                     },
                     dataList: weights,
-                    selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
+                    selectedText:
+                        weightTextController.text.isEmpty
+                            ? null
+                            : "${weightTextController.text} MT",
                     onTab: () {
-                      Navigator.of(context).push(createRoute(WeightSelectionScreen(
+                      Navigator.of(context).push(
+                        createRoute(
+                          WeightSelectionScreen(
                             dataList: weights,
                             onSelect: (weight) {
                               lpHomeCubit.selectWeight(weight);
-                              weightTextController.text = weight.value.toString();
+                              weightTextController.text =
+                                  weight.value.toString();
                               setState(() {});
                             },
                             cubit: lpHomeCubit,
@@ -745,22 +858,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     cubit: lpHomeCubit,
                   ).expand();
                 },
-              )
+              ),
             ],
           ),
           10.height,
 
-
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-
               // Truck selection
               BlocListener<LoadTruckTypeBloc, LoadTruckTypeState>(
                 bloc: loadTruckTypeBloc,
                 listener: (context, state) {
                   if (state is LoadTruckTypeError) {
-                    ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+                    ToastMessages.error(
+                      message: getErrorMsg(errorType: state.errorType),
+                    );
                   }
                 },
                 child: BlocBuilder<LoadTruckTypeBloc, LoadTruckTypeState>(
@@ -781,16 +894,21 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         dataList: truckTypesList,
                         selectedText: selectedTruck,
                         onTab: () {
-                          Navigator.of(context).push(createRoute(TruckTypesScreen(
-                            dataList: truckTypesList,
-                            onSelect: (TruckTypeData truck) async {
-                              selectedTruck = "${truck.type} ${truck.subType}";
-                              truckTypeId = truck.id.toString();
-                              truckType = truck.type;
-                              truckLength = truck.subType;
-                              await fetchRateDiscovery();
-                            },
-                          )));
+                          Navigator.of(context).push(
+                            createRoute(
+                              TruckTypesScreen(
+                                dataList: truckTypesList,
+                                onSelect: (TruckTypeData truck) async {
+                                  selectedTruck =
+                                      "${truck.type} ${truck.subType}";
+                                  truckTypeId = truck.id.toString();
+                                  truckType = truck.type;
+                                  truckLength = truck.subType;
+                                  await fetchRateDiscovery();
+                                },
+                              ),
+                            ),
+                          );
                         },
                       ).paddingOnly(right: 10).expand();
                     }
@@ -802,18 +920,19 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               // Date and Time
               InkWell(
                 onTap: () async {
-
                   final String? date = await commonDatePicker(
                     context,
                     firstDate: DateTime.now(),
-                    initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateTimeTextController.text),
+                    initialDate:
+                        DateTimeHelper.convertToDateTimeWithCurrentTime(
+                          dateTimeTextController.text,
+                        ),
                   );
 
-                  if(!context.mounted) return;
-                   String? time = await commonTimePicker(context);
+                  if (!context.mounted) return;
+                  String? time = await commonTimePicker(context);
 
-
-                  if (date != null ) {
+                  if (date != null) {
                     dateTimeTextController.text = date;
                     selectedDate = date;
                     selectedTime = time;
@@ -823,18 +942,31 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 child: Container(
                   height: 55,
                   padding: EdgeInsets.all(10),
-                  decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+                  decoration: commonContainerDecoration(
+                    color: AppColors.lightPrimaryColor2,
+                    borderColor: AppColors.borderColor,
+                  ),
                   child: Row(
                     children: [
-                      SvgPicture.asset(AppIcons.svg.calendar, width: 20, colorFilter: AppColors.svg(AppColors.primaryIconColor)),
+                      SvgPicture.asset(
+                        AppIcons.svg.calendar,
+                        width: 20,
+                        colorFilter: AppColors.svg(AppColors.primaryIconColor),
+                      ),
                       10.width,
 
-                      Text(dateTimeTextController.text.isEmpty ? "Pick-up date" : dateTimeTextController.text, style: AppTextStyle.body, maxLines: 1, overflow: TextOverflow.ellipsis).expand(),
+                      Text(
+                        dateTimeTextController.text.isEmpty
+                            ? "Pick-up date"
+                            : dateTimeTextController.text,
+                        style: AppTextStyle.body,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ).expand(),
                     ],
                   ),
                 ),
               ).expand(),
-
             ],
           ),
           20.height,
@@ -842,53 +974,69 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           // Suggested Price
           Builder(
             builder: (context) {
-              if(isFormValid()){
+              if (isFormValid()) {
                 return Container(
                   padding: EdgeInsets.all(10),
-                  decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+                  decoration: commonContainerDecoration(
+                    color: AppColors.lightPrimaryColor2,
+                    borderColor: AppColors.borderColor,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       // Suggestion Price
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text("Suggested Price", style: AppTextStyle.bodyGreyColor),
+                          Text(
+                            "Suggested Price",
+                            style: AppTextStyle.bodyGreyColor,
+                          ),
 
                           BlocConsumer<LPHomeCubit, LPHomeState>(
                             bloc: lpHomeCubit,
-                            listener: (context, state){
+                            listener: (context, state) {
                               final status = state.rateDiscoveryUIState?.status;
 
                               if (status == Status.ERROR) {
-                                final error = state.rateDiscoveryUIState?.errorType;
-                                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                                final error =
+                                    state.rateDiscoveryUIState?.errorType;
+                                ToastMessages.error(
+                                  message: getErrorMsg(
+                                    errorType: error ?? GenericError(),
+                                  ),
+                                );
                               }
                             },
                             builder: (context, state) {
-                              if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
-                                String? suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price;
+                              if (state.rateDiscoveryUIState?.status ==
+                                  Status.SUCCESS) {
+                                String? suggestedPrice =
+                                    state
+                                        .rateDiscoveryUIState
+                                        ?.data
+                                        ?.data
+                                        ?.price;
                                 rateDiscoveryPrice = suggestedPrice ?? "00000";
-                                return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+                                return Text(
+                                  PriceHelper.formatINR(rateDiscoveryPrice),
+                                  style: AppTextStyle.body1,
+                                );
                               }
-                              return  Container();
+                              return Container();
                             },
                           ),
-
                         ],
                       ),
                       20.height,
 
-
                       Row(
                         children: [
-
                           // Need Customer Support Button
                           AppButton(
                             title: "Support",
                             style: AppButtonStyle.outline,
-                            onPressed: (){
+                            onPressed: () {
                               commonSupportDialog(context);
                             },
                           ).expand(),
@@ -897,66 +1045,76 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           // Post Load Button
                           BlocConsumer<LoadPostingBloc, LoadPostingState>(
                             bloc: loadPostingBloc,
-                            listenWhen: (previous, current) => previous != current,
+                            listenWhen:
+                                (previous, current) => previous != current,
                             listener: (context, state) {
-                              if (state is CreateLoadSuccess) {
-                              }
+                              if (state is CreateLoadSuccess) {}
                             },
                             builder: (context, state) {
                               final isLoading = state is CreateLoadLoading;
                               return AppButton(
                                 title: context.appText.postLoad,
                                 isLoading: isLoading,
-                                onPressed: isLoading ? (){} : () async {
-                                  postLoad(context);
-                                },
+                                onPressed:
+                                    isLoading
+                                        ? () {}
+                                        : () async {
+                                          postLoad(context);
+                                        },
                               );
                             },
-                          ).expand()
-
+                          ).expand(),
                         ],
-                      )
-
+                      ),
                     ],
                   ),
                 );
               } else {
                 return Container();
               }
-            }
+            },
           ),
-
         ],
       ).paddingSymmetric(horizontal: commonSafeAreaPadding, vertical: 20),
     );
   }
 
-
   // Up-coming shipment
   Widget buildUpComingShipmentListWidget() {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       bloc: lpHomeCubit,
-      listenWhen: (previous, current) =>  previous.lpGetLoadUIState != current.lpGetLoadUIState,
+      listenWhen:
+          (previous, current) =>
+              previous.lpGetLoadUIState != current.lpGetLoadUIState,
       listener: (context, state) {
         final status = state.lpGetLoadUIState?.status;
         if (status == Status.ERROR) {
           final error = state.lpGetLoadUIState?.errorType;
-          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          ToastMessages.error(
+            message: getErrorMsg(errorType: error ?? GenericError()),
+          );
         }
       },
       builder: (context, state) {
         return Container(
-          decoration: commonContainerDecoration(borderRadius: BorderRadius.zero, shadow: true),
+          decoration: commonContainerDecoration(
+            borderRadius: BorderRadius.zero,
+            shadow: true,
+          ),
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: commonSafeAreaPadding, horizontal: commonSafeAreaPadding),
+            padding: EdgeInsets.symmetric(
+              vertical: commonSafeAreaPadding,
+              horizontal: commonSafeAreaPadding,
+            ),
             child: Builder(
               builder: (context) {
-                if(state.lpGetLoadUIState != null && state.lpGetLoadUIState?.status != null){
-                  switch (state.lpGetLoadUIState!.status){
-                    case Status.LOADING :
+                if (state.lpGetLoadUIState != null &&
+                    state.lpGetLoadUIState?.status != null) {
+                  switch (state.lpGetLoadUIState!.status) {
+                    case Status.LOADING:
                       return CircularProgressIndicator().center();
-                    case Status.SUCCESS :
-                      if(state.lpGetLoadUIState?.data != null){
+                    case Status.SUCCESS:
+                      if (state.lpGetLoadUIState?.data != null) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -964,51 +1122,67 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
+                                Text(
+                                  context.appText.upComingShipment,
+                                  style: AppTextStyle.body1,
+                                ).expand(),
 
                                 // See More
-                                if(state.lpGetLoadUIState!.data!.data.isNotEmpty)
-                                TextButton(
-                                  onPressed: () {
-                                  },
-                                  style: AppButtonStyle.primaryTextButton,
-                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
-                                ),
-
+                                if (state
+                                    .lpGetLoadUIState!
+                                    .data!
+                                    .data
+                                    .isNotEmpty)
+                                  TextButton(
+                                    onPressed: () {},
+                                    style: AppButtonStyle.primaryTextButton,
+                                    child: Text(
+                                      context.appText.seeMore,
+                                      style: AppTextStyle.body3WhiteColor,
+                                    ),
+                                  ),
                               ],
                             ),
                             15.height,
 
-                            if(state.lpGetLoadUIState!.data!.data.isNotEmpty)
+                            if (state.lpGetLoadUIState!.data!.data.isNotEmpty)
                               ListView.separated(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
                                 padding: EdgeInsets.zero,
-                                itemCount: state.lpGetLoadUIState!.data!.data.length,
-                                separatorBuilder: (BuildContext context, int index) => 20.height,
+                                itemCount:
+                                    state.lpGetLoadUIState!.data!.data.length,
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        20.height,
                                 itemBuilder: (context, index) {
-                                  final loadData = state.lpGetLoadUIState!.data!.data[index];
-                                  return UpcomingShipmentsListBody(loadData: loadData);
+                                  final loadData =
+                                      state.lpGetLoadUIState!.data!.data[index];
+                                  return UpcomingShipmentsListBody(
+                                    loadData: loadData,
+                                  );
                                 },
                               )
                             else
-                              buildGenericError(error: NotFoundError())
+                              buildGenericError(error: NotFoundError()),
                           ],
                         );
                       } else {
                         return buildGenericError(error: ConflictError());
                       }
-                    case Status.ERROR :
-                      if(state.lpGetLoadUIState?.errorType != null){
-                        return buildGenericError(error: state.lpGetLoadUIState!.errorType);
-                      }else{
-                        return  buildGenericError(error: GenericError());
+                    case Status.ERROR:
+                      if (state.lpGetLoadUIState?.errorType != null) {
+                        return buildGenericError(
+                          error: state.lpGetLoadUIState!.errorType,
+                        );
+                      } else {
+                        return buildGenericError(error: GenericError());
                       }
-                    default :
-                      return  buildGenericError(error: GenericError());
+                    default:
+                      return buildGenericError(error: GenericError());
                   }
                 } else {
-                  return  buildGenericError(error: GenericError());
+                  return buildGenericError(error: GenericError());
                 }
               },
             ),
@@ -1018,8 +1192,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
-  Widget buildGenericError({dynamic error}) => genericErrorWidget(error: error ?? GenericError(), onRefresh: () => refreshLoadList()).paddingOnly(top: 50);
-
-
+  Widget buildGenericError({dynamic error}) => genericErrorWidget(
+    error: error ?? GenericError(),
+    onRefresh: () => refreshLoadList(),
+  ).paddingOnly(top: 50);
 }

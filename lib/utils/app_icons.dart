@@ -8,7 +8,6 @@ class AppIcons {
 
 /// PNG Icons
 class PngIcons {
-
   static const String _pngBasePath = "assets/icons/png/";
 
   // Base Icon
@@ -31,17 +30,14 @@ class PngIcons {
   final String reconcilation = "${_pngBasePath}reconcilation.png";
 }
 
-
 /// GIF Icons
 class GifIcons {
   static const String _gifBasePath = "assets/icons/gif/";
   final String appIcon = "${_gifBasePath}lntAnimateLogo.gif";
 }
 
-
 /// SVG Icons
 class SvgIcons {
-
   static const String _svgBasePath = "assets/icons/svg/";
 
   // Base Icon
@@ -91,8 +87,10 @@ class SvgIcons {
   final String distance = "${_svgBasePath}distance.svg";
   final String share = "${_svgBasePath}share.svg";
   final String locationDistance = "${_svgBasePath}location_distance.svg";
+  final String alchoholicBeverage = "${_svgBasePath}alchoholic_beverage.svg";
+  final String autoParts = "${_svgBasePath}auto_parts.svg";
+  final String bags = "${_svgBasePath}bags.svg";
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
 
 
 }
-
