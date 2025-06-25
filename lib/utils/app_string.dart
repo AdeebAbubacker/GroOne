@@ -11,20 +11,14 @@ class AppString {
 
 class AppLabelText {
   ///prabhat===============================>>
-  final String english='English';
+  final String english = 'English';
 
-  final String hindi='Hindi';
-  final String hindi2='हिन्दी';
-  final String tamil2='தமிழ்';
-  final String tamil='Tamil';
-
-
+  final String hindi = 'Hindi';
+  final String hindi2 = 'हिन्दी';
+  final String tamil2 = 'தமிழ்';
+  final String tamil = 'Tamil';
 
   ///prabhat===============================>>
-
-
-
-
 
   // Core
   final String appName = "L&T Society";
@@ -64,14 +58,8 @@ class AppLabelText {
   final String checkSpellingSearch = 'Check the spelling or try a new search.';
   final String backToHome = 'Back to home';
 
-  // Tank Lock
-  final String tankLock = "Tank Lock";
-  final String chooseYourPreference = "Choose Your Preference";
 
   // App String
-
-
-
 }
 
 class AppErrorText {

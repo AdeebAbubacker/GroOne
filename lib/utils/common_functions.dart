@@ -28,9 +28,12 @@ import 'app_dialog.dart';
 import 'app_image.dart';
 import 'common_dialog_view/common_dialog_view.dart';
 
-
 /// Field Focus change
-void fieldFocusChange(BuildContext context, {required FocusNode current, required FocusNode nextFocus}) {
+void fieldFocusChange(
+  BuildContext context, {
+  required FocusNode current,
+  required FocusNode nextFocus,
+}) {
   current.unfocus();
   FocusScope.of(context).requestFocus(nextFocus);
 }
@@ -51,10 +54,10 @@ Future<void> commonHideKeyboard(context) async {
 }
 
 /// Exit App
-void exitApp(){
-  if(Platform.isIOS){
+void exitApp() {
+  if (Platform.isIOS) {
     exit(0);
-  }else{
+  } else {
     SystemNavigator.pop();
   }
 }
@@ -68,13 +71,18 @@ formattedTime({required int timeInSecond}) {
   return "$minute : $second";
 }
 
-Future<String?> commonDatePicker(BuildContext context, {DateTime? initialDate, DateTime? firstDate, DateTime? lastDate }) async {
+Future<String?> commonDatePicker(
+  BuildContext context, {
+  DateTime? initialDate,
+  DateTime? firstDate,
+  DateTime? lastDate,
+}) async {
   DateTime selectedDate = DateTime.now();
   String? date;
   commonHideKeyboard(context);
   final DateTime? picked = await showDatePicker(
     context: context,
-    initialDate: initialDate ?? DateTime.now() ,
+    initialDate: initialDate ?? DateTime.now(),
     firstDate: firstDate ?? DateTime(1970),
     lastDate: lastDate ?? DateTime(3000),
     builder: (BuildContext context, Widget? child) {
@@ -85,7 +93,10 @@ Future<String?> commonDatePicker(BuildContext context, {DateTime? initialDate, D
             onPrimary: Colors.white, // Text color on selection
             onSurface: AppColors.primaryTextColor, // Text color
           ),
-          textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primaryColor,
+            ),
           ),
         ),
         child: child!,
@@ -109,7 +120,10 @@ Future<String?> commonDatePicker(BuildContext context, {DateTime? initialDate, D
   return date;
 }
 
-Future<String?> commonTimePicker(BuildContext context, {TimeOfDay? initialTime}) async {
+Future<String?> commonTimePicker(
+  BuildContext context, {
+  TimeOfDay? initialTime,
+}) async {
   TimeOfDay selectedTime = TimeOfDay.now();
   String? time;
   commonHideKeyboard(context);
@@ -126,7 +140,9 @@ Future<String?> commonTimePicker(BuildContext context, {TimeOfDay? initialTime})
             onSurface: Colors.black, // Text color
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primaryColor,
+            ),
           ),
           timePickerTheme: AppThemeStyle.timePickerTheme,
         ),
@@ -139,7 +155,9 @@ Future<String?> commonTimePicker(BuildContext context, {TimeOfDay? initialTime})
     if (picked != null) {
       // Convert TimeOfDay to 12-hour format
       final now = DateTime.now();
-      final formattedTime = DateFormat('hh : mm a').format(DateTime(now.year, now.month, now.day, picked.hour, picked.minute));
+      final formattedTime = DateFormat('hh : mm a').format(
+        DateTime(now.year, now.month, now.day, picked.hour, picked.minute),
+      );
       time = formattedTime;
       if (kDebugMode) {
         print("Time : $time"); // Example output: "09 : 30 AM"
@@ -171,7 +189,9 @@ Future<String?> commonHourPicker(BuildContext context) async {
             onSurface: Colors.black, // Text color
           ),
           textButtonTheme: TextButtonThemeData(
-            style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.primaryColor,
+            ),
           ),
           timePickerTheme: AppThemeStyle.timePickerTheme,
         ),
@@ -184,9 +204,9 @@ Future<String?> commonHourPicker(BuildContext context) async {
     print("picked $picked");
     if (picked != null) {
       final now = DateTime.now();
-      final formattedHour = DateFormat('hh a').format(
-        DateTime(now.year, now.month, now.day, picked.hour, 0),
-      );
+      final formattedHour = DateFormat(
+        'hh a',
+      ).format(DateTime(now.year, now.month, now.day, picked.hour, 0));
       hour = formattedHour; // Example output: "09 AM" or "04 PM"
 
       if (kDebugMode) {
@@ -201,8 +221,6 @@ Future<String?> commonHourPicker(BuildContext context) async {
   return hour;
 }
 
-
-
 /// Image Picker Function
 class ImagePickerFrom {
   static ImagePicker picker = ImagePicker();
@@ -210,13 +228,18 @@ class ImagePickerFrom {
   // From Camera
   static Future<T?> fromCamera<T>() async {
     dynamic imageFile;
-    final XFile? pickedFromCamera = await picker.pickImage(source: ImageSource.camera, imageQuality: 100);
+    final XFile? pickedFromCamera = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 100,
+    );
     if (pickedFromCamera == null) {
       ToastMessages.alert(message: AppString.label.noImageSelected);
     } else {
       final File fileImage = File(pickedFromCamera.path);
       final File fileName = File(pickedFromCamera.name);
-      final String fileExtension = path.extension(pickedFromCamera.path).replaceFirst('.', '');
+      final String fileExtension = path
+          .extension(pickedFromCamera.path)
+          .replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
@@ -233,13 +256,18 @@ class ImagePickerFrom {
   // From Gallery
   static Future<T?> fromGallery<T>() async {
     dynamic imageFile;
-    final XFile? pickedFromGallery = await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
+    final XFile? pickedFromGallery = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 100,
+    );
     if (pickedFromGallery == null) {
-       ToastMessages.alert(message: AppString.label.noImageSelected);
+      ToastMessages.alert(message: AppString.label.noImageSelected);
     } else {
       final File fileImage = File(pickedFromGallery.path);
       final File fileName = File(pickedFromGallery.name);
-      final String fileExtension = path.extension(pickedFromGallery.path).replaceFirst('.', '');
+      final String fileExtension = path
+          .extension(pickedFromGallery.path)
+          .replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
@@ -255,11 +283,19 @@ class ImagePickerFrom {
 
   // Image Constraint
   static bool _imageConstraint(File image) {
-    if (!['jpg', 'jpeg', 'png', 'PNG', 'heif', 'HEIF', 'pdf'].contains(image.path.split('.').last.toString())) {
-       ToastMessages.alert(message: AppString.label.imageSupport);
+    if (![
+      'jpg',
+      'jpeg',
+      'png',
+      'PNG',
+      'heif',
+      'HEIF',
+      'pdf',
+    ].contains(image.path.split('.').last.toString())) {
+      ToastMessages.alert(message: AppString.label.imageSupport);
       return false;
     }
-    if (image.lengthSync() > 8000000) {
+    if (image.lengthSync() > 5000000) {
       ToastMessages.alert(message: AppString.label.imageSize);
       return false;
     }
@@ -282,9 +318,27 @@ Future<Map?> pickMultipleFiles<T>() async {
     }
 
     final allowedExtensions = <String>{
-      "jpg", "jpeg", "gif", "bmp", "pdf", "png", "doc", "docx", "txt",
-      "xls", "xlsx", "ods", "zip", "rar", "xml", "mp4", "hevc",
-      "h.264", "mov", "heic", "mp3"
+      "jpg",
+      "jpeg",
+      "gif",
+      "bmp",
+      "pdf",
+      "png",
+      "doc",
+      "docx",
+      "txt",
+      "xls",
+      "xlsx",
+      "ods",
+      "zip",
+      "rar",
+      "xml",
+      "mp4",
+      "hevc",
+      "h.264",
+      "mov",
+      "heic",
+      "mp3",
     };
 
     var validFiles = {};
@@ -324,8 +378,6 @@ Future<Map?> pickMultipleFiles<T>() async {
     return null;
   }
 }
-
-
 
 // /// Error Image
 // String getErrorImage({required ErrorType errorType}){
@@ -386,7 +438,7 @@ String getErrorMsg({required ErrorType errorType}) {
       return AppString.errorType.invalidInput;
     case InternalServerError _:
       return AppString.errorType.internalServerError;
-    case ErrorWithMessage  _:
+    case ErrorWithMessage _:
       return errorType.message;
     default:
       return "(${errorType.toString()}) error".capitalize;
@@ -394,7 +446,7 @@ String getErrorMsg({required ErrorType errorType}) {
 }
 
 bool isNumeric(String? s) {
-  if(s == null) {
+  if (s == null) {
     return false;
   }
   return double.tryParse(s) != null;
@@ -422,7 +474,11 @@ void shareFile() async {
   }
 }
 
-String timeAgoSinceDate({required String dateAndTimeString, bool numericDates = true, Object? instance}) {
+String timeAgoSinceDate({
+  required String dateAndTimeString,
+  bool numericDates = true,
+  Object? instance,
+}) {
   try {
     DateTime notificationDate = DateTime.parse(dateAndTimeString).toLocal();
     final date2 = DateTime.now();
@@ -457,7 +513,6 @@ String timeAgoSinceDate({required String dateAndTimeString, bool numericDates = 
   }
 }
 
-
 Future<void> callRedirect(String phoneNumber) async {
   try {
     final Uri url = Uri.parse("tel:$phoneNumber");
@@ -468,7 +523,6 @@ Future<void> callRedirect(String phoneNumber) async {
     debugPrint("Error launching dial pad: $e");
   }
 }
-
 
 Future<void> downloadAndOpenPdf(String url) async {
   try {
@@ -486,8 +540,6 @@ Future<void> downloadAndOpenPdf(String url) async {
     debugPrint("Error downloading file: $e");
   }
 }
-
-
 
 String formatDateTimeKavach(String dateTimeString) {
   DateTime utcDateTime = DateTime.parse(dateTimeString);
@@ -515,7 +567,7 @@ Color getKavachOrderStatusColor(String status) {
 }
 
 /// Common Support Dialog
-void commonSupportDialog(BuildContext context){
+void commonSupportDialog(BuildContext context) {
   AppDialog.show(
     context,
     child: CommonDialogView(
@@ -529,7 +581,6 @@ void commonSupportDialog(BuildContext context){
     ),
   );
 }
-
 
 String getInitialsFromName(Object instance, {required String name}) {
   CustomLog.debug(instance, "Name is $name, Length is ${name.length}");
