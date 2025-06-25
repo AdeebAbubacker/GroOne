@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
+import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
@@ -17,9 +18,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_r
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
@@ -27,6 +28,8 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -52,16 +55,24 @@ class VpHomeScreen extends StatefulWidget {
 
 class _VpHomeScreenState extends State<VpHomeScreen> {
 
-  String profileImage = "";
+  // ProfileDetailModel? profileResponse;
+   VpMyLoadResponse? vpMyLoadResponse;
+
+  final lpHomeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+
   final searchController = TextEditingController();
-  ProfileDetailModel? profileResponse;
-  VpMyLoadResponse? vpMyLoadResponse;
+
   bool showKycSuccessBanner = false;
-  final lpHomeCubit = locator<LPHomeCubit>();
+
+  String profileImage = "";
+
+  String? sessionBlueId;
+
+  int isKycValid = 0;
 
   @override
   void initState() {
@@ -101,79 +112,167 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        initFunction();
-      },
-      child: SafeArea(
-        child:
-            BlocConsumer<LpHomeBloc, HomeState>(
-              bloc: lpHomeBloc,
-              listener: (context, state) {
-                if (state is ProfileDetailSuccess) {
-                  profileResponse = state.profileDetailResponse;
-                  profileImage =
-                      state
-                          .profileDetailResponse
-                          .data!
-                          .details!
-                          .profileImageUrl ??
-                      "";
-                  setState(() {});
-                }
-                if (state is ProfileDetailError) {
-                  ToastMessages.error(
-                    message: getErrorMsg(errorType: state.errorType),
-                  );
-                }
-              },
-              builder: (context, state) {
-                return Column(
-                  children: [
-                    10.height,
-
-                    // Kyc Status Label
-                    BlocConsumer<LPHomeCubit, LPHomeState>(
-                      listener: (context, state) { },
-                      builder: (context, state) {
-                        if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-                          if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
-                            if (state.profileDetailUIState?.data?.data?.customer != null && state.profileDetailUIState?.data?.data?.customer?.isKyc == 3) {
-                              if (state.showSuccessKyc) {
-                                final blueId = state.profileDetailUIState?.data?.data?.customer?.blueId;
-                                debugPrint("Store Blue Id : ${state.blueId}");
-                                if((blueId != null && blueId.isNotEmpty) && state.blueId != null){
-                                  blueMembershipDialog(context, blueId);
-                                }
-                                return kycSuccessStatusWidget();
-                              } else {
-                                return 0.width;
-                              }
-                            } else if (state.profileDetailUIState?.data?.data?.customer?.isKyc == 2){
-                              return kycInProgressStatusWidget();
-                            } else {
-                              return IncompleteKycStatusWidget();
-                            }
-                          }
-                        }
-                        return 20.height;
-                      },
-                    ),
-                    10.height,
-                    OurValueAddedServicesWidget(),
-                    20.height,
-                    _buildMyLoadsWidget(context),
-                    20.height,
-                    _buildRecentAddedLoadWidget(context),
-                  ],
-                );
-              },
-            ).withScroll(),
-      ),
+    return Scaffold(
+      appBar: buildAppBarWidget(context),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          initFunction();
+        },
+        child: SafeArea(
+          child: Column(
+            children: [
+              10.height,
+              buildKycLabelWidget(),
+              10.height,
+              OurValueAddedServicesWidget(),
+              10.height,
+              _buildMyLoadsWidget(context),
+              10.height,
+              _buildRecentAddedLoadWidget(context),
+            ],
+          ).withScroll(),
+        ),
+      )
     );
   }
 
-  /// My Loads
+  // Appbar
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+    return CommonAppBar(
+      elevation: 1.0,
+      isLeading: false,
+      leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+
+      actions: [
+        // Notification
+        IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        ),
+
+        // KYC Blinking
+        BlocProvider<LPHomeCubit>.value(
+          value: locator<LPHomeCubit>(),   // singleton from get_it
+          child: BlocConsumer<LPHomeCubit, LPHomeState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              final profileState = state.profileDetailUIState;
+
+              if (profileState == null ||
+                  profileState.status != Status.SUCCESS ||
+                  profileState.data == null ||
+                  profileState.data?.data == null ||
+                  profileState.data?.data?.customer == null) {
+                return const SizedBox.shrink();
+              }
+
+              final customer = profileState.data!.data!.customer!;
+              final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+              CustomLog.debug(this, 'is KYC : $kycFlag');
+
+              if (kycFlag == 3) {
+                return const SizedBox.shrink();
+              }
+
+              if (kycFlag == 2) {
+                return const SizedBox.shrink();
+              }
+
+              return kycWidget(
+                onTap: () => commonBottomSheetWithBGBlur(
+                  context: context,
+                  screen: EnterAadhaarNumberBottomSheet(),
+                ),
+              );
+
+            },
+          ),
+        ),
+
+        // Profile
+        BlocProvider<LPHomeCubit>.value(
+          value: locator<LPHomeCubit>(), // singleton from locator
+          child: BlocConsumer<LPHomeCubit, LPHomeState>(
+            listener: (context, state) { },
+            builder: (context, state) {
+              if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
+                if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
+                  if (state.profileDetailUIState?.data?.data?.details != null) {
+                    return Row(
+                      children: [
+                        10.width,
+
+                        // Profile
+                        Container(
+                          height: 40,
+                          width: 40,
+                          alignment: Alignment.center,
+                          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
+                        ).onClick((){
+                          Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
+                            frameCallback(() =>  lpHomeCubit.fetchProfileDetail());
+                          });
+                        }).paddingRight(commonSafeAreaPadding),
+                      ],
+                    );
+                  }
+                }
+              }
+              return 0.width;
+            },
+          ),
+        ),
+
+      ],
+    );
+  }
+
+  // Kyc & Blue Id
+  Widget buildKycLabelWidget(){
+    return BlocConsumer<LPHomeCubit, LPHomeState>(
+      listener: (context, state) async {
+        final profileState = state.profileDetailUIState;
+        if (profileState != null &&
+            profileState.status == Status.SUCCESS &&
+            profileState.data != null &&
+            profileState.data?.data != null &&
+            profileState.data?.data?.customer != null &&
+            profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
+          if (await lpHomeCubit.getBlueId() == null){
+            if(!context.mounted) return;
+            sessionBlueId = null;
+            blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
+          }
+        }
+      },
+      builder: (context, state) {
+        final profileState = state.profileDetailUIState;
+
+        if (profileState != null &&
+            profileState.status == Status.SUCCESS &&
+            profileState.data != null &&
+            profileState.data?.data != null &&
+            profileState.data?.data?.customer != null) {
+
+          final customer = profileState.data!.data!.customer!;
+
+          isKycValid = customer.isKyc.toInt();
+
+          if (customer.isKyc == 3) {
+            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget() :  0.width;
+          } else if (customer.isKyc == 2) {
+            return kycInProgressStatusWidget();
+          } else {
+            return IncompleteKycStatusWidget();
+          }
+        }
+        return  20.width;
+      },
+    );
+  }
+
+  // My Loads
   Widget _buildMyLoadsWidget(BuildContext context) {
     return BlocConsumer(
       listener: (context, state) {
@@ -300,8 +399,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 
 
-
-  /// Recent Loads
+  // Recent Loads
   Widget _buildRecentAddedLoadWidget(BuildContext context) {
     return BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
       bloc: locator<VpAcceptLoadBloc>(),
@@ -402,173 +500,4 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 }
 
-// Widget _buildMyLoadsWidget(BuildContext context) {
-//   return BlocConsumer(
-//     listener: (context, state) {
-//       if (state is VpMyLoadListSuccess) {
-//         vpMyLoadResponse = state.vpMyLoadResponse;
-//       }
-//     },
-//     bloc: vpHomeScreenBloc,
-//     builder: (context, state) {
-//       if (state is VpMyLoadListSuccess) {
-//         return Container(
-//           decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(0)),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               10.height,
-//
-//               // Title
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(context.appText.myLoads, textAlign: TextAlign.start, style: AppTextStyle.body1),
-//
-//                   // See More
-//                   //if (state is VpMyLoadListSuccess)
-//                   // if (state.vpMyLoadResponse.data.length > 2)
-//                   TextButton(
-//                     onPressed: () {
-//                       Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
-//                     },
-//                     style: AppButtonStyle.primaryTextButton,
-//                     child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
-//                   )
-//                 ],
-//               ),
-//               10.height,
-//
-//               // List
-//               Builder(
-//                 builder: (context) {
-//                   if (vpMyLoadResponse == null) {
-//                     return const Center(child: CircularProgressIndicator());
-//                   }
-//
-//                   if (vpMyLoadResponse!.data.isEmpty) {
-//                     return Center(
-//                       child: Image.asset(
-//                         AppImage.png.noShipment,
-//                         width: 201.w,
-//                         height: 134.h,
-//                       ),
-//                     );
-//                   }
-//
-//                   return ListView.separated(
-//                     itemCount: vpMyLoadResponse!.data.length > 2 ? 2 : vpMyLoadResponse!.data.length,
-//                     shrinkWrap: true,
-//                     physics: const NeverScrollableScrollPhysics(),
-//                     separatorBuilder: (context, index) => 20.height,
-//                     itemBuilder: (context, index) {
-//                       final data = vpMyLoadResponse!.data[index];
-//
-//                       return MyLoadsListBody(
-//                         data: data,
-//                         onClickAssignDriver: () {
-//                           final isKycDone = profileResponse?.data?.customer?.isKyc == 3;
-//                           if (isKycDone) {
-//                             Navigator.push(context, commonRoute(TripSchedulingScreen(data: data, allProfileDetails: profileResponse!.data!), isForward: true));
-//                           } else {
-//                             commonBottomSheetWithBGBlur(
-//                               context: context,
-//                               screen: KycPendingDialogue(
-//                                 onPressed: () {
-//                                   context.pop();
-//                                   commonBottomSheetWithBGBlur(
-//                                     context: context,
-//                                     screen: EnterAadhaarNumberBottomSheet(),
-//                                   ).then((_) {
-//                                     lpHomeBloc.add(ProfileDetailRequested(lpHomeBloc.userId ?? "0"));
-//                                   });
-//                                 },
-//                               ),
-//                             );
-//                           }
-//                         },
-//                       );
-//                     },
-//                   );
-//                 },
-//               ),
-//               20.height,
-//             ],
-//           ).paddingSymmetric(horizontal: commonSafeAreaPadding),
-//         );
-//       }
-//       if (state is VpMyLoadListError) {
-//          return genericErrorWidget(error: state.errorType);
-//       }
-//       if (state is VpMyLoadListLoading) {
-//          return CircularProgressIndicator().paddingSymmetric(vertical: 100).center();
-//       } else {
-//         return genericErrorWidget(error: GenericError());
-//       }
-//     },
-//   );
-// }
 
-// Widget _buildRecentAddedLoadWidget(BuildContext context) {
-//   return Container(
-//     decoration: commonContainerDecoration(
-//       borderRadius: BorderRadius.circular(0),
-//     ),
-//     child: Column(
-//       children: [
-//         10.height,
-//         // Title
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(context.appText.availableLoads, style: AppTextStyle.body1).expand(),
-//
-//             // See More
-//             TextButton(
-//               onPressed: () {
-//                 Navigator.push(context, commonRoute(const AvailableLoadsScreen(), isForward: true));
-//               },
-//               style: AppButtonStyle.primaryTextButton,
-//               child: Text(context.appText.seeMore, style: AppTextStyle.h5WhiteColor),
-//             ),
-//
-//           ],
-//         ),
-//         // 10.height,
-//         // buildSearchBarAndFilterWidget(context),
-//         20.height,
-//
-//         // List
-//         BlocBuilder<VpRecentLoadListBloc, VpRecentLoadListState>(
-//           bloc: vpRecentLoadListBloc,
-//           builder: (context, state) {
-//             if (state is VpRecentLoadListLoading) {
-//                return CircularProgressIndicator().center();
-//             }
-//             if (state is VpRecentLoadListError) {
-//                return genericErrorWidget(error: state.errorType);
-//             }
-//             if (state is VpRecentLoadListSuccess) {
-//               if(state.vpRecentLoadResponse.data.isNotEmpty){
-//                 return ListView.separated(
-//                   itemCount: state.vpRecentLoadResponse.data.length > 3? 3 : state.vpRecentLoadResponse.data.length,
-//                   shrinkWrap: true,
-//                   physics: NeverScrollableScrollPhysics(),
-//                   separatorBuilder: (context, index) => 20.height,
-//                   itemBuilder: (context, index) {
-//                     return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone:profileResponse?.data?.customer?.isKyc == 3,);
-//                   },
-//                 );
-//               }else{
-//                 return genericErrorWidget(error: NotFoundError());
-//               }
-//             } else {
-//               return genericErrorWidget(error: GenericError());
-//             }
-//           },
-//         ),
-//         20.height,
-//       ],
-//     ).paddingSymmetric(horizontal: commonSafeAreaPadding),
-//   );
-// }

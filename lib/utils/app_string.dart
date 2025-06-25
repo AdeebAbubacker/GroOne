@@ -11,20 +11,14 @@ class AppString {
 
 class AppLabelText {
   ///prabhat===============================>>
-  final String english='English';
+  final String english = 'English';
 
-  final String hindi='Hindi';
-  final String hindi2='हिन्दी';
-  final String tamil2='தமிழ்';
-  final String tamil='Tamil';
-
-
+  final String hindi = 'Hindi';
+  final String hindi2 = 'हिन्दी';
+  final String tamil2 = 'தமிழ்';
+  final String tamil = 'Tamil';
 
   ///prabhat===============================>>
-
-
-
-
 
   // Core
   final String appName = "L&T Society";
@@ -66,9 +60,6 @@ class AppLabelText {
 
 
   // App String
-
-
-
 }
 
 class AppErrorText {

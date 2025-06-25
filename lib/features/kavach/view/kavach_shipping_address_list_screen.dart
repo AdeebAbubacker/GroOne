@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -14,7 +13,7 @@ import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_a
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
 import '../model/kavach_address_model.dart';
-import 'kavach_add_shipping_address_bottom_sheet.dart';
+import 'kavach_add_address_bottom_sheet.dart';
 
 class KavachShippingAddressListScreen extends StatelessWidget {
   const KavachShippingAddressListScreen({super.key});
@@ -24,38 +23,42 @@ class KavachShippingAddressListScreen extends StatelessWidget {
     return AppBottomSheetBody(
       title: context.appText.shippingAddress,
       body: SizedBox(
-          height: 500.h,
+          height: 500,
           child: _buildBody(context: context)),
+    );
+  }
+
+  Widget addVehicleButton(BuildContext context){
+    return AppButton(
+      onPressed: () async {
+        await commonBottomSheetWithBGBlur(
+          context: context,
+          screen: KavachAddAddressBottomSheet(
+            addrType: 1, // Shipping address type
+            title: context.appText.shippingAddress,
+          ),
+        );
+        // After the bottom sheet is dismissed, refetch the shipping addresses
+        context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+      },
+      title: context.appText.addNewAddress,
+      style: AppButtonStyle.outline,
     );
   }
 
   Widget _buildBody({required BuildContext context}) {
     return BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
       builder: (context, state) {
-        if (state is KavachCheckoutAddressLoading) {
+        if (state is KavachCheckoutShippingAddressLoading) {
           return const CircularProgressIndicator();
         }
 
-        if (state is KavachCheckoutAddressSelected) {
+        if (state is KavachCheckoutShippingAddressSelected) {
           final addresses = state.addresses;
 
           return Column(
             children: [
-              AppButton(
-                onPressed: () async {
-                  await commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: KavachAddAddressBottomSheet(
-                    addrType: 1, // Shipping address type
-                    title: context.appText.shippingAddress,
-                  ),
-                  );
-                  // After the bottom sheet is dismissed, refetch the shipping addresses
-                  context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachAddresses());
-                },
-                title: context.appText.addNewAddress,
-                style: AppButtonStyle.outline,
-              ),
+              addVehicleButton(context),
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
@@ -72,7 +75,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
               AppButton(
                 onPressed: () {
                   final selectedAddress = context.read<KavachCheckoutShippingAddressBloc>().state;
-                  if (selectedAddress is KavachCheckoutAddressSelected) {
+                  if (selectedAddress is KavachCheckoutShippingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
                   } else {
                     // Handle if nothing is selected (optional)
@@ -86,7 +89,11 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           );
         }
 
-        return const SizedBox.shrink();
+        return Column(
+          children: [
+            addVehicleButton(context)
+          ],
+        );
       },
     );
   }
@@ -100,13 +107,13 @@ class AddressListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedAddress = context.select((KavachCheckoutShippingAddressBloc bloc) {
       final state = bloc.state;
-      if (state is KavachCheckoutAddressSelected) return state.selectedAddress;
+      if (state is KavachCheckoutShippingAddressSelected) return state.selectedAddress;
       return null;
     });
 
     return GestureDetector(
       onTap: () {
-        context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachAddress(address));
+        context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachShippingAddress(address));
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -117,7 +124,7 @@ class AddressListItem extends StatelessWidget {
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachAddress(address));
+                context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachShippingAddress(address));
 
               },
             ),

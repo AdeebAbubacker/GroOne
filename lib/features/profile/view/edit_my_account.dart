@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
@@ -72,16 +71,16 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
             context.appText.myAccount,
             style: AppTextStyle.textBlackColor18w500,
           ),
-          toolbarHeight: 50.h,
+          toolbarHeight: 50,
         ),
         body: BlocConsumer(
           bloc: lpProfile,
           builder: (context, state) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 18.h),
+              padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10.h,
+                spacing: 10,
                 children: [
                   headingText(text: context.appText.personalDetails),
                   15.height,

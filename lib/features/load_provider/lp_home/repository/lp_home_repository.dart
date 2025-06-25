@@ -26,7 +26,7 @@ class LpHomeRepository{
   Future<Result<String>> getBlueId() async {
     try {
       dynamic blueId = await _userInformationRepository.getBlueID();
-      CustomLog.debug(this, "Get Blue Id : ${blueId}");
+      CustomLog.debug(this, "Get Blue Id : $blueId");
       if (blueId == null) {
         return Error(ErrorWithMessage(message: "Blue Id is null"));
       }

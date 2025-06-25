@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -9,14 +8,11 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import '../../../core/localization_bloc/localization_bloc.dart';
-import '../../../core/localization_bloc/localization_event.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../routing/app_route_name.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
-import '../../../utils/app_string.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/extra_utils.dart';
 
@@ -50,7 +46,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
           30.width,
         ],
       ),
@@ -200,7 +196,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     required String imageString,
   }) {
     return Container(
-      height: 70.h,
+      height: 70,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -223,8 +219,8 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
               ),
               borderRadius: BorderRadius.circular(50),
             ),
-            height: 18.h,
-            width: 18.w,
+            height: 18,
+            width: 18,
             padding: EdgeInsets.all(4),
             child: Container(
               decoration: BoxDecoration(
@@ -238,7 +234,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                   ? text1 == 'English'? null : Text(text2, style: AppTextStyle.textGreyColor14w400)
                   : null,
           title: Text(text1, style: AppTextStyle.textBlackColor20w500),
-          trailing: Image.asset(width: 78.w, height: 50.h, imageString),
+          trailing: Image.asset(width: 78, height: 50, imageString),
         ),
       ),
     );

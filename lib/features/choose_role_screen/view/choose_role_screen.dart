@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
@@ -45,18 +44,17 @@ class ChooseRoleScreen extends StatelessWidget {
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
           30.width,
         ],
       ),
-      bottomSheet: Container(color: AppColors.white,child: Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).paddingBottom(25)),
       body: BlocBuilder<RoleBloc, RoleState>(
         builder: (context, state) {
           return Padding(
             padding: EdgeInsets.all(commonSafeAreaPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10.h,
+              spacing: 10,
               children: [
                 20.height,
                 Text(
@@ -106,8 +104,11 @@ class ChooseRoleScreen extends StatelessWidget {
                     context.push(AppRouteName.login, extra: "${state.index + 1}");
                   },
                 ),
+                 50.height,
 
-                // 50.height,
+                Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center()
+
+
 
                 // Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center(),
                // Center(child: Image.asset(AppImage.png.hinduja)),
@@ -130,7 +131,7 @@ class ChooseRoleScreen extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: EdgeInsets.only(top: 28.h),
+          margin: EdgeInsets.only(top: 28),
           // height: 70.h,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -154,8 +155,8 @@ class ChooseRoleScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(50),
                 ),
-                height: 24.h,
-                width: 24.w,
+                height: 24,
+                width: 24,
                 padding: EdgeInsets.all(4),
                 child: Container(
                   decoration: BoxDecoration(
@@ -193,8 +194,8 @@ class ChooseRoleScreen extends StatelessWidget {
                 color: isSelected ? AppColors.primaryColor : AppColors.disableColor,
               ),
             ),
-            height: 55.h,
-            width: 55.w,
+            height: 55,
+            width: 55,
             child: Image.asset(imageString),
           ),
         ),

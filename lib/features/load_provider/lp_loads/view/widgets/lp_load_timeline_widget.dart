@@ -1,40 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
-
 class LPLoadTimelineWidget extends StatelessWidget {
-  final List<String> timelineTitle;
-  final int currentTimeline;
+  final List<Timeline> timelineList;
 
   const LPLoadTimelineWidget({
     super.key,
-    required this.timelineTitle,
-    required this.currentTimeline,
+    required this.timelineList,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(timelineTitle.length, (index) {
+      children: List.generate(timelineList.length, (index) {
+        final item = timelineList[index];
+        final isCompleted = item.status == 'completed';
+        final isCurrent = item.status == 'current';
+
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // TimeLine indicator (radio style)
             Column(
               children: [
                 Icon(
-                  index <= currentTimeline
+                  isCurrent || isCompleted
                       ? Icons.radio_button_checked
                       : Icons.radio_button_unchecked,
-                  color: index <= currentTimeline ? AppColors.primaryIconColor : AppColors.textGreyDetailColor,
+                  color: isCurrent || isCompleted
+                      ? AppColors.primaryIconColor
+                      : AppColors.textGreyDetailColor,
                   size: 24,
                 ),
-
-                // Vertical line (except last item)
-                if (index != timelineTitle.length - 1)
+                if (index != timelineList.length - 1)
                   Container(
                     width: 2,
                     height: 40,
@@ -43,19 +44,20 @@ class LPLoadTimelineWidget extends StatelessWidget {
               ],
             ),
             10.width,
-
-            // TimeLine label
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    timelineTitle[index],
-                    style: AppTextStyle.body2.copyWith(color: AppColors.black),
+                    item.label,
+                    style: AppTextStyle.body2.copyWith(color: isCompleted || isCurrent ? AppColors.black : AppColors.greyIconColor),
                   ),
+
                   5.height,
                   Text(
-                    '03 Jan 2023 | 02:45 pm',
+                    ((isCompleted || isCurrent) && item.timestamp != null)
+                        ? DateTimeHelper.formatCustomDate(item.timestamp!) // assuming a DateTime extension for formatting
+                        : '',
                     style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
                   ),
                 ],

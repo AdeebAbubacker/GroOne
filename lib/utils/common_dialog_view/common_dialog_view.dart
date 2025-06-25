@@ -23,6 +23,7 @@ class CommonDialogView extends StatefulWidget {
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
   final GestureTapCallback? onClickYesButton;
+  final CrossAxisAlignment? crossAxisAlignment;
   const CommonDialogView({
     super.key,
     this.child,
@@ -38,6 +39,7 @@ class CommonDialogView extends StatefulWidget {
     this.headingColor,
     this.hideCloseButton = false,
     this.yesButtonLoading = false,
+    this.crossAxisAlignment
   });
 
   @override
@@ -49,6 +51,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
       children: [
 
         if(!widget.hideCloseButton!)...[

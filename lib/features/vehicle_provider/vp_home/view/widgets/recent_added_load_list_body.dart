@@ -76,22 +76,22 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
+                    Row(
                       children: [
                         Text(
-                          widget.data.pickUpAddr.capitalize,
+                          widget.data.pickUpLocation.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+                          maxLines: 1,
+                        ).expand(),
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5),
+                        ).paddingSymmetric(horizontal: 5).expand(),
                         Text(
-                          widget.data.dropAddr.capitalize,
+                          widget.data.dropLocation.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+                          maxLines: 1,
+                        ).expand(),
                       ],
                     ),
                     Text(

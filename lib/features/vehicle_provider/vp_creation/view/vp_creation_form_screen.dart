@@ -71,7 +71,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   final MultiSelectController<int> truckTypeController = MultiSelectController<int>();
-  final MultiSelectController<String>  preferredLanesTypeController = MultiSelectController<String>();
+  final MultiSelectController<int>  preferredLanesTypeController = MultiSelectController<int>();
 
   String? preferredLanesDropDownValue;
   String? truckTypeDropDownValue;
@@ -80,6 +80,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
   List<dynamic> multiFilesList = [];
   List<int> selectedTruckTypeList = [];
+  List<int> selectedPrefLanesTypeList = [];
 
   List<String> getUniqueTypes(List<TruckTypeData> dataList) {
     return dataList.map((e) => e.type).toSet().toList();
@@ -132,11 +133,19 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void vpCreationApiCall() {
     if (formKey.currentState!.validate()) {
       if (uploadedRcFile == null) {
-        ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+        ToastMessages.alert(message: "Please upload RC Document");
         return;
       }
       if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
         ToastMessages.alert(message: "Please verify your email");
+        return;
+      }
+      if(int.parse(ownedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Owned Truck can't be 0");
+        return;
+      }
+      if(int.parse(attachedTruckTextController.text) == 0){
+        ToastMessages.alert(message: "Attached Truck can't be 0");
         return;
       }
       final request = VpCreationApiRequest(
@@ -147,7 +156,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         truckType: selectedTruckTypeList,
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
-        preferredLanes: preferredLanesDropDownValue,
+        preferredLanes: selectedPrefLanesTypeList,
         emailId: emailTextController.text,
         pincode: pinCodeTextController.text,
         uploadRc: uploadedRcFile,
@@ -290,6 +299,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             controller: emailTextController,
             labelText: context.appText.email,
             mandatoryStar: true,
+            readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
             decoration: commonInputDecoration(
                 hintText: context.appText.emailHint,
@@ -297,8 +307,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status ==  Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3),
-                    5.width,
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3.copyWith(
+                      color: AppColors.primaryColor,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.primaryColor,
+                    )),                    5.width,
                     Icon(Icons.verified, size: 15, color : state.isVerifiedEmail ? AppColors.greenColor : AppColors.greyIconColor),
                   ],
                 ),
@@ -446,56 +459,26 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         ),
         20.height,
 
+
         // Preferred Lane
-        // AppMultiSelectionDropdown<String>(
-        //   labelText: context.appText.preferredLanes,
-        //   hintText: context.appText.selectLaneType,
-        //   controller: preferredLanesTypeController,
-        //   mandatoryStar: true,
-        //   items: preferredLanesList,
-        //   onSelectionChange: (selected) {
-        //     CustomLog.debug(this, 'Selected lane: $selected');
-        //   },
-        //   validator: (value) {
-        //     if (value == null || value.isEmpty) {
-        //       return "${context.appText.truckType} ${context.appText.pinCode}";
-        //     }
-        //     return null;
-        //   },
-        // ),
         BlocConsumer<VpCreationBloc, VpCreationState>(
           bloc: vpCreationBloc,
-          buildWhen:
-              (previous, current) =>
-                  current is TruckPrefLaneSuccess ||
-                  current is TruckPrefLaneLoading,
+          buildWhen: (previous, current) => current is TruckPrefLaneSuccess || current is TruckPrefLaneLoading,
           listener: (context, state) {
             if (state is TruckPrefLaneError) {
-              ToastMessages.error(
-                message: getErrorMsg(errorType: state.errorType),
-              );
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
           },
           builder: (context, state) {
-            if (state is TruckPrefLaneLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
             if (state is TruckPrefLaneSuccess) {
-              final preferredLaneItems =
-                  ((state.truckPrefLaneModel.data?.data ?? []))
-                      .map(
-                        (e) => DropdownItem<String>(
-                          value: e.id.toString(),
-                          label:
-                              '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
-                        ),
-                      )
-                      .toList();
 
-              return AppMultiSelectionDropdown<String>(
+              final preferredLaneItems = ((state.truckPrefLaneModel.data?.data ?? [])).map((e) => DropdownItem<int>(
+                value: e.id,
+                label: '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
+               ),
+              ).toList();
+
+              return AppMultiSelectionDropdown<int>(
                 labelText: context.appText.preferredLanes,
                 hintText: context.appText.selectLaneType,
                 controller: preferredLanesTypeController,
@@ -504,9 +487,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 onSelectionChange: (selected) {
                   CustomLog.debug(this, 'Selected lane: $selected');
                   if (selected.isNotEmpty) {
-                    preferredLanesDropDownValue = selected.first;
+                    selectedPrefLanesTypeList = selected;
                   } else {
                     preferredLanesDropDownValue = null;
+                    selectedPrefLanesTypeList.clear();
                   }
                 },
                 validator: (value) {
@@ -517,7 +501,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 },
               );
             }
-
             return const SizedBox();
           },
         ),

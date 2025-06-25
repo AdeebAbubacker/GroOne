@@ -43,6 +43,7 @@ class ApiUrls {
   static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
+  static String get _credit => "/credit";
 
 
   // Base URL
@@ -59,6 +60,7 @@ class ApiUrls {
 
   // Common Api
   static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
+  static final String  language = "$_fetchUrl$_customer$_path$_v1/language";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
@@ -103,8 +105,11 @@ class ApiUrls {
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
   static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
   static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
-
-
+  static final String  lpLoadById="$_baseUrl$_load$_path$_v1$_load";
+  static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
+  static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
+  static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
+  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
@@ -124,6 +129,16 @@ class ApiUrls {
   static final String  updateLoad = "$_loadBaseUrl/";
 
   //Kavach
-  // https://gro-devapi.letsgro.co/fleet/api/v1/orders/customer-orders/list
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
+  static String get kavachProductList => "$_baseUrl$_fleet$_path$_v1/product/list";
+  static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle";
+  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/vas";
+  static String get kavachAvailableStock => "$_baseUrl$_fleet$_path$_v1/stocks/available-stock";
+  static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
+  static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
+  static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vp-master/vehicle";
+  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodity";
+  static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
+  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
+  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
 }

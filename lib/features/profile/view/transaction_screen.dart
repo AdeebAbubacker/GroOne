@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -29,12 +28,12 @@ class _LpTransactionState extends State<LpTransaction> {
           context.appText.transactions,
           style: AppTextStyle.textBlackColor18w500,
         ),
-        toolbarHeight: 50.h,
+        toolbarHeight: 50,
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.0.w, vertical: 18.h),
+        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         child: Column(
-          spacing: 20.h,
+          spacing: 20,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -96,8 +95,8 @@ class _LpTransactionState extends State<LpTransaction> {
               !index.isEven
                   ? AppImage.png.pendingTransaction
                   : AppImage.png.completedTransaction,
-              height: 30.h,
-              width: 30.w,
+              height: 30,
+              width: 30,
             ),
             title: Text("₹820", style: AppTextStyle.textBlackDetailColor16w500),
             subtitle: Column(
@@ -110,13 +109,13 @@ class _LpTransactionState extends State<LpTransaction> {
                 Text(
                   "22 Apr 2025, 3:45 PM",
                   style: AppTextStyle.textGreyDetailColor12w400.copyWith(
-                    fontSize: 10.sp,
+                    fontSize: 10,
                   ),
                 ),
               ],
             ),
             trailing: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color:
                     index.isEven ? AppColors.boxGreen : AppColors.appRedColor,

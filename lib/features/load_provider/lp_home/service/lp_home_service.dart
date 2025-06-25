@@ -16,13 +16,15 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeService{
   final ApiService _apiService;
   final SecuredSharedPreferences _securedSharedPref;
-  LpHomeService(this._apiService, this._securedSharedPref);
+  final UserInformationRepository _userInformationRepository;
+  LpHomeService(this._apiService, this._securedSharedPref, this._userInformationRepository);
 
   /// Fetch Profile
   Future<Result<ProfileDetailModel>> getProfileDetails({required String id}) async {
@@ -33,10 +35,14 @@ class LpHomeService{
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
-            await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
-            // CustomLog.debug(this, "Saved Blue Id: ${data.value.data!.customer!.blueId}");
+          if (await _userInformationRepository.getUserID() == null){
+             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+          } else {
+            if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
+              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
+            }
           }
+
           return Success(data.value);
         }
         if (data is Error) {

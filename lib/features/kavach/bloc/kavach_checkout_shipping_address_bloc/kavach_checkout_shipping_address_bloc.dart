@@ -8,31 +8,45 @@ import 'kavach_checkout_shipping_address_state.dart';
 class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddressEvent, KavachCheckoutShippingAddressState> {
   final KavachRepository repository;
 
-  KavachCheckoutShippingAddressBloc(this.repository) : super(KavachCheckoutAddressLoading()) {
-    on<FetchKavachAddresses>(_onFetchAddresses);
-    on<SelectKavachAddress>(_onSelectAddress);
+  KavachCheckoutShippingAddressBloc(this.repository) : super(KavachCheckoutShippingAddressLoading()) {
+    on<FetchKavachShippingAddresses>(_onFetchAddresses);
+    on<SelectKavachShippingAddress>(_onSelectAddress);
+    on<ClearKavachShippingAddress>((event, emit) {
+      emit(KavachCheckoutShippingAddressEmpty());
+    });
   }
 
-  Future<void> _onFetchAddresses(FetchKavachAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
-    emit(KavachCheckoutAddressLoading());
+  Future<void> _onFetchAddresses(FetchKavachShippingAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
+    emit(KavachCheckoutShippingAddressLoading());
     final result = await repository.fetchAddresses(addrType: 1);
 
     if (result is Success<List<KavachAddressModel>>) {
       if (result.value.isEmpty) {
-        emit(KavachCheckoutAddressEmpty());
+        emit(KavachCheckoutShippingAddressEmpty());
       } else {
         final firstAddress = result.value.first;
-        emit(KavachCheckoutAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        emit(KavachCheckoutShippingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
-      emit(KavachCheckoutAddressError(result.type));
+      emit(KavachCheckoutShippingAddressError(result.type));
     }
   }
 
-  void _onSelectAddress(SelectKavachAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
+  void _onSelectAddress(SelectKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
     final currentState = state;
-    if (currentState is KavachCheckoutAddressSelected) {
-      emit(KavachCheckoutAddressSelected(selectedAddress: event.address, addresses: currentState.addresses));
+
+    if (currentState is KavachCheckoutShippingAddressSelected) {
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else {
+      // When there was no prior selected state (e.g., after Clear)
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: [event.address],
+      ));
     }
   }
+
 }

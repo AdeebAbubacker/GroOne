@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -92,15 +91,15 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                   ),
                 ),
                 padding: EdgeInsets.symmetric(
-                  vertical: 12.0.h,
-                  horizontal: 20.w,
+                  vertical: 12.0,
+                  horizontal: 20,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 5.h,
+                      spacing: 5,
                       children: [
                         5.height,
                         Text(
@@ -115,7 +114,7 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 5.h,
+                      spacing: 5,
                       children: [
                         5.height,
                         Text(
@@ -134,8 +133,8 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
 
               Container(
                 padding: EdgeInsets.symmetric(
-                  vertical: 12.0.h,
-                  horizontal: 20.w,
+                  vertical: 12.0,
+                  horizontal: 20,
                 ),
 
                 color: AppColors.white,
@@ -144,8 +143,8 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                   children: [
                     Image.asset(
                       AppImage.png.bookAShipment,
-                      height: 82.h,
-                      width: 18.h,
+                      height: 82,
+                      width: 18,
                     ),
                     10.width,
                     Expanded(
@@ -221,7 +220,7 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
                 child1: Column(
-                  spacing: 5.h,
+                  spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     15.height,
@@ -236,14 +235,14 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                     Text(
                       '₹12000',
                       style: AppTextStyle.textBlackColor26w700.copyWith(
-                        fontSize: 20.sp,
+                        fontSize: 20,
                       ),
                     ),
                   ],
                 ),
                 child2: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 5.h,
+                  spacing: 5,
                   children: [
                     15.height,
                     AppButton(
@@ -272,7 +271,7 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                     Text(
                       '₹4000',
                       style: AppTextStyle.textBlackColor26w700.copyWith(
-                        fontSize: 20.sp,
+                        fontSize: 20,
                       ),
                     ),
                   ],
@@ -284,12 +283,12 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                 statusTextColor: AppColors.textRed,
                 statusBackgroundColor: AppColors.appRedColor,
                 child2: Container(
-                  margin: EdgeInsets.only(top: 10.h),
+                  margin: EdgeInsets.only(top: 10),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Center(
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,
@@ -299,8 +298,8 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
                       ),
                       leading: Image.asset(
                         AppImage.png.doc,
-                        height: 24.h,
-                        width: 24.w,
+                        height: 24,
+                        width: 24,
                       ),
                       title: Text(
                         "Memo.PDF",
@@ -352,7 +351,7 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
     return Container(
       color: AppColors.white,
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 12.0.h, horizontal: 20.w),
+      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -392,7 +391,7 @@ class _LPTrackLoadScreenState extends State<LPTrackLoadScreen> {
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 2.h,
+            spacing: 2,
             children: [
               Text(heading, style: AppTextStyle.textGreyColor12w400),
               Text(subHeading, style: AppTextStyle.textBlackColor12w400),

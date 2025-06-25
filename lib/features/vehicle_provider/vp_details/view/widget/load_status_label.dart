@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
@@ -17,7 +16,7 @@ class LoadStatusLabel extends StatelessWidget {
         color: AppColors.activeDarkGreenColor.withValues(alpha: 0.25)
       ),
       child: Text("Confirmed",style: AppTextStyle.body.copyWith(
-        fontSize: 12.sp,
+        fontSize: 12,
         color: AppColors.activeDarkGreenColor,
         fontWeight: FontWeight.w400
       ),

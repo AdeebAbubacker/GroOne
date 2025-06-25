@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/product_counter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:intl/intl.dart';
 
 import '../../bloc/kavach_list_bloc/kavach_products_list_bloc.dart';
 import '../../bloc/kavach_list_bloc/kavach_products_list_event.dart';
@@ -33,22 +32,23 @@ class KavachModelsListBody extends StatelessWidget {
     final bloc = context.read<KavachProductsListBloc>();
 
     return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
+      padding: const EdgeInsets.all(8),
+      decoration: commonContainerDecoration(
+        borderColor: AppColors.borderColor,
+        shadow: false,
+        borderRadius: BorderRadius.circular(8),
+        ),
       child: Row(
         children: [
-          Image.asset(AppImage.png.kavachProduct, width: 80),
+          Image.asset(AppImage.png.kavachNewProduct1, width: 100),
+
           10.width,
+          
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(product.name, style: AppTextStyle.h5),
-                  5.width,
-                  SvgPicture.asset(AppIcons.svg.infOutline, width: 15),
-                ],
-              ),
+              Text(product.name, style: AppTextStyle.h5),
+              5.height,
               Text(product.part, style: AppTextStyle.bodyGreyColor),
               5.height,
               Row(
@@ -77,7 +77,7 @@ class KavachModelsListBody extends StatelessWidget {
             ],
           ).expand(),
         ],
-      ).paddingSymmetric(horizontal: 10),
+      ),
     );
   }
 }

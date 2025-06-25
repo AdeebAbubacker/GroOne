@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -96,7 +95,7 @@ class _KavachAddAddressBottomSheetState
 
   Widget _buildBody({required BuildContext context}) {
     return SizedBox(
-      height: 500.h,
+      height: 500,
       child: Column(
         children: [
           Expanded(

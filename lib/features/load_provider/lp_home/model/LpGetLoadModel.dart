@@ -51,13 +51,18 @@ class LoadData {
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.vpRate,
     required this.status,
     required this.loadStatus,
     required this.vehicleLength,
     required this.pickUpDateTime,
     required this.expectedDeliveryDateTime,
+    required this.pickUpWholeAddr,
+    required this.dropWholeAddr,
     required this.handlingCharges,
     required this.acceptedBy,
+    required this.agreedPrice,
+    required this.acceptedVehicleId,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -83,13 +88,18 @@ class LoadData {
   final num consignmentWeight;
   final String notes;
   final String rate;
+  final String vpRate;
   final num status;
   final num loadStatus;
   final String vehicleLength;
   final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
+  final String pickUpWholeAddr;
+  final String dropWholeAddr;
   final num handlingCharges;
-  final dynamic acceptedBy;
+  final num acceptedBy;
+  final num agreedPrice;
+  final num acceptedVehicleId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
@@ -115,13 +125,18 @@ class LoadData {
     num? consignmentWeight,
     String? notes,
     String? rate,
+    String? vpRate,
     num? status,
     num? loadStatus,
     String? vehicleLength,
     DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
+    String? pickUpWholeAddr,
+    String? dropWholeAddr,
     num? handlingCharges,
-    dynamic? acceptedBy,
+    num? acceptedBy,
+    num? agreedPrice,
+    num? acceptedVehicleId,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
@@ -147,13 +162,18 @@ class LoadData {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      vpRate: vpRate ?? this.vpRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
       vehicleLength: vehicleLength ?? this.vehicleLength,
       pickUpDateTime: pickUpDateTime ?? this.pickUpDateTime,
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
+      pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
+      dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      agreedPrice: agreedPrice ?? this.agreedPrice,
+      acceptedVehicleId: acceptedVehicleId ?? this.acceptedVehicleId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -182,13 +202,18 @@ class LoadData {
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
+      vpRate: json["vpRate"] ?? "",
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",
       pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
+      pickUpWholeAddr: json["pickUpWholeAddr"] ?? "",
+      dropWholeAddr: json["dropWholeAddr"] ?? "",
       handlingCharges: json["handlingCharges"] ?? 0,
-      acceptedBy: json["acceptedBy"],
+      acceptedBy: json["acceptedBy"] ?? 0,
+      agreedPrice: json["agreedPrice"] ?? 0,
+      acceptedVehicleId: json["acceptedVehicleId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],

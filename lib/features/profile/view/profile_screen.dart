@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +43,6 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   ProfileDetailsData profileData;
   ProfileScreen({super.key, required this.profileData});
@@ -76,17 +74,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void initFunction() => frameCallback(() async {
     await lpHomeLocator.getUserId();
-    profileImage=widget.profileData.details!.profileImageUrl??"";
-    setState(() {
-
-    });
+    profileImage = widget.profileData.details!.profileImageUrl ?? "";
+    setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
   void disposeFunction() => frameCallback(() {});
 
-
-  void logoutDialogPopUp(){
+  void logoutDialogPopUp() {
     AppDialog.show(
       context,
       child: CommonDialogView(
@@ -96,7 +91,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         hideCloseButton: true,
         onClickYesButton: () {
           context.pop();
-          vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
+          vpHomeBloc.add(
+            LogoutAPIRequested(
+              apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? ""),
+            ),
           );
         },
         child: LogOutDialogueUi(),
@@ -104,32 +102,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.profile),
 
-      body: SafeArea(
-        child: Column(
-          spacing: 15.h,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            15.width,
-            // profile image upload widget
-            buildUploadProfilePictureWidget(context: context),
+      body:
+          SafeArea(
+            child: Column(
+              spacing: 15,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                15.width,
+                // profile image upload widget
+                buildUploadProfilePictureWidget(context: context),
 
-            // profile details widget
-            profileDetailWidget(),
+                // profile details widget
+                profileDetailWidget(),
 
-            // profile options widget
-            profileOptionWidget(context),
+                // profile options widget
+                profileOptionWidget(context),
 
-            30.height
-          ],
-        ),
-      ).withScroll(),
+                30.height,
+              ],
+            ),
+          ).withScroll(),
     );
   }
 
@@ -137,51 +134,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return BlocConsumer(
       bloc: lpHomeLocator,
       builder: (context, state) {
-      return Column(
-        spacing: 10.h,
-        children: [
-
-          if( widget.profileData.details != null)
-          Text(
-            widget.profileData.details!.companyName,
-            style: AppTextStyle.h5,
-          ),
-
-          Text(
-            widget.profileData.customer!.customerName,
-            style: AppTextStyle.blackColor15w500,
-          ),
-          InkWell(
-            onTap: () {
-              Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.primaryColor,
+        return Column(
+          spacing: 10,
+          children: [
+            if (widget.profileData.details != null)
+              Text(
+                widget.profileData.details!.companyName,
+                style: AppTextStyle.h5,
               ),
-              child: Text(
-                "${context.appText.blueMembershipId} : ${widget.profileData.customer!.blueId ?? "--"}",
-                style: AppTextStyle.h5WhiteColor,
+
+            Text(
+              widget.profileData.customer!.customerName,
+              style: AppTextStyle.blackColor15w500,
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  commonRoute(BenefitsOfMembershipScreen()),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.primaryColor,
+                ),
+                child: Text(
+                  "${context.appText.blueMembershipId} : ${widget.profileData.customer!.blueId ?? "--"}",
+                  style: AppTextStyle.h5WhiteColor,
+                ),
               ),
             ),
-          ),
-        ],
-      );
-    }, listener: _listener);
+          ],
+        );
+      },
+      listener: _listener,
+    );
   }
-  _listener(BuildContext context, HomeState state) {
 
+  _listener(BuildContext context, HomeState state) {
     if (state is ProfileDetailSuccess) {
-      widget.profileData=state.profileDetailResponse.data!;
+      widget.profileData = state.profileDetailResponse.data!;
     }
   }
 
-
- Widget profileOptionWidget(BuildContext context) {
+  Widget profileOptionWidget(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(10),
@@ -190,14 +190,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           10.height,
           BlocConsumer<LpHomeBloc, HomeState>(
-            listener:_listener,
+            listener: _listener,
             bloc: lpHomeLocator,
             builder: (context, state) {
               return profileWidget(
                 imageString: AppImage.svg.user,
                 text: context.appText.myAccount,
                 onTap: () {
-                  Navigator.push(context, commonRoute(LpMyAccount(profileData: widget.profileData), isForward: true),
+                  Navigator.push(
+                    context,
+                    commonRoute(
+                      LpMyAccount(profileData: widget.profileData),
+                      isForward: true,
+                    ),
                   ).then((onValue) {
                     lpHomeCubit.fetchProfileDetail();
                   });
@@ -211,7 +216,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.master,
             text: "Master",
             onTap: () {
-              Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
+              Navigator.of(
+                context,
+              ).push(commonRoute(MasterScreen(), isForward: true));
             },
           ),
 
@@ -231,7 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.myDocuments,
             text: "My Documents",
             onTap: () {
-              Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
+              Navigator.of(
+                context,
+              ).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
           ),
 
@@ -241,7 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.transaction,
             text: context.appText.transactions,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
+              Navigator.of(
+                context,
+              ).push(commonRoute(LpTransaction(), isForward: true));
             },
           ),
 
@@ -251,7 +262,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.settings,
             text: context.appText.settings,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpSetting(), isForward: true));
+              Navigator.of(
+                context,
+              ).push(commonRoute(LpSetting(), isForward: true));
             },
           ),
 
@@ -261,7 +274,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
+              Navigator.of(
+                context,
+              ).push(commonRoute(LpSupport(), isForward: true));
             },
           ),
           dividerWidget(),
@@ -297,11 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   dividerWidget() {
-    return Divider(
-      color: AppColors.dividerColor,
-      thickness: 0.5,
-      indent: 20,
-    );
+    return Divider(color: AppColors.dividerColor, thickness: 0.5, indent: 20);
   }
 
   String profileImage = "";
@@ -319,14 +330,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         alignment: Alignment.center,
         child: Text(
-          getInitialsFromName(this, name : widget.profileData.details?.companyName ?? ''),
+          getInitialsFromName(
+            this,
+            name: widget.profileData.details?.companyName ?? '',
+          ),
           style: GoogleFonts.ubuntu(
             fontSize: profileSize * 0.35,
             color: AppColors.black,
             fontWeight: FontWeight.w400,
           ),
         ),
-      )
+      ),
     );
   }
 

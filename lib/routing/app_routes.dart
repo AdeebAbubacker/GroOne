@@ -151,7 +151,6 @@ class AppRoutes {
       ),
 
       GoRoute(
-
         path: AppRouteName.lpCreateAccount,
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;

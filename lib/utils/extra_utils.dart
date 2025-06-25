@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-
 import 'app_button_style.dart';
 import 'app_colors.dart';
 import 'app_image.dart';
@@ -67,7 +65,7 @@ void showSuccessDialog(
           ),
           contentPadding: EdgeInsets.zero, // Optional: remove default padding
           content: SizedBox(
-            width: 500.w,
+            width: 500,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: InkWell(
@@ -77,7 +75,7 @@ void showSuccessDialog(
                   children: [
                     20.height,
                     Image.asset(AppImage.png.successGif),
-                    SizedBox(height: 50.h),
+                    SizedBox(height: 50),
                     Text(
                       text,
                       textAlign: TextAlign.center,
@@ -118,10 +116,10 @@ profileWidget({
   return InkWell(
     onTap: onTap,
     child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 13.h),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13),
       child: Row(
         children: [
-      SvgPicture.asset(imageString, height: 20.h, width: 20.w),
+      SvgPicture.asset(imageString, height: 20, width: 20),
           10.width,
           Text(
             text,
@@ -148,7 +146,7 @@ tabWidget({
   return InkWell(
     onTap: onTap,
     child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 5.h),
+      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
       decoration: BoxDecoration(
         color:
             selected
@@ -204,14 +202,14 @@ showCustomDialogue({
 translateWiget({required Function() onTap}) {
   return InkWell(
     onTap: onTap,
-    child: Image.asset(AppImage.png.translateImage, width: 23.w, height: 23.h),
+    child: Image.asset(AppImage.png.translateImage, width: 23, height: 23),
   );
 }
 
 customerSupportWidget({required Function() onTap}) {
   return InkWell(
     onTap: onTap,
-    child: Image.asset(AppImage.png.customerSupport, width: 32.w, height: 32.h),
+    child: Image.asset(AppImage.png.customerSupport, width: 32, height: 32),
   );
 }
 
@@ -244,7 +242,7 @@ showAlertDialogue({
                   // No Button
                   Expanded(
                     child: AppButton(
-                      buttonHeight: 32.h,
+                      buttonHeight: 32,
                       style: AppButtonStyle.outline,
                       title: noButtonText??"No",
                       onPressed: () {
@@ -257,7 +255,7 @@ showAlertDialogue({
                   // Yes Button
                   Expanded(
                     child: AppButton(
-                      buttonHeight: 32.h,
+                      buttonHeight: 32,
                       onPressed: onClickYesButton,
                       title: yesButtonText ?? "Yes",
                     ),
@@ -294,9 +292,9 @@ statusButtonWidget({
 
 draggableSheet({required List<Widget> child}) {
   return DraggableScrollableSheet(
-    initialChildSize: 0.45.h, // 10% of screen
-    minChildSize: 0.45.h, // Minimum size
-    maxChildSize: 1.h, // Maximum size
+    initialChildSize: 0.45, // 10% of screen
+    minChildSize: 0.45, // Minimum size
+    maxChildSize: 1, // Maximum size
     builder: (context, scrollController) {
       return Container(
         decoration: BoxDecoration(
@@ -306,7 +304,7 @@ draggableSheet({required List<Widget> child}) {
         ),
         child: SingleChildScrollView(
           controller: scrollController,
-          child: Column(spacing: 10.h, children: child),
+          child: Column(spacing: 10, children: child),
         ),
       );
     },
@@ -331,7 +329,7 @@ void showCustomerCareBottomSheet(BuildContext context) {
         ),
 
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -348,8 +346,8 @@ void showCustomerCareBottomSheet(BuildContext context) {
               ),
               Image.asset(
                 AppImage.png.customerSupportImage,
-                height: 237.h,
-                width: 237.w,
+                height: 237,
+                width: 237,
               ),
               Text(
                 "Call Customer Support",

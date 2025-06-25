@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -14,7 +13,7 @@ import '../../../utils/common_widgets.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
 import '../model/kavach_address_model.dart';
-import 'kavach_add_shipping_address_bottom_sheet.dart';
+import 'kavach_add_address_bottom_sheet.dart';
 
 class KavachBillingAddressListScreen extends StatelessWidget {
   const KavachBillingAddressListScreen({super.key});
@@ -23,9 +22,27 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.billingAddress,
+      hideDivider: false,
       body: SizedBox(
-          height: 500.h,
+          height: 500,
           child: _buildBody(context: context)),
+    );
+  }
+
+  Widget addVehicleButton(BuildContext context){
+    return AppButton(
+      onPressed: () async {
+        await commonBottomSheetWithBGBlur(
+          context: context,
+          screen: KavachAddAddressBottomSheet(
+            addrType: 2, // Shipping address type
+            title: context.appText.billingAddress,
+          ),
+        );
+        context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+      },
+      title: context.appText.addNewAddress,
+      style: AppButtonStyle.outline,
     );
   }
 
@@ -41,20 +58,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
           return Column(
             children: [
-              AppButton(
-                onPressed: () async {
-                  await commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: KavachAddAddressBottomSheet(
-                    addrType: 2, // Shipping address type
-                    title: context.appText.billingAddress,
-                  ),
-                  );
-                  context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
-                },
-                title: context.appText.addNewAddress,
-                style: AppButtonStyle.outline,
-              ),
+              addVehicleButton(context),
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
@@ -85,7 +89,11 @@ class KavachBillingAddressListScreen extends StatelessWidget {
           );
         }
 
-        return const SizedBox.shrink();
+        return Column(
+          children: [
+            addVehicleButton(context)
+          ],
+        );
       },
     );
   }
@@ -124,7 +132,6 @@ class AddressListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(address.customerName, style: AppTextStyle.textDarkGreyColor14w500),
-                  Text('+91 ${address.mobileNumber}', style: AppTextStyle.textDarkGreyColor14w500),
                   Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
                 ],
               ),

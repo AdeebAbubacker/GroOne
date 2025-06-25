@@ -42,9 +42,6 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_video.dart';
-import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -61,7 +58,6 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -489,18 +485,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   10.height,
-
                   buildKycLabelWidget(),
                   10.height,
-
                   OurValueAddedServicesWidget(),
-                  20.height,
-
+                  10.height,
                   bookShipmentSectionWidget(context),
-                  20.height,
-
+                  10.height,
                   buildUpComingShipmentListWidget(),
-                  20.height,
+                  10.height,
                 ],
               ),
             );
@@ -510,10 +502,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
+  // Kyc Label
   Widget buildKycLabelWidget(){
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) async {
         final profileState = state.profileDetailUIState;
+
         if (profileState != null &&
             profileState.status == Status.SUCCESS &&
             profileState.data != null &&
@@ -524,8 +518,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             if(!context.mounted) return;
             sessionBlueId = null;
             blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
-          } else{
-            sessionBlueId = await lpHomeCubit.getBlueId();
           }
         }
       },
@@ -543,7 +535,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           isKycValid = customer.isKyc.toInt();
 
           if (customer.isKyc == 3) {
-            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget() :  0.width;
+            return (state.showSuccessKyc) ? kycSuccessStatusWidget() :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget();
           } else {
@@ -872,8 +864,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             },
                             builder: (context, state) {
                               if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
-                                String? suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price;
-                                rateDiscoveryPrice = suggestedPrice ?? "00000";
+                                String? suggestedPrice;
+                                if(state.rateDiscoveryUIState?.data?.data?.price != null){
+                                  suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
+                                } else {
+                                  suggestedPrice = "00000";
+                                }
+
+                                rateDiscoveryPrice = suggestedPrice;
                                 return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
                               }
                               return  Container();

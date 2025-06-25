@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -14,7 +13,7 @@ final Function() onPressed;
   Widget build(BuildContext context) {
     return AppBottomSheetBody(hideDivider: false,body: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 10.h,
+      spacing: 10,
       children: [
         Center(child: SvgPicture.asset(AppImage.svg.kycPending)),
         Text("KYC Pending",style: AppTextStyle.orangeTextColor26w700,),

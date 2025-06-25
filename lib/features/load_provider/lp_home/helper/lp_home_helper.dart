@@ -23,37 +23,39 @@ class LpHomeHelper {
   }
 
 
-// Get Matching Time (120-minute timer)
-  static String getMatchingTime(String createdAtString) {
-    try {
-      // Parse createdAt and convert to local time
-      DateTime createdAt = DateTime.parse(createdAtString).toLocal();
+ /// Returns a `hh:mm:ss` count-down that starts **three hours after the object
+ /// was created** and ticks down toward 0 from the current device‐time.
+ ///
+ /// If the three-hour window has already elapsed you’ll get `"00:00:00"`.
+ static String getMatchingTime(String createdAtString) {
+   try {
+     // 1️⃣ parse the original timestamp coming from the backend
+     final createdAt = DateTime.parse(createdAtString).toLocal();
 
-      // Add 120 minutes (2 hours)
-      DateTime targetTime = createdAt.add(const Duration(minutes: 120));
+     // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
+     final targetTime = createdAt.add(const Duration(hours: 2));
 
-      // Get current time
-      DateTime now = DateTime.now();
+     // 3️⃣ compute the remaining time *from now* until that target
+     final now        = DateTime.now();
+     final difference = targetTime.difference(now);
 
-      // Calculate remaining time
-      Duration difference = targetTime.difference(now);
+     // 4️⃣ if we are already past the deadline → show all zeros
+     if (difference.isNegative) return "00:00:00";
 
-      if (difference.isNegative) {
-        return "00:00:00";
-      }
+     // 5️⃣ format as HH:MM:SS
+     final hours   = difference.inHours;
+     final minutes = difference.inMinutes.remainder(60);
+     final seconds = difference.inSeconds.remainder(60);
 
-      int hours = difference.inHours;
-      int minutes = difference.inMinutes % 60;
+     return "${hours.toString().padLeft(2, '0')}:"
+         "${minutes.toString().padLeft(2, '0')}:"
+         "${seconds.toString().padLeft(2, '0')}";
+   } catch (_) {
+     // any parsing error → fallback
+     return "00:00:00";
+   }
+ }
 
-      if (hours > 0) {
-        return "$hours hr ${minutes.toString().padLeft(2, '0')} min left";
-      } else {
-        return "$minutes min left";
-      }
-    } catch (e) {
-      return "Invalid time";
-    }
-  }
 
 
 
@@ -112,6 +114,7 @@ static Color getLoadStatusTextColor(String loadType) {
  // Get Calculate Percentage
  static  String calculateTenPercentOfAverage(String priceRange) {
    try {
+     debugPrint("Price Range: $priceRange");
      final cleaned = priceRange.replaceAll(' ', '');
 
      if (cleaned.contains('-')) {
@@ -127,10 +130,12 @@ static Color getLoadStatusTextColor(String loadType) {
        final avg = ((min + max) / 2).round();
        final tenPercent = (avg * 0.10).round();
 
-       return "Rs. $tenPercent";
+       return "$tenPercent";
      } else {
+       double doubleValue = double.parse(priceRange);
+       int rounded = doubleValue.round();
        // Case: Single value like "1000"
-       final value = int.tryParse(cleaned) ?? 0;
+       final value = rounded;
        if (value == 0) return "Invalid price";
 
        final tenPercent = (value * 0.10).round();

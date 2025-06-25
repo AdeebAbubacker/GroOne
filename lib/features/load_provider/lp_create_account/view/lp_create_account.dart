@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -23,8 +22,6 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/mobile_number_text_filed.dart';
-
 import '../../../../dependency_injection/locator.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_dropdown.dart';
@@ -135,7 +132,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             },
           ),
           20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25.w, height: 33.h),
+          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
           30.width,
         ],
       ),
@@ -357,7 +354,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () {
             if (_formKey.currentState!.validate()) {
-              if(!verifyEmailCubit.state.isVerifiedEmail){
+              if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
                 ToastMessages.alert(message: "Please verify your email");
                 return;
               }
