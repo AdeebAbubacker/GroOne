@@ -48,7 +48,7 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
 
   selectDefaultCommodity() {
     if (selectedIndex == -1 && widget.dataList.isNotEmpty) {
-      selectedIndex = 0;
+      selectedIndex = null;
     }
   }
 
