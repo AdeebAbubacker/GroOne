@@ -68,6 +68,7 @@ dependencies:
   equatable: ^2.0.7
   dotted_line: ^3.2.3
   timeline_tile: ^2.0.0
+  slide_to_act: ^2.0.2
 
   # Routing
   go_router: ^15.1.2

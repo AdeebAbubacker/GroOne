@@ -1,76 +1,38 @@
-class LpLoadResponse {
-  LpLoadResponse({
+class LpLoadGetByIdResponse {
+  LpLoadGetByIdResponse({
     required this.success,
     required this.message,
-    required this.data,
+    required this.loadData,
   });
 
   final bool success;
   final String message;
-  final LpLoadData? data;
+  final LoadData? loadData;
 
-  LpLoadResponse copyWith({
+  LpLoadGetByIdResponse copyWith({
     bool? success,
     String? message,
-    LpLoadData? data,
+    LoadData? loadData,
   }) {
-    return LpLoadResponse(
+    return LpLoadGetByIdResponse(
       success: success ?? this.success,
       message: message ?? this.message,
-      data: data ?? this.data,
+      loadData: loadData ?? this.loadData,
     );
   }
 
-  factory LpLoadResponse.fromJson(Map<String, dynamic> json){
-    return LpLoadResponse(
+  factory LpLoadGetByIdResponse.fromJson(Map<String, dynamic> json){
+    return LpLoadGetByIdResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? null : LpLoadData.fromJson(json["data"]),
+      loadData: json["data"] == null ? null : LoadData.fromJson(json["data"]),
     );
   }
 
 }
 
-class LpLoadData {
-  LpLoadData({
-    required this.data,
-    required this.total,
-    required this.page,
-    required this.limit,
-  });
-
-  final List<LpLoadItem> data;
-  final num total;
-  final num page;
-  final num limit;
-
-  LpLoadData copyWith({
-    List<LpLoadItem>? data,
-    num? total,
-    num? page,
-    num? limit,
-  }) {
-    return LpLoadData(
-      data: data ?? this.data,
-      total: total ?? this.total,
-      page: page ?? this.page,
-      limit: limit ?? this.limit,
-    );
-  }
-
-  factory LpLoadData.fromJson(Map<String, dynamic> json){
-    return LpLoadData(
-      data: json["data"] == null ? [] : List<LpLoadItem>.from(json["data"]!.map((x) => LpLoadItem.fromJson(x))),
-      total: json["total"] ?? 0,
-      page: json["page"] ?? 0,
-      limit: json["limit"] ?? 0,
-    );
-  }
-
-}
-
-class LpLoadItem {
-  LpLoadItem({
+class LoadData {
+  LoadData({
     required this.id,
     required this.loadId,
     required this.laneId,
@@ -96,19 +58,21 @@ class LpLoadItem {
     required this.expectedDeliveryDateTime,
     required this.handlingCharges,
     required this.acceptedBy,
+    required this.agreedPrice,
+    required this.acceptedVehicleId,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
     required this.commodity,
     required this.truckType,
     required this.customer,
-    required this.customerDetail,
+    required this.timeline,
   });
 
   final int id;
   final String loadId;
-  final int laneId;
-  final dynamic rateId;
+  final dynamic laneId;
+  final num rateId;
   final num customerId;
   final num commodityId;
   final num truckTypeId;
@@ -130,19 +94,21 @@ class LpLoadItem {
   final DateTime? expectedDeliveryDateTime;
   final num handlingCharges;
   final dynamic acceptedBy;
+  final num agreedPrice;
+  final num acceptedVehicleId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
-  final Commodity? commodity;
+  final DataCommodity? commodity;
   final TruckType? truckType;
-  final Customer? customer;
-  final dynamic customerDetail;
+  final dynamic customer;
+  final List<Timeline> timeline;
 
-  LpLoadItem copyWith({
+  LoadData copyWith({
     int? id,
     String? loadId,
-    int? laneId,
-    dynamic? rateId,
+    dynamic? laneId,
+    num? rateId,
     num? customerId,
     num? commodityId,
     num? truckTypeId,
@@ -164,15 +130,17 @@ class LpLoadItem {
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
     dynamic? acceptedBy,
+    num? agreedPrice,
+    num? acceptedVehicleId,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
-    Commodity? commodity,
+    DataCommodity? commodity,
     TruckType? truckType,
-    Customer? customer,
-    dynamic? customerDetail,
+    dynamic? customer,
+    List<Timeline>? timeline,
   }) {
-    return LpLoadItem(
+    return LoadData(
       id: id ?? this.id,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
@@ -198,22 +166,24 @@ class LpLoadItem {
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      agreedPrice: agreedPrice ?? this.agreedPrice,
+      acceptedVehicleId: acceptedVehicleId ?? this.acceptedVehicleId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
       customer: customer ?? this.customer,
-      customerDetail: customerDetail ?? this.customerDetail,
+      timeline: timeline ?? this.timeline,
     );
   }
 
-  factory LpLoadItem.fromJson(Map<String, dynamic> json){
-    return LpLoadItem(
+  factory LoadData.fromJson(Map<String, dynamic> json){
+    return LoadData(
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
-      laneId: json["laneId"] ?? 0,
-      rateId: json["rateId"],
+      laneId: json["laneId"],
+      rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
@@ -235,134 +205,129 @@ class LpLoadItem {
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"],
+      agreedPrice: json["agreedPrice"] ?? 0,
+      acceptedVehicleId: json["acceptedVehicleId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
-      commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
+      commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-      customerDetail: json["customerDetail"],
+      customer: json["customer"],
+      timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
     );
   }
 
 }
 
-class Commodity {
-  Commodity({
+class DataCommodity {
+  DataCommodity({
     required this.id,
     required this.name,
+    required this.description,
+    required this.iconUrl,
   });
 
   final int id;
   final String name;
+  final dynamic description;
+  final dynamic iconUrl;
 
-  Commodity copyWith({
+  DataCommodity copyWith({
     int? id,
     String? name,
+    dynamic? description,
+    dynamic? iconUrl,
   }) {
-    return Commodity(
+    return DataCommodity(
       id: id ?? this.id,
       name: name ?? this.name,
+      description: description ?? this.description,
+      iconUrl: iconUrl ?? this.iconUrl,
     );
   }
 
-  factory Commodity.fromJson(Map<String, dynamic> json){
-    return Commodity(
+  factory DataCommodity.fromJson(Map<String, dynamic> json){
+    return DataCommodity(
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
+      description: json["description"],
+      iconUrl: json["iconUrl"],
     );
   }
 
 }
 
-class Customer {
-  Customer({
+class Timeline {
+  Timeline({
     required this.id,
-    required this.customerName,
-    required this.mobileNumber,
-    required this.emailId,
-    required this.blueId,
-    required this.password,
-    required this.otp,
-    required this.otpAttempt,
-    required this.isKyc,
-    required this.roleId,
-    required this.tempFlg,
+    required this.label,
     required this.status,
-    required this.isLogin,
-    required this.createdAt,
-    required this.deletedAt,
+    required this.timestamp,
+    required this.commodity,
+    required this.truckType,
+    required this.loadProvider,
   });
 
   final int id;
-  final String customerName;
-  final String mobileNumber;
-  final String emailId;
-  final String blueId;
-  final dynamic password;
-  final num otp;
-  final num otpAttempt;
-  final num isKyc;
-  final num roleId;
-  final bool tempFlg;
-  final num status;
-  final bool isLogin;
-  final DateTime? createdAt;
-  final dynamic deletedAt;
+  final String label;
+  final String status;
+  final DateTime? timestamp;
+  final TruckTypeClass? commodity;
+  final TruckTypeClass? truckType;
+  final dynamic loadProvider;
 
-  Customer copyWith({
+  Timeline copyWith({
     int? id,
-    String? customerName,
-    String? mobileNumber,
-    String? emailId,
-    String? blueId,
-    dynamic? password,
-    num? otp,
-    num? otpAttempt,
-    num? isKyc,
-    num? roleId,
-    bool? tempFlg,
-    num? status,
-    bool? isLogin,
-    DateTime? createdAt,
-    dynamic? deletedAt,
+    String? label,
+    String? status,
+    DateTime? timestamp,
+    TruckTypeClass? commodity,
+    TruckTypeClass? truckType,
+    dynamic? loadProvider,
   }) {
-    return Customer(
+    return Timeline(
       id: id ?? this.id,
-      customerName: customerName ?? this.customerName,
-      mobileNumber: mobileNumber ?? this.mobileNumber,
-      emailId: emailId ?? this.emailId,
-      blueId: blueId ?? this.blueId,
-      password: password ?? this.password,
-      otp: otp ?? this.otp,
-      otpAttempt: otpAttempt ?? this.otpAttempt,
-      isKyc: isKyc ?? this.isKyc,
-      roleId: roleId ?? this.roleId,
-      tempFlg: tempFlg ?? this.tempFlg,
+      label: label ?? this.label,
       status: status ?? this.status,
-      isLogin: isLogin ?? this.isLogin,
-      createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      timestamp: timestamp ?? this.timestamp,
+      commodity: commodity ?? this.commodity,
+      truckType: truckType ?? this.truckType,
+      loadProvider: loadProvider ?? this.loadProvider,
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
+  factory Timeline.fromJson(Map<String, dynamic> json){
+    return Timeline(
       id: json["id"] ?? 0,
-      customerName: json["customerName"] ?? "",
-      mobileNumber: json["mobileNumber"] ?? "",
-      emailId: json["emailId"] ?? "",
-      blueId: json["blueId"] ?? "",
-      password: json["password"],
-      otp: json["otp"] ?? 0,
-      otpAttempt: json["otpAttempt"] ?? 0,
-      isKyc: json["isKyc"] ?? 0,
-      roleId: json["roleId"] ?? 0,
-      tempFlg: json["tempFlg"] ?? false,
-      status: json["status"] ?? 0,
-      isLogin: json["isLogin"] ?? false,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      label: json["label"] ?? "",
+      status: json["status"] ?? "",
+      timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
+      commodity: json["commodity"] == null ? null : TruckTypeClass.fromJson(json["commodity"]),
+      truckType: json["truckType"] == null ? null : TruckTypeClass.fromJson(json["truckType"]),
+      loadProvider: json["loadProvider"],
+    );
+  }
+
+}
+
+class TruckTypeClass {
+  TruckTypeClass({
+    required this.id,
+  });
+
+  final int id;
+
+  TruckTypeClass copyWith({
+    int? id,
+  }) {
+    return TruckTypeClass(
+      id: id ?? this.id,
+    );
+  }
+
+  factory TruckTypeClass.fromJson(Map<String, dynamic> json){
+    return TruckTypeClass(
+      id: json["id"] ?? 0,
     );
   }
 
@@ -372,18 +337,26 @@ class TruckType {
   TruckType({
     required this.id,
     required this.type,
+    required this.subType,
+    required this.iconUrl,
   });
 
   final int id;
   final String type;
+  final String subType;
+  final dynamic iconUrl;
 
   TruckType copyWith({
     int? id,
     String? type,
+    String? subType,
+    dynamic? iconUrl,
   }) {
     return TruckType(
       id: id ?? this.id,
       type: type ?? this.type,
+      subType: subType ?? this.subType,
+      iconUrl: iconUrl ?? this.iconUrl,
     );
   }
 
@@ -391,9 +364,9 @@ class TruckType {
     return TruckType(
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
+      subType: json["subType"] ?? "",
+      iconUrl: json["iconUrl"],
     );
   }
 
 }
-
-

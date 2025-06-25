@@ -1,10 +1,16 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
@@ -20,26 +26,36 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:lottie/lottie.dart' as lottie;
+
+
+import '../model/lp_load_get_by_id_response.dart';
 
 
 class LpLoadsLocationDetailsScreen extends StatefulWidget {
-  final LpLoadItem loadItem;
+  const LpLoadsLocationDetailsScreen({super.key, required this.lpLoadLocator});
 
-  const LpLoadsLocationDetailsScreen({super.key, required this.loadItem});
+  final LpLoadCubit lpLoadLocator;
 
   @override
   State<LpLoadsLocationDetailsScreen> createState() => _LpLoadsLocationDetailsScreenState();
 }
 
+
 class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScreen> {
 
+
   GoogleMapController? _mapController;
+  final Set<Marker> _markers = {};
+  String kilometers = '';
+  final lpLoadLocator = locator<LpLoadCubit>();
 
 
   Future<void> _setMapStyle(GoogleMapController controller) async {
@@ -47,25 +63,153 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     controller.setMapStyle(style);
   }
 
+
+  LatLng _getLatLngFromString(String latLng) {
+    if (latLng.isEmpty || !latLng.contains(',')) {
+      return const LatLng(0, 0);
+    }
+    final parts = latLng.split(',');
+    return LatLng(double.parse(parts[0].trim()), double.parse(parts[1].trim()));
+  }
+
+
+  void setMapMarkers(loadItem) async {
+    final pickupLatLng = _getLatLngFromString(loadItem.pickUpLatlon);
+    final dropLatLng = _getLatLngFromString(loadItem.dropLatlon);
+
+
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('pickup'),
+          position: pickupLatLng,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          infoWindow: InfoWindow(title: 'Pickup: ${loadItem.pickUpAddr}'),
+        ),
+      );
+
+
+      _markers.add(
+        Marker(
+          markerId: MarkerId('drop'),
+          position: dropLatLng,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          infoWindow: InfoWindow(title: 'Drop: ${loadItem.dropAddr}'),
+        ),
+      );
+    });
+
+
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLatLng.latitude,
+      pickupLatLng.longitude,
+      dropLatLng.latitude,
+      dropLatLng.longitude,
+    );
+
+
+    kilometers = '${(distanceInMeters / 1000).toStringAsFixed(2)} KM';
+
+
+    // Move camera to show both markers
+    LatLngBounds bounds;
+
+
+    if (pickupLatLng.latitude > dropLatLng.latitude) {
+      bounds = LatLngBounds(
+        southwest: dropLatLng,
+        northeast: pickupLatLng,
+      );
+    } else {
+      bounds = LatLngBounds(
+        southwest: pickupLatLng,
+        northeast: dropLatLng,
+      );
+    }
+
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 120),
+    );
+  }
+
+  Future<dynamic>? onSubmit(LoadData loadItem, context) async {
+    await lpLoadLocator.getCreditCheck();
+
+    final uiState = lpLoadLocator.state.lpCreditCheck;
+    final loadList = uiState?.data?.availableCreditLimit ?? '';
+
+    int availableCredit = double.parse(loadList).toInt();
+    int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+
+    if(availableCredit < rateValue) {
+      AppDialog.show(context, child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        noButtonText: "Back",
+        yesButtonText: "Customer Support",
+        child: Column(
+          children: [
+            lottie.Lottie.asset(AppJSON.alert, repeat: true, frameRate: lottie.FrameRate(200)),
+            Text("Low credit balance", style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
+            10.height,
+            Text("You cannot post this load due to your low credit balance", textAlign: TextAlign.center, style: AppTextStyle.body3),
+            10.height,
+          ],
+        ),
+        onClickYesButton: () {
+          // Navigator.pop(context);
+          // AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
+        },
+      ));
+    } else {
+      AppDialog.show(
+        context,
+        child: AdvancePaymentDialog(price: loadItem.rate == "" ? 0 : int.parse(loadItem.rate), loadId: loadItem.loadId),
+        dismissible: true,
+      );
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         top: false,
-        child: Stack(
-          children: [
-            buildGoogleMapWidget(),
-            buildTopLocationWidget(),
-            buildBottomLoadDetailsWidget(),
-            buildSupportWidget(),
-          ],
+        child: BlocBuilder<LpLoadCubit, LpLoadState>(
+            builder: (context, state) {
+              final uiState = state.lpLoadById;
+
+              if (uiState == null || uiState.status == Status.LOADING) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final loadItem = uiState.data?.loadData;
+
+              if (loadItem == null) {
+                return const Center(child: Text("No loads found."));
+              }
+              return Stack(
+                children: [
+                  buildGoogleMapWidget(loadItem),
+                  buildTopLocationWidget(loadItem),
+                  buildBottomLoadDetailsWidget(loadItem),
+                  buildSupportWidget(),
+                ],
+              );
+            }
         ),
       ),
     );
   }
 
+
   /// Google Map
-  Widget buildGoogleMapWidget(){
+  Widget buildGoogleMapWidget(loadItem){
     return Positioned.fill(
         top: 0,
         child: Builder(
@@ -75,9 +219,12 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 target: LatLng(12.993959463114383,80.17066519707441),
                 zoom: 10,
               ),
+              markers: _markers,
+
               onMapCreated: (controller) async {
                 _mapController = controller;
                 await _setMapStyle(controller);
+                setMapMarkers(loadItem);
               },
               zoomGesturesEnabled: true,
               scrollGesturesEnabled: true,
@@ -90,7 +237,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   }
 
   /// Location Details
-  Widget buildTopLocationWidget() {
+  Widget buildTopLocationWidget(loadItem) {
     return Positioned(
       top: 30,
       left: 16,
@@ -106,10 +253,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Navigator.pop(context);
                 },child: Icon(Icons.arrow_back)),
                 8.width,
-                Text('#GRO${widget.loadItem.loadId}', style: AppTextStyle.body3),
+                Text('#GRO${loadItem.loadId}', style: AppTextStyle.body3),
                 Spacer(),
                 Text(
-                  widget.loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(widget.loadItem.dueDate!) : "--",
+                  loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(loadItem.dueDate!) : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
               ],
@@ -121,9 +268,9 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.loadItem.pickUpAddr.capitalizeFirst, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(loadItem.pickUpAddr, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
                     Text(
-                        widget.loadItem.pickUpDateTime != null ? DateTimeHelper.getFormattedDate(widget.loadItem.pickUpDateTime!) : "--",
+                        loadItem.pickUpDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.pickUpDateTime!) : "--",
                         style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
                   ],
                 ),
@@ -133,9 +280,9 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.loadItem.dropAddr.capitalizeFirst, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    Text(loadItem.dropAddr, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
                     Text(
-                        widget.loadItem.expectedDeliveryDateTime != null ? DateTimeHelper.getFormattedDate(widget.loadItem.expectedDeliveryDateTime!) : "--",
+                        loadItem.expectedDeliveryDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.expectedDeliveryDateTime!) : "--",
                         style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
                   ],
                 ),
@@ -145,17 +292,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   children: [
                     Container(
                       decoration: commonContainerDecoration(
-                          color: LpLoadsHelper.getLoadStatusColor(widget.loadItem.loadStatus.toInt())
+                          color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt())
                       ),
                       width: 80,
                       child: Text(
-                        LpLoadsHelper.getLoadTypeDisplayText(widget.loadItem.loadStatus.toInt()),
-                        style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(widget.loadItem.loadStatus.toInt())),
+                        LpLoadsHelper.getLoadTypeDisplayText(loadItem.loadStatus.toInt()),
+                        style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt())),
                       ).center().paddingAll(4),
                     ),
                     4.height,
-                    if(widget.loadItem.loadStatus == 2)
-                    Text(LpHomeHelper.getMatchingTime(widget.loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                    if(loadItem.loadStatus == 2)
+                      Text(LpHomeHelper.getMatchingTime(loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
                   ],
                 )
               ],
@@ -168,7 +315,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
 
   /// Load Details
-  Widget buildBottomLoadDetailsWidget() {
+  Widget buildBottomLoadDetailsWidget(LoadData loadItem) {
     return Positioned(
       bottom: 0,
       left: 0,
@@ -186,18 +333,60 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 children: [
                   // Truck Type Row
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Image.asset(AppImage.png.truck, width: 57, height: 42),
                       12.width,
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
-                          4.height,
-                          Text('${widget.loadItem.truckType!.type} - ${widget.loadItem.vehicleLength}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                          if(loadItem.loadStatus < 4)
+                            ...[
+                              Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
+                              4.height,
+                              Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                            ],
+                          if(loadItem.loadStatus > 3)
+                            ...[
+                              5.height,
+                              Row(
+                                children: [
+                                  Container(
+                                      decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
+                                      padding: EdgeInsets.symmetric(horizontal: 2),
+                                      child: Text('TN 12 AK 6465', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                  5.width,
+                                  Text('Closed Body (22Ft)',  style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
+                                ],
+                              ),
+                              5.height,
+                              Row(
+                                children: [
+                                  Text('Driver:  ', style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
+                                  Text('Krishna Kumar Rajan', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                ],
+                              ),
+                              5.height
+                            ],
+                          if(loadItem.loadStatus > 2)
+                            ...[
+                              4.height,
+                              Container(
+                                  padding: EdgeInsets.all(4),
+                                  decoration: commonContainerDecoration(
+                                      color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
+                                  child: Text("VP: Gogovan Transports",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
+                            ]
                         ],
-                      )
+                      ),
+                      if(loadItem.loadStatus > 3)
+                        ...[
+                          Spacer(),
+                          CircleAvatar(
+                              backgroundColor: AppColors.primaryColor,
+                              child: Icon(Icons.call,color: AppColors.white,))
+                        ]
+
                     ],
                   ),
 
@@ -214,6 +403,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
+
                         Column(
                           children: [
                             Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
@@ -228,14 +418,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               ).paddingOnly(top: 5,bottom: 5),
                             ),
 
+
                             Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
                           ],
                         ),
                         10.width,
 
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+
 
                             // Source (Pick Up)
                             Column(
@@ -243,11 +436,13 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               children: [
                                 Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
                                 6.height,
-                                Text(widget.loadItem.pickUpLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                Text(loadItem.pickUpLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
                               ],
                             ),
 
+
                             commonDivider(),
+
 
                             // Destination
                             Column(
@@ -255,9 +450,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               children: [
                                 Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
                                 6.height,
-                                Text(widget.loadItem.dropLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                Text(loadItem.dropLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
                               ],
                             ),
+
 
                           ],
                         ).expand()
@@ -276,7 +472,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       children: [
                         Text("Agreed Price", style: AppTextStyle.body2),
                         Text(
-                          "$indianCurrencySymbol${widget.loadItem.rate}",
+                          "$indianCurrencySymbol${loadItem.rate}",
                           style: AppTextStyle.h4.copyWith(
                             color: AppColors.primaryColor,
                           ),
@@ -297,21 +493,21 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                         children: [
                           SvgPicture.asset(AppIcons.svg.orderBox, width: 20,color: Colors.black,),
                           8.width,
-                          Text(widget.loadItem.commodity!.name, style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          Text(loadItem.commodity?.name ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                         ],
                       ),
                       Row(
                         children: [
                           SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,color: Colors.black,),
                           8.width,
-                          Text('${widget.loadItem.consignmentWeight} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          Text('${loadItem.consignmentWeight} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                         ],
                       ),
                       Row(
                         children: [
                           SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
                           8.width,
-                          Text('534 KM', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          Text(kilometers, style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                         ],
                       ),
                     ],
@@ -319,28 +515,27 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
                   25.height,
 
-                  if(widget.loadItem.loadStatus != 2)
+
+                  if(loadItem.loadStatus != 2)
                     ...[
                       Text("Timeline", style: AppTextStyle.h4),
                       20.height,
 
+
                       LPLoadTimelineWidget(
-                        timelineTitle: ['Load Posted', 'Load Confirmed', 'Driver Assigned','Memo Signed', 'Documents Updated', 'Advance Paid', 'In Transit', 'Hosur', 'Reached Destination', 'POD Uploaded', 'Unloading complete', 'POD Dispatched', 'Load Statement Generated', 'Balance Paid'],
-                        currentTimeline: 1,
+                        timelineList: loadItem.timeline,
                       )
                     ]
 
                 ],
               ).paddingAll(16),
             ).expand(),
-            if(widget.loadItem.loadStatus == 5)
-
-              AppButton(onPressed: () {
-              // Navigator.push(context, commonRoute(LpLoadValidateMemo()));
-              AppDialog.show(context, child: AdvancePaymentDialog(), dismissible: true);
-              // Navigator.push(context, commonRoute(AdvancePaymentDialog()));
-            }, title: 'Swipe to Agree',).paddingSymmetric(horizontal: 10,vertical: 5)
-
+            if(loadItem.loadStatus == 5)
+              CustomSwipeButton(
+                  price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
+                  loadId: loadItem.loadId,
+                  onSubmit: () => onSubmit(loadItem, context),
+              )
           ],
         ),
       ),
@@ -364,7 +559,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
         )
     ));
 
+
   }
 }
-
 
