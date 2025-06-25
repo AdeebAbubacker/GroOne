@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -85,7 +86,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         final selectedType = _tabController!.index;
 
         lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if (selectedType == 3) {
+        if(selectedType == 0) {}
+        else if (selectedType == 3) {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 2);
         } else {
           lpLoadLocator.getLpLoadsByType(type: selectedType + 1);
@@ -225,16 +227,31 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+        appBar: buildAppBarWidget(context),
+        body: SafeArea(
         child: Column(
           children: [
-            10.height,
             buildTabBarWidget(),
             buildSearchBarAndFilterWidget(context),
             buildLoadListWidget(),
           ],
         ),
     ));
+  }
+
+  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+    return CommonAppBar(
+      isLeading: false,
+      leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
+      actions: [
+        // Notification
+        IconButton(
+          onPressed: () {},
+          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        ),
+
+      ],
+    );
   }
 
   /// Tab Bar
@@ -291,7 +308,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
         ),
       ],
-    ).paddingAll(commonSafeAreaPadding);
+    ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
 
   /// Load List
@@ -326,7 +343,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 Navigator.push(
                   context,
                   commonRoute(
-                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator),
+                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator, loadData: loadItem),
                   ),
                 );
               },
