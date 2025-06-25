@@ -119,6 +119,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
         if (verifyState?.status == Status.SUCCESS) {
           showOtpFieldAadhaarNotifier.value = false;
           context.pop();
+
           context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
             lpHomeCubit.fetchProfileDetail();
             aadhaarNumberTextController.clear();

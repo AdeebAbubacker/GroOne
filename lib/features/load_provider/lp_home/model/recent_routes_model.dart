@@ -158,7 +158,7 @@ class RecentRouteData {
     return RecentRouteData(
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
-      laneId: json["laneId"] ?? "",
+      laneId: json["laneId"] ?? 0,
       rateId: json["rateId"],
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,

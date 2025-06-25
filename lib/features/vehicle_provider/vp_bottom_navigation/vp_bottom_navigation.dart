@@ -106,7 +106,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: buildAppBarWidget(context),
           body: _pages[selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: AppColors.primaryColor,

@@ -598,8 +598,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                                     // VP All Others
                                     if(companyId != 1 && companyId != 2)...[
-                                      _buildAadhaarWidget(),
-                                      25.height,
                                       _buildGstWidget(),
                                       25.height,
                                       _buildPanWidget(),
@@ -906,7 +904,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 readOnly: state.verifiedGst != null && state.verifiedGst!,
                 rightText: "GSTIN",
                 controller: gstInTextController,
-                suffixOnTap: () async {
+                suffixOnTap:  state.verifiedGst != null && state.verifiedGst! ? (){} : () async {
                   if (gstDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(gstDoc);
                     if(result is Success) {
