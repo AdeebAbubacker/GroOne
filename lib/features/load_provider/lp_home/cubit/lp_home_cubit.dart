@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class LPHomeCubit extends BaseCubit<LPHomeState> {
@@ -29,6 +30,11 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   Future<void> close() {
     _matchTimer?.cancel();
     return super.close();
+  }
+
+  // Clear Blue Id
+  Future<void> clearBlueId() async {
+    await _repo.clearBlueId();
   }
 
   // Kyc Timer
@@ -71,6 +77,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
+    CustomLog.debug(this, "Set Lane Id : $id");
   }
 
   // Select Weight

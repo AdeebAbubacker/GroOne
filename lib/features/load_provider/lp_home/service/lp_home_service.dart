@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -35,14 +36,14 @@ class LpHomeService{
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          if (await _userInformationRepository.getUserID() == null){
-             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-          } else {
-            if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
+          if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
+            if(await _userInformationRepository.getBlueID() != null){
               await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
             }
+          } else {
+            debugPrint("Blue Is Clear");
+            await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
           }
-
           return Success(data.value);
         }
         if (data is Error) {

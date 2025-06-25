@@ -40,7 +40,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
   final loginBloc = locator<LoginBloc>();
+
+  final formKey = GlobalKey<FormState>();
 
   FocusNode focusNode = FocusNode();
 
@@ -111,155 +114,151 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         builder: (context, state) {
           final isLoading = state is LogInLoading;
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 18.0, horizontal: 20),
-                child: Column(
-                  spacing: 5,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    20.height,
+          return Form(
+            key: formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 18.0, horizontal: 20),
+                  child: Column(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      20.height,
 
-                    // Login Heading
-                    Text(
-                      context.appText.loginSingUp,
-                      style: AppTextStyle.h2W600,
-                    ),
-                    10.height,
+                      // Login Heading
+                      Text(
+                        context.appText.loginSingUp,
+                        style: AppTextStyle.h2W600,
+                      ),
+                      10.height,
 
-                    // Login Sub Heading
-                    Text(
-                      context.appText.enterMobileNumber,
-                      style: AppTextStyle.body1Normal,
-                    ),
-                    5.height,
+                      // Login Sub Heading
+                      Text(
+                        context.appText.enterMobileNumber,
+                        style: AppTextStyle.body1Normal,
+                      ),
+                      5.height,
 
-                    // Phone Number
-                    // MobileNumberTextField(
-                    //   countryFlagAssetPath: AppImage.png.flag,
-                    //   controller: phoneNumber,
-                    //   onChanged: (value){
-                    //     setState(() {});
-                    //   },
-                    // ),
-                    AppTextField(
-                      validator: (value) => Validator.phone(value),
-                      controller: phoneNumber,
-                      //labelText: context.appText.phoneNumber,
-                      maxLength: 10,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
-                      ],
-                      keyboardType: iosNumberKeyboard,
-                      decoration: commonInputDecoration(
-                        hintText:
-                            "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
-                        prefixIcon: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          mainAxisSize: MainAxisSize.min,
+                      // Phone Number
+                      // MobileNumberTextField(
+                      //   countryFlagAssetPath: AppImage.png.flag,
+                      //   controller: phoneNumber,
+                      //   onChanged: (value){
+                      //     setState(() {});
+                      //   },
+                      // ),
+                      AppTextField(
+                        validator: (value) => Validator.phone(value),
+                        controller: phoneNumber,
+                        //labelText: context.appText.phoneNumber,
+                        maxLength: 10,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        keyboardType: iosNumberKeyboard,
+                        decoration: commonInputDecoration(
+                          hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                          prefixIcon: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(AppImage.png.flag),
+                              10.width,
+                              Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                            ],
+                          ).paddingOnly(left: 20, right: 5),
+                        ),
+                        onChanged: (v) {
+                          setState(() {});
+                        },
+                      ),
+                      20.height,
+
+                      // Get Otp Button
+                      AppButton(
+                        isLoading: isLoading,
+                        title: "Get OTP",
+                        style: (phoneNumber.text.length == 10 && checkBoxBool == true) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+                        onPressed: () {
+                          if (!formKey.currentState!.validate()){
+                            return;
+                          }
+                          if (phoneNumber.text.length == 10 && checkBoxBool == true) {
+                            loginBloc.add(LoginInRequested(
+                                apiRequest: LoginApiRequest(
+                                  mobile: phoneNumber.text,
+                                  role: widget.roleId,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+
+                      20.height,
+
+                      RichText(
+                        textAlign: TextAlign.start,
+                        text: TextSpan(
                           children: [
-                            Image.asset(AppImage.png.flag),
-                            10.width,
-                            Text(
-                              "+91",
-                              style: AppTextStyle.textFieldHintBlackColor,
+                            TextSpan(
+                              text: context.appText.agree,
+                              style: AppTextStyle.blackColor14w400,
+                            ),
+                            TextSpan(
+                              text: "Terms & Conditions",
+                              style: AppTextStyle.primaryColor14w400UnderLine,
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () {
+                                      // Handle terms & conditions tap
+                                      Navigator.push(
+                                        context,
+                                        commonRoute(TermsAndConditionsScreen()),
+                                      );
+                                    },
+                            ),
+                            TextSpan(
+                              text: context.appText.and,
+                              style: AppTextStyle.blackColor14w400,
+                            ),
+                            TextSpan(
+                              text: "Privacy Policy",
+                              style: AppTextStyle.primaryColor14w400UnderLine,
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () {
+                                      Navigator.push(
+                                        context,
+                                        commonRoute(PrivacyPolicyScreen()),
+                                      );
+                                    },
                             ),
                           ],
-                        ).paddingOnly(left: 20, right: 5),
+                        ),
                       ),
-                      onChanged: (v) {
-                        setState(() {});
-                      },
-                    ),
-                    20.height,
 
-                    // Get Otp Button
-                    AppButton(
-                      isLoading: isLoading,
-                      title: "Get OTP",
-                      style:
-                          (phoneNumber.text.length == 10 &&
-                                  checkBoxBool == true)
-                              ? AppButtonStyle.primary
-                              : AppButtonStyle.disableButton,
-                      onPressed: () {
-                        if (phoneNumber.text.length == 10 &&
-                            checkBoxBool == true) {
-                          loginBloc.add(
-                            LoginInRequested(
-                              apiRequest: LoginApiRequest(
-                                mobile: phoneNumber.text,
-                                role: widget.roleId,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-
-                    20.height,
-
-                    RichText(
-                      textAlign: TextAlign.start,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: context.appText.agree,
-                            style: AppTextStyle.blackColor14w400,
-                          ),
-                          TextSpan(
-                            text: "Terms & Conditions",
-                            style: AppTextStyle.primaryColor14w400UnderLine,
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // Handle terms & conditions tap
-                                    Navigator.push(
-                                      context,
-                                      commonRoute(TermsAndConditionsScreen()),
-                                    );
-                                  },
-                          ),
-                          TextSpan(
-                            text: context.appText.and,
-                            style: AppTextStyle.blackColor14w400,
-                          ),
-                          TextSpan(
-                            text: "Privacy Policy",
-                            style: AppTextStyle.primaryColor14w400UnderLine,
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.push(
-                                      context,
-                                      commonRoute(PrivacyPolicyScreen()),
-                                    );
-                                  },
-                          ),
-                        ],
+                      1.height,
+                      customCheckbox(
+                        context: context,
+                        text: context.appText.iAgree,
+                        onTap: () {
+                          checkBoxBool = !checkBoxBool;
+                          setState(() {});
+                        },
+                        selected: checkBoxBool,
                       ),
-                    ),
-
-                    1.height,
-                    customCheckbox(
-                      context: context,
-                      text: context.appText.iAgree,
-                      onTap: () {
-                        checkBoxBool = !checkBoxBool;
-                        setState(() {});
-                      },
-                      selected: checkBoxBool,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // Bottom Banner Gro Image
-              buildBottomBannerImageWidget(),
-            ],
+                // Bottom Banner Gro Image
+                buildBottomBannerImageWidget(),
+              ],
+            ),
           );
         },
       ),

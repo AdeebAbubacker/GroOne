@@ -37,6 +37,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   final lpHomeCubit = locator<LPHomeCubit>();
 
+
   final searchController = TextEditingController();
 
   Map<String, dynamic>? destination;
@@ -50,7 +51,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   String? destinationLocation;
   String? destinationAddress;
   String? destinationLatLong;
-  int? laneId;
+  num? laneId;
 
   @override
   void setState(fn) {
@@ -90,7 +91,9 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     destinationAddress = data.dropAddr;
     destinationLatLong = data.dropLatlon;
 
-    laneId = data.id;
+    laneId = data.laneId;
+
+    lpHomeCubit.setLaneId(data.laneId);
 
     setState(() {});
     commonHapticFeedback();
@@ -271,7 +274,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 address: destinationAddress,
                 location: destinationLocation,
                 latLng: destinationLatLong,
-                laneId: laneId
+                laneId: lpHomeCubit.state.laneId
             );
             lpHomeCubit.setDestination(destinationData);
 
@@ -280,7 +283,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 address: pickupAddress,
                 location: pickupLocation,
                 latLng: pickupLatLong,
-                laneId: laneId
+                laneId: lpHomeCubit.state.laneId
             );
             lpHomeCubit.setPickup(pickupData);
 

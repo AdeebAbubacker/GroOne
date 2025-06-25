@@ -183,7 +183,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           // Company Type
           AppDropdown(
             validator: (value) => Validator.fieldRequired(value),
-            labelText: context.appText.companyType,
+            labelText: "Company Type",
             hintText: context.appText.selectCompanyType,
             dropdownValue: companyTypeDropDownValue,
             mandatoryStar: true,
@@ -206,22 +206,14 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             labelText: context.appText.fullName,
             hintText:  context.appText.fullNameHint,
             mandatoryStar: true,
+            keyboardType: TextInputType.name,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+            ],
           ),
           20.height,
 
           // Phone Number
-          // Column(
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [
-          //     Text(" Phone Number", style: AppTextStyle.textFiled),
-          //     6.height,
-          //     MobileNumberTextField(
-          //       controller: phoneNumberTextController,
-          //       countryFlagAssetPath: AppImage.png.flag,
-          //       readOnly: true,
-          //     ),
-          //   ],
-          // ),
           AppTextField(
             readOnly: true,
             validator: (value)=> Validator.phone(value),

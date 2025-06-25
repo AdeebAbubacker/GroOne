@@ -221,6 +221,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           labelText: context.appText.fullName,
           hintText: context.appText.fullNameHint,
           mandatoryStar: true,
+          keyboardType: TextInputType.name,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+          ],
         ),
         20.height,
 

@@ -165,13 +165,13 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
             style: aadhaarNumberTextController.text.length == 14 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
             isLoading: isLoading,
             title: context.appText.verifyAadhaar,
-            onPressed: () async {
+            onPressed:  aadhaarNumberTextController.text.length == 14 ?  () async {
                // Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
                 if (formKey.currentState!.validate()) {
                   final request = AddharOtpApiRequest(force: false, aadhaar: aadhaarValue ?? "");
                   await kycBloc.sendAadhaarOtp(request);
                 }
-            },
+            } : (){},
           ),
           20.height,
 
