@@ -1,8 +1,10 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
@@ -21,6 +23,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
+import 'low_credit_dialog.dart';
 
 class LPLoadListBodyWidget extends StatelessWidget{
   const LPLoadListBodyWidget({super.key, required this.loadItem, required this.lpLoadLocator});
@@ -33,48 +36,38 @@ class LPLoadListBodyWidget extends StatelessWidget{
 
     final uiState = lpLoadLocator.state.lpCreditCheck;
 
-    final loadList = uiState?.data?.availableCreditLimit ?? '';
+    if (uiState?.status == Status.LOADING) {}
+    else if (uiState?.status == Status.SUCCESS) {
+      final loadList = uiState?.data?.availableCreditLimit ?? '';
 
-    int availableCredit = double.parse(loadList).toInt();
-    int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+      int availableCredit = double.parse(loadList).toInt();
+      int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
 
-    if(availableCredit < rateValue) {
-      AppDialog.show(context, child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: "Back",
-        yesButtonText: "Customer Support",
-        child: Column(
-          children: [
-            Lottie.asset(AppJSON.alert, repeat: true, frameRate: FrameRate(200)),
-            Text("Low credit balance", style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
-            10.height,
-            Text("You cannot post this load due to your low credit balance", textAlign: TextAlign.center, style: AppTextStyle.body3),
-            10.height,
-          ],
-        ),
-        onClickYesButton: () {
-          // Navigator.pop(context);
-          // AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
-        },
-      ));
-    } else {
-      AppDialog.show(context, child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: "Cancel",
-        yesButtonText: "I Agree Load",
-        child: Column(
-          children: [
-            Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
-            Text("Are you sure you agree to this Load?"),
-          ],
-        ),
-        onClickYesButton: () {
-          Navigator.pop(context);
-          AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: loadItem.loadId), dismissible: true);
-        },
-      ));
+      if(availableCredit < rateValue) {
+        AppDialog.show(context, child: LowCreditDialog());
+      } else {
+        AppDialog.show(context, child: CommonDialogView(
+          hideCloseButton: true,
+          showYesNoButtonButtons: true,
+          noButtonText: "Cancel",
+          yesButtonText: "I Agree Load",
+          child: Column(
+            children: [
+              Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
+              Text("Are you sure you agree to this Load?"),
+            ],
+          ),
+          onClickYesButton: () {
+            Navigator.pop(context);
+            AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: "${loadItem.id}"), dismissible: true);
+          },
+        ));
+      }
+    }
+    else if (uiState?.status == Status.ERROR) {
+      final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      return;
     }
 
   }
@@ -121,7 +114,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             Wrap(
               children: [
                 Text(
-                  'GD ${loadItem.loadId}',
+                  loadItem.loadId,
                   style: AppTextStyle.h5,
                   maxLines: 2,
                 ),
@@ -197,7 +190,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(
-            "₹ ${loadItem.rate}",
+            PriceHelper.formatINR(loadItem.rate),
             style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
           ),
         ],

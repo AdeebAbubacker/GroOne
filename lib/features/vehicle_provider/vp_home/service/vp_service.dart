@@ -73,8 +73,9 @@ class VpHomeService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+    } catch (e,stacktress) {
+      print("stacktress $stacktress");
+      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -122,7 +123,8 @@ class VpHomeService {
 
   Future<Result<VpLoadAcceptModel>> fetchVpAcceptLoad({required String userId,required String loadId}) async {
     try {
-      final result = await _apiService.put('${ApiUrls.vpAcceptLoad}$userId/$loadId');
+      final result = await _apiService.put(
+          '${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => VpLoadAcceptModel.fromJson(data));
       } else if (result is Error) {

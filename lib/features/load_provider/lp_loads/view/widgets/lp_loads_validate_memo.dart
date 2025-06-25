@@ -92,6 +92,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                   AppButton(
                     title: "E-Sign Memo",
                     onPressed: () {
+                      lpLoadLocator.sendOtp();
                       AppDialog.show(context, child: MemoOtpDialogWidget(parentContext: context,));
                     },
                   ),

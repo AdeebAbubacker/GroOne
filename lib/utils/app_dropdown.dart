@@ -48,7 +48,7 @@ class AppDropdown extends StatelessWidget {
         if (labelText != null)
           Row(
             children: [
-              Text(" ${labelText.capitalizeFirst}", style: labelTextStyle ?? AppTextStyle.body3),
+              Text(" $labelText", style: labelTextStyle ?? AppTextStyle.body3),
               if(mandatoryStar == true)
                 Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
             ],

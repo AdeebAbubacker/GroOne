@@ -38,20 +38,27 @@ class Validator {
   }
 
   static String? phone(String? value) {
-    String pattern = r'^\+?[0-9]+$';
-    RegExp regExp = RegExp(pattern);
-    const int minLength = 10;
-    const int maxLength = 10;
+    const int requiredLength = 10;
 
     if (value == null || value.isEmpty) {
       return 'Please enter mobile number';
-    } else if (!regExp.hasMatch(value)) {
-      return 'Please enter a valid mobile number';
-    } else if (value.length < minLength || value.length > maxLength) {
-      return 'Mobile number must be $maxLength digits';
     }
+
+    // Allow only digits
+    final isDigitsOnly = RegExp(r'^\d{10}$');
+    if (!isDigitsOnly.hasMatch(value)) {
+      return 'Please enter a valid 10-digit mobile number';
+    }
+
+    // Disallow repeated digits like 0000000000, 1111111111, etc.
+    if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
+      return 'Mobile number cannot have all same digits';
+    }
+
     return null;
   }
+
+
 
 
   static String? countryCode(String? value) {

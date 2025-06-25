@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class  LpLoadRepository {
@@ -16,52 +17,89 @@ class  LpLoadRepository {
 
   LpLoadRepository(this.service, this.userRepo);
 
-  Future<Result<List<LpLoadItem>>> fetchLoads({
-    required int type,
-    String search = "",
-    bool forceRefresh = false
-  }) async {
-    final customerId = await userRepo.getUserID() ?? '';
-    return service.fetchLoads(customerId: customerId, type: type, search: search,forceRefresh: forceRefresh);
+  Future<Result<List<LpLoadItem>>> fetchLoads({required int type, String search = "", bool forceRefresh = false}) async {
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.fetchLoads(customerId: customerId, type: type, search: search,forceRefresh: forceRefresh);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get fetch loads data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
-  Future<Result<LpLoadGetByIdResponse>> fetchLoadById({
-    required int loadId,
-    String search = "",
-    bool forceRefresh = false
-  }) async {
-    return service.fetchLoadsById(loadId: loadId,forceRefresh: forceRefresh);
+  Future<Result<LpLoadGetByIdResponse>> fetchLoadById({required int loadId, bool forceRefresh = false}) async {
+    try {
+      return service.fetchLoadsById(loadId: loadId,forceRefresh: forceRefresh);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch loads by ID data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
-    return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
+    try {
+      return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch memo details data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
-    return service.fetchTruckTypeList();
+    try {
+      return service.fetchTruckTypeList();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch truck list data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
-    return service.fetchRouteList();
+    try {
+      return service.fetchRouteList();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch route list data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LpLoadMemoOtpResponse>> sendOtp() async {
-    final customerId = await userRepo.getUserID() ?? '';
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.sendOtp(customerId: customerId);
 
-    return service.sendOtp(customerId: customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to send OTP data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String otp}) async {
-    final customerId = await userRepo.getUserID() ?? '';
-    return service.verifyOtp(customerId: customerId, otp: otp);
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.verifyOtp(customerId: customerId, otp: otp);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get verify OTP data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LpLoadMemoOtpResponse>> applyFilter({required int fromRoute, required int toRoute, required String truckType, required String loadPostedDate}) async {
-    return service.applyFilter(fromRoute: fromRoute, toRoute: toRoute, truckType: truckType, loadPostedDate: loadPostedDate);
+    try {
+      return service.applyFilter(fromRoute: fromRoute, toRoute: toRoute, truckType: truckType, loadPostedDate: loadPostedDate);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get apply filter data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 
   Future<Result<LpLoadCreditCheckResponse>> getCreditCheck() async {
-    final customerId = await userRepo.getUserID() ?? '';
-    return service.getCreditCheck(customerId: customerId);
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.getCreditCheck(customerId: customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get credit check data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 }

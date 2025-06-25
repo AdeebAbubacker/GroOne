@@ -29,6 +29,9 @@ class _BlueMembershipDialogViewState extends State<BlueMembershipDialogView> {
   void initFunction(BuildContext context) => frameCallback(() async {
     await Future.delayed(Duration(seconds: 3));
     if(!context.mounted) return;
+    if(widget.afterDismiss != null){
+      widget.afterDismiss?.call();
+    }
     Navigator.of(context).pop();
   });
 

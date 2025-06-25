@@ -20,19 +20,18 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
   final VpHomeRepository _vHomeRepository;
   final UserInformationRepository _userInformationRepository;
 
-  VpHomeBloc(this._vHomeRepository, this._userInformationRepository) : super(VpHomeInitial()) {
-
+  VpHomeBloc(this._vHomeRepository, this._userInformationRepository)
+    : super(VpHomeInitial()) {
     on<VpMyLoadListRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
 
-      Result result = await _vHomeRepository.getVpMyLoad(await _userInformationRepository.getUserID()??'');
+      Result result = await _vHomeRepository.getVpMyLoad(
+        await _userInformationRepository.getUserID() ?? '',
+      );
 
       if (result is Success<VpMyLoadResponse>) {
-        result.value.data.sort(
-          (a, b) => b.createdAt!.compareTo(a.createdAt!),
-        );
+        result.value.data.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
         emit(VpMyLoadListSuccess(result.value));
-
       } else if (result is Error) {
         emit(VpMyLoadListError(result.type));
       } else {
@@ -54,8 +53,6 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
         emit(VpMyLoadListError(GenericError()));
       }
     });
-
-
 
     on<VpDriverDetailsRequested>((event, emit) async {
       emit(VpMyLoadListLoading());

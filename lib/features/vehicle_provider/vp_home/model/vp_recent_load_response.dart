@@ -34,21 +34,34 @@ class VpRecentLoadResponse {
 class VpRecentLoadData {
   VpRecentLoadData({
     required this.id,
+    required this.loadId,
+    required this.laneId,
+    required this.rateId,
     required this.customerId,
     required this.commodityId,
     required this.truckTypeId,
     required this.pickUpAddr,
+    required this.pickUpLocation,
     required this.assignStatus,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
     required this.status,
+    required this.loadStatus,
+    required this.vehicleLength,
+    required this.pickUpDateTime,
+    required this.expectedDeliveryDateTime,
+    required this.handlingCharges,
     required this.acceptedBy,
+    required this.agreedPrice,
+    required this.acceptedVehicleId,
     required this.createdAt,
+    required this.updatedAt,
     required this.deletedAt,
     required this.commodity,
     required this.truckType,
@@ -57,22 +70,35 @@ class VpRecentLoadData {
   });
 
   final int id;
+  final String loadId;
+  final num laneId;
+  final num rateId;
   final num customerId;
   final num commodityId;
   final num truckTypeId;
   final String pickUpAddr;
+  final String pickUpLocation;
   final num assignStatus;
   final String pickUpLatlon;
   final String dropAddr;
+  final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
   final String notes;
   final String rate;
   final num status;
+  final num loadStatus;
+  final String vehicleLength;
+  final DateTime? pickUpDateTime;
+  final DateTime? expectedDeliveryDateTime;
+  final num handlingCharges;
   final dynamic acceptedBy;
+  final num agreedPrice;
+  final num acceptedVehicleId;
   final DateTime? createdAt;
-  final dynamic deletedAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
   final Commodity? commodity;
   final TruckType? truckType;
   final Customer? customer;
@@ -80,22 +106,35 @@ class VpRecentLoadData {
 
   VpRecentLoadData copyWith({
     int? id,
+    String? loadId,
+    num? laneId,
+    num? rateId,
     num? customerId,
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
+    String? pickUpLocation,
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
     String? notes,
     String? rate,
     num? status,
+    num? loadStatus,
+    String? vehicleLength,
+    DateTime? pickUpDateTime,
+    DateTime? expectedDeliveryDateTime,
+    num? handlingCharges,
     dynamic? acceptedBy,
+    num? agreedPrice,
+    num? acceptedVehicleId,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
     Commodity? commodity,
     TruckType? truckType,
     Customer? customer,
@@ -103,21 +142,34 @@ class VpRecentLoadData {
   }) {
     return VpRecentLoadData(
       id: id ?? this.id,
+      loadId: loadId ?? this.loadId,
+      laneId: laneId ?? this.laneId,
+      rateId: rateId ?? this.rateId,
       customerId: customerId ?? this.customerId,
       commodityId: commodityId ?? this.commodityId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       pickUpAddr: pickUpAddr ?? this.pickUpAddr,
+      pickUpLocation: pickUpLocation ?? this.pickUpLocation,
       assignStatus: assignStatus ?? this.assignStatus,
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
+      dropLocation: dropLocation ?? this.dropLocation,
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
       status: status ?? this.status,
+      loadStatus: loadStatus ?? this.loadStatus,
+      vehicleLength: vehicleLength ?? this.vehicleLength,
+      pickUpDateTime: pickUpDateTime ?? this.pickUpDateTime,
+      expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
+      handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      agreedPrice: agreedPrice ?? this.agreedPrice,
+      acceptedVehicleId: acceptedVehicleId ?? this.acceptedVehicleId,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
@@ -129,22 +181,35 @@ class VpRecentLoadData {
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
     return VpRecentLoadData(
       id: json["id"] ?? 0,
+      loadId: json["loadId"] ?? "",
+      laneId: json["laneId"] ?? 0,
+      rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
       pickUpAddr: json["pickUpAddr"] ?? "",
+      pickUpLocation: json["pickUpLocation"] ?? "",
       assignStatus: json["assignStatus"] ?? 0,
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
+      dropLocation: json["dropLocation"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,
+      loadStatus: json["loadStatus"] ?? 0,
+      vehicleLength: json["vehicleLength"] ?? "",
+      pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
+      expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
+      handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"],
+      agreedPrice: json["agreedPrice"] ?? 0,
+      acceptedVehicleId: json["acceptedVehicleId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: DateTime.tryParse(json["deletedAt"] ?? ""),
       commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),

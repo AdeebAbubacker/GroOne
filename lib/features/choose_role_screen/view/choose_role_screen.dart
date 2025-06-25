@@ -48,7 +48,6 @@ class ChooseRoleScreen extends StatelessWidget {
           30.width,
         ],
       ),
-      bottomSheet: Container(color: AppColors.white,child: Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).paddingBottom(25)),
       body: BlocBuilder<RoleBloc, RoleState>(
         builder: (context, state) {
           return Padding(
@@ -105,8 +104,11 @@ class ChooseRoleScreen extends StatelessWidget {
                     context.push(AppRouteName.login, extra: "${state.index + 1}");
                   },
                 ),
+                 50.height,
 
-                // 50.height,
+                Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center()
+
+
 
                 // Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center(),
                // Center(child: Image.asset(AppImage.png.hinduja)),

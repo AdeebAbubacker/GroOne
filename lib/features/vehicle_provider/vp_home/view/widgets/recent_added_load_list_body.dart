@@ -49,7 +49,9 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
       onTap: (){
         /// TODO:
         /// Temp navigation remote remove it after you done design part
-        context.push(AppRouteName.loadDetailsScreen);
+        context.push(AppRouteName.loadDetailsScreen,extra: {
+          "loadId":widget.data.id
+        });
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -74,22 +76,22 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
+                    Row(
                       children: [
                         Text(
-                          widget.data.pickUpAddr.capitalize,
+                          widget.data.pickUpLocation.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+                          maxLines: 1,
+                        ).expand(),
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5),
+                        ).paddingSymmetric(horizontal: 5).expand(),
                         Text(
-                          widget.data.dropAddr.capitalize,
+                          widget.data.dropLocation.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+                          maxLines: 1,
+                        ).expand(),
                       ],
                     ),
                     Text(
@@ -103,6 +105,8 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
             commonDivider(),
             Row(
               children: [
+
+
                 Column(
                   children: [
                     detailWidget(
