@@ -134,10 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 profileOptionWidget(context),
 
                 5.height,
-                Text(
-                  "Version $appVersion",
-                  style: AppTextStyle.textGreyDetailColor14w400,
-                ),
+                profileVersionWidget(),
                 30.height,
               ],
             ),
@@ -356,6 +353,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  profileVersionWidget() {
+    return Text(
+      "Version $appVersion",
+      style: AppTextStyle.textGreyDetailColor14w400,
     );
   }
 
