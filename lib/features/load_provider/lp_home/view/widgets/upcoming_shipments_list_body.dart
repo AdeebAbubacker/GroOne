@@ -45,8 +45,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
   void _updateCountDown() {
     setState(() {
-      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.createdAt!.toIso8601String(),
-      );
+      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.createdAt!.toIso8601String());
     });
   }
 

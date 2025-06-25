@@ -99,16 +99,22 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   void disposeFunction() => frameCallback(() {});
 
 
-  // Blue Membership Dialog
-  void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        child: BlueMembershipDialogView(blueId: blueId),
-      ),
-    );
-  });
+   // Blue Membership Dialog
+   void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
+     AppDialog.show(
+       context,
+       child: CommonDialogView(
+         hideCloseButton: true,
+         child: BlueMembershipDialogView(
+           blueId: blueId,
+           afterDismiss: () async {
+             debugPrint("Clear Blue ID VP");
+             await lpHomeCubit.clearBlueId();
+           },
+         ),
+       ),
+     );
+   });
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +245,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
             profileState.data?.data != null &&
             profileState.data?.data?.customer != null &&
             profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
-          if (await lpHomeCubit.getBlueId() == null){
+          print("Blue Id Stored or not: ${await lpHomeCubit.getBlueId()}");
+          if (await lpHomeCubit.getBlueId() != null){
             if(!context.mounted) return;
             sessionBlueId = null;
             blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);

@@ -72,6 +72,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   // LpGetLoadModel? getLoadResponse;
 
   final lpHomeBloc = locator<LpHomeBloc>();
+
   final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
@@ -100,6 +101,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? truckLength;
   String? selectedDate;
   String? selectedTime;
+  String? selectedDateTime;
   String? laneId;
   String? sessionBlueId;
 
@@ -286,7 +288,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         dropAddr:   lpHomeCubit.state.destination?.data?.address ?? "",
         dropLocation:   lpHomeCubit.state.destination?.data?.location ?? "",
         dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
-        dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
+        dueDate: selectedDateTime.toString(),
         consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
         rate: rateDiscoveryPrice ?? "0000 - 0000",
         laneId: lpHomeCubit.state.laneId
@@ -339,7 +341,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       context,
       child: CommonDialogView(
         hideCloseButton: true,
-        child: BlueMembershipDialogView(blueId: blueId),
+        child: BlueMembershipDialogView(
+          blueId: blueId,
+          afterDismiss: () async {
+            debugPrint("Clear Blue ID LP");
+            await lpHomeCubit.clearBlueId();
+          },
+        ),
       ),
     );
   });
@@ -402,6 +410,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               CustomLog.debug(this, 'is KYC : $kycFlag');
 
               if (kycFlag == 3) {
+                // return kycWidget(
+                //   onTap: () => commonBottomSheetWithBGBlur(
+                //     context: context,
+                //     screen: EnterAadhaarNumberBottomSheet(),
+                //   ),
+                // );
                 return const SizedBox.shrink();
               }
 
@@ -505,6 +519,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   // Kyc Label
   Widget buildKycLabelWidget(){
     return BlocConsumer<LPHomeCubit, LPHomeState>(
+      bloc: lpHomeCubit,
+      listenWhen: (previous, current) => previous.profileDetailUIState != current.profileDetailUIState,
       listener: (context, state) async {
         final profileState = state.profileDetailUIState;
 
@@ -514,7 +530,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             profileState.data?.data != null &&
             profileState.data?.data?.customer != null &&
             profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
-          if (await lpHomeCubit.getBlueId() == null){
+          print("Blue Id Stored or not: ${await lpHomeCubit.getBlueId()}");
+          if (await lpHomeCubit.getBlueId() != null){
             if(!context.mounted) return;
             sessionBlueId = null;
             blueMembershipDialog(context, profileState.data!.data!.customer!.blueId);
@@ -614,14 +631,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 case Status.ERROR:
                                   Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
                                   break;
-                               case null:
-                                  ToastMessages.success(message: "Please wait, loading recent routes...");
-                                  break;
-                                case Status.INITIAL:
-                                  throw UnimplementedError();
-                                case Status.LOADING:
-                                  // TODO: Handle this case.
-                                  throw UnimplementedError();
+                                default:
+                                  Navigator.of(context).push(createRoute(RecentRouteScreen()));
                               }
                             } else {
                               Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
@@ -715,7 +726,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 listener: (context, state) {},
                 builder: (context, state) {
                   final weights = state.loadWeightUIState?.data?.data ?? [];
-
                   return LPWeightDropdown(
                     preFixIcon: AppIcons.svg.kgWeight,
                     hintText: "Weight (MT)",
@@ -809,10 +819,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                    String? time = await commonTimePicker(context);
 
 
-                  if (date != null ) {
+                  if (date != null && time != null) {
                     dateTimeTextController.text = date;
                     selectedDate = date;
                     selectedTime = time;
+                    selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time!);
+                    print("Date : ${date}, Time : ${time} ");
+
                   }
                   await fetchRateDiscovery();
                 },

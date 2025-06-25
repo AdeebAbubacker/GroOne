@@ -156,18 +156,19 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
                   if (date != null && time != null) {
                     dateAndTime = "$date - $time";
-                    sendDateAndTimeInApi = DateTimeHelper.convertToDatabaseFormat(date);
+                    sendDateAndTimeInApi =  DateTimeHelper.convertToApiDateTime(date, time);
                     debugPrint(sendDateAndTimeInApi);
                   }
                   setState(() {});
                 },
-              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white)
+              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white, mandatoryStar: true)
             ),
 
             AppTextField(
               controller: handlingChargesTextController,
               hintText: "Enter Handling Charges",
               labelText: "Handling Charges",
+              mandatoryStar: true,
               keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -205,11 +206,17 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   }
 
 /// Reusable read-only field UI (mimicking input style)
-  Widget buildReadOnlyField(String label, String value,{Color? fillColor}) {
+  Widget buildReadOnlyField(String label, String value,{Color? fillColor, bool mandatoryStar = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyle.textFiled),
+        Row(
+          children: [
+            Text(label, style: AppTextStyle.textFiled),
+            if(mandatoryStar)
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
         6.height,
         Container(
           width: double.infinity,

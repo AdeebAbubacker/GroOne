@@ -71,10 +71,17 @@ class Data {
       id: json["id"] ?? 0,
       laneId: json["laneId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
-      price: json["price"] ?? 0,
+      price: _parseNum(json["price"]),
       lane: json["lane"] == null ? null : Lane.fromJson(json["lane"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
     );
+  }
+
+  // Add this helper method in the same class or above
+  static num _parseNum(dynamic value) {
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value) ?? 0;
+    return 0;
   }
 
 }
