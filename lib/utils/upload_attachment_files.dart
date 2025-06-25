@@ -23,9 +23,10 @@ class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
   final bool? isLoading;
+  final bool? hideDeleteButton;
   final String? title;
   final Function? thenUploadFileToSever;
-  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever, this.isLoading = false});
+  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever, this.isLoading = false, this.hideDeleteButton = false});
 
   @override
   State<UploadAttachmentFiles> createState() => _UploadAttachmentFilesState();
@@ -150,19 +151,28 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             10.width,
                             // AppIconButton(onPressed: (){}, icon: AppIcons.svg.edit)
 
-                            if(!widget.isLoading!)
-                            AppIconButton(
-                              onPressed: (){
-                                widget.multiFilesList.removeAt(index);
-                                commonHapticFeedback();
-                                commonHideKeyboard(context);
-                                setState(() {});
+                            Builder(
+                              builder: (context){
+                                if(!widget.isLoading!){
+                                  if(widget.hideDeleteButton!) {
+                                    return const SizedBox();
+                                  } else {
+                                    return AppIconButton(
+                                      onPressed: (){
+                                        widget.multiFilesList.removeAt(index);
+                                        commonHapticFeedback();
+                                        commonHideKeyboard(context);
+                                        setState(() {});
+                                      },
+                                      icon: AppIcons.svg.delete,
+                                      iconColor: AppColors.activeRedColor,
+                                    );
+                                  }
+                                } else {
+                                  return CupertinoActivityIndicator().paddingRight(10);
+                                }
                               },
-                              icon: AppIcons.svg.delete,
-                              iconColor: AppColors.activeRedColor,
-                            )
-                            else
-                              CupertinoActivityIndicator().paddingRight(10)
+                            ),
                           ],
                         ),
                       );

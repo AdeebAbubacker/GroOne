@@ -754,6 +754,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                 labelText: "Bank Name",
                                 hintText: "Enter Bank Name",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]"))
+                                ],
                               ),
 
                               AppTextField(
@@ -761,7 +764,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   controller: branchNameTextController,
                                   mandatoryStar: kycCubit.userRole == "1" ? false : true,
                                   labelText: "Branch Name",
-                                  hintText: "Enter Branch Name"
+                                  hintText: "Enter Branch Name",
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]"))
+                                  ],
                               ),
 
                               AppTextField(
@@ -893,6 +899,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       bloc: kycCubit,
       listener: (context, state) {},
       builder: (context, state) {
+        bool verified = state.verifiedGst != null && state.verifiedGst!;
         return Column(
           children: [
             // Enter GST Number
@@ -902,8 +909,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                   UpperCaseTextFormatter(),
                   GSTInputFormatter()
                 ],
-                leftText: state.verifiedGst != null && state.verifiedGst! ? "Verified" : "Un-Verified",
-                readOnly: state.verifiedGst != null && state.verifiedGst!,
+                leftText: verified ? "Verified" : "Un-Verified",
+                readOnly: verified,
                 rightText: "GSTIN",
                 controller: gstInTextController,
                 suffixOnTap: () async {
@@ -924,7 +931,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                title: "Upload GST Document",
                 multiFilesList: gstDoc,
                 isSingleFile: true,
-                isLoading: state.uploadGSTDocUIState?.status == Status.LOADING
+                isLoading: state.uploadGSTDocUIState?.status == Status.LOADING,
+                hideDeleteButton: verified
             ),
           ],
         );
@@ -939,6 +947,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         bloc: kycCubit,
         listener: (context, state) {},
         builder: (context, state) {
+          bool verified = state.verifiedTan != null && state.verifiedTan!;
         return Column(
           children: [
             // Enter TAN number
@@ -948,8 +957,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                   UpperCaseTextFormatter(),
                   TANInputFormatter(),
                 ],
-                leftText: state.verifiedTan != null && state.verifiedTan! ? "Verified" : "Un-Verified",
-                readOnly: state.verifiedTan != null && state.verifiedTan!,
+                leftText: verified ? "Verified" : "Un-Verified",
+                readOnly: verified,
                 rightText: "TAN",
                 controller: tanTextController,
                 suffixOnTap: () async {
@@ -971,6 +980,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
               multiFilesList: tanDoc,
               isSingleFile: true,
               isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
+              hideDeleteButton: verified,
             ),
 
           ],
@@ -986,6 +996,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         bloc: kycCubit,
         listener: (context, state) {},
         builder: (context, state) {
+          bool verified = state.verifiedPan != null && state.verifiedPan!;
         return Column(
           children: [
             // Enter PAN number
@@ -995,12 +1006,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 PANCardInputFormatter(),
               ],
               maxLength: 10,
-                leftText: state.verifiedPan != null && state.verifiedPan! ? "Verified" : "Un-Verified",
-                readOnly: state.verifiedPan != null && state.verifiedPan!,
+                leftText: verified ? "Verified" : "Un-Verified",
+                readOnly: verified,
                 rightText: "PAN",
                 controller: panTextController,
-
-
                 suffixOnTap: () async {
                   if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(panDoc);
@@ -1020,6 +1029,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
               multiFilesList: panDoc,
               isSingleFile: true,
               isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
+              hideDeleteButton: verified,
             ),
           ],
         );
@@ -1029,7 +1039,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Multiple Text Field
-  Widget  _buildMultipleTextFieldWidget({required String text, String? leftText, required List<Widget> children}) {
+  Widget  _buildMultipleTextFieldWidget({required String text, String? leftText, required List<Widget> children }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1046,7 +1056,12 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     int? maxLength,
     required String rightText,
     List<TextInputFormatter>? inputFormatters,
-    String? leftText, bool readOnly = false, FocusNode? currentFocus, required TextEditingController controller, dynamic Function()? suffixOnTap}) {
+    String? leftText,
+    bool readOnly = false,
+    FocusNode? currentFocus,
+    required TextEditingController controller,
+    dynamic Function()? suffixOnTap,
+  }) {
     return Column(
       children: [
         Row(
@@ -1074,7 +1089,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           currentFocus: currentFocus,
           controller: controller,
           decoration: commonInputDecoration(
-              suffixIcon: Text("Verify", style: AppTextStyle.h6PrimaryColor),
+              suffixIcon: readOnly ?  0.width : Text("Verify", style: AppTextStyle.h6PrimaryColor),
               suffixOnTap: suffixOnTap ?? (){}
           ),
         ),

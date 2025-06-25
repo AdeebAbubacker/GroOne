@@ -279,13 +279,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       dropAddr: lpHomeCubit.state.destination?.data?.address ?? "",
       dropLocation: lpHomeCubit.state.destination?.data?.location ?? "",
       dropLatlon: lpHomeCubit.state.destination?.data?.latLng ?? "",
-      dueDate:
-          DateTimeHelper.convertStringToDateTime(
-            dateTimeTextController.text,
-          ).toString(),
-      consignmentWeight: int.parse(
-        lpHomeCubit.state.selectedWeight!.id.toString(),
-      ),
+      dueDate: DateTimeHelper.convertStringToDateTime(dateTimeTextController.text).toString(),
+      consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
       rate: rateDiscoveryPrice ?? "0000 - 0000",
       laneId: lpHomeCubit.state.laneId,
     );
@@ -298,10 +293,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           apiRequest: request,
           pickupAddress: lpHomeCubit.state.pickup?.data?.address ?? "",
           pickupLocation: lpHomeCubit.state.pickup?.data?.location ?? "",
-          destinationAddress:
-              lpHomeCubit.state.destination?.data?.address ?? "",
-          destinationLocation:
-              lpHomeCubit.state.destination?.data?.location ?? "",
+          destinationAddress: lpHomeCubit.state.destination?.data?.address ?? "",
+          destinationLocation: lpHomeCubit.state.destination?.data?.location ?? "",
           vehicleType: truckType ?? "",
           vehicleLength: truckLength ?? "",
           approxWeight: weightTextController.text,
@@ -421,11 +414,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               }
 
               return kycWidget(
-                onTap:
-                    () => commonBottomSheetWithBGBlur(
-                      context: context,
-                      screen: EnterAadhaarNumberBottomSheet(),
-                    ),
+                onTap: () => commonBottomSheetWithBGBlur(
+                  context: context,
+                  screen: EnterAadhaarNumberBottomSheet(),
+                ),
               );
             },
           ),
@@ -551,17 +543,13 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             profileState.data != null &&
             profileState.data?.data != null &&
             profileState.data?.data?.customer != null &&
-            profileState.data!.data!.customer!.blueId.isNotEmpty &&
-            state.showSuccessKyc) {
-          if (await lpHomeCubit.getBlueId() == null) {
+            profileState.data!.data!.customer!.blueId.isNotEmpty && state.showSuccessKyc) {
+          if (await lpHomeCubit.getBlueId() != null) {
             if (!context.mounted) return;
-            sessionBlueId = null;
             blueMembershipDialog(
               context,
               profileState.data!.data!.customer!.blueId,
             );
-          } else {
-            sessionBlueId = await lpHomeCubit.getBlueId();
           }
         }
       },
@@ -632,14 +620,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                     if (state.pickup?.status == Status.SUCCESS &&
                         state.pickup?.data != null) {
-                      pickupLocation =
-                          ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
+                      pickupLocation = ("${state.pickup!.data!.location!.isNotEmpty ? "${state.pickup!.data!.location.capitalize}, " : ""}${state.pickup!.data!.address.toString().capitalize}");
                     }
 
                     if (state.destination?.status == Status.SUCCESS &&
                         state.destination?.data != null) {
-                      destinationLocation =
-                          ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
+                      destinationLocation = ("${state.destination!.data!.location!.isNotEmpty ? "${state.destination!.data!.location.capitalize}, " : ""}${state.destination!.data!.address.toString().capitalize}");
                     }
 
                     return Column(

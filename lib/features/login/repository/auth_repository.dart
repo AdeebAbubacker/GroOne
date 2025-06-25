@@ -66,6 +66,9 @@ class AuthRepository {
     await _securedSharedPref.deleteKey(AppString.sessionKey.userRole);
     await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
     await _securedSharedPref.deleteKey(AppString.sessionKey.companyTypeId);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+    await _securedSharedPref.reset();
+
     await _apiService.clearCache();
     // await _notificationService.clearBadgeCount();
     // await _notificationService.clearFcmToken();
