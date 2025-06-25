@@ -49,7 +49,9 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
       onTap: (){
         /// TODO:
         /// Temp navigation remote remove it after you done design part
-        context.push(AppRouteName.loadDetailsScreen);
+        context.push(AppRouteName.loadDetailsScreen,extra: {
+          "loadId":widget.data.id
+        });
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -103,6 +105,8 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
             commonDivider(),
             Row(
               children: [
+
+
                 Column(
                   children: [
                     detailWidget(

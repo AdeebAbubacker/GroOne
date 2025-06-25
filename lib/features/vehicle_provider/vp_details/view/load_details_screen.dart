@@ -2,26 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/assign_driver_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_details_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class LoadDetailsScreen extends StatefulWidget {
-  const LoadDetailsScreen({super.key});
+  final int? loadId;
+  const LoadDetailsScreen({super.key, required this.loadId});
 
   @override
   State<LoadDetailsScreen> createState() => _LoadDetailsScreenState();
 }
 
 class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
-  final cubit = locator<AssignDriverCubit>();
+  final cubit = locator<LoadDetailsCubit>();
+  final homeCubit = locator<LPHomeCubit>();
 
   GoogleMapController? _mapController;
 
@@ -31,32 +44,61 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
     controller.setMapStyle(style);
   }
 
+  getLoadDetails() {
+    frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
+  }
+
+  @override
+  void initState() {
+    getLoadDetails();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        bottomSheet: LoadDetailsWidget(cubit: cubit),
+        bottomSheet: LoadDetailsWidget(cubit: cubit,lpHomeCubit: homeCubit,),
+        body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+          bloc: cubit,
+          builder: (context, state) {
+            if (state.loadDetailsUIState?.status == Status.LOADING) {
+              return CircularProgressIndicator().center();
+            }
+            if (state.loadDetailsUIState?.status == Status.ERROR) {
+              return genericErrorWidget(
+                error: state.loadDetailsUIState?.errorType,
+              );
+            }
+            if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+              final loads = state.loadDetailsUIState?.data;
 
+              if (loads?.data == null) {
+                return genericErrorWidget(error: NotFoundError());
+              }
 
-        body: Stack(
-          children: [
-            Positioned.fill(child: buildGoogleMapWidget()),
-            Positioned(
-              top: 15,
-              left: 15,
-              right: 15,
-              child: buildSourceAndDestinationWidget(),
-            ),
-
-          ],
+              return Stack(
+                children: [
+                  Positioned.fill(child: buildGoogleMapWidget()),
+                  Positioned(
+                    top: 15,
+                    left: 15,
+                    right: 15,
+                    child: buildSourceAndDestinationWidget(loads!.data!),
+                  ),
+                ],
+              );
+            }
+            return genericErrorWidget(error: GenericError());
+          },
         ),
       ),
     );
   }
 
   /// Build Source And Destination
-  Widget buildSourceAndDestinationWidget() {
-    return BlocBuilder<AssignDriverCubit, AssignDriverState>(
+  Widget buildSourceAndDestinationWidget(LoadDetails loadDetails) {
+    return BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
       builder: (context, state) {
         return Container(
           height: 110,
@@ -82,22 +124,32 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
 
                   Padding(
                     padding: const EdgeInsets.only(top: 13),
-                    child: Text("#GRO22334",style: TextStyle(color: AppColors.textBlackDetailColor),),
+                    child: Text(
+                      "${loadDetails.loadId}",
+                      style: TextStyle(color: AppColors.textBlackDetailColor),
+                    ),
                   ),
 
-                  if(state.isLoadAccepted)
-                    Spacer(),
+                  if (state.loadStatus==LoadStatus.accepted) Spacer(),
 
                   Padding(
-                    padding: const EdgeInsets.only(top: 15,left: 10,right: 10),
-                    child: Text("12 Jul 2025, 6.30 AM",style: TextStyle(
-                      fontSize: 10,
-                      color: AppColors.primaryColor,
-                    ),),
+                    padding: const EdgeInsets.only(
+                      top: 15,
+                      left: 10,
+                      right: 10,
+                    ),
+                    child: Text(
+                      DateTimeHelper.formatCustomDate(
+                        loadDetails.createdAt ?? DateTime.now(),
+                      ),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
                   ),
 
-
-                  if (!state.isLoadAccepted) ...[
+                  if (!(state.loadStatus==LoadStatus.accepted)) ...[
                     Spacer(),
 
                     Align(
@@ -120,14 +172,23 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildLocationDetailsTileWidget("Bangalore", "21-09-2025"),
-                  Icon(Icons.arrow_forward),
-                  _buildLocationDetailsTileWidget("Chennai", "21-09-2025"),
-                  if(state.isLoadAccepted)
-                    LoadStatusLabel(statusType: "Confirmed",)
-
+                  _buildLocationDetailsTileWidget(
+                    loadDetails.pickUpLocation,
+                    DateTimeHelper.getFormattedDate(
+                      loadDetails.pickUpDateTime ?? DateTime.now(),
+                    ),
+                  ),
+                  Icon(Icons.arrow_forward).expand(),
+                  _buildLocationDetailsTileWidget(
+                    loadDetails.dropLocation,
+                    DateTimeHelper.getFormattedDate(
+                      loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
+                    ),
+                  ),
+                  if (state.loadStatus==LoadStatus.accepted)
+                    LoadStatusLabel(statusType: "Confirmed"),
                 ],
-              ),
+              ).paddingSymmetric(horizontal: 5),
             ],
           ),
         );
@@ -158,13 +219,15 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
   /// Location Details
   _buildLocationDetailsTileWidget(String? location, String? date) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           location ?? "",
           style: TextStyle(color: AppColors.black, fontSize: 16),
+          maxLines: 1,
         ),
         Text(date ?? "", style: TextStyle(color: AppColors.grayColor)),
       ],
-    );
+    ).expand();
   }
 }

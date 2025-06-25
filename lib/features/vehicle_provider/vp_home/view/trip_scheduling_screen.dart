@@ -234,6 +234,8 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                     children: [
                       // Vehicle Provider Profile
                       commonCacheNetworkImage(
+
+
                         radius: 100,
                         height: 40,
                         width: 40,

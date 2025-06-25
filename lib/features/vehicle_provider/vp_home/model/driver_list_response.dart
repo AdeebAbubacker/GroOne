@@ -9,11 +9,19 @@ class DriverListResponse {
   final String message;
   final List<DriverDetails> data;
 
-  factory DriverListResponse.fromJson(Map<String, dynamic> json){
+  factory DriverListResponse.fromJson(Map<String, dynamic> json) {
+
+
     return DriverListResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<DriverDetails>.from(json["data"]!.map((x) => DriverDetails.fromJson(x))),
+      data: json["data"]['data'] == null
+          ? []
+          : List<DriverDetails>.from(
+          json["data"]['data'].map((x) {
+            print("x ${x}");
+            return DriverDetails.fromJson(x);
+          })),
     );
   }
 
@@ -53,6 +61,7 @@ class DriverDetails {
   final DateTime? licenseExpiryDate;
 
   factory DriverDetails.fromJson(Map<String, dynamic> json){
+    print("json is $json");
     return DriverDetails(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
