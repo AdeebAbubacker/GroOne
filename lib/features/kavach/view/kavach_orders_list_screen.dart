@@ -185,7 +185,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               6.height,
               buildKavachBenefitsDetailsWidget(context),
               buildGroBannerImageWidget(),
-              100.height, 
+              100.height,
             ],
           ),
         ),
@@ -198,7 +198,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
             child: AppButton(
-              title: context.appText.getYourTankLockNow,
+              title: "Get you Tank Lock Now",
               onPressed: () {
                 Navigator.of(
                   context,

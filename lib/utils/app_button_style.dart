@@ -65,6 +65,17 @@ class AppButtonStyle {
       side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
   );
 
+    static ButtonStyle outlineAndFilled = OutlinedButton.styleFrom(
+      enableFeedback: true,
+      splashFactory: NoSplash.splashFactory,
+      surfaceTintColor: Colors.white,
+      backgroundColor: AppColors.veryLightBlueColor,
+      elevation: 0.0,
+      fixedSize: Size(MediaQuery.of(appContext).size.width, commonButtonHeight),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(commonButtonRadius)),
+      side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
+  );
+
   static ButtonStyle disableOutline = OutlinedButton.styleFrom(
       enableFeedback: true,
       splashFactory: NoSplash.splashFactory,

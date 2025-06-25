@@ -95,7 +95,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
             if (widget.showTitle) ...[
               Center(
                 child: Text(
-                  context.appText.chooseYourPreference,
+                  "Choose your Preference",
                   style: AppTextStyle.h4,
                 ),
               ),
@@ -135,7 +135,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final makes = widget.vehicleFilters.keys.toList();
     
     return AppDropdown(
-      labelText: context.appText.make,
+      labelText: "Make",
       mandatoryStar: true,
       dropdownValue: selectedMake,
       dropDownList: [
@@ -170,7 +170,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final models = vehicleFilter?.models ?? [];
 
     return AppDropdown(
-      labelText: context.appText.model,
+      labelText: "Model",
       mandatoryStar: true,
       dropdownValue: selectedModel,
       dropDownList: [
@@ -200,7 +200,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final engines = vehicleFilter?.engineType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.engine,
+      labelText: "Engine",
       dropdownValue: selectedEngine,
       dropDownList: [
         DropdownMenuItem<String>(
@@ -229,7 +229,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final tankTypes = vehicleFilter?.tankType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.tankType,
+      labelText: "Tank Type",
       dropdownValue: selectedTankType,
       dropDownList: [
         DropdownMenuItem<String>(
@@ -258,7 +258,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final deviceTypes = vehicleFilter?.deviceType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.deviceType,
+      labelText: "Device Type",
       dropdownValue: selectedDeviceType,
       dropDownList: [
         DropdownMenuItem<String>(

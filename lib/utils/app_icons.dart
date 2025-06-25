@@ -22,8 +22,12 @@ class PngIcons {
   //kavach payment icons
   final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
   final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
-  final String kavachPaymentNetBanking =
-      "${_pngBasePath}payment_netbanking.png";
+  final String kavachPaymentNetBanking = "${_pngBasePath}payment_netbanking.png";
+
+  //endhan new_user icon
+  final String cardPayment = "${_pngBasePath}card_payment.png";
+  final String tracking = "${_pngBasePath}tracking.png";
+  final String reconcilation = "${_pngBasePath}reconcilation.png";
 }
 
 /// GIF Icons
@@ -44,6 +48,7 @@ class SvgIcons {
   final String gallery = "${_svgBasePath}gallery.svg";
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
+  final String addIcon = "${_svgBasePath}plus_icon.svg";
 
   // App Icons
   final String support = "${_svgBasePath}support.svg";
@@ -85,4 +90,7 @@ class SvgIcons {
   final String alchoholicBeverage = "${_svgBasePath}alchoholic_beverage.svg";
   final String autoParts = "${_svgBasePath}auto_parts.svg";
   final String bags = "${_svgBasePath}bags.svg";
+  final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
+
+
 }

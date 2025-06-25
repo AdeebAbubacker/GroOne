@@ -266,4 +266,13 @@
   "paymentSummary": "Payment Summary",
   "price": "Price",
   "item": "Item"
+  "buyNewTankLock" : "Buy New Tank Lock",
+  "fuelCard" : "Fuel Card (eN-Dhan)",
+  "benefitsOfFuelCard" : "Benefits of Fuel Card",
+  "benefitsOfFuelCardHeading1" : "Cashless Fuel & Toll Payments",
+  "benefitsOfFuelCardHeading2" : "Real-Time Expense Tracking",
+  "benefitsOfFuelCardHeading3" : "Easy Reconciliation",
+  "benefitsOfFuelCardSubHeading1" : "Enables cashless fuel and toll payments, reducing risk and hassle.",
+  "benefitsOfFuelCardSubHeading2" : "Gives real-time visibility of fund usage by each driver or vehicle.",
+  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting."
 }
