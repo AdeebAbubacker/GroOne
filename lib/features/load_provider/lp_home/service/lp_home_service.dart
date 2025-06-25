@@ -36,14 +36,22 @@ class LpHomeService{
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
-            if(await _userInformationRepository.getBlueID() != null){
-              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
+          final customer = data.value.data?.customer;
+          final newBlueId = customer?.blueId;
+          final storedBlueId = await _userInformationRepository.getBlueID();
+
+          if (newBlueId != null && newBlueId.isNotEmpty) {
+            if (storedBlueId == null || storedBlueId.isEmpty) {
+              debugPrint("🎉 First time Blue ID saved: $newBlueId");
+              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
+            } else {
+              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
             }
           } else {
-            debugPrint("Blue Is Clear");
+            debugPrint("🧹 Blue ID cleared");
             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
           }
+
           return Success(data.value);
         }
         if (data is Error) {
