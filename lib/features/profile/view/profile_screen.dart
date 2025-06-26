@@ -42,6 +42,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileDetailsData profileData;
@@ -59,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final lpHomeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final profileBloc = locator<ProfileBloc>();
-
+  String appVersion = '';
   @override
   void initState() {
     initFunction();
@@ -75,6 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initFunction() => frameCallback(() async {
     await lpHomeLocator.getUserId();
     profileImage = widget.profileData.details!.profileImageUrl ?? "";
+    appVersion = await appVersionInfo();
     setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
   });
@@ -123,6 +125,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // profile options widget
                 profileOptionWidget(context),
 
+                5.height,
+                profileVersionWidget(),
                 30.height,
               ],
             ),
@@ -341,6 +345,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  profileVersionWidget() {
+    return Text(
+      "Version $appVersion",
+      style: AppTextStyle.textGreyDetailColor14w400,
     );
   }
 
