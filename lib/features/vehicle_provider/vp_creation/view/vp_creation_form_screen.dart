@@ -281,7 +281,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   Widget buildEmailTextFieldWidget() {
     return BlocConsumer<EmailVerificationCubit, EmailVerificationState>(
         bloc: verifyEmailCubit,
-        listenWhen: (previous, current) =>  previous.sendOtpState != current.sendOtpState,
+        listenWhen: (previous, current) =>  previous.sendOtpState?.status != current.sendOtpState?.status,
         listener:  (context, state) async {
           final status = state.sendOtpState?.status;
 

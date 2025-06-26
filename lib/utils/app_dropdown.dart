@@ -64,13 +64,7 @@ class AppDropdown extends StatelessWidget {
             borderRadius: BorderRadius.circular(commonRadius),
             value: dropdownValue,
             style: AppTextStyle.textFiled,
-            hint:
-                hintText != null
-                    ? Text(
-                      hintText.capitalizeFirst,
-                      style: AppTextStyle.textFieldHint,
-                    )
-                    : null,
+            hint: hintText != null ? Text(hintText.capitalizeFirst, style: AppTextStyle.textFieldHint) : null,
             items: dropDownList,
             onChanged: onChanged!,
             onTap: onTap,

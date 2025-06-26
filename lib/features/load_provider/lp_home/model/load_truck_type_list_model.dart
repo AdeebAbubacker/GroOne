@@ -51,7 +51,7 @@ class TruckTypeData {
   final int id;
   final String type;
   final String subType;
-  final dynamic iconUrl;
+  final String iconUrl;
   final num status;
   final DateTime? createdAt;
   final dynamic deletedAt;
@@ -60,7 +60,7 @@ class TruckTypeData {
     int? id,
     String? type,
     String? subType,
-    dynamic? iconUrl,
+    String? iconUrl,
     num? status,
     DateTime? createdAt,
     dynamic? deletedAt,
@@ -81,7 +81,7 @@ class TruckTypeData {
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
       subType: json["subType"] ?? "",
-      iconUrl: json["iconUrl"],
+      iconUrl: json["iconUrl"] ?? "",
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],

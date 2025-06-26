@@ -9,6 +9,8 @@ class KycState extends Equatable {
   final UIState<UploadPANDocumentModel>? uploadPanDocUIState;
   final UIState<UploadTANDocumentModel>? uploadTanDocUIState;
   final UIState<UploadTDSDocumentModel>? uploadTDSDocUIState;
+  final UIState<CityModel>? cityUIState;
+  final UIState<StateModel>? stateUIState;
   final UIState<bool>? gstState;
   final UIState<bool>? tanState;
   final UIState<bool>? panState;
@@ -27,6 +29,8 @@ class KycState extends Equatable {
     this.uploadPanDocUIState,
     this.uploadTanDocUIState,
     this.uploadTDSDocUIState,
+    this.cityUIState,
+    this.stateUIState,
     this.gstState,
     this.tanState,
     this.panState,
@@ -46,6 +50,8 @@ class KycState extends Equatable {
     UIState<UploadPANDocumentModel>? uploadPanDocUIState,
     UIState<UploadTANDocumentModel>? uploadTanDocUIState,
     UIState<UploadTDSDocumentModel>? uploadTDSDocUIState,
+    UIState<CityModel>? cityUIState,
+    UIState<StateModel>? stateUIState,
     UIState<bool>? gstState,
     UIState<bool>? tanState,
     UIState<bool>? panState,
@@ -64,6 +70,8 @@ class KycState extends Equatable {
       uploadPanDocUIState: uploadPanDocUIState ?? this.uploadPanDocUIState,
       uploadTanDocUIState: uploadTanDocUIState ?? this.uploadTanDocUIState,
       uploadTDSDocUIState: uploadTDSDocUIState ?? this.uploadTDSDocUIState,
+      cityUIState: cityUIState ?? this.cityUIState,
+      stateUIState: stateUIState ?? this.stateUIState,
       gstState: gstState ?? this.gstState,
       tanState: tanState ?? this.tanState,
       panState: panState ?? this.panState,
@@ -85,6 +93,8 @@ class KycState extends Equatable {
     uploadPanDocUIState,
     uploadTanDocUIState,
     uploadTDSDocUIState,
+    cityUIState,
+    stateUIState,
     gstState,
     tanState,
     panState,
