@@ -92,7 +92,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     await lpHomeCubit.fetchProfileDetail();
-    await lpHomeCubit.startKycSuccessTimer();
     await lpHomeCubit.getBlueId();
   });
 
@@ -128,7 +127,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              10.height,
               buildKycLabelWidget(),
               10.height,
               OurValueAddedServicesWidget(),
@@ -240,10 +238,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) async {
         final profileState = state.profileDetailUIState;
-        if (profileState != null &&
-            profileState.status == Status.SUCCESS &&
-            profileState.data?.data?.customer != null &&
-            state.showSuccessKyc) {
+
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.data!.customer!.blueId;
           final blueIdFromStorage = await lpHomeCubit.getBlueId();
@@ -252,11 +248,14 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
 
           // Show dialog if Blue ID is newly stored
+          //Show dialog if Blue ID is newly stored
           if ((blueIdFromStorage == null || blueIdFromStorage.isEmpty) && blueIdFromApi.isNotEmpty) {
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
+            await lpHomeCubit.startKycSuccessTimer(true);
           }
+          lpHomeCubit.startKycSuccessTimer(false);
         }
       },
       builder: (context, state) {

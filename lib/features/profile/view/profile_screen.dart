@@ -52,15 +52,21 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final double profileSize = 120;
-  dynamic pickImage;
-  File? _croppedImage;
+
   final lpHomeLocator = locator<LpHomeBloc>();
   final kycBloc = locator<KycCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final profileBloc = locator<ProfileBloc>();
+
+  final double profileSize = 120;
+
+  dynamic pickImage;
+
+  File? _croppedImage;
+
   String appVersion = '';
+
   @override
   void initState() {
     initFunction();
@@ -83,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void disposeFunction() => frameCallback(() {});
 
-  void logoutDialogPopUp() {
+  void logoutDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
       child: CommonDialogView(
@@ -93,10 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         hideCloseButton: true,
         onClickYesButton: () {
           context.pop();
-          vpHomeBloc.add(
-            LogoutAPIRequested(
-              apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? ""),
-            ),
+          vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
           );
         },
         child: LogOutDialogueUi(),
@@ -304,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               imageString: AppImage.svg.logOut,
               text: context.appText.logOut,
               onTap: () {
-                logoutDialogPopUp();
+                logoutDialogPopUp(context);
               },
               showArrow: false,
             ),

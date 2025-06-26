@@ -38,10 +38,10 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   }
 
   // Kyc Timer
-  Future<void> startKycSuccessTimer() async {
-    emit(state.copyWith(showSuccessKyc: true));
+  Future<void> startKycSuccessTimer(bool value) async {
+    emit(state.copyWith(showSuccessKyc: value));
     await Future.delayed(const Duration(seconds: 3));
-    emit(state.copyWith(showSuccessKyc: false));
+    emit(state.copyWith(showSuccessKyc: value));
   }
 
   // Set Destination

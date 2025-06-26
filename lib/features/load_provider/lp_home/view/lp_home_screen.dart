@@ -135,10 +135,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     lpHomeCubit.fetchGetLoadList();
-    lpHomeCubit.startKycSuccessTimer();
     lpHomeCubit.fetchRecentRoute();
     lpHomeCubit.fetchLoadWeight();
-    lpHomeCubit.getBlueId();
     clearAllValues();
   });
 
@@ -501,7 +499,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  10.height,
                   buildKycLabelWidget(),
                   10.height,
                   OurValueAddedServicesWidget(),
@@ -523,14 +520,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   Widget buildKycLabelWidget(){
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       bloc: lpHomeCubit,
-      listenWhen: (previous, current) => previous.profileDetailUIState != current.profileDetailUIState,
-      listener: (context, state) async {
+      listenWhen: (previous, current) => previous.profileDetailUIState?.status != current.profileDetailUIState?.status,
+      listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
 
-        if (profileState != null &&
-            profileState.status == Status.SUCCESS &&
-            profileState.data?.data?.customer != null &&
-            state.showSuccessKyc) {
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.data!.customer!.blueId;
           final blueIdFromStorage = await lpHomeCubit.getBlueId();
@@ -538,12 +532,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
 
-          // Show dialog if Blue ID is newly stored
+          //Show dialog if Blue ID is newly stored
           if ((blueIdFromStorage == null || blueIdFromStorage.isEmpty) && blueIdFromApi.isNotEmpty) {
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
+            await lpHomeCubit.startKycSuccessTimer(true);
           }
+          lpHomeCubit.startKycSuccessTimer(false);
         }
       },
       builder: (context, state) {
@@ -686,9 +682,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 bloc: loadCommodityBloc,
                 listener: (context, state) {
                   if (state is LoadCommodityError) {
-                    ToastMessages.error(
-                      message: getErrorMsg(errorType: state.errorType),
-                    );
+                    ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
                   }
                 },
                 child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
