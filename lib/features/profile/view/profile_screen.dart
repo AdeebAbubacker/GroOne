@@ -76,9 +76,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initFunction() => frameCallback(() async {
     await lpHomeLocator.getUserId();
     profileImage = widget.profileData.details!.profileImageUrl ?? "";
+    appVersion = await appVersionInfo();
     setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
-    appVersion = await appVersionInfo();
   });
 
   void disposeFunction() => frameCallback(() {});
