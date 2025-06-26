@@ -104,7 +104,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
           Row(
             children: List.generate(types.length, (index) {
               final type = types[index];
-              // final icons = selectTruckTypeList[index];
+               final icons = selectTruckTypeList[index];
               final isSelected = selectedType == type;
               return Expanded(
                 child: GestureDetector(
@@ -125,7 +125,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(AppIcons.svg.truck, colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor), width: 25),
+                        SvgPicture.asset(icons, colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor), width: 25),
                         5.width,
                         Text(type, style: isSelected ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor),
                       ],
