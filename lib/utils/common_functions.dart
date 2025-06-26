@@ -19,6 +19,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
@@ -591,4 +592,10 @@ String getInitialsFromName(Object instance, {required String name}) {
   if (parts.length == 1) return parts[0][0].toUpperCase();
 
   return parts.take(2).map((e) => e[0].toUpperCase()).join();
+}
+
+// Get App Version Info
+Future<String> appVersionInfo() async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
 }
