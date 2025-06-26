@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117981526124",
+    "project_id": "gro-one",
+    "storage_bucket": "gro-one.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117981526124:android:a0a0aca4e75be3f0ecc049",
+        "android_client_info": {
+          "package_name": "com.gro.oneapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTohHhmG8icFhCffVmSQXxz1RheyMi0Jg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
