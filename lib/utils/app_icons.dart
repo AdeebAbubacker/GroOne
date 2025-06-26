@@ -52,7 +52,7 @@ class SvgIcons {
 
   // App Icons
   final String support = "${_svgBasePath}support.svg";
-  final String filledSupport = "${_svgBasePath}filled_support.svg";
+  final String filledSupport = "${_svgBasePath}filled_Support.svg";
   final String orderBox = "${_svgBasePath}order_box.svg";
   final String deliveryTruckSpeed = "${_svgBasePath}delivery_truck_speed.svg";
   final String package = "${_svgBasePath}package.svg";

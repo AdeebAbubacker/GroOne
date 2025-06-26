@@ -378,6 +378,9 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       );
                       if (result != null) {
                         bloc.add(events.UpdateKavachQuantities(result));
+                      } else {
+                        // Clear quantities when returning from checkout (order completed or cancelled)
+                        bloc.add(events.ClearKavachQuantities());
                       }
                     },
                   ).withWidth(180),

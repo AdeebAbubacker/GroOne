@@ -42,3 +42,6 @@ class UpdateKavachQuantities extends KavachProductsListEvent {
   final Map<String, int> updatedQuantities;
   UpdateKavachQuantities(this.updatedQuantities);
 }
+
+/// Event to clear all Kavach quantities
+class ClearKavachQuantities extends KavachProductsListEvent {}
