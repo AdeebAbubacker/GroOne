@@ -105,7 +105,17 @@ class LpLoadItem {
     required this.vehicleProvider,
     required this.consigneeDetails,
     required this.timeline,
+
+    required this.dropWholeAddr,
+    required this.pickUpWholeAddr,
+    required this.vpRate,
   });
+
+
+  /// regarding rate master
+  final String? pickUpWholeAddr;
+  final String? dropWholeAddr;
+  final String? vpRate;
 
   final int id;
   final String loadId;
@@ -147,6 +157,9 @@ class LpLoadItem {
   final ConsigneeDetails? consigneeDetails;
   final List<Timeline> timeline;
 
+
+
+
   LpLoadItem copyWith({
     int? id,
     String? loadId,
@@ -187,8 +200,14 @@ class LpLoadItem {
     VehicleProvider? vehicleProvider,
     ConsigneeDetails? consigneeDetails,
     List<Timeline>? timeline,
+    String? pickUpWholeAddr,
+    String? dropWholeAddr,
+    String? vpRate,
   }) {
     return LpLoadItem(
+      pickUpWholeAddr:pickUpWholeAddr??this.pickUpWholeAddr ,
+      dropWholeAddr:pickUpWholeAddr??this.dropWholeAddr ,
+      vpRate:pickUpWholeAddr??this.vpRate ,
       id: id ?? this.id,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
@@ -233,6 +252,9 @@ class LpLoadItem {
 
   factory LpLoadItem.fromJson(Map<String, dynamic> json){
     return LpLoadItem(
+      vpRate:json['vpRate']?.toString()??"" ,
+      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
+      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
       laneId: json["laneId"] ?? 0,

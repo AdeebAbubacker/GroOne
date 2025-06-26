@@ -353,7 +353,11 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       onClickAssignDriver: () {
                         final isKycDone = VpVariables.isKycVerified;
                         if (isKycDone) {
-                          context.push(AppRouteName.loadDetailsScreen);
+                          context.push(AppRouteName.loadDetailsScreen,extra:
+                              {
+                                "loadId":data.id
+                              }
+                          );
                           // Navigate to trip scheduling
                         } else {
                           commonBottomSheetWithBGBlur(

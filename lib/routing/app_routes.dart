@@ -23,7 +23,7 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
-import '../features/vehicle_provider/vp_details/view/load_details_screen.dart';
+import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -192,7 +192,7 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final int loadId = data["loadId"];
-          return LoadDetailsScreen(
+          return VpLoadDetailsScreen(
             loadId:loadId,
           );
         },

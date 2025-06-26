@@ -26,7 +26,8 @@ class LoadDetailsState extends Equatable {
     String? possibleDeliveryDate
   }) {
     return LoadDetailsState(
-      scheduleTripResponse:scheduleTripResponse?? this.scheduleTripResponse ,
+
+        scheduleTripResponse:scheduleTripResponse?? this.scheduleTripResponse ,
         vpLoadStatus: vpLoadStatus ?? this.vpLoadStatus,
         loadStatus: loadStatus ?? this.loadStatus,
         loadDetailsUIState: loadDetailsUIState ?? this.loadDetailsUIState,
@@ -36,6 +37,7 @@ class LoadDetailsState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [loadStatus, loadDetailsUIState,vpLoadStatus,possibleDeliveryDate
+  List<Object?> get props => [loadStatus, loadDetailsUIState,vpLoadStatus,possibleDeliveryDate,
+    scheduleTripResponse
   ];
 }

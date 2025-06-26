@@ -1,3 +1,5 @@
+import 'package:gro_one_app/data/network/api_urls.dart';
+
 import '../../../../data/model/result.dart';
 import '../../../../data/network/api_service.dart';
 import '../../vp_home/model/vp_recent_load_response.dart';
@@ -14,7 +16,7 @@ class VpLoadService {
   }) async {
     try {
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/load/api/v1/load/vp/load?customerId=$customerId&type=$type&search=$search',
+        '${ApiUrls.lpLoadById}/vp/load?customerId=$customerId&type=$type&search=$search',
         forceRefresh: forceRefresh,
       );
 

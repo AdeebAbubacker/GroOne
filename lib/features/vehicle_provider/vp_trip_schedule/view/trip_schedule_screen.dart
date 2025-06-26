@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
@@ -35,8 +36,6 @@ class TripScheduleScreen extends StatefulWidget {
 }
 
 class _TripScheduleScreenState extends State<TripScheduleScreen> {
-
-
 
   List<VehicleDetail> vehicleDetail = [];
   List<DriverDetails> driverDetails = [];
@@ -81,21 +80,24 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
         listener: (context, state) {
 
           if (state is VpVehicleListSuccess) {
-
-            vehicleDetail = state.vehicleListResponse.data;
-
+            if(vehicleDetail.isEmpty){
+              setState(() {
+                vehicleDetail = state.vehicleListResponse.data;
+              });
+            }
           }
           if (state is VpDriverListSuccess) {
-
-            driverDetails = state.driverListResponse.data;
+           if(driverDetails.isEmpty){
+            setState(() {
+              driverDetails = state.driverListResponse.data;
+            });
+          }
           }
         },
         child: BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
               bloc:cubit,
               builder: (context, state)  {
-
-              LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
-              print("state.possibleDeliveryDate ${state.possibleDeliveryDate}  ");
+                LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
               return Column(
                 spacing: 20,
                 children: [
@@ -134,16 +136,15 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                   ///Scheduled Pickup Date
                   buildReadOnlyField(
 
-                      "Scheduled Pickup Date",DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: AppColors.disableColor),
+                      "Scheduled Pickup Date",DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
 
                   ///Expected Delivery date
 
-                  buildReadOnlyField("Expected Delivery date",DateTimeHelper.formatCustomDate(loadDetails?.expectedDeliveryDateTime??DateTime.now()), fillColor: AppColors.disableColor),
+                  buildReadOnlyField("Expected Delivery date",DateTimeHelper.formatCustomDate(loadDetails?.expectedDeliveryDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
 
                   ///Possible Delivery date
                   InkWell(
                       onTap: () async {
-
                         final String? date = await commonDatePicker(
                           context,
                           firstDate: DateTime.now(),
@@ -161,32 +162,41 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       child: buildReadOnlyField("Possible Delivery date", state.possibleDeliveryDate ?? "Possible Pickup Date", fillColor: Colors.white)
                   ),
 
-                  AppButton(
-                    title: "Schedule trip",
-                    style: AppButtonStyle.primary.copyWith(
-                      shape: WidgetStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      vpHomeScreenBloc.add(
-                        ScheduleTripRequested(
-                          apiRequest: ScheduleTripRequest(
-                            loadId: loadDetails?.id??0,
-                            vehicleId: int.parse(truckType ?? "0"),
-                            driverId: int.parse(driverType ?? "0"),
-                            acceptedBy: int.parse(vpHomeScreenBloc.userId??"0"),
-                            etaForPickUp: DateTime.now(),
-                            expectedDeliveryDate: DateTime.now(),
-
+                  BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+                    listener: (context, state) {
+                     if(state.scheduleTripResponse?.status==Status.SUCCESS){
+                       print("working ");
+                       cubit.acceptLoad(4);
+                       Navigator.pop(context);
+                     }
+                    },
+                    builder: (context, state) {
+                      print("schedule is ${state.scheduleTripResponse}");
+                      return AppButton(
+                        isLoading: state.scheduleTripResponse?.status==Status.LOADING,
+                        title: "Schedule trip",
+                        style: AppButtonStyle.primary.copyWith(
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
+                        onPressed: () {
+                          cubit.scheduleTripApi(ScheduleTripRequest(
+                            loadId: loadDetails?.id ?? 0,
+                            vehicleId: int.parse(truckType ?? "0"),
+                            driverId: int.parse(driverType ?? "0"),
+                            acceptedBy: int.parse(vpHomeScreenBloc.userId ?? "0"),
+                            etaForPickUp: DateTime.now(),
+                            expectedDeliveryDate: DateTime.now(),
+                          ),);
+
+                          },
                       );
                     },
-
                   ),
+
                   10.height,
 
 
