@@ -29,7 +29,7 @@ class EndhanKycScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: CommonAppBar(
-        title: "KYC",
+        title: context.appText.kyc,
         centreTile: false,
         actions: [
           AppIconButton(

@@ -167,10 +167,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
-
-
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {
