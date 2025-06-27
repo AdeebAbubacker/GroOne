@@ -63,15 +63,23 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     emit(state.copyWith(
       pickup: null,
       destination: null,
-      locationId: null,
+      pickupLocationId: null,
       laneId: null,
     ));
   }
 
 
   // Set Location Id
-  void setLocationDetailId(num? id){
-    emit(state.copyWith(locationId: id ?? 0));
+  void setPickupLocationDetailId(num? id){
+    emit(state.copyWith(pickupLocationId: id));
+    CustomLog.debug(this, "Set Pickup Location Id : $id");
+  }
+
+
+  // Set Location Id
+  void setDestinationLocationDetailId(num? id){
+    emit(state.copyWith(destinationLocationId: id));
+    CustomLog.debug(this, "Set Destination Location Id : $id");
   }
 
   // Set Lane Id
