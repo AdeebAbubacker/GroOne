@@ -85,4 +85,39 @@ class Validator {
   }
 
 
+  static String? noSpecialCharacters(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    final regex = RegExp(r'^[a-zA-Z0-9 ]*$');
+    if (!regex.hasMatch(value)) {
+      return '$fieldName should not contain special characters';
+    }
+    return null;
+  }
+
+  static String? positiveNumber(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    final number = int.tryParse(value);
+    if (number == null || number <= 0) {
+      return '$fieldName must be greater than zero';
+    }
+    return null;
+  }
+
+  static String? alphabetsOnly(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    final regex = RegExp(r'^[a-zA-Z ]+$');
+    if (!regex.hasMatch(value.trim())) {
+      return '$fieldName should contain alphabets only';
+    }
+    return null;
+  }
+
+
+
 }

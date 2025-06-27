@@ -8,8 +8,13 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_application_bar.dart';
+import '../../../utils/app_button_style.dart';
+import '../../../utils/app_icon_button.dart';
+import '../../../utils/app_icons.dart';
 import '../../../utils/app_image.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
+import 'kavach_choose_your_preference_screen.dart';
 
 class KavachOrderDetailsScreen extends StatelessWidget {
   final KavachOrderListOrderItem order;
@@ -24,7 +29,22 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FA),
-      appBar: CommonAppBar(title: context.appText.orderDetails),
+      appBar: CommonAppBar(title: context.appText.orderDetails,actions: [AppIconButton(
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).pushReplacement(commonRoute(KavachChooseYourPreferenceScreen()));
+        },
+        icon: Icon(Icons.add, color: Colors.white),
+        style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+      ),
+
+        AppIconButton(
+          onPressed: () {},
+          icon: AppIcons.svg.filledSupport,
+          iconColor: AppColors.primaryButtonColor,
+        ),
+        4.width,],centreTile: false,),
       // bottomNavigationBar: _downloadButton(),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -1,6 +1,4 @@
 class KavachAddAddressApiRequest {
-  final String customerName;
-  final String mobileNumber;
   final String addr1;
   final String addr2;
   final String city;
@@ -12,8 +10,6 @@ class KavachAddAddressApiRequest {
   int? customerId;
 
   KavachAddAddressApiRequest({
-    required this.customerName,
-    required this.mobileNumber,
     required this.addr1,
     required this.addr2,
     required this.city,
@@ -27,8 +23,6 @@ class KavachAddAddressApiRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'customerName': customerName,
-      'mobileNumber': mobileNumber,
       'addr1': addr1,
       'addr2': addr2,
       'city': city,

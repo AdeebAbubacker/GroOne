@@ -269,8 +269,8 @@ class KavachOrderListAddress {
       postalCode: json['postal_code'],
       country: json['country'],
       gstId: json['gst_id']??'',
-      contactPerson: json['contact_person'],
-      contactNumber: json['contact_number'],
+      contactPerson: json['contact_person']??'',
+      contactNumber: json['contact_number']??'',
     );
   }
 }

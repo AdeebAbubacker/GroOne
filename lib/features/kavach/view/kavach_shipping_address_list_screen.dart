@@ -23,7 +23,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
     return AppBottomSheetBody(
       title: context.appText.shippingAddress,
       body: SizedBox(
-          height: 500,
+          height: MediaQuery.of(context).size.height * 0.5,
           child: _buildBody(context: context)),
     );
   }

@@ -24,7 +24,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
       title: context.appText.billingAddress,
       hideDivider: false,
       body: SizedBox(
-          height: 500,
+          height: MediaQuery.of(context).size.height * 0.5,
           child: _buildBody(context: context)),
     );
   }

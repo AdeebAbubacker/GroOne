@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,7 +8,6 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_product
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_event.dart' as events;
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_state.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_models_filter_bottom_sheet_Screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
 import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
@@ -24,9 +24,9 @@ import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import '../repository/kavach_repository.dart';
 import 'package:intl/intl.dart';
 
 class KavachModelsScreen extends StatelessWidget {
@@ -72,6 +72,8 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     if (widget.initialPreferences != null) {
       bloc.add(events.UpdateUserPreferences(widget.initialPreferences!));
     }
+
+    bloc.add(events.ClearKavachQuantities());
     
     // Fetch products with preferences and masters data if not already loaded
     bloc.add(events.FetchKavachProducts(preferences: widget.initialPreferences));
@@ -220,7 +222,9 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     },
                     onSupport: () {
                       // Handle support button when BS6 is selected
-                      print('Support requested for BS6 engine type');
+                      if (kDebugMode) {
+                        print('Support requested for BS4S engine type');
+                      }
                       // Show a support dialog
                       AppDialog.show(
                         context,
@@ -363,7 +367,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     ],
                   ),
                   AppButton(
-                    title: context.appText.checkout,
+                    title: context.appText.checkout.capitalize,
                     onPressed: () async {
                       final bloc = context.read<KavachProductsListBloc>();
                       final result = await Navigator.of(context).push(

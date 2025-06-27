@@ -38,8 +38,8 @@ class KavachAddressModel extends Equatable {
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
       id: json['id'],
-      customerName: json['customerName'],
-      mobileNumber: json['mobileNumber'],
+      customerName: json['customerName']??'',
+      mobileNumber: json['mobileNumber']??'',
       customerId: json['customerId'],
       addr1: json['addr1'],
       addr2: json['addr2'],

@@ -77,7 +77,6 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
                   children: [
                     //to show the image
                     _buildBannerSection(),
-
                     20.height,
 
                     ChooseYourPreferenceForm(
