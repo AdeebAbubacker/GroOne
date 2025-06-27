@@ -15,7 +15,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../utils/app_route.dart';
-import '../en-dhan(fuel)/view/new_user_endhan_screen.dart';
+import '../en-dhan(fuel)/view/endhan_new_user_and_card_screen.dart';
 import '../t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
 
 class OurValueAddedServicesWidget extends StatefulWidget {
@@ -95,7 +95,7 @@ class _OurValueAddedServicesWidgetState extends State<OurValueAddedServicesWidge
                       imageString: AppImage.png.enDhan,
                       onClick: () {
                         //context.push(AppRouteName.enDhanCard);
-                        Navigator.push(context,commonRoute(NewUserEndhanScreen()));
+                        Navigator.push(context,commonRoute(EndhanNewUserAndCardScreen()));
                       },
                     ),
                     15.width,

@@ -1,4 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/en-dhan(fuel)/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan(fuel)/view/endhan_create_new_card_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -6,27 +12,50 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
+import 'package:path/path.dart';
 
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 
-class EndhanKycScreen extends StatelessWidget {
+class EndhanKycScreen extends StatefulWidget {
   const EndhanKycScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List _panDocuments = [];
-    final List _identityFront = [];
-    final List _identityBack = [];
-    final List _addressFront = [];
-    final List _addressBack = [];
+  State<EndhanKycScreen> createState() => _EndhanKycScreenState();
+}
 
+class _EndhanKycScreenState extends State<EndhanKycScreen> {
+  final cubit = locator<EnDhanCubit>();
+  
+  final List _panDocuments = [];
+  final List _identityFront = [];
+  final List _identityBack = [];
+  final List _addressFront = [];
+  final List _addressBack = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Set customer ID if available (you can get this from user info or pass as parameter)
+    // cubit.setCustomerId(userId);
+  }
+
+  @override
+  void dispose() {
+    cubit.resetUploadKycUIState();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
         title: context.appText.kyc,
@@ -52,6 +81,7 @@ class EndhanKycScreen extends StatelessWidget {
             
             AppTextField(
               hintText: 'AAAPA1234A',
+              onChanged: (value) => cubit.setAadhaar(value),
             ),
 
             15.height,
@@ -73,6 +103,7 @@ class EndhanKycScreen extends StatelessWidget {
 
             AppTextField(
               hintText: 'AAAPA1234A',
+              onChanged: (value) => cubit.setPan(value),
             ),
 
             10.height,
@@ -81,6 +112,12 @@ class EndhanKycScreen extends StatelessWidget {
               multiFilesList: _panDocuments,
               isSingleFile: true,
               title: 'Upload document',
+              thenUploadFileToSever: () {
+                if (_panDocuments.isNotEmpty) {
+                  final filePath = _panDocuments.first["filePath"] ?? "";
+                  cubit.setPanImage(filePath);
+                }
+              },
             ),
 
             15.height,
@@ -93,6 +130,12 @@ class EndhanKycScreen extends StatelessWidget {
               multiFilesList: _identityFront,
               isSingleFile: true,
               title: 'Upload Front side of the document',
+              thenUploadFileToSever: () {
+                if (_identityFront.isNotEmpty) {
+                  final filePath = _identityFront.first["filePath"] ?? "";
+                  cubit.setIdentityProofFront(filePath);
+                }
+              },
             ),
 
             10.height,
@@ -101,6 +144,12 @@ class EndhanKycScreen extends StatelessWidget {
               multiFilesList: _identityBack,
               isSingleFile: true,
               title: 'Upload Back side of the document',
+              thenUploadFileToSever: () {
+                if (_identityBack.isNotEmpty) {
+                  final filePath = _identityBack.first["filePath"] ?? "";
+                  cubit.setIdentityProofBack(filePath);
+                }
+              },
             ),
 
             15.height,
@@ -113,6 +162,12 @@ class EndhanKycScreen extends StatelessWidget {
               multiFilesList: _addressFront,
               isSingleFile: true,
               title: 'Upload Front side of the document',
+              thenUploadFileToSever: () {
+                if (_addressFront.isNotEmpty) {
+                  final filePath = _addressFront.first["filePath"] ?? "";
+                  cubit.setAddressProofFront(filePath);
+                }
+              },
             ),
 
             10.height,
@@ -121,16 +176,43 @@ class EndhanKycScreen extends StatelessWidget {
               multiFilesList: _addressBack,
               isSingleFile: true,
               title: 'Upload Back side of the document',
+              thenUploadFileToSever: () {
+                if (_addressBack.isNotEmpty) {
+                  final filePath = _addressBack.first["filePath"] ?? "";
+                  cubit.setAddressProofBack(filePath);
+                }
+              },
             ),
           ],
         ).paddingAll(20),
       )),
-      bottomNavigationBar: AppButton(
-        onPressed: () {
-          Navigator.push(context,commonRoute(EndhanCreateNewCardScreen()));
+      bottomNavigationBar: BlocConsumer<EnDhanCubit, EnDhanState>(
+        bloc: cubit,
+        listenWhen: (previous, current) => previous.uploadKycState != current.uploadKycState,
+        listener: (context, state) {
+          if (state.uploadKycState?.status == Status.SUCCESS) {
+            ToastMessages.success(message: "KYC documents uploaded successfully!");
+            Navigator.push(context, commonRoute(EndhanCreateNewCardScreen()));
+          }
+          if (state.uploadKycState?.status == Status.ERROR) {
+            final error = state.uploadKycState?.errorType;
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          }
         },
-        title: context.appText.submit,
-      ).paddingAll(20),
+        builder: (context, state) {
+          final bool isLoading = state.uploadKycState?.status == Status.LOADING;
+          final bool isFormValid = cubit.isFormValid();
+          
+          return AppButton(
+            onPressed: (!isLoading && isFormValid) ? () {
+              cubit.uploadKycDocuments();
+            } : () {},
+            title: context.appText.submit,
+            isLoading: isLoading,
+            style: isFormValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+          ).paddingAll(20);
+        },
+      ),
     );
   }
 

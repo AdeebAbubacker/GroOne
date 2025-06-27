@@ -44,6 +44,7 @@ class ApiUrls {
   static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
+  static String get _vendor => "/vendor";
 
 
   // Base URL
@@ -141,4 +142,11 @@ class ApiUrls {
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
   static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
   static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
+
+  /// En-Dhan 
+  //static final String enDhanKycUpload = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
+  static final String enDhanKycUpload = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
+ // static final String enDhanKycCheck = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
+  static final String enDhanKycCheck = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
+  
 }

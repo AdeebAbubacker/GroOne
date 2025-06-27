@@ -11,6 +11,9 @@ import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/repository/email_verification_repository.dart';
 import 'package:gro_one_app/features/email_verification/service/email_verification_service.dart';
+import 'package:gro_one_app/features/en-dhan(fuel)/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/features/en-dhan(fuel)/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/en-dhan(fuel)/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -109,6 +112,7 @@ void initLocator() {
     locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpDetailsService(locator<ApiService>()));
+    locator.registerLazySingleton(() => EnDhanService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -129,6 +133,7 @@ void initLocator() {
     locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LoadDetailsRepository(locator<VpDetailsService>(),locator<VpHomeService>()));
+    locator.registerLazySingleton(() => EnDhanRepository(locator<EnDhanService>()));
 
     // View Model
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -168,6 +173,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

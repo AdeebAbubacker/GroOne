@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/en-dhan(fuel)/view/endhan_card_screen.dart';
+import 'package:gro_one_app/features/en-dhan(fuel)/view/endhan_new_user_and_card_screen.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_with_icon.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -64,7 +65,7 @@ class _EndhanCreateNewCardScreenState extends State<EndhanCreateNewCardScreen> {
     showSuccessDialogWithButton(
       context, 
       onTap: (){
-         Navigator.pushReplacement(context,commonRoute(EndhanCardScreen()));
+         Navigator.pushReplacement(context,commonRoute(EndhanNewUserAndCardScreen()));
       },
       text: "Card Created!",
       subheading:"eN-Dhan Digital Card Created Successfully",
