@@ -37,6 +37,16 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     await _repo.clearBlueId();
   }
 
+  // Save Has Blue ID
+  Future<void> saveHasShowBluePopup(bool value) async {
+    await _repo.saveHasShowBluePopup(value);
+  }
+
+  // Get Show Blue Popup
+  Future<bool> getHasShowBluePopup() async {
+   return  await _repo.getHasShowBluePopup();
+  }
+
   // Kyc Timer
   Future<void> startKycSuccessTimer(bool value) async {
     emit(state.copyWith(showSuccessKyc: value));

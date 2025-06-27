@@ -182,15 +182,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchUserRole();
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
-    nodeManage();
     await kycCubit.fetchStateList();
     aadhaarNumberTextController.text = widget.aadhaarNumber;
-    await Future.delayed(Duration(milliseconds: 200));
-    setState(() {});
   });
   
   void disposeFunction()=> frameCallback((){
-    aadhaarNumberTextController.dispose();
     gstInTextController.dispose();
     tanTextController.dispose();
     panTextController.dispose();
@@ -235,32 +231,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   });
 
 
-
-  // Manage Node
-  Future<void> nodeManage() async {
-    await lpHomeBloc.getUserId();
-
-    gstFocusNode.addListener(() async {
-      if (!gstFocusNode.hasFocus) {
-        final apiRequest = VerifyGstApiRequest(gst: gstInTextController.text, force: true);
-        await kycCubit.verifyGst(apiRequest);
-      }
-    });
-
-    tanFocusNode.addListener(() async {
-      if (!tanFocusNode.hasFocus) {
-        final apiRequest = VerifyTanApiRequest(tan: tanTextController.text, force: true);
-        await kycCubit.verifyTan(apiRequest);
-      }
-    });
-
-    panFocusNode.addListener(() async {
-      if (!panFocusNode.hasFocus) {
-        final apiRequest = VerifyPanApiRequest(pan: panTextController.text, force: true);
-        await kycCubit.verifyPan(apiRequest);
-      }
-    });
-  }
 
 
   // Upload GST Doc api call

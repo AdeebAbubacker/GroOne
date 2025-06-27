@@ -10,7 +10,6 @@ class AppString {
 }
 
 class AppLabelText {
-  ///prabhat===============================>>
   final String english = 'English';
 
   final String hindi = 'Hindi';
@@ -18,7 +17,7 @@ class AppLabelText {
   final String tamil2 = 'தமிழ்';
   final String tamil = 'Tamil';
 
-  ///prabhat===============================>>
+
 
   // Core
   final String appName = "L&T Society";
@@ -135,5 +134,6 @@ class PreferenceKey {
   final String companyTypeId = "companyTypeId";
   final String blueId = "blueId";
   final String isFirstTimeLoad = "isFirstTimeLoad";
+  final String hasBlueIdPopupShown = "hasBlueIdPopupShown";
 
 }
