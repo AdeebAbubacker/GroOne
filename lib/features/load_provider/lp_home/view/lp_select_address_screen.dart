@@ -188,10 +188,11 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required LocationDetails locationDetails}) async {
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required LocationDetails locationDetails}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
-        locationdetails: locationDetails
+        locationdetails: locationDetails,
+        type: type
     );
     await lpHomeCubit.verifyLocation(apiRequest);
     Status? status = lpHomeCubit.state.verifyLocationUIState?.status;
@@ -401,7 +402,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                             name: item.description,
                             slug: item.description.toLowerCase(),
                         );
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, locationDetails: locationDetails);
+                        final type = widget.title == "Pickup Point" ? 2 : 1;
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationDetails: locationDetails);
 
                       },
                     );

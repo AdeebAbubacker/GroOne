@@ -134,5 +134,6 @@ class PreferenceKey {
   final String userRole = "userRole";
   final String companyTypeId = "companyTypeId";
   final String blueId = "blueId";
+  final String isFirstTimeLoad = "isFirstTimeLoad";
 
 }

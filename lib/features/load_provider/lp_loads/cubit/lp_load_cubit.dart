@@ -4,7 +4,9 @@ import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_otp_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
@@ -24,10 +26,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Fetches the LP loads filtered by the given [type].
-  Future<void> getLpLoadsByType({required int type, String search = ""}) async {
+  Future<void> getLpLoadsByType({required LoadListApiRequest loadListApiRequest}) async {
     _setLoadUIState(UIState.loading());
 
-    Result result = await _repository.fetchLoads(type: type, search: search);
+    Result result = await _repository.fetchLoads(request: loadListApiRequest);
 
     if (result is Success<List<LpLoadItem>>) {
       _setLoadUIState(UIState.success(result.value));
@@ -165,7 +167,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Updates the UI state related to lp load verify Otp.
-  void _setCreditCheckState(UIState<LpLoadCreditCheckResponse>? uiState) {
+  void _setCreditCheckState(UIState<CreditCheckApiResponse>? uiState) {
     emit(state.copyWith(lpCreditCheck: uiState));
   }
 
@@ -175,11 +177,39 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
     Result result = await _repository.getCreditCheck();
 
-    if (result is Success<LpLoadCreditCheckResponse>) {
+    if (result is Success<CreditCheckApiResponse>) {
       _setCreditCheckState(UIState.success(result.value));
     } else if (result is Error) {
       _setCreditCheckState(UIState.error(result.type));
     }
+  }
+
+  // Updates the UI state related to lp load verify Otp.
+  void _setCreditUpdateState(UIState<LpLoadCreditUpdateResponse>? uiState) {
+    emit(state.copyWith(lpCreditUpdate: uiState));
+  }
+
+  // Credit check
+  Future<void> updateCreditCheck({required String creditLimit, required String creditUsed}) async {
+    _setCreditUpdateState(UIState.loading());
+
+    Result result = await _repository.updateCreditCheck(creditLimit: creditLimit, creditUsed: creditUsed);
+
+    if (result is Success<LpLoadCreditUpdateResponse>) {
+      _setCreditUpdateState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setCreditUpdateState(UIState.error(result.type));
+    }
+  }
+
+  // Set isFirstTimeLoad flag
+  Future<void> setFirstTimeLoad({required bool value}) async {
+    return await _repository.setIsFirstTimeLoad(value);
+  }
+
+  // Get isFirstTimeLoad flag
+  Future<bool> fetchFirstTimeLoad() async {
+    return  await _repository.getIsFirstTimeLoad();
   }
 
 }
