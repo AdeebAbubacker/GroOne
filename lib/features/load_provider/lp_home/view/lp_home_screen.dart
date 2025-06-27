@@ -105,6 +105,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedDateTime;
   String? laneId;
   String? sessionBlueId;
+  String? minRate;
+  String? maxRate;
+  String? weightId;
 
   bool checkBoxBool = false;
   bool memoDone = false;
@@ -246,7 +249,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       laneId: lpHomeCubit.state.laneId.toString(),
       truckTypeId: truckTypeId ?? "",
       commodityId: commodityId,
-      weightId: '1',
+      weightId: '${lpHomeCubit.state.selectedWeight?.id}',
+      date: selectedDate
     );
     await lpHomeCubit.fetchRateDiscovery(req);
     if (lpHomeCubit.state.rateDiscoveryUIState != null) {
@@ -289,8 +293,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
         dueDate: selectedDateTime.toString(),
         consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
-        rate: rateDiscoveryPrice ?? "0000 - 0000",
-        laneId: lpHomeCubit.state.laneId
+        // rate: rateDiscoveryPrice ?? "0000 - 0000",
+        rate: minRate,
+        maxRate: maxRate,
+        laneId: lpHomeCubit.state.laneId,
+        // rateId: 0,
+        rateId: lpHomeCubit.state.rateDiscoveryUIState?.data?.data?.id ?? 0,
+        pickUpWholeAddr: lpHomeCubit.state.pickup?.data?.location ?? "",
+        dropWholeAddr: lpHomeCubit.state.destination?.data?.location ?? "",
     );
 
     // Pass Data in to next page
@@ -823,7 +833,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                   if (date != null && time != null) {
                     dateTimeTextController.text = date;
-                    selectedDate = date;
+                    selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;
                     selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time!);
                     print("Date : ${date}, Time : ${time} ");
@@ -879,15 +889,45 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             },
                             builder: (context, state) {
                               if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
+                                // String? suggestedPrice;
+                                // if(state.rateDiscoveryUIState?.data?.data?.price != null){
+                                //   suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
+                                // } else {
+                                //   suggestedPrice = "00000";
+                                // }
+                                //
+                                // rateDiscoveryPrice = suggestedPrice;
+                                // return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+                                final data = state.rateDiscoveryUIState?.data?.data;
+
                                 String? suggestedPrice;
-                                if(state.rateDiscoveryUIState?.data?.data?.price != null){
-                                  suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
+                                if (data?.minPrice != null) {
+                                  if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                    suggestedPrice = data?.minPrice.toString();
+                                  } else {
+                                    suggestedPrice = "${data.minPrice} - ${data.maxPrice}";
+                                  }
+                                  minRate = data?.minPrice.toString();
+                                  maxRate = data?.maxPrice.toString();
                                 } else {
                                   suggestedPrice = "00000";
                                 }
 
                                 rateDiscoveryPrice = suggestedPrice;
-                                return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+
+                                String formattedPrice;
+                                if (data?.minPrice == null) {
+                                  formattedPrice = "₹0";
+                                } else if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                  formattedPrice = PriceHelper.formatINR(data!.minPrice);
+                                } else {
+                                  formattedPrice = '${PriceHelper.formatINR(data!.minPrice)} - ${PriceHelper.formatINR(data.maxPrice)}';
+                                }
+
+                                return Text(
+                                  formattedPrice ?? '',
+                                  style: AppTextStyle.body1,
+                                );
                               }
                               return  Container();
                             },

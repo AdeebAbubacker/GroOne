@@ -37,6 +37,8 @@ class Data {
     required this.laneId,
     required this.truckTypeId,
     required this.price,
+    required this.minPrice,
+    required this.maxPrice,
     required this.lane,
     required this.truckType,
   });
@@ -44,7 +46,9 @@ class Data {
   final int id;
   final num laneId;
   final num truckTypeId;
-  final num price;
+  final String price;
+  final String minPrice;
+  final String? maxPrice;
   final Lane? lane;
   final TruckType? truckType;
 
@@ -52,7 +56,9 @@ class Data {
     int? id,
     num? laneId,
     num? truckTypeId,
-    num? price,
+    String? price,
+    String? minPrice,
+    String? maxPrice,
     Lane? lane,
     TruckType? truckType,
   }) {
@@ -61,6 +67,8 @@ class Data {
       laneId: laneId ?? this.laneId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       price: price ?? this.price,
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
       lane: lane ?? this.lane,
       truckType: truckType ?? this.truckType,
     );
@@ -71,7 +79,9 @@ class Data {
       id: json["id"] ?? 0,
       laneId: json["laneId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
-      price: _parseNum(json["price"]),
+      price: json["price"] ?? 0,
+      minPrice: json["minPrice"]?.toString() ?? "0",
+      maxPrice: json["maxPrice"]?.toString(),
       lane: json["lane"] == null ? null : Lane.fromJson(json["lane"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
     );

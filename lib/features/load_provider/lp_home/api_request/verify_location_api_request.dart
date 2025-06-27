@@ -1,18 +1,22 @@
 class VerifyLocationApiRequest {
   VerifyLocationApiRequest({
     required this.placeId,
+    required this.type,
     required this.locationdetails,
   });
 
   final String placeId;
+  final int type;
   final LocationDetails? locationdetails;
 
   VerifyLocationApiRequest copyWith({
     String? placeId,
+    int? type,
     LocationDetails? locationdetails,
   }) {
     return VerifyLocationApiRequest(
       placeId: placeId ?? this.placeId,
+      type: type ?? this.type,
       locationdetails: locationdetails ?? this.locationdetails,
     );
   }
@@ -20,6 +24,7 @@ class VerifyLocationApiRequest {
 
   Map<String, dynamic> toJson() => {
     "placeId": placeId,
+    "type": type,
     "locationdetails": locationdetails?.toJson(),
   };
 

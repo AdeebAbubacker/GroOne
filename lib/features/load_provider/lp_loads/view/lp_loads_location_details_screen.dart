@@ -10,6 +10,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/shared_preference_helper.dart';
 
 
 import '../model/lp_load_get_by_id_response.dart';
@@ -65,7 +67,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     if (latLng.isEmpty || !latLng.contains(',')) {
       return const LatLng(0, 0);
     }
-    final parts = latLng.split(', ');
+    final parts = latLng.split(',');
     return LatLng(double.parse(parts[0].trim()), double.parse(parts[1].trim()));
   }
 
@@ -140,19 +142,15 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
     if (uiState?.status == Status.LOADING) {}
     else if (uiState?.status == Status.SUCCESS) {
-      final loadList = uiState?.data?.availableCreditLimit ?? '';
+      final creditData = uiState!.data as LpLoadCreditCheckResponse;
 
-      int availableCredit = double.parse(loadList).toInt();
+      int availableCredit = double.parse(creditData.availableCreditLimit).toInt();
       int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
 
       if (availableCredit < rateValue) {
         AppDialog.show(context, child: LowCreditDialog());
       } else {
-        AppDialog.show(
-          context,
-          child: AdvancePaymentDialog(price: loadItem.rate == "" ? 0 : int.parse(loadItem.rate), loadId: '${loadItem.id}'),
-          dismissible: true,
-        );
+        showAdvancePaymentDialog(loadItem, creditData);
       }
     }
     else if (uiState?.status == Status.ERROR) {
@@ -160,6 +158,14 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
       return;
     }
+  }
+
+  void showAdvancePaymentDialog(LoadData loadItem, creditData) {
+    return AppDialog.show(
+      context,
+      child: AdvancePaymentDialog(price: loadItem.rate == "" ? 0 : int.parse(loadItem.rate), loadId: '${loadItem.id}', creditLimit: creditData.creditLimit),
+      dismissible: true,
+    );
   }
 
   @override
@@ -184,7 +190,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 children: [
                   buildGoogleMapWidget(loadItem),
                   buildTopLocationWidget(loadItem),
-                  buildBottomLoadDetailsWidget(loadItem),
+                  buildBottomLoadDetailsWidget(loadItem, context),
                   buildSupportWidget(),
                 ],
               );
@@ -252,48 +258,83 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+
+                // Pickup address & date
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loadItem.pickUpAddr.toString().split(',').first, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    SizedBox(
+                      width: 80,
+                      child: Text(
+                        loadItem.pickUpLocation,
+                        style: AppTextStyle.body2.copyWith(color: AppColors.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     Text(
-                        loadItem.pickUpDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.pickUpDateTime!) : "--",
-                        style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
+                      loadItem.pickUpDateTime != null
+                          ? DateTimeHelper.getFormattedDate(loadItem.pickUpDateTime!)
+                          : "--",
+                      style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
+                    ),
                   ],
                 ),
                 20.width,
                 Icon(Icons.arrow_forward),
                 20.width,
+
+                // Drop location & date
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loadItem.dropAddr.toString().split(',').first, style: AppTextStyle.body2.copyWith(color: AppColors.black)),
+                    SizedBox(
+                      width: 80,
+                      child: Text(
+                        loadItem.dropLocation,
+                        style: AppTextStyle.body2.copyWith(color: AppColors.black),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     Text(
-                        loadItem.expectedDeliveryDateTime != null ? DateTimeHelper.getFormattedDate(loadItem.expectedDeliveryDateTime!) : "--",
-                        style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor)),
+                      loadItem.expectedDeliveryDateTime != null
+                          ? DateTimeHelper.getFormattedDate(loadItem.expectedDeliveryDateTime!)
+                          : "--",
+                      style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
+                    ),
                   ],
                 ),
                 Spacer(),
+
+                // Load status & matching time
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       decoration: commonContainerDecoration(
-                          color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt())
+                        color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt()),
                       ),
                       width: 80,
                       child: Text(
                         LpLoadsHelper.getLoadTypeDisplayText(loadItem.loadStatus.toInt()),
-                        style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt())),
+                        style: AppTextStyle.body3.copyWith(
+                          color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt()),
+                        ),
                       ).center().paddingAll(4),
                     ),
                     4.height,
-                    if(loadItem.loadStatus == 2)
-                      Text(LpHomeHelper.getMatchingTime(loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+                    if (loadItem.loadStatus == 2)
+                      Text(
+                        LpHomeHelper.getMatchingTime(loadItem.createdAt.toString()),
+                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ).paddingRight(5)
                   ],
-                )
+                ),
               ],
-            ),
+            )
           ],
         ).paddingAll(commonRadius),
       ),
@@ -302,7 +343,11 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
 
   /// Load Details
-  Widget buildBottomLoadDetailsWidget(LoadData loadItem) {
+  Widget buildBottomLoadDetailsWidget(LoadData loadItem, BuildContext context) {
+    final loadPrice = (loadItem.maxRate == null || loadItem.maxRate!.isEmpty || loadItem.maxRate == "0")
+        ? PriceHelper.formatINR(loadItem.rate)
+        : '${PriceHelper.formatINR(loadItem.rate)} - ${PriceHelper.formatINR(loadItem.maxRate)}';
+
     return Positioned(
       bottom: 0,
       left: 0,
@@ -331,7 +376,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                             ...[
                               Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
                               4.height,
-                              Text('${widget.loadData.acceptedVehicle?.truckType?.type ?? ''} - ${widget.loadData.acceptedVehicle?.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                              if(loadItem.loadStatus == 2)
+                                Text('${widget.loadData.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                              if(loadItem.loadStatus == 3)
+                                Text('${widget.loadData.acceptedVehicle?.truckType?.type ?? ''} - ${widget.loadData.acceptedVehicle?.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
                             ],
                           if(loadItem.loadStatus > 3)
                             ...[
@@ -423,7 +471,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               children: [
                                 Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
                                 6.height,
-                                Text(loadItem.pickUpLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                Text(loadItem.pickUpWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
                               ],
                             ),
 
@@ -437,7 +485,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                               children: [
                                 Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
                                 6.height,
-                                Text(loadItem.dropLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                Text(loadItem.dropWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
                               ],
                             ),
 
@@ -459,7 +507,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       children: [
                         Text("Agreed Price", style: AppTextStyle.body2),
                         Text(
-                          PriceHelper.formatINR(loadItem.rate),
+                          loadPrice,
                           style: AppTextStyle.h4.copyWith(
                             color: AppColors.primaryColor,
                           ),
@@ -521,7 +569,14 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
               CustomSwipeButton(
                   price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
                   loadId: loadItem.loadId,
-                  onSubmit: () => onSubmit(loadItem, context),
+                  onSubmit: () async {
+                    bool isFirstTime = await AppPreferences.getIsFirstTime();
+                    if (context.mounted && !isFirstTime) {
+                      onSubmit(loadItem, context);
+                    } else {
+                      showAdvancePaymentDialog(loadItem, '');
+                    }
+                  },
               )
           ],
         ),

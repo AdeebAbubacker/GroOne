@@ -13,6 +13,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/shared_preference_helper.dart';
 
 
 class MemoOtpDialogWidget extends StatefulWidget {
@@ -32,6 +33,8 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
   void handleOtpVerification(uiState) {
     if(uiState?.data?.data?.message == 'OTP verified successfully') {
       Navigator.of(widget.parentContext, rootNavigator: true).pop();
+
+      AppPreferences.setIsFirstTime(true);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         AppDialog.show(widget.parentContext, child: SuccessDialogView(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -12,10 +14,11 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class AdvancePaymentDialog extends StatefulWidget {
-  const AdvancePaymentDialog({super.key, required this.price, required this.loadId});
+  const AdvancePaymentDialog({super.key, required this.price, required this.loadId, required this.creditLimit});
 
   final int price;
   final String loadId;
+  final String creditLimit;
 
   @override
   State<AdvancePaymentDialog> createState() => _AdvancePaymentDialogState();
@@ -25,6 +28,8 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
 
   int selectedPercentage = 90;
   int percentAmount = 0;
+  final lpLoadLocator = locator<LpLoadCubit>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +71,7 @@ class _AdvancePaymentDialogState extends State<AdvancePaymentDialog> {
 
         AppButton(
           onPressed: (){
+            // lpLoadLocator.updateCreditCheck(creditLimit: widget.creditLimit, creditUsed: '$percentAmount');
             context.pop();
             Navigator.push(context, commonRoute(LpLoadValidateMemo(loadId: widget.loadId)));
           },

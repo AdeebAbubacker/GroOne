@@ -51,6 +51,7 @@ class LoadData {
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.maxRate,
     required this.vpRate,
     required this.status,
     required this.loadStatus,
@@ -88,6 +89,7 @@ class LoadData {
   final num consignmentWeight;
   final String notes;
   final String rate;
+  final String? maxRate;
   final String vpRate;
   final num status;
   final num loadStatus;
@@ -125,6 +127,7 @@ class LoadData {
     num? consignmentWeight,
     String? notes,
     String? rate,
+    String? maxRate,
     String? vpRate,
     num? status,
     num? loadStatus,
@@ -162,6 +165,7 @@ class LoadData {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      maxRate: maxRate ?? this.maxRate,
       vpRate: vpRate ?? this.vpRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
@@ -202,6 +206,7 @@ class LoadData {
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
+      maxRate: json["maxRate"],
       vpRate: json["vpRate"] ?? "",
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,

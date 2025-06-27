@@ -5,7 +5,8 @@ class RateDiscoveryApiRequest extends Serializable<RateDiscoveryApiRequest>{
   final String? truckTypeId;
   final String? commodityId;
   final String? weightId;
-  RateDiscoveryApiRequest({required this.laneId, required this.truckTypeId, required this.commodityId, required this.weightId});
+  final String? date;
+  RateDiscoveryApiRequest({required this.laneId, required this.truckTypeId, required this.commodityId, required this.weightId, required this.date});
 
   @override
   Map<String, dynamic> toJson() {
@@ -14,6 +15,7 @@ class RateDiscoveryApiRequest extends Serializable<RateDiscoveryApiRequest>{
       "truck_type_id": truckTypeId ?? "",
       "commodity_id": commodityId ?? "",
       "weight_id": weightId ?? "",
+      "date": date ?? "",
     };
   }
 
