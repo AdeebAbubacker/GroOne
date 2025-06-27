@@ -18,7 +18,7 @@ import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_timeline_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -48,19 +48,15 @@ class LpLoadsLocationDetailsScreen extends StatefulWidget {
 
 
 class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScreen> {
-
-
   GoogleMapController? _mapController;
   final Set<Marker> _markers = {};
   String kilometers = '';
   final lpLoadLocator = locator<LpLoadCubit>();
 
-
   Future<void> _setMapStyle(GoogleMapController controller) async {
     String style = await rootBundle.loadString(AppJSON.mapStyle);
     controller.setMapStyle(style);
   }
-
 
   LatLng _getLatLngFromString(String latLng) {
     if (latLng.isEmpty || !latLng.contains(',')) {
@@ -176,7 +172,9 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return
+
+      Scaffold(
       body: SafeArea(
         top: false,
         child: BlocBuilder<LpLoadCubit, LpLoadState>(
@@ -563,7 +561,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       20.height,
 
 
-                      LPLoadTimelineWidget(
+                      LoadTimelineWidget(
                         timelineList: loadItem.timeline,
                       )
                     ]

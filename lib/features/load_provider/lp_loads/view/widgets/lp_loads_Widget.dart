@@ -170,7 +170,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
         5.width,
         Text(
-          loadItem.pickUpWholeAddr,
+          loadItem.pickUpWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -185,7 +185,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
         Text(
-          loadItem.dropWholeAddr,
+          loadItem.dropWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -199,6 +199,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
     final loadPrice = (loadItem.maxRate == null || loadItem.maxRate!.isEmpty || loadItem.maxRate == "0")
         ? PriceHelper.formatINR(loadItem.rate)
         : '${PriceHelper.formatINR(loadItem.rate)} - ${PriceHelper.formatINR(loadItem.maxRate)}';
+    print("lp rate ${loadItem.vpRate}");
     return Container(
       decoration: commonContainerDecoration(
         color: AppColors.primaryLightColor,
@@ -209,6 +210,10 @@ class LPLoadListBodyWidget extends StatelessWidget{
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(loadPrice, style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor)),
+          Text(
+            PriceHelper.formatINR(loadItem.vpRate),
+            style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
+          ),
         ],
       ).paddingAll(8),
 

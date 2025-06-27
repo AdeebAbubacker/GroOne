@@ -69,20 +69,20 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       }
     });
 
-    on<ScheduleTripRequested>((event, emit) async {
-      emit(ScheduleTripLoading());
-      Result result = await _vHomeRepository.scheduleTripResponse(
-        apiRequest: event.apiRequest,
-      );
-
-      if (result is Success<ScheduleTripResponse>) {
-        emit(ScheduleTripSuccess(result.value));
-      } else if (result is Error) {
-        emit(ScheduleTripError(result.type));
-      } else {
-        emit(ScheduleTripError(GenericError()));
-      }
-    });
+    // on<ScheduleTripRequested>((event, emit) async {
+    //   emit(ScheduleTripLoading());
+    //   Result result = await _vHomeRepository.scheduleTripResponse(
+    //     apiRequest: event.apiRequest,
+    //   );
+    //
+    //   if (result is Success<ScheduleTripResponse>) {
+    //     emit(ScheduleTripSuccess(result.value));
+    //   } else if (result is Error) {
+    //     emit(ScheduleTripError(result.type));
+    //   } else {
+    //     emit(ScheduleTripError(GenericError()));
+    //   }
+    // });
   }
 
   String? _userId;

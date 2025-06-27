@@ -112,7 +112,9 @@ class ApiUrls {
   static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
   static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
   static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
-  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit";
+  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";

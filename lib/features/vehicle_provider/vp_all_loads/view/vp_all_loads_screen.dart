@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../dependency_injection/locator.dart';
@@ -231,7 +233,11 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
               } else if (_tabController.index == 1) {
                 return VpAllLoadMyLoadWidget(
                   data: state.loads[index],
-                  onClickAssignDriver: () {},
+                  onClickAssignDriver: () {
+                    context.push(AppRouteName.loadDetailsScreen,extra: {
+                      "loadId":state.loads[index].id
+                    });
+                  },
                 ).paddingSymmetric(vertical: 7);
               } else {
                 return null;

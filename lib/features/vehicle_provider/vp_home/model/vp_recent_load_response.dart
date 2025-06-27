@@ -67,7 +67,20 @@ class VpRecentLoadData {
     required this.truckType,
     required this.customer,
     required this.customerDetail,
+    required this.dropWholeAddr,
+    required this.pickUpWholeAddr,
+    required this.vpRate,
+    required this.vpMaxRate,
+
   });
+
+  /// regarding rate master
+  final String? pickUpWholeAddr;
+  final String? dropWholeAddr;
+  final String? vpRate;
+  final String? vpMaxRate;
+
+
 
   final int id;
   final String loadId;
@@ -139,9 +152,18 @@ class VpRecentLoadData {
     TruckType? truckType,
     Customer? customer,
     CustomerDetail? customerDetail,
+     String? pickUpWholeAddr,
+     String? dropWholeAddr,
+     String? vpRate,
+    String? vpMaxRate,
   }) {
     return VpRecentLoadData(
+
       id: id ?? this.id,
+      vpMaxRate: vpMaxRate ?? this.vpMaxRate,
+      pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
+      dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
+      vpRate: vpRate ?? this.vpRate,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
       rateId: rateId ?? this.rateId,
@@ -180,6 +202,10 @@ class VpRecentLoadData {
 
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
     return VpRecentLoadData(
+      vpMaxRate: json['vpMaxRate']?.toString()??"" ,
+      vpRate:json['vpRate']?.toString()??"" ,
+      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
+      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
       laneId: json["laneId"] ?? 0,

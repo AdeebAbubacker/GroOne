@@ -48,7 +48,21 @@ class VpLoadsList {
     required this.customer,
     required this.customerDetail,
     required this.loadId,
+    required this.pickUpWholeAddr,
+    required this.dropWholeAddr,
+    required this.vpRate,
+    required this.vpMaxRate,
   });
+
+
+  /// regarding rate master
+  final String? pickUpWholeAddr;
+  final String? dropWholeAddr;
+  final String? vpRate;
+  final String? vpMaxRate;
+
+
+
 
   final int id;
   final num customerId;
@@ -74,13 +88,20 @@ class VpLoadsList {
 
   factory VpLoadsList.fromJson(Map<String, dynamic> json){
     return VpLoadsList(
+      vpMaxRate:
+      json['vpMaxRate']?.toString()??"",
+      vpRate:json['vpRate']?.toString()??"" ,
+      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
+      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
+
+
       loadId: json['loadId']??"",
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
       pickUpAddr: json["pickUpAddr"] ?? "",
-      assignStatus: json["assignStatus"] ?? 0,
+      assignStatus: json["loadStatus"] ?? 0,
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",

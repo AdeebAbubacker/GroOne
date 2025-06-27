@@ -77,9 +77,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   updatePossibleDeliveryDateDate(String? possibleDeliveryTime) {
-
     emit(state.copyWith(possibleDeliveryDate: possibleDeliveryTime));
   }
+
 
   Future scheduleTripApi(ScheduleTripRequest scheduleTripRequest) async {
     emit(state.copyWith(scheduleTripResponse: UIState.loading()));
