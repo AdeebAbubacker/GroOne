@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -22,7 +23,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/shared_preference_helper.dart';
 import 'package:lottie/lottie.dart';
 import 'low_credit_dialog.dart';
 
@@ -39,9 +39,16 @@ class LPLoadListBodyWidget extends StatelessWidget{
 
     if (uiState?.status == Status.LOADING) {}
     else if (uiState?.status == Status.SUCCESS) {
-      final loadList = uiState?.data?.availableCreditLimit ?? '';
+      final creditData = uiState?.data as CreditCheckApiResponse;
 
-      int availableCredit = double.parse(loadList).toInt();
+      if (creditData.data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
+        );
+        return;
+      }
+
+      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
       int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
 
       if(availableCredit < rateValue) {
@@ -215,9 +222,8 @@ class LPLoadListBodyWidget extends StatelessWidget{
         AppButton(
           buttonHeight: 40,
           onPressed: () async {
-            bool isFirstTime = await AppPreferences.getIsFirstTime();
-
-            if (context.mounted && !isFirstTime) {
+            bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+            if (context.mounted && !isFirstTimeLoad) {
               creditCheck(context);
             } else {
               agreeLoadPopUp(context);

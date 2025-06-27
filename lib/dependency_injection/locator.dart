@@ -127,7 +127,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
     locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(),locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(),locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(),locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(),locator<UserInformationRepository>(), locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoadDetailsRepository(locator<VpDetailsService>(),locator<VpHomeService>()));
 
     // View Model

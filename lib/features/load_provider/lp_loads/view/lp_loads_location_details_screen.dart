@@ -30,7 +30,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/shared_preference_helper.dart';
 
 
 import '../model/lp_load_get_by_id_response.dart';
@@ -142,9 +141,16 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
     if (uiState?.status == Status.LOADING) {}
     else if (uiState?.status == Status.SUCCESS) {
-      final creditData = uiState!.data as LpLoadCreditCheckResponse;
+      final creditData = uiState?.data as CreditCheckApiResponse;
 
-      int availableCredit = double.parse(creditData.availableCreditLimit).toInt();
+      if (creditData.data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
+        );
+        return;
+      }
+
+      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
       int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
 
       if (availableCredit < rateValue) {
@@ -570,8 +576,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
                   loadId: loadItem.loadId,
                   onSubmit: () async {
-                    bool isFirstTime = await AppPreferences.getIsFirstTime();
-                    if (context.mounted && !isFirstTime) {
+                    bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+                    if (context.mounted && !isFirstTimeLoad) {
                       onSubmit(loadItem, context);
                     } else {
                       showAdvancePaymentDialog(loadItem, '');

@@ -177,13 +177,13 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadCreditCheckResponse>> getCreditCheck({ required String customerId,}) async {
+  Future<Result<CreditCheckApiResponse>> getCreditCheck({ required String customerId,}) async {
     try {
       final url = ApiUrls.lpCreditCheck;
       final response = await _apiService.get('$url/export/$customerId');
 
       if (response is Success) {
-        final loads = LpLoadCreditCheckResponse.fromJson(response.value);
+        final loads = CreditCheckApiResponse.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

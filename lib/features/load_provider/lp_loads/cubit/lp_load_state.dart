@@ -8,7 +8,7 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp;
   final UIState<LoadTruckTypeListModel>? lpLoadTruckTypes;
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
-  final UIState<LpLoadCreditCheckResponse>? lpCreditCheck;
+  final UIState<CreditCheckApiResponse>? lpCreditCheck;
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
   final int selectedTabIndex;
 
@@ -22,7 +22,7 @@ class LpLoadState extends Equatable {
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp,
     UIState<LoadTruckTypeListModel>? lpLoadTruckTypes,
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
-    UIState<LpLoadCreditCheckResponse>? lpCreditCheck,
+    UIState<CreditCheckApiResponse>? lpCreditCheck,
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,
     int? selectedTabIndex,
   }) {

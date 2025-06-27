@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
@@ -10,14 +11,16 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class  LpLoadRepository {
   final LpLoadService service;
   final UserInformationRepository userRepo;
+  final SecuredSharedPreferences securedSharedPreferences;
 
-  LpLoadRepository(this.service, this.userRepo);
+  LpLoadRepository(this.service, this.userRepo, this.securedSharedPreferences);
 
   Future<Result<List<LpLoadItem>>> fetchLoads({required LoadListApiRequest request, bool forceRefresh = false}) async {
     try {
@@ -95,7 +98,7 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadCreditCheckResponse>> getCreditCheck() async {
+  Future<Result<CreditCheckApiResponse>> getCreditCheck() async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
       return service.getCreditCheck(customerId: customerId);
@@ -113,5 +116,15 @@ class  LpLoadRepository {
       CustomLog.error(this, "Failed to get credit check data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
+  }
+
+  // Set isFirstTimeLoad flag
+  Future<void> setIsFirstTimeLoad(bool value) async {
+    return await securedSharedPreferences.saveBoolean(AppString.sessionKey.isFirstTimeLoad, value);
+  }
+
+  // get isFirstTimeLoad flag
+  Future<bool> getIsFirstTimeLoad() async {
+    return await securedSharedPreferences.getBooleans(AppString.sessionKey.isFirstTimeLoad);
   }
 }

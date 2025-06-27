@@ -167,7 +167,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Updates the UI state related to lp load verify Otp.
-  void _setCreditCheckState(UIState<LpLoadCreditCheckResponse>? uiState) {
+  void _setCreditCheckState(UIState<CreditCheckApiResponse>? uiState) {
     emit(state.copyWith(lpCreditCheck: uiState));
   }
 
@@ -177,7 +177,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
     Result result = await _repository.getCreditCheck();
 
-    if (result is Success<LpLoadCreditCheckResponse>) {
+    if (result is Success<CreditCheckApiResponse>) {
       _setCreditCheckState(UIState.success(result.value));
     } else if (result is Error) {
       _setCreditCheckState(UIState.error(result.type));
@@ -200,6 +200,16 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     } else if (result is Error) {
       _setCreditUpdateState(UIState.error(result.type));
     }
+  }
+
+  // Set isFirstTimeLoad flag
+  Future<void> setFirstTimeLoad({required bool value}) async {
+    return await _repository.setIsFirstTimeLoad(value);
+  }
+
+  // Get isFirstTimeLoad flag
+  Future<bool> fetchFirstTimeLoad() async {
+    return  await _repository.getIsFirstTimeLoad();
   }
 
 }

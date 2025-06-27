@@ -70,7 +70,6 @@ dependencies:
   timeline_tile: ^2.0.0
   slide_to_act: ^2.0.2
   dropdown_search: ^6.0.2
-  shared_preferences: ^2.5.3
 
   # Routing
   go_router: ^15.1.2

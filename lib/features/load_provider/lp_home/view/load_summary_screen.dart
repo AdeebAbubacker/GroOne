@@ -28,7 +28,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/shared_preference_helper.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 class LoadSummaryScreen extends StatefulWidget {
@@ -68,12 +67,24 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
     if (uiState?.status == Status.LOADING) {}
     else if (uiState?.status == Status.SUCCESS) {
-      final creditData = uiState!.data as LpLoadCreditCheckResponse;
+      final creditData = uiState?.data as CreditCheckApiResponse;
 
-      int availableCredit = double.parse(creditData.availableCreditLimit).toInt();
+      if (creditData.data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
+        );
+        return;
+      }
+
+      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
       int rateValue = widget.price.contains('-')
           ? int.parse(widget.price.split('-')[1].trim())
           : int.parse(widget.price.trim());
+      if (availableCredit < rateValue) {
+        AppDialog.show(context, child: LowCreditDialog());
+      } else {
+        await _postLoad(context);
+      }
 
       if (availableCredit < rateValue) {
         AppDialog.show(context, child: LowCreditDialog());
@@ -99,8 +110,8 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       return;
     }
 
-    bool isFirstTime = await AppPreferences.getIsFirstTime();
-    if (context.mounted && isFirstTime) {
+    bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+    if (context.mounted && isFirstTimeLoad) {
       await onSubmit(context);
     } else {
       await _postLoad(context);
