@@ -44,8 +44,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 
 class KycUploadDocumentScreen extends StatefulWidget {
-  final String aadhaarNumber;
-  const KycUploadDocumentScreen({super.key, required this.aadhaarNumber});
+  final String? aadhaarNumber;
+  const KycUploadDocumentScreen({super.key, this.aadhaarNumber});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -114,7 +114,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
-    aadhaarNumberTextController.text = widget.aadhaarNumber;
+    if (widget.aadhaarNumber != null) {
+      aadhaarNumberTextController.text = widget.aadhaarNumber!;
+    } else {
+      aadhaarNumberTextController.text = "";
+    }
   });
   
   void disposeFunction()=> frameCallback((){

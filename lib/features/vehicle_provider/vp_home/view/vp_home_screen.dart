@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
@@ -177,11 +178,21 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                 return const SizedBox.shrink();
               }
 
+              final companyId = profileState.data!.data?.details?.customerId;
+
+              CustomLog.debug(this, 'Company Id : $companyId');
+
               return kycWidget(
-                onTap: () => commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: EnterAadhaarNumberBottomSheet(),
-                ),
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(
+                      context: context,
+                      screen: EnterAadhaarNumberBottomSheet(),
+                    );
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
               );
 
             },

@@ -90,7 +90,6 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   Widget _buildBodyWidget() {
     return BlocConsumer<KycCubit, KycState>(
       bloc: kycBloc,
-      listenWhen: (previous, current) =>  previous.aadhaarOtpState?.status != current.aadhaarOtpState?.status,
       listener: (context, state) {
 
         final otpState = state.aadhaarOtpState;
