@@ -23,8 +23,8 @@ class LPHomeState extends Equatable {
   final bool showSuccessKyc;
   final UIState<DestinationModel>? destination;
   final UIState<PickUpModel>? pickup;
-  final num? pickupLocationId;
-  final num? destinationLocationId;
+  final int? pickupLocationId;
+  final int? destinationLocationId;
   final num? laneId;
   final LoadWeightData? selectedWeight;
   final String? matchingText;
@@ -62,8 +62,8 @@ class LPHomeState extends Equatable {
     bool? showSuccessKyc,
     UIState<DestinationModel>? destination,
     UIState<PickUpModel>? pickup,
-    num? pickupLocationId,
-    num? destinationLocationId,
+    int? pickupLocationId,
+    int? destinationLocationId,
     num? laneId,
     LoadWeightData? selectedWeight,
     String? matchingText,

@@ -80,14 +80,14 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Set Location Id
-  void setPickupLocationDetailId(num? id){
+  void setPickupLocationDetailId(int? id){
     emit(state.copyWith(pickupLocationId: id));
     CustomLog.debug(this, "Set Pickup Location Id : $id");
   }
 
 
   // Set Location Id
-  void setDestinationLocationDetailId(num? id){
+  void setDestinationLocationDetailId(int? id){
     emit(state.copyWith(destinationLocationId: id));
     CustomLog.debug(this, "Set Destination Location Id : $id");
   }

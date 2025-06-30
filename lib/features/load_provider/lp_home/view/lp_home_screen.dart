@@ -630,7 +630,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         BookShipmentWidget(
                           heading: context.appText.source,
                           subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
-                          onClick: () {
+                          onClick: () async {
                             final uiState = state.recentRouteUIState;
 
                             if (uiState != null) {
@@ -654,6 +654,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             } else {
                               Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Pickup Point", address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
                             }
+                            await fetchRateDiscovery();
                           },
 
                         ),
@@ -664,7 +665,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         BookShipmentWidget(
                           heading: context.appText.destination,
                           subHeading: destinationLocation ?? context.appText.selectDestination,
-                          onClick: () {
+                          onClick: () async {
                             Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: "Select Destination", address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
                               if(onValue != null && onValue == true){
                                  debugPrint("Destination: ${state.destination.toString()}");
@@ -673,6 +674,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               }
                               setState(() {});
                             });
+                            await fetchRateDiscovery();
                           },
                         ),
 
@@ -750,7 +752,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     },
                     dataList: weights,
                     selectedText: weightTextController.text.isEmpty ? null : "${weightTextController.text} MT",
-                    onTab: () {
+                    onTab: () async {
                       Navigator.of(context).push(createRoute(WeightSelectionScreen(
                             dataList: weights,
                             onSelect: (weight) {
@@ -762,6 +764,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           ),
                         ),
                       );
+                      await fetchRateDiscovery();
                     },
                     cubit: lpHomeCubit,
                   ).expand();
@@ -839,7 +842,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;
                     selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time!);
-                    print("Date : ${date}, Time : ${time} ");
 
                   }
                   await fetchRateDiscovery();
@@ -892,15 +894,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             },
                             builder: (context, state) {
                               if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
-                                // String? suggestedPrice;
-                                // if(state.rateDiscoveryUIState?.data?.data?.price != null){
-                                //   suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
-                                // } else {
-                                //   suggestedPrice = "00000";
-                                // }
-                                //
-                                // rateDiscoveryPrice = suggestedPrice;
-                                // return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+
                                 final data = state.rateDiscoveryUIState?.data?.data;
 
                                 String? suggestedPrice;
