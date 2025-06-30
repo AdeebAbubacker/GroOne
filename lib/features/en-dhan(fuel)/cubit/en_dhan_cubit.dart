@@ -18,11 +18,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   // ==================== KYC Check ====================
   
   /// Check if KYC documents exist for the customer
-  Future<void> checkKycDocuments(int customerId) async {
+  Future<void> checkKycDocuments() async {
     _setKycCheckUIState(UIState.loading());
     
     try {
-      final result = await _repository.checkKycDocuments(customerId);
+      final result = await _repository.checkKycDocuments();
       
       if (result is Success<EnDhanKycCheckModel>) {
         final hasDocuments = result.value.hasKycDocuments;
@@ -112,6 +112,112 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     emit(state.copyWith(customerId: value));
   }
 
+  // ==================== Card Creation Form Field Updates ====================
+  
+  // Set customer name
+  void setCustomerName(String value) {
+    emit(state.copyWith(customerName: value));
+  }
+
+  // Set mobile number
+  void setMobile(String value) {
+    emit(state.copyWith(mobile: value));
+  }
+
+  // Set address line 1
+  void setAddress1(String value) {
+    emit(state.copyWith(address1: value));
+  }
+
+  // Set address line 2
+  void setAddress2(String value) {
+    emit(state.copyWith(address2: value));
+  }
+
+  // Set pincode
+  void setPincode(String value) {
+    emit(state.copyWith(pincode: value));
+  }
+
+  // Set shipping address
+  void setShippingAddress(String value) {
+    emit(state.copyWith(shippingAddress: value));
+  }
+
+  // Set save as shipping checkbox
+  void setSaveAsShipping(bool value) {
+    emit(state.copyWith(saveAsShipping: value));
+  }
+
+  // Set regional office
+  void setRegionalOffice(String value) {
+    emit(state.copyWith(regionalOffice: value));
+  }
+
+  // Set RO address line 1
+  void setRoAddress1(String value) {
+    emit(state.copyWith(roAddress1: value));
+  }
+
+  // Set RO address line 2
+  void setRoAddress2(String value) {
+    emit(state.copyWith(roAddress2: value));
+  }
+
+  // Set RO state
+  void setRoState(String value) {
+    emit(state.copyWith(roState: value));
+  }
+
+  // Set RO district
+  void setRoDistrict(String value) {
+    emit(state.copyWith(roDistrict: value));
+  }
+
+  // Add a new card
+  void addCard() {
+    final newCards = List<CardFormData>.from(state.cards)..add(const CardFormData());
+    emit(state.copyWith(cards: newCards));
+  }
+
+  // Remove a card at specific index
+  void removeCard(int index) {
+    if (state.cards.length > 1) {
+      final newCards = List<CardFormData>.from(state.cards)..removeAt(index);
+      emit(state.copyWith(cards: newCards));
+    }
+  }
+
+  // Update card data at specific index
+  void updateCard(int index, CardFormData cardData) {
+    final newCards = List<CardFormData>.from(state.cards);
+    if (index < newCards.length) {
+      newCards[index] = cardData;
+      emit(state.copyWith(cards: newCards));
+    }
+  }
+
+  // Update specific card field
+  void updateCardField(int cardIndex, {
+    String? vehicleNumber,
+    String? vehicleType,
+    String? vinNumber,
+    String? mobile,
+    List<Map<String, dynamic>>? rcDocuments,
+  }) {
+    if (cardIndex < state.cards.length) {
+      final currentCard = state.cards[cardIndex];
+      final updatedCard = currentCard.copyWith(
+        vehicleNumber: vehicleNumber,
+        vehicleType: vehicleType,
+        vinNumber: vinNumber,
+        mobile: mobile,
+        rcDocuments: rcDocuments,
+      );
+      updateCard(cardIndex, updatedCard);
+    }
+  }
+
   // Check if form is valid
   bool isFormValid() {
     return state.aadhaar.isNotEmpty &&
@@ -121,6 +227,35 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
            state.identityProofFront.isNotEmpty &&
            state.identityProofBack.isNotEmpty &&
            state.panImage.isNotEmpty;
+  }
+
+  // Check if card creation form is valid
+  bool isCardCreationFormValid() {
+    // Check billing address fields
+    if (state.customerName.isEmpty || 
+        state.mobile.isEmpty || 
+        state.address1.isEmpty || 
+        state.pincode.isEmpty) {
+      return false;
+    }
+
+    // Check if shipping address is required and filled
+    if (!state.saveAsShipping && state.shippingAddress.isEmpty) {
+      return false;
+    }
+
+    // Check all cards have required fields
+    for (final card in state.cards) {
+      if (card.vehicleNumber.isEmpty || 
+          card.vehicleType == null || 
+          card.vehicleType == 'Select' ||
+          card.vinNumber.isEmpty || 
+          card.mobile.isEmpty) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   // ==================== Private UI State Setters ====================
@@ -166,6 +301,19 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       customerId: null,
       hasKycDocuments: false,
       kycData: null,
+      customerName: '',
+      mobile: '',
+      address1: '',
+      address2: '',
+      pincode: '',
+      shippingAddress: '',
+      saveAsShipping: true,
+      regionalOffice: 'Chennai',
+      roAddress1: '',
+      roAddress2: '',
+      roState: '',
+      roDistrict: '',
+      cards: const [CardFormData()],
     ));
   }
 } 

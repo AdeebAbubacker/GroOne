@@ -55,8 +55,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   @override
   void initState() {
     super.initState();
-    // Check KYC documents for customer (replace 0 with actual customer ID)
-    cubit.checkKycDocuments(0);
+    // Check KYC documents for customer
+    cubit.checkKycDocuments();
   }
 
   @override
@@ -101,7 +101,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             body: Center(
               child: AppErrorWidget(
                 error: state.kycCheckState?.errorType ?? GenericError(),
-                onRetry: () => cubit.checkKycDocuments(0),
+                onRetry: () => cubit.checkKycDocuments(),
               ),
             ),
           );

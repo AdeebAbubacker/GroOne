@@ -13,9 +13,9 @@ class EnDhanService {
   EnDhanService(this._apiService);
 
   /// Check KYC Documents Existence
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(int customerId) async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
     try {
-      final url = "${ApiUrls.enDhanKycCheck}/$customerId";
+      final url = ApiUrls.enDhanKycCheck;
       final result = await _apiService.get(url);
       
       if (result is Success) {

@@ -11,9 +11,9 @@ class EnDhanRepository {
   EnDhanRepository(this._enDhanService);
 
   /// Check KYC Documents Repository
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(int customerId) async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
     try {
-      return await _enDhanService.checkKycDocuments(customerId);
+      return await _enDhanService.checkKycDocuments();
     } catch (e) {
       CustomLog.error(this, "Failed to check KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
