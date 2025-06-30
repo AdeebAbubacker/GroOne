@@ -417,12 +417,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               CustomLog.debug(this, 'is KYC : $kycFlag');
 
               if (kycFlag == 3) {
-                // return kycWidget(
-                //   onTap: () => commonBottomSheetWithBGBlur(
-                //     context: context,
-                //     screen: EnterAadhaarNumberBottomSheet(),
-                //   ),
-                // );
                 return const SizedBox.shrink();
               }
 
@@ -430,11 +424,21 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 return const SizedBox.shrink();
               }
 
+              final companyId = profileState.data!.data?.details?.customerId;
+
+              CustomLog.debug(this, 'Company Id : $companyId');
+
               return kycWidget(
-                onTap: () => commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: EnterAadhaarNumberBottomSheet(),
-                ),
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(
+                      context: context,
+                      screen: EnterAadhaarNumberBottomSheet(),
+                    );
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
               );
 
             },
