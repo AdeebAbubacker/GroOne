@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
 
@@ -44,14 +46,14 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
         Lottie.asset(AppJSON.success, width: 150, repeat: false, frameRate: FrameRate(120)),
         20.height,
 
-        if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.greenColor20w700),
-          20.height,
-        ],
-
 
         if(widget.heading != null)...[
-          Text(widget.heading!, textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
+          Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: AppTextStyle.h3.copyWith(color: AppColors.activeDarkGreenColor, fontSize: 25)),
+          10.height,
+        ],
+
+        if(widget.message != null)...[
+          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
           20.height,
         ],
 

@@ -63,6 +63,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   }
 
 
+
   void disposeFunction() => frameCallback(() async {
     if(widget.afterDismiss != null){
       widget.afterDismiss!.call();
