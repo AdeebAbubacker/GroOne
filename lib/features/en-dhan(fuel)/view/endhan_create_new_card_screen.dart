@@ -98,7 +98,6 @@ class _EndhanCreateNewCardScreenState extends State<EndhanCreateNewCardScreen> {
                       8.height,
                       Image.asset(AppImage.png.endhanCard, width: 140, height: 90),
                       8.height,
-                      
                     ],
                   ),
                 ),

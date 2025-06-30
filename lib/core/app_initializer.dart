@@ -1,7 +1,12 @@
+
+
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+
+import '../utils/app_global_variables.dart' as Platform;
+import 'app_initializer.dart' as Firebase;
 
 /// --- App Initialization Function ---
 Future<void> initializeApp() async {
@@ -12,6 +17,16 @@ Future<void> initializeApp() async {
   String appName = "Gro_One_App";
   if (kDebugMode) {
     appName = "Gro_One_App_Dev";
+  // Firebase
+  if(Platform.isIOS){
+    await Firebase.initializeApp();
+  }else{
+    String appName = "Gro One";
+    if(kDebugMode){
+      appName = "Gro One Dev";
+    }
+    // await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
+    // debugPrint("Firebase Initialized");
   }
  // await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
 
@@ -27,4 +42,5 @@ Future<void> initializeApp() async {
 
   // Dependency Injection
   initLocator();
+}
 }
