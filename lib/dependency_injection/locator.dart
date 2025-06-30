@@ -68,7 +68,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
-import 'package:gro_one_app/helpers/analytics_helper.dart';
+import 'package:gro_one_app/service/analytics_service.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -86,7 +86,7 @@ void initLocator() {
     locator.registerLazySingleton(() => SecuredSharedPreferences(locator<FlutterSecureStorage>()));
 
     // Firebase
-    locator.registerLazySingleton(() => AnalyticsHelper());
+    locator.registerLazySingleton(() => AnalyticsService());
 
     // Auth Services
     locator.registerLazySingleton<Dio>(() => Dio());
