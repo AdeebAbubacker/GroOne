@@ -9,6 +9,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
+
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
@@ -24,29 +26,25 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-class LoadDetailsScreen extends StatefulWidget {
+class VpLoadDetailsScreen extends StatefulWidget {
   final int? loadId;
-  const LoadDetailsScreen({super.key, required this.loadId});
+  const VpLoadDetailsScreen({super.key, required this.loadId});
 
   @override
-  State<LoadDetailsScreen> createState() => _LoadDetailsScreenState();
+  State<VpLoadDetailsScreen> createState() => _VpLoadDetailsScreenState();
 }
 
-class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
+class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final cubit = locator<LoadDetailsCubit>();
   final homeCubit = locator<LPHomeCubit>();
 
-  GoogleMapController? _mapController;
+
 
   /// Map Style
-  Future<void> _setMapStyle(GoogleMapController controller) async {
-    String style = await rootBundle.loadString(AppJSON.mapStyle);
-    controller.setMapStyle(style);
-  }
-
   getLoadDetails() {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
   }
+
 
   @override
   void initState() {
@@ -79,12 +77,18 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
 
               return Stack(
                 children: [
-                  Positioned.fill(child: buildGoogleMapWidget()),
+                  Positioned.fill(child: GoogleMapWidget(
+                      pickupLocation: loads!.data!.pickUpLocation,
+                    dropLocation: loads.data!.dropLocation,
+                    pickUpLatLong: loads.data!.pickUpLatlon,
+
+                    dropLatLong: loads.data!.dropLatlon,
+                  )),
                   Positioned(
                     top: 15,
                     left: 15,
                     right: 15,
-                    child: buildSourceAndDestinationWidget(loads!.data!),
+                    child: buildSourceAndDestinationWidget(loads.data!)
                   ),
                 ],
               );
@@ -130,7 +134,7 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                     ),
                   ),
 
-                  if (state.loadStatus==LoadStatus.accepted) Spacer(),
+                  if ((loadDetails.loadStatus??0)>3) Spacer(),
 
                   Padding(
                     padding: const EdgeInsets.only(
@@ -149,7 +153,7 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                     ),
                   ),
 
-                  if (!(state.loadStatus==LoadStatus.accepted)) ...[
+                  if (!(state.loadStatus==LoadStatus.accepted) &&  (state.loadStatus!=LoadStatus.assigned)) ...[
                     Spacer(),
 
                     Align(
@@ -185,8 +189,8 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
                       loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
-                  if (state.loadStatus==LoadStatus.accepted)
-                    LoadStatusLabel(statusType: "Confirmed"),
+                  if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)
+                    LoadStatusLabel(loadStatus: state.loadStatus!),
                 ],
               ).paddingSymmetric(horizontal: 5),
             ],
@@ -197,32 +201,16 @@ class _LoadDetailsScreenState extends State<LoadDetailsScreen> {
   }
 
   /// Google Map
-  Widget buildGoogleMapWidget() {
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: LatLng(13.0843, 80.2705),
-        zoom: 10,
-      ),
-      onMapCreated: (controller) async {
-        _mapController = controller;
-        await _setMapStyle(controller);
-      },
-      zoomGesturesEnabled: true,
-      scrollGesturesEnabled: true,
-      myLocationButtonEnabled: false,
-      onCameraMove: (position) {},
-      // markers: ,
-      zoomControlsEnabled: false,
-    );
-  }
+
 
   /// Location Details
   _buildLocationDetailsTileWidget(String? location, String? date) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          location ?? "",
+          (location??"").split(",")[0],
           style: TextStyle(color: AppColors.black, fontSize: 16),
           maxLines: 1,
         ),

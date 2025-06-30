@@ -15,4 +15,18 @@ class PriceHelper {
     }
   }
 
+  static String formatINRRange(String range) {
+    try {
+      final parts = range.split(' - ');
+      if (parts.length == 2) {
+        final min = formatINR(parts[0]);
+        final max = formatINR(parts[1]);
+        return '$min - $max';
+      }
+      return formatINR(range);
+    } catch (_) {
+      return '₹0';
+    }
+  }
+
 }

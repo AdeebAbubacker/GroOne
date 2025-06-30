@@ -12,9 +12,17 @@ class VpHelper{
 
   }
 
-
-
+ static String getLoadStatus(LoadStatus loadStatus){
+   switch(loadStatus){
+     case LoadStatus.assigned:
+       return "Assigned";
+     default:
+       return "confirmed";
+   }
+ }
 }
+
+
 
 enum LoadStatus {
   accepted,

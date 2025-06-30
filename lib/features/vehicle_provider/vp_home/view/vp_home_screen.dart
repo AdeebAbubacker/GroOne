@@ -92,7 +92,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     await lpHomeCubit.fetchProfileDetail();
-    await lpHomeCubit.startKycSuccessTimer();
     await lpHomeCubit.getBlueId();
   });
 
@@ -106,13 +105,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
        context,
        child: CommonDialogView(
          hideCloseButton: true,
-         child: BlueMembershipDialogView(
-           blueId: blueId,
-           afterDismiss: () async {
-             debugPrint("Clear Blue ID VP");
-             await lpHomeCubit.clearBlueId();
-           },
-         ),
+         child: BlueMembershipDialogView(blueId: blueId),
        ),
      );
    });
@@ -128,7 +121,6 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              10.height,
               buildKycLabelWidget(),
               10.height,
               OurValueAddedServicesWidget(),
@@ -205,6 +197,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
                 if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
                   if (state.profileDetailUIState?.data?.data?.details != null) {
+                    final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
                     return Row(
                       children: [
                         10.width,
@@ -214,7 +207,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                           height: 40,
                           width: 40,
                           alignment: Alignment.center,
-                          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                          decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
                           child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
                         ).onClick((){
                           Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
@@ -238,25 +231,32 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   // Kyc & Blue Id
   Widget buildKycLabelWidget(){
     return BlocConsumer<LPHomeCubit, LPHomeState>(
-      listener: (context, state) async {
+      listenWhen: (previous, current) => previous.profileDetailUIState?.status != current.profileDetailUIState?.status,
+      listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
-        if (profileState != null &&
-            profileState.status == Status.SUCCESS &&
-            profileState.data?.data?.customer != null &&
-            state.showSuccessKyc) {
+
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.data!.customer!.blueId;
           final blueIdFromStorage = await lpHomeCubit.getBlueId();
+          bool popupShownFlag = await lpHomeCubit.getHasShowBluePopup();
 
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
+          debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
-          // Show dialog if Blue ID is newly stored
-          if ((blueIdFromStorage == null || blueIdFromStorage.isEmpty) && blueIdFromApi.isNotEmpty) {
+          if (blueIdFromApi.isNotEmpty && popupShownFlag == true) {
+
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
+
+            await lpHomeCubit.startKycSuccessTimer(true);
+            // Set flag that popup is shown
+            await  lpHomeCubit.saveHasShowBluePopup(false);
           }
+
+          lpHomeCubit.startKycSuccessTimer(false);
         }
       },
       builder: (context, state) {
@@ -365,7 +365,11 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       onClickAssignDriver: () {
                         final isKycDone = VpVariables.isKycVerified;
                         if (isKycDone) {
-                          context.push(AppRouteName.loadDetailsScreen);
+                          context.push(AppRouteName.loadDetailsScreen,extra:
+                              {
+                                "loadId":data.id
+                              }
+                          );
                           // Navigate to trip scheduling
                         } else {
                           commonBottomSheetWithBGBlur(

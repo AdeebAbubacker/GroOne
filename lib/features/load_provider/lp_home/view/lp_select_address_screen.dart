@@ -188,10 +188,11 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required LocationDetails locationDetails}) async {
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required LocationDetails locationDetails}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
-        locationdetails: locationDetails
+        locationdetails: locationDetails,
+        type: type
     );
     await lpHomeCubit.verifyLocation(apiRequest);
     Status? status = lpHomeCubit.state.verifyLocationUIState?.status;
@@ -205,10 +206,10 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
               await MapHelper.animateTo(_mapController!, latLng);
             }
             _setMarker(latLng);
-            setState(() {});
           }
           searchTextController.text = locationDetails.name;
-          lpHomeCubit.setLocationDetailId(data.locationdetails!.id);
+          lpHomeCubit.setPickupLocationDetailId(data.locationdetails!.id);
+          lpHomeCubit.setDestinationLocationDetailId(data.locationdetails!.id);
           if(data.lane != null){
             lpHomeCubit.setLaneId(data.lane?.id);
             CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
@@ -226,6 +227,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
         }
       }
+      setState(() {});
     }
 
   }
@@ -396,12 +398,25 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                     return ListTile(
                       title: Text(item.description, style: AppTextStyle.body),
                       onTap: () async {
+
+                        debugPrint("Titles : ${widget.title}");
+
+                        if (widget.title == "Pickup Point") {
+                          lpHomeCubit.setPickupLocationDetailId(null);
+                          debugPrint("Location Details : ${state.pickupLocationId}");
+
+                        } else{
+                          lpHomeCubit.setDestinationLocationDetailId(null);
+                          debugPrint("Destination Location Details Id : ${state.destinationLocationId}");
+                        }
+
                         final locationDetails = LocationDetails(
-                            id : widget.title == "Pickup Point" ? 0 : state.locationId,
+                            id : widget.title == "Pickup Point" ? 0 : state.pickupLocationId,
                             name: item.description,
                             slug: item.description.toLowerCase(),
                         );
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, locationDetails: locationDetails);
+                        final type = widget.title == "Pickup Point" ? 2 : 1;
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationDetails: locationDetails);
 
                       },
                     );

@@ -2,7 +2,9 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_otp_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
@@ -14,16 +16,15 @@ class LpLoadService {
   LpLoadService(this._apiService);
 
   Future<Result<List<LpLoadItem>>> fetchLoads({
-    required String customerId,
-    required int type,
-    String search = "",
-    bool forceRefresh = false
+    required LoadListApiRequest request,
+    bool forceRefresh = false,
   }) async {
 
     try {
       final url = ApiUrls.lpLoadList;
       final response = await _apiService.get(
-        '$url?page=1&limit=20&search=$search&loadStatus=$type&customerId=$customerId',
+        url,
+        queryParams: request.toJson(),
         forceRefresh: forceRefresh,
       );
 
@@ -176,13 +177,36 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadCreditCheckResponse>> getCreditCheck({ required String customerId,}) async {
+  Future<Result<CreditCheckApiResponse>> getCreditCheck({ required String customerId,}) async {
     try {
       final url = ApiUrls.lpCreditCheck;
-      final response = await _apiService.get('$url/$customerId');
+      final response = await _apiService.get('$url/export/$customerId');
 
       if (response is Success) {
-        final loads = LpLoadCreditCheckResponse.fromJson(response.value);
+        final loads = CreditCheckApiResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LpLoadCreditUpdateResponse>> updateCreditCheck({required String creditLimit, required String creditUsed, required String customerId}) async {
+    try {
+      final url = ApiUrls.lpCreditCheck;
+      final response = await _apiService.put(url, body: {
+        "creditLimit": creditLimit,
+        "creditUsed": creditUsed,
+        "updatedBy": customerId,
+        "sourceType": "LOADPROVIDER"
+      });
+
+      if (response is Success) {
+        final loads = LpLoadCreditUpdateResponse.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

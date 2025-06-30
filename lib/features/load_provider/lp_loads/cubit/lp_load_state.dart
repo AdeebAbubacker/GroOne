@@ -8,10 +8,11 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp;
   final UIState<LoadTruckTypeListModel>? lpLoadTruckTypes;
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
-  final UIState<LpLoadCreditCheckResponse>? lpCreditCheck;
+  final UIState<CreditCheckApiResponse>? lpCreditCheck;
+  final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
   final int selectedTabIndex;
 
-  const LpLoadState({this.lpLoadResponse, this. lpLoadById, this.selectedTabIndex = 1, this.lpLoadMemoDetails, this.lpLoadMemoSendOtp,this.lpLoadMemoVerifyOtp, this.lpLoadTruckTypes, this.lpLoadRouteDetails, this.lpCreditCheck});
+  const LpLoadState({this.lpLoadResponse, this. lpLoadById, this.selectedTabIndex = 1, this.lpLoadMemoDetails, this.lpLoadMemoSendOtp,this.lpLoadMemoVerifyOtp, this.lpLoadTruckTypes, this.lpLoadRouteDetails, this.lpCreditCheck, this.lpCreditUpdate});
 
   LpLoadState copyWith({
     UIState<List<LpLoadItem>>? lpLoadResponse,
@@ -21,7 +22,8 @@ class LpLoadState extends Equatable {
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp,
     UIState<LoadTruckTypeListModel>? lpLoadTruckTypes,
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
-    UIState<LpLoadCreditCheckResponse>? lpCreditCheck,
+    UIState<CreditCheckApiResponse>? lpCreditCheck,
+    UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,
     int? selectedTabIndex,
   }) {
     return LpLoadState(
@@ -34,9 +36,10 @@ class LpLoadState extends Equatable {
       lpLoadTruckTypes: lpLoadTruckTypes ?? this.lpLoadTruckTypes,
       lpLoadRouteDetails: lpLoadRouteDetails ?? this.lpLoadRouteDetails,
       lpCreditCheck: lpCreditCheck ?? this.lpCreditCheck,
+      lpCreditUpdate: lpCreditUpdate ?? this.lpCreditUpdate,
     );
   }
 
   @override
-  List<Object?> get props => [lpLoadResponse, lpLoadById, selectedTabIndex, lpLoadMemoDetails, lpLoadMemoSendOtp, lpLoadMemoVerifyOtp, lpLoadTruckTypes, lpLoadRouteDetails, lpCreditCheck];
+  List<Object?> get props => [lpLoadResponse, lpLoadById, selectedTabIndex, lpLoadMemoDetails, lpLoadMemoSendOtp, lpLoadMemoVerifyOtp, lpLoadTruckTypes, lpLoadRouteDetails, lpCreditCheck, lpCreditUpdate];
 }

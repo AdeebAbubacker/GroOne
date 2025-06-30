@@ -104,7 +104,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
           Row(
             children: List.generate(types.length, (index) {
               final type = types[index];
-              final icons = selectTruckTypeList[index];
+               final icons = selectTruckTypeList[index];
               final isSelected = selectedType == type;
               return Expanded(
                 child: GestureDetector(
@@ -152,7 +152,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
               childAspectRatio: 1.2,
             ),
             itemBuilder: (context, index) {
-              final data = subTypes[index].copyWith(iconUrl: selectTruckLengthList[index]);
+              final data = subTypes[index];
               final isSelected = (index == selectedSubTypeIndex);
               return GestureDetector(
                 onTap: () {
@@ -174,7 +174,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
-                        data.iconUrl,
+                        AppIcons.svg.truck,
                         colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor),
                       ),
                       5.height,

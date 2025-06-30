@@ -8,8 +8,9 @@ class CustomSwipeButton extends StatelessWidget {
   final int price;
   final String loadId;
   final Future<dynamic>? Function()?  onSubmit;
-
-  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit});
+  final double? padding;
+  final String? text;
+  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit,this.padding,this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +23,10 @@ class CustomSwipeButton extends StatelessWidget {
       sliderButtonIcon: _buildChevronIcon(),
       sliderRotate: false,
       sliderButtonYOffset: -20,
-      text: 'Swipe to Agree',
+      text: text ?? 'Swipe to Agree',
       textStyle: AppTextStyle.body2.copyWith(color: AppColors.primaryColor),
       onSubmit: onSubmit,
-    ).paddingAll(10);
+    ).paddingAll(padding??10);
   }
 
   Widget _buildChevronIcon() {

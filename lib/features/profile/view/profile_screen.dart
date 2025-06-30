@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/bloc/kyc_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
@@ -42,6 +43,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileDetailsData profileData;
@@ -50,15 +52,21 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final double profileSize = 120;
-  dynamic pickImage;
-  File? _croppedImage;
+class _ProfileScreenState extends BaseState<ProfileScreen> {
+
   final lpHomeLocator = locator<LpHomeBloc>();
   final kycBloc = locator<KycCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpCreationBloc>();
   final profileBloc = locator<ProfileBloc>();
+
+  final double profileSize = 120;
+
+  dynamic pickImage;
+
+  File? _croppedImage;
+
+  String appVersion = '';
 
   @override
   void initState() {
@@ -75,13 +83,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initFunction() => frameCallback(() async {
     await lpHomeLocator.getUserId();
     profileImage = widget.profileData.details!.profileImageUrl ?? "";
+    appVersion = await appVersionInfo();
     setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
   void disposeFunction() => frameCallback(() {});
 
-  void logoutDialogPopUp() {
+  void logoutDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
       child: CommonDialogView(
@@ -91,10 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         hideCloseButton: true,
         onClickYesButton: () {
           context.pop();
-          vpHomeBloc.add(
-            LogoutAPIRequested(
-              apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? ""),
-            ),
+          vpHomeBloc.add(LogoutAPIRequested(apiRequest: LogOutRequest(customerId: lpHomeLocator.userId ?? "")),
           );
         },
         child: LogOutDialogueUi(),
@@ -123,6 +129,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // profile options widget
                 profileOptionWidget(context),
 
+                5.height,
+                profileVersionWidget(),
                 30.height,
               ],
             ),
@@ -300,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               imageString: AppImage.svg.logOut,
               text: context.appText.logOut,
               onTap: () {
-                logoutDialogPopUp();
+                logoutDialogPopUp(context);
               },
               showArrow: false,
             ),
@@ -341,6 +349,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  profileVersionWidget() {
+    return Text(
+      "Version $appVersion",
+      style: AppTextStyle.textGreyDetailColor14w400,
     );
   }
 

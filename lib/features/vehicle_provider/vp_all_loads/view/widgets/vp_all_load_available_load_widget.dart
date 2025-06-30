@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -41,183 +42,192 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: commonContainerDecoration(
-        borderColor: AppColors.primaryColor,
-        borderWidth: 1,
-        color: AppColors.blackishWhite,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                decoration: commonContainerDecoration(
-                  color: AppColors.lightPrimaryColor,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
-              ),
-              15.width,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    children: [
-                      Text(
-                        widget.data.pickUpAddr.capitalize,
-                        style: AppTextStyle.textBlackColor18w500,
-                        maxLines: 2,
-                      ),
-                      Icon(
-                        Icons.arrow_right_alt_outlined,
-                        color: AppColors.primaryColor,
-                      ).paddingSymmetric(horizontal: 5),
-                      Text(
-                        widget.data.dropAddr.capitalize,
-                        style: AppTextStyle.textBlackColor18w500,
-                        maxLines: 2,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    formatDateTimeKavach(widget.data.dueDate!.toString()),
-                    style: AppTextStyle.primaryColor12w400,
-                  ),
-                ],
-              ).expand(),
-            ],
-          ),
-          commonDivider(),
-          Row(
-            children: [
-              Column(
-                children: [
-                  detailWidget(
-                    text: widget.data.truckType?.type ?? "--",
-                    iconSvg: AppIcons.svg.deliveryTruckSpeed,
-                  ),
-                  detailWidget(
-                    text: widget.data.commodity?.name ?? "--",
-                    iconSvg: AppIcons.svg.package,
-                  ),
-                ],
-              ).expand(),
-              Column(
-                children: [
-                  detailWidget(
-                    text: widget.data.truckType?.subType ?? "--",
-                    iconSvg: AppIcons.svg.deliveryTruckSpeed,
-                  ),
-                  detailWidget(
-                    text: "${widget.data.consignmentWeight} Tonn",
-                    iconSvg: AppIcons.svg.weight,
-                  ),
-                ],
-              ).expand(),
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.greyIconColor),
-                ),
-                child: Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-          15.height,
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColors.primaryLightColor,
-            ),
-            child: Row(
+    return GestureDetector(
+      onTap: () {
+        context.push(AppRouteName.loadDetailsScreen,extra: {
+          "loadId":widget.data.id
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        decoration: commonContainerDecoration(
+          borderColor: AppColors.primaryColor,
+          borderWidth: 1,
+          color: AppColors.blackishWhite,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  "Quoted Price",
-                  style: AppTextStyle.textBlackColor18w400,
-                  textAlign: TextAlign.center,
-                ).expand(),
-                Text(
-                  "$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}",
-                  style: AppTextStyle.h4PrimaryColor,
-                  textAlign: TextAlign.center,
+                Container(
+                  decoration: commonContainerDecoration(
+                    color: AppColors.lightPrimaryColor,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
+                ),
+                15.width,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      children: [
+                        Text(
+                          widget.data.pickUpWholeAddr.capitalize,
+                          style: AppTextStyle.textBlackColor18w500,
+                          maxLines: 2,
+                        ),
+                        Icon(
+                          Icons.arrow_right_alt_outlined,
+                          color: AppColors.primaryColor,
+                        ).paddingSymmetric(horizontal: 5),
+                        Text(
+                          widget.data.dropWholeAddr.capitalize,
+                          style: AppTextStyle.textBlackColor18w500,
+                          maxLines: 2,
+                        ),
+                      ],
+                    ),
+                    Text(
+                      formatDateTimeKavach(widget.data.dueDate!.toString()),
+                      style: AppTextStyle.primaryColor12w400,
+                    ),
+                  ],
                 ).expand(),
               ],
             ),
-          ),
-          20.height,
-          BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
-            bloc: bloc,
-            builder: (context, state) {
-              return Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      commonSupportDialog(context);
-                    },
-                    icon: Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.primaryColor,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: SvgPicture.asset(
-                        AppIcons.svg.support,
-                        width: 25,
-                        colorFilter: AppColors.svg(AppColors.primaryColor),
-                      ),
+            commonDivider(),
+            Row(
+              children: [
+                Column(
+                  children: [
+                    detailWidget(
+                      text: widget.data.truckType?.type ?? "--",
+                      iconSvg: AppIcons.svg.deliveryTruckSpeed,
                     ),
+                    detailWidget(
+                      text: widget.data.commodity?.name ?? "--",
+                      iconSvg: AppIcons.svg.package,
+                    ),
+                  ],
+                ).expand(),
+                Column(
+                  children: [
+                    detailWidget(
+                      text: widget.data.truckType?.subType ?? "--",
+                      iconSvg: AppIcons.svg.deliveryTruckSpeed,
+                    ),
+                    detailWidget(
+                      text: "${widget.data.consignmentWeight} Tonn",
+                      iconSvg: AppIcons.svg.weight,
+                    ),
+                  ],
+                ).expand(),
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.greyIconColor),
                   ),
-                  10.width,
-                  AppButton(
-                    buttonHeight: 40,
-                    onPressed: () {
-
-
-
-                      if (VpVariables.isKycVerified) {
-                        setState(() {
-                          loadingLoadIds.add(widget.data.id.toString());
-                        });
-                        bloc.add(
-                          VpAcceptLoad(loadId: widget.data.id.toString()),
-                        );
-                      } else {
-                        commonBottomSheetWithBGBlur(
-                          context: context,
-                          screen: KycPendingDialogue(
-                            onPressed: () {
-                              context.pop();
-                              commonBottomSheetWithBGBlur(
-                                context: context,
-                                screen: EnterAadhaarNumberBottomSheet(),
-                              ).then((_) {
-                                lpHomeBloc.add(
-                                  GetProfileDetailApiRequest(
-                                    lpHomeBloc.userId ?? "0",
-                                  ),
-                                );
-                              });
-                            },
-                          ),
-                        );
-                      }
-                    },
-                    isLoading: loadingLoadIds.contains(widget.data.id.toString()),
-                    title: 'Accept Load',
+                  child: Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+            15.height,
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryLightColor,
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    "Quoted Price",
+                    style: AppTextStyle.textBlackColor18w400,
+                    textAlign: TextAlign.center,
+                  ).expand(),
+                  Text(
+                      (widget.data.vpMaxRate??"").isNotEmpty ?
+                          "$indianCurrencySymbol${widget.data.vpRate} - ${indianCurrencySymbol}${widget.data.vpMaxRate}":
+                    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
+                    style: AppTextStyle.h4PrimaryColor,
+                    textAlign: TextAlign.center,
                   ).expand(),
                 ],
-              );
-            },
-          ),
-        ],
+              ),
+            ),
+            20.height,
+            BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
+              bloc: bloc,
+              builder: (context, state) {
+                return Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        commonSupportDialog(context);
+                      },
+                      icon: Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primaryColor,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: SvgPicture.asset(
+                          AppIcons.svg.support,
+                          width: 25,
+                          colorFilter: AppColors.svg(AppColors.primaryColor),
+                        ),
+                      ),
+                    ),
+                    10.width,
+                    AppButton(
+                      buttonHeight: 40,
+                      onPressed: () {
+
+
+
+                        if (VpVariables.isKycVerified) {
+                          setState(() {
+                            loadingLoadIds.add(widget.data.id.toString());
+                          });
+                          bloc.add(
+                            VpAcceptLoad(loadId: widget.data.id.toString()),
+                          );
+                        } else {
+                          commonBottomSheetWithBGBlur(
+                            context: context,
+                            screen: KycPendingDialogue(
+                              onPressed: () {
+                                context.pop();
+                                commonBottomSheetWithBGBlur(
+                                  context: context,
+                                  screen: EnterAadhaarNumberBottomSheet(),
+                                ).then((_) {
+                                  lpHomeBloc.add(
+                                    GetProfileDetailApiRequest(
+                                      lpHomeBloc.userId ?? "0",
+                                    ),
+                                  );
+                                });
+                              },
+                            ),
+                          );
+                        }
+                      },
+                      isLoading: loadingLoadIds.contains(widget.data.id.toString()),
+                      title: 'Accept Load',
+                    ).expand(),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

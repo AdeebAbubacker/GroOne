@@ -33,6 +33,8 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
     if(uiState?.data?.data?.message == 'OTP verified successfully') {
       Navigator.of(widget.parentContext, rootNavigator: true).pop();
 
+      lpLoadLocator.setFirstTimeLoad(value: true);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         AppDialog.show(widget.parentContext, child: SuccessDialogView(
           heading: "Memo E-Signed successfully",

@@ -5,10 +5,10 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
-class LPLoadTimelineWidget extends StatelessWidget {
+class LoadTimelineWidget extends StatelessWidget {
   final List<Timeline> timelineList;
 
-  const LPLoadTimelineWidget({
+  const LoadTimelineWidget({
     super.key,
     required this.timelineList,
   });

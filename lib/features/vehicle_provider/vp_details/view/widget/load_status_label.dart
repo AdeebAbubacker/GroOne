@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
 class LoadStatusLabel extends StatelessWidget {
- final String statusType;
-  const LoadStatusLabel({super.key,required this.statusType});
+  final LoadStatus loadStatus;
+   LoadStatusLabel({super.key,  required this.loadStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class LoadStatusLabel extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         color: AppColors.activeDarkGreenColor.withValues(alpha: 0.25)
       ),
-      child: Text("Confirmed",style: AppTextStyle.body.copyWith(
+      child: Text(VpHelper.getLoadStatus(loadStatus),style: AppTextStyle.body.copyWith(
         fontSize: 12,
         color: AppColors.activeDarkGreenColor,
         fontWeight: FontWeight.w400
@@ -24,4 +25,10 @@ class LoadStatusLabel extends StatelessWidget {
       )
     );
   }
+
+
+
+
 }
+
+

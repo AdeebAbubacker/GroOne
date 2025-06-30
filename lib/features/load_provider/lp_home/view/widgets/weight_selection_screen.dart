@@ -52,10 +52,13 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
               itemCount: widget.dataList.length,
               itemBuilder: (context, index) {
                 final weight = widget.dataList[index];
+
+                print('weight ${widget.dataList}');
                 final isSelected = selectedId == weight.id;
                 return InkWell(
                   onTap: () {
                     setState(() {
+                      print('id ${weight.id}');
                       selectedId = weight.id;
                     });
                   },

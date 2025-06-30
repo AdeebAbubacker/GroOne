@@ -10,7 +10,7 @@ class GpsScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(title: "GPS".capitalize),
       body: SafeArea(
-          child: Center(child: Text("Coming Soon"))),
+          child: Center(child: Text("Coming soon"))),
     );
   }
 }

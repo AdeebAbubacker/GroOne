@@ -39,17 +39,20 @@ class LpHomeService{
           final customer = data.value.data?.customer;
           final newBlueId = customer?.blueId;
           final storedBlueId = await _userInformationRepository.getBlueID();
-
+          debugPrint("Service Blue Id : $newBlueId");
           if (newBlueId != null && newBlueId.isNotEmpty) {
+            // Save Blue ID and popup flag if not stored before
             if (storedBlueId == null || storedBlueId.isEmpty) {
               debugPrint("🎉 First time Blue ID saved: $newBlueId");
               await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
-            } else {
-              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
+              await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
+
             }
           } else {
+            // Clear Blue ID and popup flag if blueId is null
             debugPrint("🧹 Blue ID cleared");
             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+            await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
           }
 
           return Success(data.value);

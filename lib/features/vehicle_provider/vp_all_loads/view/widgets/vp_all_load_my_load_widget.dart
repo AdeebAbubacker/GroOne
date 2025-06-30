@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -70,7 +72,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   Wrap(
                     children: [
                       Text(
-                        widget.data.pickUpAddr,
+                        widget.data.pickUpWholeAddr??"",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
@@ -79,7 +81,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                         color: AppColors.primaryColor,
                       ).paddingSymmetric(horizontal: 2),
                       Text(
-                        widget.data.dropAddr,
+                        widget.data.dropWholeAddr??"",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
@@ -133,7 +135,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   textAlign: TextAlign.center,
                 ).expand(),
                 Text(
-                  "$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}",
+                  (widget.data.vpMaxRate??"").isNotEmpty ?
+                  "$indianCurrencySymbol${widget.data.vpRate} - ${indianCurrencySymbol}${widget.data.vpMaxRate}":
+                  "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                   style: AppTextStyle.h4PrimaryColor,
                   textAlign: TextAlign.center,
                 ).expand(),
@@ -167,11 +171,10 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               10.width,
               AppButton(
                 buttonHeight: 40,
-                onPressed: widget.onClickAssignDriver ?? () {},
-                title:
-                widget.data.assignStatus == 0
-                    ? "Assign Driver"
-                    : "Start Trip",
+                onPressed: widget.onClickAssignDriver ?? () {
+
+                },
+                title:"Assign Driver",
                 style: AppButtonStyle.primary,
               ).expand(),
             ],

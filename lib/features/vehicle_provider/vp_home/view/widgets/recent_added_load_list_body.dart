@@ -79,7 +79,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                     Row(
                       children: [
                         Text(
-                          widget.data.pickUpLocation.capitalize,
+                          widget.data.pickUpWholeAddr.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
                           maxLines: 1,
                         ).expand(),
@@ -88,7 +88,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                           color: AppColors.primaryColor,
                         ).paddingSymmetric(horizontal: 5).expand(),
                         Text(
-                          widget.data.dropLocation.capitalize,
+                          widget.data.dropWholeAddr.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
                           maxLines: 1,
                         ).expand(),
@@ -155,7 +155,9 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                     textAlign: TextAlign.center,
                   ).expand(),
                   Text(
-                    "$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}",
+                    (widget.data.vpMaxRate??"").isNotEmpty ?
+                    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
+                    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                     style: AppTextStyle.h4PrimaryColor,
                     textAlign: TextAlign.center,
                   ).expand(),

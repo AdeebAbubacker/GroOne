@@ -110,7 +110,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
             children: [
               Expanded(
                 child: Text(
-                  widget.data.pickUpAddr,
+                  widget.data.pickUpWholeAddr??"",
 
                   style: AppTextStyle.blackColor15w500.copyWith(fontSize: 12),
                   maxLines: 1,
@@ -127,7 +127,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    widget.data.dropAddr,
+                    widget.data.dropWholeAddr??"",
                     style: AppTextStyle.blackColor15w500.copyWith(fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -172,7 +172,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               ).expand(),
               GestureDetector(
                 onTap: () {
-
                   context.push(AppRouteName.loadDetailsScreen,extra: {
                     "loadId":widget.data.id
                   });
@@ -204,10 +203,17 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   textAlign: TextAlign.center,
                 ).expand(),
                 Text(
-                  "$indianCurrencySymbol${widget.data.rate.isNotEmpty ? widget.data.rate : "0000 - 0000"}",
+                  (widget.data.vpMaxRate??"").isNotEmpty ?
+                  "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
+                  "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                   style: AppTextStyle.h4PrimaryColor,
                   textAlign: TextAlign.center,
-                ).expand(),
+                ).expand()
+                // Text(
+                //   "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
+                //   style: AppTextStyle.h4PrimaryColor,
+                //   textAlign: TextAlign.center,
+                // ).expand(),
               ],
             ),
           ),
@@ -239,10 +245,10 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               AppButton(
                 buttonHeight: 40,
                 onPressed: widget.onClickAssignDriver ?? () {},
-                title:
-                    widget.data.assignStatus == 0
-                        ? "Assign Driver"
-                        : "Start Trip",
+                title: "Assign Driver",
+                    // widget.data.assignStatus == 2
+                    //     ?
+                    //     : "Start Trip",
                 style: AppButtonStyle.primary,
               ).expand(),
             ],

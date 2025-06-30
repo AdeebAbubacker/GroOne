@@ -84,12 +84,20 @@ class ApiUrls {
 
 
 
-  ///submit Kyc
+  /// Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
+  static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
+  static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
+  static final String  gst = "$_kucDocUpload/gst";
+  static final String  tan = "$_kucDocUpload/tan";
+  static final String  pan = "$_kucDocUpload/pan";
+  static final String  getCity = "$_baseUrl$_customer$_path$_v1/kyc/city";
+  static final String  getState = "$_baseUrl$_customer$_path$_v1/kyc/state";
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
   static final String verifyLocation = "$_mapBaseUrl/verify-location";
+
 
 
   /// LP Endpoints
@@ -97,11 +105,6 @@ class ApiUrls {
   static final String  login = "$_baseUrlWithAuth/login";
   static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
-  static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
-  static final String  gst = "$_kucDocUpload/gst";
-  static final String  tan = "$_kucDocUpload/tan";
-  static final String  pan = "$_kucDocUpload/pan";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
   static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
@@ -111,6 +114,8 @@ class ApiUrls {
   static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
   static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
   static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";

@@ -74,16 +74,19 @@ class LpLoadItem {
     required this.commodityId,
     required this.truckTypeId,
     required this.pickUpAddr,
+    required this.pickUpWholeAddr,
     required this.pickUpLocation,
     required this.assignStatus,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropWholeAddr,
     required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.maxRate,
     required this.status,
     required this.loadStatus,
     required this.vehicleLength,
@@ -105,7 +108,16 @@ class LpLoadItem {
     required this.vehicleProvider,
     required this.consigneeDetails,
     required this.timeline,
+
+
+    required this.vpRate,
   });
+
+
+  /// regarding rate master
+  final String? pickUpWholeAddr;
+  final String? dropWholeAddr;
+  final String? vpRate;
 
   final int id;
   final String loadId;
@@ -125,6 +137,7 @@ class LpLoadItem {
   final num consignmentWeight;
   final String notes;
   final String rate;
+  final String? maxRate;
   final num status;
   final num loadStatus;
   final String vehicleLength;
@@ -147,6 +160,9 @@ class LpLoadItem {
   final ConsigneeDetails? consigneeDetails;
   final List<Timeline> timeline;
 
+
+
+
   LpLoadItem copyWith({
     int? id,
     String? loadId,
@@ -156,16 +172,19 @@ class LpLoadItem {
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
+    String? pickUpWholeAddr,
     String? pickUpLocation,
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    String? dropWholeAddr,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
     String? notes,
     String? rate,
+    String? maxRate,
     num? status,
     num? loadStatus,
     String? vehicleLength,
@@ -187,8 +206,12 @@ class LpLoadItem {
     VehicleProvider? vehicleProvider,
     ConsigneeDetails? consigneeDetails,
     List<Timeline>? timeline,
+    String? vpRate,
   }) {
     return LpLoadItem(
+      pickUpWholeAddr:pickUpWholeAddr??this.pickUpWholeAddr ,
+      dropWholeAddr:pickUpWholeAddr??this.dropWholeAddr ,
+      vpRate:pickUpWholeAddr??this.vpRate ,
       id: id ?? this.id,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
@@ -207,6 +230,7 @@ class LpLoadItem {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      maxRate: maxRate ?? this.maxRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
       vehicleLength: vehicleLength ?? this.vehicleLength,
@@ -233,6 +257,9 @@ class LpLoadItem {
 
   factory LpLoadItem.fromJson(Map<String, dynamic> json){
     return LpLoadItem(
+      vpRate:json['vpRate']?.toString()??"" ,
+      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
+      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
       id: json["id"] ?? 0,
       loadId: json["loadId"] ?? "",
       laneId: json["laneId"] ?? 0,
@@ -251,6 +278,7 @@ class LpLoadItem {
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
+      maxRate: json["maxRate"],
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",

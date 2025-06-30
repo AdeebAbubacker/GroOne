@@ -1,3 +1,5 @@
+import '../../../load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
+
 class LoadDetailsResponseModel {
   LoadDetailsResponseModel({
     required this.success,
@@ -28,12 +30,6 @@ class LoadDetailsResponseModel {
       data: json["data"] == null ? null : LoadDetails.fromJson(json["data"]),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
 
 }
 
@@ -213,40 +209,7 @@ class LoadDetails {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "loadId": loadId,
-    "laneId": laneId,
-    "rateId": rateId,
-    "customerId": customerId,
-    "commodityId": commodityId,
-    "truckTypeId": truckTypeId,
-    "pickUpAddr": pickUpAddr,
-    "pickUpLocation": pickUpLocation,
-    "assignStatus": assignStatus,
-    "pickUpLatlon": pickUpLatlon,
-    "dropAddr": dropAddr,
-    "dropLocation": dropLocation,
-    "dropLatlon": dropLatlon,
-    "dueDate": dueDate?.toIso8601String(),
-    "consignmentWeight": consignmentWeight,
-    "notes": notes,
-    "rate": rate,
-    "status": status,
-    "loadStatus": loadStatus,
-    "vehicleLength": vehicleLength,
-    "pickUpDateTime": pickUpDateTime?.toIso8601String(),
-    "expectedDeliveryDateTime": expectedDeliveryDateTime?.toIso8601String(),
-    "handlingCharges": handlingCharges,
-    "acceptedBy": acceptedBy,
-    "createdAt": createdAt?.toIso8601String(),
-    "updatedAt": updatedAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-    "commodity": commodity?.toJson(),
-    "truckType": truckType?.toJson(),
-    "customer": customer?.toJson(),
-    "timeline": timeline.map((x) => x?.toJson()).toList(),
-  };
+
 
 }
 
@@ -355,68 +318,7 @@ class CustomerDetails {
 
 }
 
-class Timeline {
-  Timeline({
-    required this.id,
-    required this.label,
-    required this.status,
-    required this.timestamp,
-    required this.commodity,
-    required this.truckType,
-    required this.loadProvider,
-  });
 
-  final int? id;
-  final String? label;
-  final String? status;
-  final DateTime? timestamp;
-  final TruckTypeClass? commodity;
-  final TruckTypeClass? truckType;
-  final CustomerDetails? loadProvider;
-
-  Timeline copyWith({
-    int? id,
-    String? label,
-    String? status,
-    DateTime? timestamp,
-    TruckTypeClass? commodity,
-    TruckTypeClass? truckType,
-    CustomerDetails? loadProvider,
-  }) {
-    return Timeline(
-      id: id ?? this.id,
-      label: label ?? this.label,
-      status: status ?? this.status,
-      timestamp: timestamp ?? this.timestamp,
-      commodity: commodity ?? this.commodity,
-      truckType: truckType ?? this.truckType,
-      loadProvider: loadProvider ?? this.loadProvider,
-    );
-  }
-
-  factory Timeline.fromJson(Map<String, dynamic> json){
-    return Timeline(
-      id: json["id"],
-      label: json["label"],
-      status: json["status"],
-      timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
-      commodity: json["commodity"] == null ? null : TruckTypeClass.fromJson(json["commodity"]),
-      truckType: json["truckType"] == null ? null : TruckTypeClass.fromJson(json["truckType"]),
-      loadProvider: json["loadProvider"] == null ? null : CustomerDetails.fromJson(json["loadProvider"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "label": label,
-    "status": status,
-    "timestamp": timestamp?.toIso8601String(),
-    "commodity": commodity?.toJson(),
-    "truckType": truckType?.toJson(),
-    "loadProvider": loadProvider?.toJson(),
-  };
-
-}
 
 class TruckTypeClass {
   TruckTypeClass({

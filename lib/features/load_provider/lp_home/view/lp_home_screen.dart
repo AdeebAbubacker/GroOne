@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
@@ -104,6 +105,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   String? selectedDateTime;
   String? laneId;
   String? sessionBlueId;
+  String? minRate;
+  String? maxRate;
+  String? weightId;
 
   bool checkBoxBool = false;
   bool memoDone = false;
@@ -134,10 +138,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     lpHomeCubit.fetchGetLoadList();
-    lpHomeCubit.startKycSuccessTimer();
     lpHomeCubit.fetchRecentRoute();
     lpHomeCubit.fetchLoadWeight();
-    lpHomeCubit.getBlueId();
     clearAllValues();
   });
 
@@ -247,7 +249,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       laneId: lpHomeCubit.state.laneId.toString(),
       truckTypeId: truckTypeId ?? "",
       commodityId: commodityId,
-      weightId: '1',
+      weightId: '${lpHomeCubit.state.selectedWeight?.id}',
+      date: selectedDate
     );
     await lpHomeCubit.fetchRateDiscovery(req);
     if (lpHomeCubit.state.rateDiscoveryUIState != null) {
@@ -290,8 +293,14 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
         dueDate: selectedDateTime.toString(),
         consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
-        rate: rateDiscoveryPrice ?? "0000 - 0000",
-        laneId: lpHomeCubit.state.laneId
+        // rate: rateDiscoveryPrice ?? "0000 - 0000",
+        rate: minRate,
+        maxRate: maxRate,
+        laneId: lpHomeCubit.state.laneId,
+        // rateId: 0,
+        rateId: lpHomeCubit.state.rateDiscoveryUIState?.data?.data?.id ?? 0,
+        pickUpWholeAddr: lpHomeCubit.state.pickup?.data?.location ?? "",
+        dropWholeAddr: lpHomeCubit.state.destination?.data?.location ?? "",
     );
 
     // Pass Data in to next page
@@ -343,10 +352,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         hideCloseButton: true,
         child: BlueMembershipDialogView(
           blueId: blueId,
-          afterDismiss: () async {
-            debugPrint("Clear Blue ID LP");
-            await lpHomeCubit.clearBlueId();
-          },
         ),
       ),
     );
@@ -385,7 +390,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
         // Notification
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
+          },
           icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
         ),
 
@@ -443,6 +450,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
                 if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
                   if (state.profileDetailUIState?.data?.data?.details != null) {
+                    final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
                     return Row(
                       children: [
                         10.width,
@@ -452,7 +460,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           height: 40,
                           width: 40,
                           alignment: Alignment.center,
-                          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.greyIconBackgroundColor),
+                          decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
                           child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
                         ).onClick((){
                           Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
@@ -498,7 +506,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  10.height,
                   buildKycLabelWidget(),
                   10.height,
                   OurValueAddedServicesWidget(),
@@ -520,27 +527,32 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   Widget buildKycLabelWidget(){
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       bloc: lpHomeCubit,
-      listenWhen: (previous, current) => previous.profileDetailUIState != current.profileDetailUIState,
-      listener: (context, state) async {
+      listenWhen: (previous, current) => previous.profileDetailUIState?.status != current.profileDetailUIState?.status,
+      listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
 
-        if (profileState != null &&
-            profileState.status == Status.SUCCESS &&
-            profileState.data?.data?.customer != null &&
-            state.showSuccessKyc) {
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.data!.customer!.blueId;
           final blueIdFromStorage = await lpHomeCubit.getBlueId();
+          bool popupShownFlag = await lpHomeCubit.getHasShowBluePopup();
 
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
+          debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
-          // Show dialog if Blue ID is newly stored
-          if ((blueIdFromStorage == null || blueIdFromStorage.isEmpty) && blueIdFromApi.isNotEmpty) {
+          if (blueIdFromApi.isNotEmpty && popupShownFlag == true) {
+
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
+
+            await lpHomeCubit.startKycSuccessTimer(true);
+            // Set flag that popup is shown
+            await  lpHomeCubit.saveHasShowBluePopup(false);
           }
+
+          lpHomeCubit.startKycSuccessTimer(false);
         }
       },
       builder: (context, state) {
@@ -683,9 +695,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 bloc: loadCommodityBloc,
                 listener: (context, state) {
                   if (state is LoadCommodityError) {
-                    ToastMessages.error(
-                      message: getErrorMsg(errorType: state.errorType),
-                    );
+                    ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
                   }
                 },
                 child: BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
@@ -826,7 +836,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                   if (date != null && time != null) {
                     dateTimeTextController.text = date;
-                    selectedDate = date;
+                    selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;
                     selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time!);
                     print("Date : ${date}, Time : ${time} ");
@@ -882,15 +892,45 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             },
                             builder: (context, state) {
                               if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
+                                // String? suggestedPrice;
+                                // if(state.rateDiscoveryUIState?.data?.data?.price != null){
+                                //   suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
+                                // } else {
+                                //   suggestedPrice = "00000";
+                                // }
+                                //
+                                // rateDiscoveryPrice = suggestedPrice;
+                                // return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+                                final data = state.rateDiscoveryUIState?.data?.data;
+
                                 String? suggestedPrice;
-                                if(state.rateDiscoveryUIState?.data?.data?.price != null){
-                                  suggestedPrice = state.rateDiscoveryUIState?.data?.data?.price.toString();
+                                if (data?.minPrice != null) {
+                                  if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                    suggestedPrice = data?.minPrice.toString();
+                                  } else {
+                                    suggestedPrice = "${data.minPrice} - ${data.maxPrice}";
+                                  }
+                                  minRate = data?.minPrice.toString();
+                                  maxRate = data?.maxPrice.toString();
                                 } else {
                                   suggestedPrice = "00000";
                                 }
 
                                 rateDiscoveryPrice = suggestedPrice;
-                                return Text(PriceHelper.formatINR(rateDiscoveryPrice), style: AppTextStyle.body1);
+
+                                String formattedPrice;
+                                if (data?.minPrice == null) {
+                                  formattedPrice = "₹0";
+                                } else if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                  formattedPrice = PriceHelper.formatINR(data!.minPrice);
+                                } else {
+                                  formattedPrice = '${PriceHelper.formatINR(data!.minPrice)} - ${PriceHelper.formatINR(data.maxPrice)}';
+                                }
+
+                                return Text(
+                                  formattedPrice ?? '',
+                                  style: AppTextStyle.body1,
+                                );
                               }
                               return  Container();
                             },

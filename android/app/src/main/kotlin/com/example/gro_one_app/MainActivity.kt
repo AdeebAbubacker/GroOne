@@ -1,4 +1,4 @@
-package com.example.gro_one_app
+package com.gro.oneapp
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
