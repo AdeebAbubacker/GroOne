@@ -37,6 +37,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   final lpHomeCubit = locator<LPHomeCubit>();
 
+
   final searchController = TextEditingController();
 
   Map<String, dynamic>? destination;
@@ -50,7 +51,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   String? destinationLocation;
   String? destinationAddress;
   String? destinationLatLong;
-  int? laneId;
+  num? laneId;
 
   @override
   void setState(fn) {
@@ -90,7 +91,9 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     destinationAddress = data.dropAddr;
     destinationLatLong = data.dropLatlon;
 
-    laneId = data.id;
+    laneId = data.laneId;
+
+    lpHomeCubit.setLaneId(data.laneId);
 
     setState(() {});
     commonHapticFeedback();
@@ -98,27 +101,39 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
 
   String pickUpLocationText(RecentRouteData data){
-    if (data.pickUpAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
-      return "${data.pickUpLocation}, ${data.pickUpAddr}";
-    } else if (data.pickUpAddr.isNotEmpty){
-      return data.pickUpAddr;
-    } else if (data.pickUpLocation.isNotEmpty){
-      return data.pickUpLocation;
+    if (data.pickUpWholeAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
+      return data.pickUpWholeAddr;
     } else {
       return "";
     }
+
+    // if (data.pickUpAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
+    //   return "${data.pickUpLocation}, ${data.pickUpAddr}";
+    // } else if (data.pickUpAddr.isNotEmpty){
+    //   return data.pickUpAddr;
+    // } else if (data.pickUpLocation.isNotEmpty){
+    //   return data.pickUpLocation;
+    // } else {
+    //   return "";
+    // }
   }
 
   String destinationLocationText(RecentRouteData data){
-    if (data.dropAddr.isNotEmpty && data.dropLocation.isNotEmpty){
-      return "${data.dropLocation}, ${data.dropAddr}";
-    } else if (data.dropAddr.isNotEmpty){
-      return data.dropAddr;
-    } else if (data.dropLocation.isNotEmpty){
-      return data.dropLocation;
+    if (data.dropWholeAddr.isNotEmpty && data.dropLocation.isNotEmpty){
+      return data.dropWholeAddr;
     } else {
       return "";
     }
+
+    // if (data.dropAddr.isNotEmpty && data.dropLocation.isNotEmpty){
+    //   return "${data.dropLocation}, ${data.dropAddr}";
+    // } else if (data.dropAddr.isNotEmpty){
+    //   return data.dropAddr;
+    // } else if (data.dropLocation.isNotEmpty){
+    //   return data.dropLocation;
+    // } else {
+    //   return "";
+    // }
   }
 
   @override
@@ -271,7 +286,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 address: destinationAddress,
                 location: destinationLocation,
                 latLng: destinationLatLong,
-                laneId: laneId
+                laneId: lpHomeCubit.state.laneId
             );
             lpHomeCubit.setDestination(destinationData);
 
@@ -280,7 +295,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 address: pickupAddress,
                 location: pickupLocation,
                 latLng: pickupLatLong,
-                laneId: laneId
+                laneId: lpHomeCubit.state.laneId
             );
             lpHomeCubit.setPickup(pickupData);
 

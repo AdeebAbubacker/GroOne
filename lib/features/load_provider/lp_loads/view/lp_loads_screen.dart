@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
@@ -86,15 +87,21 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         final selectedType = _tabController!.index;
 
         lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if(selectedType == 0) {}
+        if(selectedType == 0) {
+          lpLoadLocator.state.lpLoadResponse?.data = null;
+          // setState(() {});
+        }
         else if (selectedType == 3) {
-          lpLoadLocator.getLpLoadsByType(type: selectedType + 2);
+          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 2));
+
         } else {
-          lpLoadLocator.getLpLoadsByType(type: selectedType + 1);
+          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 1));
+
         }
       }
     });
-    lpLoadLocator.getLpLoadsByType(type: widget.initialTabIndex+1);
+    lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: widget.initialTabIndex+1));
+
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
     setState(() {});
@@ -104,7 +111,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final type = _tabController!.index + 1;
-      lpLoadLocator.getLpLoadsByType(type: type, search: query);
+      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: type, search: query));
     });
   }
 
@@ -200,9 +207,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   );
 
                   if (date != null ) {
-                    DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
-                    String formattedDate = DateFormat("yyyy-MM-dd").format(parsedDate);
-                    loadPostedDateController.text = formattedDate;
+                    loadPostedDateController.text = DateTimeHelper.convertToDatabaseFormat2(date);
                     setState(() {});
                   }
                 }
@@ -213,14 +218,26 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       onClickYesButton: () {
 
         Navigator.pop(context);
-        // lpLoadLocator.applyFilter(
-        //     fromRoute: selectedFromLocation ?? 0,
-        //     toRoute: selectedToLocation ?? 0,
-        //     truckType: truckTypeDropDownValue ?? '',
-        //     loadPostedDate: loadPostedDateController.text
-        // );
+        var loadStatusType = lpLoadLocator.state.selectedTabIndex;
+        lpLoadLocator.getLpLoadsByType(
+            loadListApiRequest: LoadListApiRequest(
+              loadStatus: loadStatusType == 3 ? loadStatusType + 2 : loadStatusType + 1,
+              fromLocationId: selectedFromLocation,
+              toLocationId: selectedToLocation,
+              truckTypeId: truckTypeDropDownValue,
+              loadPostDate: loadPostedDateController.text
+            ));
+        clearAllFilterValues();
       },
     ));
+  }
+
+  void clearAllFilterValues() {
+    selectedFromLocation = null;
+    selectedToLocation = null;
+    routeDropDownValue = null;
+    truckTypeDropDownValue = null;
+    loadPostedDateController.clear();
   }
 
 

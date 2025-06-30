@@ -74,16 +74,19 @@ class LpLoadItem {
     required this.commodityId,
     required this.truckTypeId,
     required this.pickUpAddr,
+    required this.pickUpWholeAddr,
     required this.pickUpLocation,
     required this.assignStatus,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropWholeAddr,
     required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.maxRate,
     required this.status,
     required this.loadStatus,
     required this.vehicleLength,
@@ -106,8 +109,7 @@ class LpLoadItem {
     required this.consigneeDetails,
     required this.timeline,
 
-    required this.dropWholeAddr,
-    required this.pickUpWholeAddr,
+
     required this.vpRate,
   });
 
@@ -135,6 +137,7 @@ class LpLoadItem {
   final num consignmentWeight;
   final String notes;
   final String rate;
+  final String? maxRate;
   final num status;
   final num loadStatus;
   final String vehicleLength;
@@ -169,16 +172,19 @@ class LpLoadItem {
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
+    String? pickUpWholeAddr,
     String? pickUpLocation,
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    String? dropWholeAddr,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
     String? notes,
     String? rate,
+    String? maxRate,
     num? status,
     num? loadStatus,
     String? vehicleLength,
@@ -200,8 +206,6 @@ class LpLoadItem {
     VehicleProvider? vehicleProvider,
     ConsigneeDetails? consigneeDetails,
     List<Timeline>? timeline,
-    String? pickUpWholeAddr,
-    String? dropWholeAddr,
     String? vpRate,
   }) {
     return LpLoadItem(
@@ -226,6 +230,7 @@ class LpLoadItem {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      maxRate: maxRate ?? this.maxRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
       vehicleLength: vehicleLength ?? this.vehicleLength,
@@ -273,6 +278,7 @@ class LpLoadItem {
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
+      maxRate: json["maxRate"],
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",

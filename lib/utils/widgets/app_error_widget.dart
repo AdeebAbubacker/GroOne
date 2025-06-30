@@ -4,13 +4,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
-/// Reusable error widget for displaying error states throughout the app
-/// 
-/// This widget:
-/// - Shows the error message from the ErrorType
-/// - Provides a retry button to attempt the failed operation again
-/// - Uses consistent styling with the app's design system
-/// - Can be used in any screen that needs to show an error state
 class AppErrorWidget extends StatelessWidget {
   /// The error type containing the error message and details
   final ErrorType error;

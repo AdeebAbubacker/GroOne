@@ -48,7 +48,7 @@ class AppDropdown extends StatelessWidget {
         if (labelText != null)
           Row(
             children: [
-              Text(" ${labelText.capitalizeFirst}", style: labelTextStyle ?? AppTextStyle.body3),
+              Text(" $labelText", style: labelTextStyle ?? AppTextStyle.body3),
               if(mandatoryStar == true)
                 Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
             ],
@@ -64,13 +64,7 @@ class AppDropdown extends StatelessWidget {
             borderRadius: BorderRadius.circular(commonRadius),
             value: dropdownValue,
             style: AppTextStyle.textFiled,
-            hint:
-                hintText != null
-                    ? Text(
-                      hintText.capitalizeFirst,
-                      style: AppTextStyle.textFieldHint,
-                    )
-                    : null,
+            hint: hintText != null ? Text(hintText.capitalizeFirst, style: AppTextStyle.textFieldHint) : null,
             items: dropDownList,
             onChanged: onChanged!,
             onTap: onTap,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,8 +44,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 
 class KycUploadDocumentScreen extends StatefulWidget {
-  const KycUploadDocumentScreen({super.key, required this.aadhaarNumber});
   final String aadhaarNumber;
+  const KycUploadDocumentScreen({super.key, required this.aadhaarNumber});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -53,6 +54,9 @@ class KycUploadDocumentScreen extends StatefulWidget {
 class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
   final _formKey = GlobalKey<FormState>();
+  final dropDownStateKey = GlobalKey<DropdownSearchState>();
+  final dropDownCityKey = GlobalKey<DropdownSearchState>();
+
 
   final kycCubit = locator<KycCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
@@ -178,14 +182,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchUserRole();
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
-    nodeManage();
+    await kycCubit.fetchStateList();
     aadhaarNumberTextController.text = widget.aadhaarNumber;
-    await Future.delayed(Duration(milliseconds: 200));
-    setState(() {});
   });
   
   void disposeFunction()=> frameCallback((){
-    aadhaarNumberTextController.dispose();
     gstInTextController.dispose();
     tanTextController.dispose();
     panTextController.dispose();
@@ -230,32 +231,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   });
 
 
-
-  // Manage Node
-  Future<void> nodeManage() async {
-    await lpHomeBloc.getUserId();
-
-    gstFocusNode.addListener(() async {
-      if (!gstFocusNode.hasFocus) {
-        final apiRequest = VerifyGstApiRequest(gst: gstInTextController.text, force: true);
-        await kycCubit.verifyGst(apiRequest);
-      }
-    });
-
-    tanFocusNode.addListener(() async {
-      if (!tanFocusNode.hasFocus) {
-        final apiRequest = VerifyTanApiRequest(tan: tanTextController.text, force: true);
-        await kycCubit.verifyTan(apiRequest);
-      }
-    });
-
-    panFocusNode.addListener(() async {
-      if (!panFocusNode.hasFocus) {
-        final apiRequest = VerifyPanApiRequest(pan: panTextController.text, force: true);
-        await kycCubit.verifyPan(apiRequest);
-      }
-    });
-  }
 
 
   // Upload GST Doc api call
@@ -407,6 +382,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     }
   }
 
+
   bool validateDocs({
     required String userRole,          // "2" for VP, anything else for LP
     required int companyId,            // 1=sole, 2=individual …
@@ -423,7 +399,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       return ok;
     }
 
-    // VP FLOW  ──────────────────────────────────────────────────────────────
+    // VP FLOW
     if (userRole == "2") {
       if (companyId == 2) {
         return need('Aadhaar', true) &                     // always true – already taken on previous screen
@@ -437,7 +413,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       return gstOk & panOk & chkOk & tdsOk;                 // for Sole + Others
     }
 
-    // LP FLOW  ──────────────────────────────────────────────────────────────
+    // LP FLOW
     if (companyId == 2) {
       return true;                                         // only Aadhaar needed
     }
@@ -578,7 +554,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                       _buildAadhaarWidget(),
                                       25.height,
                                       buildCancelledCheckWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
 
 
@@ -593,7 +569,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                       buildCancelledCheckWidget(),
                                       25.height,
                                       buildTDSCertificationWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
 
                                     // VP All Others
@@ -605,7 +581,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                       buildTDSCertificationWidget(),
                                       25.height,
                                       buildCancelledCheckWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
                                   ],
                                 );
@@ -623,13 +599,13 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                       _buildPanWidget(),
                                       25.height,
                                       _buildTanWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
 
                                     // LP Individual Proprietor id = 2
                                     if(companyId == 2)...[
                                       _buildAadhaarWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
 
                                     // VP All Others
@@ -639,7 +615,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                       _buildPanWidget(),
                                       25.height,
                                       _buildTanWidget(),
-                                      40.height,
+                                      50.height,
                                     ],
                                   ],
                                 );
@@ -653,6 +629,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                           _buildMultipleTextFieldWidget(
                             text: "Primary Address",
                             children: [
+                              10.height,
+
                               // Address Name
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
@@ -661,6 +639,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 labelText: "Address Name",
                                 hintText: "Enter Address name 1",
                               ),
+                              20.height,
 
                               // Full Address
                               AppTextField(
@@ -670,48 +649,161 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 labelText: "Full Address",
                                 hintText: "Enter full address",
                               ),
+                              20.height,
 
 
                               // State Dropdown
-                              AppDropdown(
-                                validator: (value) => Validator.fieldRequired(value),
-                                labelText: "State",
-                                hintText: "Select State",
-                                mandatoryStar: true,
-                                dropdownValue: selectedState,
-                                decoration: commonInputDecoration(fillColor: Colors.white),
-                                dropDownList: stateList.map((state) {
-                                  return DropdownMenuItem(
-                                    value: state,
-                                    child: Text(state, style: AppTextStyle.body),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  selectedState = value;
-                                  selectedCity = null; // Reset city when state changes
-                                  setState(() {});
+                              BlocConsumer<KycCubit, KycState>(
+                                bloc: kycCubit,
+                                listenWhen: (previous, current) => previous.stateUIState?.status != current.stateUIState?.status,
+                                listener:  (context, state) async {
+                                  final status = state.stateUIState?.status;
+
+                                  if (status == Status.ERROR) {
+                                    final error = state.stateUIState?.errorType;
+                                    ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                                  }
+                                },
+                                builder: (context, state) {
+                                  final status = state.stateUIState?.status;
+
+                                  if (status == Status.SUCCESS &&
+                                      state.stateUIState?.data != null &&
+                                      state.stateUIState!.data!.data != null &&
+                                      state.stateUIState!.data!.data!.response.isNotEmpty) {
+
+                                    final stateList = state.stateUIState!.data!.data!.response;
+
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(" State", style: AppTextStyle.body3),
+                                            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                          ],
+                                        ),
+                                        6.height,
+                                        DropdownSearch<String>(
+                                          validator: (value) => Validator.fieldRequired(value),
+                                          key: dropDownStateKey,
+                                          items: (filter, infiniteScrollProps) => stateList.where((element) => element.toLowerCase().contains(filter.toLowerCase())).toList(),
+                                          popupProps: PopupProps.modalBottomSheet(
+                                            fit: FlexFit.loose,
+                                            showSearchBox: true,
+                                            constraints: BoxConstraints(maxHeight: 400),
+                                          ),
+                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: "Select State")),
+                                          selectedItem: selectedState,
+                                          onChanged: (value) {
+                                            selectedState = value;
+                                            selectedCity = null;
+                                            if (value != null) {
+                                              kycCubit.fetchCityList(value);
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  return 0.height; // Return empty if no data
                                 },
                               ),
+                              20.height,
+
+
+                              // AppDropdown(
+                              //   validator: (value) => Validator.fieldRequired(value),
+                              //   labelText: "State",
+                              //   hintText: "Select State",
+                              //   mandatoryStar: true,
+                              //   dropdownValue: selectedState,
+                              //   decoration: commonInputDecoration(fillColor: Colors.white),
+                              //   dropDownList: stateList.map((state) {
+                              //     return DropdownMenuItem(
+                              //       value: state,
+                              //       child: Text(state, style: AppTextStyle.body),
+                              //     );
+                              //   }).toList(),
+                              //   onChanged: (value) {
+                              //     selectedState = value;
+                              //     selectedCity = null; // Reset city when state changes
+                              //     setState(() {});
+                              //   },
+                              // ),
 
                               // CITY DROPDOWN
-                              AppDropdown(
-                                validator: (value) => Validator.fieldRequired(value),
-                                labelText: "City",
-                                hintText: "Select City",
-                                mandatoryStar: true,
-                                dropdownValue: selectedCity,
-                                decoration: commonInputDecoration(fillColor: Colors.white),
-                                dropDownList: (selectedState != null) ? cityMap[selectedState]!.map((city) {
-                                  return DropdownMenuItem(
-                                    value: city,
-                                    child: Text(city, style: AppTextStyle.body),
-                                  );
-                                }).toList() : [],
-                                onChanged: (value) {
-                                  selectedCity = value;
-                                  setState(() {});
+                              BlocConsumer<KycCubit, KycState>(
+                                bloc: kycCubit,
+                                listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
+                                listener:  (context, state) async {
+                                  final status = state.cityUIState?.status;
+
+                                  if (status == Status.ERROR) {
+                                    final error = state.cityUIState?.errorType;
+                                    ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                                  }
+                                },
+                                builder: (context, state) {
+                                  final status = state.cityUIState?.status;
+
+                                  if (status == Status.SUCCESS &&
+                                      state.cityUIState?.data != null &&
+                                      state.cityUIState!.data!.data != null &&
+                                      state.cityUIState!.data!.data!.response.isNotEmpty) {
+
+                                    final cityList = state.cityUIState!.data!.data!.response;
+
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(" City", style: AppTextStyle.body3),
+                                            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                          ],
+                                        ),
+                                        6.height,
+                                        DropdownSearch<String>(
+                                          validator: (value) => Validator.fieldRequired(value),
+                                          key: dropDownCityKey,
+                                          items: (filter, infiniteScrollProps) => selectedState != null
+                                              ? cityList.where((element) => element.toLowerCase().contains(filter.toLowerCase())).toList()
+                                              : [],
+                                          popupProps: PopupProps.modalBottomSheet(
+                                            fit: FlexFit.loose,
+                                            showSearchBox: true,
+                                            constraints: BoxConstraints(maxHeight: 400),
+                                          ),
+                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: "Select City")),
+                                          selectedItem: selectedCity,
+                                          onChanged: (value) {
+                                            selectedCity = value;
+                                          },
+                                        ),
+                                        20.height
+                                      ],
+                                    );
+                                  }
+                                  return 0.height; // Return empty if no data
                                 },
                               ),
+                              // AppDropdown(
+                              //   validator: (value) => Validator.fieldRequired(value),
+                              //   labelText: "City",
+                              //   hintText: "Select City",
+                              //   mandatoryStar: true,
+                              //   dropdownValue: selectedCity,
+                              //   decoration: commonInputDecoration(fillColor: Colors.white),
+                              //   dropDownList: (selectedState != null) ? cityMap[selectedState]!.map((city) {
+                              //     return DropdownMenuItem(
+                              //       value: city,
+                              //       child: Text(city, style: AppTextStyle.body),
+                              //     );
+                              //   }).toList() : [],
+                              //   onChanged: (value) {
+                              //     selectedCity = value;
+                              //     setState(() {});
+                              //   },
+                              // ),
 
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
@@ -727,12 +819,13 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               ),
                             ],
                           ),
-                          30.height,
+                          50.height,
 
                           // Bank Details
                           _buildMultipleTextFieldWidget(
                             text: "Bank Details",
                             children: [
+                              10.height,
                               AppTextField(
                                 validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
@@ -745,6 +838,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   BankAccountNumberFormatter()
                                 ],
                               ),
+                              20.height,
 
                               AppTextField(
                                 validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
@@ -756,6 +850,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]"))
                                 ],
                               ),
+                              20.height,
 
                               AppTextField(
                                   validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
@@ -767,6 +862,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                     FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]"))
                                   ],
                               ),
+                              20.height,
 
                               AppTextField(
                                   validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
@@ -1043,7 +1139,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       children: [
         Text(text, style: AppTextStyle.body1),
         10.height,
-        Column(spacing: 20, children: children),
+        Column(children: children),
       ],
     );
   }

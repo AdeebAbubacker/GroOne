@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -35,12 +36,23 @@ class LpHomeService{
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          if (await _userInformationRepository.getUserID() == null){
-             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-          } else {
-            if (data.value.data?.customer != null && data.value.data!.customer!.blueId.isNotEmpty) {
-              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, data.value.data!.customer!.blueId);
+          final customer = data.value.data?.customer;
+          final newBlueId = customer?.blueId;
+          final storedBlueId = await _userInformationRepository.getBlueID();
+          debugPrint("Service Blue Id : $newBlueId");
+          if (newBlueId != null && newBlueId.isNotEmpty) {
+            // Save Blue ID and popup flag if not stored before
+            if (storedBlueId == null || storedBlueId.isEmpty) {
+              debugPrint("🎉 First time Blue ID saved: $newBlueId");
+              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
+              await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
+
             }
+          } else {
+            // Clear Blue ID and popup flag if blueId is null
+            debugPrint("🧹 Blue ID cleared");
+            await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+            await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
           }
 
           return Success(data.value);

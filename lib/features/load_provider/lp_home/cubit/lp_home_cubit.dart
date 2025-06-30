@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class LPHomeCubit extends BaseCubit<LPHomeState> {
@@ -31,11 +32,26 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     return super.close();
   }
 
+  // Clear Blue Id
+  Future<void> clearBlueId() async {
+    await _repo.clearBlueId();
+  }
+
+  // Save Has Blue ID
+  Future<void> saveHasShowBluePopup(bool value) async {
+    await _repo.saveHasShowBluePopup(value);
+  }
+
+  // Get Show Blue Popup
+  Future<bool> getHasShowBluePopup() async {
+   return  await _repo.getHasShowBluePopup();
+  }
+
   // Kyc Timer
-  Future<void> startKycSuccessTimer() async {
-    emit(state.copyWith(showSuccessKyc: true));
+  Future<void> startKycSuccessTimer(bool value) async {
+    emit(state.copyWith(showSuccessKyc: value));
     await Future.delayed(const Duration(seconds: 3));
-    emit(state.copyWith(showSuccessKyc: false));
+    emit(state.copyWith(showSuccessKyc: value));
   }
 
   // Set Destination
@@ -57,20 +73,29 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     emit(state.copyWith(
       pickup: null,
       destination: null,
-      locationId: null,
+      pickupLocationId: null,
       laneId: null,
     ));
   }
 
 
   // Set Location Id
-  void setLocationDetailId(num? id){
-    emit(state.copyWith(locationId: id ?? 0));
+  void setPickupLocationDetailId(num? id){
+    emit(state.copyWith(pickupLocationId: id));
+    CustomLog.debug(this, "Set Pickup Location Id : $id");
+  }
+
+
+  // Set Location Id
+  void setDestinationLocationDetailId(num? id){
+    emit(state.copyWith(destinationLocationId: id));
+    CustomLog.debug(this, "Set Destination Location Id : $id");
   }
 
   // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
+    CustomLog.debug(this, "Set Lane Id : $id");
   }
 
   // Select Weight

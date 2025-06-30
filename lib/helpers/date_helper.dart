@@ -106,4 +106,32 @@ class DateTimeHelper {
     }
   }
 
+
+
+  /// Converts date and time strings into ISO8601 UTC format for API
+  static String convertToApiDateTime(String date, String time) {
+    try {
+      // Combine date and time strings
+      String input = "$date , $time";
+
+      // Expected format
+      final inputFormat = DateFormat("dd/MM/yyyy , hh : mm a");
+
+      // Parse to DateTime in local time
+      final localDateTime = inputFormat.parse(input);
+
+      // Convert to UTC
+      final utcDateTime = localDateTime.toUtc();
+
+      // Return ISO 8601 format string
+      return utcDateTime.toIso8601String();
+    } catch (e) {
+      return ""; // or throw an error/log it
+    }
+
+
+  }
+
+
+
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -31,37 +32,29 @@ class LPLoadListBodyWidget extends StatelessWidget{
   final LpLoadItem loadItem;
   final LpLoadCubit lpLoadLocator;
 
-  void agreeLoadPopup(context) async {
+  void creditCheck(context) async {
     await lpLoadLocator.getCreditCheck();
 
     final uiState = lpLoadLocator.state.lpCreditCheck;
 
     if (uiState?.status == Status.LOADING) {}
     else if (uiState?.status == Status.SUCCESS) {
-      final loadList = uiState?.data?.availableCreditLimit ?? '';
+      final creditData = uiState?.data as CreditCheckApiResponse;
 
-      int availableCredit = double.parse(loadList).toInt();
+      if (creditData.data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
+        );
+        return;
+      }
+
+      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
       int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
 
       if(availableCredit < rateValue) {
         AppDialog.show(context, child: LowCreditDialog());
       } else {
-        AppDialog.show(context, child: CommonDialogView(
-          hideCloseButton: true,
-          showYesNoButtonButtons: true,
-          noButtonText: "Cancel",
-          yesButtonText: "I Agree Load",
-          child: Column(
-            children: [
-              Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
-              Text("Are you sure you agree to this Load?"),
-            ],
-          ),
-          onClickYesButton: () {
-            Navigator.pop(context);
-            AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: "${loadItem.id}"), dismissible: true);
-          },
-        ));
+        agreeLoadPopUp(context);
       }
     }
     else if (uiState?.status == Status.ERROR) {
@@ -70,6 +63,25 @@ class LPLoadListBodyWidget extends StatelessWidget{
       return;
     }
 
+  }
+
+  void agreeLoadPopUp(context) {
+    return AppDialog.show(context, child: CommonDialogView(
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: "Cancel",
+      yesButtonText: "I Agree Load",
+      child: Column(
+        children: [
+          Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
+          Text("Are you sure you agree to this Load?"),
+        ],
+      ),
+      onClickYesButton: () {
+        Navigator.pop(context);
+        AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: "${loadItem.id}", creditLimit: '',), dismissible: true);
+      },
+    ));
   }
 
   @override
@@ -158,9 +170,11 @@ class LPLoadListBodyWidget extends StatelessWidget{
         Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
         5.width,
         Text(
-          loadItem.pickUpWholeAddr??"",
+          loadItem.pickUpWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ).flexible(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ).flexible(flex: 2),
         DottedLine(
           direction: Axis.horizontal,
           lineLength: double.infinity,
@@ -171,15 +185,20 @@ class LPLoadListBodyWidget extends StatelessWidget{
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
         Text(
-          loadItem.dropWholeAddr??"",
+          loadItem.dropWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
-        ).flexible(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ).flexible(flex: 2),
       ],
     );
   }
 
   /// Rate
   Widget buildRateWidget() {
+    final loadPrice = (loadItem.maxRate == null || loadItem.maxRate!.isEmpty || loadItem.maxRate == "0")
+        ? PriceHelper.formatINR(loadItem.rate)
+        : '${PriceHelper.formatINR(loadItem.rate)} - ${PriceHelper.formatINR(loadItem.maxRate)}';
     print("lp rate ${loadItem.vpRate}");
     return Container(
       decoration: commonContainerDecoration(
@@ -190,6 +209,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
+          Text(loadPrice, style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor)),
           Text(
             PriceHelper.formatINR(loadItem.vpRate),
             style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
@@ -206,7 +226,14 @@ class LPLoadListBodyWidget extends StatelessWidget{
       children: [
         AppButton(
           buttonHeight: 40,
-          onPressed: () => agreeLoadPopup(context),
+          onPressed: () async {
+            bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+            if (context.mounted && !isFirstTimeLoad) {
+              creditCheck(context);
+            } else {
+              agreeLoadPopUp(context);
+            }
+          },
           title: context.appText.iAgree,
         ).expand(),
         10.width,

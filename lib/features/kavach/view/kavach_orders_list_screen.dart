@@ -176,22 +176,37 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
 
   Widget kavachBenifitsWidget(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
       children: [
-        buildKavachProductImageWidget(),
-        6.height,
-        buildKavachBenefitsDetailsWidget(context),
-        buildGroBannerImageWidget(),
-
-        AppButton(
-          title: context.appText.getYourTankLockNow,
-          onPressed: () {
-            Navigator.of(
-              context,
-            ).push(commonRoute(KavachChooseYourPreferenceScreen()));
-          },
-        ).paddingOnly(left: 10.0, right: 10.0, bottom: 8.0),
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              buildKavachProductImageWidget(),
+              6.height,
+              buildKavachBenefitsDetailsWidget(context),
+              buildGroBannerImageWidget(),
+              100.height,
+            ],
+          ),
+        ),
+        // Fixed bottom button
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
+            child: AppButton(
+              title: "Get you Tank Lock Now",
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

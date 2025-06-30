@@ -41,16 +41,19 @@ class LoadData {
     required this.commodityId,
     required this.truckTypeId,
     required this.pickUpAddr,
+    required this.pickUpWholeAddr,
     required this.pickUpLocation,
     required this.assignStatus,
     required this.pickUpLatlon,
     required this.dropAddr,
+    required this.dropWholeAddr,
     required this.dropLocation,
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.maxRate,
     required this.status,
     required this.loadStatus,
     required this.vehicleLength,
@@ -77,16 +80,19 @@ class LoadData {
   final num commodityId;
   final num truckTypeId;
   final String pickUpAddr;
+  final String pickUpWholeAddr;
   final String pickUpLocation;
   final num assignStatus;
   final String pickUpLatlon;
   final String dropAddr;
+  final String dropWholeAddr;
   final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
   final String notes;
   final String rate;
+  final String? maxRate;
   final num status;
   final num loadStatus;
   final String vehicleLength;
@@ -113,16 +119,19 @@ class LoadData {
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
+    String? pickUpWholeAddr,
     String? pickUpLocation,
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    String? dropWholeAddr,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
     String? notes,
     String? rate,
+    String? maxRate,
     num? status,
     num? loadStatus,
     String? vehicleLength,
@@ -149,16 +158,19 @@ class LoadData {
       commodityId: commodityId ?? this.commodityId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       pickUpAddr: pickUpAddr ?? this.pickUpAddr,
+      pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
       pickUpLocation: pickUpLocation ?? this.pickUpLocation,
       assignStatus: assignStatus ?? this.assignStatus,
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
+      dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
       dropLocation: dropLocation ?? this.dropLocation,
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      maxRate: maxRate ?? this.maxRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
       vehicleLength: vehicleLength ?? this.vehicleLength,
@@ -188,16 +200,19 @@ class LoadData {
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
       pickUpAddr: json["pickUpAddr"] ?? "",
+      pickUpWholeAddr: json["pickUpWholeAddr"] == null ? "" : json["pickUpWholeAddr"] ?? "",
       pickUpLocation: json["pickUpLocation"] ?? "",
       assignStatus: json["assignStatus"] ?? 0,
       pickUpLatlon: json["pickUpLatlon"] ?? "",
       dropAddr: json["dropAddr"] ?? "",
+      dropWholeAddr: json["dropWholeAddr"] == null ? "" :  json["dropWholeAddr"] ?? "",
       dropLocation: json["dropLocation"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
+      maxRate: json["maxRate"],
       status: json["status"] ?? 0,
       loadStatus: json["loadStatus"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",

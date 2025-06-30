@@ -77,6 +77,8 @@ class PngImages {
   final String dummyTruckLoad = "${_pngImageBasePath}dummy_truck_load.png";
 
 
+  //en-dhan
+  final String endhanCard = "${_pngImageBasePath}endhan_card.png";
 
 }
 

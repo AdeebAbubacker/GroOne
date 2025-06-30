@@ -45,8 +45,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
   void _updateCountDown() {
     setState(() {
-      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.createdAt!.toIso8601String(),
-      );
+      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.createdAt!.toIso8601String());
     });
   }
 
@@ -67,6 +66,14 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
   @override
   Widget build(BuildContext context) {
+    // (widget.loadData.maxRate?.isEmpty ?? true)
+    //     ? PriceHelper.formatINR(widget.loadData.rate)
+    //     : '${PriceHelper.formatINR(widget.loadData.rate)} - ${PriceHelper.formatINR(widget.loadData.maxRate)}',
+
+
+    final loadPrice = (widget.loadData.maxRate == null || widget.loadData.maxRate!.isEmpty || widget.loadData.maxRate == "0")
+        ? PriceHelper.formatINR(widget.loadData.rate)
+        : '${PriceHelper.formatINR(widget.loadData.rate)} - ${PriceHelper.formatINR(widget.loadData.maxRate)}';
     return  Container(
       padding: EdgeInsets.all(15).copyWith(top: 0),
       decoration: commonContainerDecoration(color: Colors.white, borderColor: AppColors.primaryColor),
@@ -130,7 +137,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                 children: [
                   Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
                   5.width,
-                  Text(widget.loadData.pickUpLocation, style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
+                  Text(widget.loadData.pickUpWholeAddr, style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
                 ],
               ).expand(),
 
@@ -149,7 +156,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                 children: [
                   Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
                   5.width,
-                  Text(widget.loadData.dropLocation,  style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
+                  Text(widget.loadData.dropWholeAddr,  style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
                 ],
               ).expand(),
             ],
@@ -162,7 +169,10 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Agreed Price", style: AppTextStyle.body1Normal),
-                Text(PriceHelper.formatINR(widget.loadData.rate), style: AppTextStyle.h3PrimaryColor),
+                Text(
+                    loadPrice,
+                    style: AppTextStyle.h3.copyWith(color: AppColors.primaryColor)
+                ),
               ],
             ).paddingSymmetric(horizontal: 15, vertical: 10),
           ),

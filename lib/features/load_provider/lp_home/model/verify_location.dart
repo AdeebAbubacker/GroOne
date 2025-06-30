@@ -398,21 +398,25 @@ class LocationDetails {
     required this.id,
     required this.name,
     required this.slug,
+    required this.wholeAddr,
   });
 
   final int id;
   final String name;
   final String slug;
+  final String wholeAddr;
 
   LocationDetails copyWith({
     int? id,
     String? name,
     String? slug,
+    String? wholeAddr,
   }) {
     return LocationDetails(
       id: id ?? this.id,
       name: name ?? this.name,
       slug: slug ?? this.slug,
+      wholeAddr: slug ?? this.wholeAddr,
     );
   }
 
@@ -421,6 +425,7 @@ class LocationDetails {
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
       slug: json["slug"] ?? "",
+      wholeAddr: json["wholeAddr"] ?? "",
     );
   }
 

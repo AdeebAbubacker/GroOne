@@ -16,8 +16,6 @@ import '../../../../utils/app_image.dart';
 import '../../model/masters_model.dart';
 import '../../model/choose_preference_model.dart';
 
-/// A reusable form widget for choosing preferences used in both
-/// KavachChooseYourPreferenceScreen and KavachModelsScreen
 class ChooseYourPreferenceForm extends StatefulWidget {
   final Function(ChoosePreferenceModel) onPreferenceChanged;
   final Function() onApply;
@@ -97,7 +95,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
             if (widget.showTitle) ...[
               Center(
                 child: Text(
-                  context.appText.chooseYourPreference,
+                  "Choose your Preference",
                   style: AppTextStyle.h4,
                 ),
               ),
@@ -137,7 +135,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final makes = widget.vehicleFilters.keys.toList();
     
     return AppDropdown(
-      labelText: context.appText.make,
+      labelText: "Make",
       mandatoryStar: true,
       dropdownValue: selectedMake,
       dropDownList: [
@@ -172,7 +170,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final models = vehicleFilter?.models ?? [];
 
     return AppDropdown(
-      labelText: context.appText.model,
+      labelText: "Model",
       mandatoryStar: true,
       dropdownValue: selectedModel,
       dropDownList: [
@@ -202,7 +200,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final engines = vehicleFilter?.engineType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.engine,
+      labelText: "Engine",
       dropdownValue: selectedEngine,
       dropDownList: [
         DropdownMenuItem<String>(
@@ -231,7 +229,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final tankTypes = vehicleFilter?.tankType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.tankType,
+      labelText: "Tank Type",
       dropdownValue: selectedTankType,
       dropDownList: [
         DropdownMenuItem<String>(
@@ -260,7 +258,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final deviceTypes = vehicleFilter?.deviceType ?? [];
 
     return AppDropdown(
-      labelText: context.appText.deviceType,
+      labelText: "Device Type",
       dropdownValue: selectedDeviceType,
       dropDownList: [
         DropdownMenuItem<String>(
@@ -283,14 +281,14 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the action buttons section
   Widget _buildActionButtons(BuildContext context) {
-    // Check if BS6 is selected in engine type - handle different variations
-    final isBS6Selected = selectedEngine != null && 
-        (selectedEngine!.toUpperCase().contains('BS6') || 
-         selectedEngine!.toUpperCase().contains('BS-6') ||
-         selectedEngine!.toUpperCase().contains('BS 6'));
+    // Check if BS4 is selected in engine type - handle different variations
+    final isBS4Selected = selectedEngine != null &&
+        (selectedEngine!.toUpperCase().contains('BS4') ||
+         selectedEngine!.toUpperCase().contains('BS-4') ||
+         selectedEngine!.toUpperCase().contains('BS 4'));
     
     // Debug print to see what engine is selected
-    print('Selected engine: "$selectedEngine", isBS6Selected: $isBS6Selected');
+    print('Selected engine: "$selectedEngine", isBS4Selected: $isBS4Selected');
     
     return Row(
       children: [
@@ -301,10 +299,10 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ).expand(),
         20.width,
         AppButton(
-          title: isBS6Selected ? 'Support' : context.appText.apply,
+          title: isBS4Selected ? 'Support' : context.appText.apply,
           style: AppButtonStyle.primary,
           onPressed: () {
-            if (isBS6Selected) {
+            if (isBS4Selected) {
               widget.onSupport?.call();
             } else if (!_isFormValid) {
               // Show validation popup

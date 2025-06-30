@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -48,6 +52,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
   final loadPostingBloc = locator<LoadPostingBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
+  final lpLoadLocator = locator<LpLoadCubit>();
 
   final noteTextController = TextEditingController();
   final handlingChargesTextController = TextEditingController();
@@ -55,9 +60,47 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   String? dateAndTime;
   String? sendDateAndTimeInApi;
 
+  Future<dynamic>? onSubmit(context) async {
+    await lpLoadLocator.getCreditCheck();
+
+    final uiState = lpLoadLocator.state.lpCreditCheck;
+
+    if (uiState?.status == Status.LOADING) {}
+    else if (uiState?.status == Status.SUCCESS) {
+      final creditData = uiState?.data as CreditCheckApiResponse;
+
+      if (creditData.data == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
+        );
+        return;
+      }
+
+      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
+      int rateValue = widget.price.contains('-')
+          ? int.parse(widget.price.split('-')[1].trim())
+          : int.parse(widget.price.trim());
+      if (availableCredit < rateValue) {
+        AppDialog.show(context, child: LowCreditDialog());
+      } else {
+        await _postLoad(context);
+      }
+
+      if (availableCredit < rateValue) {
+        AppDialog.show(context, child: LowCreditDialog());
+      } else {
+        await _postLoad(context);
+      }
+    }
+    else if (uiState?.status == Status.ERROR) {
+      final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      return;
+    }
+  }
 
 
-  Future<void> postLoadApiCall() async {
+  Future<void> postLoadApiCall(BuildContext context) async {
     if (sendDateAndTimeInApi == null) {
       ToastMessages.alert(message: "Expected Delivery Date is required");
       return;
@@ -66,10 +109,20 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       ToastMessages.alert(message: "Handling Charges is required");
       return;
     }
+
+    bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+    if (context.mounted && isFirstTimeLoad) {
+      await onSubmit(context);
+    } else {
+      await _postLoad(context);
+    }
+  }
+
+  Future<void> _postLoad(BuildContext context) async {
     final req = widget.apiRequest.copyWith(
-        note: noteTextController.text,
-        handlingCharges: int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price)),
-        expectedDeliveryDateTime: sendDateAndTimeInApi ?? ""
+      note: noteTextController.text,
+      handlingCharges: int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price)),
+      expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
   }
@@ -123,7 +176,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                   Text("Suggested Price", style: AppTextStyle.h3PrimaryColor),
                   5.height,
                   Text(
-                    PriceHelper.formatINR(widget.price),
+                    PriceHelper.formatINRRange(widget.price),
                     style: AppTextStyle.h4.copyWith(
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.bold,
@@ -156,18 +209,19 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
                   if (date != null && time != null) {
                     dateAndTime = "$date - $time";
-                    sendDateAndTimeInApi = DateTimeHelper.convertToDatabaseFormat(date);
+                    sendDateAndTimeInApi =  DateTimeHelper.convertToApiDateTime(date, time);
                     debugPrint(sendDateAndTimeInApi);
                   }
                   setState(() {});
                 },
-              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white)
+              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white, mandatoryStar: true)
             ),
 
             AppTextField(
               controller: handlingChargesTextController,
               hintText: "Enter Handling Charges",
               labelText: "Handling Charges",
+              mandatoryStar: true,
               keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -205,11 +259,17 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   }
 
 /// Reusable read-only field UI (mimicking input style)
-  Widget buildReadOnlyField(String label, String value,{Color? fillColor}) {
+  Widget buildReadOnlyField(String label, String value,{Color? fillColor, bool mandatoryStar = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyle.textFiled),
+        Row(
+          children: [
+            Text(label, style: AppTextStyle.textFiled),
+            if(mandatoryStar)
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
         6.height,
         Container(
           width: double.infinity,
@@ -264,7 +324,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               title: "Post Load",
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
-                await postLoadApiCall();
+                await postLoadApiCall(context);
               },
             ).expand(),
           ],

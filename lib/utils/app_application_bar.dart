@@ -49,9 +49,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: isLeading ?? false,
       leading: leading ?? (isLeading == true || isLeading == null
           ? IconButton(
-          onPressed: onLeadingTap ??  () => Navigator.of(context).pop(),
-          icon: SvgPicture.asset((isCrossLeadingIcon ? AppIcons.svg.clearOutline : AppIcons.svg.goBack), colorFilter: AppColors.svg(leadingColor ?? Colors.black),),
-          style: leadingStyle,
+        onPressed: onLeadingTap ??  () => Navigator.of(context).pop(),
+        icon: SvgPicture.asset((isCrossLeadingIcon ? AppIcons.svg.clearOutline : AppIcons.svg.goBack), colorFilter: AppColors.svg(leadingColor ?? Colors.black),),
+        style: leadingStyle,
       ) : null),
       centerTitle: centreTile,
       title: getWidget(),
@@ -66,9 +66,9 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-   @override
-   Size get preferredSize => Size.fromHeight(
-     (toolbarHeight ?? kToolbarHeight) + (bottom?.preferredSize.height ?? 0.0),
-   );
+  @override
+  Size get preferredSize => Size.fromHeight(
+    (toolbarHeight ?? kToolbarHeight) + (bottom?.preferredSize.height ?? 0.0),
+  );
 
 }

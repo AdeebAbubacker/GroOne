@@ -19,6 +19,7 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     on<DecrementQuantity>(_onDecrement);
     on<TryIncrementQuantity>(_onTryIncrementQuantity);
     on<UpdateKavachQuantities>(_onUpdateKavachQuantities);
+    on<ClearKavachQuantities>(_onClearKavachQuantities);
   }
 
   /// Handles fetching Kavach products with optional search and preferences
@@ -139,10 +140,9 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
     // Emit updated quantities including zeros to reset them properly
     emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
   }
-}
 
-/// Event class for updating Kavach quantities
-class UpdateKavachQuantities extends KavachProductsListEvent {
-  final Map<String, int> updatedQuantities;
-  UpdateKavachQuantities(this.updatedQuantities);
+  /// Clears Kavach quantities
+  void _onClearKavachQuantities(ClearKavachQuantities event, Emitter<KavachProductsListState> emit) {
+    emit(state.copyWith(quantities: {}));
+  }
 }

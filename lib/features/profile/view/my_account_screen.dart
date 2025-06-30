@@ -41,7 +41,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title:  context.appText.myAccount),
+      appBar: CommonAppBar(title: context.appText.myAccount),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(commonSafeAreaPadding),
         child: Column(
@@ -50,7 +50,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
           children: [
             headingText(text: context.appText.personalDetails),
 
-            if(widget.profileData.customer != null)...[
+            if (widget.profileData.customer != null) ...[
               detailWidget(
                 text1: context.appText.name,
                 text2: widget.profileData.customer!.customerName,
@@ -69,40 +69,52 @@ class _LpMyAccountState extends State<LpMyAccount> {
 
               detailWidget(
                 text1: context.appText.blueMembershipId,
-                text2: widget.profileData.customer!.blueId.isNotEmpty ? widget.profileData.customer!.blueId : "--",
+                text2:
+                    widget.profileData.customer!.blueId.isNotEmpty
+                        ? widget.profileData.customer!.blueId
+                        : "--",
               ),
-              detailWidget(text1: context.appText.accountType, text2:   widget.profileData.customer!.accountType),
+              detailWidget(
+                text1: context.appText.accountType,
+                text2: widget.profileData.customer!.accountType,
+              ),
               detailWidget(
                 text1: context.appText.registrationData,
-                text2: widget.profileData.customer!.createdAt != null ? DateTimeHelper.getFormattedDate(widget.profileData.customer!.createdAt!,).toString() : "--",
+                text2:
+                    widget.profileData.customer!.createdAt != null
+                        ? DateTimeHelper.getFormattedDate(
+                          widget.profileData.customer!.createdAt!,
+                        ).toString()
+                        : "--",
               ),
               detailWidget(
                 text1: context.appText.kycStatus,
-                text2: widget.profileData.customer!.isKyc == 3 ? "Verified" : "Un-Verified",
+                text2:
+                    widget.profileData.customer!.isKyc == 3
+                        ? "Verified"
+                        : "Un-Verified",
               ),
               dividerWidget(),
             ],
 
-
-
-            if(widget.profileData.details != null)...[
+            if (widget.profileData.details != null) ...[
               headingText(text: 'Bank Details'),
 
               detailWidget(
                 text1: 'Account no.',
-                text2: widget.profileData.details!.bankAccount??'--',
+                text2: widget.profileData.details!.bankAccount ?? '--',
               ),
               detailWidget(
                 text1: 'Bank Name',
-                text2: widget.profileData.details!.bankName??'--',
+                text2: widget.profileData.details!.bankName ?? '--',
               ),
               detailWidget(
                 text1: 'Branch Name',
-                text2: widget.profileData.details!.branchName??'--',
+                text2: widget.profileData.details!.branchName ?? '--',
               ),
               detailWidget(
                 text1: 'IFSC code',
-                text2: widget.profileData.details!.ifscCode??'--',
+                text2: widget.profileData.details!.ifscCode ?? '--',
               ),
 
               dividerWidget(),
@@ -117,12 +129,12 @@ class _LpMyAccountState extends State<LpMyAccount> {
               //   text1: "Company Type",
               //   text2: widget.profileData.details!.companyName,
               // ),
-              detailWidget(
-                text1: context.appText.gst,
-                text2: widget.profileData.details!.gstin ?? "--",
-              ),
+              if (widget.profileData.details!.companyTypeId != 2)
+                detailWidget(
+                  text1: context.appText.gst,
+                  text2: widget.profileData.details!.gstin ?? "--",
+                ),
             ],
-
 
             20.height,
           ],

@@ -23,7 +23,8 @@ class LPHomeState extends Equatable {
   final bool showSuccessKyc;
   final UIState<DestinationModel>? destination;
   final UIState<PickUpModel>? pickup;
-  final num? locationId;
+  final num? pickupLocationId;
+  final num? destinationLocationId;
   final num? laneId;
   final LoadWeightData? selectedWeight;
   final String? matchingText;
@@ -41,7 +42,8 @@ class LPHomeState extends Equatable {
     this.showSuccessKyc = false,
     this.destination,
     this.pickup,
-    this.locationId,
+    this.pickupLocationId,
+    this.destinationLocationId,
     this.laneId,
     this.selectedWeight,
     this.matchingText,
@@ -60,7 +62,8 @@ class LPHomeState extends Equatable {
     bool? showSuccessKyc,
     UIState<DestinationModel>? destination,
     UIState<PickUpModel>? pickup,
-    num? locationId,
+    num? pickupLocationId,
+    num? destinationLocationId,
     num? laneId,
     LoadWeightData? selectedWeight,
     String? matchingText,
@@ -78,7 +81,8 @@ class LPHomeState extends Equatable {
       showSuccessKyc: showSuccessKyc ?? this.showSuccessKyc,
       destination: destination ?? this.destination,
       pickup: pickup ?? this.pickup,
-      locationId: locationId ?? this.locationId,
+      pickupLocationId: pickupLocationId ?? this.pickupLocationId,
+      destinationLocationId: destinationLocationId ?? this.destinationLocationId,
       laneId: laneId ?? this.laneId,
       selectedWeight: selectedWeight ?? this.selectedWeight,
       matchingText: matchingText ?? this.matchingText,
@@ -99,7 +103,8 @@ class LPHomeState extends Equatable {
     showSuccessKyc,
     destination,
     pickup,
-    locationId,
+    pickupLocationId,
+    destinationLocationId,
     laneId,
     selectedWeight,
     matchingText,

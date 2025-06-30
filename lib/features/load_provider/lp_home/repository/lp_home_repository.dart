@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
@@ -15,12 +16,14 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_m
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeRepository{
   final LpHomeService _lpHomeService;
   final UserInformationRepository _userInformationRepository;
-  LpHomeRepository(this._lpHomeService, this._userInformationRepository);
+  final SecuredSharedPreferences _securedSharedPref;
+  LpHomeRepository(this._lpHomeService, this._userInformationRepository, this._securedSharedPref);
 
   /// Get Blue Id
   Future<Result<String>> getBlueId() async {
@@ -154,6 +157,21 @@ class LpHomeRepository{
       CustomLog.error(this, "Failed to request get load weight data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
+  }
+
+  // Clear Blue Id
+  Future clearBlueId() async {
+    await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+  }
+
+  // Clear Blue Id
+  Future saveHasShowBluePopup(bool value) async {
+    await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, value);
+  }
+
+  // Get Show Blue
+  Future<bool> getHasShowBluePopup() async {
+    return await _securedSharedPref.getBooleans(AppString.sessionKey.hasBlueIdPopupShown);
   }
 
 

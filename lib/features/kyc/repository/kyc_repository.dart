@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
+import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
+import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
@@ -135,6 +137,28 @@ class KycRepository {
       return await _kycService.fetchUploadCancelledCheckedData(file);
     } catch (e) {
       CustomLog.error(this, "Failed to get upload document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get State Repo
+  Future<Result<StateModel>> getStateData() async {
+    try {
+      return await _kycService.fetchStateData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to get state data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get City Repo
+  Future<Result<CityModel>> getCityData(String stateName) async {
+    try {
+      return await _kycService.fetchCityData(stateName);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get city data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

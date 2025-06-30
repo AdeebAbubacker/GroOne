@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'app_button_style.dart';
 import 'app_colors.dart';
 import 'app_image.dart';
@@ -98,6 +100,65 @@ void showSuccessDialog(
     },
   );
 }
+
+
+void showSuccessDialogWithButton(
+  BuildContext context, {
+  required String text,
+  required String subheading,
+  GestureTapCallback? onTap,
+}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Dismiss only with button if needed
+    builder: (BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async {
+          return false;
+        },
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          contentPadding: EdgeInsets.zero, // Optional: remove default padding
+          content: SizedBox(
+            width: 500,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    10.height,
+                    Image.asset(AppImage.png.successGif),
+                    SizedBox(height: 50),
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.h2,
+                    ),
+                    15.height,
+                    Text(
+                      subheading,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.body2,
+                    ),
+                    10.height,
+                    AppButton(
+                      onPressed: onTap ?? () {},
+                      title: context.appText.continueText,
+                      ).paddingSymmetric(horizontal: 15),
+                  ],
+                ),
+
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
 headingText({required String text, TextStyle? appStyle}) {
   return Text(text, style: appStyle ?? AppTextStyle.textBlackDetailColor16w500);

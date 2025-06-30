@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -6,6 +7,7 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -47,6 +49,27 @@ class CommonDialogView extends StatefulWidget {
 }
 
 class _CommonDialogViewState extends State<CommonDialogView> {
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
+
+
+  void disposeFunction() => frameCallback(() async {
+    if(widget.afterDismiss != null){
+      widget.afterDismiss!.call();
+    }
+  });
+
+
   @override
   Widget build(BuildContext context) {
     return Column(

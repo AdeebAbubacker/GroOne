@@ -13,11 +13,15 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.consignmentWeight,
      this.note,
      this.rate,
+     this.maxRate,
     this.expectedDeliveryDateTime,
     this.handlingCharges,
     this.laneId,
+    this.rateId,
     this.pickUpLocation,
     this.dropLocation,
+    this.pickUpWholeAddr,
+    this.dropWholeAddr
   });
 
   final num? customerId;
@@ -33,9 +37,13 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final num? consignmentWeight;
   final String? note;
   final String? rate;
+  final String? maxRate;
   final String? expectedDeliveryDateTime;
   final num? handlingCharges;
   final num? laneId;
+  final int? rateId;
+  final String? pickUpWholeAddr;
+  final String? dropWholeAddr;
 
   CreateLoadApiRequest copyWith({
     num? customerId,
@@ -49,11 +57,15 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     num? consignmentWeight,
     String? note,
     String? rate,
+    String? maxRate,
     String? expectedDeliveryDateTime,
     num? handlingCharges,
     num? laneId,
+    int? rateId,
     String? pickUpLocation,
     String? dropLocation,
+    String? pickUpWholeAddr,
+    String? dropWholeAddr,
   }) {
     return CreateLoadApiRequest(
       customerId: customerId ?? this.customerId,
@@ -67,11 +79,15 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       note: note ?? this.note,
       rate: rate ?? this.rate,
+      maxRate: maxRate ?? this.maxRate,
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       laneId: laneId ?? this.laneId,
+      rateId: rateId ?? this.rateId,
       pickUpLocation: pickUpLocation ?? this.pickUpLocation,
       dropLocation: dropLocation ?? this.dropLocation,
+      pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
+      dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
     );
   }
 
@@ -89,11 +105,15 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "consignmentWeight": consignmentWeight ?? 0,
     "notes": note  ??"",
     "rate": rate ?? "",
+    "maxRate": maxRate ?? "",
     "expectedDeliveryDateTime": expectedDeliveryDateTime ?? "",
     "handlingCharges": handlingCharges ?? "",
     "laneId": laneId ?? 0,
+    "rateId": rateId ?? 0,
     "pickUpLocation": pickUpLocation ?? "",
     "dropLocation": dropLocation ?? "",
+    "pickUpWholeAddr": pickUpWholeAddr ?? "",
+    "dropWholeAddr": dropWholeAddr ?? "",
   };
 
 }
