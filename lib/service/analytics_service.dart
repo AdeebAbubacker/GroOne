@@ -6,13 +6,13 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-
-  // Cache device and app info to avoid fetching it with every event.
-  Map<String, dynamic>? _baseInfo;
-
   AnalyticsService() {
     _initBaseInfo();
   }
+
+
+  Map<String, dynamic>? _baseInfo;
+
 
   Future<void> _initBaseInfo() async {
     _baseInfo = await _fetchBaseInfo();
@@ -27,11 +27,11 @@ class AnalyticsService {
           app = unknown;
 
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
       if (Platform.isAndroid) {
         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
         os = "android";
-        osVersion =
-        "${androidInfo.version.codename} (${androidInfo.version.sdkInt.toString()})";
+        osVersion = "${androidInfo.version.codename} (${androidInfo.version.sdkInt.toString()})";
         device = "${androidInfo.brand} ${androidInfo.model}";
       } else if (Platform.isIOS) {
         IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
@@ -57,37 +57,7 @@ class AnalyticsService {
     }
   }
 
-  Future<void> logLogin({String loginMethod = "email"}) async {
-    try {
-      _baseInfo ??= await _fetchBaseInfo();
-      await _analytics.logLogin(
-          loginMethod: loginMethod,
-          parameters: {
-            ...?_baseInfo,
-            // Spread operator to include base info in the parameters
-          }
-      );
-      CustomLog.info(this, "Logged login method : $loginMethod");
-    } catch(exception){
-      CustomLog.error(this, "Impossible to Log Login - loginMethod : $loginMethod", exception);
-    }
-  }
 
-  Future<void> logSignUp(String signUpMethod) async {
-    try {
-      _baseInfo ??= await _fetchBaseInfo();
-      await _analytics.logSignUp(
-          signUpMethod: signUpMethod,
-          parameters: {
-            ...?_baseInfo,
-            // Spread operator to include base info in the parameters
-          }
-      );
-      CustomLog.info(this, "Logged signUp method : $signUpMethod");
-    } catch(exception){
-      CustomLog.error(this, "Impossible to Log SignUp - signUpMethod : $signUpMethod", exception);
-    }
-  }
 
   Future<void> logEvent(String eventName, [Map<String, dynamic>? parameters]) async {
     try {
@@ -107,7 +77,7 @@ class AnalyticsService {
     }
   }
 
-  // TODO - Test base info not erasing data
+
   Future<void> logSelectContent(String contentType, [String? itemName, String? itemId]) async {
     try {
       _baseInfo ??= await _fetchBaseInfo();
