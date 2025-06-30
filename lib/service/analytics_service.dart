@@ -4,13 +4,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class AnalyticsHelper {
+class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   // Cache device and app info to avoid fetching it with every event.
   Map<String, dynamic>? _baseInfo;
 
-  AnalyticsHelper() {
+  AnalyticsService() {
     _initBaseInfo();
   }
 
