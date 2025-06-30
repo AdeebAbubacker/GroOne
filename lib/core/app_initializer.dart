@@ -11,19 +11,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 Future<void> initializeApp() async {
 
   // Firebase Initialization
-  // if(Platform.isIOS){
-  //   await Firebase.initializeApp();
-  // }else{
-  //   String appName = "Gro One";
-  //   if(kDebugMode){
-  //     appName = "Gro One Dev";
-  //   }
-  //   await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
-  //   debugPrint("Firebase Initialized");
-  // }
-
-  // Firebase Initialization
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  String appName = "Gro One";
+  if(kDebugMode){
+    appName = "Gro One Dev";
+  }
+  await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
   debugPrint("Firebase Initialized");
 
   // Crashlytics
