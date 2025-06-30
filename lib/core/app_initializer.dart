@@ -11,17 +11,20 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 Future<void> initializeApp() async {
 
   // Firebase Initialization
-  // Firebase
-  if(Platform.isIOS){
-    await Firebase.initializeApp();
-  }else{
-    String appName = "Gro One";
-    if(kDebugMode){
-      appName = "Gro One Dev";
-    }
-    await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
-    debugPrint("Firebase Initialized");
-  }
+  // if(Platform.isIOS){
+  //   await Firebase.initializeApp();
+  // }else{
+  //   String appName = "Gro One";
+  //   if(kDebugMode){
+  //     appName = "Gro One Dev";
+  //   }
+  //   await Firebase.initializeApp(name: appName, options: DefaultFirebaseOptions.currentPlatform);
+  //   debugPrint("Firebase Initialized");
+  // }
+
+  // Firebase Initialization
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  debugPrint("Firebase Initialized");
 
   // Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
