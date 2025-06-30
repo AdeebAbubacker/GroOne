@@ -11,6 +11,7 @@ class LoadDetailsResponseModel {
   final String? message;
   final LoadDetails? data;
 
+
   LoadDetailsResponseModel copyWith({
     bool? success,
     String? message,
@@ -53,6 +54,8 @@ class LoadDetails {
     required this.consignmentWeight,
     required this.notes,
     required this.rate,
+    required this.vpRate,
+    required this.vpMaxRate,
     required this.status,
     required this.loadStatus,
     required this.vehicleLength,
@@ -87,6 +90,8 @@ class LoadDetails {
   final int? consignmentWeight;
   final String? notes;
   final String? rate;
+  final String? vpRate;
+  final String? vpMaxRate;
   final int? status;
   final int? loadStatus;
   final String? vehicleLength;
@@ -121,6 +126,8 @@ class LoadDetails {
     int? consignmentWeight,
     String? notes,
     String? rate,
+    String? vpRate,
+    String? vpMaxRate,
     int? status,
     int? loadStatus,
     String? vehicleLength,
@@ -155,6 +162,8 @@ class LoadDetails {
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
+      vpRate: vpRate ?? this.vpRate,
+      vpMaxRate: vpMaxRate ?? this.vpMaxRate,
       status: status ?? this.status,
       loadStatus: loadStatus ?? this.loadStatus,
       vehicleLength: vehicleLength ?? this.vehicleLength,
@@ -192,6 +201,8 @@ class LoadDetails {
       consignmentWeight: json["consignmentWeight"],
       notes: json["notes"],
       rate: json["rate"],
+      vpRate: json["vpRate"],
+      vpMaxRate: json["vpMaxRate"],
       status: json["status"],
       loadStatus: json["loadStatus"],
       vehicleLength: json["vehicleLength"],

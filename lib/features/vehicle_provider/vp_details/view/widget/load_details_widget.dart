@@ -7,11 +7,13 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -29,6 +31,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
   final LPHomeCubit lpHomeCubit;
+
   const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit});
 
 
@@ -80,40 +83,39 @@ class LoadDetailsWidget extends StatelessWidget {
           loadDetails=loads?.data;
 
           return Container(
+            
             height: MediaQuery
                 .of(context)
                 .size
                 .height * 0.55,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1), // light shadow
-                    blurRadius: 30,
-                    offset: Offset(
-                        0, -2), // upward shadow (since it's a bottom sheet)
-                  ),
-                ]
+            decoration:commonContainerDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              shadow: true
             ),
             child: Column(
               children: [
+
                 Expanded(child: ListView(
                   children: [
-                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails),
 
+                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails),
+                    10.height,
                     Divider(color: Color(0xffE1E1E1), thickness: 3),
 
                     12.height,
-                    _buildSourceDestinationWidget(
-                        (state.loadStatus==LoadStatus.accepted),loadDetails),
+                    SourceDestinationWidget(
+                      pickUpLocation: loadDetails?.pickUpLocation,
+                      dropLocation:  loadDetails?.dropLocation,
+                    ).paddingSymmetric(horizontal: 15),
+
                     15.height,
-                    _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate),
+                    _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
                     15.height,
-                    _buildLoadEntityWidget(loadDetails),
+                    _buildLoadEntityWidget(loadDetails,state.locationDistance),
                     20.height,
                     if(state.loadStatus==LoadStatus.assigned)
                       ...[
@@ -123,14 +125,13 @@ class LoadDetailsWidget extends StatelessWidget {
                           timelineList: loadDetails?.timeline??[],
                         ).paddingSymmetric(horizontal: 15),
                       ]
-
                   ],
                 )),
                 _buildBottomButtonWidget(loadDetails ,state,context)
 
 
               ],
-            ),
+            ).paddingTop(15),
           );
         }
         return genericErrorWidget(error: GenericError());
@@ -140,7 +141,6 @@ class LoadDetailsWidget extends StatelessWidget {
   /// Build Request Widget
   Widget _buildRequestWidget(bool isAccepted,LoadDetails? loadDetails) {
     return SizedBox(
-      height: 80,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -172,116 +172,12 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildSourceDestinationWidget(bool isAccepted,LoadDetails? loadDetails) {
-    return AnimatedContainer(
-      height: isAccepted ? 190: 200,
-
-      padding: EdgeInsets.symmetric(vertical: 13),
-      decoration:commonContainerDecoration(
-        color: AppColors.backGroundBlue,
-        borderColor:  AppColors.disableColor,
-        borderRadius: BorderRadius.circular(8)
-      ),
-
-      duration: Duration(milliseconds: 300),
-      child: Column(
-        children: [
-          if (isAccepted)
-            Container(
-              height: 30,
-
-              padding: EdgeInsets.symmetric(horizontal: 10),
-
-              decoration: commonContainerDecoration(
-                color: Color(0xffE5EBFF),
-                borderRadius: BorderRadius.circular(6),
-              ),
 
 
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("LP: Nestle India Pvt ltd",style: AppTextStyle.h3.copyWith(
-                    fontWeight: FontWeight.w100,
-                    fontSize: 13,
-
-                    color: AppColors.primaryColor
-                  ),)),
-            ).paddingSymmetric(
-              horizontal: 13
-            ),
-          10.height,
-
-          Row(
-            children: [
-              Column(
-                spacing: 3,
-                children: [
-                  SvgPicture.asset(
-                    AppIcons.svg.myLocation,
-                    height: 18,
-                    width: 18,
-                  ),
-                  ...List.generate(
-                    8,
-                    (index) => Container(
-                      height: 3,
-                      width: 1,
-                      color: AppColors.dividerColor,
-                    ),
-                  ),
-                  SvgPicture.asset(
-                    AppIcons.svg.markerLocation,
-                    height: 18,
-                    width: 18,
-                  ),
-                ],
-              ).expand(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    spacing: 5,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Source",
-                        style: AppTextStyle.h3w500.copyWith(
-                          color: AppColors.textBlackColor,
-                          fontSize: 14,
-
-                          fontWeight: FontWeight.w200,
-                        ),
-                      ),
-                      Text("${loadDetails?.pickUpLocation}",maxLines: 3,).expand(),
-                    ],
-                  ).expand(),
-                   commonDivider(),
-                  Column(
-                    spacing: 5,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Destination",
-                        style: AppTextStyle.h3w500.copyWith(
-                          color: AppColors.textBlackColor,
-                          fontSize: 14,
-
-                          fontWeight: FontWeight.w200,
-                        ),
-                      ),
-                      Text("${loadDetails?.dropLocation}"),
-                    ],
-                  ).expand(),
-                ],
-              ).expand(flex: 7),
-            ],
-          ).expand(),
-        ],
-      ),
-    ).paddingSymmetric(horizontal: 15);
-  }
-
-  Widget _buildQuotedPriceWidget(bool isAccepted,String? rate) {
+  Widget _buildQuotedPriceWidget(bool isAccepted,String? rate, String? vpRate, String? vpMaxRate) {
+    final vpLoadPrice = (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
+        ? PriceHelper.formatINR(vpRate)
+        : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
     return Container(
       height: 37,
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -293,7 +189,7 @@ class LoadDetailsWidget extends StatelessWidget {
         children: [
           Text( isAccepted? "Trip Price": "Quoted price"),
           Text(
-            "$indianCurrencySymbol $rate",
+            vpLoadPrice,
             style: AppTextStyle.h1PrimaryColor.copyWith(fontSize: 20),
           ),
         ],
@@ -301,7 +197,7 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildLoadEntityWidget(LoadDetails? loadDetails) {
+  Widget _buildLoadEntityWidget(LoadDetails? loadDetails,String?locationDistance ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -357,7 +253,7 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
 
             Text(
-              "534 KM",
+              "$locationDistance KM",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,

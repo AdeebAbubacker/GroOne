@@ -101,9 +101,10 @@ class VpHomeService {
     }
   }
 
-  Future<Result<VpRecentLoadResponse>> getVpRecentLoads() async {
+  Future<Result<VpRecentLoadResponse>> getVpRecentLoads(String customerId) async {
     try {
-      final result = await _apiService.get(ApiUrls.vpRecentLoads,forceRefresh: true);
+
+      final result = await _apiService.get('${ApiUrls.vpRecentLoads}?customerId=$customerId',forceRefresh: true);
 
       if (result is Success) {
         return await _apiService.getResponseStatus(

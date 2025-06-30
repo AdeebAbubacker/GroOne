@@ -1,7 +1,9 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
@@ -41,7 +43,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(loadId);
     if (result is Success<LoadDetailsResponseModel>) {
-      emit(state.copyWith(loadDetailsUIState: UIState.success(result.value)));
+      emit(state.copyWith(
+          locationDistance: getDistance(result.value.data?.pickUpLatlon??"0",result.value.data?.dropLatlon??"0"),
+          loadDetailsUIState: UIState.success(result.value)));
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatus);
     }
     if (result is Error) {
@@ -60,8 +64,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       loadStatus: loadStatus,
       loadId: load.toString(),
     );
-
-
     if (result is Success<VpLoadAcceptModel>) {
       emit(state.copyWith(vpLoadStatus: UIState.success(result.value)));
       await Future.delayed(
@@ -74,6 +76,18 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       emit(state.copyWith(vpLoadStatus: UIState.error(result.type)));
       ToastMessages.error(message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
     }
+  }
+
+ String getDistance(String pickUpLatLong,dropLatLong){
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLatLng.latitude,
+      pickupLatLng.longitude,
+      dropLatLng.latitude,
+      dropLatLng.longitude,
+    );
+    return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
   updatePossibleDeliveryDateDate(String? possibleDeliveryTime) {

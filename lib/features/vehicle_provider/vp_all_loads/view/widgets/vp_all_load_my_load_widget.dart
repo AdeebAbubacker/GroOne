@@ -33,6 +33,10 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
 class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   @override
   Widget build(BuildContext context) {
+
+    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
+    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
       decoration: commonContainerDecoration(
@@ -53,7 +57,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('GD 34567', style: AppTextStyle.h5),
+                  Text(widget.data.loadId, style: AppTextStyle.h5),
                   // Text(
                   //   'TN 04 Y 2344',
                   //   style: AppTextStyle.textDarkGreyColor14w500,
@@ -135,9 +139,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   textAlign: TextAlign.center,
                 ).expand(),
                 Text(
-                  (widget.data.vpMaxRate??"").isNotEmpty ?
-                  "$indianCurrencySymbol${widget.data.vpRate} - ${indianCurrencySymbol}${widget.data.vpMaxRate}":
-                  "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
+                  amount,
                   style: AppTextStyle.h4PrimaryColor,
                   textAlign: TextAlign.center,
                 ).expand(),

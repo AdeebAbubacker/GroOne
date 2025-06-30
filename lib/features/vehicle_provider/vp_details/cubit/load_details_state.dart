@@ -12,21 +12,25 @@ class LoadDetailsState extends Equatable {
   final UIState<VpLoadAcceptModel>? vpLoadStatus;
   final UIState<ScheduleTripResponse>? scheduleTripResponse;
   final String? possibleDeliveryDate;
+  final String? locationDistance;
 
 
   const LoadDetailsState({
     this.scheduleTripResponse,
+    this.locationDistance,
     this.loadStatus=LoadStatus.matching, this.loadDetailsUIState,this.vpLoadStatus,this.possibleDeliveryDate});
 
   LoadDetailsState copyWith({
     UIState<VpLoadAcceptModel>? vpLoadStatus,
     LoadStatus? loadStatus,
+    String? loadDetails,
     UIState<LoadDetailsResponseModel>? loadDetailsUIState,
     UIState<ScheduleTripResponse>? scheduleTripResponse,
-    String? possibleDeliveryDate
+    String? possibleDeliveryDate,
+    String? locationDistance
   }) {
     return LoadDetailsState(
-
+locationDistance: locationDistance?? this.locationDistance,
         scheduleTripResponse:scheduleTripResponse?? this.scheduleTripResponse ,
         vpLoadStatus: vpLoadStatus ?? this.vpLoadStatus,
         loadStatus: loadStatus ?? this.loadStatus,

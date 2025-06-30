@@ -12,6 +12,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -67,9 +69,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
 
   void setMapMarkers(loadItem) async {
-    final pickupLatLng = _getLatLngFromString(loadItem.pickUpLatlon);
-    final dropLatLng = _getLatLngFromString(loadItem.dropLatlon);
-
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(loadItem.pickUpLatlon);
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(loadItem.dropLatlon);
 
     setState(() {
       _markers.add(
@@ -160,9 +161,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   @override
   Widget build(BuildContext context) {
-    return
-
-      Scaffold(
+    return Scaffold(
       body: SafeArea(
         top: false,
         child: BlocBuilder<LpLoadCubit, LpLoadState>(
@@ -205,7 +204,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 zoom: 10,
               ),
               markers: _markers,
-
               onMapCreated: (controller) async {
                 _mapController = controller;
                 await _setMapStyle(controller);
@@ -378,72 +376,9 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   16.height,
 
                   // Source & Destination card
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: commonContainerDecoration(
-                      color: AppColors.lightPrimaryColor2,
-                      borderColor: AppColors.borderColor,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-
-                        Column(
-                          children: [
-                            Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
-                            SizedBox(
-                              height: 70,
-                              child: DottedLine(
-                                direction: Axis.vertical,
-                                lineThickness: 1.0,
-                                dashLength: 4.0,
-                                dashColor: Colors.grey,
-                                dashGapLength: 3.0,
-                              ).paddingOnly(top: 5,bottom: 5),
-                            ),
-
-
-                            Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
-                          ],
-                        ),
-                        10.width,
-
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-
-                            // Source (Pick Up)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                6.height,
-                                Text(loadItem.pickUpLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                              ],
-                            ),
-
-
-                            commonDivider(),
-
-
-                            // Destination
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                6.height,
-                                Text(loadItem.dropLocation, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                              ],
-                            ),
-
-
-                          ],
-                        ).expand()
-                      ],
-                    ),
+                  SourceDestinationWidget(
+                    pickUpLocation: loadItem.pickUpLocation,
+                    dropLocation:loadItem.dropLocation ,
                   ),
 
                   16.height,
