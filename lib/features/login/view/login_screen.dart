@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
@@ -12,7 +11,6 @@ import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/terms_and_co
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
-import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -20,6 +18,7 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -65,32 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        actions: [
-          translateWiget(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
-              );
-            },
-          ),
-          20.width,
-
-          customerSupportWidget(
-            onTap: () {
-              commonSupportDialog(context);
-              // showCustomerCareBottomSheet(context);
-            },
-          ),
-          20.width,
-
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 34),
-          20.width,
-        ],
-      ),
-
+      appBar: CommonOnboardingAppbar(),
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
         listener: (context, state) {
@@ -99,8 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber":
-                    state.loginApiResponseModel.data.user.mobileNumber,
+                "mobileNumber": state.loginApiResponseModel.data.user.mobileNumber,
                 "otp": state.loginApiResponseModel.data.user.otp.toString(),
                 "roleId": widget.roleId.toString(),
               },

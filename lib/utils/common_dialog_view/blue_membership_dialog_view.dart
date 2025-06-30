@@ -6,6 +6,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
 class BlueMembershipDialogView extends StatefulWidget {
@@ -44,22 +45,22 @@ class _BlueMembershipDialogViewState extends State<BlueMembershipDialogView> {
       children: [
         30.height,
 
-        SvgPicture.asset(AppImage.svg.blueTick, height: 200),
-        30.height,
+        SvgPicture.asset(AppImage.svg.blueTick, height: 150),
+        40.height,
 
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           alignment: Alignment.center,
           decoration: commonContainerDecoration(color: AppColors.primaryColor),
-          child: Text("Blue Membership ID: ${widget.blueId}", style: AppTextStyle.h5WhiteColor),
+          child: Text("Blue Membership ID: ${widget.blueId}", textAlign: TextAlign.center, style: AppTextStyle.h6WhiteColor),
         ),
         20.height,
 
-        Text("Blue membership ID generated Successfully", textAlign: TextAlign.center, style: AppTextStyle.h3),
-        20.height,
+        Text("Blue membership ID generated Successfully", textAlign: TextAlign.center, style: AppTextStyle.h4),
+        10.height,
 
-        Text("Start exploring premium load options today", style: AppTextStyle.body2GreyColor, textAlign: TextAlign.center),
+        Text("Start exploring premium load options today", style: AppTextStyle.body3GreyColor, textAlign: TextAlign.center),
       ],
-    );
+    ).paddingSymmetric(horizontal: 5);
   }
 }

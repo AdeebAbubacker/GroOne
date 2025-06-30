@@ -15,7 +15,9 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -99,15 +101,10 @@ class _MobileOtpVerificationScreenState
     });
   }
 
-  void homeRedirection(
-    MobileOtpVerificationModel data,
-    BuildContext context, {
-    required tempFlag,
-  }) => frameCallback(() {
+  void homeRedirection(MobileOtpVerificationModel data, BuildContext context, {required tempFlag}) => frameCallback(() {
     if (data.data?.user?.role == 1) {
       if (tempFlag) {
-        context.push(
-          AppRouteName.lpCreateAccount,
+        context.push(AppRouteName.lpCreateAccount,
           extra: {
             "userId": data.data!.user!.id.toString(),
             "mobileNumber": widget.mobileNumber,
@@ -115,68 +112,34 @@ class _MobileOtpVerificationScreenState
           },
         );
       } else {
-        AppDialog.show(
-          context,
-          child: SuccessDialogView(
-            message: "Login Successfully",
-            heading: "Now you can explore the rates and post loads",
-            afterDismiss:
-                () => context.push(AppRouteName.lpBottomNavigationBar),
-          ),
-        );
+        loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
     } else if (data.data?.user?.role == 2) {
       if (tempFlag) {
-        Navigator.push(
-          context,
-          commonRoute(
-            VpCreationFormScreen(
-              id: data.data!.user!.id.toString(),
-              mobileNumber: widget.mobileNumber,
-            ),
-            isForward: true,
-          ),
+        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.data!.user!.id.toString(), mobileNumber: widget.mobileNumber), isForward: true),
         );
       } else {
-        AppDialog.show(
-          context,
-          child: SuccessDialogView(
-            message: "Login Successfully",
-            heading: "Now you can explore the rates and post loads",
-            afterDismiss:
-                () => context.push(AppRouteName.vpBottomNavigationBar),
-          ),
-        );
+        loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
       }
     }
   });
 
+
+  void loginSuccessDialog(BuildContext context, String routeName){
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        heading: "Login Successfully",
+        message: "Now you can explore the rates and post loads",
+        afterDismiss: () => context.push(routeName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-
-        actions: [
-          translateWiget(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
-              );
-            },
-          ),
-          20.width,
-          customerSupportWidget(
-            onTap: () {
-              commonSupportDialog(context);
-            },
-          ),
-          20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-          30.width,
-        ],
-      ),
+      appBar: CommonOnboardingAppbar(),
       body: BlocConsumer(
         bloc: otpBloc,
         listener: (context, state) async {
@@ -186,11 +149,7 @@ class _MobileOtpVerificationScreenState
           }
           if (state is OtpSuccess) {
             if (state.otpResponse.data!.user!.tempflg) {
-              homeRedirection(
-                state.otpResponse,
-                context,
-                tempFlag: state.otpResponse.data!.user!.tempflg,
-              );
+              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.data!.user!.tempflg);
             } else {
               // showSuccessDialog(
               //   onTap: () {
@@ -202,19 +161,13 @@ class _MobileOtpVerificationScreenState
               // );
               //  await Future.delayed(Duration(seconds: 2));
               if (!context.mounted) return;
-              homeRedirection(
-                state.otpResponse,
-                context,
-                tempFlag: state.otpResponse.data!.user!.tempflg,
-              );
+              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.data!.user!.tempflg);
             }
           }
           if (state is OtpError) {
             otpTextController.clear();
             otpString = "";
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           }
           setState(() {});
         },

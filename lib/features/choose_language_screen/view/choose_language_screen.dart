@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -17,39 +20,28 @@ import '../../../utils/common_functions.dart';
 import '../../../utils/extra_utils.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
-  const ChooseLanguageScreen({super.key, this.isCloseButton = false});
   final bool isCloseButton;
+  const ChooseLanguageScreen({super.key, this.isCloseButton = false});
 
   @override
   State<ChooseLanguageScreen> createState() => _ChooseLanguageScreenState();
 }
 
 class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
+
   final _languageBlock = locator<LanguageBloc>();
+
   @override
   void initState() {
     _languageBlock.add(LoadLanguages());
+    debugPrint("Cross Back Button : ${widget.isCloseButton}");
     super.initState();
   }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        scrolledUnderElevation: 0.0,
-        isLeading: false,
-        actions: [
-          customerSupportWidget(
-            onTap: () {
-              commonSupportDialog(context);
-            },
-          ),
-          20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-          30.width,
-        ],
-      ),
+      appBar: CommonOnboardingAppbar(showBackButton: false, showTranslateButton: false, isCrossLeadingIcon: widget.isCloseButton),
       body: SafeArea(
         minimum: EdgeInsets.all(commonSafeAreaPadding),
         child: BlocBuilder<LanguageBloc, LanguageState>(

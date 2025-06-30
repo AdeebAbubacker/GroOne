@@ -91,6 +91,7 @@ class SvgIcons {
   final String autoParts = "${_svgBasePath}auto_parts.svg";
   final String bags = "${_svgBasePath}bags.svg";
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
+  final String translation = "${_svgBasePath}translation.svg";
 
 
 }
