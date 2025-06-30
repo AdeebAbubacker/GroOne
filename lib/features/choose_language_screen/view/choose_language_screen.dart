@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -40,13 +42,14 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
         scrolledUnderElevation: 0.0,
         isLeading: false,
         actions: [
-          customerSupportWidget(
-            onTap: () {
-              commonSupportDialog(context);
-            },
+          // Support
+          AppIconButton(
+              onPressed: ()=> commonSupportDialog(context),
+              icon: AppIcons.svg.support,
           ),
-          20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
+          10.width,
+
+          Image.asset(AppImage.png.appIcon, width: 70),
           30.width,
         ],
       ),

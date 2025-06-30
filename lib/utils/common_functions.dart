@@ -578,7 +578,7 @@ void commonSupportDialog(BuildContext context) {
       onTapSingleButton: () async {
         await callRedirect("180012304567");
       },
-      child: SvgPicture.asset(AppImage.svg.customerSupport),
+      child: SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
     ),
   );
 }

@@ -68,6 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: CommonAppBar(
         backgroundColor: Colors.transparent,
         actions: [
+
           translateWiget(
             onTap: () {
               Navigator.push(
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           20.width,
 
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 34),
+          Image.asset(AppImage.png.appIcon, width: 70),
           20.width,
         ],
       ),
