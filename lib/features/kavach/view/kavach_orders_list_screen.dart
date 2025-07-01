@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
@@ -339,9 +338,6 @@ class _OrdersListViewState extends State<_OrdersListView> {
   void _onScroll() {
     if (_debounce?.isActive ?? false) return;
     _debounce = Timer(const Duration(milliseconds: 200), () {
-      // if (_isBottom && !_isLoading) {
-      //   context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
-      // }
       final currentState = context.read<KavachOrderListBloc>().state;
       if (_isBottom &&
           !_isLoading &&
@@ -399,79 +395,3 @@ class _OrdersListViewState extends State<_OrdersListView> {
     );
   }
 }
-
-///old
-// @override
-// Widget build(BuildContext context) {
-//   return BlocProvider.value(
-//     value: _ordersBloc,
-//     child: DefaultTabController(
-//       length: 5,
-//       child: Scaffold(
-//               appBar: CommonAppBar(
-//         title: context.appText.kavach,
-//                 bottom: const TabBar(
-//                   isScrollable: true,
-//                   tabs: [
-//                     Tab(text: 'All'),
-//                     Tab(text: 'Order Placed'),
-//                     Tab(text: 'Dispatched'),
-//                     Tab(text: 'Delivered'),
-//                     Tab(text: 'Installed'),
-//                   ],
-//                 ),
-//         actions: [
-//           AppIconButton(
-//             onPressed: ()=> Navigator.of(context).push(commonRoute(KavachModelsScreen())),
-//             icon: Icon(Icons.add, color: Colors.white),
-//             style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-//           ),
-//           AppIconButton(onPressed: (){}, icon: AppIcons.svg.support,  style: AppButtonStyle.circularIconButtonStyle),
-//           10.width,
-//         ],
-//       ),
-//         body:  TabBarView(
-//           children: [
-//             _buildTab(status: null),    // All
-//             _buildTab(status: 4),       // Order Placed
-//             _buildTab(status: 7),       // Dispatched
-//             _buildTab(status: 8),       // Delivered
-//             _buildTab(status: 10),      // Installed
-//           ],
-//         ),
-//       ),
-//     ),
-//   );
-// }
-
-// class _OrdersListView extends StatefulWidget {
-//   @override
-//   State<_OrdersListView> createState() => _OrdersListViewState();
-// }
-//
-// class _OrdersListViewState extends State<_OrdersListView> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
-//       builder: (context, state) {
-//         if (state is KavachOrderListLoading) {
-//           return const Center(child: CircularProgressIndicator());
-//         } else if (state is KavachOrderListLoaded) {
-//           if (state.orders.isEmpty) {
-//             return Center(child: Text('No orders found'));
-//           }
-//           return ListView.builder(
-//             itemCount: state.orders.length,
-//             itemBuilder: (context, index) {
-//               final order = state.orders[index];
-//               return KavachOrderCardWidget(order: order);
-//             },
-//           );
-//         } else if (state is KavachOrderListError) {
-//           return Center(child: Text(state.message));
-//         }
-//         return const SizedBox.shrink();
-//       },
-//     );
-//   }
-// }

@@ -132,8 +132,7 @@ class AddressListItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(address.customerName, style: AppTextStyle.textDarkGreyColor14w500),
-                  Text('+91 ${address.mobileNumber}', style: AppTextStyle.textDarkGreyColor14w500),
+                  Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
                   Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
                 ],
               ),

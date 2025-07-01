@@ -66,7 +66,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                     },
                     child: Text("View Details", style: AppTextStyle.primaryColor16w400)),
                 15.width,
-                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300)),
+                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
               ],
             )
           ],

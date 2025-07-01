@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:dotted_line/dotted_line.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
@@ -16,6 +18,7 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
+import '../bloc/kavach_order_bloc/kavach_order_event.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
@@ -276,8 +279,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 createdEmpUserId: 1234,
                 orderReferencedBy: "GDP67543",
                 billingAddress: {
-                  "addressLine1": widget.billingAddress.addr1,
-                  "addressLine2": widget.billingAddress.addr2,
+                  "addressLine1": widget.billingAddress.addressName,
+                  "addressLine2": widget.billingAddress.addr1,
                   "city": widget.billingAddress.city,
                   "state": widget.billingAddress.state,
                   "postalCode": widget.billingAddress.pincode,
@@ -285,8 +288,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "gstId": widget.billingAddress.gstin??"",
                 },
                 shippingAddress: {
-                  "addressLine1": widget.shippingAddress.addr1,
-                  "addressLine2": widget.shippingAddress.addr2,
+                  "addressLine1": widget.shippingAddress.addressName,
+                  "addressLine2": widget.shippingAddress.addr1,
                   "city": widget.shippingAddress.city,
                   "state": widget.shippingAddress.state,
                   "postalCode": widget.shippingAddress.pincode,
@@ -308,8 +311,10 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 }).toList(),
               );
 
-              print(request);
-              // kavachOrderBloc.add(KavachSubmitOrder(request));
+              if (kDebugMode) {
+                print(jsonEncode(request));
+              }
+              kavachOrderBloc.add(KavachSubmitOrder(request));
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -323,9 +328,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.customerName,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text(address.mobileNumber,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.addr1}, ${address.addr2}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(address.addr1,style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500,),
         Visibility(

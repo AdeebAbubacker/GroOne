@@ -673,7 +673,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      address.customerName,
+                      address.addressName,
                       style: AppTextStyle.blackColor14w400,
                     ),
                   ),

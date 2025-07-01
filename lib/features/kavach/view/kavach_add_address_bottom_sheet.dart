@@ -188,8 +188,8 @@ class _KavachAddAddressBottomSheetState
                     onPressed: () {
                       if (!formKey.currentState!.validate()) return;
                       final request = KavachAddAddressApiRequest(
-                        addr1: addressNameController.text.trim(),
-                        addr2: addressController.text.trim(),
+                        addressName: addressNameController.text.trim(),
+                        addr1: addressController.text.trim(),
                         city: cityController.text.trim(),
                         state: stateController.text.trim(),
                         pincode: pinCodeController.text.trim(),
