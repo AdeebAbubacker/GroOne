@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/profile/view/widgets/profile_my_account_tile.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
-
 import '../../../../utils/app_application_bar.dart';
-import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_image.dart';
 import '../../../../utils/app_text_style.dart';
 
@@ -130,12 +129,12 @@ class _LpSettingState extends State<LpSetting> {
             ),
             Column(
               children: [
-                profileWidget(
+                ProfileMyAccountTile(
                   imageString: AppImage.png.document,
                   text: "Terms & Conditions",
                   onTap: () {},
                 ),
-                profileWidget(
+                ProfileMyAccountTile(
                   imageString: AppImage.png.privacy,
                   text: "Privacy Policy",
                   onTap: () {},

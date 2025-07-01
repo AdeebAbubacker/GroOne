@@ -10,9 +10,8 @@ import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.d
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -42,7 +41,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   final formKey = GlobalKey<FormState>();
 
   final kycBloc = locator<KycCubit>();
-  final lpHomeCubit = locator<LPHomeCubit>();
+  final profileCubit = locator<ProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   final TextEditingController aadhaarNumberTextController = TextEditingController();
@@ -104,7 +103,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
           context.pop();
           Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text))).then((v) {
             if(v != null && v == true){
-              lpHomeCubit.fetchProfileDetail();
+              profileCubit.fetchProfileDetail();
               aadhaarNumberTextController.clear();
               aadhaarNumberOtpTextController.clear();
             }

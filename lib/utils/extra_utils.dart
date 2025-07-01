@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -168,36 +167,7 @@ dividerWidget() {
   return Divider(color: AppColors.dividerColor, thickness: 0.5);
 }
 
-profileWidget({
-  required String imageString,
-  required String text,
-  required GestureTapCallback onTap,
-  bool showArrow = true,
-}) {
-  return InkWell(
-    onTap: onTap,
-    child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 13),
-      child: Row(
-        children: [
-      SvgPicture.asset(imageString, height: 20, width: 20),
-          10.width,
-          Text(
-            text,
-            style:
-                showArrow
-                    ? AppTextStyle.blackColor14w400
-                    : AppTextStyle.blackColor14w400.copyWith(color: Colors.red),
-          ),
-          Expanded(child: SizedBox.shrink()),
-          showArrow
-              ? Icon(Icons.arrow_forward_ios, size: 12, color: Colors.black)
-              : const SizedBox(),
-        ],
-      ),
-    ),
-  );
-}
+
 
 tabWidget({
   required String text,

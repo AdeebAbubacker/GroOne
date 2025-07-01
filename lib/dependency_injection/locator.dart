@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -50,6 +49,7 @@ import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
 import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/features/splash/splash_repository.dart';
@@ -100,8 +100,8 @@ void initLocator() {
     locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
-    locator.registerLazySingleton(() => ProfileService(locator<ApiService>()));
-    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => ProfileService(locator<ApiService>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
@@ -119,8 +119,8 @@ void initLocator() {
     locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>()));
-    locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>()));
-    locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>(), locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>(), locator<AuthRepository>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>()));
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(),locator<UserInformationRepository>()));
@@ -168,6 +168,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {
