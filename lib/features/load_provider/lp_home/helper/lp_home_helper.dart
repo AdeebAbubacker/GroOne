@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LpHomeHelper {
 
   // Get Kyc Pending Timer
- static String getKycPendingTimeLeft(String createdAt, {Duration kycDuration = const Duration(hours: 48)}) {
+ static String getKycPendingTimeLeft(String createdAt, {Duration kycDuration = const Duration(hours: 46)}) {
     try {
       final created = DateTime.parse(createdAt).toLocal(); // Adjust for local time
       final now = DateTime.now();
@@ -27,50 +27,50 @@ class LpHomeHelper {
  /// was created** and ticks down toward 0 from the current device‐time.
  ///
  /// If the three-hour window has already elapsed you’ll get `"00:00:00"`.
- // static String getMatchingTime(String createdAtString) {
- //   try {
- //     // 1️⃣ parse the original timestamp coming from the backend
- //     final createdAt = DateTime.parse(createdAtString).toLocal();
- //
- //     // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
- //     final targetTime = createdAt.add(const Duration(hours: 2));
- //
- //     // 3️⃣ compute the remaining time *from now* until that target
- //     final now        = DateTime.now();
- //     final difference = targetTime.difference(now);
- //
- //     // 4️⃣ if we are already past the deadline → show all zeros
- //     if (difference.isNegative) return "00:00:00";
- //
- //     // 5️⃣ format as HH:MM:SS
- //     final hours   = difference.inHours;
- //     final minutes = difference.inMinutes.remainder(60);
- //     final seconds = difference.inSeconds.remainder(60);
- //
- //     return "${hours.toString().padLeft(2, '0')}:"
- //         "${minutes.toString().padLeft(2, '0')}:"
- //         "${seconds.toString().padLeft(2, '0')}";
- //   } catch (_) {
- //     // any parsing error → fallback
- //     return "00:00:00";
- //   }
- // }
-
  static String getMatchingTime(String createdAtString) {
    try {
+     // 1️⃣ parse the original timestamp coming from the backend
      final createdAt = DateTime.parse(createdAtString).toLocal();
+
+     // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
      final targetTime = createdAt.add(const Duration(hours: 2));
-     final now = DateTime.now();
+
+     // 3️⃣ compute the remaining time *from now* until that target
+     final now        = DateTime.now();
      final difference = targetTime.difference(now);
 
-     if (difference.isNegative) return "0 min";
+     // 4️⃣ if we are already past the deadline → show all zeros
+     if (difference.isNegative) return "00:00:00";
 
-     final totalMinutes = difference.inMinutes;
-     return "$totalMinutes min";
+     // 5️⃣ format as HH:MM:SS
+     final hours   = difference.inHours;
+     final minutes = difference.inMinutes.remainder(60);
+     final seconds = difference.inSeconds.remainder(60);
+
+     return "${hours.toString().padLeft(2, '0')}:"
+         "${minutes.toString().padLeft(2, '0')}:"
+         "${seconds.toString().padLeft(2, '0')}";
    } catch (_) {
-     return "0 min";
+     // any parsing error → fallback
+     return "00:00:00";
    }
  }
+
+ // static String getMatchingTime(String createdAtString) {
+ //   try {
+ //     final createdAt = DateTime.parse(createdAtString).toLocal();
+ //     final targetTime = createdAt.add(const Duration(hours: 2));
+ //     final now = DateTime.now();
+ //     final difference = targetTime.difference(now);
+ //
+ //     if (difference.isNegative) return "0 min";
+ //
+ //     final totalMinutes = difference.inMinutes;
+ //     return "$totalMinutes min";
+ //   } catch (_) {
+ //     return "0 min";
+ //   }
+ // }
 
 
 

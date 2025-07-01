@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/log_out_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
@@ -16,7 +14,7 @@ class VpCreationRepository {
   final AuthRepository _authRepository;
   VpCreationRepository(this._vpCreationService, this._authRepository);
 
-  // Vp Create Account
+  /// Vp Create Account Repo
   Future<Result<UserModel?>> requestVpCreation(VpCreationApiRequest request,{required String id}) async {
     try {
       Result<dynamic> result =  await _vpCreationService.fetchVpCreationData(request,id: id);
@@ -42,7 +40,7 @@ class VpCreationRepository {
   }
 
 
- // Get Truck Type Data
+  /// Get Truck Type Repo
   Future<Result<TruckTypeModel>> getTruckTypeData() async {
     try {
       return await _vpCreationService.fetchTruckTypeData();
@@ -52,28 +50,19 @@ class VpCreationRepository {
     }
   }
 
-  // Get Preftruck Lane Data
+
+  /// Get Preferred Truck Lane Data Repo
   Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location) async {
     try {
       return await _vpCreationService.fetchTruckPrefLaneData(location);
     } catch (e) {
-      CustomLog.error(this, "Failed to request get prefered truck lane data", e);
+      CustomLog.error(this, "Failed to request get preferred truck lane data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
 
- // logOut
-  Future<Result<LogOutResponse?>> logOut(LogOutRequest request) async {
-    try {
-      return await _vpCreationService.logOut(request,);
-    } catch (e) {
-      CustomLog.error(this, "Failed to request vp creation", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
-  // Upload rc truck document
+  /// Upload rc truck document repo
   Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file) async {
     try {
       return await _vpCreationService.fetchUploadRcTruckFileData(file);
@@ -92,4 +81,5 @@ class VpCreationRepository {
       return Error(GenericError());
     }
   }
+
 }

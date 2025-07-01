@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -11,7 +12,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class IncompleteKycStatusWidget extends StatelessWidget {
-  const IncompleteKycStatusWidget({super.key});
+  final num? companyId;
+  const IncompleteKycStatusWidget({super.key, required this.companyId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,11 @@ class IncompleteKycStatusWidget extends StatelessWidget {
           // Verify KYC button
           TextButton(
             onPressed: () {
-              commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+              if (companyId != null && (companyId == 2 || companyId == 1)) {
+                commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+              } else {
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+              }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),
             child: Text("Verify", style: AppTextStyle.h5WhiteColor),

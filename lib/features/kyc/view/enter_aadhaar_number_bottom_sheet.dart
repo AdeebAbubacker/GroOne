@@ -8,14 +8,15 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -40,7 +41,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   final formKey = GlobalKey<FormState>();
 
   final kycBloc = locator<KycCubit>();
-  final lpHomeCubit = locator<LPHomeCubit>();
+  final profileCubit = locator<ProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   final TextEditingController aadhaarNumberTextController = TextEditingController();
@@ -88,44 +89,40 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
   Widget _buildBodyWidget() {
     return BlocConsumer<KycCubit, KycState>(
       bloc: kycBloc,
-      builder: (context, state) {
-        final otpState = state.aadhaarOtpState;
-
-        final isLoading = otpState?.status == Status.LOADING;
-
-        return ValueListenableBuilder<bool>(
-          valueListenable: showOtpFieldAadhaarNotifier,
-          builder: (context, showOtp, _) {
-            return showOtp
-                ? _buildAadhaarVerificationWidget(isLoading, context)
-                : _buildAadhaarFormWidget(isLoading, context);
-          },
-        );
-
-      },
       listener: (context, state) {
+
         final otpState = state.aadhaarOtpState;
         if (otpState?.status == Status.SUCCESS) {
           requestID = otpState?.data?.data?.requestId ?? '123456';
           showOtpFieldAadhaarNotifier.value = true;
         }
 
-        if (otpState?.status == Status.ERROR) {
-          ToastMessages.error(message: getErrorMsg(errorType: otpState!.errorType!));
-        }
-
         final verifyState = state.aadhaarVerifyOtpState;
-
         if (verifyState?.status == Status.SUCCESS) {
           showOtpFieldAadhaarNotifier.value = false;
           context.pop();
-
-          context.push(AppRouteName.kycScreen, extra: {"addharNumber": aadhaarNumberTextController.text,}).then((v) {
-            lpHomeCubit.fetchProfileDetail();
-            aadhaarNumberTextController.clear();
-            aadhaarNumberOtpTextController.clear();
+          Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text))).then((v) {
+            if(v != null && v == true){
+              profileCubit.fetchProfileDetail();
+              aadhaarNumberTextController.clear();
+              aadhaarNumberOtpTextController.clear();
+            }
           });
         }
+
+        if (otpState?.status == Status.ERROR) {
+          ToastMessages.error(message: getErrorMsg(errorType: otpState!.errorType!));
+        }
+      },
+      builder: (context, state) {
+        final otpState = state.aadhaarOtpState;
+        final isLoading = otpState?.status == Status.LOADING;
+        return ValueListenableBuilder<bool>(
+          valueListenable: showOtpFieldAadhaarNotifier,
+          builder: (context, showOtp, _) {
+            return showOtp ? _buildAadhaarVerificationWidget(isLoading, context) : _buildAadhaarFormWidget(isLoading, context);
+          },
+        );
       },
     );
   }

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -57,7 +57,7 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
     customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
     customerName.text=widget.profileData.customer!.customerName;
     companyName.text=widget.profileData.details!.companyName;
-    gstIn.text=widget.profileData.details!.gstin??"--";
+    gstIn.text=widget.profileData.details!.gstin;
   });
 
   void disposeFunction() => frameCallback(() {});
@@ -129,10 +129,10 @@ context.pop();
               lpProfile.add(ProfileUpdateRequested(
                   apiRequest: ProfileUpdateRequest(customerName: customerName.text,
                       mobileNumber: customerMobileNumber.text,
-                      accountNumber: widget.profileData.details!.bankAccount??"",
-                      bankName:  widget.profileData.details!.bankName??"",
-                      branchName:  widget.profileData.details!.branchName??"",
-                      ifscCode:  widget.profileData.details!.ifscCode??"",
+                      accountNumber: widget.profileData.details!.bankAccount,
+                      bankName:  widget.profileData.details!.bankName,
+                      branchName:  widget.profileData.details!.branchName,
+                      ifscCode:  widget.profileData.details!.ifscCode,
                       companyName: companyName.text,
                       gstin: gstIn.text),userID: lpProfile.userId??""));
             }
