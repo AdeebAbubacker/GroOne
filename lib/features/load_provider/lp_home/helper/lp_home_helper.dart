@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LpHomeHelper {
 
   // Get Kyc Pending Timer
- static String getKycPendingTimeLeft(String createdAt, {Duration kycDuration = const Duration(hours: 48)}) {
+ static String getKycPendingTimeLeft(String createdAt, {Duration kycDuration = const Duration(hours: 46)}) {
     try {
       final created = DateTime.parse(createdAt).toLocal(); // Adjust for local time
       final now = DateTime.now();
