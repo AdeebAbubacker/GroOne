@@ -31,9 +31,8 @@ import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 
 class LpLoadsScreen extends StatefulWidget {
-  final int initialTabIndex;
 
-  const LpLoadsScreen({super.key, this.initialTabIndex = 1});
+  const LpLoadsScreen({super.key});
 
   @override
   State<LpLoadsScreen> createState() => _LpLoadsScreenState();
@@ -50,6 +49,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
+  final ScrollController _tabScrollController = ScrollController();
+  final ScrollController _listController = ScrollController();
+  int page = 1;
 
   TabController? _tabController;
   final tabLabels = [
@@ -76,36 +78,43 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void initFunction() => frameCallback(() {
+    lpLoadLocator.updateSelectedTabIndex(0);
     _tabController = TabController(
       length: 8,
       vsync: this,
-      initialIndex: widget.initialTabIndex,
-    );
+      initialIndex: lpLoadLocator.state.selectedTabIndex,
+    )..addListener(_handleTabChange);
 
-    _tabController!.addListener(() {
-      if (_tabController!.indexIsChanging) {
-        final selectedType = _tabController!.index;
+    WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
 
-        lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if(selectedType == 0) {
-          lpLoadLocator.state.lpLoadResponse?.data = null;
-          // setState(() {});
-        }
-        else if (selectedType == 3) {
-          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 2));
-
-        } else {
-          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 1));
-
-        }
-      }
-    });
-    lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: widget.initialTabIndex+1));
-
+    lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
+
     setState(() {});
   });
+
+  void _handleTabChange() {
+    if (!_tabController!.indexIsChanging) return;
+
+    final selectedType = _tabController!.index;
+    lpLoadLocator.updateSelectedTabIndex(selectedType);
+
+    if (selectedType == 0) {
+      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
+    } else {
+      // final loadStatus = selectedType >= 3 ? selectedType + 2 : selectedType + 1;
+      final loadStatus = selectedType + 1;
+      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: loadStatus));
+    }
+
+    _scrollToSelectedTab(selectedType);
+  }
+
+  void _scrollToSelectedTab(int index) {
+    final double offset = index == 0 ? 50 :  (100 * index) - 15;
+    _tabScrollController.animateTo(offset, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+  }
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
@@ -282,28 +291,32 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
-          return TabBar(
-            controller: _tabController!,
-            isScrollable: true,
-            physics: ClampingScrollPhysics(),  // tighter scroll behavior
-            indicator: const BoxDecoration(),
-            dividerHeight: 0,
-            tabs: List.generate(8, (index) {
-              final isSelected = state.selectedTabIndex == index;
-              return Tab(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: commonContainerDecoration(
-                    color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-                    borderRadius: BorderRadius.circular(20),
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: _tabScrollController,
+            child: TabBar(
+              controller: _tabController!,
+              isScrollable: true,
+              physics: ClampingScrollPhysics(),  // tighter scroll behavior
+              indicator: const BoxDecoration(),
+              dividerHeight: 0,
+              tabs: List.generate(8, (index) {
+                final isSelected = state.selectedTabIndex == index;
+                return Tab(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: commonContainerDecoration(
+                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      tabLabels[index],
+                      style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
+                    ),
                   ),
-                  child: Text(
-                    tabLabels[index],
-                    style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
-                  ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           );
         }
       ),
@@ -349,6 +362,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         }
 
         return ListView.builder(
+          controller: _listController,
           padding: EdgeInsets.all(commonSafeAreaPadding),
           shrinkWrap: true,
           itemCount: loadList.length,
@@ -356,11 +370,11 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final loadItem = loadList[index];
             return GestureDetector(
               onTap: () {
-                lpLoadLocator.getLpLoadsById(loadId: loadItem.id);
+                print('timer ${loadItem.matchingStartDate}');
                 Navigator.push(
                   context,
                   commonRoute(
-                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator, loadData: loadItem),
+                    LpLoadsLocationDetailsScreen(loadId: loadItem.id),
                   ),
                 );
               },

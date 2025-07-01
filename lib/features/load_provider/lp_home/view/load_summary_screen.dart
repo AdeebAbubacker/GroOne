@@ -86,11 +86,6 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
         await _postLoad(context);
       }
 
-      if (availableCredit < rateValue) {
-        AppDialog.show(context, child: LowCreditDialog());
-      } else {
-        await _postLoad(context);
-      }
     }
     else if (uiState?.status == Status.ERROR) {
       final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";

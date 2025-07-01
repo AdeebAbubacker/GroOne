@@ -13,6 +13,8 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 
 
 class LpBottomNavigation extends StatefulWidget {
+  static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
+
   const LpBottomNavigation({super.key});
 
   @override
@@ -38,7 +40,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      // Dismiss only with button if needed
       builder: (BuildContext context) {
         return showAlertDialogue(
           yesButtonText: "Exit",
@@ -57,21 +58,14 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                   child: const Icon(Icons.close, size: 24),
                 ),
               ),
-
-              // Illustration
               Image.asset(
                 AppImage.png.markAsFavourite,
-                // replace with your image asset
                 height: 150,
               ),
-
-              // Title
               const Text(
                 "Are you sure want to exit?",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-
-              // Subtitle
               const Text(
                 "",
                 style: TextStyle(fontSize: 14, color: Colors.grey),
@@ -91,40 +85,48 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
         showExitDialogue(context: context);
         return true;
       },
-      child: AppLockScreen(child: Scaffold(
-        body: pages[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: AppColors.primaryColor,
-          // Bright blue
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          currentIndex: selectedIndex,
-          onTap: onItemTapped,
-          items: [
-            BottomNavigationBarItem(
-              icon: const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Icon(CupertinoIcons.home),
+      child: AppLockScreen(
+        child: ValueListenableBuilder<int>(
+          valueListenable: LpBottomNavigation.selectedIndexNotifier,
+          builder: (context, selectedIndex, _) {
+            return Scaffold(
+              body: pages[selectedIndex],
+              bottomNavigationBar: BottomNavigationBar(
+                backgroundColor: AppColors.primaryColor,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white70,
+                currentIndex: selectedIndex,
+                onTap: (index) {
+                  LpBottomNavigation.selectedIndexNotifier.value = index;
+                },
+                items: [
+                  BottomNavigationBarItem(
+                    icon: const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
+                      child: Icon(CupertinoIcons.home),
+                    ),
+                    label: context.appText.home,
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
+                      child: Icon(CupertinoIcons.cube),
+                    ),
+                    label: context.appText.loads,
+                  ),
+                  BottomNavigationBarItem(
+                    icon: const Padding(
+                      padding: EdgeInsets.only(top: 8.0),
+                      child: Icon(Icons.headset_mic_rounded),
+                    ),
+                    label: context.appText.support,
+                  ),
+                ],
               ),
-              label: context.appText.home,
-            ),
-            BottomNavigationBarItem(
-              icon: const Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Icon(CupertinoIcons.cube),
-              ),
-              label: context.appText.loads,
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(top: 8.0),
-                child: Icon(Icons.headset_mic_rounded),
-              ),
-              label: context.appText.support,
-            ),
-          ],
+            );
+          },
         ),
-      ),)
+      ),
     );
   }
 }

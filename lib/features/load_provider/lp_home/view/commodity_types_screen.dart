@@ -47,8 +47,8 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
   }
 
   selectDefaultCommodity() {
-    if (selectedIndex == -1 && widget.dataList.isNotEmpty) {
-      selectedIndex = null;
+    if ((selectedIndex == null || selectedIndex == -1) && widget.dataList.isNotEmpty) {
+      selectedIndex = 0;
     }
   }
 
@@ -93,6 +93,7 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10.0),
                   decoration: commonContainerDecoration(
+                    color: AppColors.lightPrimaryColor2,
                     borderColor:
                         selectedIndex == index
                             ? AppColors.primaryColor
