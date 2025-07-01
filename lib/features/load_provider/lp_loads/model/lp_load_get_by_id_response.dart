@@ -98,7 +98,7 @@ class LoadData {
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
-  final num isAgreed;
+  final int isAgreed;
   final String notes;
   final String rate;
   final String? maxRate;
@@ -145,7 +145,7 @@ class LoadData {
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
-    num? isAgreed,
+    int? isAgreed,
     String? notes,
     String? rate,
     String? maxRate,

@@ -284,7 +284,7 @@ class LpLoadBottomWidget extends StatelessWidget {
                 ],
               ).paddingAll(16),
             ).expand(),
-            if(loadItem.loadStatus == 4)
+            if(loadItem.loadStatus == 4 && loadItem.isAgreed == 0)
               CustomSwipeButton(
                 price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
                 loadId: loadItem.loadId,

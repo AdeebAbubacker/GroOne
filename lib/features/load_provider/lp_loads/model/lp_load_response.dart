@@ -84,6 +84,7 @@ class LpLoadItem {
     required this.dropLatlon,
     required this.dueDate,
     required this.consignmentWeight,
+    required this.isAgreed,
     required this.notes,
     required this.rate,
     required this.maxRate,
@@ -137,6 +138,7 @@ class LpLoadItem {
   final String dropLatlon;
   final DateTime? dueDate;
   final num consignmentWeight;
+  final int isAgreed;
   final String notes;
   final String rate;
   final String? maxRate;
@@ -186,6 +188,7 @@ class LpLoadItem {
     String? dropLatlon,
     DateTime? dueDate,
     num? consignmentWeight,
+    int? isAgreed,
     String? notes,
     String? rate,
     String? maxRate,
@@ -234,6 +237,7 @@ class LpLoadItem {
       dropLatlon: dropLatlon ?? this.dropLatlon,
       dueDate: dueDate ?? this.dueDate,
       consignmentWeight: consignmentWeight ?? this.consignmentWeight,
+      isAgreed: isAgreed ?? this.isAgreed,
       notes: notes ?? this.notes,
       rate: rate ?? this.rate,
       maxRate: maxRate ?? this.maxRate,
@@ -284,6 +288,7 @@ class LpLoadItem {
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json["consignmentWeight"] ?? 0,
+      isAgreed: json["isAgreed"] ?? 0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       maxRate: json["maxRate"],

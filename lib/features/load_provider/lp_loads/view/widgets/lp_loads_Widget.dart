@@ -119,7 +119,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             20.height,
             buildRateWidget(),
             10.height,
-            if(loadItem.loadStatus == 4)
+            if(loadItem.loadStatus == 4 && loadItem.isAgreed == 0)
             buildAgreeButtonWidget(context)
           ],
         )
