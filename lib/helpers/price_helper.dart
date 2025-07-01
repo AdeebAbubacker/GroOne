@@ -2,14 +2,16 @@ import 'package:intl/intl.dart';
 
 class PriceHelper {
 
-  static String formatINR(dynamic amount) {
+  static String formatINR(dynamic amount, {String symbol = '₹'}) {
     try {
+      final numValue = num.tryParse(amount.toString()) ?? 0;
+      final hasDecimals = amount.toString().contains('.');
       final formatter = NumberFormat.currency(
         locale: 'en_IN',
-        symbol: '₹',
-        decimalDigits: 0,
+        symbol: symbol,
+        decimalDigits: hasDecimals ? 2 : 0,
       );
-      return formatter.format(num.tryParse(amount.toString()) ?? 0);
+      return formatter.format(numValue);
     } catch (_) {
       return '₹0';
     }

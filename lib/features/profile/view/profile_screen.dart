@@ -155,6 +155,8 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               widget.profileData.customer!.customerName,
               style: AppTextStyle.blackColor15w500,
             ),
+
+            if(widget.profileData.customer!.blueId.isNotEmpty)
             InkWell(
               onTap: () {
                 Navigator.push(

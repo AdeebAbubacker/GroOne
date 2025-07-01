@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -9,16 +10,19 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 
 class MemoOtpDialogWidget extends StatefulWidget {
   final BuildContext parentContext;
+  final String loadId;
 
-  const MemoOtpDialogWidget({super.key, required this.parentContext});
+  const MemoOtpDialogWidget({super.key, required this.parentContext, required this.loadId});
 
   @override
   State<MemoOtpDialogWidget> createState() => _MemoOtpDialogWidgetState();
@@ -44,9 +48,8 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
         ));
       });
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+      final errorType = uiState.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
     }
   }
 
@@ -113,7 +116,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
 
             onPressed: () async {
               if (otpController.text.length == 4) {
-                await lpLoadLocator.verifyOtp(otp: otpController.text);
+                await lpLoadLocator.verifyOtp(otp: otpController.text, loadId: widget.loadId);
                 final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
                 handleOtpVerification(uiState);
               }
@@ -123,7 +126,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
           20.height,
           InkWell(
             onTap: () async {
-              await lpLoadLocator.sendOtp();
+              await lpLoadLocator.sendOtp(loadId: widget.loadId);
             },
             child: SizedBox(
               child: Center(

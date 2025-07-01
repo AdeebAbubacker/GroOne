@@ -1,14 +1,15 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/helper/LpLoadsHelper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -23,6 +24,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 import 'low_credit_dialog.dart';
 
@@ -42,14 +44,15 @@ class LPLoadListBodyWidget extends StatelessWidget{
       final creditData = uiState?.data as CreditCheckApiResponse;
 
       if (creditData.data == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
-        );
+        ToastMessages.error(message: creditData.message);
         return;
       }
 
-      int availableCredit = double.parse(creditData.data!.availableCreditLimit).toInt();
-      int rateValue = loadItem.rate.isEmpty ? 0 : double.parse(loadItem.rate).toInt();
+      int availableCredit = double.parse(creditData.data?.availableCreditLimit ?? '0').toInt();
+      int rateValue = (loadItem.maxRate == null || loadItem.maxRate!.isEmpty || loadItem.maxRate == "0")
+          ? double.parse(loadItem.rate).toInt()
+          : double.parse(loadItem.maxRate ?? '').toInt();
+
 
       if(availableCredit < rateValue) {
         AppDialog.show(context, child: LowCreditDialog());
@@ -58,8 +61,8 @@ class LPLoadListBodyWidget extends StatelessWidget{
       }
     }
     else if (uiState?.status == Status.ERROR) {
-      final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      final errorType = uiState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
       return;
     }
 
@@ -77,9 +80,24 @@ class LPLoadListBodyWidget extends StatelessWidget{
           Text("Are you sure you agree to this Load?"),
         ],
       ),
-      onClickYesButton: () {
-        Navigator.pop(context);
-        AppDialog.show(context, child: AdvancePaymentDialog(price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),  loadId: "${loadItem.id}", creditLimit: '',), dismissible: true);
+      onClickYesButton: () async {
+        await lpLoadLocator.loadAgree(loadId: loadItem.id.toString());
+
+        final uiState = lpLoadLocator.state.lpLoadAgree;
+
+
+        if (uiState?.status == Status.LOADING) {}
+        else if (uiState?.status == Status.SUCCESS) {
+
+          final lpLoadAgreeDetails = uiState?.data?.lpLoadAgreeData as LpLoadAgreeData;
+          Navigator.pop(context);
+          AppDialog.show(context, child: AdvancePaymentDialog(loadId: "${loadItem.id}", creditLimit: '',lpLoadAgreeData: lpLoadAgreeDetails,), dismissible: true);        }
+        else if (uiState?.status == Status.ERROR) {
+          final errorType = uiState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+          return;
+        }
+
       },
     ));
   }
@@ -101,7 +119,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             20.height,
             buildRateWidget(),
             10.height,
-            if(loadItem.loadStatus == 5)
+            if(loadItem.loadStatus == 4)
             buildAgreeButtonWidget(context)
           ],
         )
@@ -134,7 +152,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
             ),
             8.height,
             Text(
-             loadItem.dueDate != null ? DateTimeHelper.formatCustomDate(loadItem.dueDate!) : "--",
+             loadItem.dueDate != null ? DateTimeHelper.formatCustomDateIST(loadItem.dueDate!) : "--",
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.primaryColor,
               ),
@@ -145,17 +163,19 @@ class LPLoadListBodyWidget extends StatelessWidget{
           children: [
             Container(
               decoration: commonContainerDecoration(
-                color: LpLoadsHelper.getLoadStatusColor(loadItem.loadStatus.toInt())
+                color: LpHomeHelper.getLoadStatusColor(loadItem.loadStatusDetails?.loadType ?? '')
               ),
               width: 100,
               child: Text(
-                LpLoadsHelper.getLoadTypeDisplayText(loadItem.loadStatus.toInt()),
-                style: AppTextStyle.body3.copyWith(color: LpLoadsHelper.getLoadStatusTextColor(loadItem.loadStatus.toInt())),
+                LpHomeHelper.getLoadTypeDisplayText(loadItem.loadStatusDetails?.loadType ?? ''),
+                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(loadItem.loadStatusDetails?.loadType ?? '')),
               ).center().paddingAll(4),
             ),
             5.height,
+            if(loadItem.loadStatus == 1)
+             Text(LpHomeHelper.getKycPendingTimeLeft(loadItem.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
             if(loadItem.loadStatus == 2)
-            Text(LpHomeHelper.getMatchingTime(loadItem.createdAt.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+             Text(LpHomeHelper.getMatchingTime(loadItem.matchingStartDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
           ],
         ),
       ],
@@ -198,8 +218,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
   Widget buildRateWidget() {
     final loadPrice = (loadItem.maxRate == null || loadItem.maxRate!.isEmpty || loadItem.maxRate == "0")
         ? PriceHelper.formatINR(loadItem.rate)
-        : '${PriceHelper.formatINR(loadItem.rate)} - ${PriceHelper.formatINR(loadItem.maxRate)}';
-    print("lp rate ${loadItem.vpRate}");
+        : PriceHelper.formatINRRange('${loadItem.rate} - ${loadItem.maxRate}');
     return Container(
       decoration: commonContainerDecoration(
         color: AppColors.primaryLightColor,
@@ -210,10 +229,6 @@ class LPLoadListBodyWidget extends StatelessWidget{
         children: [
           Text("Agreed Price", style: AppTextStyle.body2),
           Text(loadPrice, style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor)),
-          Text(
-            PriceHelper.formatINR(loadItem.vpRate),
-            style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
-          ),
         ],
       ).paddingAll(8),
 
@@ -228,6 +243,7 @@ class LPLoadListBodyWidget extends StatelessWidget{
           buttonHeight: 40,
           onPressed: () async {
             bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
+            print('bool $isFirstTimeLoad');
             if (context.mounted && !isFirstTimeLoad) {
               creditCheck(context);
             } else {

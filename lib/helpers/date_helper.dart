@@ -71,6 +71,17 @@ class DateTimeHelper {
     }
   }
 
+  /// convert to IST format
+  static String formatCustomDateIST(DateTime? date) {
+    try {
+      if (date == null) return "Invalid Date";
+      final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
+      return DateFormat("d MMM y, h.mm a").format(istDate);
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
   static DateTime? convertStringToDateTime(String dateString) {
     try {
       // Define input format (DD/MM/YYYY)

@@ -94,6 +94,7 @@ class LpLoadItem {
     required this.expectedDeliveryDateTime,
     required this.handlingCharges,
     required this.acceptedBy,
+    required this.matchingStartDate,
     required this.agreedPrice,
     required this.acceptedVehicleId,
     required this.createdAt,
@@ -104,6 +105,7 @@ class LpLoadItem {
     required this.customer,
     required this.acceptedCustomer,
     required this.customerDetail,
+    required this.loadStatusDetails,
     required this.acceptedVehicle,
     required this.vehicleProvider,
     required this.consigneeDetails,
@@ -145,6 +147,7 @@ class LpLoadItem {
   final DateTime? expectedDeliveryDateTime;
   final num handlingCharges;
   final num acceptedBy;
+  final DateTime? matchingStartDate;
   final dynamic agreedPrice;
   final num acceptedVehicleId;
   final DateTime? createdAt;
@@ -152,9 +155,10 @@ class LpLoadItem {
   final dynamic deletedAt;
   final DatumCommodity? commodity;
   final DatumTruckType? truckType;
-  final AcceptedCustomerClass? customer;
+  final Customer? customer;
   final AcceptedCustomerClass? acceptedCustomer;
   final CustomerDetail? customerDetail;
+  final LoadStatusDetails? loadStatusDetails;
   final AcceptedVehicle? acceptedVehicle;
   final VehicleProvider? vehicleProvider;
   final ConsigneeDetails? consigneeDetails;
@@ -192,6 +196,7 @@ class LpLoadItem {
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
     num? acceptedBy,
+    DateTime? matchingStartDate,
     dynamic? agreedPrice,
     num? acceptedVehicleId,
     DateTime? createdAt,
@@ -199,9 +204,10 @@ class LpLoadItem {
     dynamic? deletedAt,
     DatumCommodity? commodity,
     DatumTruckType? truckType,
-    AcceptedCustomerClass? customer,
+    Customer? customer,
     AcceptedCustomerClass? acceptedCustomer,
     CustomerDetail? customerDetail,
+    LoadStatusDetails? loadStatusDetails,
     AcceptedVehicle? acceptedVehicle,
     VehicleProvider? vehicleProvider,
     ConsigneeDetails? consigneeDetails,
@@ -210,8 +216,8 @@ class LpLoadItem {
   }) {
     return LpLoadItem(
       pickUpWholeAddr:pickUpWholeAddr??this.pickUpWholeAddr ,
-      dropWholeAddr:pickUpWholeAddr??this.dropWholeAddr ,
-      vpRate:pickUpWholeAddr??this.vpRate ,
+      dropWholeAddr:dropWholeAddr??this.dropWholeAddr ,
+      vpRate:vpRate??this.vpRate ,
       id: id ?? this.id,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
@@ -238,6 +244,7 @@ class LpLoadItem {
       expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      matchingStartDate: matchingStartDate ?? this.matchingStartDate,
       agreedPrice: agreedPrice ?? this.agreedPrice,
       acceptedVehicleId: acceptedVehicleId ?? this.acceptedVehicleId,
       createdAt: createdAt ?? this.createdAt,
@@ -246,6 +253,7 @@ class LpLoadItem {
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
       customer: customer ?? this.customer,
+      loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       acceptedCustomer: acceptedCustomer ?? this.acceptedCustomer,
       customerDetail: customerDetail ?? this.customerDetail,
       acceptedVehicle: acceptedVehicle ?? this.acceptedVehicle,
@@ -286,6 +294,7 @@ class LpLoadItem {
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"] ?? 0,
+      matchingStartDate: DateTime.tryParse(json["matchingStartDate"] ?? ""),
       agreedPrice: json["agreedPrice"],
       acceptedVehicleId: json["acceptedVehicleId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
@@ -293,9 +302,10 @@ class LpLoadItem {
       deletedAt: json["deletedAt"],
       commodity: json["commodity"] == null ? null : DatumCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : DatumTruckType.fromJson(json["truckType"]),
-      customer: json["customer"] == null ? null : AcceptedCustomerClass.fromJson(json["customer"]),
+      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       acceptedCustomer: json["acceptedCustomer"] == null ? null : AcceptedCustomerClass.fromJson(json["acceptedCustomer"]),
       customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+      loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       acceptedVehicle: json["acceptedVehicle"] == null ? null : AcceptedVehicle.fromJson(json["acceptedVehicle"]),
       vehicleProvider: json["vehicleProvider"] == null ? null : VehicleProvider.fromJson(json["vehicleProvider"]),
       consigneeDetails: json["consigneeDetails"] == null ? null : ConsigneeDetails.fromJson(json["consigneeDetails"]),
@@ -304,6 +314,55 @@ class LpLoadItem {
   }
 
 }
+
+class Customer {
+  Customer({
+    required this.id,
+    required this.customerName,
+    required this.mobileNumber,
+    required this.emailId,
+    required this.kycPendingDate,
+    required this.isKyc,
+  });
+
+  final int id;
+  final String customerName;
+  final String mobileNumber;
+  final String emailId;
+  final DateTime? kycPendingDate;
+  final num isKyc;
+
+  Customer copyWith({
+    int? id,
+    String? customerName,
+    String? mobileNumber,
+    String? emailId,
+    DateTime? kycPendingDate,
+    num? isKyc,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      customerName: customerName ?? this.customerName,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      emailId: emailId ?? this.emailId,
+      kycPendingDate: kycPendingDate ?? this.kycPendingDate,
+      isKyc: isKyc ?? this.isKyc,
+    );
+  }
+
+  factory Customer.fromJson(Map<String, dynamic> json){
+    return Customer(
+      id: json["id"] ?? 0,
+      customerName: json["customerName"] ?? "",
+      mobileNumber: json["mobileNumber"] ?? "",
+      emailId: json["emailId"] ?? "",
+      kycPendingDate: DateTime.tryParse(json["kycPendingDate"] ?? ""),
+      isKyc: json["isKyc"] ?? 0,
+    );
+  }
+
+}
+
 
 class AcceptedCustomerClass {
   AcceptedCustomerClass({
@@ -782,6 +841,49 @@ class CustomerDetail {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       customerDetailCustomerId: json["customer_id"] ?? 0,
+    );
+  }
+
+}
+
+class LoadStatusDetails {
+  LoadStatusDetails({
+    required this.id,
+    required this.loadType,
+    required this.status,
+    required this.createdAt,
+    required this.deletedAt,
+  });
+
+  final int id;
+  final String loadType;
+  final num status;
+  final dynamic createdAt;
+  final dynamic deletedAt;
+
+  LoadStatusDetails copyWith({
+    int? id,
+    String? loadType,
+    num? status,
+    dynamic? createdAt,
+    dynamic? deletedAt,
+  }) {
+    return LoadStatusDetails(
+      id: id ?? this.id,
+      loadType: loadType ?? this.loadType,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
+    return LoadStatusDetails(
+      id: json["id"] ?? 0,
+      loadType: json["loadType"] ?? "",
+      status: json["status"] ?? 0,
+      createdAt: json["createdAt"],
+      deletedAt: json["deletedAt"],
     );
   }
 

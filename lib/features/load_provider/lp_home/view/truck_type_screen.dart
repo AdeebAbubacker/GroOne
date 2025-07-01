@@ -117,7 +117,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                   child: Container(
                     height: 50,
                     decoration: commonContainerDecoration(
-                      color: Colors.white,
+                      color: AppColors.lightPrimaryColor2,
                       borderColor: isSelected ? AppColors.primaryColor : AppColors.lightDividerColor,
                       borderRadius: BorderRadius.circular(10),
                       borderWidth: isSelected ?  1.5 : 1,
@@ -165,7 +165,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(10.0),
                   decoration: commonContainerDecoration(
-                    color: Colors.white,
+                    color: AppColors.lightPrimaryColor2,
                     borderColor: isSelected ? AppColors.primaryColor : AppColors.lightDividerColor,
                     borderRadius: BorderRadius.circular(10),
                     borderWidth: isSelected ?  1.5 : 1,
