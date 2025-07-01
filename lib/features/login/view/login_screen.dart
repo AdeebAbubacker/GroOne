@@ -27,7 +27,6 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import 'legal_detail_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.roleId});
@@ -80,9 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
           }
           if (state is LogInError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           }
         },
         builder: (context, state) {

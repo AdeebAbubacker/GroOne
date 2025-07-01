@@ -6,9 +6,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creat
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
-import '../../load_provider/lp_create_account/model/create_response.dart';
-
-
 class AuthRepository {
   final SecuredSharedPreferences _securedSharedPref;
   final ApiService _apiService;
@@ -68,7 +65,6 @@ class AuthRepository {
     await _securedSharedPref.deleteKey(AppString.sessionKey.companyTypeId);
     await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
     await _securedSharedPref.reset();
-
     await _apiService.clearCache();
     // await _notificationService.clearBadgeCount();
     // await _notificationService.clearFcmToken();

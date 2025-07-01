@@ -87,51 +87,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ],
                   ),
                 ),
-                // 20.height,
-                //
-                //
-                // chooseLanguageTile(
-                //   isSelected: state.index == 0 ? true : false,
-                //   text1: AppString.label.english,
-                //   text2: AppString.label.english,
-                //   onTap: () {
-                //     context.read<LanguageBloc>().add(
-                //       const ChangeIndex(index: 0),
-                //     );
-                //     context.read<LocaleBloc>().add(
-                //       ChangeLocale(const Locale('en')),
-                //     );
-                //   },
-                //   imageString: AppImage.png.englishLanguage,
-                // ),
-                // 20.height,
-                //
-                // chooseLanguageTile(
-                //   isSelected: state.index == 1 ? true : false,
-                //   text1: AppString.label.hindi2,
-                //   text2: AppString.label.hindi,
-                //   onTap: () {
-                //     // context.read<LanguageBloc>().add(
-                //     //   const ChangeIndex(index: 1),
-                //     // );
-                //     // context.read<LocaleBloc>().add(ChangeLocale(const Locale('hi')));
-                //   },
-                //   imageString: AppImage.png.hindiLanguage,
-                // ),
-                // 20.height,
-                //
-                // chooseLanguageTile(
-                //   isSelected: state.index == 2 ? true : false,
-                //   text1: AppString.label.tamil,
-                //   text2: AppString.label.tamil2,
-                //   onTap: () {
-                //     // context.read<LanguageBloc>().add(
-                //     //   const ChangeIndex(index: 2),
-                //     // );
-                //     // context.read<LocaleBloc>().add(ChangeLocale(const Locale('ta')));
-                //   },
-                //   imageString: AppImage.png.tamilLanguage,
-                // ),
+
                 30.height,
                 ListView.separated(
                   shrinkWrap: true,
@@ -164,7 +120,11 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     AppButton(
                       title: context.appText.next,
                       onPressed: () {
-                        context.push(AppRouteName.chooseRoleScreen);
+                        if(widget.isCloseButton){
+                          Navigator.of(context).pop();
+                        }else{
+                          context.push(AppRouteName.chooseRoleScreen);
+                        }
                       },
                     ),
                     10.height,

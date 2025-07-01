@@ -33,6 +33,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_weigh
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -81,6 +82,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
+  final profileCubit = locator<ProfileCubit>();
 
 
   final dateTimeTextController = TextEditingController();
@@ -134,8 +136,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
-    lpHomeCubit.resetState();
-    lpHomeCubit.fetchProfileDetail();
+    profileCubit.fetchProfileDetail();
     loadCommodityBloc.add(LoadCommodity());
     loadTruckTypeBloc.add(LoadTruckType());
     lpHomeCubit.fetchGetLoadList();
@@ -372,20 +373,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return CommonAppBar(
       elevation: 1.0,
       isLeading: false,
-      leading: BlocListener<VpCreationBloc, VpCreationState>(
-        bloc: vpHomeBloc,
-        listener: (context, state) {
-          if (state is LogoutSuccess) {
-            context.go(AppRouteName.splash);
-          }
-          if (state is LogoutError) {
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
-          }
-        },
-        child: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
-      ),
+      leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
 
       actions: [
 
@@ -418,12 +406,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
               CustomLog.debug(this, 'is KYC : $kycFlag');
 
               if (kycFlag == 3) {
-                // return kycWidget(
-                //   onTap: () => commonBottomSheetWithBGBlur(
-                //     context: context,
-                //     screen: EnterAadhaarNumberBottomSheet(),
-                //   ),
-                // );
                 return const SizedBox.shrink();
               }
 
@@ -431,11 +413,21 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 return const SizedBox.shrink();
               }
 
+              final companyId = profileState.data!.data?.details?.companyTypeId;
+
+              CustomLog.debug(this, 'Company Id : $companyId');
+
               return kycWidget(
-                onTap: () => commonBottomSheetWithBGBlur(
-                  context: context,
-                  screen: EnterAadhaarNumberBottomSheet(),
-                ),
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(
+                      context: context,
+                      screen: EnterAadhaarNumberBottomSheet(),
+                    );
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
               );
 
             },
@@ -443,39 +435,52 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         ),
 
         // Profile
-        BlocProvider<LPHomeCubit>.value(
-          value: locator<LPHomeCubit>(), // singleton from locator
-          child: BlocConsumer<LPHomeCubit, LPHomeState>(
-            listener: (context, state) { },
-            builder: (context, state) {
-              if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-                if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
-                  if (state.profileDetailUIState?.data?.data?.details != null) {
-                    final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
-                    return Row(
-                      children: [
-                        10.width,
+        BlocConsumer<ProfileCubit, ProfileState>(
+          bloc: profileCubit,
+          listener: (context, state) {
+            final status = state.profileDetailUIState?.status;
 
-                        // Profile
-                        Container(
-                          height: 40,
-                          width: 40,
-                          alignment: Alignment.center,
-                          decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                          child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
-                        ).onClick((){
-                          Navigator.push(context, commonRoute(ProfileScreen(profileData: state.profileDetailUIState!.data!.data!), isForward: true)).then((v) {
-                            frameCallback(() =>  lpHomeCubit.fetchProfileDetail());
-                          });
-                        }).paddingRight(commonSafeAreaPadding),
-                      ],
-                    );
-                  }
+            if (status == Status.ERROR) {
+              final error = state.profileDetailUIState?.errorType;
+              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+            }
+          },
+          builder: (context, state) {
+            if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
+              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
+                if (state.profileDetailUIState?.data?.data?.details != null) {
+                  final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
+                  return Row(
+                    children: [
+                      10.width,
+
+                      // Profile
+                      Container(
+                        height: 40,
+                        width: 40,
+                        alignment: Alignment.center,
+                        decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+                        child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
+                      ).onClick((){
+                        Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
+                          frameCallback(() =>  profileCubit.fetchProfileDetail());
+                        });
+                      }).paddingRight(commonSafeAreaPadding),
+                    ],
+                  );
                 }
               }
-              return 0.width;
-            },
-          ),
+            }
+            return Container(
+              height: 40,
+              width: 40,
+              alignment: Alignment.center,
+              decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+              child: Text(getInitialsFromName(this, name : "")),
+            ).onClick((){
+              Navigator.push(context, commonRoute(ProfileScreen(), isForward: true));
+            }).paddingRight(commonSafeAreaPadding);
+          },
         ),
 
       ],
@@ -526,8 +531,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   // Kyc Label
   Widget buildKycLabelWidget(){
-    return BlocConsumer<LPHomeCubit, LPHomeState>(
-      bloc: lpHomeCubit,
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: profileCubit,
       listenWhen: (previous, current) => previous.profileDetailUIState?.status != current.profileDetailUIState?.status,
       listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
@@ -535,8 +540,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.data!.customer!.blueId;
-          final blueIdFromStorage = await lpHomeCubit.getBlueId();
-          bool popupShownFlag = await lpHomeCubit.getHasShowBluePopup();
+          final blueIdFromStorage = await profileCubit.getBlueId();
+          bool popupShownFlag = await profileCubit.getHasShowBluePopup();
 
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
@@ -548,12 +553,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
 
-            await lpHomeCubit.startKycSuccessTimer(true);
+            await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
-            await  lpHomeCubit.saveHasShowBluePopup(false);
+            await  profileCubit.saveHasShowBluePopup(false);
           }
 
-          lpHomeCubit.startKycSuccessTimer(false);
+          profileCubit.startKycSuccessTimer(false);
         }
       },
       builder: (context, state) {
@@ -566,6 +571,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             profileState.data?.data?.customer != null) {
 
           final customer = profileState.data!.data!.customer!;
+          final companyId = profileState.data!.data?.details?.companyTypeId;
 
           isKycValid = customer.isKyc.toInt();
 
@@ -574,7 +580,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget();
           } else {
-            return IncompleteKycStatusWidget();
+            return IncompleteKycStatusWidget(companyId: companyId);
           }
         }
         return  20.width;

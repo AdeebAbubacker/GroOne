@@ -126,46 +126,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     _setMarker(latLng);
     setState(() {});
   });
-  //
-  // Future<void> _fetchSuggestions(String input) async {
-  //   final url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${Uri.encodeComponent(input)}&key=$_apiKey&language=en';
-  //   final response = await http.get(Uri.parse(url));
-  //   final data = json.decode(response.body);
-  //
-  //   if (data['status'] == 'OK') {
-  //     setState(() {
-  //       suggestions = data['predictions'];
-  //     });
-  //     printPrettyJson(suggestions);
-  //   } else {
-  //     setState(() => suggestions = []);
-  //   }
-  // }
-  //
-  // Future<void> _onSuggestionTap(String placeId, String description) async {
-  //   debugPrint('Place tapped: $description - $placeId');
-  //   final url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$_apiKey';
-  //   final response = await http.get(Uri.parse(url));
-  //   final data = json.decode(response.body);
-  //
-  //   if (data['status'] == 'OK') {
-  //     final location = data['result']['geometry']['location'];
-  //     final latLng = LatLng(location['lat'], location['lng']);
-  //     final formattedAddress = data['result']['formatted_address'];
-  //
-  //     setState(() {
-  //       _centerLatLng = latLng;
-  //       latLngData = "${latLng.latitude},${latLng.longitude}";
-  //       _locationField = formattedAddress;
-  //       searchTextController.text = description;
-  //       suggestions.clear();
-  //     });
-  //     if (_mapController != null) {
-  //       await MapHelper.animateTo(_mapController!, latLng);
-  //     }
-  //     _setMarker(latLng);
-  //   }
-  // }
+
 
   void _onCameraMove(CameraPosition position) {
     setState(() {
