@@ -11,13 +11,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
   ProfileCubit(this._repo): super(ProfileState());
 
-
-
-  // Clear Blue Id
-  Future<void> clearBlueId() async {
-    await _repo.clearBlueId();
-  }
-
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
     await _repo.saveHasShowBluePopup(value);

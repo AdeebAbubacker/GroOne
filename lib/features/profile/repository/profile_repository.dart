@@ -81,17 +81,13 @@ class ProfileRepository {
     }
   }
 
-  // Clear Blue Id
-  Future clearBlueId() async {
-    await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-  }
 
-  // Clear Blue Id
+  /// Clear Blue Id
   Future saveHasShowBluePopup(bool value) async {
     await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, value);
   }
 
-  // Get Show Blue
+  /// Get Show Blue
   Future<bool> getHasShowBluePopup() async {
     return await _securedSharedPref.getBooleans(AppString.sessionKey.hasBlueIdPopupShown);
   }
