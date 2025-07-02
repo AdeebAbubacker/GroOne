@@ -331,7 +331,7 @@ class LoadDetailsWidget extends StatelessWidget {
         ...[
            if(state.loadStatus==LoadStatus.matching)
             AppButton(
-             title: "Support",
+              title: "Support",
              style: AppButtonStyle.outline.copyWith(
                shape: WidgetStatePropertyAll(
                  RoundedRectangleBorder(
@@ -339,7 +339,9 @@ class LoadDetailsWidget extends StatelessWidget {
                  ),
                ),
              ),
-             onPressed: () {},
+             onPressed: () {
+               commonSupportDialog(context);
+             },
              textStyle: TextStyle(fontSize: 14),
            ).expand(),
            if(state.loadStatus==LoadStatus.matching || state.loadStatus==LoadStatus.accepted)

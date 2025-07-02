@@ -100,8 +100,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
             commonDivider(),
             Row(
               children: [
-
-
                 Column(
                   children: [
                     detailWidget(
@@ -191,7 +189,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       buttonHeight: 40,
                       onPressed: () {
                         if (widget.isKycDone) {
-
                           bloc.add(
                             VpAcceptLoad(loadId: widget.data.id.toString()),
                           );
