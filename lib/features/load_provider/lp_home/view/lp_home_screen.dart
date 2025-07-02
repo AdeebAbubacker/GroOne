@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_inProgress_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
@@ -32,6 +33,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_weight_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
@@ -83,6 +85,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   final rateDiscoveryBloc = locator<RateDiscoveryBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
   final profileCubit = locator<ProfileCubit>();
+  final lpLoadLocator = locator<LpLoadCubit>();
 
 
   final dateTimeTextController = TextEditingController();
@@ -283,6 +286,17 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       return;
     }
 
+    if (isKycValid == 2) {
+      String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+
+      if (firstPostedLoadId != null) {
+        AppDialog.show(context, child: KycInProgressDialogue(onPressed: () {
+          Navigator.pop(context);
+        }));
+        return;
+      }
+    }
+
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
         commodityId: int.parse(commodityId ?? "0"),
@@ -318,6 +332,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       category: selectedCommodity ?? "",
       price: rateDiscoveryPrice ?? "0000 - 0000",
       date : dateTimeTextController.text,
+      isKycValid: isKycValid
     ), isForward: true)).then((onValue){
       if(onValue != null && onValue == true){
         clearAllValues();
@@ -820,6 +835,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               truckType = truck.type;
                               truckLength = truck.subType;
                               await fetchRateDiscovery();
+                              setState(() {});
                             },
                           )));
                         },

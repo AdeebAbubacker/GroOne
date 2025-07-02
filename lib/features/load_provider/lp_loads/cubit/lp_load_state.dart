@@ -1,7 +1,7 @@
 part of 'lp_load_cubit.dart';
 
 class LpLoadState extends Equatable {
-  final UIState<List<LpLoadItem>>? lpLoadResponse;
+  final UIState<LpLoadResponse>? lpLoadResponse;
   final UIState<LpLoadGetByIdResponse>? lpLoadById;
   final UIState<LoadMemoData>? lpLoadMemoDetails;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp;
@@ -16,6 +16,7 @@ class LpLoadState extends Equatable {
   final String? matchingText;
   final Advance? selectedAdvance;
   final int? selectedPercentageId;
+  final String? locationDistance;
 
 
   const LpLoadState({
@@ -33,11 +34,12 @@ class LpLoadState extends Equatable {
     this.lpLoadVerifyAdvance,
     this.matchingText,
     this.selectedAdvance,
-    this.selectedPercentageId
+    this.selectedPercentageId,
+    this.locationDistance,
   });
 
   LpLoadState copyWith({
-    UIState<List<LpLoadItem>>? lpLoadResponse,
+    UIState<LpLoadResponse>? lpLoadResponse,
     UIState<LpLoadGetByIdResponse>? lpLoadById,
     UIState<LoadMemoData>? lpLoadMemoDetails,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp,
@@ -51,7 +53,8 @@ class LpLoadState extends Equatable {
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
-    int? selectedPercentageId
+    int? selectedPercentageId,
+    String? locationDistance,
   }) {
     return LpLoadState(
       lpLoadResponse: lpLoadResponse ?? this.lpLoadResponse,
@@ -69,6 +72,7 @@ class LpLoadState extends Equatable {
       matchingText: matchingText ?? this.matchingText,
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
+      locationDistance: locationDistance ?? this.locationDistance,
     );
   }
 
@@ -88,6 +92,7 @@ class LpLoadState extends Equatable {
     lpLoadVerifyAdvance,
     matchingText,
     selectedPercentageId,
-    selectedAdvance
+    selectedAdvance,
+    locationDistance
   ];
 }
