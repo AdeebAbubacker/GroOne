@@ -48,7 +48,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
   }
 
-
   @override
   void initState() {
     getLoadDetails();
@@ -61,9 +60,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        bottomSheet: LoadDetailsWidget(
-          vpHomeBloc: vpHomeBloc,
-          cubit: cubit,lpHomeCubit: homeCubit,),
+
         body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
           bloc: cubit,
           builder: (context, state) {
@@ -84,7 +81,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
               return Stack(
                 children: [
                   Positioned.fill(child: GoogleMapWidget(
-                      pickupLocation: loads!.data!.pickUpLocation,
+                    pickupLocation: loads!.data!.pickUpLocation,
                     dropLocation: loads.data!.dropLocation,
                     pickUpLatLong: loads.data!.pickUpLatlon,
                     dropLatLong: loads.data!.dropLatlon,
@@ -95,6 +92,9 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                     right: 15,
                     child: buildSourceAndDestinationWidget(loads.data!)
                   ),
+                  LoadDetailsWidget(
+                    vpHomeBloc: vpHomeBloc,
+                    cubit: cubit,lpHomeCubit: homeCubit,),
                 ],
               );
             }

@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
@@ -25,7 +26,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
 
   acceptLoad(int? status) {
-    print("accept load fun : $status");
     LoadStatus? loadStatus;
     switch(status){
       case 3 :
@@ -80,7 +80,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
- String getDistance(String pickUpLatLong,dropLatLong){
+   String getDistance(String pickUpLatLong,dropLatLong){
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -105,12 +105,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     );
 
     if (result is Success<ScheduleTripResponse>) {
-
       emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
-
       Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
-
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
       ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     } else {
@@ -118,11 +115,31 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     }
   }catch(e){
+      ToastMessages.error(message:e.toString(),);
+      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+      }
+  }
 
-    ToastMessages.error(message:e.toString(),);
-    emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+
+  Future getMapRouting({String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong}) async {
+    emit(state.copyWith(directionApiResponse: UIState.loading()));
+    try{
+      DirectionResponse? directionResponse = await _vHomeRepository.getGoogleDirectionResponse(
+          pickUpLat,
+          pickUpLong,
+          dropLat,
+          dropLong
+      );
+      if (directionResponse!=null) {
+        emit(state.copyWith(directionApiResponse: UIState.success(directionResponse)));
+      }
+    }catch(e){
+      ToastMessages.error(message:e.toString(),);
+      emit(state.copyWith(directionApiResponse: UIState.error(DeserializationError())));
+    }
   }
-  }
+
+
 
   void resetState(){
     emit(state.copyWith(
