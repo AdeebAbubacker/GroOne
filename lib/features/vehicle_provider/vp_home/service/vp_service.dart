@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
@@ -104,9 +105,7 @@ class VpHomeService {
 
   Future<Result<VpRecentLoadResponse>> getVpRecentLoads(String customerId) async {
     try {
-
       final result = await _apiService.get('${ApiUrls.vpRecentLoads}?customerId=$customerId',forceRefresh: true);
-
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
@@ -139,6 +138,32 @@ class VpHomeService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<DirectionResponse>> getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
+    try {
+      final result = await _apiService.get(
+          ApiUrls.googleDirectionApi,
+          queryParams: {
+            "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
+            "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
+            "key":"AIzaSyAQW_V1fIJSXzYD5gjAh9wnztxLnE_pJ7E"
+      }
+      );
+      if (result is Success) {
+        return await _apiService.getResponseStatus(result.value, (data) => DirectionResponse.fromJson(data));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+
 
 
 }

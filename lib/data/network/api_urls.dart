@@ -148,4 +148,7 @@ class ApiUrls {
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
   static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
   static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
+
+  /// Google Map
+  static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
 }

@@ -25,7 +25,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
 
   acceptLoad(int? status) {
-    print("accept load fun : $status");
     LoadStatus? loadStatus;
     switch(status){
       case 3 :
@@ -80,7 +79,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
- String getDistance(String pickUpLatLong,dropLatLong){
+   String getDistance(String pickUpLatLong,dropLatLong){
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -123,6 +122,36 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
   }
   }
+
+
+  Future getMapRouting(ScheduleTripRequest scheduleTripRequest) async {
+    emit(state.copyWith(scheduleTripResponse: UIState.loading()));
+    try{
+      Result result = await _vHomeRepository.scheduleTripResponse(
+        apiRequest: scheduleTripRequest,
+      );
+
+      if (result is Success<ScheduleTripResponse>) {
+
+        emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
+
+        Navigator.pop(navigatorKey.currentState!.context);
+      } else if (result is Error) {
+
+        emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+        ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
+      } else {
+        emit(state.copyWith(scheduleTripResponse: UIState.error(GenericError())));
+        ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
+      }
+    }catch(e){
+
+      ToastMessages.error(message:e.toString(),);
+      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+    }
+  }
+
+
 
   void resetState(){
     emit(state.copyWith(

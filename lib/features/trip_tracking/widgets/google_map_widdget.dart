@@ -35,8 +35,6 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     controller.setMapStyle(style);
   }
 
-
-
   void setMapMarkers() async {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong??"0,0");
     final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong??"0,0");

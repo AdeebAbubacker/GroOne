@@ -48,7 +48,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
   }
 
-
   @override
   void initState() {
     getLoadDetails();
