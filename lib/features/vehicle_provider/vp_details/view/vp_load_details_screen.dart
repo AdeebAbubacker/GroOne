@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_details_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -39,6 +40,7 @@ class VpLoadDetailsScreen extends StatefulWidget {
 class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final cubit = locator<LoadDetailsCubit>();
   final homeCubit = locator<LPHomeCubit>();
+  final vpHomeBloc = locator<VpHomeBloc>();
 
 
   /// Map Style
@@ -59,7 +61,9 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        bottomSheet: LoadDetailsWidget(cubit: cubit,lpHomeCubit: homeCubit,),
+        bottomSheet: LoadDetailsWidget(
+          vpHomeBloc: vpHomeBloc,
+          cubit: cubit,lpHomeCubit: homeCubit,),
         body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
           bloc: cubit,
           builder: (context, state) {

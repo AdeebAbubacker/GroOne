@@ -59,7 +59,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
   void initFunction() => frameCallback(() async {
     cubit.resetState();
-    int? userId= lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id;
+    int? userId= int.tryParse(await vpHomeScreenBloc.getUserId()??"0");
     vpHomeScreenBloc.add(
       VpVehicleListRequested(userId:userId.toString() ),
     );

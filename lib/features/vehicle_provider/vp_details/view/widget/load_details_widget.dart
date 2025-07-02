@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -33,8 +34,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
   final LPHomeCubit lpHomeCubit;
-
-  const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit});
+  final VpHomeBloc vpHomeBloc;
+  const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit,required this.vpHomeBloc});
 
 
   changeLoadStatus(BuildContext context,int? id) async {
@@ -44,8 +45,9 @@ class LoadDetailsWidget extends StatelessWidget {
       },);
       return;
     }
+    String? userId=await vpHomeBloc.getUserId();
     await cubit.changedLoadStatus(id??0,
-      customerId:lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id,
+      customerId:int.tryParse(userId??"0"),
       loadStatus: 3,
     ).then((value) {
       if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
@@ -351,6 +353,7 @@ class LoadDetailsWidget extends StatelessWidget {
                ),
              ),
              onPressed:   () async {
+
                changeLoadStatus(context,loadDetails?.id??0);
              },
              textStyle: TextStyle(
