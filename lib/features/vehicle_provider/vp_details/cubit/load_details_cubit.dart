@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
@@ -124,30 +125,28 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  Future getMapRouting(ScheduleTripRequest scheduleTripRequest) async {
-    emit(state.copyWith(scheduleTripResponse: UIState.loading()));
+  Future getMapRouting({String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong}) async {
+    emit(state.copyWith(directionApiResponse: UIState.loading()));
     try{
-      Result result = await _vHomeRepository.scheduleTripResponse(
-        apiRequest: scheduleTripRequest,
+      Result result = await _vHomeRepository.getGoogleDirectionResponse(
+          pickUpLat,
+          pickUpLong,
+          dropLat,
+          dropLong
       );
-
-      if (result is Success<ScheduleTripResponse>) {
-
-        emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
-
-        Navigator.pop(navigatorKey.currentState!.context);
+      if (result is Success<DirectionResponse>) {
+        emit(state.copyWith(directionApiResponse: UIState.success(result.value)));
+        print("routing is ${state.directionApiResponse?.data?.routes.first.overviewPolyline.points}");
       } else if (result is Error) {
-
-        emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+        emit(state.copyWith(directionApiResponse: UIState.error(result.type)));
         ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
       } else {
-        emit(state.copyWith(scheduleTripResponse: UIState.error(GenericError())));
+        emit(state.copyWith(directionApiResponse: UIState.error(GenericError())));
         ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
       }
     }catch(e){
-
       ToastMessages.error(message:e.toString(),);
-      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+      emit(state.copyWith(directionApiResponse: UIState.error(DeserializationError())));
     }
   }
 

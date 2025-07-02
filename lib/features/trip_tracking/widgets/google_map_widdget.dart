@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -29,10 +32,18 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
   final Set<Marker> _markers = {};
   String kilometers = '';
   GoogleMapController? googleMapController;
+  final vpDetailsCubit = locator<LoadDetailsCubit>();
 
   Future<void> _setMapStyle(GoogleMapController controller) async {
     String style = await rootBundle.loadString(AppJSON.mapStyle);
     controller.setMapStyle(style);
+  }
+
+
+  @override
+  void initState() {
+
+    super.initState();
   }
 
   void setMapMarkers() async {
@@ -60,6 +71,10 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          ),
        );
      });
+     vpDetailsCubit.getMapRouting(
+         dropLong: dropLatLng.longitude.toString(),
+         dropLat: dropLatLng.latitude.toString(),
+         pickUpLat: pickupLatLng.latitude.toString(),pickUpLong:  pickupLatLng.longitude.toString());
    },);
 
 

@@ -83,6 +83,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
               return Stack(
                 children: [
                   Positioned.fill(child: GoogleMapWidget(
+
                       pickupLocation: loads!.data!.pickUpLocation,
                     dropLocation: loads.data!.dropLocation,
                     pickUpLatLong: loads.data!.pickUpLatlon,
