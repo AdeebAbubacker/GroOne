@@ -46,6 +46,10 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   String? truckType;
   String? driverType;
 
+
+  String? possibleDeliveryDate;
+
+
   @override
   void initState() {
     initFunction();
@@ -54,7 +58,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
 
   void initFunction() => frameCallback(() async {
-   int? userId= lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id;
+    cubit.resetState();
+    int? userId= int.tryParse(await vpHomeScreenBloc.getUserId()??"0");
     vpHomeScreenBloc.add(
       VpVehicleListRequested(userId:userId.toString() ),
     );
@@ -134,9 +139,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     },
                   ),
                   ///Scheduled Pickup Date
-                  buildReadOnlyField(
-
-                      "Scheduled Pickup Date",DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
+                  buildReadOnlyField("Scheduled Pickup Date",DateTimeHelper.formatCustomDate(DateTime.tryParse(loadDetails?.pickUpDateTime??"")??DateTime.now()), fillColor: Color(0xffEBEBEB)),
 
                   ///Expected Delivery date
 
@@ -156,22 +159,21 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
                         if (date != null && time != null) {
                           cubit.updatePossibleDeliveryDateDate("$date, $time");
+                          possibleDeliveryDate =  DateTimeHelper.convertToApiDateTime(date, time);
                         }
-
-                      },
+                        },
                       child: buildReadOnlyField("Possible Delivery date", state.possibleDeliveryDate ?? "Possible Pickup Date", fillColor: Colors.white)
                   ),
 
                   BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                     listener: (context, state) {
-                     if(state.scheduleTripResponse?.status==Status.SUCCESS){
-                       print("working ");
-                       cubit.acceptLoad(4);
-                       Navigator.pop(context);
-                     }
+
+                      if(state.scheduleTripResponse?.status==Status.SUCCESS){
+                        cubit.acceptLoad(4);
+                      }
+
                     },
                     builder: (context, state) {
-                      print("schedule is ${state.scheduleTripResponse}");
                       return AppButton(
                         isLoading: state.scheduleTripResponse?.status==Status.LOADING,
                         title: "Schedule trip",
@@ -182,23 +184,22 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                             ),
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          String? userId=await vpHomeScreenBloc.getUserId();
                           cubit.scheduleTripApi(ScheduleTripRequest(
                             loadId: loadDetails?.id ?? 0,
                             vehicleId: int.parse(truckType ?? "0"),
                             driverId: int.parse(driverType ?? "0"),
-                            acceptedBy: int.parse(vpHomeScreenBloc.userId ?? "0"),
-                            etaForPickUp: DateTime.now(),
-                            expectedDeliveryDate: DateTime.now(),
+                            acceptedBy: int.parse(userId??""),
+                            etaForPickUp: (loadDetails?.pickUpDateTime.toString()??DateTime.now()).toString(),
+                            expectedDeliveryDate:possibleDeliveryDate,
                           ),);
-
                           },
                       );
                     },
                   ),
 
                   10.height,
-
 
                 ],
               ).paddingSymmetric(horizontal: 15);

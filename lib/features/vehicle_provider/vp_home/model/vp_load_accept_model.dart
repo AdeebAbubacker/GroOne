@@ -144,6 +144,8 @@ class Load {
   }
 
   factory Load.fromJson(Map<String, dynamic> json){
+    print("data json ${json}");
+    print("json load status ${json["loadStatus"] ?? 0}");
     return Load(
       loadStatus: json["loadStatus"] ?? 0,
       id: json["id"] ?? 0,

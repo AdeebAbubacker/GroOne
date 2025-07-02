@@ -8,6 +8,12 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_bottom_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -62,9 +68,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
 
   void setMapMarkers(loadItem) async {
-    final pickupLatLng = _getLatLngFromString(loadItem.pickUpLatlon);
-    final dropLatLng = _getLatLngFromString(loadItem.dropLatlon);
-
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(loadItem.pickUpLatlon);
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(loadItem.dropLatlon);
 
     setState(() {
       _markers.clear();

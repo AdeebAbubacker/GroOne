@@ -150,7 +150,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                     textAlign: TextAlign.center,
                   ).expand(),
                   Text(
-                    (widget.data.vpMaxRate??"").isNotEmpty ?
+                    (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"")!="0"?
                     "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
                     "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                     style: AppTextStyle.h4PrimaryColor,
@@ -191,9 +191,10 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       buttonHeight: 40,
                       onPressed: () {
                         if (widget.isKycDone) {
-                          loadingLoadIds.add(widget.data.id.toString());
-                          setState(() {});
-                          bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
+
+                          bloc.add(
+                            VpAcceptLoad(loadId: widget.data.id.toString()),
+                          );
                         } else {
                           commonBottomSheetWithBGBlur(
                             context: context,
@@ -210,7 +211,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                           );
                         }
                       },
-                      isLoading: loadingLoadIds.contains(widget.data.id.toString()),
+                      isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
                       title: 'Accept Load',
                     ).expand(),
                   ],

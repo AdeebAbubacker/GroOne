@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/utils/app_json.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class GoogleMapWidget extends StatefulWidget {
   final String? pickupLocation;
@@ -11,6 +13,7 @@ class GoogleMapWidget extends StatefulWidget {
   // Pickup co-ordinate
   final String? pickUpLatLong;
   final String? dropLatLong;
+
 
   // Drop co-ordinate
 
@@ -32,40 +35,34 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     controller.setMapStyle(style);
   }
 
-  LatLng _getLatLngFromString(String latLng) {
-    if (latLng.isEmpty || !latLng.contains(',')) {
-      return const LatLng(0, 0);
-    }
-    final parts = latLng.split(', ');
-    return LatLng(double.parse(parts[0].trim()), double.tryParse(parts[1].trim())??88.37060880000001);
-  }
+
 
   void setMapMarkers() async {
-    final pickupLatLng = _getLatLngFromString(widget.pickUpLatLong??"0,0");
-    final dropLatLng = _getLatLngFromString(widget.dropLatLong??"0,0");
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong??"0,0");
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong??"0,0");
 
-    setState(() {
-      _markers.add(
-        Marker(
-          markerId: MarkerId('pickup'),
-          position: pickupLatLng,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupLocation}'),
-        ),
-      );
+   frameCallback(() {
+     setState(() {
+       _markers.add(
+         Marker(
+           markerId: MarkerId('pickup'),
+           position: pickupLatLng,
+           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+           infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupLocation}'),
+         ),
+       );
 
 
-      _markers.add(
-        Marker(
-          markerId: MarkerId('drop'),
-            position: dropLatLng,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-          infoWindow: InfoWindow(title: 'Drop: ${widget.dropLocation}'),
-        ),
-      );
-    });
-
-    print("_markers is ${_markers}");
+       _markers.add(
+         Marker(
+           markerId: MarkerId('drop'),
+           position: dropLatLng,
+           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+           infoWindow: InfoWindow(title: 'Drop: ${widget.dropLocation}'),
+         ),
+       );
+     });
+   },);
 
 
     double distanceInMeters = Geolocator.distanceBetween(
@@ -121,6 +118,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            googleMapController = controller;
             await _setMapStyle(controller);
             setMapMarkers();
+
           },
           zoomGesturesEnabled: true,
           scrollGesturesEnabled: true,

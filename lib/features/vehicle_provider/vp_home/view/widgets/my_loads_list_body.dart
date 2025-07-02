@@ -40,6 +40,11 @@ class MyLoadsListBody extends StatefulWidget {
 class _MyLoadsListBodyState extends State<MyLoadsListBody> {
   @override
   Widget build(BuildContext context) {
+
+    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
+    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
       decoration: commonContainerDecoration(
@@ -203,9 +208,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
                   textAlign: TextAlign.center,
                 ).expand(),
                 Text(
-                  (widget.data.vpMaxRate??"").isNotEmpty ?
-                  "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-                  "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
+                  amount,
                   style: AppTextStyle.h4PrimaryColor,
                   textAlign: TextAlign.center,
                 ).expand()
