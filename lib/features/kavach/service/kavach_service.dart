@@ -15,8 +15,6 @@ import '../model/kavach_order_list_model.dart';
 import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:dio/dio.dart';
 import 'package:gro_one_app/features/kavach/model/masters_model.dart';
 
 class KavachService {
@@ -24,7 +22,9 @@ class KavachService {
   KavachService(this._apiService);
 
   /// Fetches Kavach products with optional search and preference filters
-  Future<Result<List<KavachProduct>>> fetchProducts({ String search = "",  int page = 1,
+  Future<Result<List<KavachProduct>>> fetchProducts({
+    String search = "",
+    int page = 1,
     ChoosePreferenceModel? preferences,
   }) async {
     try {
@@ -42,19 +42,17 @@ class KavachService {
       }
 
       // Construct URL with query parameters
-      final uri = Uri.parse(ApiUrls.kavachProductList) .replace(queryParameters: queryParams);
+      final uri = Uri.parse(ApiUrls.kavachProductList).replace(queryParameters: queryParams);
 
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
-        final data = response.value;
-        final rows = data['data']['rows'] as List;
-        final products = rows.map((e) => KavachProduct.fromJson(e)).toList();
-        return Success(products);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data']['rows'] as List).map((e) => KavachProduct.fromJson(e)).toList(),
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch Kavach products", e);
@@ -65,16 +63,16 @@ class KavachService {
   /// Fetches vehicles for a specific customer
   Future<Result<List<KavachVehicleModel>>> fetchVehicles(String customerId) async {
     try {
-      final response = await _apiService.get( '${ApiUrls.kavachVehicleDetails}/$customerId', );
+      final response = await _apiService.get(
+        '${ApiUrls.kavachVehicleDetails}/$customerId',
+      );
       if (response is Success) {
-        final data = response.value;
-        final rows = data['data'] as List;
-        final vehicles = rows.map((e) => KavachVehicleModel.fromJson(e)).toList();
-        return Success(vehicles);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List).map((e) => KavachVehicleModel.fromJson(e)).toList(),
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch vehicles", e);
@@ -84,21 +82,22 @@ class KavachService {
 
   /// Fetches addresses for a customer with specified address type
   Future<Result<List<KavachAddressModel>>> fetchAddresses(
-    String customerId,
-    {required int addrType}
-  ) async {
+      String customerId, {
+        required int addrType,
+      }) async {
     try {
-      final response = await _apiService.get( '${ApiUrls.kavachAddressList}?customerId=$customerId&addrType=$addrType',
-        forceRefresh: true, );
+      final response = await _apiService.get(
+        '${ApiUrls.kavachAddressList}?customerId=$customerId&addrType=$addrType',
+        forceRefresh: true,
+      );
 
       if (response is Success) {
-        final data = response.value;
-        final addresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
-        return Success(addresses);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList(),
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch addresses", e);
@@ -109,17 +108,18 @@ class KavachService {
   /// Adds a new address for a customer
   Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
     try {
-      final response = await _apiService.post(ApiUrls.kavachAddressList,
+      final response = await _apiService.post(
+        ApiUrls.kavachAddressList,
         body: request.toJson(),
       );
 
       if (response is Success) {
-        final data = response.value['data'];
-        return Success(KavachAddressModel.fromJson(data));
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => KavachAddressModel.fromJson(data['data']),
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to add address", e);
@@ -132,15 +132,15 @@ class KavachService {
     required String productId,
   }) async {
     try {
-      final response = await _apiService.get('${ApiUrls.kavachAvailableStock}?productId=$productId&teamId=1', );
+      final response = await _apiService.get('${ApiUrls.kavachAvailableStock}?productId=$productId&teamId=1');
 
       if (response is Success) {
-        final data = response.value['data'];
-        return Success(int.tryParse(data['availableStock'].toString()) ?? 0);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => int.tryParse(data['data']['availableStock'].toString()) ?? 0,
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch available stock", e);
@@ -151,15 +151,19 @@ class KavachService {
   /// Creates a new Kavach order
   Future<Result<void>> createOrder(KavachOrderRequest request) async {
     try {
-      final response = await _apiService.post(ApiUrls.kavachCreateOrder,
+      final response = await _apiService.post(
+        ApiUrls.kavachCreateOrder,
         body: request.toJson(),
       );
       if (response is Success) {
-        return Success(null);
-      } else if (response is Error) {
-        return Error(response.type);
+        // For void return, getResponseStatus needs a function that returns null or similar.
+        // It's still good to pass the response through getResponseStatus to check for success/status flags.
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => null,
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to create order", e);
@@ -167,13 +171,13 @@ class KavachService {
     }
   }
 
- /// Fetches customer orders with optional filtering and pagination
+  /// Fetches customer orders with optional filtering and pagination
   Future<Result<KavachOrderListResponse>> fetchCustomerOrders({
     required String customerId,
     int page = 1,
     int limit = 10,
     int? status,
-    bool forceRefresh = false
+    bool forceRefresh = false,
   }) async {
     try {
       final statusParam = status != null ? "&status=$status" : "";
@@ -183,13 +187,12 @@ class KavachService {
       );
 
       if (response is Success) {
-        final data = response.value;
-        final ordersResponse = KavachOrderListResponse.fromJson(data);
-        return Success(ordersResponse);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => KavachOrderListResponse.fromJson(data),
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch customer orders", e);
@@ -203,11 +206,13 @@ class KavachService {
         ApiUrls.kavachFetchCommodities,
       );
       if (response is Success) {
-        final data = response.value['data'] as List;
-        final commodities = data.map((e) => CommodityModel.fromJson(e)).toList();
-        return Success(commodities);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List).map((e) => CommodityModel.fromJson(e)).toList(),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
       }
-      return Error(response is Error ? response.type : GenericError());
     } catch (_) {
       return Error(DeserializationError());
     }
@@ -217,7 +222,8 @@ class KavachService {
     try {
       final result = await _apiService.multipart(ApiUrls.upload, file, pathName: "file");
       if (result is Success) {
-        return _apiService.getResponseStatus(
+        // This function already uses getResponseStatus as requested
+        return await _apiService.getResponseStatus(
           result.value,
               (data) => KavachVehicleDocumentUploadModel.fromJson(data),
         );
@@ -238,11 +244,12 @@ class KavachService {
       );
 
       if (response is Success) {
-        return Success(null);
-      } else if (response is Error) {
-        return Error(response.type);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => null, // For void return
+        );
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
       return Error(DeserializationError());
@@ -253,10 +260,13 @@ class KavachService {
     try {
       final response = await _apiService.get(ApiUrls.kavachTruckType);
       if (response is Success) {
-        final data = (response.value['data'] as List).cast<String>();
-        return Success(data);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List).cast<String>(),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
       }
-      return Error(response is Error ? response.type : GenericError());
     } catch (_) {
       return Error(DeserializationError());
     }
@@ -266,32 +276,30 @@ class KavachService {
     try {
       final response = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
       if (response is Success) {
-        final data = (response.value['data'] as List)
-            .map((e) => TruckLengthModel.fromJson(e))
-            .toList();
-        return Success(data);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List).map((e) => TruckLengthModel.fromJson(e)).toList(),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
       }
-      return Error(response is Error ? response.type : GenericError());
     } catch (_) {
       return Error(DeserializationError());
     }
   }
 
-
-
- /// Fetches masters data from the API
+  /// Fetches masters data from the API
   Future<Result<MastersModel>> getMasters() async {
     try {
       final result = await _apiService.get(ApiUrls.choosePreference);
       if (result is Success) {
+        // This function already uses getResponseStatus as requested
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => MastersModel.fromJson(data)
+              (data) => MastersModel.fromJson(data),
         );
-      } else if (result is Error) {
-        return Error(result.type);
       } else {
-        return Error(GenericError());
+        return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch masters data", e);

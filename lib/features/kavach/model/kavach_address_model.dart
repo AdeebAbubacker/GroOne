@@ -5,6 +5,7 @@ class KavachAddressModel extends Equatable {
   final String customerName;
   final String mobileNumber;
   final int customerId;
+  final String addressName;
   final String addr1;
   final String addr2;
   final String city;
@@ -22,6 +23,7 @@ class KavachAddressModel extends Equatable {
     required this.customerName,
     required this.mobileNumber,
     required this.customerId,
+    required this.addressName,
     required this.addr1,
     required this.addr2,
     required this.city,
@@ -38,9 +40,10 @@ class KavachAddressModel extends Equatable {
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
       id: json['id'],
-      customerName: json['customerName'],
-      mobileNumber: json['mobileNumber'],
+      customerName: json['customerName']??'',
+      mobileNumber: json['mobileNumber']??'',
       customerId: json['customerId'],
+      addressName: json['addressName']??'',
       addr1: json['addr1'],
       addr2: json['addr2'],
       city: json['city'],
@@ -55,7 +58,7 @@ class KavachAddressModel extends Equatable {
     );
   }
 
-  String get fullAddress => '$addr1, $addr2, $city, $state, $country - $pincode';
+  String get fullAddress => '$addr1, $city, $state, $country - $pincode';
 
   @override
   List<Object?> get props => [
@@ -63,6 +66,7 @@ class KavachAddressModel extends Equatable {
     customerName,
     mobileNumber,
     customerId,
+    addressName,
     addr1,
     addr2,
     city,
