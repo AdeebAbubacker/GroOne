@@ -21,9 +21,11 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
     super.key,
     required this.data,
     required this.onClickAssignDriver,
+     this.showButton=true,
   });
 
   final VpRecentLoadData data;
+  final bool? showButton;
   final void Function()? onClickAssignDriver;
 
   @override
@@ -34,6 +36,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   @override
   Widget build(BuildContext context) {
 
+    print("load status ${widget.data.loadStatus}");
     String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
     "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
@@ -91,6 +94,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                       ),
                     ],
                   ),
+                  if(widget.data.loadStatus==3)
                   Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
                 ],
               ).expand(),
@@ -147,6 +151,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
             ),
           ),
           10.height,
+          if(widget.showButton??true)
           Row(
             children: [
               IconButton(

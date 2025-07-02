@@ -106,7 +106,7 @@ class VpLoadsList {
       dropAddr: json["dropAddr"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json["consignmentWeight"] ?? 0,
+      consignmentWeight:  json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,

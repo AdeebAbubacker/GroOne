@@ -70,6 +70,7 @@ class LoadDetails {
     required this.truckType,
     required this.customer,
     required this.timeline,
+    required this.trip,
   });
 
   final int? id;
@@ -95,7 +96,7 @@ class LoadDetails {
   final int? status;
   final int? loadStatus;
   final String? vehicleLength;
-  final DateTime? pickUpDateTime;
+  final String? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
   final int? handlingCharges;
   final int? acceptedBy;
@@ -106,6 +107,7 @@ class LoadDetails {
   final TruckType? truckType;
   final Customer? customer;
   final List<Timeline> timeline;
+  final Trip? trip;
 
   LoadDetails copyWith({
     int? id,
@@ -118,6 +120,7 @@ class LoadDetails {
     String? pickUpAddr,
     String? pickUpLocation,
     int? assignStatus,
+    Trip? trip,
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLocation,
@@ -131,7 +134,7 @@ class LoadDetails {
     int? status,
     int? loadStatus,
     String? vehicleLength,
-    DateTime? pickUpDateTime,
+    String? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     int? handlingCharges,
     int? acceptedBy,
@@ -144,6 +147,7 @@ class LoadDetails {
     List<Timeline>? timeline,
   }) {
     return LoadDetails(
+     trip: trip ?? this.trip,
       id: id ?? this.id,
       loadId: loadId ?? this.loadId,
       laneId: laneId ?? this.laneId,
@@ -183,6 +187,7 @@ class LoadDetails {
 
   factory LoadDetails.fromJson(Map<String, dynamic> json){
     return LoadDetails(
+      trip:json['trip']!=null ? Trip.fromJson(json['trip']):null,
       id: json["id"],
       loadId: json["loadId"],
       laneId: json["laneId"],
@@ -198,7 +203,7 @@ class LoadDetails {
       dropLocation: json["dropLocation"],
       dropLatlon: json["dropLatlon"],
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json["consignmentWeight"],
+      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"],
       rate: json["rate"],
       vpRate: json["vpRate"],
@@ -206,7 +211,7 @@ class LoadDetails {
       status: json["status"],
       loadStatus: json["loadStatus"],
       vehicleLength: json["vehicleLength"],
-      pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
+      pickUpDateTime:json["pickUpDateTime"] ?? "",
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"],
       acceptedBy: json["acceptedBy"],
@@ -402,3 +407,65 @@ class TruckType {
   };
 
 }
+
+class Trip {
+
+  final Driver? driver;
+  final Vehicle? vehicle;
+
+  Trip({
+    required this.driver,
+    required this.vehicle,
+  });
+
+  factory Trip.fromJson(Map<String, dynamic> json) {
+    return Trip(
+      driver: Driver.fromJson(json['driver']),
+      vehicle: Vehicle.fromJson(json['vehicle']),
+    );
+  }
+}
+
+class Driver {
+  final int? id;
+  final String? name;
+  final String? mobile;
+
+  Driver({
+    required this.id,
+    required this.name,
+    required this.mobile,
+  });
+
+  factory Driver.fromJson(Map<String, dynamic> json) {
+    return Driver(
+      id: json['id'],
+      name: json['name'],
+      mobile: json['mobile'],
+    );
+  }
+}
+
+class Vehicle {
+  final int? id;
+  final String? vehicleNumber;
+  final TruckType? truckType;
+
+  Vehicle({
+    required this.id,
+    required this.vehicleNumber,
+    required this.truckType,
+  });
+
+  factory Vehicle.fromJson(Map<String, dynamic> json) {
+    return Vehicle(
+      id: json['id'],
+      vehicleNumber: json['vehicleNumber'],
+      truckType: TruckType.fromJson(json['truckType']),
+    );
+  }
+}
+
+
+
+

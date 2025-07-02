@@ -427,22 +427,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
               style: (pickedDate !=null &&  deliveryDateTime !=null ) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
               onPressed: () {
                 if(pickedDate!=null &&  deliveryDateTime!=null){
-                  if(_formKey.currentState!.validate()){
-                    vpHomeScreenBloc.add(
-                      ScheduleTripRequested(
-                        apiRequest: ScheduleTripRequest(
-                          loadId: widget.data.id,
-                          vehicleId: int.parse(truckType ?? "0"),
-                          driverId: int.parse(driverType ?? "0"),
-                          acceptedBy:
-                         int.parse(lpHomeBloc.userId??"0"),
-                          etaForPickUp: pickedDate,
-                          expectedDeliveryDate: deliveryDateTime,
 
-                        ),
-                      ),
-                    );
-                  }
                 }else{
                   ToastMessages.error(message: "Please Select Dates!!!");
                 }

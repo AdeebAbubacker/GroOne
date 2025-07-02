@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -73,8 +74,7 @@ class VpHomeService {
       } else {
         return Error(GenericError());
       }
-    } catch (e,stacktress) {
-      print("stacktress $stacktress");
+    } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
@@ -85,6 +85,7 @@ class VpHomeService {
   }) async {
     try {
       final result = await _apiService.post(ApiUrls.scheduleTrip,body: apiRequest);
+
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,

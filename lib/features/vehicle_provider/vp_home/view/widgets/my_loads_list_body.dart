@@ -38,11 +38,6 @@ class MyLoadsListBody extends StatefulWidget {
 }
 
 class _MyLoadsListBodyState extends State<MyLoadsListBody> {
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
 

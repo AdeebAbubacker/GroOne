@@ -23,9 +23,11 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
@@ -36,9 +38,15 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   changeLoadStatus(BuildContext context,int? id) async {
+    if(cubit.state.loadStatus==LoadStatus.accepted){
+      await Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),)).then((value) {
+        cubit.getLoadDetails(id??0);
+      },);
+      return;
+    }
     await cubit.changedLoadStatus(id??0,
       customerId:lpHomeCubit.state.profileDetailUIState?.data?.data?.customer?.id,
-      loadStatus:cubit.state.loadStatus==LoadStatus.accepted ?   4 :3,
+      loadStatus: 3,
     ).then((value) {
       if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
         AppDialog.show(
@@ -52,9 +60,7 @@ class LoadDetailsWidget extends StatelessWidget {
         );
       }
     },);
-    if ((cubit.state.loadStatus==LoadStatus.assigned)) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),));
-    }
+
   }
 
   @override
@@ -98,20 +104,16 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-
                 Expanded(child: ListView(
                   children: [
-
-                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails),
+                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails,state.loadStatus),
                     10.height,
                     Divider(color: Color(0xffE1E1E1), thickness: 3),
-
                     12.height,
                     SourceDestinationWidget(
                       pickUpLocation: loadDetails?.pickUpLocation,
                       dropLocation:  loadDetails?.dropLocation,
                     ).paddingSymmetric(horizontal: 15),
-
                     15.height,
                     _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
                     15.height,
@@ -128,8 +130,6 @@ class LoadDetailsWidget extends StatelessWidget {
                   ],
                 )),
                 _buildBottomButtonWidget(loadDetails ,state,context)
-
-
               ],
             ).paddingTop(15),
           );
@@ -139,7 +139,7 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   /// Build Request Widget
-  Widget _buildRequestWidget(bool isAccepted,LoadDetails? loadDetails) {
+  Widget _buildRequestWidget(bool isAccepted,LoadDetails? loadDetails,LoadStatus? loadStatus) {
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -152,12 +152,18 @@ class LoadDetailsWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              if(loadStatus==LoadStatus.assigned)
+                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle)
+              else
               Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
                   fontWeight: FontWeight.w400,
                   fontSize: 12,
                   color:Color(0xff979797)
               )),
-              Text(
+              if(loadStatus==LoadStatus.assigned)
+                  _buildAssignedDriverDetails(loadDetails?.trip?.driver)
+                else
+                  Text(
                 "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
                 style: AppTextStyle.body1BlackColor.copyWith(
                   fontWeight: FontWeight.w400,
@@ -167,12 +173,54 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
+          if(loadStatus==LoadStatus.assigned)
+          GestureDetector(
+              onTap: () => callRedirect(loadDetails?.trip?.driver?.mobile??""),
+              child: SvgPicture.asset(AppIcons.svg.phoneCall)),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
 
 
+  /// assigned truck details
+  Widget _buildAssignedTruckDetails(Vehicle? vehicle){
+    return Row(
+      children: [
+        Container(
+          decoration: commonContainerDecoration(
+            color: Color(0xffFFC100),
+            borderRadius: BorderRadius.circular(4)
+          ),
+          child: Text(vehicle?.vehicleNumber??"").paddingSymmetric(vertical: 2,horizontal: 5),
+        ),
+        5.width,
+        Text(vehicle?.truckType?.type??"",style: AppTextStyle.body3.copyWith(
+          color: AppColors.thinLightGray
+        ),),
+        5.width,
+        Text("(${vehicle?.truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
+            color: AppColors.thinLightGray
+        ),)
+      ],
+    );
+  }
+
+
+  /// show trip assigned driver details
+  Widget _buildAssignedDriverDetails(Driver? driver){
+    return Row(
+      children: [
+        Text("Driver:",style: AppTextStyle.body3.copyWith(
+          color: AppColors.thinLightGray
+        ),),
+        Text(" ${driver?.name.capitalizeFirst}",style: AppTextStyle.h3w500.copyWith(
+          fontSize: 13,
+          color: AppColors.textBlackDetailColor
+        ),),
+      ],
+    );
+  }
 
   Widget _buildQuotedPriceWidget(bool isAccepted,String? rate, String? vpRate, String? vpMaxRate) {
     final vpLoadPrice = (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")

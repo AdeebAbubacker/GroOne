@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart' show Geolocator;
-
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -143,7 +141,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   _buildLocationDetailsTileWidget(
                     loadDetails.pickUpLocation,
                     DateTimeHelper.getFormattedDate(
-                      loadDetails.pickUpDateTime ?? DateTime.now(),
+                      DateTime.tryParse(loadDetails.pickUpDateTime??"")?? DateTime.now(),
                     ),
                   ),
                   Icon(Icons.arrow_forward),

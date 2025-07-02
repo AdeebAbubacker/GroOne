@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -11,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedu
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -23,6 +25,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
 
   acceptLoad(int? status) {
+    print("accept load fun : $status");
     LoadStatus? loadStatus;
     switch(status){
       case 3 :
@@ -36,7 +39,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
     emit(state.copyWith(loadStatus:loadStatus));
   }
-
 
 
   Future<void> getLoadDetails(int loadId) async {
@@ -97,15 +99,35 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future scheduleTripApi(ScheduleTripRequest scheduleTripRequest) async {
     emit(state.copyWith(scheduleTripResponse: UIState.loading()));
+    try{
     Result result = await _vHomeRepository.scheduleTripResponse(
       apiRequest: scheduleTripRequest,
     );
+
     if (result is Success<ScheduleTripResponse>) {
+
       emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
+
+      Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
+
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     } else {
       emit(state.copyWith(scheduleTripResponse: UIState.error(GenericError())));
+      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     }
+  }catch(e){
+
+    ToastMessages.error(message:e.toString(),);
+    emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+  }
+  }
+
+  void resetState(){
+    emit(state.copyWith(
+      possibleDeliveryDate: "",
+      scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse),
+    ));
   }
 }

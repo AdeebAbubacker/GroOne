@@ -100,17 +100,20 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
           children: [
             10.height,
             Container(
-              alignment: Alignment.centerLeft,
+              // alignment: Alignment.centerLeft,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
               margin: EdgeInsets.symmetric(horizontal: 15),
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              // padding: EdgeInsets.symmetric(horizontal: 10),
               child: SingleChildScrollView(
+                padding: EdgeInsets.zero,
                 scrollDirection: Axis.horizontal,
                 controller: _tabScrollController,
+
                 child: TabBar(
                   controller: _tabController,
                   dividerHeight: 0,
                   isScrollable: true,
+                  indicatorPadding: EdgeInsets.zero,
                   indicator: const BoxDecoration(),
                   // remove default indicator
                   // labelPadding: const EdgeInsets.symmetric(horizontal: 5),
@@ -226,6 +229,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             shrinkWrap: true,
             itemCount: state.loads.length,
             itemBuilder: (context, index) {
+              print("loads ${_tabController.index}");
               if (_tabController.index == 0) {
                 return VpAllLoadAvailableLoadWidget(
                   data: state.loads[index]
@@ -240,7 +244,22 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                   },
                 ).paddingSymmetric(vertical: 7);
               } else {
-                return null;
+                return GestureDetector(
+                  onTap: () {
+                    context.push(AppRouteName.loadDetailsScreen,extra: {
+                      "loadId":state.loads[index].id
+                    });
+                  },
+                  child: VpAllLoadMyLoadWidget(
+                    data: state.loads[index],
+                    showButton: _tabController.index!=3,
+                    onClickAssignDriver: () {
+                      context.push(AppRouteName.loadDetailsScreen,extra: {
+                        "loadId":state.loads[index].id
+                      });
+                    },
+                  ).paddingSymmetric(vertical: 7),
+                );
               }
             },
           );

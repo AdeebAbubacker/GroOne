@@ -13,22 +13,27 @@ class VpAcceptLoadBloc extends Bloc<VpAcceptLoadEvent, VpAcceptLoadState> {
   VpAcceptLoadBloc(this._vHomeRepository, this._userInformationRepository) : super(VpAcceptLoadInitial()) {
 
     on<VpAcceptLoad>((event, emit) async {
-      emit(VpAcceptLoadLoading());
+      Set<String> loadingIds= state.loadingLoadIds??{};
+      loadingIds.add(event.loadId);
+      emit(VpAcceptLoadLoading(loadingIds));
       Result result = await _vHomeRepository.getLoadAcceptData(
           userId: await _userInformationRepository.getUserID()??'',
           loadId: event.loadId
       );
+      loadingIds.remove(event.loadId);
       if (result is Success<VpLoadAcceptModel>) {
-        emit(VpAcceptLoadSuccess(result.value));
+        emit(VpAcceptLoadSuccess(result.value,loadingIds));
         await Future.delayed(const Duration(milliseconds: 100)); // slight delay to ensure UI handles it
         emit(VpAcceptLoadInitial()); // Reset UI state
       }
       if (result is Error) {
-        emit(VpAcceptLoadError(result.type));
+        emit(VpAcceptLoadError(result.type,loadingIds));
         await Future.delayed(const Duration(milliseconds: 100));
-        emit(VpAcceptLoadInitial()); // Reset state after error
+        emit(VpAcceptLoadInitial(ids: loadingIds)); // Reset state after error
       }
     });
+
+
   }
 }
 

@@ -117,7 +117,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           onMapCreated: (controller) async {
            googleMapController = controller;
             await _setMapStyle(controller);
-           setMapMarkers();
+            setMapMarkers();
 
           },
           zoomGesturesEnabled: true,

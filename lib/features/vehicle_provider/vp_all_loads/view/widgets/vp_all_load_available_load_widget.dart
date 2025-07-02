@@ -189,13 +189,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                     AppButton(
                       buttonHeight: 40,
                       onPressed: () {
-
-
-
                         if (VpVariables.isKycVerified) {
-                          setState(() {
-                            loadingLoadIds.add(widget.data.id.toString());
-                          });
                           bloc.add(
                             VpAcceptLoad(loadId: widget.data.id.toString()),
                           );
@@ -220,7 +214,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                           );
                         }
                       },
-                      isLoading: loadingLoadIds.contains(widget.data.id.toString()),
+                      isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
                       title: 'Accept Load',
                     ).expand(),
                   ],

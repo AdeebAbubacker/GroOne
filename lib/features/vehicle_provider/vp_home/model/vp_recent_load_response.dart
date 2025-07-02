@@ -97,7 +97,7 @@ class VpRecentLoadData {
   final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
-  final num consignmentWeight;
+  final num? consignmentWeight;
   final String notes;
   final String rate;
   final num status;
@@ -221,7 +221,7 @@ class VpRecentLoadData {
       dropLocation: json["dropLocation"] ?? "",
       dropLatlon: json["dropLatlon"] ?? "",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json["consignmentWeight"] ?? 0,
+      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,

@@ -65,7 +65,7 @@ class DateTimeHelper {
   /// Output: 14 Jul, 2025, 7.30 PM
   static String formatCustomDate(DateTime date) {
     try {
-    return DateFormat("d MMM y, h.mm a").format(date);
+    return DateFormat("d MMM y, h.mm a").format(date.toLocal());
     } catch (e) {
       return "Invalid Date";
     }
