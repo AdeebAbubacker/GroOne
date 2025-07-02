@@ -105,12 +105,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     );
 
     if (result is Success<ScheduleTripResponse>) {
-
       emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
-
       Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
-
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
       ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     } else {
@@ -118,31 +115,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
     }
   }catch(e){
-
-    ToastMessages.error(message:e.toString(),);
-    emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
-  }
+      ToastMessages.error(message:e.toString(),);
+      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+      }
   }
 
 
   Future getMapRouting({String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong}) async {
     emit(state.copyWith(directionApiResponse: UIState.loading()));
     try{
-      Result result = await _vHomeRepository.getGoogleDirectionResponse(
+      DirectionResponse? directionResponse = await _vHomeRepository.getGoogleDirectionResponse(
           pickUpLat,
           pickUpLong,
           dropLat,
           dropLong
       );
-      if (result is Success<DirectionResponse>) {
-        emit(state.copyWith(directionApiResponse: UIState.success(result.value)));
-        print("routing is ${state.directionApiResponse?.data?.routes.first.overviewPolyline.points}");
-      } else if (result is Error) {
-        emit(state.copyWith(directionApiResponse: UIState.error(result.type)));
-        ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
-      } else {
-        emit(state.copyWith(directionApiResponse: UIState.error(GenericError())));
-        ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
+      if (directionResponse!=null) {
+        emit(state.copyWith(directionApiResponse: UIState.success(directionResponse)));
       }
     }catch(e){
       ToastMessages.error(message:e.toString(),);

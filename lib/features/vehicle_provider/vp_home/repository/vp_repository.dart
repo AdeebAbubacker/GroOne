@@ -79,7 +79,7 @@ class VpHomeRepository {
     }
   }
 
-  Future<Result<DirectionResponse>> getGoogleDirectionResponse(String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong) async {
+  Future<DirectionResponse?> getGoogleDirectionResponse(String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong) async {
     try {
       return await _vpService.getDirectionRoute(
         pickupLat: pickUpLat,
@@ -89,7 +89,7 @@ class VpHomeRepository {
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get direction api response", e);
-      return Error(ErrorWithMessage(message: e.toString()));
+      return null;
     }
   }
 }

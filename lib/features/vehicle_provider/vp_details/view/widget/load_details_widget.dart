@@ -69,9 +69,7 @@ class LoadDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
       buildWhen: (previous, current) => current!=previous,
-      listener: (context, state) {
-
-      },
+      listener: (context, state) {},
       bloc: cubit,
       builder: (context, state) {
         LoadDetails? loadDetails;
@@ -90,50 +88,55 @@ class LoadDetailsWidget extends StatelessWidget {
           }
           loadDetails=loads?.data;
 
-          return Container(
-            
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.55,
-            decoration:commonContainerDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.45),
+              decoration:commonContainerDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+                shadow: true
               ),
-              shadow: true
-            ),
-            child: Column(
-              children: [
-                Expanded(child: ListView(
-                  children: [
-                    _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails,state.loadStatus),
-                    10.height,
-                    Divider(color: Color(0xffE1E1E1), thickness: 3),
-                    12.height,
-                    SourceDestinationWidget(
-                      pickUpLocation: loadDetails?.pickUpLocation,
-                      dropLocation:  loadDetails?.dropLocation,
-                    ).paddingSymmetric(horizontal: 15),
-                    15.height,
-                    _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
-                    15.height,
-                    _buildLoadEntityWidget(loadDetails,state.locationDistance),
-                    20.height,
-                    if(state.loadStatus==LoadStatus.assigned)
-                      ...[
-                        Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
-                        20.height,
-                        LoadTimelineWidget(
-                          timelineList: loadDetails?.timeline??[],
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails,state.loadStatus),
+                        10.height,
+                        Divider(color: Color(0xffE1E1E1), thickness: 3),
+                        12.height,
+                        SourceDestinationWidget(
+                          pickUpLocation: loadDetails?.pickUpLocation,
+                          dropLocation:  loadDetails?.dropLocation,
                         ).paddingSymmetric(horizontal: 15),
-                      ]
-                  ],
-                )),
-                _buildBottomButtonWidget(loadDetails ,state,context)
-              ],
-            ).paddingTop(15),
+                        15.height,
+                        _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
+                        15.height,
+                        _buildLoadEntityWidget(loadDetails,state.locationDistance),
+                        20.height,
+                        if(state.loadStatus==LoadStatus.assigned)
+                          ...[
+                            Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
+                            20.height,
+                            LoadTimelineWidget(
+                              timelineList: loadDetails?.timeline??[],
+                            ).paddingSymmetric(horizontal: 15),
+                          ]
+                      ],
+                    ),
+                  ).expand(),
+                  _buildBottomButtonWidget(loadDetails ,state,context)
+                ],
+              ).paddingTop(15),
+            ),
           );
         }
         return genericErrorWidget(error: GenericError());

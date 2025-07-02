@@ -5,6 +5,7 @@ class DirectionResponse {
   DirectionResponse({required this.routes, required this.status});
 
   factory DirectionResponse.fromJson(Map<String, dynamic> json) {
+
     return DirectionResponse(
       routes: (json['routes'] as List).map((e) => Route.fromJson(e)).toList(),
       status: json['status'],

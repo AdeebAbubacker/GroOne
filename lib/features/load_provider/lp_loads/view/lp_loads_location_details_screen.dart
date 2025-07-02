@@ -131,9 +131,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
         pickupLatLng.longitude > dropLatLng.longitude ? pickupLatLng.longitude : dropLatLng.longitude,
       ),
     );
-
-
-
     await Future.delayed(const Duration(milliseconds: 300));
 
 
