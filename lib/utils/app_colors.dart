@@ -79,6 +79,7 @@ class AppColors {
   static const Color orangeTextColor = Color(0xFFEA7144);
   static const Color textBlackDetailColor =Color(0xFF090909);
   static const Color textGreyDetailColor =Color(0xFF545759);
+  static const Color greyContainerBg =Color(0xFFEBEBEB);
 
   static const Color borderDisableColor=Color(0xFF9D9D9D);
   static const Color lightBlackColor=Color(0xFF515151);

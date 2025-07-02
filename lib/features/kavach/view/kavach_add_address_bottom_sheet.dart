@@ -39,15 +39,15 @@ class KavachAddAddressBottomSheet extends StatefulWidget {
 class _KavachAddAddressBottomSheetState
     extends State<KavachAddAddressBottomSheet> {
   final formKey = GlobalKey<FormState>();
-  final customerNameController = TextEditingController();
-  final mobileNoController = TextEditingController();
-  final addressLine1Controller = TextEditingController();
-  final addressLine2Controller = TextEditingController();
+  // final customerNameController = TextEditingController();
+  // final mobileNoController = TextEditingController();
+  final addressNameController = TextEditingController();
+  final addressController = TextEditingController();
   final cityController = TextEditingController();
   final stateController = TextEditingController();
   final pinCodeController = TextEditingController();
   final gstNoController = TextEditingController();
-  final countryController = TextEditingController();
+  // final countryController = TextEditingController();
   final _locationService = LocationService();
 
   Future<void> useMyCurrentLocation() async {
@@ -56,12 +56,10 @@ class _KavachAddAddressBottomSheetState
     if (placemarkResult is Success<Placemark>) {
       final place = placemarkResult.value;
       setState(() {
-        addressLine1Controller.text = place.street ?? '';
-        addressLine2Controller.text = place.subLocality ?? '';
+        addressController.text = '${place.street}, ${place.subLocality}';
         cityController.text = place.locality ?? '';
         stateController.text = place.administrativeArea ?? '';
         pinCodeController.text = place.postalCode ?? '';
-        countryController.text = place.country ?? '';
       });
     }else if (placemarkResult is Error) {
       final error = placemarkResult as Error;
@@ -77,10 +75,7 @@ class _KavachAddAddressBottomSheetState
     return AppBottomSheetBody(
       title: widget.title, // Use the passed title
       hideDivider: false,
-      body: BlocListener<
-        KavachCheckoutAddAddressBloc,
-        KavachCheckoutAddAddressState
-      >(
+      body: BlocListener<KavachCheckoutAddAddressBloc, KavachCheckoutAddAddressState>(
         listener: (context, state) {
           if (state is KavachCheckoutAddressAdded) {
             Navigator.of(context).pop();
@@ -96,133 +91,128 @@ class _KavachAddAddressBottomSheetState
 
   Widget _buildBody({required BuildContext context}) {
     return SizedBox(
-      height: 550,
-      child: Column(
-        children: [
-          Expanded(
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppTextField(
-                      controller: customerNameController,
-                      hintText: context.appText.name,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.name),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: mobileNoController,
-                      hintText: context.appText.mobileNumber,
-                      maxLength: 10,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (value) => Validator.phone(value),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: addressLine1Controller,
-                      hintText: '${context.appText.addressLine} 1',
-                      maxLength: 200,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: '${context.appText.addressLine} 1'),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: addressLine2Controller,
-                      hintText: '${context.appText.addressLine} 2',
-                      maxLength: 200,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: '${context.appText.addressLine} 2'),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: cityController,
-                      hintText: context.appText.city,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.city),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: stateController,
-                      hintText: context.appText.state,
-                      validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.state),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: pinCodeController,
-                      hintText: context.appText.pinCode,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      maxLength: 6,
-                      validator: (value) => Validator.pincode(value),
-                    ),
-                    10.height,
-                    AppTextField(
-                      controller: gstNoController,
-                      hintText:
-                          '${context.appText.gstKavach} (${context.appText.optional})',
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return null;
-                        }
-                        final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-                        if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                          return  context.appText.enterValidGstin;
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    15.height,
-                    AppButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(commonButtonRadius),
-                        ),
-                      ),
-                      onPressed: useMyCurrentLocation,
-                      title: context.appText.useMyCurrentLocation,
-                    ),
-                    40.height,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Row(
+      height: MediaQuery.of(context).size.height * 0.55,
+      child: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppButton(
-                onPressed: () => context.pop(),
-                title: context.appText.cancel,
-                style: AppButtonStyle.outline,
-              ).expand(),
-              20.width,
-              AppButton(
-                onPressed: () {
-                  if (!formKey.currentState!.validate()) return;
-                  final request = KavachAddAddressApiRequest(
-                    customerName: customerNameController.text.trim(),
-                    addr1: addressLine1Controller.text.trim(),
-                    addr2: addressLine2Controller.text.trim(),
-                    mobileNumber: mobileNoController.text.trim(),
-                    city: cityController.text.trim(),
-                    state: stateController.text.trim(),
-                    pincode: pinCodeController.text.trim(),
-                    addrType: widget.addrType,
-                    country: "India",
-                    gstIn: gstNoController.text.trim(),
-                  );
-                  context.read<KavachCheckoutAddAddressBloc>().add(
-                    AddKavachAddress(request),
-                  );
+              AppTextField(
+                controller: addressNameController,
+                labelText: context.appText.addressName,
+                maxLength: 50,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
+                ],
+                validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
+              ),
+              10.height,
+              AppTextField(
+                controller: addressController,
+                labelText: context.appText.address,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
+                ],
+                maxLength: 200,
+                validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.address),
+              ),
+              10.height,
+              AppTextField(
+                controller: cityController,
+                labelText: context.appText.city,
+                maxLength: 20,
+                validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.city),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                ],
+
+              ),
+              10.height,
+              AppTextField(
+                controller: stateController,
+                labelText: context.appText.state,
+                maxLength: 20,
+                validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.state),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                ],
+
+              ),
+              10.height,
+              AppTextField(
+                controller: pinCodeController,
+                labelText: context.appText.pinCode,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 6,
+                validator: (value) => Validator.pincode(value),
+              ),
+              10.height,
+              AppTextField(
+                controller: gstNoController,
+                maxLength: 15,
+                labelText:
+                    '${context.appText.gstKavach} (${context.appText.optional})',
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return null;
+                  }
+                  final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+                  if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
+                    return  context.appText.enterValidGstin;
+                  }
+
+                  return null;
                 },
-                title: context.appText.submit,
-                style: AppButtonStyle.primary,
-              ).expand(),
+              ),
+
+              15.height,
+              AppButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(commonButtonRadius),
+                  ),
+                ),
+                onPressed: useMyCurrentLocation,
+                title: context.appText.useMyCurrentLocation,
+              ),
+              15.height,
+              Row(
+                children: [
+                  AppButton(
+                    onPressed: () => context.pop(),
+                    title: context.appText.cancel,
+                    style: AppButtonStyle.outline,
+                  ).expand(),
+                  20.width,
+                  AppButton(
+                    onPressed: () {
+                      if (!formKey.currentState!.validate()) return;
+                      final request = KavachAddAddressApiRequest(
+                        addressName: addressNameController.text.trim(),
+                        addr1: addressController.text.trim(),
+                        city: cityController.text.trim(),
+                        state: stateController.text.trim(),
+                        pincode: pinCodeController.text.trim(),
+                        addrType: widget.addrType,
+                        country: "India",
+                        gstIn: gstNoController.text.trim(),
+                      );
+                      context.read<KavachCheckoutAddAddressBloc>().add(
+                        AddKavachAddress(request),
+                      );
+                    },
+                    title: context.appText.submit,
+                    style: AppButtonStyle.primary,
+                  ).expand(),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

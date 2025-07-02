@@ -11,6 +11,7 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../utils/app_image.dart';
 import '../../model/masters_model.dart';
@@ -26,7 +27,7 @@ class ChooseYourPreferenceForm extends StatefulWidget {
   final ChoosePreferenceModel? initialValues;
 
   const ChooseYourPreferenceForm({
-    Key? key,
+    super.key,
     required this.onPreferenceChanged,
     required this.onApply,
     required this.onCancel,
@@ -34,7 +35,7 @@ class ChooseYourPreferenceForm extends StatefulWidget {
     this.showTitle = true,
     required this.vehicleFilters,
     this.initialValues,
-  }) : super(key: key);
+  });
 
   @override
   State<ChooseYourPreferenceForm> createState() => _ChooseYourPreferenceFormState();
@@ -145,8 +146,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...makes.map((make) => DropdownMenuItem(
           value: make,
-          child: Text(make),
-        )).toList(),
+          child: Text(make.capitalize),
+        )),
       ],
       onChanged: (val) {
         setState(() {
@@ -180,8 +181,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...models.map((model) => DropdownMenuItem(
           value: model,
-          child: Text(model),
-        )).toList(),
+          child: Text(model.capitalize),
+        )),
       ],
       onChanged: (val) {
         setState(() {
@@ -209,8 +210,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...engines.map((engine) => DropdownMenuItem(
           value: engine,
-          child: Text(engine),
-        )).toList(),
+          child: Text(engine.capitalize),
+        )),
       ],
       onChanged: (val) {
         setState(() {
@@ -238,8 +239,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...tankTypes.map((type) => DropdownMenuItem(
           value: type,
-          child: Text(type),
-        )).toList(),
+          child: Text(type.capitalize),
+        )),
       ],
       onChanged: (val) {
         setState(() {
@@ -267,8 +268,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...deviceTypes.map((type) => DropdownMenuItem(
           value: type,
-          child: Text(type),
-        )).toList(),
+          child: Text(type.capitalize),
+        )),
       ],
       onChanged: (val) {
         setState(() {
