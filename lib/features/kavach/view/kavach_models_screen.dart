@@ -29,6 +29,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:intl/intl.dart';
 
+import '../../../utils/common_functions.dart';
+import 'kavach_support_screen.dart';
+
 class KavachModelsScreen extends StatelessWidget {
   final ChoosePreferenceModel? initialPreferences;
   
@@ -128,11 +131,13 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
        centreTile: false,
        elevation: 0.1,
        actions: [
-          AppIconButton(
-            onPressed: () {},
-            icon: AppIcons.svg.filledSupport,
-            iconColor: AppColors.primaryColor,
-          ),
+         AppIconButton(
+           onPressed: () {
+             Navigator.push(context, commonRoute(KavachSupportScreen()));
+           },
+           icon: AppIcons.svg.filledSupport,
+           iconColor: AppColors.primaryButtonColor,
+         ),
 
            AppIconButton(
             onPressed: () {},
@@ -183,6 +188,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
           onChanged: (text) {
             debounce(() {
               final bloc = context.read<KavachProductsListBloc>();
+              bloc.add(events.ClearKavachQuantities());
               bloc.add(events.FetchKavachProducts(
                 search: text,
                 preferences: bloc.state.userPreferences,
@@ -204,7 +210,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                 screen: Material(
                   child: ChooseYourPreferenceForm(
                     vehicleFilters: state.mastersData!.data.vehicleFilters,
-                    showTitle: false,
+                    showTitle: true,
                     initialValues: state.userPreferences,
                     onPreferenceChanged: (preferences) {
                       // Handle preference changes
@@ -212,7 +218,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     },
                     onApply: () {
                       Navigator.of(context).pop(); // Close bottom sheet
-                      // Apply filters - refetch products with updated preferences
+                      bloc.add(events.ClearKavachQuantities());
                       bloc.add(events.FetchKavachProducts(
                         preferences: bloc.state.userPreferences,
                       ));
@@ -222,22 +228,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     },
                     onSupport: () {
                       // Handle support button when BS6 is selected
-                      if (kDebugMode) {
-                        print('Support requested for BS4S engine type');
-                      }
-                      // Show a support dialog
-                      AppDialog.show(
-                        context,
-                        child: CommonDialogView(
-                          heading: 'Support',
-                          message: 'Please contact our support team for BS6 engine type assistance.',
-                          onSingleButtonText: "OK",
-                          onTapSingleButton: (){
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      );
-
+                      commonSupportDialog(context);
                     },
                   ),
                 ),

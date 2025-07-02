@@ -17,6 +17,8 @@ import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
 import 'package:gro_one_app/utils/widgets/common_app_bar.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../utils/common_functions.dart';
+import 'kavach_support_screen.dart';
 
 
 class KavachChooseYourPreferenceScreen extends StatefulWidget {
@@ -47,11 +49,13 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
         title: context.appText.tankLock,
         actions: [
           AppIconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
             icon: AppIcons.svg.filledSupport,
-            iconColor: AppColors.primaryColor,
+            iconColor: AppColors.primaryButtonColor,
           ),
-          10.width,
+          5.width,
         ],
       ),
       body: SafeArea(
@@ -104,6 +108,7 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
                       onSupport: () {
                         // Handle support button when BS6 is selected
                         // You can navigate to support screen or show support dialog
+                        commonSupportDialog(context);
                         print('Support requested for BS6 engine type');
                 
                       },

@@ -7,11 +7,11 @@ import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sh
 import 'package:gro_one_app/features/kavach/view/kavach_billing_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../data/model/result.dart';
@@ -19,6 +19,7 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_check_box.dart';
+import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_field.dart';
 import '../../../utils/app_text_style.dart';
@@ -33,6 +34,7 @@ import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_a
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
 import '../model/kavach_product_model.dart';
 import '../repository/kavach_repository.dart';
+import 'kavach_support_screen.dart';
 import 'widgets/product_counter.dart';
 
 class KavachCheckoutScreen extends StatefulWidget {
@@ -65,6 +67,16 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   TextEditingController shippingPersonContactNoController = TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
 
+  List<String> referralSuggestions = [
+    'John Doe GDP67543',
+    'David GDP67544',
+    'Michael GDP67545',
+    'Sarah GDP67546',
+  ];
+
+
+
+
   void loadVehicleSelection() {
     for (var product in _products) {
       final productId = product.id;
@@ -82,6 +94,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       vehicleControllersPerProduct[productId] = newControllers;
     }
   }
+
+  void syncVehicleControllersWithProducts() {
+    vehicleControllersPerProduct.removeWhere(
+          (productId, _) => !_products.any((p) => p.id == productId),
+    );
+  }
+
+
+  bool isVehicleAlreadySelected(String vehicleNumber) {
+    for (var product in _products) {
+      final controllers = vehicleControllersPerProduct[product.id] ?? [];
+      for (var controller in controllers) {
+        if (controller.text.trim() == vehicleNumber) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
+
 
   @override
   void initState() {
@@ -102,7 +136,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           });
     }
     loadVehicleSelection();
-
     kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
     kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
   }
@@ -121,17 +154,14 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           ),
 
         actions: [
-          IconButton(
+          AppIconButton(
             onPressed: () {
-
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
             },
-            icon: SvgPicture.asset(
-              AppIcons.svg.support,
-              width: 25,
-              colorFilter: AppColors.svg(AppColors.primaryColor),
-            ),
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
           ),
-          5.width
+          5.width,
         ],
       ),
       bottomNavigationBar: buildPlaceOrderButtonWidget(),
@@ -147,16 +177,18 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           child: Column(
             children: [
               10.height,
-              // Referral - to be integrated later
               Container(
                 padding: EdgeInsets.all(commonSafeAreaPadding),
                 decoration: commonContainerDecoration(
                   borderRadius: BorderRadius.zero,
                 ),
-                child: AppTextField(
+                child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  labelText:
-                  '${context.appText.referralCode} (${context.appText.optional})',
+                  suggestions: referralSuggestions,
+                  labelText: 'Referral Code (Optional)',
+                  onSelected: (value) {
+                    print('Selected: $value');
+                  },
                 ),
               ),
               10.height,
@@ -188,9 +220,11 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     TextButton.icon(
                       onPressed: () {
                         Navigator.of(context).pop(_quantities);
+                        syncVehicleControllersWithProducts();
+                        loadVehicleSelection();
                       },
                       label: Text(
-                        context.appText.addMoreItems,
+                        'Add More Kavach',
                         style: AppTextStyle.primaryColor16w400,
                       ),
                       icon: Icon(Icons.add, color: AppColors.primaryColor),
@@ -408,6 +442,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       setState(() {
                         _quantities.remove(product.id);
                         _products.removeWhere((p) => p.id == product.id);
+                        syncVehicleControllersWithProducts();
                         loadVehicleSelection();
                       });
                     }
@@ -437,10 +472,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           screen: const KavachAddedVehiclesScreen(),
                           barrierDismissible: true
                         );
+                    // if (selectedVehicle != null) {
+                    //   setState(() {
+                    //     vehicleControllers[index].text = selectedVehicle;
+                    //   });
+                    // }
                     if (selectedVehicle != null) {
-                      setState(() {
-                        vehicleControllers[index].text = selectedVehicle;
-                      });
+                      final isAlreadySelected = isVehicleAlreadySelected(selectedVehicle);
+                      if (isAlreadySelected &&
+                          vehicleControllers[index].text.trim() != selectedVehicle) {
+                        ToastMessages.alert(
+                          message: 'Vehicle already selected',
+                        );
+                        return;
+                      } else {
+                        setState(() {
+                          vehicleControllers[index].text = selectedVehicle;
+                        });
+                      }
                     }
                   },
                   readOnly: true,
@@ -561,6 +610,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 selectedVehicleNumbers: selectedVehicles,
                 shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
                 shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                orderReferencedBy: referralCodeController.text.trim(),
+                selectedVehiclePerProduct: vehicleControllersPerProduct.map(
+                      (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
+                  ),
+                ),
               ),
             ),
           );
@@ -700,4 +756,5 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       ],
     );
   }
+
 }

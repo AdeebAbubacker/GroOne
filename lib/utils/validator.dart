@@ -118,6 +118,24 @@ class Validator {
     return null;
   }
 
+  static String? licenseNumberValidator(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+
+    final regex = RegExp(r'^[a-zA-Z0-9\- ]+$');
+
+    if (!regex.hasMatch(value)) {
+      return '$fieldName should contain only letters, numbers, hyphens, and spaces';
+    }
+
+    if (value.length != 16) {
+      return '$fieldName must be exactly 16 characters';
+    }
+    return null;
+  }
+
+
 
 
 }

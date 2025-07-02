@@ -102,6 +102,7 @@ class _KavachAddAddressBottomSheetState
               AppTextField(
                 controller: addressNameController,
                 labelText: context.appText.addressName,
+                maxLength: 50,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
                 ],
@@ -121,6 +122,7 @@ class _KavachAddAddressBottomSheetState
               AppTextField(
                 controller: cityController,
                 labelText: context.appText.city,
+                maxLength: 20,
                 validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.city),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
@@ -131,6 +133,7 @@ class _KavachAddAddressBottomSheetState
               AppTextField(
                 controller: stateController,
                 labelText: context.appText.state,
+                maxLength: 20,
                 validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.state),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
@@ -149,6 +152,7 @@ class _KavachAddAddressBottomSheetState
               10.height,
               AppTextField(
                 controller: gstNoController,
+                maxLength: 15,
                 labelText:
                     '${context.appText.gstKavach} (${context.appText.optional})',
                 validator: (value) {

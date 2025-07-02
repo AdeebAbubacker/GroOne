@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kavach/cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_cubit.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/kavach_multiselection_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -17,7 +19,7 @@ import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_dropdown.dart';
-import '../../../utils/app_multi_selection_dropdown.dart';
+import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/toast_messages.dart';
 import '../../../utils/upload_attachment_files.dart';
@@ -100,54 +102,86 @@ class _KavachAddVehicleBottomSheetState
                 AppTextField(
                   controller: truckNumberController,
                   mandatoryStar: true,
+                  maxLength: 20,
                   labelText: context.appText.truckNumber,
-                  validator: (value) => Validator.noSpecialCharacters(
-                    value,
-                    fieldName: context.appText.truckNumber,
-                  ),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]'))],
+                  validator:
+                      (value) => Validator.noSpecialCharacters(
+                        value,
+                        fieldName: context.appText.truckNumber,
+                      ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                  ],
                 ),
                 10.height,
                 AppTextField(
                   controller: truckMakeModelController,
                   mandatoryStar: true,
+                  maxLength: 20,
                   labelText: context.appText.truckMakeModel,
-                  validator: (value) => Validator.noSpecialCharacters(
-                    value,
-                    fieldName: context.appText.truckMakeModel,
-                  ),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]'))],
+                  validator:
+                      (value) => Validator.noSpecialCharacters(
+                        value,
+                        fieldName: context.appText.truckMakeModel,
+                      ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                  ],
                 ),
                 10.height,
                 AppTextField(
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]'))],
+                  maxLength: 16,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9 -]'), // <-- Hyphen works now
+                    ),
+                  ],
                   mandatoryStar: true,
-                  validator: (value) => Validator.noSpecialCharacters(
-                    value,
-                    fieldName: context.appText.licenseNumber,
-                  ),
+                  validator:
+                      (value) => Validator.licenseNumberValidator(
+                        value,
+                        fieldName: context.appText.licenseNumber,
+                      ),
                 ),
+
                 10.height,
 
                 /// Upload RC (custom logic required to implement file picker)
+                Row(
+                  children: [
+                    Text(
+                      " ${context.appText.uploadRCBookCopy}",
+                      style: AppTextStyle.textFiled,
+                    ),
+                    Text(
+                      " *",
+                      style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+                    ),
+                  ],
+                ),
+                5.height,
                 UploadAttachmentFiles(
-                  title: context.appText.uploadRCBookCopy,
                   multiFilesList: vehicleDocList,
                   isSingleFile: true,
-                  isLoading: context.watch<KavachAddVehicleFormCubit>().state.vehicleDocUpload.status ==
+                  isLoading:
+                      context
+                          .watch<KavachAddVehicleFormCubit>()
+                          .state
+                          .vehicleDocUpload
+                          .status ==
                       Status.LOADING,
                   thenUploadFileToSever: () async {
-                    await _uploadGSTDocumentApiCall(
-                      context,
-                      vehicleDocList,
-                    );
+                    await _uploadGSTDocumentApiCall(context, vehicleDocList);
                   },
                 ),
 
                 10.height,
-                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
+                BlocBuilder<
+                  KavachAddVehicleFormCubit,
+                  KavachAddVehicleFormState
+                >(
                   builder: (context, state) {
                     final cubit = context.read<KavachAddVehicleFormCubit>();
 
@@ -159,12 +193,15 @@ class _KavachAddVehicleBottomSheetState
                           AppDropdown(
                             labelText: context.appText.truckType,
                             dropdownValue: truckTypeDropdownValue,
-                            dropDownList: state.truckTypes.data!
-                                .map((type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
-                            ))
-                                .toList(),
+                            dropDownList:
+                                state.truckTypes.data!
+                                    .map(
+                                      (type) => DropdownMenuItem(
+                                        value: type,
+                                        child: Text(type),
+                                      ),
+                                    )
+                                    .toList(),
                             hintText: context.appText.selectTruckType,
                             mandatoryStar: true,
                             onChanged: (selected) {
@@ -174,8 +211,11 @@ class _KavachAddVehicleBottomSheetState
                               });
                               cubit.fetchTruckLengths(selected!);
                             },
-                            validator: (value) =>
-                            value == null || value.isEmpty ? context.appText.pleaseSelectTruckType : null,
+                            validator:
+                                (value) =>
+                                    value == null || value.isEmpty
+                                        ? context.appText.pleaseSelectTruckType
+                                        : null,
                           ),
 
                         15.height,
@@ -183,29 +223,45 @@ class _KavachAddVehicleBottomSheetState
                         /// Truck Length Dropdown
                         if (state.truckLengths.status == Status.SUCCESS)
                           AppDropdown(
-                            labelText:  context.appText.truckLength,
+                            labelText: context.appText.truckLength,
                             dropdownValue: truckLengthDropdownValue,
-                            dropDownList: state.truckLengths.data!
-                                .map((e) => DropdownMenuItem(
-                              value: e.subType,
-                              child: Text(e.subType),
-                            ))
-                                .toList(),
-                            hintText:  context.appText.truckLength,
+                            dropDownList:
+                                state.truckLengths.data!
+                                    .map(
+                                      (e) => DropdownMenuItem(
+                                        value: e.subType,
+                                        child: Text(e.subType),
+                                      ),
+                                    )
+                                    .toList(),
+                            hintText: context.appText.truckLength,
                             mandatoryStar: true,
                             onChanged: (selected) {
                               setState(() {
                                 truckLengthDropdownValue = selected;
 
                                 final selectedModel = state.truckLengths.data!
-                                    .firstWhere((e) => e.subType == selected, orElse: () => TruckLengthModel(id: 0, type: '', subType: ''));
+                                    .firstWhere(
+                                      (e) => e.subType == selected,
+                                      orElse:
+                                          () => TruckLengthModel(
+                                            id: 0,
+                                            type: '',
+                                            subType: '',
+                                          ),
+                                    );
 
                                 selectedTruckTypeId = selectedModel.id;
                               });
                             },
 
-                            validator: (value) =>
-                            value == null || value.isEmpty ? context.appText.pleaseSelectTruckLength : null,
+                            validator:
+                                (value) =>
+                                    value == null || value.isEmpty
+                                        ? context
+                                            .appText
+                                            .pleaseSelectTruckLength
+                                        : null,
                           ),
                       ],
                     );
@@ -219,16 +275,21 @@ class _KavachAddVehicleBottomSheetState
                   labelText: context.appText.capacity,
                   mandatoryStar: true,
                   keyboardType: TextInputType.number,
+                  maxLength: 10,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => Validator.positiveNumber(
-                    value,
-                    fieldName: context.appText.capacity,
-                  ),
+                  validator:
+                      (value) => Validator.positiveNumber(
+                        value,
+                        fieldName: context.appText.capacity,
+                      ),
                 ),
                 10.height,
 
                 /// Acceptable Commodities Dropdown
-                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
+                BlocBuilder<
+                  KavachAddVehicleFormCubit,
+                  KavachAddVehicleFormState
+                >(
                   builder: (context, state) {
                     if (state.commodities.status == Status.LOADING) {
                       return const SizedBox.shrink(); // or CircularProgressIndicator()
@@ -246,7 +307,6 @@ class _KavachAddVehicleBottomSheetState
                         hintText: context.appText.select,
                         mandatoryStar: true,
                         controller: acceptableCommoditiesController,
-                        // <- You need to define this
                         items: items,
                         onSelectionChange: (selected) {
                           print('Selected Commodities: $selected');
@@ -257,6 +317,9 @@ class _KavachAddVehicleBottomSheetState
                                     ? context.appText.pleaseSelectCommodity
                                     : null,
                       );
+
+
+
                     } else if (state.commodities.status == Status.ERROR) {
                       return Text('Error: ${state.commodities.errorType}');
                     }
@@ -294,16 +357,28 @@ class _KavachAddVehicleBottomSheetState
                     AppButton(
                       onPressed: () async {
                         if (!formKey.currentState!.validate()) return;
-                        if(vehicleDocList.isEmpty){
-                          ToastMessages.alert(message: context.appText.pleaseUploadRc);
+                        if (vehicleDocList.isEmpty) {
+                          ToastMessages.alert(
+                            message: context.appText.pleaseUploadRc,
+                          );
                           return;
                         }
 
-                        final userId = int.tryParse(await context.read<KavachAddVehicleFormCubit>().repository.userInfoRepo.getUserID() ?? '') ?? 0;
-                        final selectedCommoditiesIds = acceptableCommoditiesController.selectedItems
-                            .map((idStr) => int.tryParse(idStr.value))
-                            .whereType<int>() // filters out null
-                            .toList();
+                        final userId =
+                            int.tryParse(
+                              await context
+                                      .read<KavachAddVehicleFormCubit>()
+                                      .repository
+                                      .userInfoRepo
+                                      .getUserID() ??
+                                  '',
+                            ) ??
+                            0;
+                        final selectedCommoditiesIds =
+                            acceptableCommoditiesController.selectedItems
+                                .map((idStr) => int.tryParse(idStr.value))
+                                .whereType<int>() // filters out null
+                                .toList();
                         final rcDocLink = vehicleDocList.first['path'];
 
                         final request = KavachAddVehicleRequest(
@@ -312,26 +387,30 @@ class _KavachAddVehicleBottomSheetState
                           vehicleTypeId: 1,
                           rcNumber: licenseNumberController.text.trim(),
                           rcDocLink: rcDocLink,
-                          truckMakeAndModel: truckMakeModelController.text.trim(),
-                          truckType: selectedTruckTypeId??0,
-                          truckLength: selectedTruckTypeId??0,
-                          capacity: int.tryParse(capacityController.text.trim()) ?? 0,
+                          truckMakeAndModel:
+                              truckMakeModelController.text.trim(),
+                          truckType: selectedTruckTypeId ?? 0,
+                          truckLength: selectedTruckTypeId ?? 0,
+                          capacity:
+                              int.tryParse(capacityController.text.trim()) ?? 0,
                           acceptableCommodities: selectedCommoditiesIds,
                           vehicleStatus: isActive ? 1 : 0,
                         );
 
                         print(jsonEncode(request));
-                        final result = await kavachAddNewVehicleCubit.addVehicle(request);
+                        final result = await kavachAddNewVehicleCubit
+                            .addVehicle(request);
 
                         if (result is Success) {
                           context.pop();
-                          ToastMessages.success(message: context.appText.vehicleSavedSuccess);
+                          ToastMessages.success(
+                            message: context.appText.vehicleSavedSuccess,
+                          );
                         } else if (result is Error) {
                           ToastMessages.error(
                             message: getErrorMsg(errorType: result.type),
                           );
                         }
-
                       },
 
                       title: context.appText.save,

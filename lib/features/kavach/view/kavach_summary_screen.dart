@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,9 @@ import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_icon_button.dart';
+import '../../../utils/app_icons.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
@@ -24,6 +28,7 @@ import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
+import 'kavach_support_screen.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
   final List<KavachProduct> products;
@@ -34,6 +39,9 @@ class KavachSummaryScreen extends StatefulWidget {
   final List<String> selectedVehicleNumbers;
   final String shippingPersonInCharge;
   final String shippingPersonContactNo;
+  final String orderReferencedBy;
+  final Map<String, List<String>> selectedVehiclePerProduct;
+
 
   const KavachSummaryScreen({
     super.key,
@@ -41,7 +49,12 @@ class KavachSummaryScreen extends StatefulWidget {
     required this.quantities,
     required this.shippingAddress,
     required this.billingAddress,
-    required this.selectedVehicleNumbers, required this.availableStocks, required this.shippingPersonInCharge, required this.shippingPersonContactNo,
+    required this.selectedVehicleNumbers,
+    required this.availableStocks,
+    required this.shippingPersonInCharge,
+    required this.shippingPersonContactNo,
+    required this.orderReferencedBy,
+    required this.selectedVehiclePerProduct,
   });
 
   @override
@@ -113,7 +126,17 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         }
       },
       child: Scaffold(
-        appBar: CommonAppBar(title: context.appText.summary),
+        appBar: CommonAppBar(title: context.appText.summary,
+          actions: [
+          AppIconButton(
+          onPressed: () {
+            Navigator.push(context, commonRoute(KavachSupportScreen()));
+          },
+          icon: AppIcons.svg.filledSupport,
+          iconColor: AppColors.primaryButtonColor,
+        ),
+          5.width,
+        ],),
         bottomNavigationBar: _buildProceedToPayButton(context),
         body: _buildBodyWidget(context),
       ),
@@ -277,7 +300,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "BlueMembershipID": "BLUE123456"
                 },
                 createdEmpUserId: 1234,
-                orderReferencedBy: "GDP67543",
+                orderReferencedBy: widget.orderReferencedBy,
                 billingAddress: {
                   "addressLine1": widget.billingAddress.addressName,
                   "addressLine2": widget.billingAddress.addr1,
@@ -296,9 +319,23 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "country": widget.shippingAddress.country,
                   "gstId": widget.shippingAddress.gstin??""
                 },
+                // orders: widget.products.map((product) {
+                //   final quantity = widget.quantities[product.id]!;
+                //   final stock = widget.availableStocks[product.id] ?? 0;
+                //
+                //   return KavachOrderItem(
+                //     productServiceId: int.parse(product.id),
+                //     noOfProducts: quantity,
+                //     unitPrice: product.price,
+                //     totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
+                //     stockAvailable: stock,
+                //     vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
+                //   );
+                // }).toList(),
                 orders: widget.products.map((product) {
                   final quantity = widget.quantities[product.id]!;
                   final stock = widget.availableStocks[product.id] ?? 0;
+                  final vehicleNumbers = widget.selectedVehiclePerProduct[product.id] ?? [];
 
                   return KavachOrderItem(
                     productServiceId: int.parse(product.id),
@@ -306,13 +343,14 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     unitPrice: product.price,
                     totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
                     stockAvailable: stock,
-                    vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
+                    vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
                   );
                 }).toList(),
+
               );
 
               if (kDebugMode) {
-                print(jsonEncode(request));
+                log(jsonEncode(request));
               }
               kavachOrderBloc.add(KavachSubmitOrder(request));
             },
@@ -320,7 +358,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             style: AppButtonStyle.primary,
           ).expand()
         ],
-      ).paddingAll(30),
+      ).paddingOnly(bottom: 30,right: 20,left: 20,top: 15),
     );
   }
 

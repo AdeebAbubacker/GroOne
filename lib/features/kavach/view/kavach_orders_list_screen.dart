@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -22,6 +23,7 @@ import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import '../repository/kavach_repository.dart';
+import 'kavach_support_screen.dart';
 
 class KavachOrdersListScreen extends StatefulWidget {
   const KavachOrdersListScreen({super.key});
@@ -63,11 +65,13 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               title: context.appText.tankLock,
               actions: [
                 AppIconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                  },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
                 ),
-                4.width,
+                5.width,
               ],
             ),
             body: const Center(child: CircularProgressIndicator()),
@@ -79,14 +83,17 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               centreTile: false,
               actions: [
                 AppIconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                  },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
                 ),
-                4.width,
+                5.width,
               ],
             ),
             body: kavachBenifitsWidget(context),
+            bottomNavigationBar: buildGetYourTankLockButtonWidget(),
           );
         } else {
           return Scaffold(
@@ -105,11 +112,13 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
                 ),
                 AppIconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                  },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
                 ),
-                4.width,
+                5.width,
               ],
             ),
             body: Column(
@@ -175,41 +184,27 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
 
   Widget kavachBenifitsWidget(BuildContext context) {
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              buildKavachProductImageWidget(),
-              6.height,
-              buildKavachBenefitsDetailsWidget(context),
-              buildGroBannerImageWidget(),
-              100.height,
-            ],
-          ),
-        ),
-        // Fixed bottom button
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
-            child: AppButton(
-              title: "Get you Tank Lock Now",
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(commonRoute(KavachChooseYourPreferenceScreen()));
-              },
-            ),
-          ),
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          buildKavachProductImageWidget(),
+          6.height,
+          buildKavachBenefitsDetailsWidget(context),
+          buildGroBannerImageWidget(),
+        ],
+      ),
     );
   }
-
+  Widget buildGetYourTankLockButtonWidget() {
+    return AppButton(
+      title: "Get you Tank Lock Now",
+      onPressed: () {
+        Navigator.of(
+          context,
+        ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+      },
+    ).bottomNavigationPadding();
+  }
   Widget buildKavachProductImageWidget() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -241,7 +236,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
       ),
     );
   }
-
   Widget buildKavachBenefitsDetailsWidget(BuildContext context) {
     Widget innerUIWidget({
       required String icon,
@@ -288,8 +282,8 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
         20.height,
         innerUIWidget(
           icon: AppIcons.png.insightGraph,
-          title: context.appText.benefitsOfKavachHeading1,
-          subTitle: context.appText.benefitsOfKavachSubHeading1,
+          title: context.appText.benefitsOfKavachHeading2,
+          subTitle: context.appText.benefitsOfKavachSubHeading2,
         ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);

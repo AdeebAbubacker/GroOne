@@ -64,7 +64,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
                     },
-                    child: Text("View Details", style: AppTextStyle.primaryColor16w400)),
+                    child: Text("View Detail", style: AppTextStyle.primaryColor16w400)),
                 15.width,
                 Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
               ],

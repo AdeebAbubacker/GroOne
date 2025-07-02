@@ -16,6 +16,7 @@ import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
 import 'kavach_choose_your_preference_screen.dart';
+import 'kavach_support_screen.dart';
 
 class KavachOrderDetailsScreen extends StatelessWidget {
   final KavachOrderListOrderItem order;
@@ -30,22 +31,29 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF5F7FA),
-      appBar: CommonAppBar(title: context.appText.orderDetails,actions: [AppIconButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).pushReplacement(commonRoute(KavachChooseYourPreferenceScreen()));
-        },
-        icon: Icon(Icons.add, color: Colors.white),
-        style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+      appBar: CommonAppBar(
+        title: context.appText.orderDetail,
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                commonRoute(KavachChooseYourPreferenceScreen()),
+              );
+            },
+            icon: Icon(Icons.add, color: Colors.white),
+            style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+          ),
+          AppIconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
+          ),
+          5.width,
+        ],
+        centreTile: false,
       ),
-
-        AppIconButton(
-          onPressed: () {},
-          icon: AppIcons.svg.filledSupport,
-          iconColor: AppColors.primaryButtonColor,
-        ),
-        4.width,],centreTile: false,),
       // bottomNavigationBar: _downloadButton(),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -57,14 +65,14 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               12.height,
               _productDetails(context),
               12.height,
-              _orderTimeline(),
+              _orderTimeline(context),
               12.height,
               _addressSection(order.shippingAddress, context),
               _addressSection(order.billingAddress, context),
               12.height,
               _paymentSummary(context),
               12.height,
-             _groExecutiveWidget(context),
+              _groExecutiveWidget(context),
               40.height,
             ],
           ),
@@ -126,9 +134,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget _productDetails(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(commonSafeAreaPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -139,7 +145,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.appText.totalAmountPaid, style: AppTextStyle.h5GreyColor),
+              Text(
+                context.appText.totalAmountPaid,
+                style: AppTextStyle.h5GreyColor,
+              ),
               Text("₹${order.totalPrice}", style: AppTextStyle.h5),
             ],
           ),
@@ -183,16 +192,14 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _orderTimeline() {
+  Widget _orderTimeline(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(commonSafeAreaPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(order.statusHistory.last.statusLabel, style: AppTextStyle.h5),
+          Text('Status', style: AppTextStyle.h5),
           10.height,
           ListView.builder(
             physics: NeverScrollableScrollPhysics(),
@@ -206,7 +213,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                   installationPersonMobile:
                       order.installationContactPersonNumber,
                   installationPersonName: order.installationContactPerson,
-                  context: context
+                  context: context,
                 ),
             itemCount: order.statusHistory.length,
           ),
@@ -255,8 +262,11 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                       Text(title, style: AppTextStyle.blackColor15w500),
                       5.width,
                       Visibility(
-                          visible: title.toLowerCase() == context.appText.installationScheduled.toLowerCase(),
-                          child: Icon(Icons.headset_mic_rounded, size: 16))
+                        visible:
+                            title.toLowerCase() ==
+                            context.appText.installationScheduled.toLowerCase(),
+                        child: Icon(Icons.headset_mic_rounded, size: 16),
+                      ),
                     ],
                   ),
                   Text(subtitle, style: AppTextStyle.textGreyColor14w300),
@@ -266,7 +276,9 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                     style: AppTextStyle.textGreyColor14w300,
                   ),
                   Visibility(
-                    visible: title.toLowerCase() == context.appText.installationScheduled.toLowerCase(),
+                    visible:
+                        title.toLowerCase() ==
+                        context.appText.installationScheduled.toLowerCase(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -275,14 +287,17 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                           context.appText.installationPersonContactDetails,
                           style: AppTextStyle.h6,
                         ),
-                        Text(installationPersonName ?? '', style: AppTextStyle.h5),
+                        Text(
+                          installationPersonName ?? '',
+                          style: AppTextStyle.h5,
+                        ),
                         Text(
                           installationPersonMobile ?? '',
                           style: AppTextStyle.primaryColor14w700,
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -296,41 +311,28 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(commonSafeAreaPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            address.addressType.toLowerCase() == "shipping" ? context.appText.shippingAddress : context.appText.billingAddress,
+            address.addressType.toLowerCase() == "shipping"
+                ? context.appText.shippingAddress
+                : context.appText.billingAddress,
             style: AppTextStyle.h5,
           ),
           10.height,
-          Text(
-            address.addressLine1,
-            style: AppTextStyle.textGreyColor14w300,
-          ),
-          Text(
-            address.addressLine2,
-            style: AppTextStyle.textGreyColor14w300,
-          ),
-          Text(
-            address.city,
-            style: AppTextStyle.textGreyColor14w300,
-          ),
-          Text(
-            address.state,
-            style: AppTextStyle.textGreyColor14w300,
-          ),
+          Text(address.addressLine1, style: AppTextStyle.textGreyColor14w300),
+          Text(address.addressLine2, style: AppTextStyle.textGreyColor14w300),
+          Text(address.city, style: AppTextStyle.textGreyColor14w300),
+          Text(address.state, style: AppTextStyle.textGreyColor14w300),
           Text(
             '${address.country} - ${address.postalCode}',
             style: AppTextStyle.textGreyColor14w300,
           ),
-          address.gstId.isNotEmpty?Text(
-            address.gstId,
-            style: AppTextStyle.textGreyColor14w300,
-          ):SizedBox.shrink(),
+          address.gstId.isNotEmpty
+              ? Text(address.gstId, style: AppTextStyle.textGreyColor14w300)
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -343,15 +345,16 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(commonSafeAreaPadding),
-          decoration: BoxDecoration(
-            color: Colors.white,
-          ),
+          decoration: BoxDecoration(color: Colors.white),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:  [
+            children: [
               Text(context.appText.paymentSummary, style: AppTextStyle.h5),
               10.height,
-              PriceRow("${context.appText.price} (${getTotalQuantity()} ${context.appText.items})", '₹${order.price}'),
+              PriceRow(
+                "${context.appText.price} (${getTotalQuantity()} ${context.appText.items})",
+                '₹${order.price}',
+              ),
               PriceRow(context.appText.gstKavach, '₹${order.totalGst}'),
               5.height,
               DottedLine(
@@ -368,20 +371,18 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         ),
       ],
     );
-  }  
-  
+  }
+
   Widget _groExecutiveWidget(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(commonSafeAreaPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children:  [
+        children: [
           Text('Gro Executive', style: AppTextStyle.h5),
-          Text(order.orderUniqueId, style: AppTextStyle.h5),
+          Text(order.orderReferencedBy, style: AppTextStyle.bodyGreyColor),
         ],
       ),
     );
