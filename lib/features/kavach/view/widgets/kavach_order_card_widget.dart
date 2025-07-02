@@ -29,7 +29,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Order ID: ${order.orderUniqueId}',
-                    style: AppTextStyle.h4,
+                    style: AppTextStyle.h4PrimaryColor,
                   ),
                 ),
                 Container(
@@ -53,7 +53,8 @@ class KavachOrderCardWidget extends StatelessWidget {
             Row(
               children: [
                 Expanded(child: Text(order.lineItems.length>1?'${order.lineItems.first.product?.name} +${order.lineItems.length-1}':'${order.lineItems.first.product?.name}', style: AppTextStyle.textGreyColor14w300)),
-                Text('₹${order.orderAmount}', style: AppTextStyle.h4),
+                // Text('₹${order.orderAmount}', style: AppTextStyle.h4),
+                Text('₹${double.parse(order.orderAmount).round()}', style: AppTextStyle.h4),
               ],
             ),
             Divider(color: AppColors.borderColor,),
@@ -63,9 +64,9 @@ class KavachOrderCardWidget extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
                     },
-                    child: Text("View Details", style: AppTextStyle.primaryColor16w400)),
+                    child: Text("View Detail", style: AppTextStyle.primaryColor16w400)),
                 15.width,
-                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300)),
+                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
               ],
             )
           ],

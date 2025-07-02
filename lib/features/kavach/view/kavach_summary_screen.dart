@@ -1,12 +1,14 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'package:dotted_line/dotted_line.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
@@ -14,14 +16,19 @@ import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_icon_button.dart';
+import '../../../utils/app_icons.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
+import '../bloc/kavach_order_bloc/kavach_order_event.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
+import 'kavach_support_screen.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
   final List<KavachProduct> products;
@@ -30,6 +37,11 @@ class KavachSummaryScreen extends StatefulWidget {
   final KavachAddressModel shippingAddress;
   final KavachAddressModel billingAddress;
   final List<String> selectedVehicleNumbers;
+  final String shippingPersonInCharge;
+  final String shippingPersonContactNo;
+  final String orderReferencedBy;
+  final Map<String, List<String>> selectedVehiclePerProduct;
+
 
   const KavachSummaryScreen({
     super.key,
@@ -37,7 +49,12 @@ class KavachSummaryScreen extends StatefulWidget {
     required this.quantities,
     required this.shippingAddress,
     required this.billingAddress,
-    required this.selectedVehicleNumbers, required this.availableStocks,
+    required this.selectedVehicleNumbers,
+    required this.availableStocks,
+    required this.shippingPersonInCharge,
+    required this.shippingPersonContactNo,
+    required this.orderReferencedBy,
+    required this.selectedVehiclePerProduct,
   });
 
   @override
@@ -109,8 +126,18 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         }
       },
       child: Scaffold(
-        appBar: CommonAppBar(title: context.appText.summary),
-        bottomNavigationBar: _buildProceeToPayButton(context),
+        appBar: CommonAppBar(title: context.appText.summary,
+          actions: [
+          AppIconButton(
+          onPressed: () {
+            Navigator.push(context, commonRoute(KavachSupportScreen()));
+          },
+          icon: AppIcons.svg.filledSupport,
+          iconColor: AppColors.primaryButtonColor,
+        ),
+          5.width,
+        ],),
+        bottomNavigationBar: _buildProceedToPayButton(context),
         body: _buildBodyWidget(context),
       ),
     );
@@ -132,16 +159,19 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.vehicleDetails, style: AppTextStyle.blackColor15w500,),
-                  Wrap(
-                    spacing: 15,
-                    children: [
-                      ...widget.selectedVehicleNumbers.map((v) => Text(v,style: AppTextStyle.textDarkGreyColor14w500,),),
-                      ]
+                  Text(
+                    context.appText.vehicleDetails,
+                    style: AppTextStyle.h5,
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    widget.selectedVehicleNumbers.join(", "),
+                    style: AppTextStyle.textDarkGreyColor14w500,
                   ),
                 ],
               ),
             ),
+
             15.height,
             Container(
               padding: EdgeInsets.all(10),
@@ -150,11 +180,11 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.textFiled,),
+                  Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
                   10.height,
                   _buildAddressCard(widget.shippingAddress),
                   15.height,
-                  Text(context.appText.billingAddress, style: AppTextStyle.blackColor15w500,),
+                  Text(context.appText.billingAddress, style: AppTextStyle.h5,),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
                 ],
@@ -174,7 +204,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h5),
+          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
           10.height,
           ...widget.products.map((product) {
             final qty = widget.quantities[product.id] ?? 0;
@@ -190,17 +220,37 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: AppTextStyle.blackColor15w500),
-                Text(product.id, style: AppTextStyle.textDarkGreyColor14w500),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(product.name, style: AppTextStyle.h5),
+                          Text(product.part, style: AppTextStyle.textDarkGreyColor14w500),
+                        ],
+                      ),
+                    ),
+                    Text("₹${totalPrice.toStringAsFixed(2)}", style: AppTextStyle.blackColor15w500),
+                  ],
+                ),
                 5.height,
-                _buildDetailRow("HSN Code",  "-"),
+                _buildDetailRow("HSN Code",  product.hsnSacCode??'-'),
                 _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
                 _buildDetailRow("Rate /Unit ₹", "₹${product.price.toStringAsFixed(2)}"),
                 _buildDetailRow("IGST", "₹${igst.toStringAsFixed(2)}"),
                 _buildDetailRow("CGST", "₹${cgst.toStringAsFixed(2)}"),
                 _buildDetailRow("SGST", "₹${sgst.toStringAsFixed(2)}"),
                 _buildDetailRow("Total GST", "₹${gstAmount.toStringAsFixed(2)}"),
-                const Divider(color: AppColors.greyIconColor),
+                5.height,
+                DottedLine(
+                  direction: Axis.horizontal,
+                  lineLength: double.infinity,
+                  lineThickness: 1.0,
+                  dashLength: 6.0,
+                  dashColor: AppColors.greyIconColor,
+                ),
+                5.height,
                 _buildDetailRow("Total Amount", "₹${totalWithGst.toStringAsFixed(0)}"),
                 15.height,
               ],
@@ -211,87 +261,113 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     );
   }
 
-  Widget _buildProceeToPayButton(BuildContext context){
-    return Row(
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
-            Text('₹${totalAmount.toStringAsFixed(2)}', style: AppTextStyle.primaryColor16w900),
-          ],
-        ),
-        15.width,
-        AppButton(
-          onPressed: () async {
-            final request = KavachOrderRequest(
-              orderSource: "MOBILE",
-              isOrderPaid: false,
-              customerId: await kavachOrderBloc.getUserId()??'',
-              totalPrice: totalAmount,
-              categoryId: 1,
-              shippingPersonIncharge: widget.shippingAddress.customerName,
-              shippingPersonContactNo: widget.shippingAddress.mobileNumber,
-              customerInfo: {
-                "CompanyName": "ABC Logistics Pvt Ltd",
-                "contactNumber": "9876543210",
-                "BlueMembershipID": "BLUE123456"
-              },
-              createdEmpUserId: 1234,
-              orderReferencedBy: "GDP67543",
-              billingAddress: {
-                "addressLine1": widget.billingAddress.addr1,
-                "addressLine2": widget.billingAddress.addr2,
-                "city": widget.billingAddress.city,
-                "state": widget.billingAddress.state,
-                "postalCode": widget.billingAddress.pincode,
-                "country": widget.billingAddress.country,
-                "gstId": widget.billingAddress.gstin??"",
-                "contactPerson": widget.billingAddress.customerName,
-                "contactNumber": widget.billingAddress.mobileNumber
-              },
-              shippingAddress: {
-                "addressLine1": widget.shippingAddress.addr1,
-                "addressLine2": widget.shippingAddress.addr2,
-                "city": widget.shippingAddress.city,
-                "state": widget.shippingAddress.state,
-                "postalCode": widget.shippingAddress.pincode,
-                "country": widget.shippingAddress.country,
-                "gstId":  widget.shippingAddress.gstin,
-                "contactPerson": widget.shippingAddress.customerName,
-                "contactNumber": widget.shippingAddress.mobileNumber
-              },
-              orders: widget.products.map((product) {
-                final quantity = widget.quantities[product.id]!;
-                final stock = widget.availableStocks[product.id] ?? 0;
+  Widget _buildProceedToPayButton(BuildContext context){
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, -2), // shadow towards top
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
+              Text('₹${totalAmount.toStringAsFixed(2)}', style: AppTextStyle.primaryColor16w900),
+            ],
+          ),
+          15.width,
+          AppButton(
+            onPressed: () async {
+              final request = KavachOrderRequest(
+                orderSource: "MOBILE",
+                isOrderPaid: false,
+                customerId: await kavachOrderBloc.getUserId()??'',
+                totalPrice: totalAmount,
+                categoryId: 1,
+                shippingPersonIncharge: widget.shippingPersonInCharge,
+                shippingPersonContactNo: widget.shippingPersonContactNo,
+                customerInfo: {
+                  "CompanyName": "ABC Logistics Pvt Ltd",
+                  "contactNumber": "9876543210",
+                  "BlueMembershipID": "BLUE123456"
+                },
+                createdEmpUserId: 1234,
+                orderReferencedBy: widget.orderReferencedBy,
+                billingAddress: {
+                  "addressLine1": widget.billingAddress.addressName,
+                  "addressLine2": widget.billingAddress.addr1,
+                  "city": widget.billingAddress.city,
+                  "state": widget.billingAddress.state,
+                  "postalCode": widget.billingAddress.pincode,
+                  "country": widget.billingAddress.country,
+                  "gstId": widget.billingAddress.gstin??"",
+                },
+                shippingAddress: {
+                  "addressLine1": widget.shippingAddress.addressName,
+                  "addressLine2": widget.shippingAddress.addr1,
+                  "city": widget.shippingAddress.city,
+                  "state": widget.shippingAddress.state,
+                  "postalCode": widget.shippingAddress.pincode,
+                  "country": widget.shippingAddress.country,
+                  "gstId": widget.shippingAddress.gstin??""
+                },
+                // orders: widget.products.map((product) {
+                //   final quantity = widget.quantities[product.id]!;
+                //   final stock = widget.availableStocks[product.id] ?? 0;
+                //
+                //   return KavachOrderItem(
+                //     productServiceId: int.parse(product.id),
+                //     noOfProducts: quantity,
+                //     unitPrice: product.price,
+                //     totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
+                //     stockAvailable: stock,
+                //     vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
+                //   );
+                // }).toList(),
+                orders: widget.products.map((product) {
+                  final quantity = widget.quantities[product.id]!;
+                  final stock = widget.availableStocks[product.id] ?? 0;
+                  final vehicleNumbers = widget.selectedVehiclePerProduct[product.id] ?? [];
 
-                return KavachOrderItem(
-                  productServiceId: int.parse(product.id),
-                  noOfProducts: quantity,
-                  unitPrice: product.price,
-                  totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
-                  stockAvailable: stock,
-                  vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
-                );
-              }).toList(),
-            );
-            kavachOrderBloc.add(KavachSubmitOrder(request));
-          },
-          title: context.appText.placeOrder,
-          style: AppButtonStyle.primary,
-        ).expand()
-      ],
-    ).paddingAll(30);
+                  return KavachOrderItem(
+                    productServiceId: int.parse(product.id),
+                    noOfProducts: quantity,
+                    unitPrice: product.price,
+                    totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
+                    stockAvailable: stock,
+                    vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
+                  );
+                }).toList(),
+
+              );
+
+              if (kDebugMode) {
+                log(jsonEncode(request));
+              }
+              kavachOrderBloc.add(KavachSubmitOrder(request));
+            },
+            title: context.appText.placeOrder,
+            style: AppButtonStyle.primary,
+          ).expand()
+        ],
+      ).paddingOnly(bottom: 30,right: 20,left: 20,top: 15),
+    );
   }
 
   Widget _buildAddressCard(KavachAddressModel address) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.customerName,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text(address.mobileNumber,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.addr1}, ${address.addr2}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(address.addr1,style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500,),
         Visibility(
@@ -308,7 +384,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         Expanded(child: Text(label, style: AppTextStyle.textDarkGreyColor14w500)),
         Text(value, style: AppTextStyle.blackColor15w500),
       ],
-    );
+    ).paddingSymmetric(vertical: 5);
   }
 }
 

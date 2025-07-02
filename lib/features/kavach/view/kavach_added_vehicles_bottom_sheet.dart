@@ -9,6 +9,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
@@ -38,9 +39,13 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
   Widget vehicleCard(KavachVehicleModel vehicle) {
     return InkWell(
       onTap: () {
-        Navigator.of(
-          context,
-        ).pop(vehicle.vehicleNumber); // return selected vehicle number
+        if (vehicle.vehicleStatus==1) {
+          Navigator.of(
+                    context,
+                  ).pop(vehicle.vehicleNumber);
+        } else {
+          ToastMessages.alert(message: 'Vehicle is currently inactive');
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -73,7 +78,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
                       ),
                       6.width,
                       Visibility(
-                        visible: vehicle.vehicleStatus == 1,
+                        visible: vehicle.status == 1,
                         child: const Icon(
                           Icons.verified,
                           color: Colors.green,
@@ -93,7 +98,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
                 ],
               ),
             ),
-            if (vehicle.status == 1)
+            if (vehicle.vehicleStatus == 1)
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -117,7 +122,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 550,
+      height: MediaQuery.of(context).size.height * 0.65,
       child: Material(
         color: Colors.white,
         child: Column(
