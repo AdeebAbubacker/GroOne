@@ -33,20 +33,12 @@ class AppRoutes {
     initialLocation: AppRouteName.splash,
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
+
       // Splash
       GoRoute(
         path: AppRouteName.splash,
         builder: (BuildContext context, GoRouterState state) {
           return SplashScreen();
-        },
-      ),
-
-      GoRoute(
-        path: AppRouteName.kycScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
-          final String addharNumber = data["addharNumber"] ?? "";
-          return KycUploadDocumentScreen(aadhaarNumber: addharNumber);
         },
       ),
 

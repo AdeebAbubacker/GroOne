@@ -173,8 +173,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: context.appText.accountCreatedSuccessfully,
-        heading: context.appText.accountCreatedSuccessfullySubHeading,
+        heading: context.appText.accountCreatedSuccessfully,
+        message: context.appText.accountCreatedSuccessfullySubHeading,
         afterDismiss: () {
           context.go(AppRouteName.vpBottomNavigationBar);
           disposeFunction();
@@ -562,6 +562,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   Widget buildSubmitButton() {
     return BlocConsumer<VpCreationBloc, VpCreationState>(
       bloc: vpCreationBloc,
+      listenWhen: (previousState, newState)=> previousState != newState,
       listener: (context, state) async {
         if (state is VpCreationSuccess) {
           navigateToHomeScreen(context);

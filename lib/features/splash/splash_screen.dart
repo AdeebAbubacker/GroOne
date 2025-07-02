@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   //  Init Function
   Future<void> init(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 6), () async {
+    await Future.delayed(const Duration(seconds: 4), () async {
        await splashViewModel.fetchIsUserLogin();
     });
 
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Lottie.asset(
           AppJSON.splash,
-          fit: BoxFit.fitWidth,
+          fit: BoxFit.fill,
           width: double.infinity,
           frameRate: FrameRate(120),
           repeat: false,

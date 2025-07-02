@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 import 'memo_otp_dialog_widget.dart';
@@ -93,8 +94,8 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                   AppButton(
                     title: "E-Sign Memo",
                     onPressed: () {
-                      lpLoadLocator.sendOtp();
-                      AppDialog.show(context, child: MemoOtpDialogWidget(parentContext: context,));
+                      lpLoadLocator.sendOtp(loadId: memoDetails.id.toString());
+                      AppDialog.show(context, child: MemoOtpDialogWidget(parentContext: context,loadId: memoDetails.id.toString()));
                     },
                   ),
                   40.height,
@@ -119,15 +120,14 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           buildHeadingText('Main Details'),
           buildDMemoDetailWidget(label: "Load ID", value: memoDetails.loadId),
           buildDMemoDetailWidget(label: "Transporter", value: memoDetails.transporter),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.vehicleNumber),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.trip?.vehicle?.vehicleNumber ?? ''),
           buildDMemoDetailWidget(label: "MEMO#", value: memoDetails.memoNumber),
           buildDMemoDetailWidget(label: "Lane", value: memoDetails.lane),
-          buildDMemoDetailWidget(label: "Total Freight", value: memoDetails.totalFreight),
-          buildDMemoDetailWidget(label: "Handling Charges", value: memoDetails.handlingCharges),
-          buildDMemoDetailWidget(label: "Net Freight", value: memoDetails.netFreight),
-          buildDMemoDetailWidget(label: "Advance (80%)", value: memoDetails.advanceAmount),
-          buildDMemoDetailWidget(label: "Balance (20%)", value: memoDetails.balanceAmount ),
-        ],
+          buildDMemoDetailWidget(label: "Total Freight", value: PriceHelper.formatINR(memoDetails.totalFreight, symbol: 'Rs ')),
+          buildDMemoDetailWidget(label: "Handling Charges", value:' (-)   ${PriceHelper.formatINR(memoDetails.handlingCharges, symbol: 'Rs ')}'),
+          buildDMemoDetailWidget(label: "Net Freight", value: PriceHelper.formatINR(memoDetails.netFreight, symbol: 'Rs ')),
+          buildDMemoDetailWidget(label: "Advance (${memoDetails.advancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.advanceAmount, symbol: 'Rs ')),
+          buildDMemoDetailWidget(label: "Balance (${memoDetails.balancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.balanceAmount, symbol: 'Rs ')),],
       ),
     );
   }
@@ -164,7 +164,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           buildHeadingText("Truck Supplier"),
           buildDMemoDetailWidget(label: "Partner Name", value: memoDetails.truckSupplier?.partnerName ?? ''),
           buildDMemoDetailWidget(label: "PAN Number", value: memoDetails.truckSupplier?.panNumber ?? ''),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.truckSupplier?.vehicleNumber ?? ''),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.trip?.vehicle?.vehicleNumber ?? ''),
         ],
       ),
     );

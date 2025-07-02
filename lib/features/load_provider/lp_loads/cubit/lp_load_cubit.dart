@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
@@ -12,6 +13,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_o
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 
 part 'lp_load_state.dart';
@@ -122,10 +124,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Send otp to e-sign memo
-  Future<void> sendOtp() async {
+  Future<void> sendOtp({required String loadId}) async {
     _setLoadUIState(UIState.loading());
 
-    Result result = await _repository.sendOtp();
+    Result result = await _repository.sendOtp(loadId: loadId);
 
     if (result is Success<LpLoadMemoOtpResponse>) {
       _setSendOtpState(UIState.success(result.value));
@@ -140,10 +142,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Verify otp of e-sign memo
-  Future<void> verifyOtp({required String otp}) async {
+  Future<void> verifyOtp({required String otp, required String loadId}) async {
     _setLoadUIState(UIState.loading());
 
-    Result result = await _repository.verifyOtp(otp: otp);
+    Result result = await _repository.verifyOtp(otp: otp, loadId: loadId);
 
     if (result is Success<LpLoadMemoOtpResponse>) {
       _setVerifyOtpState(UIState.success(result.value));
@@ -211,5 +213,61 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   Future<bool> fetchFirstTimeLoad() async {
     return  await _repository.getIsFirstTimeLoad();
   }
+
+  // Updates the UI state related to lp load Agree.
+  void _setLoadAgreeState(UIState<LpLoadAgreeResponse>? uiState) {
+    emit(state.copyWith(lpLoadAgree: uiState));
+  }
+
+  // Lp load Agree response
+  Future<void> loadAgree({required String loadId}) async {
+    _setLoadAgreeState(UIState.loading());
+
+    Result result = await _repository.loadAgree(loadId: loadId);
+
+    if (result is Success<LpLoadAgreeResponse>) {
+      final agreeData = result.value.lpLoadAgreeData;
+      final defaultAdvance = agreeData?.advance.firstWhere(
+            (item) => item.percentage == '90.00',
+        orElse: () => agreeData.advance.first,
+      );
+
+      emit(state.copyWith(
+        lpLoadAgree: UIState.success(result.value),
+        selectedAdvance: defaultAdvance,
+        selectedPercentageId: defaultAdvance?.percentageId,
+      ));
+      _setLoadAgreeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadAgreeState(UIState.error(result.type));
+    }
+  }
+
+
+  // Updates the UI state related to lp load verify advance.
+  void _setLoadVerifyAdvanceState(UIState<LpLoadVerifyAdvanceResponse>? uiState) {
+    emit(state.copyWith(lpLoadVerifyAdvance: uiState));
+  }
+
+  // Lp load Verify advance
+  Future<void> verifyAdvance({required String loadId, required String percentageId}) async {
+    _setLoadVerifyAdvanceState(UIState.loading());
+
+    Result result = await _repository.verifyAdvance(loadId: loadId, percentageId: percentageId);
+
+    if (result is Success<LpLoadVerifyAdvanceResponse>) {
+      _setLoadVerifyAdvanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadVerifyAdvanceState(UIState.error(result.type));
+    }
+  }
+
+  void selectAdvance(Advance advance) {
+    emit(state.copyWith(
+      selectedAdvance: advance,
+      selectedPercentageId: advance.percentageId,
+    ));
+  }
+
 
 }

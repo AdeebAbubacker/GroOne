@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -107,7 +108,8 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
                         physics: ScrollPhysics(),
                         separatorBuilder: (context, index) => 20.height,
                         itemBuilder: (context, index) {
-                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone,);
+                          final companyId = VpVariables.companyId;
+                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone, companyTypeId: companyId);
                         },
                       ),
                     );

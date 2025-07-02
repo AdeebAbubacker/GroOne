@@ -13,7 +13,7 @@ class LogOutDialogueUi extends StatelessWidget {
     return Column(
       children: [
 
-        SvgPicture.asset(AppImage.svg.logOutImage, height: 250),
+        SvgPicture.asset(AppImage.svg.logOutImage, height: 200),
 
         // Title
         Text("${context.appText.logOut}?", style: AppTextStyle.h3),

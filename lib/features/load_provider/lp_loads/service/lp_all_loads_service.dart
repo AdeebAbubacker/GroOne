@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
@@ -10,6 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_o
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 
 class LpLoadService {
   final ApiService _apiService;
@@ -124,10 +126,10 @@ class LpLoadService {
   }
 
 
-  Future<Result<LpLoadMemoOtpResponse>> sendOtp({required String customerId}) async {
+  Future<Result<LpLoadMemoOtpResponse>> sendOtp({required String customerId, required String loadId}) async {
     try {
       final url = ApiUrls.lpLoadSendOtp;
-      final response = await _apiService.get('$url/$customerId');
+      final response = await _apiService.get('$url/$customerId/$loadId');
       if (response is Success) {
         final loads = LpLoadMemoOtpResponse.fromJson(response.value);
         return Success(loads);
@@ -141,10 +143,10 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String customerId, required String otp}) async {
+  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String customerId, required String otp, required String loadId}) async {
     try {
       final url = ApiUrls.lpLoadVerifyOtp;
-      final response = await _apiService.post(url, body: {"otp":otp, "customerId":customerId});
+      final response = await _apiService.post(url, body: {"otp":otp, "customerId":customerId, "loadId": loadId});
 
       if (response is Success) {
         final loads = LpLoadMemoOtpResponse.fromJson(response.value);
@@ -207,6 +209,42 @@ class LpLoadService {
 
       if (response is Success) {
         final loads = LpLoadCreditUpdateResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LpLoadAgreeResponse>> loadAgree({required String customerId, required String loadId}) async {
+    try {
+      final url = ApiUrls.lpLoadAgree;
+      final response = await _apiService.post(url, body: {"loadId":loadId, "customerId":customerId});
+
+      if (response is Success) {
+        final loads = LpLoadAgreeResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LpLoadVerifyAdvanceResponse>> verifyAdvance({required String customerId, required String loadId, required String percentageId}) async {
+    try {
+      final url = ApiUrls.lpLoadVerifyAdvance;
+      final response = await _apiService.post(url, body: {"loadId":loadId, "customerId":customerId, 'percentageId': percentageId});
+
+      if (response is Success) {
+        final loads = LpLoadVerifyAdvanceResponse.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

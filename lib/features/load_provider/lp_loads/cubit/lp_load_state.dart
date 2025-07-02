@@ -10,9 +10,31 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
   final UIState<CreditCheckApiResponse>? lpCreditCheck;
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
+  final UIState<LpLoadAgreeResponse>? lpLoadAgree;
+  final UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance;
   final int selectedTabIndex;
+  final String? matchingText;
+  final Advance? selectedAdvance;
+  final int? selectedPercentageId;
 
-  const LpLoadState({this.lpLoadResponse, this. lpLoadById, this.selectedTabIndex = 1, this.lpLoadMemoDetails, this.lpLoadMemoSendOtp,this.lpLoadMemoVerifyOtp, this.lpLoadTruckTypes, this.lpLoadRouteDetails, this.lpCreditCheck, this.lpCreditUpdate});
+
+  const LpLoadState({
+    this.lpLoadResponse,
+    this.lpLoadById,
+    this.selectedTabIndex = 0,
+    this.lpLoadMemoDetails,
+    this.lpLoadMemoSendOtp,
+    this.lpLoadMemoVerifyOtp,
+    this.lpLoadTruckTypes,
+    this.lpLoadRouteDetails,
+    this.lpCreditCheck,
+    this.lpCreditUpdate,
+    this.lpLoadAgree,
+    this.lpLoadVerifyAdvance,
+    this.matchingText,
+    this.selectedAdvance,
+    this.selectedPercentageId
+  });
 
   LpLoadState copyWith({
     UIState<List<LpLoadItem>>? lpLoadResponse,
@@ -24,7 +46,12 @@ class LpLoadState extends Equatable {
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
     UIState<CreditCheckApiResponse>? lpCreditCheck,
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,
+    UIState<LpLoadAgreeResponse>? lpLoadAgree,
+    UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance,
     int? selectedTabIndex,
+    String? matchingText,
+    Advance? selectedAdvance,
+    int? selectedPercentageId
   }) {
     return LpLoadState(
       lpLoadResponse: lpLoadResponse ?? this.lpLoadResponse,
@@ -37,9 +64,30 @@ class LpLoadState extends Equatable {
       lpLoadRouteDetails: lpLoadRouteDetails ?? this.lpLoadRouteDetails,
       lpCreditCheck: lpCreditCheck ?? this.lpCreditCheck,
       lpCreditUpdate: lpCreditUpdate ?? this.lpCreditUpdate,
+      lpLoadAgree: lpLoadAgree ?? this.lpLoadAgree,
+      lpLoadVerifyAdvance: lpLoadVerifyAdvance ?? this.lpLoadVerifyAdvance,
+      matchingText: matchingText ?? this.matchingText,
+      selectedAdvance: selectedAdvance ?? this.selectedAdvance,
+      selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
     );
   }
 
   @override
-  List<Object?> get props => [lpLoadResponse, lpLoadById, selectedTabIndex, lpLoadMemoDetails, lpLoadMemoSendOtp, lpLoadMemoVerifyOtp, lpLoadTruckTypes, lpLoadRouteDetails, lpCreditCheck, lpCreditUpdate];
+  List<Object?> get props => [
+    lpLoadResponse,
+    lpLoadById,
+    selectedTabIndex,
+    lpLoadMemoDetails,
+    lpLoadMemoSendOtp,
+    lpLoadMemoVerifyOtp,
+    lpLoadTruckTypes,
+    lpLoadRouteDetails,
+    lpCreditCheck,
+    lpCreditUpdate,
+    lpLoadAgree,
+    lpLoadVerifyAdvance,
+    matchingText,
+    selectedPercentageId,
+    selectedAdvance
+  ];
 }

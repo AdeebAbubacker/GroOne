@@ -63,6 +63,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   }
 
 
+
   void disposeFunction() => frameCallback(() async {
     if(widget.afterDismiss != null){
       widget.afterDismiss!.call();
@@ -92,7 +93,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         if(widget.heading != null)...[
           Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: AppTextStyle.h3.copyWith(color: widget.headingColor ?? Colors.black, fontSize: 25)),
-          20.height,
+          10.height,
         ],
 
         if(widget.message != null)...[

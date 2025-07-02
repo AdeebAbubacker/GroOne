@@ -1,7 +1,7 @@
 import 'package:gro_one_app/data/model/serializable.dart';
 
 class LoadListApiRequest extends Serializable<LoadListApiRequest>{
-  final int loadStatus;
+  final int? loadStatus;
   final int? page;
   final int? limit;
   final String? customerId;
@@ -12,7 +12,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
   final String? loadPostDate;
 
   LoadListApiRequest({
-    required this.loadStatus,
+    this.loadStatus,
     this.page,
     this.limit,
     this.customerId,
@@ -24,7 +24,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
   });
 
   Map<String, dynamic> toJson() => {
-    'loadStatus': loadStatus,
+    if (loadStatus != null) 'loadStatus': loadStatus,
     if (page != null) 'page': page,
     if (limit != null) 'limit': limit,
     if (customerId != null) 'customerId': customerId,

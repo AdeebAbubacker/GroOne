@@ -56,7 +56,7 @@ class LoadTimelineWidget extends StatelessWidget {
                   5.height,
                   Text(
                     ((isCompleted || isCurrent) && item.timestamp != null)
-                        ? DateTimeHelper.formatCustomDate(item.timestamp!) // assuming a DateTime extension for formatting
+                        ? DateTimeHelper.formatCustomDateIST(item.timestamp!)
                         : '',
                     style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
                   ),
