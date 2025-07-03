@@ -223,7 +223,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             ),
             8.height,
             Text(
-             widget.loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(widget.loadItem.createdAt!) : "--",
+             widget.loadItem.pickUpDateTime != null ? DateTimeHelper.formatCustomDateIST(widget.loadItem.pickUpDateTime!) : "--",
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.primaryColor,
               ),

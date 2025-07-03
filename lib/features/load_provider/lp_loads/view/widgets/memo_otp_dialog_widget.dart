@@ -119,7 +119,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                 ),
                 TextSpan(
                   text:
-                      '  for confirming your\n  load We have sent an OTP to your\n registered mobile number. ',
+                  '  for confirming your load We have sent an OTP to your registered mobile number. ',
                   style: AppTextStyle.body2.copyWith(height: 1.9),
                 ),
                 TextSpan(
