@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creati
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -240,7 +241,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
 
                   // Resend OTP Button
                   AppButton(
-                    style: AppButtonStyle.outline,
+                    style: _isButtonEnabled ?  AppButtonStyle.outline : AppButtonStyle.disableOutline,
                     isLoading: isLoadingResend,
                     richTextWidget:
                         _isButtonEnabled
@@ -254,21 +255,19 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                                 children: [
                                   TextSpan(
                                     text: context.appText.resend,
-                                    style:
-                                        AppTextStyle
-                                            .buttonPrimaryColorTextColor,
+                                    style: _isButtonEnabled ? AppTextStyle.buttonPrimaryColorTextColor : AppTextStyle.buttonDisableColorTextColor,
                                   ),
                                   TextSpan(
                                     text: context.appText.inText,
-                                    style: TextStyle(color: Colors.grey),
+                                    style: AppTextStyle.buttonDisableColorTextColor,
                                   ),
                                   TextSpan(
-                                    text: '$_start',
-                                    style: TextStyle(color: Colors.green),
+                                    text: '$_start ',
+                                    style: AppTextStyle.button.copyWith(color: AppColors.activeGreenColor),
                                   ),
                                   TextSpan(
                                     text: context.appText.second,
-                                    style: TextStyle(color: Colors.grey),
+                                    style: AppTextStyle.buttonDisableColorTextColor,
                                   ),
                                 ],
                               ),

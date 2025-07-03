@@ -80,7 +80,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
           VpVariables.setIsKycVerified(
             isKycStatus: profileResponse?.data?.customer?.isKyc ?? 0,
             isKyc: isKyc,
-            companyId: profileResponse!.data!.details!.companyTypeId,
+            companyId: profileResponse?.data?.details?.companyTypeId ?? 0,
             profileDetailModel: profileResponse,
           );
         }

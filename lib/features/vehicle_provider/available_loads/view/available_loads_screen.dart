@@ -108,7 +108,7 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
                         physics: ScrollPhysics(),
                         separatorBuilder: (context, index) => 20.height,
                         itemBuilder: (context, index) {
-                          final companyId = VpVariables.companyId;
+                          final companyId = VpVariables.companyId ?? 0;
                           return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone, companyTypeId: companyId);
                         },
                       ),

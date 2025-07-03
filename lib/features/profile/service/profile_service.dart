@@ -47,7 +47,10 @@ class ProfileService {
             await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
             await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
           }
-
+          if(data.value.data?.details != null){
+            await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, data.value.data!.details!.companyTypeId.toString());
+            debugPrint("🎉 Company Type ID saved: ${data.value.data!.details!.companyTypeId}");
+          }
           return Success(data.value);
         }
         if (data is Error) {

@@ -88,7 +88,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
-    await lpHomeBloc.getUserId() ?? "";
+    await lpHomeBloc.getUserId();
+    await profileCubit.fetchCompanyTypeId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     await profileCubit.fetchProfileDetail();
@@ -287,11 +288,11 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           isKycValid = customer.isKyc.toInt();
 
           if (customer.isKyc == 3) {
-            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget() :  0.width;
+            return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
-            return kycInProgressStatusWidget();
+            return kycInProgressStatusWidget().paddingTop(10);
           } else {
-            return IncompleteKycStatusWidget(companyId: companyId);
+            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -375,10 +376,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       data: data,
                       onClickAssignDriver: () {
                         final isKycDone = VpVariables.isKycVerified;
-                        final companyId = VpVariables.companyId;
+                        final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                         if (isKycDone) {
                           context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
-                        } else if (companyId != null && (companyId == 2 || companyId == 1)) {
+                        } else if (companyId == 2 || companyId == 1) {
                           commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                         } else {
                           Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
@@ -490,7 +491,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                     physics: NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
-                      final companyId = VpVariables.companyId;
+                      final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                       return RecentAddedLoadListBody(
                         data: loads[index],
                         isKycDone: VpVariables.isKycVerified,

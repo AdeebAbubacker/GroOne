@@ -401,53 +401,44 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         ),
 
         // KYC Blinking
-        BlocProvider<LPHomeCubit>.value(
-          value: locator<LPHomeCubit>(),   // singleton from get_it
-          child: BlocConsumer<LPHomeCubit, LPHomeState>(
-            listener: (context, state) {},
-            builder: (context, state) {
-              final profileState = state.profileDetailUIState;
+        BlocConsumer<ProfileCubit, ProfileState>(
+          bloc: profileCubit,
+          listener: (context, state) {},
+          builder: (context, state) {
+            final profileState = state.profileDetailUIState;
 
-              if (profileState == null ||
-                  profileState.status != Status.SUCCESS ||
-                  profileState.data == null ||
-                  profileState.data?.data == null ||
-                  profileState.data?.data?.customer == null) {
-                return const SizedBox.shrink();
-              }
+            if (profileState == null ||
+                profileState.status != Status.SUCCESS ||
+                profileState.data == null ||
+                profileState.data?.data == null ||
+                profileState.data?.data?.customer == null) {
+              return const SizedBox.shrink();
+            }
 
-              final customer = profileState.data!.data!.customer!;
-              final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
-              CustomLog.debug(this, 'is KYC : $kycFlag');
+            final customer = profileState.data!.data!.customer!;
+            final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+            CustomLog.debug(this, 'is KYC : $kycFlag');
 
-              if (kycFlag == 3) {
-                return const SizedBox.shrink();
-              }
+            if (kycFlag == 3 || kycFlag == 2) {
+              return const SizedBox.shrink();
+            }
 
-              if (kycFlag == 2) {
-                return const SizedBox.shrink();
-              }
+            final companyId = profileState.data!.data?.details?.companyTypeId;
+            CustomLog.debug(this, 'Company Id : $companyId');
 
-              final companyId = profileState.data!.data?.details?.companyTypeId;
+            return kycWidget(
+              onTap: () {
+                if (companyId != null && (companyId == 2 || companyId == 1)) {
+                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                } else {
+                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                }
+              },
+            );
 
-              CustomLog.debug(this, 'Company Id : $companyId');
-
-              return kycWidget(
-                onTap: () {
-                  if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    commonBottomSheetWithBGBlur(
-                      context: context,
-                      screen: EnterAadhaarNumberBottomSheet(),
-                    );
-                  } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                  }
-                },
-              );
-
-            },
-          ),
+          },
         ),
+
 
         // Profile
         BlocConsumer<ProfileCubit, ProfileState>(
@@ -591,11 +582,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           isKycValid = customer.isKyc.toInt();
 
           if (customer.isKyc == 3) {
-            return (state.showSuccessKyc) ? kycSuccessStatusWidget() :  0.width;
+            return (state.showSuccessKyc) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
-            return kycInProgressStatusWidget();
+            return kycInProgressStatusWidget().paddingTop(10);
           } else {
-            return IncompleteKycStatusWidget(companyId: companyId);
+            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
