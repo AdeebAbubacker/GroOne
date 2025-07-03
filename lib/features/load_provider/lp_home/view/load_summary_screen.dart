@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
@@ -71,9 +72,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       final creditData = uiState?.data as CreditCheckApiResponse;
 
       if (creditData.data == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(creditData.message.isNotEmpty ? creditData.message : 'Something went wrong')),
-        );
+        ToastMessages.error(message: creditData.message);
         return;
       }
 
@@ -89,8 +88,8 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
     }
     else if (uiState?.status == Status.ERROR) {
-      final errorMessage = uiState?.errorType?.getText(context) ?? "Something went wrong";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      final errorType = uiState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
       return;
     }
   }
