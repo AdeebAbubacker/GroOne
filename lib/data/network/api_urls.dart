@@ -60,7 +60,7 @@ class ApiUrls {
 
   // Common Api
   static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
-  static final String  language = "$_fetchUrl$_customer$_path$_v1/language";
+  static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
