@@ -505,7 +505,7 @@ class EnDhanCustomerCreationResponse {
 class EnDhanCardListModel {
   final bool success;
   final String message;
-  final List<EnDhanCardModel>? data;
+  final EnDhanCardData? data;
 
   const EnDhanCardListModel({
     required this.success,
@@ -515,58 +515,17 @@ class EnDhanCardListModel {
 
   factory EnDhanCardListModel.fromJson(Map<String, dynamic> json) {
     print('🔍 EnDhanCardListModel.fromJson called with: $json');
-    List<EnDhanCardModel>? cardList;
     
-    // Handle the actual API response structure
-    if (json['document'] != null && json['document'] is List) {
-      print('🔍 Found document field with list: ${json['document']}');
-      // API returns data in 'document' field
-      cardList = (json['document'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-    } else if (json['data'] != null) {
-      print('🔍 Found data field: ${json['data']}');
-      if (json['data'] is List) {
-        print('🔍 Data is a list, parsing ${(json['data'] as List).length} items');
-        // If data is a list, parse each item as a card
-        cardList = (json['data'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-      } else if (json['data'] is Map<String, dynamic>) {
-        // If data is a map, it might contain a list field or be a single card
-        final dataMap = json['data'] as Map<String, dynamic>;
-        
-        // Check if this is an error response
-        if (dataMap.containsKey('error') || dataMap.containsKey('status') || dataMap.containsKey('code')) {
-          // This is an error response, return empty list
-          cardList = [];
-        } else if (dataMap.containsKey('document') && dataMap['document'] is List) {
-          // If there's a 'document' field that's a list
-          cardList = (dataMap['document'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-        } else if (dataMap.containsKey('cards') && dataMap['cards'] is List) {
-          // If there's a 'cards' field that's a list
-          cardList = (dataMap['cards'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-        } else if (dataMap.containsKey('data') && dataMap['data'] is List) {
-          // If there's a nested 'data' field that's a list
-          cardList = (dataMap['data'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-        } else if (dataMap.containsKey('items') && dataMap['items'] is List) {
-          // If there's an 'items' field that's a list
-          cardList = (dataMap['items'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
-        } else {
-          // If data is a single card object
-          try {
-            cardList = [EnDhanCardModel.fromJson(dataMap)];
-          } catch (e) {
-            // If parsing fails, return empty list
-            cardList = [];
-          }
-        }
-      } else if (json['data'] is String) {
-        // If data is a string (error message), return empty list
-        cardList = [];
-      }
+    EnDhanCardData? cardData;
+    
+    if (json['data'] != null && json['data'] is Map<String, dynamic>) {
+      cardData = EnDhanCardData.fromJson(json['data'] as Map<String, dynamic>);
     }
     
     return EnDhanCardListModel(
-      success: json['success'] ?? true, // Default to true since API doesn't return success field
+      success: json['success'] ?? true,
       message: json['message'] ?? '',
-      data: cardList ?? [],
+      data: cardData,
     );
   }
 
@@ -574,7 +533,7 @@ class EnDhanCardListModel {
     return <String, dynamic>{
       'success': success,
       'message': message,
-      'data': data?.map((item) => item.toJson()).toList(),
+      'data': data?.toJson(),
     };
   }
 
@@ -584,76 +543,116 @@ class EnDhanCardListModel {
   }
 }
 
-/// Individual Card Model
-class EnDhanCardModel {
-  final String? cardId;
-  final String? cardNumber;
-  final String? vehicleNumber;
-  final String? status;
-  final double? amount;
-  final String? mobile;
-  final String? dateTime;
-  final String? cardHolderName;
-  final String? cardType;
-  final String? expiryDate;
-  final double? balance;
-  final String? createdAt;
-  final String? updatedAt;
+/// Card Data containing endhanCustomerId and document array
+class EnDhanCardData {
+  final String? endhanCustomerId;
+  final List<EnDhanCardModel>? document;
+  final int? totalCount;
 
-  const EnDhanCardModel({
-    this.cardId,
-    this.cardNumber,
-    this.vehicleNumber,
-    this.status,
-    this.amount,
-    this.mobile,
-    this.dateTime,
-    this.cardHolderName,
-    this.cardType,
-    this.expiryDate,
-    this.balance,
-    this.createdAt,
-    this.updatedAt,
+  const EnDhanCardData({
+    this.endhanCustomerId,
+    this.document,
+    this.totalCount,
   });
 
-  factory EnDhanCardModel.fromJson(Map<String, dynamic> json) {
-    return EnDhanCardModel(
-      cardId: json['id']?.toString(), // API uses 'id'
-      cardNumber: json['cardNo'] as String?, // API uses 'cardNo'
-      vehicleNumber: json['vehicleNo'] as String?, // API uses 'vehicleNo'
-      status: 'Active', // Default status since API doesn't provide it
-      amount: null, // API doesn't provide amount
-      mobile: json['cardMobileNo'] as String?, // API uses 'cardMobileNo'
-      dateTime: json['createdAt'] as String?, // Use createdAt as dateTime
-      cardHolderName: null, // API doesn't provide cardHolderName
-      cardType: json['vehicleType'] as String?, // API uses 'vehicleType'
-      expiryDate: null, // API doesn't provide expiryDate
-      balance: null, // API doesn't provide balance
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+  factory EnDhanCardData.fromJson(Map<String, dynamic> json) {
+    List<EnDhanCardModel>? cardList;
+    
+    if (json['document'] != null && json['document'] is List) {
+      cardList = (json['document'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
+    }
+    
+    return EnDhanCardData(
+      endhanCustomerId: json['endhanCustomerId'] as String?,
+      document: cardList,
+      totalCount: json['totalCount'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'cardId': cardId,
-      'cardNumber': cardNumber,
-      'vehicleNumber': vehicleNumber,
-      'status': status,
-      'amount': amount,
-      'mobile': mobile,
-      'dateTime': dateTime,
-      'cardHolderName': cardHolderName,
-      'cardType': cardType,
-      'expiryDate': expiryDate,
-      'balance': balance,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt,
+      'endhanCustomerId': endhanCustomerId,
+      'document': document?.map((item) => item.toJson()).toList(),
+      'totalCount': totalCount,
     };
   }
 
   @override
   String toString() {
-    return 'EnDhanCardModel{cardId: $cardId, cardNumber: $cardNumber, vehicleNumber: $vehicleNumber, status: $status, amount: $amount, mobile: $mobile, dateTime: $dateTime}';
+    return 'EnDhanCardData{endhanCustomerId: $endhanCustomerId, document: $document, totalCount: $totalCount}';
+  }
+}
+
+/// Individual Card Model
+class EnDhanCardModel {
+  final int? id;
+  final int? customerId;
+  final String? endhanCustomerId;
+  final String? cardNumber;
+  final String? vehicleNumber;
+  final String? cardMobileNo;
+  final String? vehicleType;
+  final String? vinNumber;
+  final String? rcDocument;
+  final String? rcNumber;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? deletedAt;
+
+  const EnDhanCardModel({
+    this.id,
+    this.customerId,
+    this.endhanCustomerId,
+    this.cardNumber,
+    this.vehicleNumber,
+    this.cardMobileNo,
+    this.vehicleType,
+    this.vinNumber,
+    this.rcDocument,
+    this.rcNumber,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory EnDhanCardModel.fromJson(Map<String, dynamic> json) {
+    return EnDhanCardModel(
+      id: json['id'] as int?,
+      customerId: json['customerId'] as int?,
+      endhanCustomerId: json['endhanCustomerId'] as String?,
+      cardNumber: json['cardNo'] as String?,
+      vehicleNumber: json['vehicleNo'] as String?,
+      cardMobileNo: json['cardMobileNo'] as String?,
+      vehicleType: json['vehicleType'] as String?,
+      vinNumber: json['vinNumber'] as String?,
+      rcDocument: json['rcDocument'] as String?,
+      rcNumber: json['rcNumber'] as String?,
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
+      deletedAt: json['deletedAt'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'customerId': customerId,
+      'endhanCustomerId': endhanCustomerId,
+      'cardNo': cardNumber,
+      'vehicleNo': vehicleNumber,
+      'cardMobileNo': cardMobileNo,
+      'vehicleType': vehicleType,
+      'vinNumber': vinNumber,
+      'rcDocument': rcDocument,
+      'rcNumber': rcNumber,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'deletedAt': deletedAt,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'EnDhanCardModel{id: $id, customerId: $customerId, endhanCustomerId: $endhanCustomerId, cardNumber: $cardNumber, vehicleNumber: $vehicleNumber, cardMobileNo: $cardMobileNo, vehicleType: $vehicleType, vinNumber: $vinNumber, rcDocument: $rcDocument, rcNumber: $rcNumber, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt}';
   }
 } 

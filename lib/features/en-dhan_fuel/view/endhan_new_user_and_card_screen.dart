@@ -26,6 +26,7 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
+import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
 
 class EndhanNewUserAndCardScreen extends StatefulWidget {
@@ -108,7 +109,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      context.read<EnDhanCubit>().checkKycDocuments();
+                      Navigator.push(context,commonRoute(KavachSupportScreen()));
                     },
                     icon: AppIcons.svg.filledSupport,
                     iconColor: AppColors.primaryButtonColor,
@@ -136,7 +137,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      context.read<EnDhanCubit>().checkKycDocuments();
+                      Navigator.push(context,commonRoute(KavachSupportScreen()));
                     },
                     icon: AppIcons.svg.filledSupport,
                     iconColor: AppColors.primaryButtonColor,
@@ -164,7 +165,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
                   ),
                   AppIconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context,commonRoute(KavachSupportScreen()));
+                    },
                     icon: AppIcons.svg.filledSupport,
                     iconColor: AppColors.primaryColor,
                   ),
@@ -179,7 +182,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        'My Cards (ID: HPCL 43352)',
+                        'My Cards (ID: HPCL${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
                         style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -236,7 +239,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       );
     }
     if (state.cardsState?.status == Status.SUCCESS) {
-      final cards = state.cardsState?.data?.data ?? [];
+      final cards = state.cardsState?.data?.data?.document ?? [];
       if (cards.isEmpty) {
         return Center(
           child: Column(
@@ -267,7 +270,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
         if (_searchText.isEmpty) return true;
         final cardNumber = card.cardNumber?.toString().toLowerCase() ?? '';
         final vehicleNumber = card.vehicleNumber?.toString().toLowerCase() ?? '';
-        final mobile = card.mobile?.toString().toLowerCase() ?? '';
+        final mobile = card.cardMobileNo?.toString().toLowerCase() ?? '';
         final searchLower = _searchText.toLowerCase();
         return cardNumber.contains(searchLower) ||
             vehicleNumber.contains(searchLower) ||
@@ -283,10 +286,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final cardMap = {
             'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
             'vehicleNumber': card.vehicleNumber ?? '',
-            'mobile': card.mobile ?? '',
-            'status': card.status ?? 'Active',
+            'mobile': card.cardMobileNo ?? '',
+            'status': 'Active', // Default status since API doesn't provide it
             'image': AppImage.png.endhanCard,
-            'dateTime': card.dateTime ?? card.createdAt ?? '',
+            'dateTime': card.createdAt ?? '',
           };
           return EndhanCardItem(card: cardMap).paddingOnly(bottom: 12);
         },

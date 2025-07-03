@@ -232,9 +232,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     print('📥 Repository result type: ${result.runtimeType}');
 
     if (result is Success<api_models.EnDhanCardListModel>) {
-      print(
-        '✅ Cards fetch successful: ${result.value.data?.length ?? 0} cards',
-      );
+      
       _setCardsUIState(UIState.success(result.value));
     } else if (result is Error<api_models.EnDhanCardListModel>) {
       print('❌ Cards fetch failed: ${result.type}');
