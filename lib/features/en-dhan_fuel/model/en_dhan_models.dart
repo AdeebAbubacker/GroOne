@@ -9,7 +9,10 @@ class EnDhanBaseResponse<T> {
     required this.data,
   });
 
-  factory EnDhanBaseResponse.fromJson(Map<String, dynamic> json, T Function(dynamic) fromJsonT) {
+  factory EnDhanBaseResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(dynamic) fromJsonT,
+  ) {
     return EnDhanBaseResponse<T>(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
@@ -217,9 +220,12 @@ class EnDhanTransactionHistoryModel {
 
   factory EnDhanTransactionHistoryModel.fromJson(Map<String, dynamic> json) {
     return EnDhanTransactionHistoryModel(
-      transactions: (json['transactions'] as List<dynamic>?)
-          ?.map((e) => EnDhanTransaction.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      transactions:
+          (json['transactions'] as List<dynamic>?)
+              ?.map(
+                (e) => EnDhanTransaction.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
       totalCount: json['totalCount'] as int?,
       currentPage: json['currentPage'] as int?,
       totalPages: json['totalPages'] as int?,
@@ -323,9 +329,11 @@ class EnDhanStateResponse {
 
   factory EnDhanStateResponse.fromJson(Map<String, dynamic> json) {
     return EnDhanStateResponse(
-      document: (json['data']?['document'] as List<dynamic>?)
-          ?.map((e) => EnDhanState.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      document:
+          (json['data']?['document'] as List<dynamic>?)
+              ?.map((e) => EnDhanState.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -337,16 +345,10 @@ class EnDhanState {
   const EnDhanState({required this.id, required this.name});
 
   factory EnDhanState.fromJson(Map<String, dynamic> json) {
-    return EnDhanState(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
-    );
+    return EnDhanState(id: json['id'] ?? 0, name: json['name'] ?? '');
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-  };
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
 }
 
 // Zonal response models
@@ -357,9 +359,11 @@ class EnDhanZonalResponse {
 
   factory EnDhanZonalResponse.fromJson(Map<String, dynamic> json) {
     return EnDhanZonalResponse(
-      document: (json['data']?['document'] as List<dynamic>?)
-          ?.map((e) => EnDhanZonal.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      document:
+          (json['data']?['document'] as List<dynamic>?)
+              ?.map((e) => EnDhanZonal.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -371,16 +375,10 @@ class EnDhanZonal {
   const EnDhanZonal({required this.id, required this.zoneName});
 
   factory EnDhanZonal.fromJson(Map<String, dynamic> json) {
-    return EnDhanZonal(
-      id: json['id'] ?? 0,
-      zoneName: json['zone_name'] ?? '',
-    );
+    return EnDhanZonal(id: json['id'] ?? 0, zoneName: json['zone_name'] ?? '');
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'zone_name': zoneName,
-  };
+  Map<String, dynamic> toJson() => {'id': id, 'zone_name': zoneName};
 }
 
 // District response models
@@ -391,9 +389,11 @@ class EnDhanDistrictResponse {
 
   factory EnDhanDistrictResponse.fromJson(Map<String, dynamic> json) {
     return EnDhanDistrictResponse(
-      document: (json['data']?['document'] as List<dynamic>?)
-          ?.map((e) => EnDhanDistrict.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      document:
+          (json['data']?['document'] as List<dynamic>?)
+              ?.map((e) => EnDhanDistrict.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -432,9 +432,11 @@ class EnDhanRegionalResponse {
 
   factory EnDhanRegionalResponse.fromJson(Map<String, dynamic> json) {
     return EnDhanRegionalResponse(
-      document: (json['data']?['document'] as List<dynamic>?)
-          ?.map((e) => EnDhanRegional.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+      document:
+          (json['data']?['document'] as List<dynamic>?)
+              ?.map((e) => EnDhanRegional.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -472,11 +474,19 @@ class EnDhanVehicleTypeResponse {
   const EnDhanVehicleTypeResponse({required this.document});
 
   factory EnDhanVehicleTypeResponse.fromJson(Map<String, dynamic> json) {
-    return EnDhanVehicleTypeResponse(
-      document: (json['data']?['document'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList() ?? [],
-    );
+    print('🔍 EnDhanVehicleTypeResponse.fromJson called with: $json');
+    print('🔍 json[\'data\']: ${json['data']}');
+    print('🔍 json[\'data\']?[\'document\']: ${json['data']?['document']}');
+
+    final document =
+        (json['data']?['document'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        [];
+
+    print('🔍 Parsed document: $document');
+
+    return EnDhanVehicleTypeResponse(document: document);
   }
 }
 
@@ -515,13 +525,13 @@ class EnDhanCardListModel {
 
   factory EnDhanCardListModel.fromJson(Map<String, dynamic> json) {
     print('🔍 EnDhanCardListModel.fromJson called with: $json');
-    
+
     EnDhanCardData? cardData;
-    
+
     if (json['data'] != null && json['data'] is Map<String, dynamic>) {
       cardData = EnDhanCardData.fromJson(json['data'] as Map<String, dynamic>);
     }
-    
+
     return EnDhanCardListModel(
       success: json['success'] ?? true,
       message: json['message'] ?? '',
@@ -549,19 +559,18 @@ class EnDhanCardData {
   final List<EnDhanCardModel>? document;
   final int? totalCount;
 
-  const EnDhanCardData({
-    this.endhanCustomerId,
-    this.document,
-    this.totalCount,
-  });
+  const EnDhanCardData({this.endhanCustomerId, this.document, this.totalCount});
 
   factory EnDhanCardData.fromJson(Map<String, dynamic> json) {
     List<EnDhanCardModel>? cardList;
-    
+
     if (json['document'] != null && json['document'] is List) {
-      cardList = (json['document'] as List).map((item) => EnDhanCardModel.fromJson(item)).toList();
+      cardList =
+          (json['document'] as List)
+              .map((item) => EnDhanCardModel.fromJson(item))
+              .toList();
     }
-    
+
     return EnDhanCardData(
       endhanCustomerId: json['endhanCustomerId'] as String?,
       document: cardList,
@@ -655,4 +664,4 @@ class EnDhanCardModel {
   String toString() {
     return 'EnDhanCardModel{id: $id, customerId: $customerId, endhanCustomerId: $endhanCustomerId, cardNumber: $cardNumber, vehicleNumber: $vehicleNumber, cardMobileNo: $cardMobileNo, vehicleType: $vehicleType, vinNumber: $vinNumber, rcDocument: $rcDocument, rcNumber: $rcNumber, createdAt: $createdAt, updatedAt: $updatedAt, deletedAt: $deletedAt}';
   }
-} 
+}

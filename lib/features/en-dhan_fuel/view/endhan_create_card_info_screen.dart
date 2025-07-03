@@ -31,18 +31,37 @@ class EndhanCreateCardInfoScreen extends StatelessWidget {
 
     return BlocProvider.value(
       value: cubit,
-      child: BlocListener<EnDhanCubit, EnDhanState>(
-        listener: (context, state) {
-          // Handle success state
-          if (state.customerCreationState?.status == Status.SUCCESS) {
-            _showSuccessDialog(context);
-          }
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<EnDhanCubit, EnDhanState>(
+            listener: (context, state) {
+              // Handle success state
+              if (state.customerCreationState?.status == Status.SUCCESS) {
+                _showSuccessDialog(context);
+              }
 
-          // Handle error state
-          if (state.customerCreationState?.status == Status.ERROR) {
-            _showErrorDialog(context, state.customerCreationState?.errorType);
-          }
-        },
+              // Handle error state
+              if (state.customerCreationState?.status == Status.ERROR) {
+                _showErrorDialog(
+                  context,
+                  state.customerCreationState?.errorType,
+                );
+              }
+            },
+          ),
+          BlocListener<EnDhanCubit, EnDhanState>(
+            listener: (context, state) {
+              // Debug vehicle types state changes
+              print(
+                '🔍 Vehicle Types Listener - Count: ${state.vehicleTypes.length}',
+              );
+              print('🔍 Vehicle Types Listener - Types: ${state.vehicleTypes}');
+              print(
+                '🔍 Vehicle Types Listener - Status: ${state.vehicleTypesState?.status}',
+              );
+            },
+          ),
+        ],
         child: BlocBuilder<EnDhanCubit, EnDhanState>(
           builder: (context, state) {
             return _EndhanCreateCardInfoContent(state: state);
@@ -146,6 +165,8 @@ class _EndhanCreateCardInfoContentState
 
     // Fetch vehicle types when screen loads
     final cubit = locator<EnDhanCubit>();
+    print('🔍 initState - Cubit hash: ${cubit.hashCode}');
+    print('🔍 initState - Current vehicle types: ${cubit.state.vehicleTypes}');
     cubit.fetchVehicleTypes();
   }
 
@@ -624,6 +645,19 @@ class _EndhanCreateCardInfoContentState
     final isLoading =
         widget.state.customerCreationState?.status == Status.LOADING;
 
+    // Debug logging for vehicle types
+    print('🔍 UI Debug - Vehicle Types:');
+    print('  Vehicle Types Count: ${widget.state.vehicleTypes.length}');
+    print(
+      '  Vehicle Types State Status: ${widget.state.vehicleTypesState?.status}',
+    );
+    print('  Vehicle Types: ${widget.state.vehicleTypes}');
+    print(
+      '  Vehicle Types State Data: ${widget.state.vehicleTypesState?.data?.document}',
+    );
+    print('  State Hash: ${widget.state.hashCode}');
+    print('  Cubit Hash: ${cubit.hashCode}');
+
     return Scaffold(
       backgroundColor: AppColors.blackishWhite,
       body: SafeArea(
@@ -729,18 +763,32 @@ class _EndhanCreateCardInfoContentState
                                       },
                                     ),
                                     12.height,
-                                    Text(
-                                      'Vehicle Type *',
-                                      style: AppTextStyle.body3.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Vehicle Type * (${widget.state.vehicleTypes.length})',
+                                          style: AppTextStyle.body3.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     6.height,
                                     AppDropdown(
                                       hintText: 'Select',
                                       dropdownValue: card['vehicleType'],
                                       dropDownList:
-                                          widget.state.vehicleTypes.isNotEmpty
+                                          (widget
+                                                      .state
+                                                      .vehicleTypes
+                                                      .isNotEmpty ||
+                                                  widget
+                                                          .state
+                                                          .vehicleTypesState
+                                                          ?.status ==
+                                                      Status.SUCCESS)
                                               ? widget.state.vehicleTypes
                                                   .map(
                                                     (vehicleType) =>
@@ -762,7 +810,7 @@ class _EndhanCreateCardInfoContentState
                                                                 ?.status ==
                                                             Status.LOADING
                                                         ? 'Loading vehicle types...'
-                                                        : 'No vehicle types available',
+                                                        : 'No vehicle types available (${widget.state.vehicleTypes.length})',
                                                   ),
                                                 ),
                                               ],
