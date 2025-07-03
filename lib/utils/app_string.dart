@@ -135,5 +135,7 @@ class PreferenceKey {
   final String blueId = "blueId";
   final String isFirstTimeLoad = "isFirstTimeLoad";
   final String hasBlueIdPopupShown = "hasBlueIdPopupShown";
+  final String firstPostedLoadId = "first_posted_load_id";
+
 
 }

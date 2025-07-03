@@ -17,7 +17,7 @@ class LpLoadService {
   final ApiService _apiService;
   LpLoadService(this._apiService);
 
-  Future<Result<List<LpLoadItem>>> fetchLoads({
+  Future<Result<LpLoadResponse>> fetchLoads({
     required LoadListApiRequest request,
     bool forceRefresh = false,
   }) async {
@@ -31,8 +31,8 @@ class LpLoadService {
       );
 
       if (response is Success) {
-        final data = response.value['data']['data'] as List;
-        final loads = data.map((e) => LpLoadItem.fromJson(e)).toList();
+        final data = response.value;
+        final loads = LpLoadResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

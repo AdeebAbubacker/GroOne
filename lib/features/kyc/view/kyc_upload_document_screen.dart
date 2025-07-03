@@ -913,6 +913,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       rightText: "Aadhaar Number",
       leftText: "Verified",
       controller: aadhaarNumberTextController,
+      fillColor: AppColors.lightGreyBackgroundColor
     );
   }
 
@@ -1085,6 +1086,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     FocusNode? currentFocus,
     required TextEditingController controller,
     dynamic Function()? suffixOnTap,
+    Color? fillColor
   }) {
     return Column(
       children: [
@@ -1113,6 +1115,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           currentFocus: currentFocus,
           controller: controller,
           decoration: commonInputDecoration(
+              fillColor : fillColor ?? AppColors.white,
               suffixIcon: readOnly
                   ?  0.width
                   : Text("Verify", style: AppTextStyle.h6PrimaryColor),

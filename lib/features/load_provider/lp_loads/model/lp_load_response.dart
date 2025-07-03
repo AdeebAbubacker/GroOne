@@ -1159,17 +1159,17 @@ class PageMeta {
     required this.nextPage,
   });
 
-  final num page;
+  final int page;
   final num pageSize;
   final num total;
-  final num pageCount;
+  final int pageCount;
   final dynamic nextPage;
 
   PageMeta copyWith({
-    num? page,
+    int? page,
     num? pageSize,
     num? total,
-    num? pageCount,
+    int? pageCount,
     dynamic? nextPage,
   }) {
     return PageMeta(

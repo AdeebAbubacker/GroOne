@@ -107,6 +107,49 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
     _markers.notifyListeners();
 
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLatLng.latitude,
+      pickupLatLng.longitude,
+      dropLatLng.latitude,
+      dropLatLng.longitude,
+    );
+
+    // Move camera to show both markers
+    LatLngBounds bounds;
+
+
+    double padding;
+
+    if (distanceInMeters < 10000) { // less than 10 km
+      padding = 50;
+    } else if (distanceInMeters < 50000) { // 10 km - 50 km
+      padding = 80;
+    } else if (distanceInMeters < 200000) { // 50 km - 200 km
+      padding = 120;
+    } else {
+      padding = 150; // for long distances
+    }
+
+    bounds = LatLngBounds(
+      southwest: LatLng(
+        pickupLatLng.latitude < dropLatLng.latitude ? pickupLatLng.latitude : dropLatLng.latitude,
+        pickupLatLng.longitude < dropLatLng.longitude ? pickupLatLng.longitude : dropLatLng.longitude,
+      ),
+      northeast: LatLng(
+        pickupLatLng.latitude > dropLatLng.latitude ? pickupLatLng.latitude : dropLatLng.latitude,
+        pickupLatLng.longitude > dropLatLng.longitude ? pickupLatLng.longitude : dropLatLng.longitude,
+      ),
+    );
+
+
+
+    // await Future.delayed(const Duration(milliseconds: 300));
+
+
+    googleMapController?.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, padding),
+    );
+
 
 
     // googleMapController?.animateCamera(

@@ -52,6 +52,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int page = 1;
+  late LpLoadPaginationController paginationController;
 
   TabController? _tabController;
   final tabLabels = [
@@ -79,6 +80,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
   void initFunction() => frameCallback(() {
     lpLoadLocator.updateSelectedTabIndex(0);
+    paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
       length: 8,
       vsync: this,
@@ -97,19 +99,44 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   void _handleTabChange() {
     if (!_tabController!.indexIsChanging) return;
 
+    paginationController.reset();
+
     final selectedType = _tabController!.index;
     lpLoadLocator.updateSelectedTabIndex(selectedType);
 
-    if (selectedType == 0) {
-      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
-    } else {
-      // final loadStatus = selectedType >= 3 ? selectedType + 2 : selectedType + 1;
-      final loadStatus = selectedType + 1;
-      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: loadStatus));
-    }
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+
+    lpLoadLocator.getLpLoadsByType(
+      loadListApiRequest: LoadListApiRequest(
+          loadStatus: loadStatus, page: paginationController.currentPage),
+    );
 
     _scrollToSelectedTab(selectedType);
   }
+
+  void fetchNextPage() async {
+    paginationController.isFetchingMore = true;
+
+    final selectedType = _tabController!.index;
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+
+    await lpLoadLocator.getLpLoadsByType(
+      loadListApiRequest: LoadListApiRequest(
+        loadStatus: loadStatus,
+        page: paginationController.currentPage + 1,
+      ),
+      isNextPage: true
+    );
+
+    // Update pagination state from API response
+    final pageMeta = lpLoadLocator.state.lpLoadResponse?.data?.data?.pageMeta;
+    if (pageMeta != null) {
+      paginationController.updatePageMeta(pageMeta);
+    }
+
+    paginationController.isFetchingMore = false;
+  }
+
 
   void _scrollToSelectedTab(int index) {
     final double offset = index == 0 ? 50 :  (100 * index) - 15;
@@ -119,8 +146,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final type = _tabController!.index + 1;
-      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: type, search: query));
+      final selectedType = _tabController!.index;
+      final loadStatus = selectedType == 0 ? null : selectedType + 1;
+      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: loadStatus, search: query));
     });
   }
 
@@ -355,32 +383,42 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
-        final loadList = uiState.data ?? [];
+        final loadList = uiState.data?.data?.data ?? [];
 
         if (loadList.isEmpty) {
           return const Center(child: Text("No loads found."));
         }
 
-        return ListView.builder(
-          controller: _listController,
-          padding: EdgeInsets.all(commonSafeAreaPadding),
-          shrinkWrap: true,
-          itemCount: loadList.length,
-          itemBuilder: (context, index) {
-            final loadItem = loadList[index];
-            return GestureDetector(
-              onTap: () {
-                print('timer ${loadItem.matchingStartDate}');
-                Navigator.push(
-                  context,
-                  commonRoute(
-                    LpLoadsLocationDetailsScreen(loadId: loadItem.id),
-                  ),
-                );
-              },
-              child: LPLoadListBodyWidget(loadItem: loadItem,lpLoadLocator: lpLoadLocator).paddingSymmetric(vertical: 7),
-            );
+        return NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!paginationController.isFetchingMore &&
+                paginationController.hasMorePages &&
+                scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent) {
+              fetchNextPage();
+            }
+            return false;
           },
+          child: ListView.builder(
+            controller: _listController,
+            padding: EdgeInsets.all(commonSafeAreaPadding),
+            physics: AlwaysScrollableScrollPhysics(),
+            itemCount: loadList.length + (paginationController.isFetchingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index < loadList.length) {
+                final loadItem = loadList[index];
+                return LPLoadListBodyWidget(
+                  loadItem: loadItem,
+                  lpLoadLocator: lpLoadLocator,
+                ).paddingSymmetric(vertical: 7);
+              } else {
+                // loader for bottom pagination
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+            },
+          ),
         );
       },
     ).expand();

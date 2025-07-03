@@ -42,7 +42,8 @@ class LoadSummaryScreen extends StatefulWidget {
   final String category;
   final String price;
   final String date;
-  const LoadSummaryScreen({super.key, required this.pickupAddress, required this.destinationAddress, required this.vehicleType, required this.vehicleLength, required this.approxWeight, required this.category, required this.price, required this.apiRequest, required this.date, required this.pickupLocation, required this.destinationLocation});
+  final int isKycValid;
+  const LoadSummaryScreen({super.key, required this.pickupAddress, required this.destinationAddress, required this.vehicleType, required this.vehicleLength, required this.approxWeight, required this.category, required this.price, required this.apiRequest, required this.date, required this.pickupLocation, required this.destinationLocation, required this.isKycValid});
 
   @override
   State<LoadSummaryScreen> createState() => _LoadSummaryScreenState();
@@ -105,8 +106,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       return;
     }
 
-    bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
-    if (context.mounted && isFirstTimeLoad) {
+    if (widget.isKycValid == 3) {
       await onSubmit(context);
     } else {
       await _postLoad(context);
@@ -287,6 +287,10 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
           ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
         }
         if (state is CreateLoadSuccess) {
+          final createdLoadId = state.createLoadModel.data?.loadId;
+          if (createdLoadId != null) {
+            await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
+          }
           AppDialog.show(
             context,
             child: SuccessDialogView(

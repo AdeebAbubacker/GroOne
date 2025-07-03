@@ -1,24 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
-
-import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
-import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
-import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_bottom_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -41,11 +33,10 @@ class LpLoadsLocationDetailsScreen extends StatefulWidget {
 }
 
 class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScreen> {
-  GoogleMapController? _mapController;
-  final Set<Marker> _markers = {};
   String kilometers = '';
   final lpLoadLocator = locator<LpLoadCubit>();
-
+  Timer? _ticker;
+  String _countDown = "00:00:00";
 
   @override
   void initState() {
@@ -53,90 +44,44 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     lpLoadLocator.getLpLoadsById(loadId: widget.loadId);
   }
 
-  Future<void> _setMapStyle(GoogleMapController controller) async {
-    String style = await rootBundle.loadString(AppJSON.mapStyle);
-    controller.setMapStyle(style);
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
   }
 
-  LatLng _getLatLngFromString(String latLng) {
-    if (latLng.isEmpty || !latLng.contains(',')) {
-      return const LatLng(0, 0);
-    }
-    final parts = latLng.split(',');
-    return LatLng(double.parse(parts[0].trim()), double.parse(parts[1].trim()));
-  }
-
-
-  void setMapMarkers(loadItem) async {
-    final pickupLatLng = TripTrackingHelper.getLatLngFromString(loadItem.pickUpLatlon);
-    final dropLatLng = TripTrackingHelper.getLatLngFromString(loadItem.dropLatlon);
-
-    setState(() {
-      _markers.clear();
-      _markers.add(
-        Marker(
-          markerId: MarkerId('pickup'),
-          position: pickupLatLng,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          infoWindow: InfoWindow(title: 'Pickup: ${loadItem.pickUpAddr}'),
-        ),
-      );
-
-
-      _markers.add(
-        Marker(
-          markerId: MarkerId('drop'),
-          position: dropLatLng,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-          infoWindow: InfoWindow(title: 'Drop: ${loadItem.dropAddr}'),
-        ),
-      );
-    });
-
-
-    double distanceInMeters = Geolocator.distanceBetween(
-      pickupLatLng.latitude,
-      pickupLatLng.longitude,
-      dropLatLng.latitude,
-      dropLatLng.longitude,
-    );
-
-
-    kilometers = '${(distanceInMeters / 1000).toStringAsFixed(2)} KM';
-
-
-    // Move camera to show both markers
-    LatLngBounds bounds;
-
-
-    double padding;
-
-    if (distanceInMeters < 10000) { // less than 10 km
-      padding = 50;
-    } else if (distanceInMeters < 50000) { // 10 km - 50 km
-      padding = 80;
-    } else if (distanceInMeters < 200000) { // 50 km - 200 km
-      padding = 120;
+  void _updateCountDown(String? status, LoadData loadItem) {
+    if (status == 'Matching') {
+      final matchingStartDate = loadItem.matchingStartDate;
+      if (matchingStartDate != null) {
+        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate.toIso8601String());
+      }
+    } else if (status == 'KYC Pending') {
+      final kycPendingDate = loadItem.customer?.kycPendingDate;
+      if (kycPendingDate != null) {
+        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
+      }
     } else {
-      padding = 150; // for long distances
+      _countDown = "--:--:--";
     }
 
-     bounds = LatLngBounds(
-      southwest: LatLng(
-        pickupLatLng.latitude < dropLatLng.latitude ? pickupLatLng.latitude : dropLatLng.latitude,
-        pickupLatLng.longitude < dropLatLng.longitude ? pickupLatLng.longitude : dropLatLng.longitude,
-      ),
-      northeast: LatLng(
-        pickupLatLng.latitude > dropLatLng.latitude ? pickupLatLng.latitude : dropLatLng.latitude,
-        pickupLatLng.longitude > dropLatLng.longitude ? pickupLatLng.longitude : dropLatLng.longitude,
-      ),
-    );
-    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
-
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, padding),
-    );
+  void callTimer(LoadData loadItem){
+    if(loadItem.createdAt != null && loadItem.loadStatusDetails?.loadType != null){
+      final status = loadItem.loadStatusDetails?.loadType;
+      if (status == 'Matching' || status == 'KYC Pending') {
+        _updateCountDown(status, loadItem);                                   // first paint
+        _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+          _updateCountDown(status, loadItem);
+        });
+      }
+    } else {
+      _ticker = Timer(const Duration(seconds: 0), () {});   // dummy, will cancel
+    }
   }
 
   @override
@@ -157,9 +102,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
               if (loadItem == null) {
                 return const Center(child: Text("No loads found."));
               }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                callTimer(loadItem);
+              });
               return Stack(
                 children: [
-                  buildGoogleMapWidget(loadItem),
+                  GoogleMapWidget(
+                    pickupLocation: loadItem.pickUpLocation,
+                    dropLocation: loadItem.dropLocation,
+                    pickUpLatLong: loadItem.pickUpLatlon,
+                    dropLatLong: loadItem.dropLatlon,
+                  ),
                   buildTopLocationWidget(loadItem),
                   LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers),
                   buildSupportWidget(),
@@ -170,35 +123,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
       ),
     );
   }
-
-
-  /// Google Map
-  Widget buildGoogleMapWidget(loadItem){
-    return Positioned.fill(
-        top: 0,
-        child: Builder(
-          builder: (context) {
-            return GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(12.993959463114383,80.17066519707441),
-                zoom: 10,
-              ),
-              markers: _markers,
-
-              onMapCreated: (controller) async {
-                _mapController = controller;
-                await _setMapStyle(controller);
-                setMapMarkers(loadItem);
-              },
-              zoomGesturesEnabled: true,
-              scrollGesturesEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-            );
-          },
-        )
-    );
-  }
+  
 
   /// Location Details
   Widget buildTopLocationWidget(LoadData loadItem) {
@@ -220,7 +145,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Text('#${loadItem.loadId}', style: AppTextStyle.body3),
                 Spacer(),
                 Text(
-                  loadItem.dueDate != null ? DateTimeHelper.formatCustomDateIST(loadItem.dueDate!) : "--",
+                  loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(loadItem.createdAt!) : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
               ],
@@ -296,15 +221,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     ),
                     4.height,
                     if (loadItem.loadStatus == 1)
-                      Text(
-                        LpHomeHelper.getKycPendingTimeLeft(loadItem.customer!.kycPendingDate.toString()),
+                      if(loadItem.customer?.kycPendingDate != null)
+                        Text(
+                        _countDown,
+                        // LpHomeHelper.getKycPendingTimeLeft(loadItem.customer!.kycPendingDate.toString()),
                         style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ).paddingRight(5),
                     if (loadItem.loadStatus == 2)
-                      Text(
-                        LpHomeHelper.getMatchingTime(loadItem.matchingStartDate.toString()),
+                        Text(
+                        _countDown,
+                        // LpHomeHelper.getMatchingTime(loadItem.matchingStartDate.toString()),
                         style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -322,7 +250,11 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   /// Support
   Widget buildSupportWidget() {
-    return Positioned(right: 5,bottom: 20,top: 0,child: IconButton(
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+
+    return Positioned(
+        right: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
         onPressed: () {
           commonSupportDialog(context);
         },

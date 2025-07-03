@@ -45,20 +45,34 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
     super.dispose();
   }
 
-  void _updateCountDown() {
-    setState(() {
-      _countDown = LpHomeHelper.getMatchingTime(widget.loadData.matchingStartDate!.toIso8601String());
-    });
+  void _updateCountDown(String? status) {
+    if (status == 'Matching') {
+      final matchingStartDate = widget.loadData.matchingStartDate;
+      if (matchingStartDate != null) {
+        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate.toIso8601String());
+      }
+    } else if (status == 'KYC Pending') {
+      final kycPendingDate = widget.loadData.customer?.kycPendingDate;
+      if (kycPendingDate != null) {
+        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
+      }
+    } else {
+      _countDown = "--:--:--";
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void callTimer(){
     if(widget.loadData.createdAt != null && widget.loadData.loadStatusDetails?.loadType != null){
       final status = widget.loadData.loadStatusDetails?.loadType;
-      if (status == 'Matching') {
+      if (status == 'Matching' || status == 'KYC Pending') {
         //lpHomeCubit.startMatchingTimer(widget.loadData.createdAt!.toIso8601String());
-        _updateCountDown();                                   // first paint
+        _updateCountDown(status);                                   // first paint
         _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-          _updateCountDown();
+          _updateCountDown(status);
         });
       }
     } else {
@@ -73,7 +87,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
         : PriceHelper.formatINRRange('${widget.loadData.rate} - ${widget.loadData.maxRate}');
     return  GestureDetector(
       onTap: () {
-        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.id)));
+        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.id,)));
       },
       child: Container(
         padding: EdgeInsets.all(15).copyWith(top: 0),
@@ -130,7 +144,11 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
                     else if (widget.loadData.loadStatusDetails?.loadType == "KYC Pending")
                       if(widget.loadData.customer?.kycPendingDate != null)
-                        Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadData.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+                        Text(
+                          _countDown,
+                          style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
+                        )
+                        // Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadData.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
                   ],
                 ) : SizedBox()
             ),

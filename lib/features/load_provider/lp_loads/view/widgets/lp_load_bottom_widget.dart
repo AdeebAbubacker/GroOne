@@ -166,9 +166,14 @@ class LpLoadBottomWidget extends StatelessWidget {
                       if(loadItem.loadStatus > 3)
                         ...[
                           Spacer(),
-                          CircleAvatar(
-                              backgroundColor: AppColors.primaryColor,
-                              child: Icon(Icons.call,color: AppColors.white,))
+                          GestureDetector(
+                            onTap: () async {
+                              await callRedirect(loadItem.trip?.driver?.mobile ?? '');
+                            },
+                            child: CircleAvatar(
+                                backgroundColor: AppColors.primaryColor,
+                                child: Icon(Icons.call,color: AppColors.white,)),
+                          )
                         ]
 
                     ],
@@ -267,7 +272,7 @@ class LpLoadBottomWidget extends StatelessWidget {
                         children: [
                           SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
                           8.width,
-                          Text(kilometers, style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          Text("${lpLoadLocator.state.locationDistance ?? ''} KM", style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                         ],
                       ),
                     ],
@@ -289,11 +294,12 @@ class LpLoadBottomWidget extends StatelessWidget {
                 price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
                 loadId: loadItem.loadId,
                 onSubmit: () async {
-                  bool isFirstTimeLoad = await lpLoadLocator.fetchFirstTimeLoad();
-                  if (context.mounted && !isFirstTimeLoad) {
-                    onSubmit(loadItem, context);
+                 String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+
+                  if (firstPostedLoadId != null && firstPostedLoadId == loadItem.loadId.toString()) {
+                    if(context.mounted) onSubmit(loadItem, context);
                   } else {
-                    showAdvancePaymentDialog(context,loadItem, '');
+                    if(context.mounted) showAdvancePaymentDialog(context,loadItem, '');
                   }
                 },
               )

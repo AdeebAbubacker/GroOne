@@ -24,7 +24,7 @@ class  LpLoadRepository {
 
   LpLoadRepository(this.service, this.userRepo, this.securedSharedPreferences);
 
-  Future<Result<List<LpLoadItem>>> fetchLoads({required LoadListApiRequest request, bool forceRefresh = false}) async {
+  Future<Result<LpLoadResponse>> fetchLoads({required LoadListApiRequest request, bool forceRefresh = false}) async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
       return service.fetchLoads(request: request.copyWith(customerId: customerId), forceRefresh: forceRefresh);
@@ -120,15 +120,29 @@ class  LpLoadRepository {
     }
   }
 
-  // Set isFirstTimeLoad flag
-  Future<void> setIsFirstTimeLoad(bool value) async {
-    return await securedSharedPreferences.saveBoolean(AppString.sessionKey.isFirstTimeLoad, value);
+
+  Future<void> saveFirstPostedLoadId(String loadId) async {
+    return await securedSharedPreferences.saveKey(
+      AppString.sessionKey.firstPostedLoadId,
+      loadId,
+    );
   }
 
-  // get isFirstTimeLoad flag
-  Future<bool> getIsFirstTimeLoad() async {
-    return await securedSharedPreferences.getBooleans(AppString.sessionKey.isFirstTimeLoad);
+  Future<String?> getFirstPostedLoadId() async {
+    return await securedSharedPreferences.get(AppString.sessionKey.firstPostedLoadId);
   }
+
+  Future<void> clearFirstPostedLoadId() async {
+    return await securedSharedPreferences.deleteKey(AppString.sessionKey.firstPostedLoadId);
+  }
+
+  Future<void> setFirstPostedLoadIdIfAbsent(String loadId) async {
+    final existingId = await securedSharedPreferences.get(AppString.sessionKey.firstPostedLoadId);
+    if (existingId == null) {
+      await saveFirstPostedLoadId(loadId);
+    }
+  }
+
 
   Future<Result<LpLoadAgreeResponse>> loadAgree({required String loadId}) async {
     try {

@@ -100,6 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Lottie.asset(
+          height: MediaQuery.of(context).size.height,
           AppJSON.splash,
           fit: BoxFit.fill,
           width: double.infinity,
