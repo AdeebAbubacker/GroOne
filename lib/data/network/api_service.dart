@@ -6,6 +6,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
@@ -27,10 +28,23 @@ class ApiService {
 
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
-       return {
+    Map<String, String> headers = {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
+    
+    // Add authentication header if token exists
+    try {
+      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $refreshToken';
+      
+      } else {}
+    } catch (e) {
+      CustomLog.error(this, "Error getting authentication token", e);
+    }
+    
+    return headers;
   }
 
 
@@ -43,11 +57,6 @@ class ApiService {
   }
 
 
-  /// Generate Cache
-  Future<String> _generateCacheKey(String url, Map<String, dynamic>? queryParams) async {
-    var queryParamsString = queryParams != null ? base64.encode(utf8.encode(json.encode(queryParams))) : "";
-    return "$url-$queryParamsString";
-  }
 
 
   /// Get
@@ -69,9 +78,9 @@ class ApiService {
           forceRefresh: forceRefresh,
         ),
       );
-      return _handleBodyResponse(response);
+      return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-      return _handleDioError(dioError);
+      return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
       return Error(GenericError());
@@ -99,9 +108,9 @@ class ApiService {
         queryParameters: queryParams,
         options: Options(headers: await _getHeaders(), sendTimeout: _timeout.inMilliseconds, receiveTimeout: _timeout.inMilliseconds),
       );
-      return _handleBodyResponse(response);
+      return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-      return _handleDioError(dioError);
+      return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
       return Error(GenericError());
@@ -133,9 +142,9 @@ class ApiService {
           receiveTimeout: _timeout.inMilliseconds,
         ),
       );
-      return _handleBodyResponse(response);
+      return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-      return _handleDioError(dioError);
+      return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
       return Error(GenericError());
@@ -158,10 +167,10 @@ class ApiService {
           receiveTimeout: _timeout.inMilliseconds,
         ),
       );
-      return _handleBodyResponse(response);
+      return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
 
-      return _handleDioError(dioError);
+      return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
       return Error(GenericError());
@@ -225,9 +234,9 @@ class ApiService {
           receiveTimeout: _timeout.inMilliseconds,
         ),
       );
-      return _handleBodyResponse(response);
+      return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-      return _handleDioError(dioError);
+      return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "HTTP call error during multipart", exception);
       return Error(ErrorWithMessage(message: "$exception"));
@@ -236,14 +245,14 @@ class ApiService {
 
 
   /// Handle Body Response
-  Result<dynamic> _handleBodyResponse(Response response) {
+  Future<Result<dynamic>> _handleBodyResponse(Response response) async {
     final prettyBodyString = const JsonEncoder.withIndent('  ').convert(response.data);
     CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}");
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(response.data);
       } else {
-        return _handleHttpError(response);
+        return await _handleHttpError(response);
       }
     } on Exception catch (e) {
       CustomLog.error(this, "Error decoding data response: $e", null);
@@ -252,12 +261,14 @@ class ApiService {
   }
 
 
-  /// Handel HTTP Error
-  Result<dynamic> _handleHttpError(Response? response) {
+  /// Handle HTTP Error
+  Future<Result<dynamic>> _handleHttpError(Response? response) async {
     switch (response?.statusCode) {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
+        // Clear invalid token and log the issue
+        await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
@@ -273,13 +284,23 @@ class ApiService {
     }
   }
 
+  /// Handle unauthorized error by clearing invalid token
+  Future<void> _handleUnauthorizedError() async {
+    try {
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      CustomLog.debug(this, "Cleared invalid token due to 401 Unauthorized error");
+    } catch (e) {
+      CustomLog.error(this, "Error clearing invalid token", e);
+    }
+  }
+
 
   /// Handle Dio Error
-  Result<dynamic> _handleDioError(DioError error) {
+  Future<Result<dynamic>> _handleDioError(DioError error) async {
     CustomLog.error(this, "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}", error);
     switch (error.type) {
       case DioErrorType.response:
-          return _handleHttpError(error.response);
+          return await _handleHttpError(error.response);
       case DioErrorType.connectTimeout:
       case DioErrorType.sendTimeout:
       case DioErrorType.receiveTimeout:

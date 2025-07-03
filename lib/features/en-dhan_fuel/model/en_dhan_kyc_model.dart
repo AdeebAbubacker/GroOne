@@ -10,10 +10,22 @@ class EnDhanKycModel {
   });
 
   factory EnDhanKycModel.fromJson(Map<String, dynamic> json) {
+    EnDhanKycData? data;
+    
+    if (json['data'] != null) {
+      if (json['data'] is Map<String, dynamic>) {
+        data = EnDhanKycData.fromJson(json['data'] as Map<String, dynamic>);
+      } else if (json['data'] is String) {
+        // If data is a string (like error message), we'll set data to null
+        // but we can still create the model with success and message
+        data = null;
+      }
+    }
+    
     return EnDhanKycModel(
       success: json['success'] as bool? ?? false,
       message: json['message'] as String? ?? '',
-      data: json['data'] != null ? EnDhanKycData.fromJson(json['data'] as Map<String, dynamic>) : null,
+      data: data,
     );
   }
 
@@ -290,4 +302,83 @@ class EnDhanKycCheckModel {
 
   @override
   int get hashCode => success.hashCode ^ message.hashCode ^ data.hashCode;
+}
+
+// ==================== Aadhaar Verification Response Models ====================
+
+class AadhaarSendOtpResponse {
+  final bool success;
+  final String message;
+  final String? requestId;
+
+  const AadhaarSendOtpResponse({
+    required this.success,
+    required this.message,
+    this.requestId,
+  });
+
+  factory AadhaarSendOtpResponse.fromJson(Map<String, dynamic> json) {
+    return AadhaarSendOtpResponse(
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      requestId: json['request_id'] as String?,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'AadhaarSendOtpResponse{success: $success, message: $message, requestId: $requestId}';
+  }
+}
+
+class AadhaarVerifyOtpResponse {
+  final bool success;
+  final String message;
+  final bool? isVerified;
+
+  const AadhaarVerifyOtpResponse({
+    required this.success,
+    required this.message,
+    this.isVerified,
+  });
+
+  factory AadhaarVerifyOtpResponse.fromJson(Map<String, dynamic> json) {
+    return AadhaarVerifyOtpResponse(
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      isVerified: json['is_verified'] as bool?,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'AadhaarVerifyOtpResponse{success: $success, message: $message, isVerified: $isVerified}';
+  }
+}
+
+// ==================== PAN Verification Response Model ====================
+
+class PanVerificationResponse {
+  final bool success;
+  final String message;
+  final bool? isVerified;
+
+  const PanVerificationResponse({
+    required this.success,
+    required this.message,
+    this.isVerified,
+  });
+
+  factory PanVerificationResponse.fromJson(Map<String, dynamic> json) {
+    return PanVerificationResponse(
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      isVerified: json['is_verified'] as bool?,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'PanVerificationResponse{success: $success, message: $message, isVerified: $isVerified}';
+  }
 } 

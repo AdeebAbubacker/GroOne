@@ -88,6 +88,7 @@ class ApiUrls {
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
+  static final String  panVerification = "$verification/pan";
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
@@ -154,4 +155,17 @@ class ApiUrls {
  // static final String enDhanKycCheck = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static final String enDhanKycCheck = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
   
+  // En-Dhan Card APIs
+  static final String enDhanCards = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/card";
+  
+  // En-Dhan Customer Creation and Master Data APIs
+  static final String enDhanCreateCustomer = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/createCustomer";
+  static final String enDhanStates = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/state";
+  static final String enDhanDistricts = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/district/";
+  static final String enDhanZonal = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/zonal";
+  static final String enDhanRegional = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/regional/";
+  static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
+  
+  // Document Upload API
+  static final String documentUpload = "https://gro-uatapi.letsgro.co/customer/api/v1/upload";
 }

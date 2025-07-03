@@ -11,9 +11,9 @@ import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/repository/email_verification_repository.dart';
 import 'package:gro_one_app/features/email_verification/service/email_verification_service.dart';
-import 'package:gro_one_app/features/en-dhan(fuel)/cubit/en_dhan_cubit.dart';
-import 'package:gro_one_app/features/en-dhan(fuel)/repository/en-dhan_repository.dart';
-import 'package:gro_one_app/features/en-dhan(fuel)/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -75,6 +75,9 @@ import 'package:gro_one_app/helpers/analytics_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/en-dhan_fuel/cubit/en_dhan_cards_cubit.dart';
+import '../features/en-dhan_fuel/cubit/en_dhan_kyc_cubit.dart';
+import '../features/en-dhan_fuel/cubit/en_dhan_customer_cubit.dart';
 import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
@@ -112,7 +115,7 @@ void initLocator() {
     locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
     locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpDetailsService(locator<ApiService>()));
-    locator.registerLazySingleton(() => EnDhanService(locator<ApiService>()));
+    locator.registerLazySingleton(() => EnDhanService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -173,7 +176,10 @@ void initLocator() {
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(),locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>()));
+    locator.registerFactory(() => EnDhanCubit(locator<EnDhanRepository>()));
+    locator.registerLazySingleton(() => EnDhanKycCubit(locator<EnDhanRepository>()));
+    locator.registerLazySingleton(() => EnDhanCustomerCubit(locator<EnDhanRepository>()));
+    locator.registerLazySingleton(() => EnDhanCardsCubit(locator<EnDhanRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

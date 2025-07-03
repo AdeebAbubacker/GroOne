@@ -91,16 +91,17 @@ class EndhanCardItem extends StatelessWidget {
           Divider(),
           Row(
             children: [
-              Text(
-                card['amount'],
-                style: AppTextStyle.h5.copyWith(
-                  color: AppColors.primaryColor,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              4.width,
-              Icon(Icons.refresh, color: AppColors.textBlackColor, size: 18),
-              const Spacer(),
+              /// TODO: Add amount and date time later
+              // Text(
+              //   card['amount'],
+              //   style: AppTextStyle.h5.copyWith(
+              //     color: AppColors.primaryColor,
+              //     fontWeight: FontWeight.w700,
+              //   ),
+              // ),
+             // 4.width,
+              // Icon(Icons.refresh, color: AppColors.textBlackColor, size: 18),
+              // const Spacer(),
               Text(
                 'Mob Num: ',
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
@@ -115,10 +116,10 @@ class EndhanCardItem extends StatelessWidget {
             ],
           ),
           8.height,
-          Text(
-            card['dateTime'],
-            style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
-          ),
+          // Text(
+          //   card['dateTime'],
+          //   style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+          // ),
         ],
       ).paddingAll(12.0),
     );

@@ -35,7 +35,7 @@ class AuthRepository {
   }
 
 
-  /// Save user data
+  /// Save user data from create account
   Future<Result<bool>> saveUserInfoFromCreateAccount(UserModel user) async {
     try {
       final userData = user.data;
@@ -43,6 +43,8 @@ class AuthRepository {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
+      
+      // Save basic user info
       if(userData.customer != null){
         await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
         await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
@@ -50,15 +52,50 @@ class AuthRepository {
       if(userData.details != null){
         await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
       }
-      CustomLog.debug(this, "Save user from create account saved successfully");
-      return const Success(true);
+      
+    
+      
+     return const Success(true);
     } catch (e) {
-      CustomLog.error(this, "Save Resident user info to preferences error", e);
+
       return Error(GenericError());
     }
   }
 
+  /// Check if user has valid authentication token
+  Future<bool> hasValidToken() async {
+    try {
+      String? token = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
+      return token != null && token.isNotEmpty;
+    } catch (e) {
+      CustomLog.error(this, "Error checking token validity", e);
+      return false;
+    }
+  }
 
+  /// Get user authentication status
+  Future<Map<String, dynamic>> getAuthStatus() async {
+    try {
+      String? userId = await _securedSharedPref.get(AppString.sessionKey.userId);
+      String? userRole = await _securedSharedPref.get(AppString.sessionKey.userRole);
+      bool hasToken = await hasValidToken();
+      
+      return {
+        'hasUserId': userId != null && userId.isNotEmpty,
+        'hasUserRole': userRole != null && userRole.isNotEmpty,
+        'hasToken': hasToken,
+        'isFullyAuthenticated': hasToken && userId != null && userId.isNotEmpty,
+      };
+    } catch (e) {
+      CustomLog.error(this, "Error getting auth status", e);
+      return {
+        'hasUserId': false,
+        'hasUserRole': false,
+        'hasToken': false,
+        'isFullyAuthenticated': false,
+      };
+    }
+  }
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
