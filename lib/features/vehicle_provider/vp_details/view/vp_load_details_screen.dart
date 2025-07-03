@@ -148,7 +148,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       DateTime.tryParse(loadDetails.pickUpDateTime??"")?? DateTime.now(),
                     ),
                   ),
-                  Icon(Icons.arrow_forward),
+                  Icon(Icons.arrow_forward).expand(),
                   _buildLocationDetailsTileWidget(
                     loadDetails.dropLocation,
                     DateTimeHelper.getFormattedDate(
@@ -157,7 +157,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   ),
                   if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)
                    ...[
-
                      LoadStatusLabel(loadStatus: state.loadStatus!),
                    ]
                 ],
@@ -185,6 +184,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
         ),
         Text(date ?? "", style: TextStyle(color: AppColors.grayColor)),
       ],
-    );
+    ).expand();
   }
 }
