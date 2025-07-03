@@ -1,15 +1,17 @@
 import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_request.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart' as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
+    as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class EnDhanRepository {
   final EnDhanService _enDhanService;
-  
+
   EnDhanRepository(this._enDhanService);
 
   /// Check KYC Documents Repository
@@ -23,7 +25,9 @@ class EnDhanRepository {
   }
 
   /// Upload KYC Documents Repository
-  Future<Result<EnDhanKycModel>> uploadKycDocuments(EnDhanKycApiRequest request) async {
+  Future<Result<EnDhanKycModel>> uploadKycDocuments(
+    EnDhanKycApiRequest request,
+  ) async {
     try {
       return await _enDhanService.uploadKycDocuments(request);
     } catch (e) {
@@ -33,7 +37,9 @@ class EnDhanRepository {
   }
 
   /// Create Customer Repository
-  Future<Result<api_models.EnDhanCustomerCreationResponse>> createCustomer(EnDhanCustomerCreationApiRequest request) async {
+  Future<Result<api_models.EnDhanCustomerCreationResponse>> createCustomer(
+    EnDhanCustomerCreationApiRequest request,
+  ) async {
     try {
       return await _enDhanService.createCustomer(request);
     } catch (e) {
@@ -53,7 +59,9 @@ class EnDhanRepository {
   }
 
   /// Fetch Districts Repository
-  Future<Result<api_models.EnDhanDistrictResponse>> fetchDistricts(int stateId) async {
+  Future<Result<api_models.EnDhanDistrictResponse>> fetchDistricts(
+    int stateId,
+  ) async {
     try {
       return await _enDhanService.fetchDistricts(stateId);
     } catch (e) {
@@ -73,7 +81,9 @@ class EnDhanRepository {
   }
 
   /// Fetch Regional Offices Repository
-  Future<Result<api_models.EnDhanRegionalResponse>> fetchRegionalOffices(int zoneId) async {
+  Future<Result<api_models.EnDhanRegionalResponse>> fetchRegionalOffices(
+    int zoneId,
+  ) async {
     try {
       return await _enDhanService.fetchRegionalOffices(zoneId);
     } catch (e) {
@@ -83,7 +93,8 @@ class EnDhanRepository {
   }
 
   /// Fetch Vehicle Types Repository
-  Future<Result<api_models.EnDhanVehicleTypeResponse>> fetchVehicleTypes() async {
+  Future<Result<api_models.EnDhanVehicleTypeResponse>>
+  fetchVehicleTypes() async {
     try {
       return await _enDhanService.fetchVehicleTypes();
     } catch (e) {
@@ -103,7 +114,9 @@ class EnDhanRepository {
   }
 
   /// Upload KYC Documents Multipart Repository
-  Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(EnDhanKycMultipartApiRequest request) async {
+  Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(
+    EnDhanKycMultipartApiRequest request,
+  ) async {
     try {
       return await _enDhanService.uploadKycDocumentsMultipart(request);
     } catch (e) {
@@ -113,7 +126,9 @@ class EnDhanRepository {
   }
 
   /// Fetch Cards List
-  Future<Result<api_models.EnDhanCardListModel>> fetchCards({String? searchTerm}) async {
+  Future<Result<api_models.EnDhanCardListModel>> fetchCards({
+    String? searchTerm,
+  }) async {
     print('🔄 EnDhanRepository.fetchCards called with searchTerm: $searchTerm');
     try {
       final result = await _enDhanService.fetchCards(searchTerm: searchTerm);
@@ -129,7 +144,9 @@ class EnDhanRepository {
   // ==================== Aadhaar Verification Repository ====================
 
   /// Send Aadhaar OTP Repository
-  Future<Result<AadhaarSendOtpResponse>> sendAadhaarOtp(AadhaarSendOtpRequest request) async {
+  Future<Result<AadhaarSendOtpResponse>> sendAadhaarOtp(
+    AadhaarSendOtpRequest request,
+  ) async {
     try {
       return await _enDhanService.sendAadhaarOtp(request);
     } catch (e) {
@@ -139,7 +156,9 @@ class EnDhanRepository {
   }
 
   /// Verify Aadhaar OTP Repository
-  Future<Result<AadhaarVerifyOtpResponse>> verifyAadhaarOtp(AadhaarVerifyOtpRequest request) async {
+  Future<Result<AadhaarVerifyOtpResponse>> verifyAadhaarOtp(
+    AadhaarVerifyOtpRequest request,
+  ) async {
     try {
       return await _enDhanService.verifyAadhaarOtp(request);
     } catch (e) {
@@ -149,7 +168,9 @@ class EnDhanRepository {
   }
 
   /// Verify PAN Repository
-  Future<Result<PanVerificationResponse>> verifyPan(PanVerificationRequest request) async {
+  Future<Result<PanVerificationResponse>> verifyPan(
+    PanVerificationRequest request,
+  ) async {
     try {
       return await _enDhanService.verifyPan(request);
     } catch (e) {
