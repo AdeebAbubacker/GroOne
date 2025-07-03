@@ -77,6 +77,8 @@ class EndhanCreateCardInfoScreen extends StatelessWidget {
     // Reset the customer creation state immediately
     final enDhanCubit = locator<EnDhanCubit>();
     enDhanCubit.resetCustomerCreationState();
+    // Reset the cubit to clear the closed state
+    enDhanCubit.resetCubit();
 
     // Show success message and navigate immediately
     ScaffoldMessenger.of(context).showSnackBar(

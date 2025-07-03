@@ -45,6 +45,16 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   @override
   void initState() {
     super.initState();
+    // Reset the cubit to ensure it's in a clean state
+    final cubit = locator<EnDhanCubit>();
+    cubit.resetCubit();
+    
+    // Initialize API calls with a small delay to ensure cubit is ready
+    Future.microtask(() {
+      if (!cubit.isClosed && mounted) {
+        cubit.checkKycDocuments();
+      }
+    });
   }
 
   @override
@@ -54,19 +64,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     super.dispose();
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final cubit = locator<EnDhanCubit>();
-        // Initialize API calls with a small delay to ensure cubit is ready
-        Future.microtask(() {
-          if (!cubit.isClosed && mounted) {
-            cubit.checkKycDocuments();
-          }
-        });
-        return cubit;
-      },
+    return BlocProvider.value(
+      value: locator<EnDhanCubit>(),
       child: BlocConsumer<EnDhanCubit, EnDhanState>(
         listenWhen: (previous, current) => 
           previous.kycCheckState != current.kycCheckState ||
@@ -303,7 +304,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     // Mask all but the first 2 and last 4 digits
     final visibleStart = cardNumber.substring(0, 2);
     final visibleEnd = cardNumber.substring(cardNumber.length - 4);
-    return ' 0{visibleStart}XXX XXXXX X$visibleEnd';
+    return ' XXX XXXXX X$visibleEnd';
   }
 
   Widget enDhanBenifitsWidget(BuildContext context){
