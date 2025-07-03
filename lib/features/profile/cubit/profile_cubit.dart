@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
 
 class ProfileCubit extends BaseCubit<ProfileState> {
@@ -39,6 +40,15 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     } else {
       return null;
     }
+  }
+
+
+  // fetch company Type Id
+  String? companyTypeId;
+  Future<String?> fetchCompanyTypeId() async {
+    companyTypeId = await _repo.getCustomerTypeId();
+    CustomLog.debug(this, "Store Company Type Id: $companyTypeId");
+    return companyTypeId;
   }
 
 

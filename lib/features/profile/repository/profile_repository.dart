@@ -92,6 +92,11 @@ class ProfileRepository {
     return await _securedSharedPref.getBooleans(AppString.sessionKey.hasBlueIdPopupShown);
   }
 
+  /// Get Show Blue
+  Future<String?> getCustomerTypeId() async {
+    return await _userInformationRepository.getCustomerTypeID();
+  }
+
   /// Get Blue Id
   Future<Result<String>> getBlueId() async {
     try {

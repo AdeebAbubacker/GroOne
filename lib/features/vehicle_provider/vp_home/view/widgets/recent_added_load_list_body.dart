@@ -15,6 +15,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -26,8 +27,8 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 class RecentAddedLoadListBody extends StatefulWidget {
   final VpRecentLoadData data;
   final bool isKycDone;
-  final num? companyTypeId;
-  const RecentAddedLoadListBody({super.key, required this.data, required this.isKycDone, this.companyTypeId});
+  final num companyTypeId;
+  const RecentAddedLoadListBody({super.key, required this.data, required this.isKycDone, required this.companyTypeId});
 
   @override
   State<RecentAddedLoadListBody> createState() => _RecentAddedLoadListBodyState();
@@ -198,7 +199,8 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                             screen: KycPendingDialogue(
                               onPressed: () {
                                 context.pop();
-                                if (widget.companyTypeId != null && (widget.companyTypeId == 2 || widget.companyTypeId == 1)) {
+                                CustomLog.debug(this, 'Recent Load Company Id : ${widget.companyTypeId}');
+                                if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {
                                   Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
