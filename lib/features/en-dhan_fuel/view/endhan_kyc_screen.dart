@@ -28,6 +28,7 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../kavach/view/kavach_support_screen.dart';
 
 class EndhanKycScreen extends StatelessWidget {
   const EndhanKycScreen({super.key});
@@ -168,7 +169,9 @@ class _EndhanKycScreenContent extends StatelessWidget {
         centreTile: false,
         actions: [
           AppIconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context,commonRoute(KavachSupportScreen()));
+            },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
           ),

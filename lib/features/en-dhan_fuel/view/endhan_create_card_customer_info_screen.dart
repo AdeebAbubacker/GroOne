@@ -17,6 +17,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_route.dart';
+import '../../kavach/view/kavach_support_screen.dart';
 
 class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
   const EndhanCreateCardCustomerInfoScreen({super.key});
@@ -63,7 +65,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                             backgroundColor: Color(0xFFD6EEFB),
                             actions: [
                               AppIconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(context,commonRoute(KavachSupportScreen()));
+                                },
                                 icon: AppIcons.svg.filledSupport,
                                 iconColor: AppColors.primaryColor,
                               ),
