@@ -561,6 +561,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Fetch vehicle types
   Future<void> fetchVehicleTypes() async {
+    if (_isClosed) return;
+
     _setVehicleTypesUIState(UIState.loading());
 
     try {
