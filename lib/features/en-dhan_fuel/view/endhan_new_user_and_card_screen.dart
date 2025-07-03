@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/data/model/result.dart' show GenericError;
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -37,20 +39,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   final TextEditingController _searchController = TextEditingController();
   bool _hasAttemptedCardsFetch = false;
 
-  // Mock data for demonstration
-  final List<Map<String, dynamic>> _cards = List.generate(3, (index) => {
-    'image': AppImage.png.endhanCard,
-    'cardNumber': '12XXX XXXXX X5678',
-    'vehicleNumber': 'TN12 BD 1234',
-    'status': 'Active',
-    'amount': '₹2,550.00',
-    'mobile': '98777 43321',
-    'dateTime': 'Today 11:34 AM',
-  });
-
   String _searchText = '';
-  bool _isLoading = false;
-  String? _error;
 
   @override
   void initState() {
@@ -64,24 +53,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     super.dispose();
   }
 
-  String _formatDateTime(String dateTimeString) {
-    try {
-      final dateTime = DateTime.parse(dateTimeString);
-      final now = DateTime.now();
-      final difference = now.difference(dateTime);
-      
-      if (difference.inDays == 0) {
-        return 'Today ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-      } else if (difference.inDays == 1) {
-        return 'Yesterday ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
-      } else {
-        return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-      }
-    } catch (e) {
-      return dateTimeString;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -91,7 +62,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
         Future.microtask(() {
           if (!cubit.isClosed && mounted) {
             cubit.checkKycDocuments();
-            // Don't fetch cards immediately - wait for KYC check result
           }
         });
         return cubit;
@@ -102,49 +72,19 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           previous.cardsState != current.cardsState,
         listener: (context, state) {
           // Check if widget is still mounted
-          if (!mounted) {
-            print('❌ Widget is not mounted, skipping state handling');
-            return;
-          }
+          if (!mounted) return;
           
-          // Debug logging for state changes
-          print('🔄 State changed:');
-          print('  KYC Check Status: ${state.kycCheckState?.status}');
-          print('  Has KYC Documents: ${state.hasKycDocuments}');
-          print('  Cards Status: ${state.cardsState?.status}');
-          print('  Cards Count: ${state.cardsState?.data?.data?.length ?? 0}');
-          
-          // Debug KYC check details
-          if (state.kycCheckState?.status == Status.SUCCESS) {
-            print('✅ KYC Check successful');
-            print('  KYC Data: ${state.kycData}');
-            print('  Has Documents: ${state.hasKycDocuments}');
-            
-            // If KYC documents exist, ensure cards are fetched
-            if (state.hasKycDocuments && 
-                !_hasAttemptedCardsFetch &&
-                state.cardsState?.status != Status.LOADING && 
-                state.cardsState?.status != Status.SUCCESS) {
-              print('📋 KYC documents found, ensuring cards are fetched...');
-              _hasAttemptedCardsFetch = true;
-              final cubit = context.read<EnDhanCubit>();
-              if (!cubit.isClosed && mounted) {
-                cubit.fetchCards();
-              } else {
-                print('❌ Cubit is closed or widget not mounted, cannot fetch cards');
-              }
+          // If KYC documents exist, fetch cards
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              !_hasAttemptedCardsFetch &&
+              state.cardsState?.status != Status.LOADING && 
+              state.cardsState?.status != Status.SUCCESS) {
+            _hasAttemptedCardsFetch = true;
+            final cubit = context.read<EnDhanCubit>();
+            if (!cubit.isClosed && mounted) {
+              cubit.fetchCards();
             }
-          } else if (state.kycCheckState?.status == Status.ERROR) {
-            print('❌ KYC Check failed: ${state.kycCheckState?.errorType}');
-          } else if (state.kycCheckState?.status == Status.LOADING) {
-            print('⏳ KYC Check loading...');
-          }
-          
-          // Handle cards state changes
-          if (state.cardsState?.status == Status.SUCCESS) {
-            print('✅ Cards fetched successfully: ${state.cardsState?.data?.data?.length ?? 0} cards');
-          } else if (state.cardsState?.status == Status.ERROR) {
-            print('❌ Cards fetch failed: ${state.cardsState?.errorType}');
           }
         },
         builder: (context, state) {
@@ -159,33 +99,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             );
           }
 
-          // TEMPORARY: Force show benefits for new user (no KYC documents)
-          // Show new user screen if no KYC documents found OR if KYC check hasn't been performed
-          if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
-            print('📋 KYC Check: No documents found, showing benefits screen');
-            return Scaffold(
-              appBar: CommonAppBar(
-                title: context.appText.fuelCard,
-                centreTile: false,
-                actions: [
-                  AppIconButton(
-                    onPressed: () {
-                      print('🔄 Manual KYC refresh triggered');
-                      context.read<EnDhanCubit>().checkKycDocuments();
-                    },
-                    icon: AppIcons.svg.filledSupport,
-                    iconColor: AppColors.primaryButtonColor,
-                  ),
-                  10.width,
-                ],
-              ),
-              body: SafeArea(child: enDhanBenifitsWidget(context)),
-            );
-          }
-
-          // Show new user screen if KYC check failed (fallback)
+          // Show error state for KYC check
           if (state.kycCheckState?.status == Status.ERROR) {
-            print('📋 KYC Check: Failed, showing benefits screen');
             return Scaffold(
               appBar: CommonAppBar(
                 title: context.appText.fuelCard,
@@ -193,7 +108,34 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      print('🔄 Manual KYC refresh triggered');
+                      context.read<EnDhanCubit>().checkKycDocuments();
+                    },
+                    icon: AppIcons.svg.filledSupport,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  10.width,
+                ],
+              ),
+              body: Center(
+                child: AppErrorWidget(
+                  error: GenericError(),
+                  onRetry: () {
+                    context.read<EnDhanCubit>().checkKycDocuments();
+                  },
+                ),
+              ),
+            );
+          }
+
+          // Show benefits screen if no KYC documents found
+          if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
+            return Scaffold(
+              appBar: CommonAppBar(
+                title: context.appText.fuelCard,
+                centreTile: false,
+                actions: [
+                  AppIconButton(
+                    onPressed: () {
                       context.read<EnDhanCubit>().checkKycDocuments();
                     },
                     icon: AppIcons.svg.filledSupport,
@@ -206,52 +148,159 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             );
           }
 
-          // Show new user screen if KYC check hasn't been performed yet (initial state)
-          if (state.kycCheckState == null) {
-            print('📋 KYC Check: No check performed yet, showing benefits screen');
+          // Show cards screen if KYC documents exist
+          if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments) {
             return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
-                title: context.appText.fuelCard,
+                title: 'eN-Dhan Card',
                 centreTile: false,
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      print('🔄 Manual KYC refresh triggered');
-                      context.read<EnDhanCubit>().checkKycDocuments();
+                      Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
                     },
+                    icon: Icon(Icons.add, color: Colors.white),
+                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                  ),
+                  AppIconButton(
+                    onPressed: () {},
                     icon: AppIcons.svg.filledSupport,
-                    iconColor: AppColors.primaryButtonColor,
+                    iconColor: AppColors.primaryColor,
                   ),
                   10.width,
                 ],
               ),
-              body: SafeArea(child: enDhanBenifitsWidget(context)),
+              body: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    16.height,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'My Cards (ID: HPCL 43352)',
+                        style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    12.height,
+                    AppSearchBar(
+                      searchController: _searchController,
+                      hintText: 'Search',
+                      onChanged: (val) {
+                        setState(() {
+                          _searchText = val;
+                        });
+                      },
+                      onClear: () {
+                        setState(() {
+                          _searchText = '';
+                        });
+                      },
+                    ).paddingSymmetric(horizontal: 16.0),
+                    16.height,
+                    Expanded(
+                      child: _buildCardsList(context, state),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
-
-          // TEMPORARY: Always show benefits for new user
-          print('📋 TEMPORARY: Forcing benefits screen for new user');
+          
+          // Show loading while waiting for KYC check
           return Scaffold(
             appBar: CommonAppBar(
               title: context.appText.fuelCard,
               centreTile: false,
-              actions: [
-                AppIconButton(
-                  onPressed: () {
-                    print('🔄 Manual KYC refresh triggered');
-                    context.read<EnDhanCubit>().checkKycDocuments();
-                  },
-                  icon: AppIcons.svg.filledSupport,
-                  iconColor: AppColors.primaryButtonColor,
-                ),
-                10.width,
-              ],
             ),
-            body: SafeArea(child: enDhanBenifitsWidget(context)),
+            body: const Center(child: AppLoadingWidget()),
           );
         },
       ),
     );
+  }
+
+  Widget _buildCardsList(BuildContext context, EnDhanState state) {
+    if (state.cardsState?.status == Status.LOADING) {
+      return const Center(child: AppLoadingWidget());
+    }
+    if (state.cardsState?.status == Status.ERROR) {
+      return Center(
+        child: AppErrorWidget(
+          error: GenericError(),
+          onRetry: () {
+            context.read<EnDhanCubit>().fetchCards();
+          },
+        ),
+      );
+    }
+    if (state.cardsState?.status == Status.SUCCESS) {
+      final cards = state.cardsState?.data?.data ?? [];
+      if (cards.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.credit_card_off,
+                size: 64,
+                color: AppColors.greyTextColor,
+              ),
+              16.height,
+              Text(
+                'No fuel cards found',
+                style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
+              ),
+              8.height,
+              Text(
+                'Add your first fuel card to get started',
+                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+              ),
+            ],
+          ),
+        );
+      }
+      
+      // Filter cards based on search
+      final filteredCards = cards.where((card) {
+        if (_searchText.isEmpty) return true;
+        final cardNumber = card.cardNumber?.toString().toLowerCase() ?? '';
+        final vehicleNumber = card.vehicleNumber?.toString().toLowerCase() ?? '';
+        final mobile = card.mobile?.toString().toLowerCase() ?? '';
+        final searchLower = _searchText.toLowerCase();
+        return cardNumber.contains(searchLower) ||
+            vehicleNumber.contains(searchLower) ||
+            mobile.contains(searchLower);
+      }).toList();
+      
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        itemCount: filteredCards.length,
+        itemBuilder: (context, index) {
+          final card = filteredCards[index];
+          // Convert EnDhanCardModel to Map for EndhanCardItem
+          final cardMap = {
+            'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
+            'vehicleNumber': card.vehicleNumber ?? '',
+            'mobile': card.mobile ?? '',
+            'status': card.status ?? 'Active',
+            'image': AppImage.png.endhanCard,
+            'dateTime': card.dateTime ?? card.createdAt ?? '',
+          };
+          return EndhanCardItem(card: cardMap).paddingOnly(bottom: 12);
+        },
+      );
+    }
+    return const Center(child: AppLoadingWidget());
+  }
+
+  String _maskCardNumber(String cardNumber) {
+    if (cardNumber.length < 4) return cardNumber;
+    // Mask all but the first 2 and last 4 digits
+    final visibleStart = cardNumber.substring(0, 2);
+    final visibleEnd = cardNumber.substring(cardNumber.length - 4);
+    return ' 0{visibleStart}XXX XXXXX X$visibleEnd';
   }
 
   Widget enDhanBenifitsWidget(BuildContext context){
@@ -286,25 +335,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
         ),
       ],
     );
-    
-    // SingleChildScrollView(
-    //   child: Column(
-    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //     children: [
-    //       buildenDhanProductImageWidget(context),
-    //       6.height,
-    //       buildenDhanBenefitsDetailsWidget(context),
-    //       buildGroBannerImageWidget(),
-      
-    //       AppButton(
-    //           title: "Buy New Fuel Card",
-    //           onPressed: (){
-    //             Navigator.push(context,commonRoute(EndhanKycScreen()));
-    //           }
-    //       ).paddingOnly(left: 10.0, right: 10.0, bottom: 8.0)
-    //     ],
-    //   ),
-    // );
   }
 
   Widget buildenDhanProductImageWidget(BuildContext context){
