@@ -12,27 +12,18 @@ class ScheduleTripRequest {
   final int loadId;
   final int driverId;
   final int acceptedBy;
-  final DateTime? etaForPickUp;
-  final DateTime? expectedDeliveryDate;
+  final String? etaForPickUp;
+  final String? expectedDeliveryDate;
 
-  factory ScheduleTripRequest.fromJson(Map<String, dynamic> json){
-    return ScheduleTripRequest(
-      loadId: json['loadId']??0,
-      vehicleId: json["vehicleId"] ?? 0,
-      driverId: json["driverId"] ?? 0,
-      acceptedBy: json["acceptedBy"] ?? 0,
-      etaForPickUp: DateTime.tryParse(json["etaForPickUp"] ?? ""),
-      expectedDeliveryDate: DateTime.tryParse(json["expectedDeliveryDate"] ?? ""),
-    );
-  }
+
 
   Map<String, dynamic> toJson() => {
     "loadId": loadId,
     "vehicleId": vehicleId,
     "driverId": driverId,
     "acceptedBy": acceptedBy,
-    "etaForPickUp": etaForPickUp?.toIso8601String(),
-    "expectedDeliveryDate": expectedDeliveryDate?.toIso8601String(),
+    "etaForPickUp": etaForPickUp,
+    "possibleDeliveryDate": expectedDeliveryDate,
   };
 
 }

@@ -8,15 +8,17 @@ class LpHomeHelper {
       final created = DateTime.parse(createdAt).toLocal(); // Adjust for local time
       final now = DateTime.now();
       final expiry = created.add(kycDuration);
-      final remaining = expiry.difference(now);
+      final difference = expiry.difference(now);
 
-      if (remaining.isNegative) {
-        return "0h to verify";
-      } else if (remaining.inHours >= 1) {
-        return "${remaining.inHours} hour${remaining.inHours > 1 ? "s" : ""} to verify";
-      } else {
-        return "${remaining.inMinutes} min${remaining.inMinutes > 1 ? "s" : ""} to verify";
-      }
+      final hours = difference.inHours;
+      final minutes = difference.inMinutes % 60;
+      final seconds = difference.inSeconds % 60;
+
+      if (difference.isNegative) return "0h to verify";
+
+
+      return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+
     } catch (e) {
       return "Invalid time";
     }
@@ -27,50 +29,50 @@ class LpHomeHelper {
  /// was created** and ticks down toward 0 from the current device‐time.
  ///
  /// If the three-hour window has already elapsed you’ll get `"00:00:00"`.
- // static String getMatchingTime(String createdAtString) {
- //   try {
- //     // 1️⃣ parse the original timestamp coming from the backend
- //     final createdAt = DateTime.parse(createdAtString).toLocal();
- //
- //     // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
- //     final targetTime = createdAt.add(const Duration(hours: 2));
- //
- //     // 3️⃣ compute the remaining time *from now* until that target
- //     final now        = DateTime.now();
- //     final difference = targetTime.difference(now);
- //
- //     // 4️⃣ if we are already past the deadline → show all zeros
- //     if (difference.isNegative) return "00:00:00";
- //
- //     // 5️⃣ format as HH:MM:SS
- //     final hours   = difference.inHours;
- //     final minutes = difference.inMinutes.remainder(60);
- //     final seconds = difference.inSeconds.remainder(60);
- //
- //     return "${hours.toString().padLeft(2, '0')}:"
- //         "${minutes.toString().padLeft(2, '0')}:"
- //         "${seconds.toString().padLeft(2, '0')}";
- //   } catch (_) {
- //     // any parsing error → fallback
- //     return "00:00:00";
- //   }
- // }
-
  static String getMatchingTime(String createdAtString) {
    try {
+     // 1️⃣ parse the original timestamp coming from the backend
      final createdAt = DateTime.parse(createdAtString).toLocal();
+
+     // 2️⃣ add the extra 3 hours that the load is allowed to stay in “matching”
      final targetTime = createdAt.add(const Duration(hours: 2));
-     final now = DateTime.now();
+
+     // 3️⃣ compute the remaining time *from now* until that target
+     final now        = DateTime.now();
      final difference = targetTime.difference(now);
 
-     if (difference.isNegative) return "0 min";
+     // 4️⃣ if we are already past the deadline → show all zeros
+     if (difference.isNegative) return "00:00:00";
 
-     final totalMinutes = difference.inMinutes;
-     return "$totalMinutes min";
+     // 5️⃣ format as HH:MM:SS
+     final hours   = difference.inHours;
+     final minutes = difference.inMinutes.remainder(60);
+     final seconds = difference.inSeconds.remainder(60);
+
+     return "${hours.toString().padLeft(2, '0')}:"
+         "${minutes.toString().padLeft(2, '0')}:"
+         "${seconds.toString().padLeft(2, '0')}";
    } catch (_) {
-     return "0 min";
+     // any parsing error → fallback
+     return "00:00:00";
    }
  }
+
+ // static String getMatchingTime(String createdAtString) {
+ //   try {
+ //     final createdAt = DateTime.parse(createdAtString).toLocal();
+ //     final targetTime = createdAt.add(const Duration(hours: 2));
+ //     final now = DateTime.now();
+ //     final difference = targetTime.difference(now);
+ //
+ //     if (difference.isNegative) return "0 min";
+ //
+ //     final totalMinutes = difference.inMinutes;
+ //     return "$totalMinutes min";
+ //   } catch (_) {
+ //     return "0 min";
+ //   }
+ // }
 
 
 
@@ -87,6 +89,8 @@ class LpHomeHelper {
        return 'Confirmed';
      case 'Agree':
        return 'Agreed';
+     case 'Assigned':
+       return 'Assigned';
      default:
        return 'Unknown';
    }
@@ -100,11 +104,13 @@ class LpHomeHelper {
      case "kyc pending":
        return const Color(0xFFFFE6E0); // Light peach
      case "matching":
-       return const Color(0xFFE6D8FF); // Light purple
+       return const Color(0xFFe7dbff); // Light purple
      case "confirmed":
-       return const Color(0xFFD5F4E6); // Light green
+       return const Color(0xFFd4f3f7); // Light green
      case "agree":
        return const Color(0xFFFFF9C4); // Light yellow
+     case "assigned":
+       return const Color(0xFFD5F4E6); // Light yellow
      default:
        return Colors.grey.shade200;
    }
@@ -119,9 +125,11 @@ static Color getLoadStatusTextColor(String loadType) {
      case "matching":
        return const Color(0xFF864DFF); // Purple
      case "confirmed":
-       return const Color(0xFF2E7D32); // Dark green
+       return const Color(0xFF00bcd4); // Dark green
      case "agree":
        return const Color(0xFF9A7B00); // Dark yellow
+     case "assigned":
+       return const Color(0xFF2E7D32); // Dark green
      default:
        return Colors.black;
    }

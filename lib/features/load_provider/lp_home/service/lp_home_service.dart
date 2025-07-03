@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
-import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
@@ -13,64 +11,15 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeService{
   final ApiService _apiService;
-  final SecuredSharedPreferences _securedSharedPref;
-  final UserInformationRepository _userInformationRepository;
-  LpHomeService(this._apiService, this._securedSharedPref, this._userInformationRepository);
-
-  /// Fetch Profile
-  Future<Result<ProfileDetailModel>> getProfileDetails({required String id}) async {
-    try {
-      final url = ApiUrls.getProfile+id;
-      final result = await _apiService.get(url);
-      if (result is Success) {
-        dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
-        // Save Blue Id
-        if (data is Success<ProfileDetailModel>) {
-          final customer = data.value.data?.customer;
-          final newBlueId = customer?.blueId;
-          final storedBlueId = await _userInformationRepository.getBlueID();
-          debugPrint("Service Blue Id : $newBlueId");
-          if (newBlueId != null && newBlueId.isNotEmpty) {
-            // Save Blue ID and popup flag if not stored before
-            if (storedBlueId == null || storedBlueId.isEmpty) {
-              debugPrint("🎉 First time Blue ID saved: $newBlueId");
-              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
-              await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
-
-            }
-          } else {
-            // Clear Blue ID and popup flag if blueId is null
-            debugPrint("🧹 Blue ID cleared");
-            await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-            await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
-          }
-
-          return Success(data.value);
-        }
-        if (data is Error) {
-          return Error(data.type);
-        }
-        return Error(GenericError());
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
-    }
-  }
+  LpHomeService(this._apiService);
 
 
   /// Gwt Load

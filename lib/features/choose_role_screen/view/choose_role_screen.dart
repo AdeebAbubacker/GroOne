@@ -8,6 +8,7 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -25,29 +26,7 @@ class ChooseRoleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        scrolledUnderElevation: 0.0,
-        actions: [
-          translateWiget(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
-              );
-            },
-          ),
-          20.width,
-          customerSupportWidget(
-            onTap: () {
-              commonSupportDialog(context);
-            },
-          ),
-          20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-          30.width,
-        ],
-      ),
+      appBar: CommonOnboardingAppbar(),
       body: BlocBuilder<RoleBloc, RoleState>(
         builder: (context, state) {
           return Padding(

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -25,21 +26,15 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 class RecentAddedLoadListBody extends StatefulWidget {
   final VpRecentLoadData data;
   final bool isKycDone;
-
-
-  const RecentAddedLoadListBody({
-    super.key,
-    required this.data,
-    required this.isKycDone,
-
-  });
+  final num? companyTypeId;
+  const RecentAddedLoadListBody({super.key, required this.data, required this.isKycDone, this.companyTypeId});
 
   @override
-  State<RecentAddedLoadListBody> createState() =>
-      _RecentAddedLoadListBodyState();
+  State<RecentAddedLoadListBody> createState() => _RecentAddedLoadListBodyState();
 }
 
 class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
+
   final bloc = locator<VpAcceptLoadBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
@@ -105,8 +100,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
             commonDivider(),
             Row(
               children: [
-
-
                 Column(
                   children: [
                     detailWidget(
@@ -155,7 +148,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                     textAlign: TextAlign.center,
                   ).expand(),
                   Text(
-                    (widget.data.vpMaxRate??"").isNotEmpty ?
+                    (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"")!="0"?
                     "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
                     "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                     style: AppTextStyle.h4PrimaryColor,
@@ -196,9 +189,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       buttonHeight: 40,
                       onPressed: () {
                         if (widget.isKycDone) {
-                          setState(() {
-                            loadingLoadIds.add(widget.data.id.toString());
-                          });
                           bloc.add(
                             VpAcceptLoad(loadId: widget.data.id.toString()),
                           );
@@ -208,22 +198,17 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                             screen: KycPendingDialogue(
                               onPressed: () {
                                 context.pop();
-                                commonBottomSheetWithBGBlur(
-                                  context: context,
-                                  screen: EnterAadhaarNumberBottomSheet(),
-                                ).then((_) {
-                                  lpHomeBloc.add(
-                                    GetProfileDetailApiRequest(
-                                      lpHomeBloc.userId ?? "0",
-                                    ),
-                                  );
-                                });
+                                if (widget.companyTypeId != null && (widget.companyTypeId == 2 || widget.companyTypeId == 1)) {
+                                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                                } else {
+                                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                                }
                               },
                             ),
                           );
                         }
                       },
-                      isLoading: loadingLoadIds.contains(widget.data.id.toString()),
+                      isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
                       title: 'Accept Load',
                     ).expand(),
                   ],

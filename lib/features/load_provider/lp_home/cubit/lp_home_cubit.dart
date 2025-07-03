@@ -12,7 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/destination_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
@@ -32,27 +32,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     return super.close();
   }
 
-  // Clear Blue Id
-  Future<void> clearBlueId() async {
-    await _repo.clearBlueId();
-  }
-
-  // Save Has Blue ID
-  Future<void> saveHasShowBluePopup(bool value) async {
-    await _repo.saveHasShowBluePopup(value);
-  }
-
-  // Get Show Blue Popup
-  Future<bool> getHasShowBluePopup() async {
-   return  await _repo.getHasShowBluePopup();
-  }
-
-  // Kyc Timer
-  Future<void> startKycSuccessTimer(bool value) async {
-    emit(state.copyWith(showSuccessKyc: value));
-    await Future.delayed(const Duration(seconds: 3));
-    emit(state.copyWith(showSuccessKyc: value));
-  }
 
   // Set Destination
   void setDestination(DestinationModel? destination) {
@@ -80,14 +59,14 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Set Location Id
-  void setPickupLocationDetailId(num? id){
+  void setPickupLocationDetailId(int? id){
     emit(state.copyWith(pickupLocationId: id));
     CustomLog.debug(this, "Set Pickup Location Id : $id");
   }
 
 
   // Set Location Id
-  void setDestinationLocationDetailId(num? id){
+  void setDestinationLocationDetailId(int? id){
     emit(state.copyWith(destinationLocationId: id));
     CustomLog.debug(this, "Set Destination Location Id : $id");
   }
@@ -101,17 +80,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Select Weight
   void selectWeight(LoadWeightData weight) {
     emit(state.copyWith(selectedWeight: weight));
-  }
-
-  // Get Blue Id
-  Future<String?> getBlueId() async {
-    Result<String> getBlueId = await _repo.getBlueId();
-    if (getBlueId is Success<String>) {
-      emit(state.copyWith(blueId: getBlueId.value));
-      return getBlueId.value;
-    } else {
-      return null;
-    }
   }
 
 
@@ -230,22 +198,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _setLoadWeightUIState(UIState.error(result.type));
-    }
-  }
-
-
-  // Fetch Profile Detail Api Call
-  void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
-    emit(state.copyWith(profileDetailUIState: uiState));
-  }
-  Future<void> fetchProfileDetail() async {
-    _setProfileDetailUIState(UIState.loading());
-    dynamic result = await _repo.getUserDetails();
-    if (result is Success<ProfileDetailModel>) {
-      _setProfileDetailUIState(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _setProfileDetailUIState(UIState.error(result.type));
     }
   }
 

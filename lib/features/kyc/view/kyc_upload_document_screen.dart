@@ -11,16 +11,13 @@ import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -44,8 +41,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 
 class KycUploadDocumentScreen extends StatefulWidget {
-  final String aadhaarNumber;
-  const KycUploadDocumentScreen({super.key, required this.aadhaarNumber});
+  final String? aadhaarNumber;
+  const KycUploadDocumentScreen({super.key, this.aadhaarNumber});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -57,10 +54,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   final dropDownStateKey = GlobalKey<DropdownSearchState>();
   final dropDownCityKey = GlobalKey<DropdownSearchState>();
 
-
   final kycCubit = locator<KycCubit>();
-  final lpHomeCubit = locator<LPHomeCubit>();
-  final lpHomeBloc = locator<LpHomeBloc>();
+  final profileCubit = locator<ProfileCubit>();
 
   final TextEditingController aadhaarNumberTextController = TextEditingController();
   final TextEditingController gstInTextController = TextEditingController();
@@ -94,75 +89,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
   dynamic companyId;
 
-  final List<String> stateList = [
-    "Maharashtra",
-    "Madhya Pradesh",
-    "Karnataka",
-    "Tamil Nadu",
-    "Gujarat",
-    "Rajasthan",
-    "Uttar Pradesh"
-  ];
-
-  final Map<String, List<String>> cityMap = {
-    "Maharashtra": [
-      "Mumbai",
-      "Pune",
-      "Nagpur",
-      "Nashik",
-      "Aurangabad",
-      "Thane"
-    ],
-    "Madhya Pradesh": [
-      "Indore",
-      "Bhopal",
-      "Jabalpur",
-      "Gwalior",
-      "Ujjain",
-      "Sagar"
-    ],
-    "Karnataka": [
-      "Bangalore",
-      "Mysore",
-      "Hubli",
-      "Mangalore",
-      "Belgaum",
-      "Tumkur"
-    ],
-    "Tamil Nadu": [
-      "Chennai",
-      "Coimbatore",
-      "Madurai",
-      "Salem",
-      "Tirunelveli",
-      "Vellore"
-    ],
-    "Gujarat": [
-      "Ahmedabad",
-      "Surat",
-      "Vadodara",
-      "Rajkot",
-      "Gandhinagar",
-      "Bhavnagar"
-    ],
-    "Rajasthan": [
-      "Jaipur",
-      "Udaipur",
-      "Jodhpur",
-      "Kota",
-      "Bikaner",
-      "Ajmer"
-    ],
-    "Uttar Pradesh": [
-      "Lucknow",
-      "Kanpur",
-      "Varanasi",
-      "Agra",
-      "Noida",
-      "Meerut"
-    ],
-  };
-
 
 
   @override
@@ -183,7 +109,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
-    aadhaarNumberTextController.text = widget.aadhaarNumber;
+    if (widget.aadhaarNumber != null) {
+      aadhaarNumberTextController.text = widget.aadhaarNumber!;
+    } else {
+      aadhaarNumberTextController.text = "";
+    }
   });
   
   void disposeFunction()=> frameCallback((){
@@ -514,8 +444,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           bloc: kycCubit,
           listener: (context, state) { },
           builder: (context, kycState) {
-            return BlocBuilder<LPHomeCubit, LPHomeState>(
-              bloc: lpHomeCubit,
+            return BlocBuilder<ProfileCubit, ProfileState>(
+              bloc: profileCubit,
               buildWhen: (previous, current) {
                 return previous != current;
               },
@@ -955,7 +885,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
             clearAllFormValues();
-            lpHomeCubit.fetchProfileDetail();
+            profileCubit.fetchProfileDetail();
             navigateToHomeScreen(context);
           }
           if (status == Status.ERROR) {
@@ -983,6 +913,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       rightText: "Aadhaar Number",
       leftText: "Verified",
       controller: aadhaarNumberTextController,
+      fillColor: AppColors.lightGreyBackgroundColor
     );
   }
 
@@ -1133,7 +1064,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Multiple Text Field
-  Widget  _buildMultipleTextFieldWidget({required String text, String? leftText, required List<Widget> children }) {
+  Widget  _buildMultipleTextFieldWidget({required String text, required List<Widget> children }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1155,6 +1086,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     FocusNode? currentFocus,
     required TextEditingController controller,
     dynamic Function()? suffixOnTap,
+    Color? fillColor
   }) {
     return Column(
       children: [
@@ -1183,7 +1115,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           currentFocus: currentFocus,
           controller: controller,
           decoration: commonInputDecoration(
-              suffixIcon: readOnly ?  0.width : Text("Verify", style: AppTextStyle.h6PrimaryColor),
+              fillColor : fillColor ?? AppColors.white,
+              suffixIcon: readOnly
+                  ?  0.width
+                  : Text("Verify", style: AppTextStyle.h6PrimaryColor),
               suffixOnTap: suffixOnTap ?? (){}
           ),
         ),

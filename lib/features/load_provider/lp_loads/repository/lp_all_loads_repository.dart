@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
@@ -9,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_o
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -22,7 +24,7 @@ class  LpLoadRepository {
 
   LpLoadRepository(this.service, this.userRepo, this.securedSharedPreferences);
 
-  Future<Result<List<LpLoadItem>>> fetchLoads({required LoadListApiRequest request, bool forceRefresh = false}) async {
+  Future<Result<LpLoadResponse>> fetchLoads({required LoadListApiRequest request, bool forceRefresh = false}) async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
       return service.fetchLoads(request: request.copyWith(customerId: customerId), forceRefresh: forceRefresh);
@@ -68,10 +70,10 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> sendOtp() async {
+  Future<Result<LpLoadMemoOtpResponse>> sendOtp({required String loadId}) async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
-      return service.sendOtp(customerId: customerId);
+      return service.sendOtp(customerId: customerId, loadId: loadId);
 
     } catch (e) {
       CustomLog.error(this, "Failed to send OTP data", e);
@@ -79,10 +81,10 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String otp}) async {
+  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String otp, required String loadId}) async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
-      return service.verifyOtp(customerId: customerId, otp: otp);
+      return service.verifyOtp(customerId: customerId, otp: otp, loadId: loadId);
     } catch (e) {
       CustomLog.error(this, "Failed to get verify OTP data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -118,13 +120,47 @@ class  LpLoadRepository {
     }
   }
 
-  // Set isFirstTimeLoad flag
-  Future<void> setIsFirstTimeLoad(bool value) async {
-    return await securedSharedPreferences.saveBoolean(AppString.sessionKey.isFirstTimeLoad, value);
+
+  Future<void> saveFirstPostedLoadId(String loadId) async {
+    return await securedSharedPreferences.saveKey(
+      AppString.sessionKey.firstPostedLoadId,
+      loadId,
+    );
   }
 
-  // get isFirstTimeLoad flag
-  Future<bool> getIsFirstTimeLoad() async {
-    return await securedSharedPreferences.getBooleans(AppString.sessionKey.isFirstTimeLoad);
+  Future<String?> getFirstPostedLoadId() async {
+    return await securedSharedPreferences.get(AppString.sessionKey.firstPostedLoadId);
+  }
+
+  Future<void> clearFirstPostedLoadId() async {
+    return await securedSharedPreferences.deleteKey(AppString.sessionKey.firstPostedLoadId);
+  }
+
+  Future<void> setFirstPostedLoadIdIfAbsent(String loadId) async {
+    final existingId = await securedSharedPreferences.get(AppString.sessionKey.firstPostedLoadId);
+    if (existingId == null) {
+      await saveFirstPostedLoadId(loadId);
+    }
+  }
+
+
+  Future<Result<LpLoadAgreeResponse>> loadAgree({required String loadId}) async {
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.loadAgree(customerId: customerId, loadId: loadId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get load agree data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<LpLoadVerifyAdvanceResponse>> verifyAdvance({required String loadId, required String percentageId}) async {
+    try {
+      final customerId = await userRepo.getUserID() ?? '';
+      return service.verifyAdvance(customerId: customerId, loadId: loadId, percentageId: percentageId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get verify advance data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
   }
 }

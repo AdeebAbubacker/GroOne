@@ -281,25 +281,26 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           title:  "Confirm",
           style:  selectedRecentRoutes != null ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: (){
+            if(selectedRecentRoutes != null) {
+              final destinationData = DestinationModel(
+                  address: destinationAddress,
+                  location: destinationLocation,
+                  latLng: destinationLatLong,
+                  laneId: lpHomeCubit.state.laneId
+              );
+              lpHomeCubit.setDestination(destinationData);
 
-            final destinationData = DestinationModel(
-                address: destinationAddress,
-                location: destinationLocation,
-                latLng: destinationLatLong,
-                laneId: lpHomeCubit.state.laneId
-            );
-            lpHomeCubit.setDestination(destinationData);
 
+              final pickupData = PickUpModel(
+                  address: pickupAddress,
+                  location: pickupLocation,
+                  latLng: pickupLatLong,
+                  laneId: lpHomeCubit.state.laneId
+              );
+              lpHomeCubit.setPickup(pickupData);
 
-            final pickupData = PickUpModel(
-                address: pickupAddress,
-                location: pickupLocation,
-                latLng: pickupLatLong,
-                laneId: lpHomeCubit.state.laneId
-            );
-            lpHomeCubit.setPickup(pickupData);
-
-            Navigator.of(context).pop(true);
+              Navigator.of(context).pop(true);
+            }
           }
         ).expand(),
         10.width,

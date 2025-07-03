@@ -18,19 +18,19 @@ class DateTimeHelper {
   /// Get Time Format With Am or Pm
   static String getTimeFormatWithAmOrPm(DateTime date) {
     var formatter = DateFormat('hh:mm a');
-    return formatter.format(date);
+    return formatter.format(date.toLocal());
   }
 
   /// Get Format Date
   static String getFormattedDate(DateTime date) {
     var formatter = DateFormat("dd-MM-yyyy");
-    return formatter.format(date);
+    return formatter.format(date.toLocal());
   }
 
   /// Get Date With Short Name
   static String getFormattedDateWithShortMonthName(DateTime date) {
     var formatter = DateFormat("dd MMM yyyy");
-    return formatter.format(date);
+    return formatter.format(date.toLocal());
   }
 
   /// Convert to AM or Pm
@@ -65,7 +65,18 @@ class DateTimeHelper {
   /// Output: 14 Jul, 2025, 7.30 PM
   static String formatCustomDate(DateTime date) {
     try {
-    return DateFormat("d MMM y, h.mm a").format(date);
+    return DateFormat("d MMM y, h.mm a").format(date.toLocal());
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
+  /// convert to IST format
+  static String formatCustomDateIST(DateTime? date) {
+    try {
+      if (date == null) return "Invalid Date";
+      final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
+      return DateFormat("d MMM y, h.mm a").format(istDate);
     } catch (e) {
       return "Invalid Date";
     }

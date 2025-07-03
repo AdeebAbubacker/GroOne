@@ -79,6 +79,7 @@ class AppColors {
   static const Color orangeTextColor = Color(0xFFEA7144);
   static const Color textBlackDetailColor =Color(0xFF090909);
   static const Color textGreyDetailColor =Color(0xFF545759);
+  static const Color greyContainerBg =Color(0xFFEBEBEB);
 
   static const Color borderDisableColor=Color(0xFF9D9D9D);
   static const Color lightBlackColor=Color(0xFF515151);
@@ -103,6 +104,7 @@ class AppColors {
   static const greenColor=Color(0xFF027A48);
   static final Color disableColor = Color(0xFFB8B8B8);
   static final Color grayColor = Color(0xFF8E8E93);
+  static final Color thinLightGray = Color(0xff626262);
 
   static final Color chevronGreyColor = Color(0xff999999);
 

@@ -16,7 +16,7 @@ class LowCreditDialog extends StatelessWidget {
       hideCloseButton: true,
       showYesNoButtonButtons: true,
       noButtonText: "Back",
-      yesButtonText: "Customer Support",
+      yesButtonText: "Support",
       child: Column(
         children: [
           Lottie.asset(AppJSON.alert, repeat: true, frameRate: FrameRate(200)),

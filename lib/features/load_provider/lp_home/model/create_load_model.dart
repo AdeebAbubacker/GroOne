@@ -42,6 +42,7 @@ class Data {
     required this.status,
     required this.createdAt,
     required this.id,
+    required this.loadId,
     required this.customerId,
     required this.commodityId,
     required this.truckTypeId,
@@ -57,6 +58,7 @@ class Data {
   final num status;
   final DateTime? createdAt;
   final int id;
+  final String loadId;
   final num customerId;
   final num commodityId;
   final num truckTypeId;
@@ -72,6 +74,7 @@ class Data {
     num? status,
     DateTime? createdAt,
     int? id,
+    String? loadId,
     num? customerId,
     num? commodityId,
     num? truckTypeId,
@@ -87,6 +90,7 @@ class Data {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       id: id ?? this.id,
+      loadId: loadId ?? this.loadId,
       customerId: customerId ?? this.customerId,
       commodityId: commodityId ?? this.commodityId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
@@ -104,7 +108,8 @@ class Data {
     return Data(
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      id: json["id"] ?? 0,
+      id: json["id"] ?? "",
+      loadId: json["loadId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
@@ -122,6 +127,7 @@ class Data {
     "status": status,
     "createdAt": createdAt?.toIso8601String(),
     "id": id,
+    "loadId": loadId,
     "customerId": customerId,
     "commodityId": commodityId,
     "truckTypeId": truckTypeId,

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
@@ -427,22 +427,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
               style: (pickedDate !=null &&  deliveryDateTime !=null ) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
               onPressed: () {
                 if(pickedDate!=null &&  deliveryDateTime!=null){
-                  if(_formKey.currentState!.validate()){
-                    vpHomeScreenBloc.add(
-                      ScheduleTripRequested(
-                        apiRequest: ScheduleTripRequest(
-                          loadId: widget.data.id,
-                          vehicleId: int.parse(truckType ?? "0"),
-                          driverId: int.parse(driverType ?? "0"),
-                          acceptedBy:
-                         int.parse(lpHomeBloc.userId??"0"),
-                          etaForPickUp: pickedDate,
-                          expectedDeliveryDate: deliveryDateTime,
 
-                        ),
-                      ),
-                    );
-                  }
                 }else{
                   ToastMessages.error(message: "Please Select Dates!!!");
                 }

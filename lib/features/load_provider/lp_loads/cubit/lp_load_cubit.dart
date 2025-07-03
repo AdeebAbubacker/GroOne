@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
@@ -12,27 +14,61 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_o
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 
 part 'lp_load_state.dart';
 
 class LpLoadCubit extends BaseCubit<LpLoadState> {
   final LpLoadRepository _repository;
+  final LpLoadPaginationController paginationController = LpLoadPaginationController();
+
   LpLoadCubit(this._repository) : super(LpLoadState());
 
   // Updates the UI state related to loading LP loads.
-  void _setLoadUIState(UIState<List<LpLoadItem>>? uiState) {
+  void _setLoadUIState(UIState<LpLoadResponse>? uiState) {
     emit(state.copyWith(lpLoadResponse: uiState));
   }
 
   // Fetches the LP loads filtered by the given [type].
-  Future<void> getLpLoadsByType({required LoadListApiRequest loadListApiRequest}) async {
-    _setLoadUIState(UIState.loading());
+  Future<void> getLpLoadsByType({required LoadListApiRequest loadListApiRequest, bool isNextPage = false,}) async {
+    // If it's not next page fetch, show loader state
+    if (!isNextPage) {
+      _setLoadUIState(UIState.loading());
+    }
 
     Result result = await _repository.fetchLoads(request: loadListApiRequest);
 
-    if (result is Success<List<LpLoadItem>>) {
-      _setLoadUIState(UIState.success(result.value));
+    if (result is Success<LpLoadResponse>) {
+      final newData = result.value;
+
+      // Get existing data if this is a next page fetch
+      final existingData = isNextPage
+          ? (state.lpLoadResponse?.data?.data?.data ?? <LpLoadItem>[])
+          : <LpLoadItem>[];
+
+      final newItems = newData.data?.data ?? <LpLoadItem>[];
+
+      final List<LpLoadItem> combinedItems = [...existingData, ...newItems];
+
+
+      // Create new data object with combined items
+      final updatedLoadData = newData.data?.copyWith(
+        data: combinedItems,
+      );
+
+      // Create new response with updated load data
+      final combinedResponse = newData.copyWith(
+        data: updatedLoadData,
+      );
+
+      _setLoadUIState(UIState.success(combinedResponse));
+
+      // Update pagination controller
+      if (updatedLoadData?.pageMeta != null) {
+        paginationController.updatePageMeta(updatedLoadData!.pageMeta!);
+      }
     } else if (result is Error) {
       _setLoadUIState(UIState.error(result.type));
     }
@@ -40,7 +76,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Updates the UI state related to loading LP loads by ID.
   void _setLoadByIdUIState(UIState<LpLoadGetByIdResponse>? uiState) {
-    emit(state.copyWith(lpLoadById: uiState));
+    emit(state.copyWith(lpLoadById: uiState,));
   }
 
   // Fetches the LP loads filtered by the given [type].
@@ -50,10 +86,23 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.fetchLoadById(loadId: loadId);
 
     if (result is Success<LpLoadGetByIdResponse>) {
+      emit(state.copyWith(locationDistance: getDistance(result.value.loadData?.pickUpLatlon??"0",result.value.loadData?.dropLatlon??"0")));
       _setLoadByIdUIState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadByIdUIState(UIState.error(result.type));
     }
+  }
+
+  String getDistance(String pickUpLatLong,dropLatLong){
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLatLng.latitude,
+      pickupLatLng.longitude,
+      dropLatLng.latitude,
+      dropLatLng.longitude,
+    );
+    return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
   // Updates the UI state related to load Memo Details.
@@ -122,10 +171,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Send otp to e-sign memo
-  Future<void> sendOtp() async {
+  Future<void> sendOtp({required String loadId}) async {
     _setLoadUIState(UIState.loading());
 
-    Result result = await _repository.sendOtp();
+    Result result = await _repository.sendOtp(loadId: loadId);
 
     if (result is Success<LpLoadMemoOtpResponse>) {
       _setSendOtpState(UIState.success(result.value));
@@ -140,10 +189,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Verify otp of e-sign memo
-  Future<void> verifyOtp({required String otp}) async {
+  Future<void> verifyOtp({required String otp, required String loadId}) async {
     _setLoadUIState(UIState.loading());
 
-    Result result = await _repository.verifyOtp(otp: otp);
+    Result result = await _repository.verifyOtp(otp: otp, loadId: loadId);
 
     if (result is Success<LpLoadMemoOtpResponse>) {
       _setVerifyOtpState(UIState.success(result.value));
@@ -159,7 +208,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
     Result result = await _repository.applyFilter(fromRoute: fromRoute, toRoute: toRoute, truckType: truckType, loadPostedDate: loadPostedDate);
 
-    if (result is Success<List<LpLoadItem>>) {
+    if (result is Success<LpLoadResponse>) {
       _setLoadUIState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadUIState(UIState.error(result.type));
@@ -202,14 +251,91 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
   }
 
-  // Set isFirstTimeLoad flag
-  Future<void> setFirstTimeLoad({required bool value}) async {
-    return await _repository.setIsFirstTimeLoad(value);
+  Future<String?> getFirstPostedLoadId() async {
+    return await _repository.getFirstPostedLoadId();
   }
 
-  // Get isFirstTimeLoad flag
-  Future<bool> fetchFirstTimeLoad() async {
-    return  await _repository.getIsFirstTimeLoad();
+  Future<void> clearFirstPostedLoadId() async {
+    return await _repository.clearFirstPostedLoadId();
   }
 
+  Future<void> setFirstPostedLoadIdIfAbsent(String loadId) async {
+    return await _repository.setFirstPostedLoadIdIfAbsent(loadId);
+  }
+
+  // Updates the UI state related to lp load Agree.
+  void _setLoadAgreeState(UIState<LpLoadAgreeResponse>? uiState) {
+    emit(state.copyWith(lpLoadAgree: uiState));
+  }
+
+  // Lp load Agree response
+  Future<void> loadAgree({required String loadId}) async {
+    _setLoadAgreeState(UIState.loading());
+
+    Result result = await _repository.loadAgree(loadId: loadId);
+
+    if (result is Success<LpLoadAgreeResponse>) {
+      final agreeData = result.value.lpLoadAgreeData;
+      final defaultAdvance = agreeData?.advance.firstWhere(
+            (item) => item.percentage == '90.00',
+        orElse: () => agreeData.advance.first,
+      );
+
+      emit(state.copyWith(
+        lpLoadAgree: UIState.success(result.value),
+        selectedAdvance: defaultAdvance,
+        selectedPercentageId: defaultAdvance?.percentageId,
+      ));
+      _setLoadAgreeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadAgreeState(UIState.error(result.type));
+    }
+  }
+
+
+  // Updates the UI state related to lp load verify advance.
+  void _setLoadVerifyAdvanceState(UIState<LpLoadVerifyAdvanceResponse>? uiState) {
+    emit(state.copyWith(lpLoadVerifyAdvance: uiState));
+  }
+
+  // Lp load Verify advance
+  Future<void> verifyAdvance({required String loadId, required String percentageId}) async {
+    _setLoadVerifyAdvanceState(UIState.loading());
+
+    Result result = await _repository.verifyAdvance(loadId: loadId, percentageId: percentageId);
+
+    if (result is Success<LpLoadVerifyAdvanceResponse>) {
+      _setLoadVerifyAdvanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadVerifyAdvanceState(UIState.error(result.type));
+    }
+  }
+
+  void selectAdvance(Advance advance) {
+    emit(state.copyWith(
+      selectedAdvance: advance,
+      selectedPercentageId: advance.percentageId,
+    ));
+  }
+
+
+}
+
+class LpLoadPaginationController {
+  int currentPage = 1;
+  int totalPages = 1;
+  bool isFetchingMore = false;
+
+  void reset() {
+    currentPage = 1;
+    totalPages = 1;
+    isFetchingMore = false;
+  }
+
+  void updatePageMeta(PageMeta pageMeta) {
+    currentPage = pageMeta.page;
+    totalPages = pageMeta.pageCount;
+  }
+
+  bool get hasMorePages => currentPage < totalPages;
 }

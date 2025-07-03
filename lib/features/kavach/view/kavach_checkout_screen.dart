@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sheet.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_billing_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../data/model/result.dart';
@@ -18,12 +19,13 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_check_box.dart';
+import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_field.dart';
 import '../../../utils/app_text_style.dart';
-import '../../../utils/common_functions.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
+import '../../../utils/validator.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
@@ -32,6 +34,7 @@ import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_a
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
 import '../model/kavach_product_model.dart';
 import '../repository/kavach_repository.dart';
+import 'kavach_support_screen.dart';
 import 'widgets/product_counter.dart';
 
 class KavachCheckoutScreen extends StatefulWidget {
@@ -60,6 +63,19 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   bool shippingSameAsBilling = false;
   late Map<String, int> _availableStocks;
   TextEditingController referralCodeController = TextEditingController();
+  TextEditingController shippingPersonInChargeController = TextEditingController();
+  TextEditingController shippingPersonContactNoController = TextEditingController();
+  final formKeyCheckout = GlobalKey<FormState>();
+
+  List<String> referralSuggestions = [
+    'John Doe GDP67543',
+    'David GDP67544',
+    'Michael GDP67545',
+    'Sarah GDP67546',
+  ];
+
+
+
 
   void loadVehicleSelection() {
     for (var product in _products) {
@@ -78,6 +94,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       vehicleControllersPerProduct[productId] = newControllers;
     }
   }
+
+  void syncVehicleControllersWithProducts() {
+    vehicleControllersPerProduct.removeWhere(
+          (productId, _) => !_products.any((p) => p.id == productId),
+    );
+  }
+
+
+  bool isVehicleAlreadySelected(String vehicleNumber) {
+    for (var product in _products) {
+      final controllers = vehicleControllersPerProduct[product.id] ?? [];
+      for (var controller in controllers) {
+        if (controller.text.trim() == vehicleNumber) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+
+
 
   @override
   void initState() {
@@ -98,7 +136,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           });
     }
     loadVehicleSelection();
-
     kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
     kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
   }
@@ -106,27 +143,25 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(context.appText.checkout.capitalize, style: AppTextStyle.appBar.copyWith(color: AppColors.primaryTextColor)),
-         leading : IconButton(
+      appBar: CommonAppBar(
+        centreTile: false,
+        title: context.appText.checkout,
+        leading : IconButton(
             onPressed: () {
               Navigator.of(context).pop(_quantities);
             },
             icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
           ),
-        actions: [
-          IconButton(
-            onPressed: () {
 
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
             },
-            icon: SvgPicture.asset(
-              AppIcons.svg.support,
-              width: 25,
-              colorFilter: AppColors.svg(AppColors.primaryColor),
-            ),
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
           ),
-          5.width
+          5.width,
         ],
       ),
       bottomNavigationBar: buildPlaceOrderButtonWidget(),
@@ -142,16 +177,18 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           child: Column(
             children: [
               10.height,
-              // Referral - to be integrated later
               Container(
                 padding: EdgeInsets.all(commonSafeAreaPadding),
                 decoration: commonContainerDecoration(
                   borderRadius: BorderRadius.zero,
                 ),
-                child: AppTextField(
+                child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  labelText:
-                  '${context.appText.referralCode} (${context.appText.optional})',
+                  suggestions: referralSuggestions,
+                  labelText: 'Referral Code (Optional)',
+                  onSelected: (value) {
+                    print('Selected: $value');
+                  },
                 ),
               ),
               10.height,
@@ -183,9 +220,11 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     TextButton.icon(
                       onPressed: () {
                         Navigator.of(context).pop(_quantities);
+                        syncVehicleControllersWithProducts();
+                        loadVehicleSelection();
                       },
                       label: Text(
-                        context.appText.addMoreItems,
+                        'Add More Kavach',
                         style: AppTextStyle.primaryColor16w400,
                       ),
                       icon: Icon(Icons.add, color: AppColors.primaryColor),
@@ -201,77 +240,100 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 decoration: commonContainerDecoration(
                   borderRadius: BorderRadius.zero,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //Billing Address
-                    BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
-                      builder: (context, state) {
-                        if (state is KavachCheckoutBillingAddressSelected) {
-                          final address = state.selectedAddress;
-                          return addressWidget(
-                            address: address,
-                            onChangeTap: () {
-                              commonBottomSheetWithBGBlur(
-                                context: context,
-                                screen: const KavachBillingAddressListScreen(),
-                              );
-                            },
-                            title: context.appText.billingAddress,
-                          );
-                        }
-                        if (state is KavachCheckoutBillingAddressEmpty) {
-                          return AppTextField(
-                            readOnly: true,
-                            autofocus: false,
-                            labelText: context.appText.billingAddress,
-                            mandatoryStar: true,
-                            decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.chevron_right,
-                                color: AppColors.chevronGreyColor,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: AppColors.borderColor,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                  commonTexFieldRadius,
+                child: Form(
+                  key: formKeyCheckout,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //Billing Address
+                      BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
+                        builder: (context, state) {
+                          if (state is KavachCheckoutBillingAddressSelected) {
+                            final address = state.selectedAddress;
+                            return addressWidget(
+                              address: address,
+                              onChangeTap: () {
+                                commonBottomSheetWithBGBlur(
+                                  context: context,
+                                  screen: const KavachBillingAddressListScreen(),
+                                );
+                              },
+                              title: context.appText.billingAddress,
+                            );
+                          }
+                          if (state is KavachCheckoutBillingAddressEmpty) {
+                            return AppTextField(
+                              readOnly: true,
+                              autofocus: false,
+                              labelText: context.appText.billingAddress,
+                              mandatoryStar: true,
+                              decoration: kavachInputDecoration(
+                                suffixIcon: Icon(
+                                  Icons.chevron_right,
+                                  color: AppColors.chevronGreyColor,
                                 ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: AppColors.borderColor,
-                                  width: 1,
+                              onTextFieldTap: () {
+                                commonBottomSheetWithBGBlur(
+                                  context: context,
+                                  screen: const KavachBillingAddressListScreen(),
+                                );
+                              },
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      15.height,
+                      //Shipping Address
+                      BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
+                        builder: (context, state) {
+                          if (state is KavachCheckoutShippingAddressSelected) {
+                            final address = state.selectedAddress;
+                            return Column(
+                              children: [
+                                Visibility(
+                                  visible: shippingSameAsBilling,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        context.appText.shippingAddress,
+                                        style: AppTextStyle.textFiled,
+                                      ).paddingLeft(3),
+                                      Text(
+                                        " *",
+                                        style: AppTextStyle.textFiled.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                borderRadius: BorderRadius.circular(
-                                  commonTexFieldRadius,
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: addressWidget(
+                                    address: address,
+                                    onChangeTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen:
+                                        const KavachShippingAddressListScreen(),
+                                      );
+                                    },
+                                    title: context.appText.shippingAddress,
+                                  ),
                                 ),
-                              ),
-                            ),
-                            onTextFieldTap: () {
-                              commonBottomSheetWithBGBlur(
-                                context: context,
-                                screen: const KavachBillingAddressListScreen(),
-                              );
-                            },
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    15.height,
-                    //Shipping Address
-                    BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
-                      builder: (context, state) {
-                        if (state is KavachCheckoutShippingAddressSelected) {
-                          final address = state.selectedAddress;
-                          return Column(
-                            children: [
-                              Visibility(
-                                visible: shippingSameAsBilling,
-                                child: Row(
+                                5.height,
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          }
+
+                          if (state is KavachCheckoutShippingAddressEmpty) {
+                            return Column(
+                              children: [
+                                Row(
                                   children: [
                                     Text(
                                       context.appText.shippingAddress,
@@ -285,93 +347,52 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                              5.height,
-                              Visibility(
-                                visible: shippingSameAsBilling == false,
-                                child: addressWidget(
-                                  address: address,
-                                  onChangeTap: () {
-                                    commonBottomSheetWithBGBlur(
-                                      context: context,
-                                      screen:
-                                      const KavachShippingAddressListScreen(),
-                                    );
-                                  },
-                                  title: context.appText.shippingAddress,
-                                ),
-                              ),
-                              5.height,
-                              checkBoxSameAsShipping(),
-                            ],
-                          );
-                        }
-
-                        if (state is KavachCheckoutShippingAddressEmpty) {
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    context.appText.shippingAddress,
-                                    style: AppTextStyle.textFiled,
-                                  ).paddingLeft(3),
-                                  Text(
-                                    " *",
-                                    style: AppTextStyle.textFiled.copyWith(
-                                      color: Colors.red,
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.chevronGreyColor,
+                                      ),
                                     ),
+                                    onTextFieldTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen:
+                                        const KavachShippingAddressListScreen(),
+                                      );
+                                    },
+                                    // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
                                   ),
-                                ],
-                              ),
-                              5.height,
-                              Visibility(
-                                visible: shippingSameAsBilling == false,
-                                child: AppTextField(
-                                  readOnly: true,
-                                  autofocus: false,
-                                  decoration: InputDecoration(
-                                    suffixIcon: Icon(
-                                      Icons.chevron_right,
-                                      color: AppColors.chevronGreyColor,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: AppColors.borderColor,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        commonTexFieldRadius,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: AppColors.borderColor,
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                        commonTexFieldRadius,
-                                      ),
-                                    ),
-                                  ),
-                                  onTextFieldTap: () {
-                                    commonBottomSheetWithBGBlur(
-                                      context: context,
-                                      screen:
-                                      const KavachShippingAddressListScreen(),
-                                    );
-                                  },
-                                  // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
                                 ),
-                              ),
-                              checkBoxSameAsShipping(),
-                            ],
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      10.height,
+                      AppTextField(
+                        controller: shippingPersonInChargeController,
+                        decoration: kavachInputDecoration(hintText: context.appText.personInCharge,isMandatoryMark: true),
+                        validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.personInCharge),
+                      ),
+                      10.height,
+                      AppTextField(
+                        controller: shippingPersonContactNoController,
+                        decoration: kavachInputDecoration(hintText: context.appText.contactNo,isMandatoryMark: true),
+                        maxLength: 10,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        validator: (value) => Validator.phone(value),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               40.height,
@@ -421,6 +442,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       setState(() {
                         _quantities.remove(product.id);
                         _products.removeWhere((p) => p.id == product.id);
+                        syncVehicleControllersWithProducts();
                         loadVehicleSelection();
                       });
                     }
@@ -450,29 +472,29 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           screen: const KavachAddedVehiclesScreen(),
                           barrierDismissible: true
                         );
+                    // if (selectedVehicle != null) {
+                    //   setState(() {
+                    //     vehicleControllers[index].text = selectedVehicle;
+                    //   });
+                    // }
                     if (selectedVehicle != null) {
-                      setState(() {
-                        vehicleControllers[index].text = selectedVehicle;
-                      });
+                      final isAlreadySelected = isVehicleAlreadySelected(selectedVehicle);
+                      if (isAlreadySelected &&
+                          vehicleControllers[index].text.trim() != selectedVehicle) {
+                        ToastMessages.alert(
+                          message: 'Vehicle already selected',
+                        );
+                        return;
+                      } else {
+                        setState(() {
+                          vehicleControllers[index].text = selectedVehicle;
+                        });
+                      }
                     }
                   },
                   readOnly: true,
-                  decoration: InputDecoration(
+                  decoration: kavachInputDecoration(
                     hintText: context.appText.selectVehicleRegNum,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: AppColors.borderColor,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(commonTexFieldRadius),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: AppColors.borderColor,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(commonTexFieldRadius),
-                    ),
                     suffixIcon: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -517,6 +539,8 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             }
           }
         });
+
+        if (!formKeyCheckout.currentState!.validate()) return;
 
         // Validate products in cart
         if (_products.isEmpty || _quantities.isEmpty) {
@@ -584,6 +608,15 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 shippingAddress: shippingState.selectedAddress,
                 billingAddress: billingState.selectedAddress,
                 selectedVehicleNumbers: selectedVehicles,
+                shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+                shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                orderReferencedBy: referralCodeController.text.trim(),
+                selectedVehiclePerProduct: vehicleControllersPerProduct.map(
+                      (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
+                  ),
+                ),
               ),
             ),
           );
@@ -625,6 +658,47 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     );
   }
 
+  InputDecoration kavachInputDecoration({Widget? suffixIcon, String? hintText,bool? isMandatoryMark}){
+    return InputDecoration(
+      hint: Row(
+        children: [
+          Text(hintText??'', style: AppTextStyle.textFieldHint),
+          if(isMandatoryMark??false)Text(" *", style:AppTextStyle.textFiled.copyWith(color: Colors.red)),
+        ],
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          color: AppColors.borderColor,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(commonTexFieldRadius),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          color: AppColors.borderColor,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(commonTexFieldRadius),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          color: Colors.red,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(commonTexFieldRadius),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(
+          color: Colors.red,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(commonTexFieldRadius),
+      ),
+      suffixIcon: suffixIcon,
+      counterText: ''
+    );
+  }
+
   Widget addressWidget({
     required address,
     required Function() onChangeTap,
@@ -655,7 +729,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      address.customerName,
+                      address.addressName,
                       style: AppTextStyle.blackColor14w400,
                     ),
                   ),
@@ -682,4 +756,5 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       ],
     );
   }
+
 }

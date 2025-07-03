@@ -114,8 +114,10 @@ class ApiUrls {
   static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
   static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
   static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
-  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit";
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
+  static final String  lpLoadAgree="$_baseUrl$_load$_path$_v1$_load/lp-agree";
+  static final String  lpLoadVerifyAdvance="$_baseUrl$_load$_path$_v1$_load/verify-advance";
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
@@ -149,15 +151,15 @@ class ApiUrls {
   static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
   static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
 
-  /// En-Dhan 
+  /// En-Dhan
   //static final String enDhanKycUpload = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static final String enDhanKycUpload = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
  // static final String enDhanKycCheck = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static final String enDhanKycCheck = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
-  
+
   // En-Dhan Card APIs
   static final String enDhanCards = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/card";
-  
+
   // En-Dhan Customer Creation and Master Data APIs
   static final String enDhanCreateCustomer = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/createCustomer";
   static final String enDhanStates = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/state";
@@ -165,7 +167,10 @@ class ApiUrls {
   static final String enDhanZonal = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/zonal";
   static final String enDhanRegional = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/regional/";
   static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
-  
+
   // Document Upload API
   static final String documentUpload = "https://gro-uatapi.letsgro.co/customer/api/v1/upload";
+
+  /// Google Map
+  static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
 }

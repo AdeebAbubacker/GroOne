@@ -31,9 +31,8 @@ import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 
 class LpLoadsScreen extends StatefulWidget {
-  final int initialTabIndex;
 
-  const LpLoadsScreen({super.key, this.initialTabIndex = 1});
+  const LpLoadsScreen({super.key});
 
   @override
   State<LpLoadsScreen> createState() => _LpLoadsScreenState();
@@ -50,6 +49,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
+  final ScrollController _tabScrollController = ScrollController();
+  final ScrollController _listController = ScrollController();
+  int page = 1;
+  late LpLoadPaginationController paginationController;
 
   TabController? _tabController;
   final tabLabels = [
@@ -76,42 +79,76 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void initFunction() => frameCallback(() {
+    lpLoadLocator.updateSelectedTabIndex(0);
+    paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
       length: 8,
       vsync: this,
-      initialIndex: widget.initialTabIndex,
-    );
+      initialIndex: lpLoadLocator.state.selectedTabIndex,
+    )..addListener(_handleTabChange);
 
-    _tabController!.addListener(() {
-      if (_tabController!.indexIsChanging) {
-        final selectedType = _tabController!.index;
+    WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
 
-        lpLoadLocator.updateSelectedTabIndex(selectedType);
-        if(selectedType == 0) {
-          lpLoadLocator.state.lpLoadResponse?.data = null;
-          // setState(() {});
-        }
-        else if (selectedType == 3) {
-          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 2));
-
-        } else {
-          lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus:  selectedType + 1));
-
-        }
-      }
-    });
-    lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: widget.initialTabIndex+1));
-
+    lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
+
     setState(() {});
   });
+
+  void _handleTabChange() {
+    if (!_tabController!.indexIsChanging) return;
+
+    paginationController.reset();
+
+    final selectedType = _tabController!.index;
+    lpLoadLocator.updateSelectedTabIndex(selectedType);
+
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+
+    lpLoadLocator.getLpLoadsByType(
+      loadListApiRequest: LoadListApiRequest(
+          loadStatus: loadStatus, page: paginationController.currentPage),
+    );
+
+    _scrollToSelectedTab(selectedType);
+  }
+
+  void fetchNextPage() async {
+    paginationController.isFetchingMore = true;
+
+    final selectedType = _tabController!.index;
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+
+    await lpLoadLocator.getLpLoadsByType(
+      loadListApiRequest: LoadListApiRequest(
+        loadStatus: loadStatus,
+        page: paginationController.currentPage + 1,
+      ),
+      isNextPage: true
+    );
+
+    // Update pagination state from API response
+    final pageMeta = lpLoadLocator.state.lpLoadResponse?.data?.data?.pageMeta;
+    if (pageMeta != null) {
+      paginationController.updatePageMeta(pageMeta);
+    }
+
+    paginationController.isFetchingMore = false;
+  }
+
+
+  void _scrollToSelectedTab(int index) {
+    final double offset = index == 0 ? 50 :  (100 * index) - 15;
+    _tabScrollController.animateTo(offset, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+  }
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final type = _tabController!.index + 1;
-      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: type, search: query));
+      final selectedType = _tabController!.index;
+      final loadStatus = selectedType == 0 ? null : selectedType + 1;
+      lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: loadStatus, search: query));
     });
   }
 
@@ -282,28 +319,32 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
-          return TabBar(
-            controller: _tabController!,
-            isScrollable: true,
-            physics: ClampingScrollPhysics(),  // tighter scroll behavior
-            indicator: const BoxDecoration(),
-            dividerHeight: 0,
-            tabs: List.generate(8, (index) {
-              final isSelected = state.selectedTabIndex == index;
-              return Tab(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: commonContainerDecoration(
-                    color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-                    borderRadius: BorderRadius.circular(20),
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: _tabScrollController,
+            child: TabBar(
+              controller: _tabController!,
+              isScrollable: true,
+              physics: ClampingScrollPhysics(),  // tighter scroll behavior
+              indicator: const BoxDecoration(),
+              dividerHeight: 0,
+              tabs: List.generate(8, (index) {
+                final isSelected = state.selectedTabIndex == index;
+                return Tab(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: commonContainerDecoration(
+                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      tabLabels[index],
+                      style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
+                    ),
                   ),
-                  child: Text(
-                    tabLabels[index],
-                    style: AppTextStyle.body3.copyWith(color: isSelected ? AppColors.white : AppColors.black),
-                  ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           );
         }
       ),
@@ -342,31 +383,42 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
-        final loadList = uiState.data ?? [];
+        final loadList = uiState.data?.data?.data ?? [];
 
         if (loadList.isEmpty) {
           return const Center(child: Text("No loads found."));
         }
 
-        return ListView.builder(
-          padding: EdgeInsets.all(commonSafeAreaPadding),
-          shrinkWrap: true,
-          itemCount: loadList.length,
-          itemBuilder: (context, index) {
-            final loadItem = loadList[index];
-            return GestureDetector(
-              onTap: () {
-                lpLoadLocator.getLpLoadsById(loadId: loadItem.id);
-                Navigator.push(
-                  context,
-                  commonRoute(
-                    LpLoadsLocationDetailsScreen(lpLoadLocator: lpLoadLocator, loadData: loadItem),
-                  ),
-                );
-              },
-              child: LPLoadListBodyWidget(loadItem: loadItem,lpLoadLocator: lpLoadLocator).paddingSymmetric(vertical: 7),
-            );
+        return NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (!paginationController.isFetchingMore &&
+                paginationController.hasMorePages &&
+                scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent) {
+              fetchNextPage();
+            }
+            return false;
           },
+          child: ListView.builder(
+            controller: _listController,
+            padding: EdgeInsets.all(commonSafeAreaPadding),
+            physics: AlwaysScrollableScrollPhysics(),
+            itemCount: loadList.length + (paginationController.isFetchingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index < loadList.length) {
+                final loadItem = loadList[index];
+                return LPLoadListBodyWidget(
+                  loadItem: loadItem,
+                  lpLoadLocator: lpLoadLocator,
+                ).paddingSymmetric(vertical: 7);
+              } else {
+                // loader for bottom pagination
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+            },
+          ),
         );
       },
     ).expand();

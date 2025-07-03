@@ -24,7 +24,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
       title: context.appText.billingAddress,
       hideDivider: false,
       body: SizedBox(
-          height: 500,
+          height: MediaQuery.of(context).size.height * 0.5,
           child: _buildBody(context: context)),
     );
   }
@@ -131,7 +131,7 @@ class AddressListItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(address.customerName, style: AppTextStyle.textDarkGreyColor14w500),
+                  Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
                   Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
                 ],
               ),

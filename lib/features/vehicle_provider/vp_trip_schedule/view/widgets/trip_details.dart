@@ -29,9 +29,15 @@ class TripDetails extends StatelessWidget {
   }
 
   Widget _tripDetailsWidget(BuildContext context) {
+
+
     return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
       builder: (context, state)  {
         LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
+
+        String amount=(loadDetails?.vpMaxRate??"").isNotEmpty && (loadDetails?.vpMaxRate??"").trim()!="0" ?
+        "$indianCurrencySymbol${loadDetails?.vpRate} - $indianCurrencySymbol${loadDetails?.vpMaxRate}":
+        "$indianCurrencySymbol${(loadDetails?.vpRate??"").isNotEmpty ? loadDetails?.vpRate : "0000 - 0000"}";
 
         return Container(
           decoration: BoxDecoration(
@@ -73,14 +79,18 @@ class TripDetails extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    Expanded(child: Text("${loadDetails?.pickUpLocation} ",maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                                    Expanded(child: Icon(Icons.arrow_forward, size: 12)),
-                                    Expanded(child: Text("${loadDetails?.dropLocation}",maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                                  ],
-                                ).expand(),
-
+                                Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      width: 2,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  ),
+                                  child: SvgPicture.asset(AppImage.svg.support),
+                                ),
 
                               ],
                             ),
@@ -91,8 +101,10 @@ class TripDetails extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    // TODO:
+                                    // put company name
                                     Text(
-                                      "Bloom Cosmetic Pvt Ltd",
+                                      "${loadDetails?.customer?.customerDetails?.companyName}",
                                       style: AppTextStyle.h5w500.copyWith(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w400,
@@ -107,20 +119,21 @@ class TripDetails extends StatelessWidget {
                                         color: AppColors.primaryColor,
                                       ),
                                     ),
+                                    5.height,
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.70,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text("${loadDetails?.pickUpLocation?.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          Icon(Icons.arrow_forward, size: 12),
+                                          Text("${loadDetails?.dropLocation?.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      width: 2,
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                  child: SvgPicture.asset(AppImage.svg.support),
-                                ),
+
                               ],
                             ),
 
@@ -130,7 +143,7 @@ class TripDetails extends StatelessWidget {
                     ),
                   ),
                 ],
-              ).paddingSymmetric(horizontal: 15, vertical: 20),
+              ).paddingSymmetric(horizontal: 15, vertical: 10),
                 Divider(
                   indent: 30,
                   endIndent: 30,
@@ -178,7 +191,7 @@ class TripDetails extends StatelessWidget {
                   spacing: 12,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildPriceBreakDownWidget("Accepted Price","${loadDetails?.rate}"),
+                    _buildPriceBreakDownWidget("Accepted Price",amount),
                     // _buildPriceBreakDownWidget("Advance Amount","65,000"),
                     // _buildPriceBreakDownWidget("Balance Amount","8000"),
                   ],
@@ -221,7 +234,7 @@ return Row(
       fontWeight: FontWeight.w200
 
     ),),
-    Text("$indianCurrencySymbol $price",style:  AppTextStyle.h5.copyWith(
+    Text(price,style:  AppTextStyle.h5.copyWith(
         fontSize: 16,
         color: AppColors.primaryColor,
         fontWeight: FontWeight.w200

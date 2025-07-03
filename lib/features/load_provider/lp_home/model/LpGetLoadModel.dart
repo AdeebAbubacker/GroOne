@@ -62,6 +62,7 @@ class LoadData {
     required this.dropWholeAddr,
     required this.handlingCharges,
     required this.acceptedBy,
+    required this.matchingStartDate,
     required this.agreedPrice,
     required this.acceptedVehicleId,
     required this.createdAt,
@@ -100,6 +101,7 @@ class LoadData {
   final String dropWholeAddr;
   final num handlingCharges;
   final num acceptedBy;
+  final DateTime? matchingStartDate;
   final num agreedPrice;
   final num acceptedVehicleId;
   final DateTime? createdAt;
@@ -138,6 +140,7 @@ class LoadData {
     String? dropWholeAddr,
     num? handlingCharges,
     num? acceptedBy,
+    DateTime? matchingStartDate,
     num? agreedPrice,
     num? acceptedVehicleId,
     DateTime? createdAt,
@@ -176,6 +179,7 @@ class LoadData {
       dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
       handlingCharges: handlingCharges ?? this.handlingCharges,
       acceptedBy: acceptedBy ?? this.acceptedBy,
+      matchingStartDate: matchingStartDate ?? this.matchingStartDate,
       agreedPrice: agreedPrice ?? this.agreedPrice,
       acceptedVehicleId: acceptedVehicleId ?? this.acceptedVehicleId,
       createdAt: createdAt ?? this.createdAt,
@@ -217,6 +221,7 @@ class LoadData {
       dropWholeAddr: json["dropWholeAddr"] ?? "",
       handlingCharges: json["handlingCharges"] ?? 0,
       acceptedBy: json["acceptedBy"] ?? 0,
+      matchingStartDate: DateTime.tryParse(json["matchingStartDate"] ?? ""),
       agreedPrice: json["agreedPrice"] ?? 0,
       acceptedVehicleId: json["acceptedVehicleId"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
@@ -234,21 +239,25 @@ class Customer {
     required this.id,
     required this.customerName,
     required this.createdAt,
+    required this.kycPendingDate,
   });
 
   final int id;
   final String customerName;
   final DateTime? createdAt;
+  final DateTime? kycPendingDate;
 
   Customer copyWith({
     int? id,
     String? customerName,
     DateTime? createdAt,
+    DateTime? kycPendingDate,
   }) {
     return Customer(
       id: id ?? this.id,
       customerName: customerName ?? this.customerName,
       createdAt: createdAt ?? this.createdAt,
+      kycPendingDate: kycPendingDate ?? this.kycPendingDate,
     );
   }
 
@@ -257,6 +266,7 @@ class Customer {
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      kycPendingDate: DateTime.tryParse(json["kycPendingDate"] ?? ""),
     );
   }
 
