@@ -20,7 +20,9 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_route.dart';
 import '../../../utils/common_widgets.dart';
+import '../../kavach/view/kavach_support_screen.dart';
 
 class EndhanCreateCardInfoScreen extends StatelessWidget {
   const EndhanCreateCardInfoScreen({super.key});
@@ -680,7 +682,9 @@ class _EndhanCreateCardInfoContentState
                         backgroundColor: Color(0xFFD6EEFB),
                         actions: [
                           AppIconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(context,commonRoute(KavachSupportScreen()));
+                            },
                             icon: AppIcons.svg.filledSupport,
                             iconColor: AppColors.primaryColor,
                           ),
