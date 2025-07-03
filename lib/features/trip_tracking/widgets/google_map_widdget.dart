@@ -143,7 +143,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
 
 
-    // await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 300));
 
 
     googleMapController?.animateCamera(

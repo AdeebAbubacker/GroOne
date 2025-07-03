@@ -32,6 +32,7 @@ class AdvancePaymentDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.watch<LpLoadCubit>();
     final selectedAdvance = cubit.state.selectedAdvance;
+    Size screenSize = MediaQuery.of(context).size;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -49,7 +50,7 @@ class AdvancePaymentDialog extends StatelessWidget {
             return GestureDetector(
               onTap: () => cubit.selectAdvance(advanceItem),
               child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: screenSize.width * 0.05, vertical: 5),
                   decoration: commonContainerDecoration(
                     color: isSelected ? AppColors.primaryColor : Colors.white,
                     borderColor:  AppColors.primaryColor,

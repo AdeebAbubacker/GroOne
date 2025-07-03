@@ -47,13 +47,14 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
         20.height,
 
 
-        if(widget.heading != null)...[
-          Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: AppTextStyle.h3.copyWith(color: AppColors.activeDarkGreenColor, fontSize: 25)),
-          10.height,
+        if(widget.message != null)...[
+          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.greenColor20w700),
+          20.height,
         ],
 
-        if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
+
+        if(widget.heading != null)...[
+          Text(widget.heading!, textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
           20.height,
         ],
 
