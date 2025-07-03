@@ -40,10 +40,10 @@ class MyLoadsListBody extends StatefulWidget {
 class _MyLoadsListBodyState extends State<MyLoadsListBody> {
   @override
   Widget build(BuildContext context) {
-
     String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
     "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
@@ -76,7 +76,13 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+
+                if(widget.data.assignStatus==3)
                 Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                if(widget.data.assignStatus==4)
+                  Text('Assigned', style: AppTextStyle.bodyPurpleColor.copyWith(
+                    color: AppColors.activeDarkGreenColor
+                  ))
               ],
             ),
           ),
