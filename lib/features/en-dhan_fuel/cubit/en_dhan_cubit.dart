@@ -41,6 +41,9 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     print('  State: ${state.runtimeType}');
     print('  KYC Check State: ${state.kycCheckState?.status}');
     print('  Cards State: ${state.cardsState?.status}');
+    print('  Vehicle Types Count: ${state.vehicleTypes.length}');
+    print('  Vehicle Types: ${state.vehicleTypes}');
+    print('  Vehicle Types State: ${state.vehicleTypesState?.status}');
   }
 
   // ==================== KYC Check ====================
@@ -232,7 +235,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     print('📥 Repository result type: ${result.runtimeType}');
 
     if (result is Success<api_models.EnDhanCardListModel>) {
-      
       _setCardsUIState(UIState.success(result.value));
     } else if (result is Error<api_models.EnDhanCardListModel>) {
       print('❌ Cards fetch failed: ${result.type}');
@@ -559,21 +561,38 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Fetch vehicle types
   Future<void> fetchVehicleTypes() async {
+    print('🔍 EnDhanCubit.fetchVehicleTypes called');
     if (_isClosed) return;
 
     _setVehicleTypesUIState(UIState.loading());
 
     try {
       final result = await _repository.fetchVehicleTypes();
+      print('📥 Repository result: ${result.runtimeType}');
 
       if (result is Success<api_models.EnDhanVehicleTypeResponse>) {
         final vehicleTypes = result.value.document;
+        print('✅ Vehicle types fetched: ${vehicleTypes.length} types');
+        print('📋 Vehicle types: $vehicleTypes');
+        print('🔍 Before emit - state.vehicleTypes: ${state.vehicleTypes}');
         emit(state.copyWith(vehicleTypes: vehicleTypes));
+        print('🔄 After emit - state.vehicleTypes: ${state.vehicleTypes}');
+        debugCubitStatus();
         _setVehicleTypesUIState(UIState.success(result.value));
+
+        // Force another emit to ensure UI rebuilds
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (!_isClosed) {
+            print('🔄 Force emit with vehicle types: $vehicleTypes');
+            emit(state.copyWith(vehicleTypes: vehicleTypes));
+          }
+        });
       } else if (result is Error) {
+        print('❌ Vehicle types fetch failed: ${(result as Error).type}');
         _setVehicleTypesUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
+      print('💥 Vehicle types fetch exception: $e');
       _setVehicleTypesUIState(UIState.error(GenericError()));
     }
   }

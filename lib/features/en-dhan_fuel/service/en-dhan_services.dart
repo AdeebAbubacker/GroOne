@@ -276,6 +276,12 @@ class EnDhanService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
+        // Debug the API response
+        print('🔍 Vehicle Types API Response: ${result.value}');
+        print(
+          '🔍 Vehicle Types API Response Type: ${result.value.runtimeType}',
+        );
+
         // Check if the response is successful
         if (result.value['success'] == true) {
           return Success(EnDhanVehicleTypeResponse.fromJson(result.value));
@@ -538,7 +544,9 @@ class EnDhanService {
           print('✅ Successfully parsed card list model');
           print('🔍 Model success: ${cardListModel.success}');
           print('🔍 Model message: ${cardListModel.message}');
-          print('🔍 Model data length: ${cardListModel.data?.document?.length ?? 0}');
+          print(
+            '🔍 Model data length: ${cardListModel.data?.document?.length ?? 0}',
+          );
           CustomLog.debug(this, "Parsed card list model: $cardListModel");
 
           // Check if data contains an error message even though success is true
@@ -565,7 +573,9 @@ class EnDhanService {
           }
 
           // Check if we got any cards
-          if (cardListModel.data == null || cardListModel.data!.document == null || cardListModel.data!.document!.isEmpty) {
+          if (cardListModel.data == null ||
+              cardListModel.data!.document == null ||
+              cardListModel.data!.document!.isEmpty) {
             CustomLog.debug(this, "No cards found in response");
             return Success(cardListModel); // Return empty list, not error
           }
@@ -574,8 +584,11 @@ class EnDhanService {
           //   this,
           //   "Successfully parsed ${cardListModel.data!.length} cards",
           // );
-          
-          CustomLog.debug(this, "Successfully parsed ${cardListModel.data!.document!.length} cards");
+
+          CustomLog.debug(
+            this,
+            "Successfully parsed ${cardListModel.data!.document!.length} cards",
+          );
           return Success(cardListModel);
         } catch (e) {
           CustomLog.error(this, "Error parsing cards response", e);
