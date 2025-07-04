@@ -35,7 +35,3 @@ class LoginInService {
 }
 
 
-// {
-//     "mobile": 9876543210,
-//     "role": 2
-// }
