@@ -49,7 +49,7 @@ class MobileOtpVerificationService {
       }
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
+      return Error(DeserializationError()); 
     }
   }
 }
