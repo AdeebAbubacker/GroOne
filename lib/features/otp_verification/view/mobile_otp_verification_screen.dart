@@ -251,10 +251,7 @@ class _MobileOtpVerificationScreenState
                   AppButton(
                     title: context.appText.verifyCode,
                     isLoading: isLoading,
-                    style:
-                        otpString.length == 4
-                            ? AppButtonStyle.primary
-                            : AppButtonStyle.disableButton,
+                    style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
                     onPressed: () {
                       if (otpString.length == 4) {
                         otpBloc.add(
@@ -273,10 +270,7 @@ class _MobileOtpVerificationScreenState
 
                   // Resend OTP Button
                   AppButton(
-                    style:
-                        _isButtonEnabled
-                            ? AppButtonStyle.outline
-                            : AppButtonStyle.disableOutline,
+                    style: _isButtonEnabled ? AppButtonStyle.outline : AppButtonStyle.disableOutline,
                     isLoading: isLoadingResend,
                     richTextWidget:
                         _isButtonEnabled
@@ -299,9 +293,7 @@ class _MobileOtpVerificationScreenState
                                   ),
                                   TextSpan(
                                     text: context.appText.inText,
-                                    style:
-                                        AppTextStyle
-                                            .buttonDisableColorTextColor,
+                                    style: AppTextStyle.buttonDisableColorTextColor,
                                   ),
                                   TextSpan(
                                     text: '$_start ',
