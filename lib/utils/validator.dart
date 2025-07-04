@@ -129,13 +129,24 @@ class Validator {
       return '$fieldName should contain only letters, numbers, hyphens, and spaces';
     }
 
-    if (value.length != 16) {
-      return '$fieldName must be exactly 16 characters';
+    if (value.length <= 10) {
+      return '$fieldName should be more than 10 characters';
     }
     return null;
   }
 
+  static String? validateVehicleNumber(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
 
+    // Indian vehicle number pattern (no spaces, no hyphens)
+    final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
 
+    if (!regex.hasMatch(value.trim().toUpperCase())) {
+      return '$fieldName is invalid. Example: MH12AB1234';
+    }
+    return null;
+  }
 
 }

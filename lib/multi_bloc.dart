@@ -28,6 +28,7 @@ import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
@@ -74,6 +75,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<ChoosePreferenceCubit>(create: (_) => locator<ChoosePreferenceCubit>()),
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
         BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
+        BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
       ],
       child: child,

@@ -550,22 +550,7 @@ String formatDateTimeKavach(String dateTimeString) {
   return formatted;
 }
 
-Color getKavachOrderStatusColor(String status) {
-  switch (status) {
-    case 'Order Placed':
-      return AppColors.primaryColor;
-    case 'Dispatched':
-      return Colors.orange;
-    case 'Delivered':
-      return AppColors.greenColor;
-    case 'Failed':
-      return AppColors.activeRedColor;
-    case 'Installed':
-      return Colors.teal;
-    default:
-      return AppColors.primaryColor;
-  }
-}
+
 
 /// Common Support Dialog
 void commonSupportDialog(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:gro_one_app/features/kavach/cubit/choose_preference_cubit.dart';
 import 'package:gro_one_app/features/kavach/cubit/choose_preference_state.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_models_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
-import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';

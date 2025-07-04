@@ -286,5 +286,7 @@
   "benefitsOfFuelCardHeading3" : "Easy Reconciliation",
   "benefitsOfFuelCardSubHeading1" : "Enables cashless fuel and toll payments, reducing risk and hassle.",
   "benefitsOfFuelCardSubHeading2" : "Gives real-time visibility of fund usage by each driver or vehicle.",
-  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting."
+  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting.",
+  "success": "Success",
+  "failed": "Failed"
 }

@@ -1,4 +1,4 @@
-import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 
 abstract class KavachProductsListEvent {}
 
@@ -6,7 +6,7 @@ class FetchKavachProducts extends KavachProductsListEvent {
   final String search;
   final int page;
   final bool isLoadMore;
-  final ChoosePreferenceModel? preferences;
+  final KavachChoosePreferenceModel? preferences;
 
   FetchKavachProducts({ this.search = "",this.page = 1, this.isLoadMore = false, this.preferences,});
 }
@@ -14,7 +14,7 @@ class FetchKavachProducts extends KavachProductsListEvent {
 class FetchMastersData extends KavachProductsListEvent {}
 
 class UpdateUserPreferences extends KavachProductsListEvent {
-  final ChoosePreferenceModel preferences;
+  final KavachChoosePreferenceModel preferences;
   
   UpdateUserPreferences(this.preferences);
 }
