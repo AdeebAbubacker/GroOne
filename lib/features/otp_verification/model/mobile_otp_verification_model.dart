@@ -7,12 +7,12 @@ class MobileOtpVerificationModel {
 
     final String message;
     final String token;
-    final User? user;
+    final UserOtpModel? user;
 
     MobileOtpVerificationModel copyWith({
         String? message,
         String? token,
-        User? user,
+        UserOtpModel? user,
     }) {
         return MobileOtpVerificationModel(
             message: message ?? this.message,
@@ -25,7 +25,7 @@ class MobileOtpVerificationModel {
         return MobileOtpVerificationModel(
             message: json["message"] ?? "",
             token: json["token"] ?? "",
-            user: json["user"] == null ? null : User.fromJson(json["user"]),
+            user: json["user"] == null ? null : UserOtpModel.fromJson(json["user"]),
         );
     }
 
@@ -37,8 +37,8 @@ class MobileOtpVerificationModel {
 
 }
 
-class User {
-    User({
+class UserOtpModel {
+    UserOtpModel({
         required this.id,
         required this.mobile,
         required this.role,
@@ -50,13 +50,13 @@ class User {
     final int role;
     final bool tempflg;
 
-    User copyWith({
+    UserOtpModel copyWith({
         String? id,
         String? mobile,
         int? role,
         bool? tempflg,
     }) {
-        return User(
+        return UserOtpModel(
             id: id ?? this.id,
             mobile: mobile ?? this.mobile,
             role: role ?? this.role,
@@ -64,8 +64,8 @@ class User {
         );
     }
 
-    factory User.fromJson(Map<String, dynamic> json){ 
-        return User(
+    factory UserOtpModel.fromJson(Map<String, dynamic> json){ 
+        return UserOtpModel(
             id: json["id"] ?? "",
             mobile: json["mobile"] ?? "",
             role: json["role"] ?? 0,

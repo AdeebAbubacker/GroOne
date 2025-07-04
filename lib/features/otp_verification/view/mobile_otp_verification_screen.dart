@@ -120,7 +120,7 @@ class _MobileOtpVerificationScreenState
           context,
           commonRoute(
             VpCreationFormScreen(
-              id: data!.user!.id.toString(),
+              id: data.user?.id.toString() ?? '',
               mobileNumber: widget.mobileNumber,
             ),
             isForward: true,
@@ -232,8 +232,7 @@ class _MobileOtpVerificationScreenState
                     controller: otpTextController,
                     autofocus: true,
                     length: 4,
-                    keyboardType:
-                        isAndroid ? TextInputType.number : iosNumberKeyboard,
+                    keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     cursor: Text("|", style: TextStyle(fontSize: 20)),
                     onChanged: (pin) {

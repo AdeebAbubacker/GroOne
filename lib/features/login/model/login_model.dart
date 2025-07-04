@@ -5,11 +5,11 @@ class LoginApiResponseModel {
     });
 
     final String message;
-    final User? user;
+    final UserDetailsModel? user;
 
     LoginApiResponseModel copyWith({
         String? message,
-        User? user,
+        UserDetailsModel? user,
     }) {
         return LoginApiResponseModel(
             message: message ?? this.message,
@@ -20,7 +20,7 @@ class LoginApiResponseModel {
     factory LoginApiResponseModel.fromJson(Map<String, dynamic> json){ 
         return LoginApiResponseModel(
             message: json["message"] ?? "",
-            user: json["user"] == null ? null : User.fromJson(json["user"]),
+            user: json["user"] == null ? null : UserDetailsModel.fromJson(json["user"]),
         );
     }
 
@@ -31,8 +31,8 @@ class LoginApiResponseModel {
 
 }
 
-class User {
-    User({
+class UserDetailsModel {
+    UserDetailsModel({
         required this.id,
         required this.mobileNumber,
         required this.roleId,
@@ -46,14 +46,14 @@ class User {
     final int otp;
     final KongToken? kongToken;
 
-    User copyWith({
+    UserDetailsModel copyWith({
         String? id,
         String? mobileNumber,
         int? roleId,
         int? otp,
         KongToken? kongToken,
     }) {
-        return User(
+        return UserDetailsModel(
             id: id ?? this.id,
             mobileNumber: mobileNumber ?? this.mobileNumber,
             roleId: roleId ?? this.roleId,
@@ -62,8 +62,8 @@ class User {
         );
     }
 
-    factory User.fromJson(Map<String, dynamic> json){ 
-        return User(
+    factory UserDetailsModel.fromJson(Map<String, dynamic> json){ 
+        return UserDetailsModel(
             id: json["id"] ?? "",
             mobileNumber: json["mobileNumber"] ?? "",
             roleId: json["roleId"] ?? 0,

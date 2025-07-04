@@ -5,11 +5,11 @@ class MobileOtpResendModel {
     });
 
     final String message;
-    final User? user;
+    final UserOtpSucessModel? user;
 
     MobileOtpResendModel copyWith({
         String? message,
-        User? user,
+        UserOtpSucessModel? user,
     }) {
         return MobileOtpResendModel(
             message: message ?? this.message,
@@ -20,7 +20,7 @@ class MobileOtpResendModel {
     factory MobileOtpResendModel.fromJson(Map<String, dynamic> json){ 
         return MobileOtpResendModel(
             message: json["message"] ?? "",
-            user: json["user"] == null ? null : User.fromJson(json["user"]),
+            user: json["user"] == null ? null : UserOtpSucessModel.fromJson(json["user"]),
         );
     }
 
@@ -31,8 +31,8 @@ class MobileOtpResendModel {
 
 }
 
-class User {
-    User({
+class UserOtpSucessModel {
+    UserOtpSucessModel({
         required this.id,
         required this.mobileNumber,
         required this.roleId,
@@ -44,16 +44,16 @@ class User {
     final String mobileNumber;
     final int roleId;
     final int otp;
-    final KongToken? kongToken;
+    final KongTokenOtpModel? kongToken;
 
-    User copyWith({
+    UserOtpSucessModel copyWith({
         String? id,
         String? mobileNumber,
         int? roleId,
         int? otp,
-        KongToken? kongToken,
+        KongTokenOtpModel? kongToken,
     }) {
-        return User(
+        return UserOtpSucessModel(
             id: id ?? this.id,
             mobileNumber: mobileNumber ?? this.mobileNumber,
             roleId: roleId ?? this.roleId,
@@ -62,13 +62,13 @@ class User {
         );
     }
 
-    factory User.fromJson(Map<String, dynamic> json){ 
-        return User(
+    factory UserOtpSucessModel.fromJson(Map<String, dynamic> json){ 
+        return UserOtpSucessModel(
             id: json["id"] ?? "",
             mobileNumber: json["mobileNumber"] ?? "",
             roleId: json["roleId"] ?? 0,
             otp: json["otp"] ?? 0,
-            kongToken: json["kongToken"] == null ? null : KongToken.fromJson(json["kongToken"]),
+            kongToken: json["kongToken"] == null ? null : KongTokenOtpModel.fromJson(json["kongToken"]),
         );
     }
 
@@ -82,8 +82,8 @@ class User {
 
 }
 
-class KongToken {
-    KongToken({
+class KongTokenOtpModel {
+    KongTokenOtpModel({
         required this.expiresIn,
         required this.tokenType,
         required this.refreshToken,
@@ -95,13 +95,13 @@ class KongToken {
     final String refreshToken;
     final String accessToken;
 
-    KongToken copyWith({
+    KongTokenOtpModel copyWith({
         int? expiresIn,
         String? tokenType,
         String? refreshToken,
         String? accessToken,
     }) {
-        return KongToken(
+        return KongTokenOtpModel(
             expiresIn: expiresIn ?? this.expiresIn,
             tokenType: tokenType ?? this.tokenType,
             refreshToken: refreshToken ?? this.refreshToken,
@@ -109,8 +109,8 @@ class KongToken {
         );
     }
 
-    factory KongToken.fromJson(Map<String, dynamic> json){ 
-        return KongToken(
+    factory KongTokenOtpModel.fromJson(Map<String, dynamic> json){ 
+        return KongTokenOtpModel(
             expiresIn: json["expires_in"] ?? 0,
             tokenType: json["token_type"] ?? "",
             refreshToken: json["refresh_token"] ?? "",
