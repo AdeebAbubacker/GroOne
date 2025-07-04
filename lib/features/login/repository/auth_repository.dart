@@ -23,7 +23,7 @@ class AuthRepository {
   /// Save user data
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
-      final userData = user.data;
+      final userData = user;
       if (userData?.user == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());

@@ -17,13 +17,11 @@ class LoginInService {
     try {
       final result = await _apiService.post(
         ApiUrls.login,
-        body: request,
+        body: {"mobile": request.mobile, "role": request.role},
       );
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => LoginApiResponseModel.fromJson(data),
-        );
+        final data = LoginApiResponseModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -35,3 +33,9 @@ class LoginInService {
     }
   }
 }
+
+
+// {
+//     "mobile": 9876543210,
+//     "role": 2
+// }

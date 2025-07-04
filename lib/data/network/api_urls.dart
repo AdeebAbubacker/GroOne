@@ -49,7 +49,8 @@ class ApiUrls {
   // Base URL
   static String get _baseUrl => _fetchUrl;
 
-  static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth$_customer";
+  static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth";
+
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_load$_path$_v1$_map";
 

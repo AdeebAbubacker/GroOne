@@ -18,8 +18,9 @@ class MobileOtpVerificationService {
     try {
       final result = await _apiService.post(ApiUrls.login, body: request);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => MobileOtpVerificationModel.fromJson(data));
-      } else if (result is Error) {
+      final data = MobileOtpVerificationModel.fromJson(result.value);
+        return Success(data);
+         } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());

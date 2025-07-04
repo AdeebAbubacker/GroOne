@@ -20,7 +20,7 @@ class MobileOtpVerificationRepository {
       if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
           dynamic saveUserResult;
-          if (result.value?.data?.user?.tempflg == false) {
+          if (result.value?.user?.tempflg == false) {
             saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
             if (saveUserResult is Success) {
               return result;
