@@ -79,7 +79,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   Wrap(
                     children: [
                       Text(
-                        widget.data.pickUpWholeAddr??"",
+                        widget.data.pickUpLocation??"",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
@@ -88,7 +88,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                         color: AppColors.primaryColor,
                       ).paddingSymmetric(horizontal: 2),
                       Text(
-                        widget.data.dropWholeAddr??"",
+                        widget.data.dropLocation??"",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
