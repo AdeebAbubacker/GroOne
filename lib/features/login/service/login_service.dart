@@ -17,7 +17,7 @@ class LoginInService {
     try {
       final result = await _apiService.post(
         ApiUrls.login,
-        body: {"mobile": request.mobile, "role": request.role},
+        body: request,
       );
       if (result is Success) {
         final data = LoginApiResponseModel.fromJson(result.value);

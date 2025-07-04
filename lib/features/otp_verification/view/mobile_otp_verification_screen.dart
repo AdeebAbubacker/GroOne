@@ -36,14 +36,20 @@ class MobileOtpVerificationScreen extends StatefulWidget {
   final String mobileNumber;
   final String roleId;
   final String otp;
-  const MobileOtpVerificationScreen({super.key, required this.mobileNumber, required this.otp, required this.roleId});
+  const MobileOtpVerificationScreen({
+    super.key,
+    required this.mobileNumber,
+    required this.otp,
+    required this.roleId,
+  });
 
   @override
-  State<MobileOtpVerificationScreen> createState() => _MobileOtpVerificationScreenState();
+  State<MobileOtpVerificationScreen> createState() =>
+      _MobileOtpVerificationScreenState();
 }
 
-class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScreen> {
-
+class _MobileOtpVerificationScreenState
+    extends State<MobileOtpVerificationScreen> {
   final otpBloc = locator<OtpBloc>();
 
   final otpTextController = TextEditingController();
@@ -89,12 +95,16 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
     });
   }
 
-
   // Home Redirection
-  void homeRedirection(MobileOtpVerificationModel data, BuildContext context, {required tempFlag}) => frameCallback(() {
+  void homeRedirection(
+    MobileOtpVerificationModel data,
+    BuildContext context, {
+    required tempFlag,
+  }) => frameCallback(() {
     if (data?.user?.role == 1) {
       if (tempFlag) {
-        context.push(AppRouteName.lpCreateAccount,
+        context.push(
+          AppRouteName.lpCreateAccount,
           extra: {
             "userId": data!.user!.id.toString(),
             "mobileNumber": widget.mobileNumber,
@@ -106,7 +116,15 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
       }
     } else if (data?.user?.role == 2) {
       if (tempFlag) {
-        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data!.user!.id.toString(), mobileNumber: widget.mobileNumber), isForward: true),
+        Navigator.push(
+          context,
+          commonRoute(
+            VpCreationFormScreen(
+              id: data!.user!.id.toString(),
+              mobileNumber: widget.mobileNumber,
+            ),
+            isForward: true,
+          ),
         );
       } else {
         loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
@@ -114,9 +132,8 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
     }
   });
 
-
   // Login Success Popup
-  void loginSuccessDialog(BuildContext context, String routeName){
+  void loginSuccessDialog(BuildContext context, String routeName) {
     AppDialog.show(
       context,
       child: SuccessDialogView(
@@ -141,16 +158,26 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
           }
           if (state is OtpSuccess) {
             if (state.otpResponse!.user!.tempflg) {
-              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse!.user!.tempflg);
+              homeRedirection(
+                state.otpResponse,
+                context,
+                tempFlag: state.otpResponse!.user!.tempflg,
+              );
             } else {
               if (!context.mounted) return;
-              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse!.user!.tempflg);
+              homeRedirection(
+                state.otpResponse,
+                context,
+                tempFlag: state.otpResponse!.user!.tempflg,
+              );
             }
           }
           if (state is OtpError) {
             otpTextController.clear();
             otpString = "";
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
           }
         },
         builder: (context, state) {
@@ -174,7 +201,8 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
 
                       Text(
                         maskPhoneNumber(widget.mobileNumber),
-                        style: AppTextStyle.primaryColor18w400UnderLine.copyWith(decoration: TextDecoration.none),
+                        style: AppTextStyle.primaryColor18w400UnderLine
+                            .copyWith(decoration: TextDecoration.none),
                       ),
                     ],
                   ),
@@ -204,7 +232,8 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                     controller: otpTextController,
                     autofocus: true,
                     length: 4,
-                    keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+                    keyboardType:
+                        isAndroid ? TextInputType.number : iosNumberKeyboard,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     cursor: Text("|", style: TextStyle(fontSize: 20)),
                     onChanged: (pin) {
@@ -222,7 +251,10 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                   AppButton(
                     title: context.appText.verifyCode,
                     isLoading: isLoading,
-                    style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+                    style:
+                        otpString.length == 4
+                            ? AppButtonStyle.primary
+                            : AppButtonStyle.disableButton,
                     onPressed: () {
                       if (otpString.length == 4) {
                         otpBloc.add(
@@ -241,7 +273,10 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
 
                   // Resend OTP Button
                   AppButton(
-                    style: _isButtonEnabled ?  AppButtonStyle.outline : AppButtonStyle.disableOutline,
+                    style:
+                        _isButtonEnabled
+                            ? AppButtonStyle.outline
+                            : AppButtonStyle.disableOutline,
                     isLoading: isLoadingResend,
                     richTextWidget:
                         _isButtonEnabled
@@ -255,19 +290,30 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                                 children: [
                                   TextSpan(
                                     text: context.appText.resend,
-                                    style: _isButtonEnabled ? AppTextStyle.buttonPrimaryColorTextColor : AppTextStyle.buttonDisableColorTextColor,
+                                    style:
+                                        _isButtonEnabled
+                                            ? AppTextStyle
+                                                .buttonPrimaryColorTextColor
+                                            : AppTextStyle
+                                                .buttonDisableColorTextColor,
                                   ),
                                   TextSpan(
                                     text: context.appText.inText,
-                                    style: AppTextStyle.buttonDisableColorTextColor,
+                                    style:
+                                        AppTextStyle
+                                            .buttonDisableColorTextColor,
                                   ),
                                   TextSpan(
                                     text: '$_start ',
-                                    style: AppTextStyle.button.copyWith(color: AppColors.activeGreenColor),
+                                    style: AppTextStyle.button.copyWith(
+                                      color: AppColors.activeGreenColor,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: context.appText.second,
-                                    style: AppTextStyle.buttonDisableColorTextColor,
+                                    style:
+                                        AppTextStyle
+                                            .buttonDisableColorTextColor,
                                   ),
                                 ],
                               ),
@@ -275,8 +321,8 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                     onPressed: () {
                       if (_isButtonEnabled) {
                         final apiRequest = LoginApiRequest(
-                            mobile: 5,
-                            role: int.parse(widget.roleId)
+                          mobile: int.parse(widget.mobileNumber),
+                          role: int.parse(widget.roleId),
                         );
                         otpBloc.add(OtpResendRequested(apiRequest: apiRequest));
                         startTimer();
@@ -300,7 +346,11 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
   Widget buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(AppImage.png.signUpBanner, width: double.infinity, fit: BoxFit.fitWidth),
+      child: Image.asset(
+        AppImage.png.signUpBanner,
+        width: double.infinity,
+        fit: BoxFit.fitWidth,
+      ),
     ).expand();
   }
 }
