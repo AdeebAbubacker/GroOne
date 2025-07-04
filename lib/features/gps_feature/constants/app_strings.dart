@@ -1,0 +1,30 @@
+class AppStrings {
+  static const String gpsHome = 'GPS';
+  static const String notification = 'Notification';
+  static const String dashboard = 'Dashboard';
+  static const String geofence = 'Geofence';
+  static const String foi = 'FOI';
+  static const String immobilise = 'Immobilise';
+  static const String vehicleShareUpdate = 'Vehicle Share & Update';
+  static const String subscription = 'Subscription';
+  static const String faq = 'FAQ';
+  static const String settings = 'Settings';
+  static const String reports = 'Reports';
+  static const String orders = 'Orders';
+  static const String trackMyVehicles = 'Track My Vehicles';
+  static const String buyNewGps = 'Buy New GPS';
+  static const String expiryAlert = 'Expiry Alert';
+  static const String devicesExpiringSoon = 'Devices is Expiring Soon';
+  static const String renewPlan = 'Renew Plan';
+  static const String getVehicle = 'Get Vehicle';
+  static const String totalVehicle = 'Total Vehicle';
+  static const String vehicleActive = 'Vehicle Active';
+  static const String vehicleInactive = 'Vehicle Inactive';
+  static const String idle = 'idle';
+  static const String ignitionOn = 'ignition on';
+  static const String ignitionOff = 'ignition off';
+  static const String totalDistance = 'Total Distance';
+  static const String kms = 'Kms';
+  static const String todaysDistance = 'Today\'s Distance';
+  static const String yesterdaysDistance = 'Yesterday\'s Distance';
+}
