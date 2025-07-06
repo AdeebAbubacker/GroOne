@@ -44,17 +44,18 @@ class AuthRepository {
   /// Save user data
   Future<Result<bool>> saveUserInfoFromCreateAccount(UserModel user) async {
     try {
-      final userData = user.data;
+      final userData = user;
       if (userData == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
       if(userData.customer != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
+        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.customerId.toString());
         await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
       }
-      if(userData.details != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
+      if(userData != null){
+        await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.customer?.companyTypeId?.toString() ?? '');
+
       }
       CustomLog.debug(this, "Save user from create account saved successfully");
       return const Success(true);

@@ -72,7 +72,7 @@ class ApiUrls {
 
 
   /// VP Endpoints
-  static final String createVpAccount = "$_customerBaseUrl$_vp/";
+  static final String createVpAccount = _customerBaseUrl;
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
   static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle/";
   static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/driver/";
@@ -101,7 +101,7 @@ class ApiUrls {
 
 
   /// LP Endpoints
-  static final String  createLpAccount = "$_customerBaseUrl$_lp/";
+  static final String  createLpAccount = _customerBaseUrl;
   static final String  login = "$_baseUrlWithAuth/login";
   static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";

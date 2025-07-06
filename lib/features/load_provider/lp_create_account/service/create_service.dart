@@ -14,12 +14,13 @@ class LpCreateService {
 
   LpCreateService(this._apiService);
 
-  Future<Result<UserModel?>> lpRegister(CreateRequest request,{required String id}) async {
+  Future<Result<UserModel?>> lpRegister(CreateRequest request) async {
     try {
-      final url = ApiUrls.createLpAccount+id;
-      final result = await _apiService.put(url, body: request.toJson());
+      final url = ApiUrls.createLpAccount;
+      final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> UserModel.fromJson(data));
+        final data = UserModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
