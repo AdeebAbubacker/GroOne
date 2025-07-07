@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart' hide Customer;
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -31,20 +32,17 @@ import 'package:intl/intl.dart';
 import '../bloc/vp_home_bloc/vp_home_bloc.dart';
 
 class TripSchedulingScreen extends StatefulWidget {
-  const TripSchedulingScreen({
-    super.key,
-    required this.data,
-    required this.allProfileDetails,
-  });
-
   final VpLoadsList data;
-  final ProfileDetailsData allProfileDetails;
+  final Customer allProfileDetails;
+  const TripSchedulingScreen({super.key, required this.data, required this.allProfileDetails});
 
   @override
   State<TripSchedulingScreen> createState() => _TripSchedulingScreenState();
 }
 
-class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
+class _TripSchedulingScreenState extends BaseState<TripSchedulingScreen> {
+
+
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final _formKey = GlobalKey<FormState>();
@@ -52,13 +50,15 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
 
   List<VehicleDetail> vehicleDetail = [];
   List<DriverDetails> driverDetails = [];
+
   DateTime? pickedDate;
   DateTime? deliveryDateTime;
 
   String pickupEta = '';
+  String deliveryDate = '';
+
   String? truckType;
   String? driverType;
-  String deliveryDate = '';
 
   @override
   void initState() {
@@ -233,15 +233,14 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                   Row(
                     children: [
                       // Vehicle Provider Profile
-                      commonCacheNetworkImage(
 
-
-                        radius: 100,
-                        height: 40,
-                        width: 40,
-                        path: widget.allProfileDetails.details?.profileImageUrl ?? "",
-                        errorImage: AppImage.png.userProfileError,
-                      ),
+                      // commonCacheNetworkImage(
+                      //   radius: 100,
+                      //   height: 40,
+                      //   width: 40,
+                      //   path: widget.allProfileDetails.details?.profileImageUrl ?? "",
+                      //   errorImage: AppImage.png.userProfileError,
+                      // ),
                       10.width,
 
                       Column(
@@ -251,7 +250,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: widget.allProfileDetails.customer?.customerName ?? "",
+                                  text: widget.allProfileDetails.customerName ?? "",
                                   style: AppTextStyle.h5w500,
                                 ),
                                 TextSpan(
@@ -263,7 +262,7 @@ class _TripSchedulingScreenState extends State<TripSchedulingScreen> {
                           ),
                           3.height,
 
-                          Text('+91 ${widget.allProfileDetails.customer?.mobileNumber}', style: AppTextStyle.body),
+                          Text('+91 ${widget.allProfileDetails.mobileNumber}', style: AppTextStyle.body),
                         ],
                       ).expand(),
                     ],
