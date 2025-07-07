@@ -12,6 +12,7 @@ class AuthRepository {
   AuthRepository(this._securedSharedPref, this._apiService);
 
 
+
   /// Save user data
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
@@ -20,18 +21,18 @@ class AuthRepository {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
-      
+
       // Log token information for debugging
       CustomLog.debug(this, "Saving token from login API - Token: ${userData?.token.isNotEmpty == true ? '${userData!.token.substring(0, 10)}...' : 'empty'}, User ID: ${userData?.user?.id}, Role: ${userData?.user?.role}, TempFlag: ${userData?.user?.tempflg}");
-      
+
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
       await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.user!.role.toString());
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
-      
+
       // Verify token was saved
       String? savedToken = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
       CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
-      
+
       return const Success(true);
     } catch (e) {
       CustomLog.error(this, "Save Resident user info to preferences error", e);
@@ -57,15 +58,13 @@ class AuthRepository {
       if(userData.details != null){
         await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
       }
-      
-    
-      
      return const Success(true);
     } catch (e) {
 
       return Error(GenericError());
     }
   }
+
 
   /// Check if user has valid authentication token
   Future<bool> hasValidToken() async {
@@ -77,6 +76,7 @@ class AuthRepository {
       return false;
     }
   }
+
 
   /// Get user authentication status
   Future<Map<String, dynamic>> getAuthStatus() async {
@@ -101,6 +101,7 @@ class AuthRepository {
       };
     }
   }
+
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {

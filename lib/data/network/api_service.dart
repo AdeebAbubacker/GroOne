@@ -32,16 +32,12 @@ class ApiService {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
-    
-    // Add authentication header if token exists
+
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       CustomLog.debug(this, "Token for request: ${refreshToken != null ? '${refreshToken.substring(0, 10)}...' : 'null'}");
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-        CustomLog.debug(this, "Authorization header added");
-      } else {
-        CustomLog.debug(this, "No token available, request will be made without authentication");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -54,8 +50,6 @@ class ApiService {
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
-
-
     await _cacheManager.clearAll();
   }
 
@@ -270,19 +264,18 @@ class ApiService {
     if (response?.data != null && response?.data is Map<String, dynamic>) {
       final responseData = response?.data as Map<String, dynamic>;
       final message = responseData['message']?.toString().toLowerCase() ?? '';
-      
+
       // Handle authentication errors even if they come with 500 status code
       if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
         await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       }
     }
-    
+
     switch (response?.statusCode) {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        // Clear invalid token and log the issue
         await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
@@ -296,7 +289,7 @@ class ApiService {
         if (response?.data != null && response?.data is Map<String, dynamic>) {
           final responseData = response?.data as Map<String, dynamic>;
           final message = responseData['message']?.toString().toLowerCase() ?? '';
-          
+
           if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
             await _handleUnauthorizedError();
             return Error(UnauthenticatedError.fromApiResponse(response?.data));
@@ -335,7 +328,7 @@ class ApiService {
         if (error.response?.data != null && error.response?.data is Map<String, dynamic>) {
           final responseData = error.response?.data as Map<String, dynamic>;
           final message = responseData['message']?.toString().toLowerCase() ?? '';
-          
+
           if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
             await _handleUnauthorizedError();
             return Error(UnauthenticatedError.fromApiResponse(error.response?.data));
@@ -382,5 +375,6 @@ class ApiService {
       return Error(ResponseStatusFailed());
     }
   }
+
 
 }

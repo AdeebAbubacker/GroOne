@@ -214,6 +214,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     ).paddingAll(commonSafeAreaPadding);
   }
 
+
   Widget buildTab() {
     return BlocBuilder<VpLoadBloc, VpLoadState>(
       bloc: vpLoadBloc,
@@ -229,7 +230,6 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             shrinkWrap: true,
             itemCount: state.loads.length,
             itemBuilder: (context, index) {
-              print("loads ${_tabController.index}");
               if (_tabController.index == 0) {
                 return VpAllLoadAvailableLoadWidget(
                   data: state.loads[index]

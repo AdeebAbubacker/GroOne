@@ -88,7 +88,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        top: false,
         child: BlocBuilder<LpLoadCubit, LpLoadState>(
             builder: (context, state) {
               final uiState = state.lpLoadById;
@@ -128,7 +127,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   /// Location Details
   Widget buildTopLocationWidget(LoadData loadItem) {
     return Positioned(
-      top: 30,
+      top: 15,
       left: 16,
       right: 16,
       child: Container(
@@ -142,7 +141,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Navigator.pop(context);
                 },child: Icon(Icons.arrow_back)),
                 8.width,
-                Text('#${loadItem.loadId}', style: AppTextStyle.body3),
+                Text(loadItem.loadId, style: AppTextStyle.body3),
                 Spacer(),
                 Text(
                   loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(loadItem.createdAt!) : "--",
@@ -175,8 +174,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
                     ),
                   ],
-                ),
-                20.width,
+                ).expand(),
+                // 10.width,
                 Icon(Icons.arrow_forward),
                 20.width,
 
@@ -200,8 +199,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
                     ),
                   ],
-                ),
-                Spacer(),
+                ).expand(),
+                // Spacer(),
 
                 // Load status & matching time
                 Column(
@@ -211,13 +210,13 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       decoration: commonContainerDecoration(
                         color: LpHomeHelper.getLoadStatusColor(loadItem.loadStatusDetails?.loadType ?? ''),
                       ),
-                      width: 100,
+                      // width: 80,
                       child: Text(
                         LpHomeHelper.getLoadTypeDisplayText(loadItem.loadStatusDetails?.loadType ?? ''),
                         style: AppTextStyle.body3.copyWith(
                           color: LpHomeHelper.getLoadStatusTextColor(loadItem.loadStatusDetails?.loadType ?? ''),
                         ),
-                      ).center().paddingAll(4),
+                      ).center().paddingSymmetric(vertical: 4,horizontal: 10),
                     ),
                     4.height,
                     if (loadItem.loadStatus == 1)
