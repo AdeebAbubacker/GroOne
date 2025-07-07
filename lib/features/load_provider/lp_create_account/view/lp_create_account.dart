@@ -347,11 +347,11 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           title: context.appText.continueText,
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () {
-            // if (_formKey.currentState!.validate()) {
-            //   if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
-            //     ToastMessages.alert(message: "Please verify your email");
-            //     return;
-            //   }
+            if (_formKey.currentState!.validate()) {
+              if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
+                ToastMessages.alert(message: "Please verify your email");
+                return;
+              }
               final apiRequest = CreateRequest(
                 customerName: nameTextController.text,
                 mobileNumber: phoneNumberTextController.text,
@@ -362,7 +362,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 roleId: int.parse(widget.roleId)
               );
               lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.userId));
-            // }
+            }
           },
         );
       },
