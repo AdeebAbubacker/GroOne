@@ -450,8 +450,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 return previous != current;
               },
               builder: (context, lpHomeState){
-                if(lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId != null){
-                  companyId  = lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId;
+                if(lpHomeState.profileDetailUIState?.data?.customer?.companyTypeId != null){
+                  companyId  = lpHomeState.profileDetailUIState?.data?.customer?.companyTypeId;
                 }else{
                   companyId = null;
                 }

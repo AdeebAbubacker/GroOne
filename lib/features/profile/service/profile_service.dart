@@ -38,7 +38,7 @@ class ProfileService {
 
           if (saveUserResult is Success) {
             // Blue Membership Logic
-            final customer = data.value.data?.customer;
+            final customer = data.value.customer;
             final newBlueId = customer?.blueId;
             final storedBlueId = await _userInformationRepository.getBlueID();
             debugPrint("Service Blue Id : $newBlueId");
@@ -56,9 +56,9 @@ class ProfileService {
               await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
               await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
             }
-            if(data.value.data?.details != null){
-              await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, data.value.data!.details!.companyTypeId.toString());
-              debugPrint("🎉 Company Type ID saved: ${data.value.data!.details!.companyTypeId}");
+            if(data.value.customer != null && data.value.customer!.companyType != null){
+              await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, data.value.customer!.companyType!.id);
+              debugPrint("🎉 Company Type ID saved: ${data.value.customer!.companyType!.id}");
             }
 
             return Success(data.value);

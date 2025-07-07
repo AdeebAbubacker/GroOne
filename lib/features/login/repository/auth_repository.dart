@@ -38,23 +38,16 @@ class AuthRepository {
   /// Save user data from home
   Future<Result<bool>> saveUserInfoFromHome(ProfileDetailModel user) async {
     try {
-      final userData = user.data;
+      final userData = user.customer;
       if (userData == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
 
       // Save customer details basic user info
-      if(userData.details != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.details!.customerId.toString());
-        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId);
-      }
-
-      if(userData.customer != null){
-        await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
-       // await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.customer.re);\
-      }
-
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.companyTypeId);
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
       //await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
 
       CustomLog.debug(this, "Save user from home saved successfully");
