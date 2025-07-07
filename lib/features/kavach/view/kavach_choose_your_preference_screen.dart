@@ -15,8 +15,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
-import 'package:gro_one_app/utils/widgets/common_app_bar.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../utils/app_application_bar.dart';
 import '../../../utils/common_functions.dart';
 import 'kavach_support_screen.dart';
 

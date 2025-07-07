@@ -149,7 +149,6 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
               fillColor: Color(0xffF8F8F8),
               filled: true,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              margin: EdgeInsets.symmetric(horizontal: 10.0),
               borderColor: AppColors.borderDisableColor,
               borderRadius: const BorderRadius.all(Radius.circular(8.0)),
               onCodeChanged: (String code) {
