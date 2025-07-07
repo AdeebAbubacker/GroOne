@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
@@ -18,7 +19,8 @@ class ProfileService {
   final ApiService _apiService;
   final SecuredSharedPreferences _securedSharedPref;
   final UserInformationRepository _userInformationRepository;
-  ProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository);
+  final AuthRepository _authRepository;
+  ProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
 
   /// Fetch Profile Details
   Future<Result<ProfileDetailModel>> getProfileDetails() async {
@@ -29,29 +31,43 @@ class ProfileService {
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
         // Save Blue Id
         if (data is Success<ProfileDetailModel>) {
-          final customer = data.value.data?.customer;
-          final newBlueId = customer?.blueId;
-          final storedBlueId = await _userInformationRepository.getBlueID();
-          debugPrint("Service Blue Id : $newBlueId");
-          if (newBlueId != null && newBlueId.isNotEmpty) {
-            // Save Blue ID and popup flag if not stored before
-            if (storedBlueId == null || storedBlueId.isEmpty) {
-              debugPrint("🎉 First time Blue ID saved: $newBlueId");
-              await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
-              await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
 
+          // Save user info data
+          dynamic saveUserResult;
+          saveUserResult = await _authRepository.saveUserInfoFromHome(data.value);
+
+          if (saveUserResult is Success) {
+            // Blue Membership Logic
+            final customer = data.value.data?.customer;
+            final newBlueId = customer?.blueId;
+            final storedBlueId = await _userInformationRepository.getBlueID();
+            debugPrint("Service Blue Id : $newBlueId");
+
+            if (newBlueId != null && newBlueId.isNotEmpty) {
+              // Save Blue ID and popup flag if not stored before
+              if (storedBlueId == null || storedBlueId.isEmpty) {
+                debugPrint("🎉 First time Blue ID saved: $newBlueId");
+                await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
+                await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
+              }
+            } else {
+              // Clear Blue ID and popup flag if blueId is null
+              debugPrint("🧹 Blue ID cleared");
+              await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
+              await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
             }
-          } else {
-            // Clear Blue ID and popup flag if blueId is null
-            debugPrint("🧹 Blue ID cleared");
-            await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-            await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
+            if(data.value.data?.details != null){
+              await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, data.value.data!.details!.companyTypeId.toString());
+              debugPrint("🎉 Company Type ID saved: ${data.value.data!.details!.companyTypeId}");
+            }
+
+            return Success(data.value);
           }
-          if(data.value.data?.details != null){
-            await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, data.value.data!.details!.companyTypeId.toString());
-            debugPrint("🎉 Company Type ID saved: ${data.value.data!.details!.companyTypeId}");
+
+          if (saveUserResult is Error) {
+            return Error(saveUserResult.type);
           }
-          return Success(data.value);
+
         }
         if (data is Error) {
           return Error(data.type);

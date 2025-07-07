@@ -80,13 +80,13 @@ class User {
 
   final int id;
   final String mobile;
-  final num role;
+  final int role;
   final bool tempflg;
 
   User copyWith({
     int? id,
     String? mobile,
-    num? role,
+    int? role,
     bool? tempflg,
   }) {
     return User(

@@ -88,7 +88,7 @@ class Customer {
   final num otp;
   final String emailOtp;
   final num otpAttempt;
-  final num roleId;
+  final int roleId;
   final num isKyc;
   final bool tempFlg;
   final num status;
@@ -106,7 +106,7 @@ class Customer {
     num? otp,
     String? emailOtp,
     num? otpAttempt,
-    num? roleId,
+    int? roleId,
     num? isKyc,
     bool? tempFlg,
     num? status,
@@ -213,7 +213,7 @@ class Details {
   final int id;
   final num customerId;
   final String companyName;
-  final num companyTypeId;
+  final int companyTypeId;
   final String pincode;
   final num status;
   final dynamic gstin;
@@ -259,7 +259,7 @@ class Details {
     int? id,
     num? customerId,
     String? companyName,
-    num? companyTypeId,
+    int? companyTypeId,
     String? pincode,
     num? status,
     dynamic? gstin,
