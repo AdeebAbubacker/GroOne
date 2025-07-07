@@ -41,7 +41,7 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   Future<void> fetchCompanyTypeApiCall(VpCompanyTypeEvent event, Emitter<VpCreationState> emit) async {
     emit(VpCompanyTypeLoading());
     Result result = await _lpCreateRepository.getCompanyType();
-    if (result is Success<LpCompanyTypeResponse>) {
+    if (result is Success<VpCompanyTypeResponse>) {
       emit(VpCompanyTypeSuccess(result.value));
     }
     if (result is Error) {

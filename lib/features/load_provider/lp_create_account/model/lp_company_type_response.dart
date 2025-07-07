@@ -1,5 +1,5 @@
-class LpCompanyTypeResponse {
-  LpCompanyTypeResponse({
+class VpCompanyTypeResponse {
+  VpCompanyTypeResponse({
     required this.success,
     required this.message,
     required this.data,
@@ -9,8 +9,8 @@ class LpCompanyTypeResponse {
   final String message;
   final List<CompanyType> data;
 
-  factory LpCompanyTypeResponse.fromJson(Map<String, dynamic> json) {
-    return LpCompanyTypeResponse(
+  factory VpCompanyTypeResponse.fromJson(Map<String, dynamic> json) {
+    return VpCompanyTypeResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
       data:
@@ -47,4 +47,48 @@ class CompanyType {
       deletedAt: json["deletedAt"],
     );
   }
+}
+
+
+class LpCompanyTypeResponse {
+    LpCompanyTypeResponse({
+        required this.id,
+        required this.companyType,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
+    });
+
+    final int? id;
+    final String? companyType;
+    final int? status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+
+    LpCompanyTypeResponse copyWith({
+        int? id,
+        String? companyType,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+    }) {
+        return LpCompanyTypeResponse(
+            id: id ?? this.id,
+            companyType: companyType ?? this.companyType,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory LpCompanyTypeResponse.fromJson(Map<String, dynamic> json){ 
+        return LpCompanyTypeResponse(
+            id: json["id"],
+            companyType: json["companyType"],
+            status: json["status"],
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
+
 }

@@ -101,7 +101,9 @@ class _MobileOtpVerificationScreenState
     BuildContext context, {
     required tempFlag,
   }) => frameCallback(() {
+    print('my tempflag${tempFlag}');
     if (data?.user?.role == 1) {
+
       if (tempFlag) {
         context.push(
           AppRouteName.lpCreateAccount,
