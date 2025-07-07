@@ -9,14 +9,14 @@ class UserModel {
 
     final String message;
     final Customer? customer;
-    final Address? address;
+    final VpAddressModel? address;
     final BankDetails? bankDetails;
     final VpvehiclesDetails? vpvehiclesDetails;
 
     UserModel copyWith({
         String? message,
         Customer? customer,
-        Address? address,
+        VpAddressModel? address,
         BankDetails? bankDetails,
         VpvehiclesDetails? vpvehiclesDetails,
     }) {
@@ -33,7 +33,7 @@ class UserModel {
         return UserModel(
             message: json["message"] ?? "",
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-            address: json["address"] == null ? null : Address.fromJson(json["address"]),
+            address: json["address"] == null ? null : VpAddressModel.fromJson(json["address"]),
             bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
             vpvehiclesDetails: json["vpvehiclesDetails"] == null ? null : VpvehiclesDetails.fromJson(json["vpvehiclesDetails"]),
         );
@@ -41,8 +41,8 @@ class UserModel {
 
 }
 
-class Address {
-    Address({
+class VpAddressModel {
+    VpAddressModel({
         required this.customersAddressId,
         required this.customerId,
         required this.addressName,
@@ -68,7 +68,7 @@ class Address {
     final DateTime? updatedAt;
     final dynamic deletedAt;
 
-    Address copyWith({
+    VpAddressModel copyWith({
         String? customersAddressId,
         String? customerId,
         String? addressName,
@@ -81,7 +81,7 @@ class Address {
         DateTime? updatedAt,
         dynamic? deletedAt,
     }) {
-        return Address(
+        return VpAddressModel(
             customersAddressId: customersAddressId ?? this.customersAddressId,
             customerId: customerId ?? this.customerId,
             addressName: addressName ?? this.addressName,
@@ -96,8 +96,8 @@ class Address {
         );
     }
 
-    factory Address.fromJson(Map<String, dynamic> json){ 
-        return Address(
+    factory VpAddressModel.fromJson(Map<String, dynamic> json){ 
+        return VpAddressModel(
             customersAddressId: json["customers_address_id"] ?? "",
             customerId: json["customer_id"] ?? "",
             addressName: json["addressName"] ?? "",

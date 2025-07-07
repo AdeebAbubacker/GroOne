@@ -392,5 +392,4 @@ class Details {
       deletedAt: json["deletedAt"],
     );
   }
-
 }
