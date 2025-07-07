@@ -12,19 +12,15 @@ class LanguageService {
       final url = ApiUrls.language;
       final response = await _apiService.get(url, forceRefresh: true);
       if (response is Success) {
-        print("language ${response.value.toString()}");
         final data = response.value as List;
         final languages = data.map((e) => LanguageModel.fromJson(e)).toList();
         return Success(languages);
       } else if (response is Error) {
-        print("language ${response.type.toString()}");
         return Error(response.type);
       } else {
-        print("language GenericError");
         return Error(GenericError());
       }
     } catch (e) {
-       print("language ${e.toString()}");
       return Error(DeserializationError());
     }
   }
