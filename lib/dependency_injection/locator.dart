@@ -118,6 +118,7 @@ void initLocator() {
         locator<ApiService>(),
         locator<SecuredSharedPreferences>(),
         locator<UserInformationRepository>(),
+        locator<AuthRepository>(),
       ),
     );
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));

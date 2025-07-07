@@ -13,14 +13,8 @@ class AuthRepository {
   AuthRepository(this._securedSharedPref, this._apiService);
 
 
-  Future saveCompanyTypeId(ProfileDetailModel userData) async {
-    if(userData.data?.details != null){
-      await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.data!.details!.companyTypeId.toString());
-    }
-  }
 
-
-  /// Save user data
+  /// Save user data from login
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
       final userData = user.data;
@@ -29,7 +23,7 @@ class AuthRepository {
         return Error(LoginAttemptError());
       }
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
-      await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.user!.role.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
 
       CustomLog.debug(this, "Save user from login saved successfully");
@@ -39,6 +33,38 @@ class AuthRepository {
       return Error(GenericError());
     }
   }
+
+
+  /// Save user data from home
+  Future<Result<bool>> saveUserInfoFromHome(ProfileDetailModel user) async {
+    try {
+      final userData = user.data;
+      if (userData == null) {
+        CustomLog.error(this, "Save user failed", "User data is null");
+        return Error(LoginAttemptError());
+      }
+
+      // Save customer details basic user info
+      if(userData.details != null){
+        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.details!.customerId.toString());
+        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId);
+      }
+
+      if(userData.customer != null){
+        await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
+       // await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.customer.re);\
+      }
+
+      //await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
+
+      CustomLog.debug(this, "Save user from home saved successfully");
+      return const Success(true);
+    } catch (e) {
+      CustomLog.error(this, "Save Resident user info to preferences error", e);
+      return Error(GenericError());
+    }
+  }
+
 
 
   /// Save user data from create account
@@ -53,20 +79,19 @@ class AuthRepository {
       // Save basic user info
       if(userData.customer != null){
         await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
-        await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
+        await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
       }
       if(userData.details != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
+        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId);
       }
-      
-    
-      
+      //  await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
      return const Success(true);
     } catch (e) {
 
       return Error(GenericError());
     }
   }
+
 
   /// Check if user has valid authentication token
   Future<bool> hasValidToken() async {
@@ -78,6 +103,7 @@ class AuthRepository {
       return false;
     }
   }
+
 
   /// Get user authentication status
   Future<Map<String, dynamic>> getAuthStatus() async {
@@ -102,6 +128,7 @@ class AuthRepository {
       };
     }
   }
+
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {

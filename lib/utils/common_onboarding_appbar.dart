@@ -24,6 +24,7 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
       actions: [
 
         // Language Selection
+        if(showTranslateButton!)
         AppIconButton(
           onPressed: (){
             Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));

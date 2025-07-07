@@ -91,7 +91,7 @@ class Customer {
   final num otp;
   final String emailOtp;
   final num otpAttempt;
-  final num roleId;
+  final int roleId;
   final num isKyc;
   final dynamic kycRejectReason;
   final bool tempFlg;
@@ -112,7 +112,7 @@ class Customer {
     num? otp,
     String? emailOtp,
     num? otpAttempt,
-    num? roleId,
+    int? roleId,
     num? isKyc,
     dynamic? kycRejectReason,
     bool? tempFlg,
@@ -253,7 +253,7 @@ class Details {
   final int id;
   final num customerId;
   final String companyName;
-  final num companyTypeId;
+  final int companyTypeId;
   final String gstin;
   final String gstinDocLink;
   final String aadhar;
@@ -301,7 +301,7 @@ class Details {
     int? id,
     num? customerId,
     String? companyName,
-    num? companyTypeId,
+    int? companyTypeId,
     String? gstin,
     String? gstinDocLink,
     String? aadhar,
