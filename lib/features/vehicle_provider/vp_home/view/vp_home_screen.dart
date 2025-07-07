@@ -159,33 +159,35 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           builder: (context, state) {
             final profileState = state.profileDetailUIState;
 
-            if (profileState == null ||
-                profileState.status != Status.SUCCESS ||
-                profileState.data == null ||
-                profileState.data?.customer == null) {
+            if (profileState == null || profileState.status != Status.SUCCESS ||
+                profileState.data == null || profileState.data?.customer == null) {
               return const SizedBox.shrink();
             }
 
             final customer = profileState.data!.customer!;
-            final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+            final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
+            final companyId = profileState.data?.customer?.companyTypeId;
+
             CustomLog.debug(this, 'is KYC : $kycFlag');
+            CustomLog.debug(this, 'Company Id : $companyId');
 
             if (kycFlag == 3 || kycFlag == 2) {
               return const SizedBox.shrink();
             }
 
-            final companyId = profileState.data?.customer?.companyTypeId;
-            CustomLog.debug(this, 'Company Id : $companyId');
-
-            return kycWidget(
-              onTap: () {
-                if (companyId != null && (companyId == 2 || companyId == 1)) {
-                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                } else {
-                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                }
-              },
-            );
+            if (kycFlag == 1) {
+              return kycWidget(
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
 
           },
         ),
@@ -290,7 +292,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
-          } else {
+          } else if (customer.isKyc == 1) {
             return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
