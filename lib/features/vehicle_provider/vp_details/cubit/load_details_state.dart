@@ -16,12 +16,15 @@ class LoadDetailsState extends Equatable {
   final String? possibleDeliveryDate;
   final String? locationDistance;
 
-
   const LoadDetailsState({
     this.directionApiResponse,
     this.scheduleTripResponse,
     this.locationDistance,
-    this.loadStatus=LoadStatus.matching, this.loadDetailsUIState,this.vpLoadStatus,this.possibleDeliveryDate});
+    this.loadStatus = LoadStatus.matching,
+    this.loadDetailsUIState,
+    this.vpLoadStatus,
+    this.possibleDeliveryDate,
+  });
 
   LoadDetailsState copyWith({
     UIState<VpLoadAcceptModel>? vpLoadStatus,
@@ -31,23 +34,26 @@ class LoadDetailsState extends Equatable {
     UIState<LoadDetailsResponseModel>? loadDetailsUIState,
     UIState<ScheduleTripResponse>? scheduleTripResponse,
     String? possibleDeliveryDate,
-    String? locationDistance
+    String? locationDistance,
   }) {
     return LoadDetailsState(
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
-        locationDistance: locationDistance?? this.locationDistance,
-        scheduleTripResponse:scheduleTripResponse?? this.scheduleTripResponse ,
-        vpLoadStatus: vpLoadStatus ?? this.vpLoadStatus,
-        loadStatus: loadStatus ?? this.loadStatus,
-        loadDetailsUIState: loadDetailsUIState ?? this.loadDetailsUIState,
-        possibleDeliveryDate: possibleDeliveryDate ?? this.possibleDeliveryDate,
-
+      locationDistance: locationDistance ?? this.locationDistance,
+      scheduleTripResponse: scheduleTripResponse ?? this.scheduleTripResponse,
+      vpLoadStatus: vpLoadStatus ?? this.vpLoadStatus,
+      loadStatus: loadStatus ?? this.loadStatus,
+      loadDetailsUIState: loadDetailsUIState ?? this.loadDetailsUIState,
+      possibleDeliveryDate: possibleDeliveryDate ?? this.possibleDeliveryDate,
     );
   }
 
   @override
-  List<Object?> get props => [loadStatus, loadDetailsUIState,vpLoadStatus,possibleDeliveryDate,
+  List<Object?> get props => [
+    loadStatus,
+    loadDetailsUIState,
+    vpLoadStatus,
+    possibleDeliveryDate,
     scheduleTripResponse,
-    directionApiResponse
+    directionApiResponse,
   ];
 }
