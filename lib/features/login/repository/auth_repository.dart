@@ -17,15 +17,10 @@ class AuthRepository {
   /// Save user data from login
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
-      final userData = user.data;
-      if (userData?.user == null) {
-        CustomLog.error(this, "Save user failed", "User data is null");
-        return Error(LoginAttemptError());
-      }
-      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
+      final userData = user;
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.user!.id.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
-
       CustomLog.debug(this, "Save user from login saved successfully");
       return const Success(true);
     } catch (e) {
