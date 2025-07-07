@@ -168,7 +168,7 @@ class EnDhanCustomerCreationApiRequest {
 /// Card Detail Request
 class EnDhanCardDetailRequest {
   final String vechileNo;
-  final String mobileNo;
+  final String? mobileNo;
   final String vehicleType;
   final String vinNumber;
   final String rcDocument;
@@ -176,7 +176,7 @@ class EnDhanCardDetailRequest {
 
   const EnDhanCardDetailRequest({
     required this.vechileNo,
-    required this.mobileNo,
+    this.mobileNo,
     required this.vehicleType,
     required this.vinNumber,
     required this.rcDocument,
@@ -184,14 +184,20 @@ class EnDhanCardDetailRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final data = <String, dynamic>{
       'VechileNo': vechileNo,
-      'MobileNo': mobileNo,
       'VehicleType': vehicleType,
       'VinNumber': vinNumber,
       'RcDocument': rcDocument,
       'RcNumber': rcNumber,
     };
+    
+    // Only include mobileNo if it's not null and not empty
+    if (mobileNo != null && mobileNo!.trim().isNotEmpty) {
+      data['MobileNo'] = mobileNo;
+    }
+    
+    return data;
   }
 
   @override
@@ -308,6 +314,25 @@ class PanVerificationRequest {
   Map<String, dynamic> toJson() {
     return {
       'pan': pan,
+      'force': force,
+    };
+  }
+}
+
+// ==================== Vehicle Verification API Requests ====================
+
+class VehicleVerificationRequest {
+  final String vehicleNumber;
+  final bool force;
+
+  const VehicleVerificationRequest({
+    required this.vehicleNumber,
+    this.force = true,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vehicle_number': vehicleNumber,  // Use snake_case
       'force': force,
     };
   }

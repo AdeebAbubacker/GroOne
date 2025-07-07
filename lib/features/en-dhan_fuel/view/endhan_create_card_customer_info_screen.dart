@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -26,16 +29,43 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = locator<EnDhanCubit>();
+    final profileCubit = locator<ProfileCubit>();
+    final userInfoRepo = locator<UserInformationRepository>();
     final formKey = GlobalKey<FormState>();
 
     // Initialize data when widget is first built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Reset form data to ensure clean state
       cubit.resetFormData();
 
       // Fetch master data when screen loads
       cubit.fetchStates();
       cubit.fetchZonalOffices();
+
+      // Get username from session first
+      String? username = await userInfoRepo.getUsername();
+      
+      // If username is not in session, fetch from profile
+      if (username == null || username.isEmpty) {
+        debugPrint('[EndhanCreateCardCustomerInfoScreen] Username not in session, fetching from profile...');
+        
+        // Fetch profile data
+        await profileCubit.fetchProfileDetail();
+        
+        // Get username from profile state
+        final profileState = profileCubit.state;
+        if (profileState.profileDetailUIState?.data?.data?.customer?.customerName != null) {
+          username = profileState.profileDetailUIState!.data!.data!.customer!.customerName;
+          debugPrint('[EndhanCreateCardCustomerInfoScreen] Username from profile: $username');
+        }
+      } else {
+        debugPrint('[EndhanCreateCardCustomerInfoScreen] Username from session: $username');
+      }
+      
+      // Set username in cubit if available
+      if (username != null && username.isNotEmpty) {
+        cubit.setCustomerName(username);
+      }
     });
 
     return BlocBuilder<EnDhanCubit, EnDhanState>(
@@ -132,8 +162,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                                 child: AppTextField(
                                   //labelText: 'Name',
                                   hintText: 'Enter name',
-                                  onChanged:
-                                      (val) => cubit.setCustomerName(val),
+                                  controller: TextEditingController(text: state.customerName),
+                                  readOnly: true, // Make the field non-editable
+                                  onChanged: null, // Remove onChanged since field is disabled
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return 'Name is required';
@@ -308,6 +339,12 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                             labelText: 'Address Line 2 *',
                             hintText: 'Enter',
                             onChanged: (val) => cubit.setAddress2(val),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Address line 2 is required';
+                              }
+                              return null;
+                            },
                           ),
                           16.height,
 
@@ -417,15 +454,20 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                             labelText: 'Pincode *',
                             hintText: 'Enter pincode',
                             keyboardType: TextInputType.number,
+                            maxLength: 6,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             onChanged: (val) => cubit.setPincode(val),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Pincode is required';
                               }
-                              // Pincode validation for India (6 digits)
+                              // Pincode validation for India (6 digits, only numbers)
                               final pincodeRegex = RegExp(r'^[1-9][0-9]{5}$');
                               if (!pincodeRegex.hasMatch(value.trim())) {
                                 return 'Please enter a valid 6-digit pincode';
+                              }
+                              if (value.trim().length != 6) {
+                                return 'Pincode must be exactly 6 digits';
                               }
                               return null;
                             },

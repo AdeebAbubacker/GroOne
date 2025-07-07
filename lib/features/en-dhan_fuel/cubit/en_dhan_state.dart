@@ -15,6 +15,7 @@ class EnDhanState extends Equatable {
   final UIState<AadhaarSendOtpResponse>? aadhaarSendOtpState;
   final UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState;
   final UIState<PanVerificationResponse>? panVerificationState;
+  final UIState<VehicleVerificationResponse>? vehicleVerificationState;
 
   // KYC Form fields
   final String aadhaar;
@@ -36,6 +37,9 @@ class EnDhanState extends Equatable {
 
   // PAN Verification
   final bool isPanVerified;
+
+  // Vehicle Verification
+  final Map<int, bool> verifiedVehicleNumbers; // cardIndex -> isVerified
 
   // Validation states
   final bool isAadhaarValid;
@@ -99,6 +103,7 @@ class EnDhanState extends Equatable {
     this.aadhaarSendOtpState,
     this.aadhaarVerifyOtpState,
     this.panVerificationState,
+    this.vehicleVerificationState,
     this.aadhaar = '',
     this.pan = '',
     this.addressProofFront = '',
@@ -112,6 +117,7 @@ class EnDhanState extends Equatable {
     this.isAadhaarVerified = false,
     this.aadhaarRequestId,
     this.isPanVerified = false,
+    this.verifiedVehicleNumbers = const {},
     this.isAadhaarValid = false,
     this.isPanValid = false,
     this.isPanImageUploaded = false,
@@ -177,6 +183,7 @@ class EnDhanState extends Equatable {
     UIState<AadhaarSendOtpResponse>? aadhaarSendOtpState,
     UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState,
     UIState<PanVerificationResponse>? panVerificationState,
+    UIState<VehicleVerificationResponse>? vehicleVerificationState,
     String? aadhaar,
     String? pan,
     String? addressProofFront,
@@ -190,6 +197,7 @@ class EnDhanState extends Equatable {
     bool? isAadhaarVerified,
     String? aadhaarRequestId,
     bool? isPanVerified,
+    Map<int, bool>? verifiedVehicleNumbers,
     bool? isAadhaarValid,
     bool? isPanValid,
     bool? isPanImageUploaded,
@@ -243,6 +251,7 @@ class EnDhanState extends Equatable {
       aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
       aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
       panVerificationState: panVerificationState ?? this.panVerificationState,
+      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
       aadhaar: aadhaar ?? this.aadhaar,
       pan: pan ?? this.pan,
       addressProofFront: addressProofFront ?? this.addressProofFront,
@@ -256,6 +265,7 @@ class EnDhanState extends Equatable {
       isAadhaarVerified: isAadhaarVerified ?? this.isAadhaarVerified,
       aadhaarRequestId: aadhaarRequestId ?? this.aadhaarRequestId,
       isPanVerified: isPanVerified ?? this.isPanVerified,
+      verifiedVehicleNumbers: verifiedVehicleNumbers ?? this.verifiedVehicleNumbers,
       isAadhaarValid: isAadhaarValid ?? this.isAadhaarValid,
       isPanValid: isPanValid ?? this.isPanValid,
       isPanImageUploaded: isPanImageUploaded ?? this.isPanImageUploaded,
@@ -323,6 +333,7 @@ class EnDhanState extends Equatable {
     aadhaarSendOtpState,
     aadhaarVerifyOtpState,
     panVerificationState,
+    vehicleVerificationState,
     aadhaar,
     pan,
     addressProofFront,
@@ -336,6 +347,7 @@ class EnDhanState extends Equatable {
     isAadhaarVerified,
     aadhaarRequestId,
     isPanVerified,
+    verifiedVehicleNumbers,
     isAadhaarValid,
     isPanValid,
     isPanImageUploaded,
@@ -390,7 +402,7 @@ class CardFormData extends Equatable {
     this.vinNumber = '',
     this.mobile = '',
     this.rcNumber = '',
-    this.rcDocuments = const [{"fileName": "rccopy.jpeg", "extension": "jpeg"}],
+    this.rcDocuments = const [],
   });
 
   CardFormData copyWith({

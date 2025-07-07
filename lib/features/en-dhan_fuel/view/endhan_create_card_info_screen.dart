@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_error_dialog.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -17,6 +19,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
@@ -24,8 +27,16 @@ import '../../../utils/app_route.dart';
 import '../../../utils/common_widgets.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 
-class EndhanCreateCardInfoScreen extends StatelessWidget {
+class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
+
+  @override
+  State<EndhanCreateCardInfoScreen> createState() => _EndhanCreateCardInfoScreenState();
+}
+
+class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen> {
+  bool _hasShownVerificationSuccess = false; // Flag to track if success message was shown
+  Status? _previousVerificationStatus; // Track previous verification status
 
   @override
   Widget build(BuildContext context) {
@@ -41,26 +52,54 @@ class EndhanCreateCardInfoScreen extends StatelessWidget {
               if (state.customerCreationState?.status == Status.SUCCESS) {
                 _showSuccessDialog(context);
               }
-
-              // Handle error state
-              if (state.customerCreationState?.status == Status.ERROR) {
-                _showErrorDialog(
-                  context,
-                  state.customerCreationState?.errorType,
-                );
-              }
             },
           ),
           BlocListener<EnDhanCubit, EnDhanState>(
             listener: (context, state) {
-              // Debug vehicle types state changes
-              print(
-                '🔍 Vehicle Types Listener - Count: ${state.vehicleTypes.length}',
-              );
-              print('🔍 Vehicle Types Listener - Types: ${state.vehicleTypes}');
-              print(
-                '🔍 Vehicle Types Listener - Status: ${state.vehicleTypesState?.status}',
-              );
+              // Handle vehicle verification state - only show success when status changes to SUCCESS
+              final currentStatus = state.vehicleVerificationState?.status;
+              
+              // Only show success if status changed from something else to SUCCESS
+              if (currentStatus == Status.SUCCESS && 
+                  _previousVerificationStatus != Status.SUCCESS && 
+                  !_hasShownVerificationSuccess) {
+                
+                // Check if we have verification data
+                final cubit = locator<EnDhanCubit>();
+                if (cubit.state.vehicleVerificationState?.data != null) {
+                  // Set flag to prevent multiple messages
+                  _hasShownVerificationSuccess = true;
+                  
+                  // Reset the verification state immediately to prevent duplicate messages
+                  cubit.resetVehicleVerificationState();
+                  
+                  // Show success message after resetting state
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Vehicle number verified successfully!'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  
+                  // Reset flag after a delay to allow for future verifications
+                  Future.delayed(Duration(seconds: 3), () {
+                    if (mounted) {
+                      setState(() {
+                        _hasShownVerificationSuccess = false;
+                      });
+                    }
+                  });
+                }
+              }
+              
+              // Update previous status
+              _previousVerificationStatus = currentStatus;
+              
+              // Log errors but don't show dialog to prevent showing on every keystroke
+              if (currentStatus == Status.ERROR) {
+                print('🔍 Vehicle verification failed: ${state.vehicleVerificationState?.errorType}');
+              }
             },
           ),
         ],
@@ -95,41 +134,6 @@ class EndhanCreateCardInfoScreen extends StatelessWidget {
       MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
     );
   }
-
-  void _showErrorDialog(BuildContext context, dynamic errorType) {
-    String errorMessage =
-        'An error occurred while creating the customer. Please try again.';
-
-    if (errorType != null) {
-      errorMessage = errorType.toString();
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Error',
-            style: AppTextStyle.body1.copyWith(color: Colors.red),
-          ),
-          content: Text(errorMessage, style: AppTextStyle.body3),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'OK',
-                style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
 class _EndhanCreateCardInfoContent extends StatefulWidget {
@@ -142,8 +146,7 @@ class _EndhanCreateCardInfoContent extends StatefulWidget {
       _EndhanCreateCardInfoContentState();
 }
 
-class _EndhanCreateCardInfoContentState
-    extends State<_EndhanCreateCardInfoContent> {
+class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoContent> {
   final _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> cardData = [
     {
@@ -172,6 +175,11 @@ class _EndhanCreateCardInfoContentState
     print('🔍 initState - Cubit hash: ${cubit.hashCode}');
     print('🔍 initState - Current vehicle types: ${cubit.state.vehicleTypes}');
     cubit.fetchVehicleTypes();
+    
+    // Sync existing cubit data with local form data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncCubitDataWithLocalForm();
+    });
   }
 
   @override
@@ -192,7 +200,7 @@ class _EndhanCreateCardInfoContentState
         'rcBook': '',
         'rcFile': null,
         'rcFileName': null,
-        'rcDocuments': [],
+        'rcDocuments': [], // Ensure this is always empty for new cards
         'controllers': {
           'vehicleNumber': TextEditingController(),
           'vinNumber': TextEditingController(),
@@ -468,6 +476,8 @@ class _EndhanCreateCardInfoContentState
   }
 
   void _handleSaveAndCreate() async {
+    final cubit = locator<EnDhanCubit>();
+    cubit.markFormSubmitted();
     if (_formKey.currentState?.validate() ?? false) {
       // Additional validation for card data
       bool isValid = true;
@@ -500,19 +510,15 @@ class _EndhanCreateCardInfoContentState
           break;
         }
 
-        // Validate mobile number
-        if (controllers['mobile']?.text?.trim().isEmpty ?? true) {
-          isValid = false;
-          errorMessage = 'Mobile number is required for card ${i + 1}';
-          break;
-        }
-
-        // Validate mobile number format
+        // Validate mobile number format only if provided
+        final mobileText = controllers['mobile']?.text?.trim() ?? '';
+        if (mobileText.isNotEmpty) {
         final mobileRegex = RegExp(r'^(\+91\s?)?[6-9]\d{9}$');
-        if (!mobileRegex.hasMatch(controllers['mobile']?.text?.trim() ?? '')) {
+          if (!mobileRegex.hasMatch(mobileText)) {
           isValid = false;
           errorMessage = 'Please enter a valid mobile number for card ${i + 1}';
           break;
+          }
         }
 
         // Validate RC book (used as RC number)
@@ -531,11 +537,12 @@ class _EndhanCreateCardInfoContentState
       }
 
       if (!isValid) {
-        _showErrorDialog(context, errorMessage);
+        EndhanErrorDialog.show(context, errorMessage);
         return;
       }
 
-      final cubit = locator<EnDhanCubit>();
+      // Sync form data with cubit state before API call
+      _syncFormDataWithCubit(cubit);
 
       // Update cubit with card data from the form
       print('=== DEBUG: UI - Updating cubit with card data ===');
@@ -574,7 +581,210 @@ class _EndhanCreateCardInfoContentState
 
       // Call the API
       await cubit.createCustomer();
+      
+      // Check for error state after API call
+      if (cubit.state.customerCreationState?.status == Status.ERROR) {
+        EndhanErrorDialog.show(
+          context,
+          cubit.state.customerCreationState?.errorType,
+        );
+      }
+
+      // 4. Show SuccessDialogView only once
+      if (cubit.state.customerCreationState?.status == Status.SUCCESS) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => SuccessDialogView(
+              message: 'Customer and cards created successfully!',
+              onContinue: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+                );
+              },
+            ),
+          );
+        }
+        cubit.resetCustomerCreationState();
+        cubit.resetCubit();
+      }
     }
+  }
+
+  /// Sync form data with cubit state to ensure consistency
+  void _syncFormDataWithCubit(EnDhanCubit cubit) {
+    // Ensure the number of cards in cubit matches the UI
+    while (cubit.state.cards.length < cardData.length) {
+      cubit.addCard();
+    }
+    
+    // Update each card in cubit with current form data
+    for (int i = 0; i < cardData.length; i++) {
+      final card = cardData[i];
+      final controllers = card['controllers'] as Map<String, TextEditingController>;
+      
+      cubit.updateCardField(
+        i,
+        vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+        vehicleType: card['vehicleType'],
+        vinNumber: controllers['vinNumber']?.text ?? '',
+        mobile: controllers['mobile']?.text ?? '',
+        rcNumber: controllers['rcBook']?.text ?? '',
+        rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+            ? [{'fileName': card['rcFile']}]
+            : [],
+      );
+    }
+  }
+
+  /// Sync a specific card field with cubit state
+  void _syncCardFieldWithCubit(int cardIndex, String fieldName, dynamic value) {
+    if (cardIndex >= cardData.length) return;
+    
+    final cubit = locator<EnDhanCubit>();
+    final card = cardData[cardIndex];
+    final controllers = card['controllers'] as Map<String, TextEditingController>;
+    
+    // Update the specific field in cubit
+    switch (fieldName) {
+      case 'vehicleNumber':
+        cubit.updateCardField(
+          cardIndex,
+          vehicleNumber: value,
+          vehicleType: card['vehicleType'],
+          vinNumber: controllers['vinNumber']?.text ?? '',
+          mobile: controllers['mobile']?.text ?? '',
+          rcNumber: controllers['rcBook']?.text ?? '',
+          rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+              ? [{'fileName': card['rcFile']}]
+              : [],
+        );
+        break;
+      case 'vehicleType':
+        cubit.updateCardField(
+          cardIndex,
+          vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+          vehicleType: value,
+          vinNumber: controllers['vinNumber']?.text ?? '',
+          mobile: controllers['mobile']?.text ?? '',
+          rcNumber: controllers['rcBook']?.text ?? '',
+          rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+              ? [{'fileName': card['rcFile']}]
+              : [],
+        );
+        break;
+      case 'vinNumber':
+        cubit.updateCardField(
+          cardIndex,
+          vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+          vehicleType: card['vehicleType'],
+          vinNumber: value,
+          mobile: controllers['mobile']?.text ?? '',
+          rcNumber: controllers['rcBook']?.text ?? '',
+          rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+              ? [{'fileName': card['rcFile']}]
+              : [],
+        );
+        break;
+      case 'mobile':
+        cubit.updateCardField(
+          cardIndex,
+          vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+          vehicleType: card['vehicleType'],
+          vinNumber: controllers['vinNumber']?.text ?? '',
+          mobile: value,
+          rcNumber: controllers['rcBook']?.text ?? '',
+          rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+              ? [{'fileName': card['rcFile']}]
+              : [],
+        );
+        break;
+      case 'rcBook':
+        cubit.updateCardField(
+          cardIndex,
+          vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+          vehicleType: card['vehicleType'],
+          vinNumber: controllers['vinNumber']?.text ?? '',
+          mobile: controllers['mobile']?.text ?? '',
+          rcNumber: value,
+          rcDocuments: card['rcFile'] != null && card['rcFile'] != 'Uploading...'
+              ? [{'fileName': card['rcFile']}]
+              : [],
+        );
+        break;
+    }
+  }
+
+  /// Sync card documents with cubit state
+  void _syncCardDocumentsWithCubit(int cardIndex, List newList) {
+    if (cardIndex >= cardData.length) return;
+    
+    final cubit = locator<EnDhanCubit>();
+    final card = cardData[cardIndex];
+    final controllers = card['controllers'] as Map<String, TextEditingController>;
+    
+    // Convert document list to the format expected by cubit
+    List<Map<String, dynamic>> rcDocuments = [];
+    if (newList.isNotEmpty) {
+      final document = newList.first;
+      if (document['fileName'] != null) {
+        // Use the uploaded URL if available, otherwise use the file name
+        final fileName = document['fileName'].toString().startsWith('http') 
+            ? document['fileName'] 
+            : document['fileName'];
+        rcDocuments = [{'fileName': fileName}];
+      }
+    }
+    
+    cubit.updateCardField(
+      cardIndex,
+      vehicleNumber: controllers['vehicleNumber']?.text ?? '',
+      vehicleType: card['vehicleType'],
+      vinNumber: controllers['vinNumber']?.text ?? '',
+      mobile: controllers['mobile']?.text ?? '',
+      rcNumber: controllers['rcBook']?.text ?? '',
+      rcDocuments: rcDocuments,
+    );
+  }
+
+  /// Sync cubit data with local form data
+  void _syncCubitDataWithLocalForm() {
+    final cubit = locator<EnDhanCubit>();
+    final cubitCards = cubit.state.cards;
+    
+    // Ensure we have the same number of cards
+    while (cardData.length < cubitCards.length) {
+      _addNewCard();
+    }
+    
+    // Update local form data with cubit data
+    for (int i = 0; i < cubitCards.length && i < cardData.length; i++) {
+      final cubitCard = cubitCards[i];
+      final localCard = cardData[i];
+      final controllers = localCard['controllers'] as Map<String, TextEditingController>;
+      
+      // Update text controllers
+      controllers['vehicleNumber']?.text = cubitCard.vehicleNumber;
+      controllers['vinNumber']?.text = cubitCard.vinNumber;
+      controllers['mobile']?.text = cubitCard.mobile;
+      controllers['rcBook']?.text = cubitCard.rcNumber;
+      
+      // Update other fields
+      localCard['vehicleNumber'] = cubitCard.vehicleNumber;
+      localCard['vehicleType'] = cubitCard.vehicleType;
+      localCard['vinNumber'] = cubitCard.vinNumber;
+      localCard['mobile'] = cubitCard.mobile;
+      localCard['rcBook'] = cubitCard.rcNumber;
+      
+      // Clear RC documents to prevent showing leftover data
+      localCard['rcDocuments'] = [];
+      localCard['rcFile'] = null;
+      localCard['rcFileName'] = null;
+    }
+    
+    setState(() {});
   }
 
   void _resetLocalFormData() {
@@ -603,41 +813,6 @@ class _EndhanCreateCardInfoContentState
     }
   }
 
-  void _showErrorDialog(BuildContext context, dynamic errorType) {
-    String errorMessage =
-        'An error occurred while creating the customer. Please try again.';
-
-    if (errorType != null) {
-      errorMessage = errorType.toString();
-    }
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Error',
-            style: AppTextStyle.body1.copyWith(color: Colors.red),
-          ),
-          content: Text(errorMessage, style: AppTextStyle.body3),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'OK',
-                style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Ensure expansion list length matches cards
@@ -648,20 +823,6 @@ class _EndhanCreateCardInfoContentState
     final cubit = locator<EnDhanCubit>();
     final isLoading =
         widget.state.customerCreationState?.status == Status.LOADING;
-
-    // Debug logging for vehicle types
-    print('🔍 UI Debug - Vehicle Types:');
-    print('  Vehicle Types Count: ${widget.state.vehicleTypes.length}');
-    print(
-      '  Vehicle Types State Status: ${widget.state.vehicleTypesState?.status}',
-    );
-    print('  Vehicle Types: ${widget.state.vehicleTypes}');
-    print(
-      '  Vehicle Types State Data: ${widget.state.vehicleTypesState?.data?.document}',
-    );
-    print('  State Hash: ${widget.state.hashCode}');
-    print('  Cubit Hash: ${cubit.hashCode}');
-
     return Scaffold(
       backgroundColor: AppColors.blackishWhite,
       body: SafeArea(
@@ -738,6 +899,21 @@ class _EndhanCreateCardInfoContentState
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  trailing: index > 0
+                                      ? IconButton(
+                                          icon: Icon(Icons.delete, color: AppColors.activeRedColor),
+                                          tooltip: 'Delete this card',
+                                          onPressed: () {
+                                            setState(() {
+                                              cardData.removeAt(index);
+                                              _expanded.removeAt(index);
+                                            });
+                                            // Remove from cubit as well
+                                            final cubit = locator<EnDhanCubit>();
+                                            cubit.removeCard(index);
+                                          },
+                                        )
+                                      : null,
                                 );
                               },
                               body: Padding(
@@ -748,21 +924,48 @@ class _EndhanCreateCardInfoContentState
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
                                     Text(
                                       'Vehicle Number *',
                                       style: AppTextStyle.body3.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
+                                        ),
+                                        if (widget.state.verifiedVehicleNumbers[index] == true)
+                                          Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                            size: 20,
+                                          ),
+                                      ],
                                     ),
                                     6.height,
                                     AppTextField(
                                       hintText: 'Enter vehicle number',
                                       controller: controllers['vehicleNumber'],
-                                      onChanged:
-                                          (val) => card['vehicleNumber'] = val,
+                                      onChanged: (val) {
+                                        final upperVal = val.toUpperCase();
+                                        card['vehicleNumber'] = upperVal;
+                                        controllers['vehicleNumber']?.text = upperVal;
+                                        controllers['vehicleNumber']?.selection = TextSelection.fromPosition(TextPosition(offset: upperVal.length));
+                                        _syncCardFieldWithCubit(index, 'vehicleNumber', upperVal);
+                                        if (upperVal.trim().isNotEmpty) {
+                                          final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
+                                          if (vehicleRegex.hasMatch(upperVal)) {
+                                            if ((!widget.state.verifiedVehicleNumbers.containsKey(index) || !widget.state.verifiedVehicleNumbers[index]!) && widget.state.vehicleVerificationState?.status != Status.LOADING) {
+                                              Future.delayed(Duration(milliseconds: 500), () {
+                                                if (mounted) {
+                                                  locator<EnDhanCubit>().verifyVehicle(index, upperVal);
+                                                }
+                                              });
+                                            }
+                                          }
+                                        }
+                                      },
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
+                                        if ((widget.state.hasAttemptedSubmit ?? false) && (value == null || value.trim().isEmpty)) {
                                           return 'Vehicle number is required';
                                         }
                                         return null;
@@ -774,7 +977,7 @@ class _EndhanCreateCardInfoContentState
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Vehicle Type * (${widget.state.vehicleTypes.length})',
+                                          'Vehicle Type *',
                                           style: AppTextStyle.body3.copyWith(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -820,10 +1023,11 @@ class _EndhanCreateCardInfoContentState
                                                   ),
                                                 ),
                                               ],
-                                      onChanged:
-                                          (val) => setState(
-                                            () => card['vehicleType'] = val,
-                                          ),
+                                      onChanged: (val) {
+                                        setState(() => card['vehicleType'] = val);
+                                        // Sync with cubit state immediately
+                                        _syncCardFieldWithCubit(index, 'vehicleType', val);
+                                      },
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Vehicle type is required';
@@ -842,19 +1046,27 @@ class _EndhanCreateCardInfoContentState
                                     AppTextField(
                                       hintText: 'Enter VIN number',
                                       controller: controllers['vinNumber'],
-                                      onChanged:
-                                          (val) => card['vinNumber'] = val,
+                                      onChanged: (val) {
+                                        card['vinNumber'] = val;
+                                        // Sync with cubit state immediately
+                                        _syncCardFieldWithCubit(index, 'vinNumber', val);
+                                      },
+                                      maxLength: 17,
+                                      inputFormatters: [LengthLimitingTextInputFormatter(17)],
                                       validator: (value) {
                                         if (value == null ||
                                             value.trim().isEmpty) {
                                           return 'VIN number is required';
+                                        }
+                                        if (value.trim().length != 17) {
+                                          return 'VIN number must be exactly 17 characters';
                                         }
                                         return null;
                                       },
                                     ),
                                     12.height,
                                     Text(
-                                      'Mobile Number *',
+                                      'Mobile Number',
                                       style: AppTextStyle.body3.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -864,19 +1076,14 @@ class _EndhanCreateCardInfoContentState
                                       hintText: '+91 9876987654',
                                       controller: controllers['mobile'],
                                       keyboardType: TextInputType.phone,
+                                      maxLength: 10,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      onChanged: (val) {
+                                        _syncCardFieldWithCubit(index, 'mobile', val);
+                                      },
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Mobile number is required';
-                                        }
-                                        // Basic mobile number validation for Indian numbers
-                                        final mobileRegex = RegExp(
-                                          r'^(\+91\s?)?[6-9]\d{9}$',
-                                        );
-                                        if (!mobileRegex.hasMatch(
-                                          value.trim(),
-                                        )) {
-                                          return 'Please enter a valid mobile number';
+                                        if ((widget.state.hasAttemptedSubmit ?? false) && value != null && value.isNotEmpty && value.length > 10) {
+                                          return 'Mobile number cannot be more than 10 digits';
                                         }
                                         return null;
                                       },
@@ -906,7 +1113,11 @@ class _EndhanCreateCardInfoContentState
                                     AppTextField(
                                       hintText: 'AAAPA1234A',
                                       controller: controllers['rcBook'],
-                                      onChanged: (val) => card['rcBook'] = val,
+                                      onChanged: (val) {
+                                        card['rcBook'] = val;
+                                        // Sync with cubit state immediately
+                                        _syncCardFieldWithCubit(index, 'rcBook', val);
+                                      },
                                       validator: (value) {
                                         if (value == null ||
                                             value.trim().isEmpty) {
@@ -932,6 +1143,8 @@ class _EndhanCreateCardInfoContentState
                                             card['rcFileName'] = null;
                                           }
                                         });
+                                        // Sync with cubit state immediately
+                                        _syncCardDocumentsWithCubit(index, newList);
                                       },
                                       thenUploadFileToSever: () async {
                                         if (card['rcDocuments'].isNotEmpty) {
@@ -958,6 +1171,17 @@ class _EndhanCreateCardInfoContentState
                                                   card['rcFileName'] =
                                                       document['fileName'];
                                                 });
+
+                                                // Sync with cubit state after successful upload
+                                                _syncCardDocumentsWithCubit(index, [
+                                                  {
+                                                    'fileName': uploadedUrl,
+                                                    'path': filePath,
+                                                  }
+                                                ]);
+                                                
+                                                // Also update the rcFile in the card data
+                                                card['rcFile'] = uploadedUrl;
 
                                                 ScaffoldMessenger.of(
                                                   context,

@@ -183,7 +183,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        'My Cards (ID: HPCL${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                        'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
                         style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -285,7 +285,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final card = filteredCards[index];
           // Convert EnDhanCardModel to Map for EndhanCardItem
           final cardMap = {
-            'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
+            'cardNumber':card.cardNumber ?? '',
+           // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
             'vehicleNumber': card.vehicleNumber ?? '',
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it

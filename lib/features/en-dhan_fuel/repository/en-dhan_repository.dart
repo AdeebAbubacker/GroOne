@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
+import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -175,6 +176,18 @@ class EnDhanRepository {
       return await _enDhanService.verifyPan(request);
     } catch (e) {
       CustomLog.error(this, "Failed to verify PAN", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Verify Vehicle Repository
+  Future<Result<VehicleVerificationResponse>> verifyVehicle(
+    VehicleVerificationRequest request,
+  ) async {
+    try {
+      return await _enDhanService.verifyVehicle(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to verify vehicle", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_reques
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -695,6 +696,50 @@ class EnDhanService {
           return Error(DeserializationError());
         }
       } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Verify Vehicle
+  Future<Result<VehicleVerificationResponse>> verifyVehicle(
+    VehicleVerificationRequest request,
+  ) async {
+    try {
+      final url = 'https://verification-service-uat.letsgro.co/api/v1/verification/vehicle';
+      final requestBody = request.toJson();
+      
+      CustomLog.debug(
+        this,
+        "Vehicle Verification Request: URL=$url, Body=$requestBody",
+      );
+      
+      final result = await _apiService.post(url, body: requestBody);
+
+      if (result is Success) {
+        CustomLog.debug(
+          this,
+          "Vehicle Verification Raw Response: ${result.value}",
+        );
+        
+        try {
+          final response = VehicleVerificationResponse.fromJson(result.value);
+          CustomLog.debug(
+            this,
+            "Vehicle Verification Response: status=${response.status}, message=${response.message}",
+          );
+          return Success(response);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing vehicle verification response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Vehicle Verification API Error", result.type);
         return Error(result.type);
       } else {
         return Error(GenericError());

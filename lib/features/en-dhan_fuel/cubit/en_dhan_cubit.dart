@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
+import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 
 part 'en_dhan_state.dart';
@@ -374,11 +375,89 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     }
   }
 
+  // ==================== Vehicle Verification ====================
+
+  /// Verify vehicle number for a specific card
+  Future<void> verifyVehicle(int cardIndex, String vehicleNumber) async {
+    print('🔍 Vehicle Verification Debug: Starting verification for card $cardIndex...');
+    if (_isClosed) {
+      print('🔍 Vehicle Verification Debug: Cubit is closed, returning');
+      return;
+    }
+
+    if (vehicleNumber.isEmpty) {
+      print('🔍 Vehicle Verification Debug: Vehicle number is empty, returning');
+      return;
+    }
+
+    // Validate vehicle number format (more flexible Indian format)
+    final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
+    if (!vehicleRegex.hasMatch(vehicleNumber.toUpperCase())) {
+      print('🔍 Vehicle Verification Debug: Invalid vehicle number format: $vehicleNumber');
+      _setVehicleVerificationUIState(UIState.error(InvalidInputError()));
+      return;
+    }
+
+    print('🔍 Vehicle Verification Debug: Vehicle number to verify: "$vehicleNumber"');
+    _setVehicleVerificationUIState(UIState.loading());
+
+    try {
+      final request = VehicleVerificationRequest(
+        vehicleNumber: vehicleNumber.toUpperCase(),
+        force: true,
+      );
+
+      final result = await _repository.verifyVehicle(request);
+
+      if (_isClosed) {
+        print('🔍 Vehicle Verification Debug: Cubit closed after API call');
+        return;
+      }
+
+      if (result is Success<VehicleVerificationResponse>) {
+        final response = result.value;
+        print('🔍 Vehicle Verification Debug: Success response: $response');
+        
+        if (response.status) {
+          // Mark this vehicle number as verified
+          final updatedVerifiedVehicles = Map<int, bool>.from(state.verifiedVehicleNumbers);
+          updatedVerifiedVehicles[cardIndex] = true;
+          
+          emit(state.copyWith(verifiedVehicleNumbers: updatedVerifiedVehicles));
+          _setVehicleVerificationUIState(UIState.success(response));
+          print('🔍 Vehicle Verification Debug: Vehicle number verified successfully');
+        } else {
+          _setVehicleVerificationUIState(UIState.error(InvalidInputError()));
+          print('🔍 Vehicle Verification Debug: Vehicle verification failed: ${response.message}');
+        }
+      } else if (result is Error) {
+        print('🔍 Vehicle Verification Debug: Error response: ${(result as Error).type}');
+        _setVehicleVerificationUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      print('🔍 Vehicle Verification Debug: Exception: $e');
+      if (!_isClosed) {
+        _setVehicleVerificationUIState(UIState.error(GenericError()));
+      }
+    }
+  }
+
+  /// Set Vehicle Verification UI State
+  void _setVehicleVerificationUIState(UIState<VehicleVerificationResponse> uiState) {
+    if (!_isClosed) {
+      emit(state.copyWith(vehicleVerificationState: uiState));
+    }
+  }
+
   // ==================== Customer Creation ====================
 
   /// Create customer with card details
   Future<void> createCustomer() async {
+    print('=== DEBUG: Starting createCustomer ===');
+    print('Form validation result: ${isCardCreationFormValid()}');
+    
     if (!isCardCreationFormValid()) {
+      print('❌ Form validation failed, returning InvalidInputError');
       _setCustomerCreationUIState(UIState.error(InvalidInputError()));
       return;
     }
@@ -405,7 +484,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
             .map(
               (card) => EnDhanCardDetailRequest(
                 vechileNo: card.vehicleNumber,
-                mobileNo: card.mobile,
+                mobileNo: (card.mobile != null && card.mobile.trim().isNotEmpty) ? card.mobile : null,
                 vehicleType: card.vehicleType ?? '',
                 vinNumber: card.vinNumber,
                 rcDocument:
@@ -423,7 +502,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       final card = cardDetails[i];
       print('API Card $i:');
       print('  Vehicle No: ${card.vechileNo}');
-      print('  Mobile No: ${card.mobileNo}');
+      print('  Mobile No: ${card.mobileNo ?? "NOT INCLUDED (empty/null)"}');
       print('  Vehicle Type: ${card.vehicleType}');
       print('  VIN Number: ${card.vinNumber}');
       print('  RC Document: ${card.rcDocument}');
@@ -450,11 +529,42 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       objCardDetailsAl: cardDetails,
     );
 
+    print('=== DEBUG: API Request ===');
+    print('Request: ${request.toJson()}');
+    print('=== DEBUG: Request Details ===');
+    print('Customer Name: ${request.customerName}');
+    print('Title: ${request.title}');
+    print('Zonal Office: ${request.zonalOffice}');
+    print('Regional Office: ${request.regionalOffice}');
+    print('Address1: ${request.communicationAddress1}');
+    print('Address2: ${request.communicationAddress2}');
+    print('City: ${request.communicationCityName}');
+    print('Pincode: ${request.communicationPincode}');
+    print('State ID: ${request.communicationStateId}');
+    print('District ID: ${request.communicationDistrictId}');
+    print('Mobile: ${request.communicationMobileNo}');
+    print('Email: ${request.communicationEmailid}');
+    print('PAN: ${request.incomeTaxPan}');
+    print('Number of cards: ${request.objCardDetailsAl.length}');
+    
     Result result = await _repository.createCustomer(request);
 
+    print('=== DEBUG: API Response ===');
+    print('Result Type: ${result.runtimeType}');
+    
     if (result is Success<api_models.EnDhanCustomerCreationResponse>) {
+      print('✅ Success Response:');
+      print('  Success: ${result.value.success}');
+      print('  Message: ${result.value.message}');
+      print('  Data: ${result.value.data}');
       _setCustomerCreationUIState(UIState.success(result.value));
     } else if (result is Error) {
+      print('❌ Error Response:');
+      print('  Error Type: ${result.type.runtimeType}');
+      print('  Error Details: ${result.type.toString()}');
+      if (result.type is ErrorWithMessage) {
+        print('  Error Message: ${(result.type as ErrorWithMessage).message}');
+      }
       _setCustomerCreationUIState(UIState.error(result.type));
     }
   }
@@ -1086,25 +1196,55 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         state.mobile.isEmpty ||
         state.address1.isEmpty ||
         state.pincode.isEmpty) {
+      print('❌ Form validation failed: Missing customer info');
       return false;
     }
 
     // Check if shipping address is required and filled
     if (!state.saveAsShipping && state.shippingAddress.isEmpty) {
+      print('❌ Form validation failed: Missing shipping address');
       return false;
     }
 
     // Check all cards have required fields
-    for (final card in state.cards) {
-      if (card.vehicleNumber.isEmpty ||
-          card.vehicleType == null ||
-          card.vehicleType == 'Select' ||
-          card.vinNumber.isEmpty ||
-          card.mobile.isEmpty) {
+    for (int i = 0; i < state.cards.length; i++) {
+      final card = state.cards[i];
+      
+      if (card.vehicleNumber.isEmpty) {
+        print('❌ Form validation failed: Card $i missing vehicle number');
         return false;
       }
+      
+      if (card.vehicleType == null || card.vehicleType == 'Select' || card.vehicleType!.isEmpty) {
+        print('❌ Form validation failed: Card $i missing vehicle type');
+        return false;
+      }
+      
+      if (card.vinNumber.isEmpty) {
+        print('❌ Form validation failed: Card $i missing VIN number');
+        return false;
+      }
+      
+      if (card.rcNumber.isEmpty) {
+        print('❌ Form validation failed: Card $i missing RC book number');
+        return false;
+      }
+      
+      if (card.rcDocuments.isEmpty) {
+        print('❌ Form validation failed: Card $i missing RC document');
+        return false;
+      }
+      
+      // Check if vehicle number is verified
+      if (!state.verifiedVehicleNumbers.containsKey(i) || !state.verifiedVehicleNumbers[i]!) {
+        print('❌ Form validation failed: Card $i vehicle number not verified');
+        return false;
+      }
+      
+      // Mobile number is optional, so we don't check for it
     }
 
+    print('✅ Form validation passed');
     return true;
   }
 
@@ -1242,6 +1382,35 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   void resetCustomerCreationState() {
     if (!_isClosed) {
       emit(state.copyWith(customerCreationState: null));
+    }
+  }
+
+  /// Reset vehicle verification state
+  void resetVehicleVerificationState() {
+    if (!_isClosed) {
+      emit(state.copyWith(vehicleVerificationState: null));
+    }
+  }
+
+  /// Reset only the KYC form and verification state
+  void resetKycFormState() {
+    if (!_isClosed) {
+      emit(state.copyWith(
+        aadhaar: '',
+        pan: '',
+        isAadhaarVerified: false,
+        isPanVerified: false,
+        aadhaarRequestId: null,
+        panDocuments: [],
+        identityFrontDocuments: [],
+        identityBackDocuments: [],
+        addressFrontDocuments: [],
+        addressBackDocuments: [],
+        aadhaarSendOtpState: null,
+        aadhaarVerifyOtpState: null,
+        panVerificationState: null,
+        hasAttemptedSubmit: false,
+      ));
     }
   }
 

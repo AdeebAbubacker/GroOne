@@ -20,10 +20,18 @@ class AuthRepository {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
+      
+      // Log token information for debugging
+      CustomLog.debug(this, "Saving token from login API - Token: ${userData?.token.isNotEmpty == true ? '${userData!.token.substring(0, 10)}...' : 'empty'}, User ID: ${userData?.user?.id}, Role: ${userData?.user?.role}, TempFlag: ${userData?.user?.tempflg}");
+      
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
       await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.user!.role.toString());
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
-      CustomLog.debug(this, "Save user from login saved successfully");
+      
+      // Verify token was saved
+      String? savedToken = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
+      CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
+      
       return const Success(true);
     } catch (e) {
       CustomLog.error(this, "Save Resident user info to preferences error", e);

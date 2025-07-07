@@ -36,10 +36,13 @@ class ApiService {
     // Add authentication header if token exists
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+      CustomLog.debug(this, "Token for request: ${refreshToken != null ? '${refreshToken.substring(0, 10)}...' : 'null'}");
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-      
-      } else {}
+        CustomLog.debug(this, "Authorization header added");
+      } else {
+        CustomLog.debug(this, "No token available, request will be made without authentication");
+      }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
     }
@@ -263,6 +266,18 @@ class ApiService {
 
   /// Handle HTTP Error
   Future<Result<dynamic>> _handleHttpError(Response? response) async {
+    // Check if response contains authentication error message regardless of status code
+    if (response?.data != null && response?.data is Map<String, dynamic>) {
+      final responseData = response?.data as Map<String, dynamic>;
+      final message = responseData['message']?.toString().toLowerCase() ?? '';
+      
+      // Handle authentication errors even if they come with 500 status code
+      if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
+        await _handleUnauthorizedError();
+        return Error(UnauthenticatedError.fromApiResponse(response?.data));
+      }
+    }
+    
     switch (response?.statusCode) {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
@@ -277,6 +292,16 @@ class ApiService {
       case 498:
         return Error(InvalidTokenError());
       case 500:
+        // For 500 errors, check if it's actually an authentication error
+        if (response?.data != null && response?.data is Map<String, dynamic>) {
+          final responseData = response?.data as Map<String, dynamic>;
+          final message = responseData['message']?.toString().toLowerCase() ?? '';
+          
+          if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
+            await _handleUnauthorizedError();
+            return Error(UnauthenticatedError.fromApiResponse(response?.data));
+          }
+        }
         return Error(InternalServerError());
       default:
         log("Unexpected status code: ${response?.statusCode}");
@@ -288,7 +313,7 @@ class ApiService {
   Future<void> _handleUnauthorizedError() async {
     try {
       await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
-      CustomLog.debug(this, "Cleared invalid token due to 401 Unauthorized error");
+      CustomLog.debug(this, "Cleared invalid token due to authentication error");
     } catch (e) {
       CustomLog.error(this, "Error clearing invalid token", e);
     }
@@ -306,6 +331,16 @@ class ApiService {
       case DioErrorType.receiveTimeout:
         return Error(NetworkTimeoutError());
       default:
+        // Check if the error response contains authentication error message
+        if (error.response?.data != null && error.response?.data is Map<String, dynamic>) {
+          final responseData = error.response?.data as Map<String, dynamic>;
+          final message = responseData['message']?.toString().toLowerCase() ?? '';
+          
+          if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
+            await _handleUnauthorizedError();
+            return Error(UnauthenticatedError.fromApiResponse(error.response?.data));
+          }
+        }
         return Error(ErrorWithMessage(message: error.response?.data));
     }
   }
