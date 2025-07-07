@@ -28,17 +28,17 @@ class ProfileService {
       final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
       final result = await _apiService.get(url);
       if (result is Success) {
-        dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
+        dynamic data = ProfileDetailModel.fromJson(result.value);
         // Save Blue Id
-        if (data is Success<ProfileDetailModel>) {
+        if (data is ProfileDetailModel) {
 
           // Save user info data
           dynamic saveUserResult;
-          saveUserResult = await _authRepository.saveUserInfoFromHome(data.value);
+          saveUserResult = await _authRepository.saveUserInfoFromHome(data);
 
           if (saveUserResult is Success) {
             // Blue Membership Logic
-            final customer = data.value.customer;
+            final customer = data.customer;
             final newBlueId = customer?.blueId;
             final storedBlueId = await _userInformationRepository.getBlueID();
             debugPrint("Service Blue Id : $newBlueId");
@@ -56,12 +56,12 @@ class ProfileService {
               await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
               await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
             }
-            if(data.value.customer != null && data.value.customer!.companyType != null){
-              await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, data.value.customer!.companyType!.id);
-              debugPrint("🎉 Company Type ID saved: ${data.value.customer!.companyType!.id}");
+            if(data.customer != null && data.customer!.companyType != null){
+              await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, data.customer!.companyType!.id);
+              debugPrint("🎉 Company Type ID saved: ${data.customer!.companyType!.id}");
             }
 
-            return Success(data.value);
+            return Success(data);
           }
 
           if (saveUserResult is Error) {
