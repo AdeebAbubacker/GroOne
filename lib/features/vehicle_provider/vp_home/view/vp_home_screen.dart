@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
@@ -21,11 +27,13 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -35,13 +43,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import '../../../../utils/app_dialog.dart';
-import '../../../../utils/common_dialog_view/success_dialog_view.dart';
-import '../../../load_provider/lp_home/cubit/lp_home_cubit.dart';
-import '../../../load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
-import '../bloc/load_accpect/vp_accept_load_bloc.dart';
-import '../bloc/load_accpect/vp_accept_load_state.dart';
-import '../bloc/vp_home_bloc/vp_home_bloc.dart';
+
 
 class VpHomeScreen extends StatefulWidget {
   final void Function(int bottomTabIndex, {int? allLoadsSubTabIndex})
@@ -53,7 +55,7 @@ class VpHomeScreen extends StatefulWidget {
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
-class _VpHomeScreenState extends State<VpHomeScreen> {
+class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
   // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
@@ -89,10 +91,10 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
   void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId();
+    await profileCubit.fetchProfileDetail();
     await profileCubit.fetchCompanyTypeId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-    await profileCubit.fetchProfileDetail();
   });
 
 
@@ -116,7 +118,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       appBar: buildAppBarWidget(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          initFunction();
+          vpRecentLoadListBloc.add(VpRecentLoadEvent());
+          vpHomeScreenBloc.add(VpMyLoadListRequested());
         },
         child: SafeArea(
           child: Column(
