@@ -14,7 +14,7 @@ class LpCreateSuccess extends LpCreateState {
 }
 
 class LpCompanyTypeSuccess extends LpCreateState {
-  final LpCompanyTypeResponse lpCompanyTypeSuccess;
+  final List<LpCompanyTypeResponse> lpCompanyTypeSuccess;
 
   LpCompanyTypeSuccess(this.lpCompanyTypeSuccess);
 }

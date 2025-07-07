@@ -60,7 +60,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   final phoneNumberTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
 
-  List<CompanyType> preferredLanesList = [];
+  List<LpCompanyTypeResponse> preferredLanesList = [];
 
   String? companyTypeDropDownValue;
 
@@ -190,7 +190,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             decoration: commonInputDecoration(fillColor: Colors.white),
             dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
                 value: e.id.toString(),
-                child: Text(e.companyType, style: AppTextStyle.body)),
+                child: Text(e.companyType.toString(), style: AppTextStyle.body)),
             ).toList(),
             onChanged: (onChangeValue) {
               companyTypeDropDownValue = onChangeValue;
@@ -331,7 +331,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
       bloc: lpCreateBloc,
       listener: (context, state) {
         if (state is LpCompanyTypeSuccess) {
-          preferredLanesList = state.lpCompanyTypeSuccess.data;
+          preferredLanesList = state.lpCompanyTypeSuccess;
           setState(() {});
         }
         if (state is LpCreateSuccess) {

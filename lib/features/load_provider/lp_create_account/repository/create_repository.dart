@@ -16,10 +16,11 @@ class LpCreateRepository {
 
   Future<Result<UserModel?>> lpCreateRegistration(CreateRequest request,{required String id}) async {
     try {
-      Result<dynamic> result =  await _lpCreateService.lpRegister(request,id: id);
+      Result<dynamic> result =  await _lpCreateService.lpRegister(request);
       if (result is Success<UserModel?>) {
         if(result.value != null){
           Result saveUserResult = await _authRepository.saveUserInfoFromCreateAccount(result.value!);
+          
           if(saveUserResult is Success){
             return result;
           }
@@ -44,7 +45,7 @@ class LpCreateRepository {
 
 
 
-  Future<Result<LpCompanyTypeResponse>> getCompanyType(
+  Future<Result<List<LpCompanyTypeResponse>>> getCompanyType(
    ) async {
     try {
       return await _lpCreateService.getCompanyType();

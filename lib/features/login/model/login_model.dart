@@ -1,77 +1,85 @@
-// To parse this JSON data, do
-//
-//     final loginApiResponseModel = loginApiResponseModelFromJson(jsonString);
-
-import 'dart:convert';
-
-LoginApiResponseModel loginApiResponseModelFromJson(String str) => LoginApiResponseModel.fromJson(json.decode(str));
-
-String loginApiResponseModelToJson(LoginApiResponseModel data) => json.encode(data.toJson());
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
 
 class LoginApiResponseModel {
-  bool success;
-  String message;
-  Data data;
+    LoginApiResponseModel({
+        required this.message,
+        required this.user,
+    });
 
-  LoginApiResponseModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
+    final String message;
+    final UserDetailsModel? user;
 
-  factory LoginApiResponseModel.fromJson(Map<String, dynamic> json) => LoginApiResponseModel(
-    success: json["success"],
-    message: json["message"],
-    data: Data.fromJson(json["data"]),
-  );
+    LoginApiResponseModel copyWith({
+        String? message,
+        UserDetailsModel? user,
+    }) {
+        return LoginApiResponseModel(
+            message: message ?? this.message,
+            user: user ?? this.user,
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data.toJson(),
-  };
+    factory LoginApiResponseModel.fromJson(Map<String, dynamic> json){ 
+        return LoginApiResponseModel(
+            message: json["message"] ?? "",
+            user: json["user"] == null ? null : UserDetailsModel.fromJson(json["user"]),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "message": message,
+        "user": user?.toJson(),
+    };
+
 }
 
-class Data {
-  User user;
+class UserDetailsModel {
+    UserDetailsModel({
+        required this.id,
+        required this.mobileNumber,
+        required this.roleId,
+        required this.otp,
+        required this.kongToken,
+    });
 
-  Data({
-    required this.user,
-  });
+    final String id;
+    final String mobileNumber;
+    final int roleId;
+    final int otp;
+    final KongTokenOtpModel? kongToken;
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    user: User.fromJson(json["user"]),
-  );
+    UserDetailsModel copyWith({
+        String? id,
+        String? mobileNumber,
+        int? roleId,
+        int? otp,
+        KongTokenOtpModel? kongToken,
+    }) {
+        return UserDetailsModel(
+            id: id ?? this.id,
+            mobileNumber: mobileNumber ?? this.mobileNumber,
+            roleId: roleId ?? this.roleId,
+            otp: otp ?? this.otp,
+            kongToken: kongToken ?? this.kongToken,
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-    "user": user.toJson(),
-  };
-}
+    factory UserDetailsModel.fromJson(Map<String, dynamic> json){ 
+        return UserDetailsModel(
+            id: json["id"] ?? "",
+            mobileNumber: json["mobileNumber"] ?? "",
+            roleId: json["roleId"] ?? 0,
+            otp: json["otp"] ?? 0,
+            kongToken: json["kongToken"] == null ? null : KongTokenOtpModel.fromJson(json["kongToken"]),
+        );
+    }
 
-class User {
-  int id;
-  String mobileNumber;
-  int roleId;
-  int otp;
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "mobileNumber": mobileNumber,
+        "roleId": roleId,
+        "otp": otp,
+        "kongToken": kongToken?.toJson(),
+    };
 
-  User({
-    required this.id,
-    required this.mobileNumber,
-    required this.roleId,
-    required this.otp,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["id"],
-    mobileNumber: json["mobileNumber"],
-    roleId: json["roleId"],
-    otp: json["otp"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "mobileNumber": mobileNumber,
-    "roleId": roleId,
-    "otp": otp,
-  };
 }

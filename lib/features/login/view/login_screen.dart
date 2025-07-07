@@ -22,6 +22,7 @@ import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
@@ -38,7 +39,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final loginBloc = locator<LoginBloc>();
 
   final formKey = GlobalKey<FormState>();
@@ -72,14 +72,17 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber": state.loginApiResponseModel.data.user.mobileNumber,
-                "otp": state.loginApiResponseModel.data.user.otp.toString(),
+                "mobileNumber":
+                    state.loginApiResponseModel.user?.mobileNumber,
+                "otp": state.loginApiResponseModel.user?.otp.toString(),
                 "roleId": widget.roleId.toString(),
               },
             );
           }
           if (state is LogInError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
           }
         },
         builder: (context, state) {
@@ -130,14 +133,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                         keyboardType: iosNumberKeyboard,
                         decoration: commonInputDecoration(
-                          hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                          hintText:
+                              "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
                           prefixIcon: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Image.asset(AppImage.png.flag),
                               10.width,
-                              Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                              Text(
+                                "+91",
+                                style: AppTextStyle.textFieldHintBlackColor,
+                              ),
                             ],
                           ).paddingOnly(left: 20, right: 5),
                         ),
@@ -151,15 +158,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       AppButton(
                         isLoading: isLoading,
                         title: "Get OTP",
-                        style: (phoneNumber.text.length == 10 && checkBoxBool == true) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+                        style:
+                            (phoneNumber.text.length == 10 &&
+                                    checkBoxBool == true)
+                                ? AppButtonStyle.primary
+                                : AppButtonStyle.disableButton,
                         onPressed: () {
-                          if (!formKey.currentState!.validate()){
+                          if (!formKey.currentState!.validate()) {
                             return;
                           }
-                          if (phoneNumber.text.length == 10 && checkBoxBool == true) {
-                            loginBloc.add(LoginInRequested(
+                          if (phoneNumber.text.length == 10 &&
+                              checkBoxBool == true) {
+                            loginBloc.add(
+                              LoginInRequested(
                                 apiRequest: LoginApiRequest(
-                                  mobile: phoneNumber.text,
+                                  mobile: int.parse(phoneNumber.text.toInt),
                                   role: widget.roleId,
                                 ),
                               ),

@@ -24,7 +24,7 @@ class VpCompanyTypeInitial extends VpCreationState {}
 class VpCompanyTypeLoading extends VpCreationState {}
 
 class VpCompanyTypeSuccess extends VpCreationState {
-  final LpCompanyTypeResponse companyType;
+  final VpCompanyTypeResponse companyType;
   VpCompanyTypeSuccess(this.companyType);
 }
 

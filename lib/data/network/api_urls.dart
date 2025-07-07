@@ -50,7 +50,8 @@ class ApiUrls {
   // Base URL
   static String get _baseUrl => _fetchUrl;
 
-  static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth$_customer";
+  static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth";
+
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_load$_path$_v1$_map";
 
@@ -61,7 +62,7 @@ class ApiUrls {
 
   // Common Api
   static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
-  static final String  language = "$_fetchUrl$_customer$_path$_v1/language";
+  static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
 
@@ -102,7 +103,7 @@ class ApiUrls {
 
 
   /// LP Endpoints
-  static final String  createLpAccount = "$_customerBaseUrl$_lp/";
+  static final String  createLpAccount = _customerBaseUrl;
   static final String  login = "$_baseUrlWithAuth/login";
   static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";

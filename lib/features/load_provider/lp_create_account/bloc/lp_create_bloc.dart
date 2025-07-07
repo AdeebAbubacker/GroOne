@@ -31,7 +31,7 @@ class LpCreateBloc extends Bloc<LpCreateEvent, LpCreateState> {
       emit(LpCreateLoading());
       Result result = await _repository.getCompanyType();
 
-      if (result is Success<LpCompanyTypeResponse>) {
+      if (result is Success<List<LpCompanyTypeResponse>>) {
         emit(LpCompanyTypeSuccess(result.value));
       } else if (result is Error) {
         emit(LpCreateError(result.type));
