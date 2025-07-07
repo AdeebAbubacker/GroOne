@@ -94,6 +94,8 @@ class SvgIcons {
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
+  final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
+  final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
 
 
 }

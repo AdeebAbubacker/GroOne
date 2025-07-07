@@ -40,11 +40,13 @@ import 'widgets/product_counter.dart';
 class KavachCheckoutScreen extends StatefulWidget {
   final List<KavachProduct> products;
   final Map<String, int> quantities;
+  final Map<String, List<String>>? previousVehicleSelection;
 
   const KavachCheckoutScreen({
     super.key,
     required this.products,
     required this.quantities,
+    this.previousVehicleSelection
   });
 
   @override
@@ -135,7 +137,21 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             }
           });
     }
-    loadVehicleSelection();
+
+    for (var product in _products) {
+      final qty = _quantities[product.id] ?? 0;
+      final previousControllers = widget.previousVehicleSelection?[product.id] ?? [];
+      final controllers = List<TextEditingController>.generate(qty, (index) {
+        if (index < previousControllers.length) {
+          return TextEditingController(text: previousControllers[index]);
+        } else {
+          return TextEditingController();
+        }
+      });
+      vehicleControllersPerProduct[product.id] = controllers;
+    }
+
+    // loadVehicleSelection();
     kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
     kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
   }
@@ -148,7 +164,16 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         title: context.appText.checkout,
         leading : IconButton(
             onPressed: () {
-              Navigator.of(context).pop(_quantities);
+              // Navigator.of(context).pop(_quantities);
+              Navigator.of(context).pop({
+                'quantities': _quantities,
+                'vehicles': vehicleControllersPerProduct.map(
+                      (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
+                  ),
+                ),
+              });
             },
             icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
           ),
