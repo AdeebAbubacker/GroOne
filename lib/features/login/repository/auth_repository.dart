@@ -17,12 +17,12 @@ class AuthRepository {
   /// Save user data from login
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
-      final userData = user.data;
-      if (userData?.user == null) {
+      final userData = user;
+      if (userData.user == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
-      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.user!.id.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
 
@@ -52,7 +52,7 @@ class AuthRepository {
 
       if(userData.customer != null){
         await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
-       // await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.customer.re);\
+        //await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.customer!.companyTypeId);
       }
 
       //await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
@@ -70,21 +70,18 @@ class AuthRepository {
   /// Save user data from create account
   Future<Result<bool>> saveUserInfoFromCreateAccount(UserModel user) async {
     try {
-      final userData = user.data;
-      if (userData == null) {
-        CustomLog.error(this, "Save user failed", "User data is null");
-        return Error(LoginAttemptError());
-      }
+      final userData = user;
       
       // Save basic user info
       if(userData.customer != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
+        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.customerId);
         await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
+        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.customer!.companyTypeId);
+      }else{
+        CustomLog.error(this, "Save user failed", "User data is null");
+        return Error(LoginAttemptError());
       }
-      if(userData.details != null){
-        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId);
-      }
-      //  await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
+     //  await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
      return const Success(true);
     } catch (e) {
 

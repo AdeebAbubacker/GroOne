@@ -22,10 +22,10 @@ class ProfileService {
   final AuthRepository _authRepository;
   ProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
 
-  /// Fetch Profile Details
+  /// Fetch Profile Details Repo
   Future<Result<ProfileDetailModel>> getProfileDetails() async {
     try {
-      final url = ApiUrls.getProfile+ (await _userInformationRepository.getUserID() ?? "");
+      final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
       final result = await _apiService.get(url);
       if (result is Success) {
         dynamic data = await _apiService.getResponseStatus(result.value, (data)=> ProfileDetailModel.fromJson(data));
@@ -84,7 +84,8 @@ class ProfileService {
     }
   }
 
-  // fetch update profile
+
+  /// fetch update profile repo
   Future<Result<ProfileUpdateResponse>> fetchUpdateProfileData(ProfileUpdateRequest request, {required userID}) async {
     try {
       final result = await _apiService.put(ApiUrls.getProfile + userID, body: request);
@@ -101,7 +102,8 @@ class ProfileService {
     }
   }
 
-  // fetch profile upload
+
+  /// fetch profile upload repo
   Future<Result<ProfileImageUploadResponse>> fetchProfileUploadData(ProfileImageUploadRequest request, {required String userId}) async {
     try {
       final result = await _apiService.post(ApiUrls.updateProfile+userId, body: request);
@@ -119,7 +121,7 @@ class ProfileService {
   }
 
 
-  // fetch master
+  /// fetch master repo
   Future<Result<MasterResponse>> fetchGetMasterData({required String userId}) async {
     try {
       final result = await _apiService.get(ApiUrls.getMaster + userId);
@@ -137,7 +139,7 @@ class ProfileService {
   }
 
 
-  // Log out
+  /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
     try {
       final url = ApiUrls.logout;
