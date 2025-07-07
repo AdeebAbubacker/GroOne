@@ -37,11 +37,11 @@ class Data {
     required this.details,
   });
 
-  final Customer? customer;
+  final CustomerModelLp? customer;
   final Details? details;
 
   Data copyWith({
-    Customer? customer,
+    CustomerModelLp? customer,
     Details? details,
   }) {
     return Data(
@@ -52,15 +52,15 @@ class Data {
 
   factory Data.fromJson(Map<String, dynamic> json){
     return Data(
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      customer: json["customer"] == null ? null : CustomerModelLp.fromJson(json["customer"]),
       details: json["details"] == null ? null : Details.fromJson(json["details"]),
     );
   }
 
 }
 
-class Customer {
-  Customer({
+class CustomerModelLp {
+  CustomerModelLp({
     required this.id,
     required this.customerName,
     required this.mobileNumber,
@@ -96,7 +96,7 @@ class Customer {
   final DateTime? createdAt;
   final dynamic deletedAt;
 
-  Customer copyWith({
+  CustomerModelLp copyWith({
     int? id,
     String? customerName,
     String? mobileNumber,
@@ -114,7 +114,7 @@ class Customer {
     DateTime? createdAt,
     dynamic? deletedAt,
   }) {
-    return Customer(
+    return CustomerModelLp(
       id: id ?? this.id,
       customerName: customerName ?? this.customerName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
@@ -134,8 +134,8 @@ class Customer {
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
+  factory CustomerModelLp.fromJson(Map<String, dynamic> json){
+    return CustomerModelLp(
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
