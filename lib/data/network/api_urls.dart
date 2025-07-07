@@ -72,7 +72,7 @@ class ApiUrls {
 
 
   /// VP Endpoints
-  static final String createVpAccount = _customerBaseUrl;
+  static final String createVpAccount = "$_customerBaseUrl$_vp/";
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
   static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle/";
   static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/driver/";
