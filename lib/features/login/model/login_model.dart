@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
+
 class LoginApiResponseModel {
     LoginApiResponseModel({
         required this.message,
@@ -44,14 +46,14 @@ class UserDetailsModel {
     final String mobileNumber;
     final int roleId;
     final int otp;
-    final KongToken? kongToken;
+    final KongTokenOtpModel? kongToken;
 
     UserDetailsModel copyWith({
         String? id,
         String? mobileNumber,
         int? roleId,
         int? otp,
-        KongToken? kongToken,
+        KongTokenOtpModel? kongToken,
     }) {
         return UserDetailsModel(
             id: id ?? this.id,
@@ -68,7 +70,7 @@ class UserDetailsModel {
             mobileNumber: json["mobileNumber"] ?? "",
             roleId: json["roleId"] ?? 0,
             otp: json["otp"] ?? 0,
-            kongToken: json["kongToken"] == null ? null : KongToken.fromJson(json["kongToken"]),
+            kongToken: json["kongToken"] == null ? null : KongTokenOtpModel.fromJson(json["kongToken"]),
         );
     }
 
@@ -78,51 +80,6 @@ class UserDetailsModel {
         "roleId": roleId,
         "otp": otp,
         "kongToken": kongToken?.toJson(),
-    };
-
-}
-
-class KongToken {
-    KongToken({
-        required this.expiresIn,
-        required this.tokenType,
-        required this.refreshToken,
-        required this.accessToken,
-    });
-
-    final int expiresIn;
-    final String tokenType;
-    final String refreshToken;
-    final String accessToken;
-
-    KongToken copyWith({
-        int? expiresIn,
-        String? tokenType,
-        String? refreshToken,
-        String? accessToken,
-    }) {
-        return KongToken(
-            expiresIn: expiresIn ?? this.expiresIn,
-            tokenType: tokenType ?? this.tokenType,
-            refreshToken: refreshToken ?? this.refreshToken,
-            accessToken: accessToken ?? this.accessToken,
-        );
-    }
-
-    factory KongToken.fromJson(Map<String, dynamic> json){ 
-        return KongToken(
-            expiresIn: json["expires_in"] ?? 0,
-            tokenType: json["token_type"] ?? "",
-            refreshToken: json["refresh_token"] ?? "",
-            accessToken: json["access_token"] ?? "",
-        );
-    }
-
-    Map<String, dynamic> toJson() => {
-        "expires_in": expiresIn,
-        "token_type": tokenType,
-        "refresh_token": refreshToken,
-        "access_token": accessToken,
     };
 
 }

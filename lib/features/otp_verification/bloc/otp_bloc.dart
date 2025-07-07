@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/model/login_model.dart';
-import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model%20copy.dart';
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
 

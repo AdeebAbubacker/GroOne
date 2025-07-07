@@ -8,14 +8,14 @@ class UserModel {
     });
 
     final String message;
-    final Customer? customer;
+    final VpCustomerModel? customer;
     final VpAddressModel? address;
     final BankDetails? bankDetails;
     final VpvehiclesDetails? vpvehiclesDetails;
 
     UserModel copyWith({
         String? message,
-        Customer? customer,
+        VpCustomerModel? customer,
         VpAddressModel? address,
         BankDetails? bankDetails,
         VpvehiclesDetails? vpvehiclesDetails,
@@ -32,7 +32,7 @@ class UserModel {
     factory UserModel.fromJson(Map<String, dynamic> json){ 
         return UserModel(
             message: json["message"] ?? "",
-            customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+            customer: json["customer"] == null ? null : VpCustomerModel.fromJson(json["customer"]),
             address: json["address"] == null ? null : VpAddressModel.fromJson(json["address"]),
             bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
             vpvehiclesDetails: json["vpvehiclesDetails"] == null ? null : VpvehiclesDetails.fromJson(json["vpvehiclesDetails"]),
@@ -182,8 +182,8 @@ class BankDetails {
 
 }
 
-class Customer {
-    Customer({
+class VpCustomerModel {
+    VpCustomerModel({
         required this.customerId,
         required this.customerName,
         required this.mobileNumber,
@@ -225,7 +225,7 @@ class Customer {
     final DateTime? createdAt;
     final dynamic deletedAt;
 
-    Customer copyWith({
+    VpCustomerModel copyWith({
         String? customerId,
         String? customerName,
         String? mobileNumber,
@@ -246,7 +246,7 @@ class Customer {
         DateTime? createdAt,
         dynamic? deletedAt,
     }) {
-        return Customer(
+        return VpCustomerModel(
             customerId: customerId ?? this.customerId,
             customerName: customerName ?? this.customerName,
             mobileNumber: mobileNumber ?? this.mobileNumber,
@@ -269,8 +269,8 @@ class Customer {
         );
     }
 
-    factory Customer.fromJson(Map<String, dynamic> json){ 
-        return Customer(
+    factory VpCustomerModel.fromJson(Map<String, dynamic> json){ 
+        return VpCustomerModel(
             customerId: json["customer_id"] ?? "",
             customerName: json["customerName"] ?? "",
             mobileNumber: json["mobileNumber"] ?? "",
