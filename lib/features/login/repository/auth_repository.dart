@@ -2,7 +2,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
-import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -12,12 +11,6 @@ class AuthRepository {
   final ApiService _apiService;
   AuthRepository(this._securedSharedPref, this._apiService);
 
-
-  Future saveCompanyTypeId(ProfileDetailModel userData) async {
-    if(userData.data?.details != null){
-      await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.data!.details!.companyTypeId.toString());
-    }
-  }
 
 
   /// Save user data
@@ -58,15 +51,13 @@ class AuthRepository {
       if(userData.details != null){
         await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
       }
-      
-    
-      
      return const Success(true);
     } catch (e) {
 
       return Error(GenericError());
     }
   }
+
 
   /// Check if user has valid authentication token
   Future<bool> hasValidToken() async {
@@ -78,6 +69,7 @@ class AuthRepository {
       return false;
     }
   }
+
 
   /// Get user authentication status
   Future<Map<String, dynamic>> getAuthStatus() async {
@@ -102,6 +94,7 @@ class AuthRepository {
       };
     }
   }
+
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
