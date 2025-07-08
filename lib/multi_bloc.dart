@@ -17,8 +17,10 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/r
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -69,6 +71,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachOrderBloc>(create: (_) => locator<KavachOrderBloc>()),
         BlocProvider<KavachOrderListBloc>(create: (_) => locator<KavachOrderListBloc>()),
         BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
+        BlocProvider<TermsAndConditionsBloc>(create: (_) => locator<TermsAndConditionsBloc>()),
+        BlocProvider<PrivacyPolicyBloc>(create: (_) => locator<PrivacyPolicyBloc>()),
         BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
