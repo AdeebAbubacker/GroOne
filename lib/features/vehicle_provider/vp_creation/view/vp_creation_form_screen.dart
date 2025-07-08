@@ -549,10 +549,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               thenUploadFileToSever: ()  {
                 if (multiFilesList.isNotEmpty) {
                   uploadRcTruckFileBloc.add(
-                      /// TODO:
-                    /// add user id
                       UploadRcTruckFileRequested(
-                          userId: loginBloc.userId,
+                          userId: widget.id,
                           file: File(multiFilesList.first['path'])));
                 }
               },

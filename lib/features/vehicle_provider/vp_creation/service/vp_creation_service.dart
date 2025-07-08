@@ -21,8 +21,8 @@ class VpCreationService {
       final url = ApiUrls.createLpAccount;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-
-        return   Success(UserModel.fromJson(result.value));
+        final userResponse=UserModel.fromJson(result.value);
+        return Success(userResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -84,8 +84,8 @@ class VpCreationService {
           },
           pathName: "file");
       if (result is Success) {
-
-        return   Success(UploadRcTruckFileModel.fromJson(result.value));
+      final uploadTruckResponse=UploadRcTruckFileModel.fromJson(result.value);
+        return   Success(uploadTruckResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
