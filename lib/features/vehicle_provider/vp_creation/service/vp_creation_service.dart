@@ -61,8 +61,8 @@ class VpCreationService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        print("result value ${result.value}");
-        return   Success(TruckPrefLaneModel.fromJson(result.value));
+        final truckPrefLane= TruckPrefLaneModel.fromJson(result.value);
+        return  Success(truckPrefLane);
       } else if (result is Error) {
         return Error(result.type);
       } else {
