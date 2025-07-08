@@ -130,6 +130,7 @@ class PreferenceKey {
   final String fcmToken = "fcmToken";
   final String userAddress = "userAddress";
   final String userFullName = "userFullName";
+  final String userMobileNumber = "mobileNumber";
   final String userRole = "userRole";
   final String companyTypeId = "companyTypeId";
   final String blueId = "blueId";

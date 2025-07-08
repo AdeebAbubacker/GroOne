@@ -44,10 +44,11 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
 
       // Get username from session first
       String? username = await userInfoRepo.getUsername();
+
+      String? mobileNumber = await userInfoRepo.getUserMobileNumber();
       
       // If username is not in session, fetch from profile
       if (username == null || username.isEmpty) {
-        debugPrint('[EndhanCreateCardCustomerInfoScreen] Username not in session, fetching from profile...');
         
         // Fetch profile data
         await profileCubit.fetchProfileDetail();
@@ -56,7 +57,7 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
         final profileState = profileCubit.state;
         if (profileState.profileDetailUIState?.data?.data?.customer?.customerName != null) {
           username = profileState.profileDetailUIState!.data!.data!.customer!.customerName;
-          debugPrint('[EndhanCreateCardCustomerInfoScreen] Username from profile: $username');
+          mobileNumber = profileState.profileDetailUIState!.data!.data!.customer!.mobileNumber;
         }
       } else {
         debugPrint('[EndhanCreateCardCustomerInfoScreen] Username from session: $username');
@@ -65,6 +66,10 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
       // Set username in cubit if available
       if (username != null && username.isNotEmpty) {
         cubit.setCustomerName(username);
+      }
+      // Set mobile number in cubit if available
+      if (mobileNumber != null && mobileNumber.isNotEmpty) {
+        cubit.setMobile(mobileNumber);
       }
     });
 
@@ -182,8 +187,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Mobile Number *',
                             hintText: '+91 9876987654',
+                            controller: TextEditingController(text: state.mobile),
+                            readOnly: true,
                             keyboardType: TextInputType.phone,
-                            onChanged: (val) => cubit.setMobile(val),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Mobile number is required';
@@ -202,7 +208,13 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'PAN Number *',
                             hintText: 'ABCDE1234F',
-                            onChanged: (val) => cubit.setPan(val),
+                            maxLength: 10,
+                            textCapitalization: TextCapitalization.characters,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            onChanged: (val) => cubit.setPan(val.toUpperCase()),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'PAN number is required';

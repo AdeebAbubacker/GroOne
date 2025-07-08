@@ -120,19 +120,32 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     enDhanCubit.resetCubit();
 
     // Show success message and navigate immediately
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Customer and cards created successfully!'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text('Customer and cards created successfully!'),
+    //     backgroundColor: Colors.green,
+    //     duration: Duration(seconds: 2),
+    //   ),
+    // );
+     showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => SuccessDialogView(
+              message: 'Customer and cards created successfully!',
+              onContinue: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+                );
+              },
+            ),
+          );
 
     // Navigate back to the card screen
-    Navigator.of(context).pop();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-    );
+    // Navigator.of(context).pop();
+    // Navigator.of(context).pushReplacement(
+    //   MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+    // );
   }
 }
 
