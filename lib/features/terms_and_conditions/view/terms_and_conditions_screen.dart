@@ -116,11 +116,13 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
                       child: Html(
                         data: item.content ?? '',
                         style: {
-                          'body': Style(
-                            fontSize: FontSize(14),
-                            fontWeight: FontWeight.w400,
-                            color: AppTextStyle.textBlackColor14w400.color,
-                          ),
+                          'body': Style.fromTextStyle(
+                        AppTextStyle.textBlackColor14w400.copyWith(
+                       fontSize: 14,
+                       fontWeight: FontWeight.w400,
+                       color: AppTextStyle.textBlackColor14w400.color,
+                         ),
+                        ),
                         },
                       ),
                     ),
