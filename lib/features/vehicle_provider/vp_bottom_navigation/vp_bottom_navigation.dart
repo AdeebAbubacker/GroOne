@@ -75,12 +75,12 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
         if (state.profileDetailUIState?.status==Status.SUCCESS) {
           profileResponse = state.profileDetailUIState?.data;
-          bool isKyc = profileResponse?.data?.customer?.isKyc == 3;
+          bool isKyc = profileResponse?.customer?.isKyc == 3;
 
           VpVariables.setIsKycVerified(
-            isKycStatus: profileResponse?.data?.customer?.isKyc ?? 0,
+            isKycStatus: profileResponse?.customer?.isKyc ?? 0,
             isKyc: isKyc,
-            companyId: profileResponse?.data?.details?.companyTypeId ?? 0,
+            companyId: profileResponse?.customer?.companyTypeId ?? 0,
             profileDetailModel: profileResponse,
           );
         }

@@ -314,8 +314,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   bool validateDocs({
-    required String userRole,          // "2" for VP, anything else for LP
-    required int companyId,            // 1=sole, 2=individual …
+    required String userRole, // "2" for VP, anything else for LP
+    required int companyId, // 1=sole, 2=individual …
     // document lists
     required List gstDoc,
     required List panDoc,
@@ -332,26 +332,25 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     // VP FLOW
     if (userRole == "2") {
       if (companyId == 2) {
-        return need('Aadhaar', true) &                     // always true – already taken on previous screen
-        need('Cancelled Cheque', checkDocLink.isNotEmpty);
+        return need('Aadhaar', true) & need('Cancelled Cheque', checkDocLink.isNotEmpty); // always true – already taken on previous screen
       }
 
       final gstOk  = need('GST document',   gstDoc.isNotEmpty);
       final panOk  = need('PAN document',   panDoc.isNotEmpty);
       final chkOk  = need('Cancelled Cheque', checkDocLink.isNotEmpty);
       final tdsOk  = need('TDS certificate', tdsDocLink.isNotEmpty);
-      return gstOk & panOk & chkOk & tdsOk;                 // for Sole + Others
+      return gstOk & panOk & chkOk & tdsOk;  // for Sole + Others
     }
 
     // LP FLOW
     if (companyId == 2) {
-      return true;                                         // only Aadhaar needed
+      return true; // only Aadhaar needed
     }
     if (companyId == 1) {
       final gstOk = need('GST document', gstDoc.isNotEmpty);
       final panOk = need('PAN document', panDoc.isNotEmpty);
       final tanOk = need('TAN document', tanDoc.isNotEmpty);
-      return gstOk & panOk & tanOk;                        // Aadhaar already present
+      return gstOk & panOk & tanOk; // Aadhaar already present
     }
 
     // all other company types for LP
@@ -450,8 +449,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 return previous != current;
               },
               builder: (context, lpHomeState){
-                if(lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId != null){
-                  companyId  = lpHomeState.profileDetailUIState?.data?.data?.details?.companyTypeId;
+                if(lpHomeState.profileDetailUIState?.data?.customer?.companyTypeId != null){
+                  companyId  = lpHomeState.profileDetailUIState?.data?.customer?.companyTypeId;
                 }else{
                   companyId = null;
                 }

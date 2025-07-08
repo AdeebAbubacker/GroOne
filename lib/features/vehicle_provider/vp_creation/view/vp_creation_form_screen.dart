@@ -83,7 +83,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   List<int> selectedTruckTypeList = [];
   List<int> selectedPrefLanesTypeList = [];
 
-  List<String> getUniqueTypes(List<TruckTypeData> dataList) {
+  List<String> getUniqueTypes(List<LoadTruckTypeListModel> dataList) {
     return dataList.map((e) => e.type).toSet().toList();
   }
 
@@ -409,7 +409,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 hintText: context.appText.selectTruckType,
                 controller: truckTypeController,
                 mandatoryStar: true,
-                items: state.loadTruckTypeListModel.data.map((e) => DropdownItem<int>(
+                items: state.loadTruckTypeListModel.map((e) => DropdownItem<int>(
                   value: e.id,
                   label: "${e.type} ${e.subType}",
                 )).toList(),

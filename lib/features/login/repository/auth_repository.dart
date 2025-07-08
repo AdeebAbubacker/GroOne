@@ -18,14 +18,9 @@ class AuthRepository {
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
       final userData = user;
-      if (userData.user == null) {
-        CustomLog.error(this, "Save user failed", "User data is null");
-        return Error(LoginAttemptError());
-      }
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.user!.id.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
-
       CustomLog.debug(this, "Save user from login saved successfully");
       return const Success(true);
     } catch (e) {
@@ -38,23 +33,16 @@ class AuthRepository {
   /// Save user data from home
   Future<Result<bool>> saveUserInfoFromHome(ProfileDetailModel user) async {
     try {
-      final userData = user.data;
+      final userData = user.customer;
       if (userData == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
 
       // Save customer details basic user info
-      if(userData.details != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.details!.customerId.toString());
-        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId);
-      }
-
-      if(userData.customer != null){
-        await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
-        //await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.customer!.companyTypeId);
-      }
-
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.companyTypeId);
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
       //await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
 
       CustomLog.debug(this, "Save user from home saved successfully");

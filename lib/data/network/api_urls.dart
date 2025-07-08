@@ -36,7 +36,7 @@ class ApiUrls {
   static String get _auth => "/auth";
   static String get _vp => "/vp";
   static String get _lp => "/lp";
-  static String get _map => "/map";
+  static String get _map => "/map-location";
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
@@ -55,7 +55,7 @@ class ApiUrls {
   static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth";
 
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
-  static String get _mapBaseUrl => "$_baseUrl$_load$_path$_v1$_map";
+  static String get _mapBaseUrl => "$_baseUrl$_rateDiscovery$_path$_v1$_map";
 
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
@@ -72,6 +72,8 @@ class ApiUrls {
   static final String sendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/send";
   static final String resendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/resend";
   static final String emailOTPCodeVerification = "$_baseUrl$_notification$_path$_v1/email/verify";
+  static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
+  static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
 
 
   /// VP Endpoints
@@ -116,8 +118,8 @@ class ApiUrls {
   static final String  lpLoadById="$_baseUrl$_load$_path$_v1$_load";
   static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
   static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
-  static final String  lpLoadRoute="$_baseUrl$_load$_path$_v1/lanes";
-  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit";
+  static final String  lpLoadRoute="$_baseUrl$_rateDiscovery$_path$_v1/lane";
+  static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  lpLoadAgree="$_baseUrl$_load$_path$_v1$_load/lp-agree";
   static final String  lpLoadVerifyAdvance="$_baseUrl$_load$_path$_v1$_load/verify-advance";
@@ -127,16 +129,16 @@ class ApiUrls {
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
 
   // Load Form pick list
-  static final String  loadCommodity = "$_loadBaseUrl/commodity";
-  static final String  loadTruckType = "$_loadBaseUrl/truck-type/";
+  static final String  loadCommodity = "$_loadBaseUrl/commodities";
+  static final String  loadTruckType = "$_loadBaseUrl/truck-types/";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
-  static final String  getRecentRoute = "$_loadBaseUrl$_load/distinct-source-destination";
+  static final String  getRecentRoute = "$baseUrl$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
 
   // Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";
-  static final String  getLoads = "$_loadBaseUrl$_load$_customer/";
+  static final String  getLoads = "$baseUrl$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
 

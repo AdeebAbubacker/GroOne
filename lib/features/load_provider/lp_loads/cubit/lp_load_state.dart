@@ -6,7 +6,7 @@ class LpLoadState extends Equatable {
   final UIState<LoadMemoData>? lpLoadMemoDetails;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp;
-  final UIState<LoadTruckTypeListModel>? lpLoadTruckTypes;
+  final UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes;
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
   final UIState<CreditCheckApiResponse>? lpCreditCheck;
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
@@ -44,7 +44,7 @@ class LpLoadState extends Equatable {
     UIState<LoadMemoData>? lpLoadMemoDetails,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp,
-    UIState<LoadTruckTypeListModel>? lpLoadTruckTypes,
+    UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes,
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
     UIState<CreditCheckApiResponse>? lpCreditCheck,
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,

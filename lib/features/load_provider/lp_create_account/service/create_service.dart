@@ -36,13 +36,10 @@ class LpCreateService {
 Future<Result<List<LpCompanyTypeResponse>>> getCompanyType() async {
   try {
     final result = await _apiService.get(ApiUrls.companyType);
-
     if (result is Success) {
       final responseData = result.value;
       if (responseData is List) {
-        final companyTypes = responseData
-            .map((e) => LpCompanyTypeResponse.fromJson(e))
-            .toList();
+        final companyTypes = responseData.map((e) => LpCompanyTypeResponse.fromJson(e)).toList();
         return Success(companyTypes);
       } else {
         return Error(DeserializationError());

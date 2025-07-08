@@ -55,9 +55,7 @@ class VpCreationService {
     // Fetch TruckPrefLaneModel
   Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
     try {
-      final url = location?.isNotEmpty == true
-    ? "${ApiUrls.truckPrefLane}?search=$location"
-    : ApiUrls.truckPrefLane;
+      final url = location?.isNotEmpty == true ? "${ApiUrls.truckPrefLane}?search=$location" : ApiUrls.truckPrefLane;
       final result = await _apiService.get(url);
 
       if (result is Success) {

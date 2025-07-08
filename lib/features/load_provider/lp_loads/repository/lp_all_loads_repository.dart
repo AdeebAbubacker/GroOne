@@ -52,7 +52,7 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
       return service.fetchTruckTypeList();
     } catch (e) {

@@ -159,34 +159,35 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           builder: (context, state) {
             final profileState = state.profileDetailUIState;
 
-            if (profileState == null ||
-                profileState.status != Status.SUCCESS ||
-                profileState.data == null ||
-                profileState.data?.data == null ||
-                profileState.data?.data?.customer == null) {
+            if (profileState == null || profileState.status != Status.SUCCESS ||
+                profileState.data == null || profileState.data?.customer == null) {
               return const SizedBox.shrink();
             }
 
-            final customer = profileState.data!.data!.customer!;
-            final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+            final customer = profileState.data!.customer!;
+            final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
+            final companyId = profileState.data?.customer?.companyTypeId;
+
             CustomLog.debug(this, 'is KYC : $kycFlag');
+            CustomLog.debug(this, 'Company Id : $companyId');
 
             if (kycFlag == 3 || kycFlag == 2) {
               return const SizedBox.shrink();
             }
 
-            final companyId = profileState.data!.data?.details?.companyTypeId;
-            CustomLog.debug(this, 'Company Id : $companyId');
-
-            return kycWidget(
-              onTap: () {
-                if (companyId != null && (companyId == 2 || companyId == 1)) {
-                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                } else {
-                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                }
-              },
-            );
+            if (kycFlag == 1) {
+              return kycWidget(
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
 
           },
         ),
@@ -204,28 +205,26 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           },
           builder: (context, state) {
             if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
-                if (state.profileDetailUIState?.data?.data?.details != null) {
-                  final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
-                  return Row(
-                    children: [
-                      10.width,
+              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
+                final blueId = state.profileDetailUIState!.data!.customer?.blueId;
+                return Row(
+                  children: [
+                    10.width,
 
-                      // Profile
-                      Container(
-                        height: 40,
-                        width: 40,
-                        alignment: Alignment.center,
-                        decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                        child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
-                      ).onClick((){
-                        Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                          frameCallback(() =>  profileCubit.fetchProfileDetail());
-                        });
-                      }).paddingRight(commonSafeAreaPadding),
-                    ],
-                  );
-                }
+                    // Profile
+                    Container(
+                      height: 40,
+                      width: 40,
+                      alignment: Alignment.center,
+                      decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                    ).onClick((){
+                      Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
+                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                      });
+                    }).paddingRight(commonSafeAreaPadding),
+                  ],
+                );
               }
             }
             return Container(
@@ -252,9 +251,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
       listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
 
-        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.customer != null) {
 
-          final blueIdFromApi = profileState.data!.data!.customer!.blueId;
+          final blueIdFromApi = profileState.data!.customer!.blueId;
           final blueIdFromStorage = await profileCubit.getBlueId();
           bool popupShownFlag = await profileCubit.getHasShowBluePopup();
 
@@ -279,12 +278,11 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
       builder: (context, state) {
         final profileState = state.profileDetailUIState;
 
-        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data != null &&
-            profileState.data?.data != null && profileState.data?.data?.customer != null) {
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data != null  && profileState.data?.customer != null) {
 
-          final customer = profileState.data!.data!.customer!;
-          final companyId = profileState.data!.data?.details?.companyTypeId;
-          final companyName = profileState.data!.data?.details?.companyName;
+          final customer = profileState.data!.customer!;
+          final companyId = profileState.data?.customer?.companyTypeId;
+          final companyName = profileState.data?.customer?.companyName;
 
           CustomLog.debug(this, "Company Name: $companyName");
 
@@ -294,7 +292,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
-          } else {
+          } else if (customer.isKyc == 1) {
             return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }

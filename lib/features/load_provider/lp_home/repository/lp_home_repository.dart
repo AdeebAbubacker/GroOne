@@ -43,7 +43,7 @@ class LpHomeRepository{
 
 
   /// Get Load Commodity data Repo
-  Future<Result<LoadCommodityListModel>> getLoadCommodityData() async {
+  Future<Result<List<LoadCommodityListModel>>> getLoadCommodityData() async {
     try {
       return await _lpHomeService.fetchLoadCommodityData();
     } catch (e) {
@@ -54,7 +54,7 @@ class LpHomeRepository{
 
 
   /// Get Truck Type data Repo
-  Future<Result<LoadTruckTypeListModel>> getTruckTypeData() async {
+  Future<Result<List<LoadTruckTypeListModel>>> getTruckTypeData() async {
     try {
       return await _lpHomeService.fetchTruckTypeData();
     } catch (e) {
@@ -121,7 +121,7 @@ class LpHomeRepository{
 
 
   /// Get Load Weight Repo
-  Future<Result<LoadWeightModel>> getLoadWeightData() async {
+  Future<Result<List<LoadWeightModel>>> getLoadWeightData() async {
     try {
       return await _lpHomeService.fetchLoadWeightData();
     } catch (e) {
