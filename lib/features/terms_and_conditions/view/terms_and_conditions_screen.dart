@@ -5,6 +5,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'package:gro_one_app/features/terms_and_conditions/model/terms_and_conditions_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -46,7 +47,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
           } else if (state is TermsAndCondtionsSuccess) {
             return buildBodyWidget(state.termsAndconditionsModel?.data ?? []);
           } else if (state is TermsAndCondtionsError) {
-            return const Center(child: Text("Failed to load Terms and Conditions."));
+            return  Center(child: Text(context.appText.failedToLoadTermsAndConditions));
           } else {
             return const SizedBox();
           }
@@ -89,7 +90,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Terms and Conditions",
+          context.appText.termsAndConditions,
           style: AppTextStyle.textBlackColor30w500,
         ),
         const SizedBox(height: 20),

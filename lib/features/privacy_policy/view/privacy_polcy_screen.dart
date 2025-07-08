@@ -5,6 +5,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/model/privacy_policy_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -45,7 +46,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
           } else if (state is PrivacyPolicySuccess) {
             return buildBodyWidget(state.privacyDetailsModel?.data ?? []);
           } else if (state is PrivacyPolicyError) {
-            return const Center(child: Text("Failed to load Privacy Policy."));
+            return  Center(child: Text(context.appText.failedToLoadPrivacyPolicy));
           } else {
             return const SizedBox();
           }
@@ -88,7 +89,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Privacy Policies",
+          context.appText.privacyPolicy,
           style: AppTextStyle.textBlackColor30w500,
         ),
         const SizedBox(height: 20),
