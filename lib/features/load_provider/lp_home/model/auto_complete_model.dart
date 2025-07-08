@@ -1,38 +1,5 @@
 class AutoCompleteModel {
   AutoCompleteModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final Data? data;
-
-  AutoCompleteModel copyWith({
-    bool? success,
-    String? message,
-    Data? data,
-  }) {
-    return AutoCompleteModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory AutoCompleteModel.fromJson(Map<String, dynamic> json){
-    return AutoCompleteModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class Data {
-  Data({
     required this.predictions,
     required this.status,
   });
@@ -40,18 +7,18 @@ class Data {
   final List<Prediction> predictions;
   final String status;
 
-  Data copyWith({
+  AutoCompleteModel copyWith({
     List<Prediction>? predictions,
     String? status,
   }) {
-    return Data(
+    return AutoCompleteModel(
       predictions: predictions ?? this.predictions,
       status: status ?? this.status,
     );
   }
 
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
+  factory AutoCompleteModel.fromJson(Map<String, dynamic> json){
+    return AutoCompleteModel(
       predictions: json["predictions"] == null ? [] : List<Prediction>.from(json["predictions"]!.map((x) => Prediction.fromJson(x))),
       status: json["status"] ?? "",
     );

@@ -91,12 +91,13 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
       final url = ApiUrls.loadTruckType;
       final response = await _apiService.get(url);
       if (response is Success) {
-        final loads = LoadTruckTypeListModel.fromJson(response.value);
+        final List<dynamic> list = response.value;
+        final loads = list.map((e) => LoadTruckTypeListModel.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -182,7 +183,7 @@ class LpLoadService {
   Future<Result<CreditCheckApiResponse>> getCreditCheck({ required String customerId,}) async {
     try {
       final url = ApiUrls.lpCreditCheck;
-      final response = await _apiService.get('$url/export/$customerId');
+      final response = await _apiService.get('$url/$customerId');
 
       if (response is Success) {
         final loads = CreditCheckApiResponse.fromJson(response.value);

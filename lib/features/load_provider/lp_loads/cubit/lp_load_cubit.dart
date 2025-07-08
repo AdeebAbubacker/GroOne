@@ -130,7 +130,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
 
   // Updates the UI state related to load truck.
-  void _setTruckTypeState(UIState<LoadTruckTypeListModel>? uiState) {
+  void _setTruckTypeState(UIState<List<LoadTruckTypeListModel>>? uiState) {
     emit(state.copyWith(lpLoadTruckTypes: uiState));
   }
 
@@ -140,7 +140,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
     Result result = await _repository.fetchTruckTypeList();
 
-    if (result is Success<LoadTruckTypeListModel>) {
+    if (result is Success<List<LoadTruckTypeListModel>>) {
       _setTruckTypeState(UIState.success(result.value));
     } else if (result is Error) {
       _setTruckTypeState(UIState.error(result.type));
