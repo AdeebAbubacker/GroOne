@@ -716,7 +716,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   builder: (context, state) {
 
                     if (state is LoadCommoditySuccess) {
-                      final commodities = state.commodityListModel.data;
+                      final commodities = state.commodityListModel;
 
                       return LPCommodityDropdown(
                         preFixIcon: AppIcons.svg.commodity,
@@ -753,11 +753,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 bloc: lpHomeCubit,
                 listener: (context, state) {},
                 builder: (context, state) {
-                  final weights = state.loadWeightUIState?.data?.data ?? [];
+                  final weights = state.loadWeightUIState?.data ?? [];
                   return LPWeightDropdown(
                     preFixIcon: AppIcons.svg.kgWeight,
                     hintText: "Weight (MT)",
-                    onSelect: (LoadWeightData weight) async {
+                    onSelect: (LoadWeightModel weight) async {
                       weightTextController.text = weight.value.toString();
                       setState(() {});
                     },
@@ -802,11 +802,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   bloc: loadTruckTypeBloc,
                   builder: (context, state) {
                     if (state is LoadTruckTypeSuccess) {
-                      final truckTypesList = state.loadTruckTypeListModel.data;
+                      final truckTypesList = state.loadTruckTypeListModel;
                       return LPTruckTypeDropdown(
                         preFixIcon: AppIcons.svg.truck,
                         hintText: "Truck Type",
-                        onSelect: (TruckTypeData truck) async {
+                        onSelect: ( truck) async {
                           selectedTruck = "${truck.type} ${truck.subType}";
                           truckTypeId = truck.id.toString();
                           truckType = truck.type;
@@ -818,7 +818,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         onTab: () {
                           Navigator.of(context).push(createRoute(TruckTypesScreen(
                             dataList: truckTypesList,
-                            onSelect: (TruckTypeData truck) async {
+                            onSelect: (truck) async {
                               selectedTruck = "${truck.type} ${truck.subType}";
                               truckTypeId = truck.id.toString();
                               truckType = truck.type;

@@ -149,17 +149,17 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required LocationDetails locationDetails}) async {
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required int locationId}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
-        locationdetails: locationDetails,
+        locationId: locationId,
         type: type
     );
     await lpHomeCubit.verifyLocation(apiRequest);
     Status? status = lpHomeCubit.state.verifyLocationUIState?.status;
     if (status != null) {
       if(status == Status.SUCCESS){
-        final data = lpHomeCubit.state.verifyLocationUIState?.data?.data;
+        final data = lpHomeCubit.state.verifyLocationUIState?.data;
         if(data != null && data.locationdetails != null){
           LatLng? latLng = getLatLngFromGMapResponse(data);
           if (latLng != null) {
@@ -168,7 +168,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             }
             _setMarker(latLng);
           }
-          searchTextController.text = locationDetails.name;
+          searchTextController.text = data.locationdetails?.wholeAddr ?? '';
           if(widget.title == 'Pickup Point') {
             lpHomeCubit.setPickupLocationDetailId(data.locationdetails!.id);
           } else {
@@ -349,26 +349,27 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       builder: (context, state){
 
         if(state.autoCompleteUIState != null && state.autoCompleteUIState!.status == Status.SUCCESS){
-          if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.data!.predictions.isNotEmpty){
+          if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.predictions.isNotEmpty){
             return  ConstrainedBox(
               constraints: BoxConstraints(maxHeight: 150),
               child: Container(
                 decoration: commonContainerDecoration(shadow: true),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount:  state.autoCompleteUIState!.data!.data!.predictions.length,
+                  itemCount:  state.autoCompleteUIState!.data!.predictions.length,
                   itemBuilder: (context, index) {
-                    final item =  state.autoCompleteUIState!.data!.data!.predictions[index];
+                    final item =  state.autoCompleteUIState!.data!.predictions[index];
                     return ListTile(
                       title: Text(item.description, style: AppTextStyle.body),
                       onTap: () async {
-                        final locationDetails = LocationDetails(
-                            id : widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId,
-                            name: item.description,
-                            slug: item.description.toLowerCase(),
-                        );
-                        final type = widget.title == "Pickup Point" ? 2 : 1;
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationDetails: locationDetails);
+                        // final locationDetails = LocationDetails(
+                        //     id : widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId,
+                        //     name: item.description,
+                        //     slug: item.description.toLowerCase(),
+                        // );
+                        final locationId = widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId;
+                        final type = widget.title == "Pickup Point" ? 1 : 2;
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0);
 
                       },
                     );
