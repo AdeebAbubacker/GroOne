@@ -129,7 +129,7 @@ class ApiUrls {
 
   // Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
-  static final String  loadTruckType = "$_loadBaseUrl/truck-types/";
+  static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
   static final String  getRecentRoute = "$baseUrl$_path$_v1$_load/distinct-source-destination";

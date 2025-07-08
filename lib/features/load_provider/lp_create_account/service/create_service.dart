@@ -54,4 +54,5 @@ Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
     return Error(DeserializationError());
   }
 }
+
 }

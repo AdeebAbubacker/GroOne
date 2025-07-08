@@ -22,8 +22,6 @@ import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
@@ -33,6 +31,7 @@ import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_ad
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
+import 'features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
 
@@ -48,9 +47,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<RoleBloc>(create: (_) => locator<RoleBloc>()),
         BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
-        BlocProvider<VpCreationBloc>(create: (_) => locator<VpCreationBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
-        BlocProvider<UploadRcTruckFileBloc>(create: (_) => locator<UploadRcTruckFileBloc>()),
         BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
         BlocProvider<LpMapSelectPickPointBloc>(create: (_) => locator<LpMapSelectPickPointBloc>()),
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
@@ -81,6 +78,7 @@ class MultiBlocWrapper extends StatelessWidget {
         // EnDhanCubit removed from MultiBlocWrapper to control lifecycle manually
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
         BlocProvider<LpCreateAccountCubit>(create: (_) => locator<LpCreateAccountCubit>()),
+        BlocProvider<VpCreateAccountCubit>(create: (_) => locator<VpCreateAccountCubit>()),
       ],
       child: child,
     );

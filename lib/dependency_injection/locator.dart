@@ -67,8 +67,7 @@ import 'package:gro_one_app/features/terms_and_conditions/service/terms_and_cond
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/repository/vp_all_load_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/service/vp_all_load_service.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/service/vp_creation_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
@@ -127,7 +126,7 @@ void initLocator() {
     locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => MobileOtpVerificationRepository(locator<MobileOtpVerificationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>(),   locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>()));
@@ -154,8 +153,6 @@ void initLocator() {
     locator.registerLazySingleton(() => RoleBloc());
     locator.registerLazySingleton(() => LoginBloc(locator<LoginInRepository>()));
     locator.registerLazySingleton(() => OtpBloc(locator<MobileOtpVerificationRepository>()));
-    locator.registerLazySingleton(() => VpCreationBloc(locator<VpCreationRepository>(), locator<LpCreateRepository>()));
-    locator.registerLazySingleton(() => UploadRcTruckFileBloc(locator<VpCreationRepository>()));
     locator.registerLazySingleton(() => ProfileBloc(locator<ProfileRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeBloc(locator<LpHomeRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpMapSelectPickPointBloc(locator<LPMapSelectAddressRepository>()));
@@ -188,6 +185,8 @@ void initLocator() {
     locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>()));
     locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
     locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
+    locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
+
 
 
     CustomLog.info(locator, "All instances registered.");
