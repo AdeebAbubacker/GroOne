@@ -1,4 +1,4 @@
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 
 import '../../../../data/model/result.dart';
@@ -14,7 +14,7 @@ class LpCreateService {
 
   LpCreateService(this._apiService);
 
-  Future<Result<UserModel?>> lpRegister(CreateRequest request) async {
+  Future<Result<UserModel?>> createAccount(LpCreateApiRequest request) async {
     try {
       final url = ApiUrls.createLpAccount;
       final result = await _apiService.post(url, body: request.toJson());
@@ -33,13 +33,13 @@ class LpCreateService {
   }
 
 
-Future<Result<List<VpCompanyTypeModel>>> getCompanyType() async {
+Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
   try {
     final result = await _apiService.get(ApiUrls.companyType);
     if (result is Success) {
       final responseData = result.value;
       if (responseData is List) {
-        final companyTypes = responseData.map((e) => VpCompanyTypeModel.fromJson(e)).toList();
+        final companyTypes = responseData.map((e) => LpCompanyTypeModel.fromJson(e)).toList();
         return Success(companyTypes);
       } else {
         return Error(DeserializationError());

@@ -8,7 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -33,7 +33,7 @@ import '../../../../utils/textFieldInputFormatter/phone_number_input_formatter.d
 import '../../../../utils/toast_messages.dart';
 import '../../../../utils/validator.dart';
 import '../../../choose_language_screen/view/choose_language_screen.dart';
-import '../model/lp_company_type_response.dart';
+import '../model/lp_company_type_model.dart';
 
 class LpCreateAccount extends StatefulWidget {
   final String userId;
@@ -50,7 +50,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final lpCreateBloc = locator<LpCreateBloc>();
+  final lpCreateCubit = locator<LpCreateAccountCubit>();
   final verifyEmailCubit = locator<EmailVerificationCubit>();
 
 
@@ -59,8 +59,6 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   final emailTextController = TextEditingController();
   final phoneNumberTextController = TextEditingController();
   final pinCodeTextController = TextEditingController();
-
-  List<LpCompanyTypeResponse> preferredLanesList = [];
 
   String? companyTypeDropDownValue;
 
@@ -80,7 +78,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   }
 
   void initFunction() => frameCallback(() {
-    lpCreateBloc.add(LpCompanyTypeRequested());
+    lpCreateCubit.fetchCompanyType();
     phoneNumberTextController.text = widget.mobileNumber;
   });
 
@@ -89,9 +87,9 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     companyNameTextController.clear();
     phoneNumberTextController.clear();
     pinCodeTextController.clear();
-    preferredLanesList.clear();
     companyTypeDropDownValue = null;
     verifyEmailCubit.resetState();
+    lpCreateCubit.resetState();
   });
 
 
@@ -181,23 +179,47 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           20.height,
 
           // Company Type
-          // AppDropdown(
-          //   validator: (value) => Validator.fieldRequired(value),
-          //   labelText: "Company Type",
-          //   hintText: context.appText.selectCompanyType,
-          //   dropdownValue: companyTypeDropDownValue,
-          //   mandatoryStar: true,
-          //   decoration: commonInputDecoration(fillColor: Colors.white),
-          //   dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
-          //       value: e.id.toString(),
-          //       child: Text(e.companyType.toString(), style: AppTextStyle.body)),
-          //   ).toList(),
-          //   onChanged: (onChangeValue) {
-          //     companyTypeDropDownValue = onChangeValue;
-          //     setState(() {});
-          //   },
-          // ),
-          20.height,
+          BlocConsumer<LpCreateAccountCubit, LpCreateAccountState>(
+            bloc: lpCreateCubit,
+            listener: (context, state) {
+              final status = state.companyTypeUIState?.status;
+
+              if (status == Status.ERROR) {
+                final error = state.companyTypeUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+            },
+            builder: (context, state) {
+              final status = state.companyTypeUIState?.status;
+              final isSuccess = status == Status.SUCCESS;
+              final data = state.companyTypeUIState?.data;
+              if (isSuccess && data != null) {
+                return Column(
+                  children: [
+                    AppDropdown(
+                      validator: (value) => Validator.fieldRequired(value),
+                      labelText: "Company Type",
+                      hintText: context.appText.selectCompanyType,
+                      dropdownValue: companyTypeDropDownValue,
+                      mandatoryStar: true,
+                      decoration: commonInputDecoration(fillColor: Colors.white),
+                      dropDownList: state.companyTypeUIState!.data!.map((e) => DropdownMenuItem(
+                          value: e.id.toString(),
+                          child: Text(e.companyType.toString(), style: AppTextStyle.body)),
+                      ).toList(),
+                      onChanged: (onChangeValue) {
+                        companyTypeDropDownValue = onChangeValue;
+                        setState(() {});
+                      },
+                    ),
+                    20.height,
+                  ],
+                );
+              } else {
+                return const SizedBox();
+              }
+            },
+          ),
 
           // Name
           AppTextField(
@@ -325,24 +347,27 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     );
   }
 
+
   // Submit Button
   Widget buildSubmitButtonWidget() {
-    return BlocConsumer<LpCreateBloc, LpCreateState>(
-      bloc: lpCreateBloc,
+    return BlocConsumer<LpCreateAccountCubit, LpCreateAccountState>(
+      bloc: lpCreateCubit,
       listener: (context, state) {
-        if (state is LpCompanyTypeSuccess) {
-          preferredLanesList = state.lpCompanyTypeSuccess;
-          setState(() {});
-        }
-        if (state is LpCreateSuccess) {
+        final status = state.createAccountUIState?.status;
+
+        if (status == Status.SUCCESS) {
+          if (!context.mounted) return;
           navigateToHomeScreen(context);
         }
-        if (state is LpCreateError) {
-          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+
+        if (status == Status.ERROR) {
+          final error = state.createAccountUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
       },
       builder: (context, state) {
-        final isLoading = state is LpCreateLoading;
+        final status = state.createAccountUIState?.status;
+        final isLoading = status == Status.LOADING;
         return AppButton(
           title: context.appText.continueText,
           isLoading: isLoading,
@@ -352,7 +377,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 ToastMessages.alert(message: "Please verify your email");
                 return;
               }
-              final apiRequest = CreateRequest(
+              final apiRequest = LpCreateApiRequest(
                 customerName: nameTextController.text,
                 mobileNumber: phoneNumberTextController.text,
                 companyName: companyNameTextController.text,
@@ -361,7 +386,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 email: emailTextController.text,
                 roleId: int.parse(widget.roleId)
               );
-              lpCreateBloc.add(LpCreateRequested(apiRequest: apiRequest, id: widget.userId));
+              lpCreateCubit.createAccount(apiRequest);
             }
           },
         );

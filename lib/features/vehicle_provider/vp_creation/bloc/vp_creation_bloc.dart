@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/repository/create_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/log_out_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
@@ -40,8 +40,8 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   // Company type
   Future<void> fetchCompanyTypeApiCall(VpCompanyTypeEvent event, Emitter<VpCreationState> emit) async {
     emit(VpCompanyTypeLoading());
-    Result result = await _lpCreateRepository.getCompanyType();
-    if (result is Success<List<VpCompanyTypeModel>>) {
+    Result result = await _lpCreateRepository.getCompanyTypeData();
+    if (result is Success<List<LpCompanyTypeModel>>) {
       emit(VpCompanyTypeSuccess(result.value));
     }
     if (result is Error) {

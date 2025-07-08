@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
@@ -10,6 +9,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_o
 import 'package:gro_one_app/features/kavach/cubit/choose_preference_cubit.dart';
 import 'package:gro_one_app/features/kavach/cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
@@ -31,10 +31,10 @@ import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
-import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
 import 'features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+
 
 class MultiBlocWrapper extends StatelessWidget {
   final Widget child;
@@ -49,7 +49,6 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
         BlocProvider<VpCreationBloc>(create: (_) => locator<VpCreationBloc>()),
-        BlocProvider<LpCreateBloc>(create: (_) => locator<LpCreateBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
         BlocProvider<UploadRcTruckFileBloc>(create: (_) => locator<UploadRcTruckFileBloc>()),
         BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
@@ -81,6 +80,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
         // EnDhanCubit removed from MultiBlocWrapper to control lifecycle manually
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
+        BlocProvider<LpCreateAccountCubit>(create: (_) => locator<LpCreateAccountCubit>()),
       ],
       child: child,
     );

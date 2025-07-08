@@ -24,7 +24,7 @@ class VpCompanyTypeInitial extends VpCreationState {}
 class VpCompanyTypeLoading extends VpCreationState {}
 
 class VpCompanyTypeSuccess extends VpCreationState {
-  final List<VpCompanyTypeModel> companyType;
+  final List<LpCompanyTypeModel> companyType;
   VpCompanyTypeSuccess(this.companyType);
 }
 
