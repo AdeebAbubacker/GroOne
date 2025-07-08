@@ -18,10 +18,11 @@ class VpCreationService {
   // Fetch Vp Creation
   Future<Result<UserModel?>> fetchVpCreationData(VpCreationApiRequest request,{required String id}) async {
     try {
-      final url = ApiUrls.createVpAccount+id;
-      final result = await _apiService.put(url, body: request.toJson());
+      final url = ApiUrls.createLpAccount;
+      final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> UserModel.fromJson(data));
+
+        return   Success(UserModel.fromJson(result.value));
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -58,8 +59,10 @@ class VpCreationService {
     ? "${ApiUrls.truckPrefLane}?search=$location"
     : ApiUrls.truckPrefLane;
       final result = await _apiService.get(url);
+
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> TruckPrefLaneModel.fromJson(data));
+        print("result value ${result.value}");
+        return   Success(TruckPrefLaneModel.fromJson(result.value));
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -72,12 +75,17 @@ class VpCreationService {
   }
 
   // Fetch Upload Rc Truck File
-  Future<Result<UploadRcTruckFileModel>> fetchUploadRcTruckFileData(File files) async {
+  Future<Result<UploadRcTruckFileModel>> fetchUploadRcTruckFileData(File files,String? userId) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, files, pathName: "file");
+      final result = await _apiService.multipart(url, files,
+          fields: {
+          "fileType":"upload_rc", "userId":userId??""
+          },
+          pathName: "file");
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> UploadRcTruckFileModel.fromJson(data));
+
+        return   Success(UploadRcTruckFileModel.fromJson(result.value));
       } else if (result is Error) {
         return Error(result.type);
       } else {

@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/email_verification/cubit/email_verification
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
@@ -60,7 +61,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   final uploadRcTruckFileBloc = locator<UploadRcTruckFileBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
   final verifyEmailCubit = locator<EmailVerificationCubit>();
-
+  final loginBloc = locator<LoginBloc>();
   final nameTextController = TextEditingController();
   final mobileNumberTextController = TextEditingController();
   final emailTextController = TextEditingController();
@@ -547,7 +548,12 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               isLoading: state is UploadRcTruckFileLoading,
               thenUploadFileToSever: ()  {
                 if (multiFilesList.isNotEmpty) {
-                  uploadRcTruckFileBloc.add(UploadRcTruckFileRequested(file: File(multiFilesList.first['path'])));
+                  uploadRcTruckFileBloc.add(
+                      /// TODO:
+                    /// add user id
+                      UploadRcTruckFileRequested(
+                          userId: loginBloc.userId,
+                          file: File(multiFilesList.first['path'])));
                 }
               },
             );

@@ -66,10 +66,12 @@ class VpCreationBloc extends Bloc<VpCreationEvent, VpCreationState> {
   Future<void> fetchTruckPrefLane(GetTruckPrefLaneEvent event, Emitter<VpCreationState> emit) async {
     emit(TruckPrefLaneLoading());
     Result result = await _repository.getPrefTruckLaneData(event.location);
+    print("error in fetch lane ${result}");
     if (result is Success<TruckPrefLaneModel>) {
       emit(TruckPrefLaneSuccess(result.value));
     }
     if (result is Error) {
+      print("error in fetch lane ${result}");
       emit(VpCreationError(result.type));
     }
   }

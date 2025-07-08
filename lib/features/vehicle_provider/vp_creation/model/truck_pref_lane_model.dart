@@ -21,7 +21,8 @@ class TruckPrefLaneModel {
         );
     }
 
-    factory TruckPrefLaneModel.fromJson(Map<String, dynamic> json){ 
+    factory TruckPrefLaneModel.fromJson(Map<String, dynamic> json){
+
         return TruckPrefLaneModel(
             success: json["success"] ?? false,
             message: json["message"] ?? "",
@@ -54,9 +55,10 @@ class Data {
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
+    factory Data.fromJson(Map<String, dynamic> json){
+        print("json response ${json}");
         return Data(
-            data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+            data: json["items"] == null ? [] : List<Datum>.from(json["items"]!.map((x) => Datum.fromJson(x))),
             total: json["total"] ?? 0,
             pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
         );

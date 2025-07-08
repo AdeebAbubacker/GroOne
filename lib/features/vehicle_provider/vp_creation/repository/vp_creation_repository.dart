@@ -63,9 +63,9 @@ class VpCreationRepository {
 
 
   /// Upload rc truck document repo
-  Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file) async {
+  Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file,String? userId) async {
     try {
-      return await _vpCreationService.fetchUploadRcTruckFileData(file);
+      return await _vpCreationService.fetchUploadRcTruckFileData(file,userId);
     } catch (e) {
       CustomLog.error(this, "Failed to get upload rc truck data", e);
       return Error(ErrorWithMessage(message: e.toString()));
