@@ -33,6 +33,7 @@ class KycService {
   KycService(this._apiService);
 
 
+  /// Sent Kyc Otp Service
   Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.aadhaarSendOtp, body: request);
@@ -50,6 +51,7 @@ class KycService {
   }
 
 
+  /// Verify Otp Service
   Future<Result<AadhaarVerifyOtpModel>> kycVerifyOtp(AddharVerifyOtpApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.aadhaarVerifyOtp, body: request);
@@ -67,6 +69,7 @@ class KycService {
   }
 
 
+  /// Verify Gst Service
   Future<Result<bool>> verifyGst(VerifyGstApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.gst, body: request);
@@ -84,6 +87,7 @@ class KycService {
   }
 
 
+  /// Verify Tan Service
   Future<Result<bool>> verifyTan(VerifyTanApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.tan, body: request);
@@ -101,6 +105,7 @@ class KycService {
   }
 
 
+  /// Verify Pan Service
   Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.pan, body: request);
@@ -118,11 +123,11 @@ class KycService {
   }
 
 
-  // Fetch Upload  Gst File
-  Future<Result<UploadGSTDocumentModel>> fetchUploadGstData(File file) async {
+  /// Upload Gst File Repo Service
+  Future<Result<UploadGSTDocumentModel>> fetchUploadGstData({required File file, required String fileType,required String userId}) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => UploadGSTDocumentModel.fromJson(data));
       } else if (result is Error) {
@@ -137,11 +142,11 @@ class KycService {
   }
 
 
-  // Fetch Upload Pan File
-  Future<Result<UploadPANDocumentModel>> fetchUploadPanData(File file) async {
+  /// Upload Pan File Repo Service
+  Future<Result<UploadPANDocumentModel>> uploadPanDoc({required File file, required String fileType,required String userId}) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => UploadPANDocumentModel.fromJson(data));
       } else if (result is Error) {
@@ -156,11 +161,11 @@ class KycService {
   }
 
 
-  // Fetch Upload tds File
-  Future<Result<UploadTDSDocumentModel>> fetchUploadTdsData(File file) async {
+  /// Upload tds File Repo Service
+  Future<Result<UploadTDSDocumentModel>> uploadTDSDoc({required File file, required String fileType,required String userId}) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => UploadTDSDocumentModel.fromJson(data));
       } else if (result is Error) {
@@ -175,11 +180,11 @@ class KycService {
   }
 
 
-  // Fetch Upload Cancelled Check File
-  Future<Result<UploadCancelledCheckedDocumentModel>> fetchUploadCancelledCheckedData(File file) async {
+  /// Upload Cancelled Check File Repo Service
+  Future<Result<UploadCancelledCheckedDocumentModel>> uploadCancelledCheckedDoc({required File file, required String fileType,required String userId}) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => UploadCancelledCheckedDocumentModel.fromJson(data));
       } else if (result is Error) {
@@ -194,11 +199,11 @@ class KycService {
   }
 
 
-  // Fetch Upload Tan File
-  Future<Result<UploadTANDocumentModel>> fetchUploadTanData(File file) async {
+  /// Upload Tan File repo Service
+  Future<Result<UploadTANDocumentModel>> uploadTanDoc({required File file, required String fileType,required String userId}) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
         return await _apiService.getResponseStatus(result.value, (data) => UploadTANDocumentModel.fromJson(data));
       } else if (result is Error) {
@@ -213,8 +218,7 @@ class KycService {
   }
 
 
-
-  //submit KYC form
+  /// submit KYC form repo Service
   Future<Result<SubmitKycModel>> submitKyc(SubmitKycApiRequest request,{required String userID}) async {
     try {
       final result = await _apiService.post(ApiUrls.submitKyc+userID, body: request);
@@ -232,8 +236,7 @@ class KycService {
   }
 
 
-
-  /// Get State
+  /// Get State Service
   Future<Result<StateModel>> fetchStateData() async {
     try {
       final url = ApiUrls.getState;
@@ -252,8 +255,7 @@ class KycService {
   }
 
 
-
-  /// Get City
+  /// Get City Service
   Future<Result<CityModel>> fetchCityData(String stateName) async {
     try {
       final url = ApiUrls.getCity;
@@ -269,9 +271,6 @@ class KycService {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
-
-
-
   }
 
 

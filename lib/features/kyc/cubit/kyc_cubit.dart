@@ -28,14 +28,13 @@ part 'kyc_state.dart';
 
 class KycCubit extends BaseCubit<KycState> {
   final KycRepository _repo;
-  final UserInformationRepository _userInformationRepository;
-  KycCubit(this._repo, this._userInformationRepository) : super(KycState());
+  KycCubit(this._repo) : super(KycState());
 
 
   // fetch user role
   String? userRole;
   Future<String?> fetchUserRole() async {
-    userRole = await _userInformationRepository.getUserRole();
+    userRole = await _repo.getUserRole();
     return userRole;
   }
 
@@ -43,7 +42,7 @@ class KycCubit extends BaseCubit<KycState> {
   // fetch user if
   String? userId;
   Future<String?> fetchUserId() async {
-    userId = await _userInformationRepository.getUserID();
+    userId = await _repo.getUserId();
     return userId;
   }
 
@@ -51,7 +50,7 @@ class KycCubit extends BaseCubit<KycState> {
   // fetch company Type Id
   String? companyTypeId;
   Future<String?> fetchCompanyTypeId() async {
-    companyTypeId = await _userInformationRepository.getCustomerTypeID();
+    companyTypeId = await _repo.getCompanyTypeId();
     return companyTypeId;
   }
 
