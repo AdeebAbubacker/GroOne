@@ -356,7 +356,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         // Company Type
         BlocConsumer<VpCreationBloc, VpCreationState>(
           bloc: vpCreationBloc,
-          buildWhen: (previous, current) => current is VpCompanyTypeSuccess,
+          listenWhen: (previous, current) => current is VpCompanyTypeSuccess,
           listener: (context, state) {
             if (state is VpCompanyTypeError) {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
@@ -373,10 +373,10 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                     mandatoryStar: true,
                     dropdownValue: companyTypeDropDownValue,
                     decoration: commonInputDecoration(fillColor: Colors.white),
-                    dropDownList: state.companyType.data.map((e) => DropdownMenuItem(
-                        value: e.id.toString(),
-                        child: Text(e.companyType, style: AppTextStyle.body)),
-                    ).toList(),
+                    dropDownList: state.companyType.map((e) => DropdownMenuItem(
+                      value: e.id.toString(),
+                      child: Text(e.companyType, style: AppTextStyle.body),
+                    )).toList(),
                     onChanged: (onChangeValue) {
                       companyTypeDropDownValue = onChangeValue;
                       setState(() {});

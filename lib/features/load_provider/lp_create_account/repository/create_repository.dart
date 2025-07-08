@@ -45,8 +45,7 @@ class LpCreateRepository {
 
 
 
-  Future<Result<List<LpCompanyTypeResponse>>> getCompanyType(
-   ) async {
+  Future<Result<List<VpCompanyTypeModel>>> getCompanyType() async {
     try {
       return await _lpCreateService.getCompanyType();
     } catch (e) {

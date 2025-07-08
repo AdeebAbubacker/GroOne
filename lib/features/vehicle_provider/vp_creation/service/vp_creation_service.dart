@@ -21,8 +21,8 @@ class VpCreationService {
       final url = ApiUrls.createLpAccount;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        final userResponse=UserModel.fromJson(result.value);
-        return Success(userResponse);
+        final data = UserModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -59,8 +59,8 @@ class VpCreationService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        final truckPrefLane= TruckPrefLaneModel.fromJson(result.value);
-        return  Success(truckPrefLane);
+        final data = TruckPrefLaneModel.fromJson(result.value);
+        return  Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -76,14 +76,15 @@ class VpCreationService {
   Future<Result<UploadRcTruckFileModel>> fetchUploadRcTruckFileData(File files,String? userId) async {
     try {
       final url = ApiUrls.upload;
-      final result = await _apiService.multipart(url, files,
-          fields: {
-          "fileType":"upload_rc", "userId":userId??""
-          },
-          pathName: "file");
+      final result = await _apiService.multipart(
+          url,
+          files,
+          fields: {"fileType":"upload_rc", "userId": userId ?? ""},
+          pathName: "file",
+      );
       if (result is Success) {
-      final uploadTruckResponse=UploadRcTruckFileModel.fromJson(result.value);
-        return   Success(uploadTruckResponse);
+      final data = UploadRcTruckFileModel.fromJson(result.value);
+        return   Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {

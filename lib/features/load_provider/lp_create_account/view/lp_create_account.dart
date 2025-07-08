@@ -181,22 +181,22 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           20.height,
 
           // Company Type
-          AppDropdown(
-            validator: (value) => Validator.fieldRequired(value),
-            labelText: "Company Type",
-            hintText: context.appText.selectCompanyType,
-            dropdownValue: companyTypeDropDownValue,
-            mandatoryStar: true,
-            decoration: commonInputDecoration(fillColor: Colors.white),
-            dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
-                value: e.id.toString(),
-                child: Text(e.companyType.toString(), style: AppTextStyle.body)),
-            ).toList(),
-            onChanged: (onChangeValue) {
-              companyTypeDropDownValue = onChangeValue;
-              setState(() {});
-            },
-          ),
+          // AppDropdown(
+          //   validator: (value) => Validator.fieldRequired(value),
+          //   labelText: "Company Type",
+          //   hintText: context.appText.selectCompanyType,
+          //   dropdownValue: companyTypeDropDownValue,
+          //   mandatoryStar: true,
+          //   decoration: commonInputDecoration(fillColor: Colors.white),
+          //   dropDownList: preferredLanesList.map((e) => DropdownMenuItem(
+          //       value: e.id.toString(),
+          //       child: Text(e.companyType.toString(), style: AppTextStyle.body)),
+          //   ).toList(),
+          //   onChanged: (onChangeValue) {
+          //     companyTypeDropDownValue = onChangeValue;
+          //     setState(() {});
+          //   },
+          // ),
           20.height,
 
           // Name
