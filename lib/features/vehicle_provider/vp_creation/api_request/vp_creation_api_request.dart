@@ -39,7 +39,8 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "preferredLanes": preferredLanes ?? [] ,
       "uploadRc": uploadRc ?? "",
       "emailId": emailId ?? "",
-      "pincode": pincode ?? ""
+      "pincode": pincode ?? "",
+      "roleId":2
     };
   }
 

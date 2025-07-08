@@ -8,5 +8,6 @@ class ResetUploadRcDocumentEvent extends UploadRcTruckFileEvent {}
 // Upload Rc Truck Event
 class UploadRcTruckFileRequested extends UploadRcTruckFileEvent {
   final File file;
-  UploadRcTruckFileRequested({required this.file});
+  final String? userId;
+  UploadRcTruckFileRequested({required this.file,required this.userId});
 }

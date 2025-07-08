@@ -45,6 +45,7 @@ class ApiUrls {
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
   static String get _vendor => "/vendor";
+  static String get _document => "/document";
 
 
   // Base URL
@@ -61,7 +62,7 @@ class ApiUrls {
   // http://34.54.198.251/customer/api/v1/customer/profile-image/2
 
   // Common Api
-  static final String  upload = "$_fetchUrl$_customer$_path$_v1/upload";
+  static final String  upload = "$_fetchUrl$_document$_path$_v1/upload";
   static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
