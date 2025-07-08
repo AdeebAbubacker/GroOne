@@ -21,10 +21,9 @@ class UploadRcTruckFileBloc extends Bloc<UploadRcTruckFileEvent, UploadRcTruckFi
     emit(UploadRcTruckFileLoading());
     Result result = await _repository.getUploadRcTruckData(event.file,event.userId);
     if (result is Success<UploadRcTruckFileModel>) {
-      print("file upload success ${result.value.data?.url}");
+
       emit(UploadRcTruckFileSuccess(result.value));
     } else if (result is Error) {
-      print("file upload error");
       emit(UploadRcTruckFileError(result.type));
     } else {
       emit(UploadRcTruckFileError(GenericError()));

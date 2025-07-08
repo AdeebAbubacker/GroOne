@@ -19,7 +19,6 @@ class DriverListResponse {
           ? []
           : List<DriverDetails>.from(
           json["data"]['data'].map((x) {
-            print("x ${x}");
             return DriverDetails.fromJson(x);
           })),
     );
@@ -61,7 +60,6 @@ class DriverDetails {
   final DateTime? licenseExpiryDate;
 
   factory DriverDetails.fromJson(Map<String, dynamic> json){
-    print("json is $json");
     return DriverDetails(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
