@@ -134,5 +134,5 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
       ],
     ),
   );
-}
+ }
 }
