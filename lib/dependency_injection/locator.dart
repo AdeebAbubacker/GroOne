@@ -51,6 +51,9 @@ import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
 import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
+import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
+import 'package:gro_one_app/features/privacy_policy/repository/privacy_repository.dart';
+import 'package:gro_one_app/features/privacy_policy/service/privacy_policy_service.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
@@ -58,6 +61,9 @@ import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/features/splash/splash_repository.dart';
 import 'package:gro_one_app/features/splash/splash_service.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
+import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
+import 'package:gro_one_app/features/terms_and_conditions/repository/t_and_c_repository.dart';
+import 'package:gro_one_app/features/terms_and_conditions/service/terms_and_conditions_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/repository/vp_all_load_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/service/vp_all_load_service.dart';
@@ -139,7 +145,10 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
-
+    locator.registerLazySingleton(() => TermsAndConditionsService(locator<ApiService>()));
+     
+    locator.registerLazySingleton(() => PrivacyPolicyService(locator<ApiService>()));
+  
     // Repository
     locator.registerLazySingleton(
       () => SplashRepository(locator<SplashService>()),
@@ -231,6 +240,17 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EnDhanRepository(locator<EnDhanService>()),
+    );
+    
+    locator.registerLazySingleton(
+      () => TAndCRepository(
+       locator<TermsAndConditionsService>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => PrivacyRepository(
+       locator<PrivacyPolicyService>(),
+      ),
     );
 
     // View Model
@@ -336,7 +356,21 @@ void initLocator() {
     locator.registerLazySingleton(
       () => VpLoadBloc(locator<VpLoadRepository>()),
     );
+    
+    locator.registerLazySingleton(
+      () => TermsAndConditionsBloc(
+        locator<TAndCRepository>(),
+       
+      ),
+    );
 
+    locator.registerLazySingleton(
+      () => PrivacyPolicyBloc(
+        locator<PrivacyRepository>(),
+       
+      ),
+    );
+    
     // Cubit
     locator.registerLazySingleton(
       () => LPHomeCubit(locator<LpHomeRepository>()),

@@ -70,6 +70,8 @@ class ApiUrls {
   static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1/email-otp/send";
   static final String resendEmailOtp = "$_baseUrl$_customer$_path$_v1/email-otp/resend";
   static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1/email-otp/verify";
+  static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
+  static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
 
 
   /// VP Endpoints
