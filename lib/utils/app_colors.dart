@@ -105,7 +105,7 @@ class AppColors {
   static final Color disableColor = Color(0xFFB8B8B8);
   static final Color grayColor = Color(0xFF8E8E93);
   static final Color thinLightGray = Color(0xff626262);
-
+  static const Color docViewCardBgColor = Color(0xFFF6F8FA);
   static final Color chevronGreyColor = Color(0xff999999);
 
 

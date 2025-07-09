@@ -50,7 +50,8 @@ class SvgIcons {
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
   final String addIcon = "${_svgBasePath}plus_icon.svg";
-
+  final String alertWarning = "${_svgBasePath}alertWarning.svg";
+  final String documentView = "${_svgBasePath}documentView.svg";
   // App Icons
   final String support = "${_svgBasePath}support.svg";
   final String filledSupport = "${_svgBasePath}filled_Support.svg";
