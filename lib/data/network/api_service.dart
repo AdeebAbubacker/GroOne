@@ -33,13 +33,11 @@ class ApiService {
       'Accept': 'application/json',
     };
     
-    // Add authentication header if token exists
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-      
-      } else {}
+      }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
     }
@@ -51,8 +49,6 @@ class ApiService {
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
-
-
     await _cacheManager.clearAll();
   }
 
@@ -267,7 +263,6 @@ class ApiService {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        // Clear invalid token and log the issue
         await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
@@ -347,5 +342,6 @@ class ApiService {
       return Error(ResponseStatusFailed());
     }
   }
+
 
 }

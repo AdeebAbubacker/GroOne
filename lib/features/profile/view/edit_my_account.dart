@@ -22,8 +22,9 @@ import 'package:gro_one_app/utils/validator.dart';
 
 
 class LpEditMyAccount extends StatefulWidget {
-  final ProfileDetailsData profileData;
-  const LpEditMyAccount({super.key, required this.profileData});
+  final Customer customerDetail;
+  final BankDetails bankDetails;
+  const LpEditMyAccount({super.key, required this.customerDetail, required this.bankDetails});
 
   @override
   State<LpEditMyAccount> createState() => _LpEditMyAccountState();
@@ -54,10 +55,10 @@ class _LpEditMyAccountState extends State<LpEditMyAccount> {
 
   void initFunction() => frameCallback(() async {
     await lpProfile.getUserId();
-    customerMobileNumber.text=widget.profileData.customer!.mobileNumber;
-    customerName.text=widget.profileData.customer!.customerName;
-    companyName.text=widget.profileData.details!.companyName;
-    gstIn.text=widget.profileData.details!.gstin;
+    customerMobileNumber.text=widget.customerDetail.mobileNumber;
+    customerName.text=widget.customerDetail.customerName;
+    companyName.text=widget.customerDetail.companyName;
+   // gstIn.text=widget.customerDetail;
   });
 
   void disposeFunction() => frameCallback(() {});
@@ -129,10 +130,10 @@ context.pop();
               lpProfile.add(ProfileUpdateRequested(
                   apiRequest: ProfileUpdateRequest(customerName: customerName.text,
                       mobileNumber: customerMobileNumber.text,
-                      accountNumber: widget.profileData.details!.bankAccount,
-                      bankName:  widget.profileData.details!.bankName,
-                      branchName:  widget.profileData.details!.branchName,
-                      ifscCode:  widget.profileData.details!.ifscCode,
+                      accountNumber: widget.bankDetails!.bankAccount,
+                      bankName:  widget.bankDetails!.bankName,
+                      branchName:  widget.bankDetails!.branchName,
+                      ifscCode:  widget.bankDetails!.ifscCode,
                       companyName: companyName.text,
                       gstin: gstIn.text),userID: lpProfile.userId??""));
             }

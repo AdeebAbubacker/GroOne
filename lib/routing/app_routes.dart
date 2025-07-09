@@ -189,7 +189,7 @@ class AppRoutes {
         path: AppRouteName.loadDetailsScreen,
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
-          final int loadId = data["loadId"];
+          final String loadId = data["loadId"].toString();
           return VpLoadDetailsScreen(loadId: loadId);
         },
       ),

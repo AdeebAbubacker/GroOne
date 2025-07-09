@@ -18,7 +18,7 @@ class LoadTruckTypeBloc extends Bloc<LoadTruckTypeEvent, LoadTruckTypeState> {
   Future<void> _onLoadTruckType(LoadTruckTypeEvent event, Emitter<LoadTruckTypeState> emit) async {
     emit(LoadTruckTypeLoading());
     dynamic result = await _lpHomeRepository.getTruckTypeData();
-    if (result is Success<LoadTruckTypeListModel>) {
+    if (result is Success<List<LoadTruckTypeListModel>>) {
       emit(LoadTruckTypeSuccess(result.value));
     } else if (result is Error) {
       emit(LoadTruckTypeError(result.type));

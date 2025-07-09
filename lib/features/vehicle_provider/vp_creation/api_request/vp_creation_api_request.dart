@@ -4,7 +4,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? customerName;
   final String? mobileNumber;
   final String? companyName;
-  final String? companyTypeId;
+  final int? companyTypeId;
   final List<int>? truckType;
   final String? ownedTrucks;
   final String? attachedTrucks;
@@ -39,7 +39,8 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "preferredLanes": preferredLanes ?? [] ,
       "uploadRc": uploadRc ?? "",
       "emailId": emailId ?? "",
-      "pincode": pincode ?? ""
+      "pincode": pincode ?? "",
+      "roleId":2
     };
   }
 
@@ -47,7 +48,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     String? customerName,
     String? mobileNumber,
     String? companyName,
-    String? companyTypeId,
+    int? companyTypeId,
     List<int>? truckType,
     String? ownedTrucks,
     String? attachedTrucks,

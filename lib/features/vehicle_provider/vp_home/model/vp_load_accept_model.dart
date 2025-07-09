@@ -1,21 +1,20 @@
 class VpLoadAcceptModel {
   VpLoadAcceptModel({
-    required this.success,
+
     required this.message,
     required this.data,
   });
 
-  final bool success;
+
   final String message;
-  final Data? data;
+  final Load? data;
 
   VpLoadAcceptModel copyWith({
     bool? success,
     String? message,
-    Data? data,
+    Load? data,
   }) {
     return VpLoadAcceptModel(
-      success: success ?? this.success,
       message: message ?? this.message,
       data: data ?? this.data,
     );
@@ -23,46 +22,17 @@ class VpLoadAcceptModel {
 
   factory VpLoadAcceptModel.fromJson(Map<String, dynamic> json){
     return VpLoadAcceptModel(
-      success: json["success"] ?? false,
+
       message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      data: json["data"] == null ? null : Load.fromJson(json["data"]),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
+
 
 }
 
-class Data {
-  Data({
-    required this.load,
-  });
 
-  final Load? load;
-
-  Data copyWith({
-    Load? load,
-  }) {
-    return Data(
-      load: load ?? this.load,
-    );
-  }
-
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
-      load: json["load"] == null ? null : Load.fromJson(json["load"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "load": load?.toJson(),
-  };
-
-}
 
 class Load {
   Load({
@@ -85,22 +55,22 @@ class Load {
     required this.loadStatus,
   });
 
-  final int id;
-  final num status;
-  final num customerId;
-  final num commodityId;
-  final num truckTypeId;
-  final String pickUpAddr;
-  final num assignStatus;
-  final String pickUpLatlon;
-  final String dropAddr;
-  final String dropLatlon;
+  final int? id;
+  final dynamic status;
+  final dynamic customerId;
+  final dynamic commodityId;
+  final dynamic truckTypeId;
+  final dynamic pickUpAddr;
+  final dynamic assignStatus;
+  final dynamic pickUpLatlon;
+  final dynamic dropAddr;
+  final dynamic dropLatlon;
   final DateTime? dueDate;
-  final num consignmentWeight;
-  final String rate;
-  final num acceptedBy;
+  final dynamic consignmentWeight;
+  final dynamic rate;
+  final dynamic acceptedBy;
   final DateTime? createdAt;
-  final int? loadStatus;
+  final dynamic? loadStatus;
   final dynamic deletedAt;
 
   Load copyWith({
@@ -144,10 +114,8 @@ class Load {
   }
 
   factory Load.fromJson(Map<String, dynamic> json){
-    print("data json ${json}");
-    print("json load status ${json["loadStatus"] ?? 0}");
     return Load(
-      loadStatus: json["loadStatus"] ?? 0,
+      loadStatus: json["loadStatusId"] ?? 0,
       id: json["id"] ?? 0,
       status: json["status"] ?? 0,
       customerId: json["customerId"] ?? 0,

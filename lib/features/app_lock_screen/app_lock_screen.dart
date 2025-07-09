@@ -17,7 +17,6 @@ class _AppLockScreenState extends State<AppLockScreen> {
   @override
   void initState() {
     super.initState();
-   // _authenticate();
   }
 
   Future<void> _authenticate() async {

@@ -1,39 +1,72 @@
 class LpLoadRouteResponse {
   LpLoadRouteResponse({
-    required this.success,
     required this.message,
-    required this.routeDataList,
+    required this.data,
   });
 
-  final bool success;
   final String message;
-  final List<RouteDataList> routeDataList;
+  final Data? data;
 
   LpLoadRouteResponse copyWith({
-    bool? success,
     String? message,
-    List<RouteDataList>? routeDataList,
+    Data? data,
   }) {
     return LpLoadRouteResponse(
-      success: success ?? this.success,
       message: message ?? this.message,
-      routeDataList: routeDataList ?? this.routeDataList,
+      data: data ?? this.data,
     );
   }
 
   factory LpLoadRouteResponse.fromJson(Map<String, dynamic> json){
     return LpLoadRouteResponse(
-      success: json["success"] ?? false,
       message: json["message"] ?? "",
-      routeDataList: json["data"] == null ? [] : List<RouteDataList>.from(json["data"]!.map((x) => RouteDataList.fromJson(x))),
+      data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
   }
 
 }
 
-class RouteDataList {
-  RouteDataList({
-    required this.id,
+class Data {
+  Data({
+    required this.routeList,
+    required this.total,
+    required this.page,
+    required this.limit,
+  });
+
+  final List<RouteList> routeList;
+  final int total;
+  final int page;
+  final int limit;
+
+  Data copyWith({
+    List<RouteList>? items,
+    int? total,
+    int? page,
+    int? limit,
+  }) {
+    return Data(
+      routeList: items ?? this.routeList,
+      total: total ?? this.total,
+      page: page ?? this.page,
+      limit: limit ?? this.limit,
+    );
+  }
+
+  factory Data.fromJson(Map<String, dynamic> json){
+    return Data(
+      routeList: json["items"] == null ? [] : List<RouteList>.from(json["items"]!.map((x) => RouteList.fromJson(x))),
+      total: json["total"] ?? 0,
+      page: json["page"] ?? 0,
+      limit: json["limit"] ?? 0,
+    );
+  }
+
+}
+
+class RouteList {
+  RouteList({
+    required this.masterLaneId,
     required this.fromLocationId,
     required this.toLocationId,
     required this.status,
@@ -43,27 +76,27 @@ class RouteDataList {
     required this.toLocation,
   });
 
-  final int id;
+  final int masterLaneId;
   final int fromLocationId;
   final int toLocationId;
-  final num status;
+  final int status;
   final DateTime? createdAt;
   final dynamic deletedAt;
-  final Location? fromLocation;
-  final Location? toLocation;
+  final dynamic fromLocation;
+  final dynamic toLocation;
 
-  RouteDataList copyWith({
-    int? id,
+  RouteList copyWith({
+    int? masterLaneId,
     int? fromLocationId,
     int? toLocationId,
-    num? status,
+    int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
-    Location? fromLocation,
-    Location? toLocation,
+    dynamic deletedAt,
+    dynamic fromLocation,
+    dynamic toLocation,
   }) {
-    return RouteDataList(
-      id: id ?? this.id,
+    return RouteList(
+      masterLaneId: masterLaneId ?? this.masterLaneId,
       fromLocationId: fromLocationId ?? this.fromLocationId,
       toLocationId: toLocationId ?? this.toLocationId,
       status: status ?? this.status,
@@ -74,69 +107,16 @@ class RouteDataList {
     );
   }
 
-  factory RouteDataList.fromJson(Map<String, dynamic> json){
-    return RouteDataList(
-      id: json["id"] ?? 0,
+  factory RouteList.fromJson(Map<String, dynamic> json){
+    return RouteList(
+      masterLaneId: json["masterLaneId"] ?? 0,
       fromLocationId: json["fromLocationId"] ?? 0,
       toLocationId: json["toLocationId"] ?? 0,
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
-      fromLocation: json["fromLocation"] == null ? null : Location.fromJson(json["fromLocation"]),
-      toLocation: json["toLocation"] == null ? null : Location.fromJson(json["toLocation"]),
-    );
-  }
-
-}
-
-class Location {
-  Location({
-    required this.id,
-    required this.name,
-    required this.slug,
-    required this.latLong,
-    required this.status,
-    required this.createdAt,
-    required this.deletedAt,
-  });
-
-  final int id;
-  final String name;
-  final String slug;
-  final String latLong;
-  final num status;
-  final DateTime? createdAt;
-  final dynamic deletedAt;
-
-  Location copyWith({
-    int? id,
-    String? name,
-    String? slug,
-    String? latLong,
-    num? status,
-    DateTime? createdAt,
-    dynamic? deletedAt,
-  }) {
-    return Location(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      slug: slug ?? this.slug,
-      latLong: latLong ?? this.latLong,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory Location.fromJson(Map<String, dynamic> json){
-    return Location(
-      id: json["id"] ?? 0,
-      name: json["name"] ?? "",
-      slug: json["slug"] ?? "",
-      latLong: json["latLong"] ?? "",
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      fromLocation: json["fromLocation"],
+      toLocation: json["toLocation"],
     );
   }
 

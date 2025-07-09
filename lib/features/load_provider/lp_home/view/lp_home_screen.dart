@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
@@ -37,11 +36,9 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -77,8 +74,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   // LpGetLoadModel? getLoadResponse;
 
   final lpHomeBloc = locator<LpHomeBloc>();
-
-  final vpHomeBloc = locator<VpCreationBloc>();
   final loadPostingBloc = locator<LoadPostingBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
   final loadTruckTypeBloc = locator<LoadTruckTypeBloc>();
@@ -407,34 +402,35 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           builder: (context, state) {
             final profileState = state.profileDetailUIState;
 
-            if (profileState == null ||
-                profileState.status != Status.SUCCESS ||
-                profileState.data == null ||
-                profileState.data?.data == null ||
-                profileState.data?.data?.customer == null) {
+            if (profileState == null || profileState.status != Status.SUCCESS ||
+                profileState.data == null || profileState.data?.customer == null) {
               return const SizedBox.shrink();
             }
 
-            final customer = profileState.data!.data!.customer!;
-            final int kycFlag = customer.isKyc.toInt(); // 0 / 2 / 3
+            final customer = profileState.data!.customer!;
+            final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
+            final companyId = profileState.data!.customer?.companyTypeId;
+
             CustomLog.debug(this, 'is KYC : $kycFlag');
+            CustomLog.debug(this, 'Company Id : $companyId');
 
             if (kycFlag == 3 || kycFlag == 2) {
               return const SizedBox.shrink();
             }
 
-            final companyId = profileState.data!.data?.details?.companyTypeId;
-            CustomLog.debug(this, 'Company Id : $companyId');
-
-            return kycWidget(
-              onTap: () {
-                if (companyId != null && (companyId == 2 || companyId == 1)) {
-                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                } else {
-                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                }
-              },
-            );
+            if (kycFlag == 1) {
+              return kycWidget(
+                onTap: () {
+                  if (companyId != null && (companyId == 2 || companyId == 1)) {
+                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                  } else {
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                  }
+                },
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
 
           },
         ),
@@ -453,28 +449,26 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           },
           builder: (context, state) {
             if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
-                if (state.profileDetailUIState?.data?.data?.details != null) {
-                  final blueId = state.profileDetailUIState!.data!.data!.customer?.blueId;
-                  return Row(
-                    children: [
-                      10.width,
+              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
+                final blueId = state.profileDetailUIState!.data!.customer?.blueId;
+                return Row(
+                  children: [
+                    10.width,
 
-                      // Profile
-                      Container(
-                        height: 40,
-                        width: 40,
-                        alignment: Alignment.center,
-                        decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                        child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data!.details!.companyName)),
-                      ).onClick((){
-                        Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                          frameCallback(() =>  profileCubit.fetchProfileDetail());
-                        });
-                      }).paddingRight(commonSafeAreaPadding),
-                    ],
-                  );
-                }
+                    // Profile
+                    Container(
+                      height: 40,
+                      width: 40,
+                      alignment: Alignment.center,
+                      decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                    ).onClick((){
+                      Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
+                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                      });
+                    }).paddingRight(commonSafeAreaPadding),
+                  ],
+                );
               }
             }
             return Container(
@@ -543,9 +537,9 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       listener: (context, state)   async {
         final profileState = state.profileDetailUIState;
 
-        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.data?.customer != null) {
+        if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.customer != null) {
 
-          final blueIdFromApi = profileState.data!.data!.customer!.blueId;
+          final blueIdFromApi = profileState.data!.customer!.blueId;
           final blueIdFromStorage = await profileCubit.getBlueId();
           bool popupShownFlag = await profileCubit.getHasShowBluePopup();
 
@@ -573,11 +567,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         if (profileState != null &&
             profileState.status == Status.SUCCESS &&
             profileState.data != null &&
-            profileState.data?.data != null &&
-            profileState.data?.data?.customer != null) {
+            profileState.data?.customer != null) {
 
-          final customer = profileState.data!.data!.customer!;
-          final companyId = profileState.data!.data?.details?.companyTypeId;
+          final customer = profileState.data!.customer!;
+          final companyId = profileState.data?.customer?.companyTypeId;
 
           isKycValid = customer.isKyc.toInt();
 
@@ -585,7 +578,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
             return (state.showSuccessKyc) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
-          } else {
+          } else if (customer.isKyc == 1) {
             return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
@@ -718,7 +711,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   builder: (context, state) {
 
                     if (state is LoadCommoditySuccess) {
-                      final commodities = state.commodityListModel.data;
+                      final commodities = state.commodityListModel;
 
                       return LPCommodityDropdown(
                         preFixIcon: AppIcons.svg.commodity,
@@ -755,11 +748,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 bloc: lpHomeCubit,
                 listener: (context, state) {},
                 builder: (context, state) {
-                  final weights = state.loadWeightUIState?.data?.data ?? [];
+                  final weights = state.loadWeightUIState?.data ?? [];
                   return LPWeightDropdown(
                     preFixIcon: AppIcons.svg.kgWeight,
                     hintText: "Weight (MT)",
-                    onSelect: (LoadWeightData weight) async {
+                    onSelect: (LoadWeightModel weight) async {
                       weightTextController.text = weight.value.toString();
                       setState(() {});
                     },
@@ -804,11 +797,11 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                   bloc: loadTruckTypeBloc,
                   builder: (context, state) {
                     if (state is LoadTruckTypeSuccess) {
-                      final truckTypesList = state.loadTruckTypeListModel.data;
+                      final truckTypesList = state.loadTruckTypeListModel;
                       return LPTruckTypeDropdown(
                         preFixIcon: AppIcons.svg.truck,
                         hintText: "Truck Type",
-                        onSelect: (TruckTypeData truck) async {
+                        onSelect: ( truck) async {
                           selectedTruck = "${truck.type} ${truck.subType}";
                           truckTypeId = truck.id.toString();
                           truckType = truck.type;
@@ -820,7 +813,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                         onTab: () {
                           Navigator.of(context).push(createRoute(TruckTypesScreen(
                             dataList: truckTypesList,
-                            onSelect: (TruckTypeData truck) async {
+                            onSelect: (truck) async {
                               selectedTruck = "${truck.type} ${truck.subType}";
                               truckTypeId = truck.id.toString();
                               truckType = truck.type;

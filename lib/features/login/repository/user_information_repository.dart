@@ -23,8 +23,8 @@ class UserInformationRepository {
     return  await _securedSharedPref.get(AppString.sessionKey.fcmToken);
   }
 
-  Future<String?> getUserRole() async {
-    return  await _securedSharedPref.get(AppString.sessionKey.userRole);
+  Future<int?> getUserRole() async {
+    return  await _securedSharedPref.getInt(AppString.sessionKey.userRole);
   }
 
   Future<String?> getCustomerTypeID() async {
@@ -35,7 +35,6 @@ class UserInformationRepository {
   Future<String?> getBlueID() async {
     return  await _securedSharedPref.get(AppString.sessionKey.blueId);
   }
-
 
 
 }

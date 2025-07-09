@@ -15,24 +15,26 @@ class VpDetailsService{
 
   const VpDetailsService(this._apiService);
 
-   Future<Result<LoadDetailsResponseModel>> fetchLoadDetails(int? loadId) async {
+   Future<Result<LoadDetailsResponseModel>> fetchLoadDetails(String? loadId) async {
     try {
       final url =  "${ApiUrls.getLoadById}$loadId";
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadDetailsResponseModel.fromJson(data));
+        final loadDetailsResponse=LoadDetailsResponseModel.fromJson(result.value);
+        return Success(loadDetailsResponse);
       } else if (result is Error) {
+
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch(e){
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
-  Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String userId,required String loadId,required int? loadStatus}) async {
+  Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String? userId,required String loadId,required int? loadStatus}) async {
     try {
       final result = await _apiService.put(
         queryParams: {
@@ -40,7 +42,8 @@ class VpDetailsService{
         },
           '${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => VpLoadAcceptModel.fromJson(data));
+       final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
+        return Success(changeLoadStatusResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
