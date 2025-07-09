@@ -720,9 +720,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                             children: [
                               10.height,
                               AppTextField(
-                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
-                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
+                                mandatoryStar: kycCubit.userRole == 1 ? false : true,
                                 labelText: "Account Number",
                                 hintText: "Enter Account Number",
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
@@ -734,9 +734,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
+                                validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                 controller: bankNameTextController,
-                                mandatoryStar: kycCubit.userRole == "1" ? false : true,
+                                mandatoryStar: kycCubit.userRole == 1 ? false : true,
                                 labelText: "Bank Name",
                                 hintText: "Enter Bank Name",
                                 inputFormatters: [
@@ -746,9 +746,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                   controller: branchNameTextController,
-                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
+                                  mandatoryStar: kycCubit.userRole == 1 ? false : true,
                                   labelText: "Branch Name",
                                   hintText: "Enter Branch Name",
                                   inputFormatters: [
@@ -758,9 +758,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                  validator: (value) => kycCubit.userRole == "1" ? null : Validator.fieldRequired(value),
+                                  validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                   controller: ifscCodeTextController,
-                                  mandatoryStar: kycCubit.userRole == "1" ? false : true,
+                                  mandatoryStar: kycCubit.userRole == 1 ? false : true,
                                   labelText: "IFSC Code",
                                   hintText: "Enter IFSC code",
                                   inputFormatters: [
@@ -795,7 +795,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       listener: (context, state) {},
         builder: (context, state) {
           final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
-          if(kycCubit.userRole != null && kycCubit.userRole == "2") {
+          if(kycCubit.userRole != null && kycCubit.userRole == 2) {
             return UploadAttachmentFiles(
               title: "Cancelled Cheque *",
               multiFilesList: checkDocLink,
@@ -821,7 +821,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       listener: (context, state) {},
         builder: (context, state) {
           final tdsUploadState = state.uploadTDSDocUIState?.status;
-          if(kycCubit.userRole != null && kycCubit.userRole == "2") {
+          if(kycCubit.userRole != null && kycCubit.userRole == 2) {
             return UploadAttachmentFiles(
               title: "TDS Certificate *",
               multiFilesList: tdsDocLink,
