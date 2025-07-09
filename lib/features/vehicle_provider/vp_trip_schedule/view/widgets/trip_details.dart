@@ -73,7 +73,7 @@ class TripDetails extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  loadDetails?.loadId??"",
+                                  loadDetails?.loadSeriesID??"",
                                   style: AppTextStyle.h5w500.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

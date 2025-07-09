@@ -34,6 +34,8 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   // Fetches the LP loads filtered by the given [type].
   Future<void> getLpLoadsByType({required LoadListApiRequest loadListApiRequest, bool isNextPage = false,}) async {
     // If it's not next page fetch, show loader state
+
+
     if (!isNextPage) {
       _setLoadUIState(UIState.loading());
     }

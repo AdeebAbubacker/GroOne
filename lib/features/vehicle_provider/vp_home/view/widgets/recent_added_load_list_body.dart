@@ -41,6 +41,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: (){
         /// TODO:
@@ -91,7 +92,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       ],
                     ),
                     Text(
-                      formatDateTimeKavach(widget.data.dueDate!.toString()),
+                      formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
                       style: AppTextStyle.primaryColor12w400,
                     ),
                   ],

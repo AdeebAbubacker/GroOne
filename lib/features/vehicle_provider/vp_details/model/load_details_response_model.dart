@@ -36,8 +36,8 @@ class LoadDetailsResponseModel {
 
 class LoadDetails {
   LoadDetails({
-    required this.id,
     required this.loadId,
+    required this.loadSeriesID,
     required this.laneId,
     required this.rateId,
     required this.customerId,
@@ -73,11 +73,11 @@ class LoadDetails {
     required this.trip,
   });
 
-  final int? id;
   final String? loadId;
+  final String? loadSeriesID;
   final dynamic laneId;
   final int? rateId;
-  final int? customerId;
+  final String? customerId;
   final int? commodityId;
   final int? truckTypeId;
   final String? pickUpAddr;
@@ -99,7 +99,7 @@ class LoadDetails {
   final String? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
   final int? handlingCharges;
-  final int? acceptedBy;
+  final String? acceptedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
@@ -110,11 +110,11 @@ class LoadDetails {
   final Trip? trip;
 
   LoadDetails copyWith({
-    int? id,
+    String? id,
     String? loadId,
     dynamic? laneId,
     int? rateId,
-    int? customerId,
+    String? customerId,
     int? commodityId,
     int? truckTypeId,
     String? pickUpAddr,
@@ -137,7 +137,7 @@ class LoadDetails {
     String? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     int? handlingCharges,
-    int? acceptedBy,
+    String? acceptedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
@@ -148,8 +148,8 @@ class LoadDetails {
   }) {
     return LoadDetails(
      trip: trip ?? this.trip,
-      id: id ?? this.id,
-      loadId: loadId ?? this.loadId,
+      loadId: id ?? this.loadId,
+      loadSeriesID: loadId ?? this.loadSeriesID,
       laneId: laneId ?? this.laneId,
       rateId: rateId ?? this.rateId,
       customerId: customerId ?? this.customerId,
@@ -188,33 +188,34 @@ class LoadDetails {
   factory LoadDetails.fromJson(Map<String, dynamic> json){
     return LoadDetails(
       trip:json['trip']!=null ? Trip.fromJson(json['trip']):null,
-      id: json["id"],
       loadId: json["loadId"],
+      loadSeriesID: json["loadSeriesId"],
       laneId: json["laneId"],
       rateId: json["rateId"],
       customerId: json["customerId"],
       commodityId: json["commodityId"],
       truckTypeId: json["truckTypeId"],
-      pickUpAddr: json["pickUpAddr"],
-      pickUpLocation: json["pickUpLocation"],
+      pickUpAddr:  json['loadRoute']!=null ?  json['loadRoute']["pickUpAddr"]:"",
+      pickUpLocation: json['loadRoute']!=null ?  json['loadRoute']["pickUpLocation"]:"",
       assignStatus: json["assignStatus"],
-      pickUpLatlon: json["pickUpLatlon"],
-      dropAddr: json["dropAddr"],
-      dropLocation: json["dropLocation"],
-      dropLatlon: json["dropLatlon"],
+      pickUpLatlon: json['loadRoute']!=null ?  json['loadRoute']["pickUpLatlon"]:"",
+      dropAddr: json['loadRoute']!=null ?  json['loadRoute']["dropAddr"]:"",
+      dropLocation: json['loadRoute']!=null ?  json['loadRoute']["dropLocation"]:"",
+      dropLatlon: json['loadRoute']!=null ?  json['loadRoute']["dropLatlon"]:"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
+      consignmentWeight: json['weight']!=null ?json['weight']['value'] :0,
       notes: json["notes"],
-      rate: json["rate"],
-      vpRate: json["vpRate"],
-      vpMaxRate: json["vpMaxRate"],
+      rate: json['loadPrice']!=null ?  json['loadPrice']["rate"]?.toString():"",
+      vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
+      vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
+
       status: json["status"],
-      loadStatus: json["loadStatus"],
+      loadStatus: json["loadStatusId"],
       vehicleLength: json["vehicleLength"],
       pickUpDateTime:json["pickUpDateTime"] ?? "",
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"],
-      acceptedBy: json["acceptedBy"],
+      acceptedBy: json["acceptedBy"]??"",
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],

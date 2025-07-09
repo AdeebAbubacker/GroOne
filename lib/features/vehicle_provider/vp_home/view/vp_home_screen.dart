@@ -58,12 +58,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
   // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
-
    final profileCubit = locator<ProfileCubit>();
    final lpHomeCubit = locator<LPHomeCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+
+
 
   final searchController = TextEditingController();
 
@@ -491,7 +492,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
                       final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-                      return RecentAddedLoadListBody(
+                      return
+                        RecentAddedLoadListBody(
                         data: loads[index],
                         isKycDone: VpVariables.isKycVerified,
                         companyTypeId: companyId,

@@ -16,7 +16,7 @@ class VpLoadService {
   }) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.lpLoadById}/vp/load?customerId=$customerId&type=$type&search=$search',
+        '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&type=$type&search=$search',
         forceRefresh: forceRefresh,
       );
 
