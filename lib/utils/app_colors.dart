@@ -18,6 +18,7 @@ class AppColors {
   static const Color searchFillColor = Colors.white;
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;
+  static const Color subtleTextGreyColor = Color(0xFF96979B);
 
   /// Body & Appbar color
   //static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);

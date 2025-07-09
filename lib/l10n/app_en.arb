@@ -302,5 +302,10 @@
   "contactNumber" : "Contact Number",
   "emailId" : "Email ID",
   "tripdocument":"Trip Documents",
-  "fileNotFound" : "File not found"
+  "fileNotFound" : "File not found",
+  "estArrivalTime":"Est arrival time",
+  "remainingDistance":"Remaining Distance",
+  "feedback":"Feedback",
+  "remarks":"Remarks",
+  "enterRemarks" : "Enter remarks"
  }
