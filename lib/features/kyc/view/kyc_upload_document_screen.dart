@@ -11,6 +11,8 @@ import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/kyc/model/city_model.dart';
+import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -61,8 +63,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   final TextEditingController gstInTextController = TextEditingController();
   final TextEditingController tanTextController = TextEditingController();
   final TextEditingController panTextController = TextEditingController();
-  final TextEditingController addressLine1TextController = TextEditingController();
-  final TextEditingController addressLine2TextController = TextEditingController();
+  final TextEditingController addressNameTextController = TextEditingController();
+  final TextEditingController fullAddressTextController = TextEditingController();
   final TextEditingController addressLine3TextController = TextEditingController();
   final TextEditingController pinCodeTextController = TextEditingController();
   final TextEditingController accountNumberTextController = TextEditingController();
@@ -120,8 +122,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     gstInTextController.dispose();
     tanTextController.dispose();
     panTextController.dispose();
-    addressLine1TextController.dispose();
-    addressLine2TextController.dispose();
+    addressNameTextController.dispose();
+    fullAddressTextController.dispose();
     addressLine3TextController.dispose();
     pinCodeTextController.dispose();
     accountNumberTextController.dispose();
@@ -141,8 +143,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     gstInTextController.clear();
     tanTextController.clear();
     panTextController.clear();
-    addressLine1TextController.clear();
-    addressLine2TextController.clear();
+    addressNameTextController.clear();
+    fullAddressTextController.clear();
     addressLine3TextController.clear();
     pinCodeTextController.clear();
     accountNumberTextController.clear();
@@ -169,7 +171,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     final status = kycCubit.state.uploadGSTDocUIState?.status;
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadGSTDocUIState?.data;
-      final url = data?.data?.url ?? '';
+      final url = data?.url ?? '';
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
@@ -191,7 +193,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     final status = kycCubit.state.uploadPanDocUIState?.status;
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadPanDocUIState?.data;
-      final url = data?.data?.url ?? '';
+      final url = data?.url ?? '';
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
@@ -213,7 +215,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     final status = kycCubit.state.uploadTanDocUIState?.status;
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadTanDocUIState?.data;
-      final url = data?.data?.url ?? '';
+      final url = data?.url ?? '';
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
@@ -235,7 +237,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     final status = kycCubit.state.uploadTDSDocUIState?.status;
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadTDSDocUIState?.data;
-      final url = data?.data?.url ?? '';
+      final url = data?.url ?? '';
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
@@ -314,7 +316,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   bool validateDocs({
-    required String userRole, // "2" for VP, anything else for LP
+    required int userRole, // "2" for VP, anything else for LP
     required int companyId, // 1=sole, 2=individual …
     // document lists
     required List gstDoc,
@@ -330,7 +332,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     }
 
     // VP FLOW
-    if (userRole == "2") {
+    if (userRole == 2) {
       if (companyId == 2) {
         return need('Aadhaar', true) & need('Cancelled Cheque', checkDocLink.isNotEmpty); // always true – already taken on previous screen
       }
@@ -366,7 +368,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     if(_formKey.currentState!.validate()){
 
       final ok = validateDocs(
-        userRole: kycCubit.userRole ?? '',
+        userRole: kycCubit.userRole ?? 0,
         companyId: companyId,
         gstDoc: gstDoc,
         panDoc: panDoc,
@@ -378,9 +380,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       final kycRequest = SubmitKycApiRequest(
         aadhar: widget.aadhaarNumber,
-        address1: addressLine1TextController.text,
-        address2: addressLine2TextController.text,
-        address3: addressLine3TextController.text,
+        addressName: addressNameTextController.text,
+        fullAddress: fullAddressTextController.text,
+        pincode: pinCodeTextController.text,
         bankAccount: accountNumberTextController.text,
         bankName: bankNameTextController.text,
         branchName: branchNameTextController.text,
@@ -473,7 +475,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               CustomLog.debug(this, "User Role: ${kycCubit.userRole}");
 
                               // For VP
-                              if(kycCubit.userRole == "2") {
+                              if(kycCubit.userRole == 2) {
                                 return Column(
                                   children: [
 
@@ -563,7 +565,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               // Address Name
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
-                                controller: addressLine1TextController,
+                                controller: addressNameTextController,
                                 mandatoryStar: true,
                                 labelText: "Address Name",
                                 hintText: "Enter Address name 1",
@@ -573,7 +575,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               // Full Address
                               AppTextField(
                                 validator: (value) => Validator.fieldRequired(value),
-                                controller: addressLine2TextController,
+                                controller: fullAddressTextController,
                                 mandatoryStar: true,
                                 labelText: "Full Address",
                                 hintText: "Enter full address",
@@ -596,12 +598,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 builder: (context, state) {
                                   final status = state.stateUIState?.status;
 
-                                  if (status == Status.SUCCESS &&
-                                      state.stateUIState?.data != null &&
-                                      state.stateUIState!.data!.data != null &&
-                                      state.stateUIState!.data!.data!.response.isNotEmpty) {
+                                  if (status == Status.SUCCESS && state.stateUIState?.data != null && state.stateUIState!.data!.isNotEmpty) {
 
-                                    final stateList = state.stateUIState!.data!.data!.response;
+                                    List<StateModel> stateList = state.stateUIState!.data!;
 
                                     return Column(
                                       children: [
@@ -615,7 +614,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                         DropdownSearch<String>(
                                           validator: (value) => Validator.fieldRequired(value),
                                           key: dropDownStateKey,
-                                          items: (filter, infiniteScrollProps) => stateList.where((element) => element.toLowerCase().contains(filter.toLowerCase())).toList(),
+                                          items: (filter, infiniteScrollProps) => stateList
+                                              .where((element) => element.name.toLowerCase().contains(filter.toLowerCase()))
+                                              .map((e) => e.name)
+                                              .toList(),
                                           popupProps: PopupProps.modalBottomSheet(
                                             fit: FlexFit.loose,
                                             showSearchBox: true,
@@ -640,26 +642,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               20.height,
 
 
-                              // AppDropdown(
-                              //   validator: (value) => Validator.fieldRequired(value),
-                              //   labelText: "State",
-                              //   hintText: "Select State",
-                              //   mandatoryStar: true,
-                              //   dropdownValue: selectedState,
-                              //   decoration: commonInputDecoration(fillColor: Colors.white),
-                              //   dropDownList: stateList.map((state) {
-                              //     return DropdownMenuItem(
-                              //       value: state,
-                              //       child: Text(state, style: AppTextStyle.body),
-                              //     );
-                              //   }).toList(),
-                              //   onChanged: (value) {
-                              //     selectedState = value;
-                              //     selectedCity = null; // Reset city when state changes
-                              //     setState(() {});
-                              //   },
-                              // ),
-
                               // CITY DROPDOWN
                               BlocConsumer<KycCubit, KycState>(
                                 bloc: kycCubit,
@@ -675,12 +657,9 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 builder: (context, state) {
                                   final status = state.cityUIState?.status;
 
-                                  if (status == Status.SUCCESS &&
-                                      state.cityUIState?.data != null &&
-                                      state.cityUIState!.data!.data != null &&
-                                      state.cityUIState!.data!.data!.response.isNotEmpty) {
+                                  if (status == Status.SUCCESS && state.cityUIState?.data != null && state.cityUIState!.data!.isNotEmpty) {
 
-                                    final cityList = state.cityUIState!.data!.data!.response;
+                                    List<CityModel> cityList = state.cityUIState!.data!;
 
                                     return Column(
                                       children: [
@@ -695,7 +674,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                           validator: (value) => Validator.fieldRequired(value),
                                           key: dropDownCityKey,
                                           items: (filter, infiniteScrollProps) => selectedState != null
-                                              ? cityList.where((element) => element.toLowerCase().contains(filter.toLowerCase())).toList()
+                                              ? cityList
+                                              .where((element) => element.city.toLowerCase().contains(filter.toLowerCase()))
+                                              .map((e) => e.city)
+                                              .toList()
                                               : [],
                                           popupProps: PopupProps.modalBottomSheet(
                                             fit: FlexFit.loose,
@@ -715,24 +697,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   return 0.height; // Return empty if no data
                                 },
                               ),
-                              // AppDropdown(
-                              //   validator: (value) => Validator.fieldRequired(value),
-                              //   labelText: "City",
-                              //   hintText: "Select City",
-                              //   mandatoryStar: true,
-                              //   dropdownValue: selectedCity,
-                              //   decoration: commonInputDecoration(fillColor: Colors.white),
-                              //   dropDownList: (selectedState != null) ? cityMap[selectedState]!.map((city) {
-                              //     return DropdownMenuItem(
-                              //       value: city,
-                              //       child: Text(city, style: AppTextStyle.body),
-                              //     );
-                              //   }).toList() : [],
-                              //   onChanged: (value) {
-                              //     selectedCity = value;
-                              //     setState(() {});
-                              //   },
-                              // ),
 
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
@@ -896,6 +860,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           return AppButton(
             style:  AppButtonStyle.primary,
             title: context.appText.submit,
+            isLoading: state.submitKycState?.status == Status.LOADING,
             onPressed: () async {
               verifyKycApiCall();
             },
@@ -938,6 +903,12 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 rightText: "GSTIN",
                 controller: gstInTextController,
                 suffixOnTap:  state.verifiedGst != null && state.verifiedGst! ? (){} : () async {
+
+                  if(gstInTextController.text.isEmpty){
+                    ToastMessages.alert(message: "Please enter GSTIN number");
+                    return;
+                  }
+
                   if (gstDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(gstDoc);
                     if(result is Success) {
@@ -986,6 +957,12 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 rightText: "TAN",
                 controller: tanTextController,
                 suffixOnTap: () async {
+
+                  if(tanTextController.text.isEmpty){
+                    ToastMessages.alert(message: "Please enter TAN");
+                    return;
+                  }
+
                   if (tanTextController.text.isNotEmpty && tanDoc.isNotEmpty) {
                     final Result result = await uploadTanDocumentApiCall(tanDoc);
                     if(result is Success) {
@@ -1035,6 +1012,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 rightText: "PAN",
                 controller: panTextController,
                 suffixOnTap: () async {
+                  if(panTextController.text.isEmpty){
+                    ToastMessages.alert(message: "Please enter PAN");
+                    return;
+                  }
                   if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(panDoc);
                     if(result is Success) {

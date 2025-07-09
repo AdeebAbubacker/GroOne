@@ -1,59 +1,41 @@
 class StateModel {
   StateModel({
-    required this.success,
-    required this.message,
-    required this.data,
+    required this.id,
+    required this.name,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deletedAt,
   });
 
-  final bool success;
-  final String message;
-  final StateData? data;
+  final int id;
+  final String name;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
 
   StateModel copyWith({
-    bool? success,
-    String? message,
-    StateData? data,
+    int? id,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? deletedAt,
   }) {
     return StateModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
   factory StateModel.fromJson(Map<String, dynamic> json){
     return StateModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : StateData.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class StateData {
-  StateData({
-    required this.success,
-    required this.response,
-  });
-
-  final bool success;
-  final List<String> response;
-
-  StateData copyWith({
-    bool? success,
-    List<String>? response,
-  }) {
-    return StateData(
-      success: success ?? this.success,
-      response: response ?? this.response,
-    );
-  }
-
-  factory StateData.fromJson(Map<String, dynamic> json){
-    return StateData(
-      success: json["success"] ?? false,
-      response: json["response"] == null ? [] : List<String>.from(json["response"]!.map((x) => x)),
+      id: json["id"] ?? 0,
+      name: json["name"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
     );
   }
 

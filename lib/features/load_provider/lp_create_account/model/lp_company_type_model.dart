@@ -1,48 +1,38 @@
-class TruckTypeModel {
-  TruckTypeModel({
+class LpCompanyTypeModel {
+  LpCompanyTypeModel({
     required this.id,
-    required this.type,
-    required this.subType,
-    required this.iconUrl,
+    required this.companyType,
     required this.status,
     required this.createdAt,
     required this.deletedAt,
   });
 
   final int id;
-  final String type;
-  final String subType;
-  final dynamic iconUrl;
+  final String companyType;
   final int status;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
-  TruckTypeModel copyWith({
+  LpCompanyTypeModel copyWith({
     int? id,
-    String? type,
-    String? subType,
-    dynamic? iconUrl,
+    String? companyType,
     int? status,
     DateTime? createdAt,
     dynamic? deletedAt,
   }) {
-    return TruckTypeModel(
+    return LpCompanyTypeModel(
       id: id ?? this.id,
-      type: type ?? this.type,
-      subType: subType ?? this.subType,
-      iconUrl: iconUrl ?? this.iconUrl,
+      companyType: companyType ?? this.companyType,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
-  factory TruckTypeModel.fromJson(Map<String, dynamic> json){
-    return TruckTypeModel(
+  factory LpCompanyTypeModel.fromJson(Map<String, dynamic> json){
+    return LpCompanyTypeModel(
       id: json["id"] ?? 0,
-      type: json["type"] ?? "",
-      subType: json["subType"] ?? "",
-      iconUrl: json["iconUrl"],
+      companyType: json["companyType"] ?? "",
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],

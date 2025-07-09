@@ -101,8 +101,8 @@ class ApiUrls {
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
-  static final String  getCity = "$_baseUrl$_customer$_path$_v1/kyc/city";
-  static final String  getState = "$_baseUrl$_customer$_path$_v1/kyc/state";
+  static final String  getCity = "$_baseUrl$_load$_path$_v1/location/city";
+  static final String  getState = "$_baseUrl$_load$_path$_v1/location/state";
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
@@ -134,7 +134,7 @@ class ApiUrls {
 
   // Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
-  static final String  loadTruckType = "$_loadBaseUrl/truck-types/";
+  static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
   static final String  getRecentRoute = "$baseUrl$_path$_v1$_load/distinct-source-destination";

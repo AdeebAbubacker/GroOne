@@ -290,5 +290,17 @@
   "failedToLoadTermsAndConditions" : "Failed to load Terms and Conditions.",
   "termsAndConditions" : "Terms and Conditions",
   "privacyPolicy" : "Privacy Policies",
-  "failedToLoadPrivacyPolicy" : "Failed to load Privacy Policy"
+  "failedToLoadPrivacyPolicy" : "Failed to load Privacy Policy",
+  "agreedPrice":"Agreed Price",
+  "payableAdvance":"Payable Advance",
+  "payAdvance":"Pay Advance",
+  "paid" : "Paid",
+  "payableBalance" : "Payable Balance",
+  "payBalance" : "Pay Balance",
+  "consigneeDetails": "Consignee Details",
+  "update":"Update",
+  "contactNumber" : "Contact Number",
+  "emailId" : "Email ID",
+  "tripdocument":"Trip Documents",
+  "fileNotFound" : "File not found"
  }

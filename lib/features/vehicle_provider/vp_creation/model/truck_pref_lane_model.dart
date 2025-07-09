@@ -1,31 +1,20 @@
 class TruckPrefLaneModel {
     TruckPrefLaneModel({
-        required this.success,
-        required this.message,
         required this.data,
     });
 
-    final bool success;
-    final String message;
     final Data? data;
 
     TruckPrefLaneModel copyWith({
-        bool? success,
-        String? message,
         Data? data,
     }) {
         return TruckPrefLaneModel(
-            success: success ?? this.success,
-            message: message ?? this.message,
             data: data ?? this.data,
         );
     }
 
     factory TruckPrefLaneModel.fromJson(Map<String, dynamic> json){
-
         return TruckPrefLaneModel(
-            success: json["success"] ?? false,
-            message: json["message"] ?? "",
             data: json["data"] == null ? null : Data.fromJson(json["data"]),
         );
     }
@@ -34,74 +23,93 @@ class TruckPrefLaneModel {
 
 class Data {
     Data({
-        required this.data,
+        required this.items,
         required this.total,
-        required this.pageMeta,
+        required this.page,
+        required this.limit,
     });
 
-    final List<Datum> data;
+    final List<Item> items;
     final int total;
-    final PageMeta? pageMeta;
+    final int page;
+    final int limit;
 
     Data copyWith({
-        List<Datum>? data,
+        List<Item>? items,
         int? total,
-        PageMeta? pageMeta,
+        int? page,
+        int? limit,
     }) {
         return Data(
-            data: data ?? this.data,
+            items: items ?? this.items,
             total: total ?? this.total,
-            pageMeta: pageMeta ?? this.pageMeta,
+            page: page ?? this.page,
+            limit: limit ?? this.limit,
         );
     }
 
     factory Data.fromJson(Map<String, dynamic> json){
-        print("json response ${json}");
         return Data(
-            data: json["items"] == null ? [] : List<Datum>.from(json["items"]!.map((x) => Datum.fromJson(x))),
+            items: json["items"] == null ? [] : List<Item>.from(json["items"]!.map((x) => Item.fromJson(x))),
             total: json["total"] ?? 0,
-            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+            page: json["page"] ?? 0,
+            limit: json["limit"] ?? 0,
         );
     }
 
 }
 
-class Datum {
-    Datum({
-        required this.id,
+class Item {
+    Item({
+        required this.masterLaneId,
         required this.fromLocationId,
         required this.toLocationId,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
         required this.fromLocation,
         required this.toLocation,
     });
 
-    final int id;
+    final int masterLaneId;
     final int fromLocationId;
     final int toLocationId;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
     final Location? fromLocation;
     final Location? toLocation;
 
-    Datum copyWith({
-        int? id,
+    Item copyWith({
+        int? masterLaneId,
         int? fromLocationId,
         int? toLocationId,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
         Location? fromLocation,
         Location? toLocation,
     }) {
-        return Datum(
-            id: id ?? this.id,
+        return Item(
+            masterLaneId: masterLaneId ?? this.masterLaneId,
             fromLocationId: fromLocationId ?? this.fromLocationId,
             toLocationId: toLocationId ?? this.toLocationId,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
             fromLocation: fromLocation ?? this.fromLocation,
             toLocation: toLocation ?? this.toLocation,
         );
     }
 
-    factory Datum.fromJson(Map<String, dynamic> json){ 
-        return Datum(
-            id: json["id"] ?? 0,
+    factory Item.fromJson(Map<String, dynamic> json){
+        return Item(
+            masterLaneId: json["masterLaneId"] ?? 0,
             fromLocationId: json["fromLocationId"] ?? 0,
             toLocationId: json["toLocationId"] ?? 0,
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
             fromLocation: json["fromLocation"] == null ? null : Location.fromJson(json["fromLocation"]),
             toLocation: json["toLocation"] == null ? null : Location.fromJson(json["toLocation"]),
         );
@@ -115,76 +123,48 @@ class Location {
         required this.name,
         required this.slug,
         required this.latLong,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
     });
 
     final int id;
     final String name;
     final String slug;
     final String latLong;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
 
     Location copyWith({
         int? id,
         String? name,
         String? slug,
         String? latLong,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
     }) {
         return Location(
             id: id ?? this.id,
             name: name ?? this.name,
             slug: slug ?? this.slug,
             latLong: latLong ?? this.latLong,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
         );
     }
 
-    factory Location.fromJson(Map<String, dynamic> json){ 
+    factory Location.fromJson(Map<String, dynamic> json){
         return Location(
             id: json["id"] ?? 0,
             name: json["name"] ?? "",
             slug: json["slug"] ?? "",
             latLong: json["latLong"] ?? "",
-        );
-    }
-
-}
-
-class PageMeta {
-    PageMeta({
-        required this.page,
-        required this.pageCount,
-        required this.nextPage,
-        required this.pageSize,
-        required this.total,
-    });
-
-    final int page;
-    final int pageCount;
-    final int nextPage;
-    final int pageSize;
-    final int total;
-
-    PageMeta copyWith({
-        int? page,
-        int? pageCount,
-        int? nextPage,
-        int? pageSize,
-        int? total,
-    }) {
-        return PageMeta(
-            page: page ?? this.page,
-            pageCount: pageCount ?? this.pageCount,
-            nextPage: nextPage ?? this.nextPage,
-            pageSize: pageSize ?? this.pageSize,
-            total: total ?? this.total,
-        );
-    }
-
-    factory PageMeta.fromJson(Map<String, dynamic> json){ 
-        return PageMeta(
-            page: json["page"] ?? 0,
-            pageCount: json["pageCount"] ?? 0,
-            nextPage: json["nextPage"] ?? 0,
-            pageSize: json["pageSize"] ?? 0,
-            total: json["total"] ?? 0,
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
         );
     }
 

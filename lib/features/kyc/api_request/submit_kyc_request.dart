@@ -13,9 +13,11 @@ class SubmitKycApiRequest {
      this.isTan,
     this.chequeDocLink,
     this.tdsDocLink,
-     this.address1,
-     this.address2,
-     this.address3,
+     this.addressName,
+     this.fullAddress,
+     this.pincode,
+     this.state,
+     this.city,
      this.bankAccount,
      this.bankName,
      this.branchName,
@@ -35,9 +37,11 @@ class SubmitKycApiRequest {
   final bool? isTan;
   final String? chequeDocLink;
   final String? tdsDocLink;
-  final String? address1;
-  final String? address2;
-  final String? address3;
+  final String? addressName;
+  final String? fullAddress;
+  final String? pincode;
+  final String? state;
+  final String? city;
   final String? bankAccount;
   final String? bankName;
   final String? branchName;
@@ -57,9 +61,11 @@ class SubmitKycApiRequest {
     "isTan": isTan ?? false,
     "chequeDocLink": chequeDocLink ?? "",
     "tdsDocLink": tdsDocLink ?? "",
-    "address1": address1 ?? "",
-    "address2": address2 ?? "",
-    "address3": address3 ?? "",
+    "addressName": addressName ?? "",
+    "fullAddress": fullAddress ?? "",
+    "pincode": pincode ?? "",
+    "state": state ?? "",
+    "city": city ?? "",
     "bankAccount": bankAccount ?? "",
     "bankName": bankName ?? "",
     "branchName": branchName ?? "",
