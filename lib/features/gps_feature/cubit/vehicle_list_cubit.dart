@@ -175,6 +175,11 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     await loadVehicleData();
   }
 
+  /// Toggle between map and list view
+  void toggleMapView(bool showMap) {
+    emit(state.copyWith(showMapView: showMap));
+  }
+
   void _setVehicleDataUIState(UIState<List<GpsCombinedVehicleData>>? uiState) {
     emit(state.copyWith(vehicleDataState: uiState));
   }

@@ -322,5 +322,12 @@
   "callCustomerSupport": "Call Customer Support",
   "callCustomerSupportSubtitle": "For immediate support, talk to our team now.",
   "callNow": "Call Now",
-  "retry": "Retry"
+  "retry": "Retry",
+  "viewAllVehicles": "View All Vehicles",
+  "listView": "List view",
+  "unknown": "Unknown",
+  "notAvailable": "N/A",
+  "locationNotAvailable": "Location not available",
+  "noUpdateTime": "No update time",
+  "tryAdjustingSearchOrFilters": "Try adjusting your search or filters"
 }

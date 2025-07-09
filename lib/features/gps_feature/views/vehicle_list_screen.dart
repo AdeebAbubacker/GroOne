@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
@@ -38,7 +39,7 @@ class _VehicleListView extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Vehicle data failed: ${state.vehicleDataState?.errorType?.toString() ?? 'Unknown error'}',
+                'Vehicle data failed: [${state.vehicleDataState?.errorType?.toString() ?? 'Unknown error'}',
               ),
               backgroundColor: Colors.red,
             ),
@@ -48,30 +49,105 @@ class _VehicleListView extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppConstants.backgroundColor,
         body: SafeArea(
-          child: Column(
+          child: Stack(
             children: [
-              _buildAppBar(context),
-              //todo: remove this in future
-              // _buildExpiryAlert(context,5)
+              Column(
+                children: [
+                  _buildAppBar(context),
+                  BlocBuilder<VehicleListCubit, VehicleListState>(
+                    builder: (context, state) {
+                      if (state.expiringSoonCount > 0) {
+                        return _buildExpiryAlert(
+                          context,
+                          state.expiringSoonCount,
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  _buildStatusTabs(),
+                  Expanded(
+                    child: BlocBuilder<VehicleListCubit, VehicleListState>(
+                      builder: (context, state) {
+                        return Column(
+                          children: [
+                            _buildSearchBar(context),
+                            Expanded(
+                              child:
+                                  state.showMapView
+                                      ? _buildVehicleMap(context)
+                                      : _buildVehicleList(),
+                            ),
+                            _buildBottomBanner(),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
               BlocBuilder<VehicleListCubit, VehicleListState>(
                 builder: (context, state) {
-                  if (state.expiringSoonCount < 0) {
-                    return _buildExpiryAlert(context, state.expiringSoonCount);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
+                  return Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 60, right: 16),
+                      child: GestureDetector(
+                        onTap: () {
+                          context.read<VehicleListCubit>().toggleMapView(
+                            !state.showMapView,
+                          );
+                        },
+                        child: Material(
+                          elevation: 4,
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.transparent,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  state.showMapView
+                                      ? Icons.list
+                                      : Icons.map_outlined,
+                                  color: AppConstants.primaryColor,
+                                  size: 28,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  state.showMapView
+                                      ? context.appText.listView
+                                      : context.appText.viewAllVehicles,
+                                  style: TextStyle(
+                                    color: AppConstants.primaryColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
                 },
-              ),
-              _buildStatusTabs(),
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildSearchBar(context),
-                    Expanded(child: _buildVehicleList()),
-                    _buildMapViewButton(),
-                    _buildBottomBanner(),
-                  ],
-                ),
               ),
             ],
           ),
@@ -327,7 +403,7 @@ class _VehicleListView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No vehicles found',
+              context.appText.noVehiclesFound,
               style: TextStyle(
                 color: AppConstants.textSecondaryColor,
                 fontSize: 16,
@@ -336,7 +412,7 @@ class _VehicleListView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Try adjusting your search or filters',
+              context.appText.tryAdjustingSearchOrFilters,
               style: TextStyle(
                 color: AppConstants.textSecondaryColor,
                 fontSize: 14,
@@ -385,7 +461,7 @@ class _VehicleListView extends StatelessWidget {
           Row(
             children: [
               Text(
-                vehicle.vehicleNumber ?? 'Unknown',
+                vehicle.vehicleNumber ?? context.appText.unknown,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -412,7 +488,7 @@ class _VehicleListView extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      vehicle.statusDuration ?? 'N/A',
+                      vehicle.statusDuration ?? context.appText.notAvailable,
                       style: TextStyle(
                         color: AppConstants.successColor,
                         fontSize: 12,
@@ -430,7 +506,7 @@ class _VehicleListView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            vehicle.lastUpdate?.toString() ?? "No update time",
+            vehicle.lastUpdate?.toString() ?? context.appText.noUpdateTime,
             style: TextStyle(
               color: AppConstants.textSecondaryColor,
               fontSize: 12,
@@ -447,7 +523,7 @@ class _VehicleListView extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  vehicle.location ?? 'Location not available',
+                  vehicle.location ?? context.appText.locationNotAvailable,
                   style: TextStyle(
                     color: AppConstants.textSecondaryColor,
                     fontSize: 12,
@@ -550,30 +626,42 @@ class _VehicleListView extends StatelessWidget {
     );
   }
 
-  Widget _buildMapViewButton() {
+  Widget _buildVehicleMap(BuildContext context) {
     return BlocBuilder<VehicleListCubit, VehicleListState>(
       builder: (context, state) {
-        return Container(
-          color: AppConstants.cardColor,
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.map_outlined,
-                color: AppConstants.primaryColor,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                context.appText.mapView,
-                style: TextStyle(
-                  color: AppConstants.primaryColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+        final vehicles = state.filteredVehicles;
+        final markers = <Marker>{};
+        for (final vehicle in vehicles) {
+          final loc = vehicle.location;
+          if (loc != null && loc.contains(',')) {
+            final parts = loc.split(',');
+            final lat = double.tryParse(parts[0].trim());
+            final lng = double.tryParse(parts[1].trim());
+            if (lat != null && lng != null) {
+              markers.add(
+                Marker(
+                  markerId: MarkerId(vehicle.vehicleNumber ?? 'unknown'),
+                  position: LatLng(lat, lng),
+                  infoWindow: InfoWindow(title: vehicle.vehicleNumber),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueYellow,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              );
+            }
+          }
+        }
+        return GoogleMap(
+          initialCameraPosition:
+              markers.isNotEmpty
+                  ? CameraPosition(target: markers.first.position, zoom: 12)
+                  : const CameraPosition(
+                    target: LatLng(20.5937, 78.9629),
+                    zoom: 4,
+                  ),
+          markers: markers,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: true,
         );
       },
     );
@@ -584,7 +672,7 @@ class _VehicleListView extends StatelessWidget {
       builder: (context, state) {
         return Container(
           color: AppConstants.primaryColor,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           child: Row(
             children: [
               Expanded(
@@ -592,7 +680,6 @@ class _VehicleListView extends StatelessWidget {
                   context.appText.buyNewGpsAndTrack,
                   style: TextStyle(
                     color: AppConstants.textPrimaryColor,
-                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
