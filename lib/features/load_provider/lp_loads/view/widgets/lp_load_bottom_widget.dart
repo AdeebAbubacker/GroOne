@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -28,7 +27,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -112,7 +110,7 @@ class LpLoadBottomWidget extends StatelessWidget {
         ? PriceHelper.formatINR(loadItem.rate)
         : PriceHelper.formatINRRange('${loadItem.rate} - ${loadItem.maxRate}');
 
-    return     Positioned(
+    return  Positioned(
             bottom: 0,
             left: 0,
             right: 0,
