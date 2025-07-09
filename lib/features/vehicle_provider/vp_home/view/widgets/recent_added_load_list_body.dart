@@ -92,7 +92,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       ],
                     ),
                     Text(
-                      formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
+                      formatDateTimeKavach(widget.data.createdAt?.toString()??DateTime.now().toString()),
                       style: AppTextStyle.primaryColor12w400,
                     ),
                   ],
