@@ -1,21 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_strings.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/dashboard_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/models/vehicle_data_response.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_text_style.dart';
-
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -70,7 +68,7 @@ class _DashboardView extends StatelessWidget {
                 _buildStatusCircles(),
                 _buildTotalDistance(),
                 _buildGraphSection(),
-                _buildBottomDistanceSummary()
+                _buildBottomDistanceSummary(),
               ],
             ),
           );
@@ -79,30 +77,49 @@ class _DashboardView extends StatelessWidget {
     );
   }
 
-  Widget _buildVehicleStatsRow(VehicleDataResponse data) {
-    return Row(
+  Widget _buildTopGrid() {
+    return Column(
       children: [
-        Expanded(
-          child: _buildStatCard(
-            AppStrings.getVehicle,
-            data.totalVehicles,
-            AppConstants.chartBlue,
-            Icons.directions_car,
-          ),
+        Row(
+          children: [
+            _infoCard(
+              icon: AppIcons.svg.truck,
+              title: 'Total Vehicles',
+              count: '23412',
+            ),
+            10.width,
+            _infoCard(
+              icon: AppIcons.svg.gpsDashboardInactive,
+              title: 'Inactive',
+              count: '23412',
+            ),
+          ],
         ),
         20.height,
         Row(
           children: [
-            _infoCard(icon: AppIcons.svg.gpsDashboardInsideFence, title: 'Inside Fence', count: '23412'),
+            _infoCard(
+              icon: AppIcons.svg.gpsDashboardInsideFence,
+              title: 'Inside Fence',
+              count: '23412',
+            ),
             10.width,
-            _infoCard(icon: AppIcons.svg.gpsDashboardOutsideFence, title: 'Outside Fence', count: '23412'),
+            _infoCard(
+              icon: AppIcons.svg.gpsDashboardOutsideFence,
+              title: 'Outside Fence',
+              count: '23412',
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _infoCard({required String icon, required String title, required String count}) {
+  Widget _infoCard({
+    required String icon,
+    required String title,
+    required String count,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -111,22 +128,32 @@ class _DashboardView extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Row(
         children: [
-          SvgPicture.asset(
-            icon,
-            width: 25,
-          ),
+          SvgPicture.asset(icon, width: 25),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(count, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
+                    Text(
+                      count,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 12,
+                      color: Colors.grey,
+                    ),
                   ],
                 ),
               ],
@@ -146,23 +173,31 @@ class _DashboardView extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: statuses.map((status) {
-        return Expanded(
-          child: _circularStatus(
-            title: status['title'],
-            value: status['value'],
-            color: status['color'],
-          ),
-        );
-      }).toList(),
+      children:
+          statuses.map((status) {
+            return Expanded(
+              child: _circularStatus(
+                title: status['title'],
+                value: status['value'],
+                color: status['color'],
+              ),
+            );
+          }).toList(),
     );
   }
 
-  Widget _circularStatus({required String title, required int value, required Color color}) {
+  Widget _circularStatus({
+    required String title,
+    required int value,
+    required Color color,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         children: [
           Text(title, style: AppTextStyle.h6),
@@ -197,9 +232,12 @@ class _DashboardView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(AppIcons.png.gpsDashboardRoad,height: 20,),
+          Image.asset(AppIcons.png.gpsDashboardRoad, height: 20),
           10.width,
-          Text('Total Distance - ', style: AppTextStyle.textDarkGreyColor14w500),
+          Text(
+            'Total Distance - ',
+            style: AppTextStyle.textDarkGreyColor14w500,
+          ),
           Text('10020 Kms', style: AppTextStyle.h5),
         ],
       ),
@@ -209,7 +247,10 @@ class _DashboardView extends StatelessWidget {
   Widget _buildGraphSection() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -217,7 +258,10 @@ class _DashboardView extends StatelessWidget {
             children: [
               Icon(Icons.local_shipping, color: Colors.blue),
               SizedBox(width: 8),
-              Text('R17-KA32C7098', style: TextStyle(fontWeight: FontWeight.w500)),
+              Text(
+                'R17-KA32C7098',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               Spacer(),
               Icon(Icons.keyboard_arrow_down),
             ],
@@ -247,35 +291,49 @@ class _DashboardView extends StatelessWidget {
                 ],
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) {
-                      TextStyle style = AppTextStyle.body4;
-                      switch (value.toInt()) {
-                        case 1:
-                          return  Text('12 Jun', style: style);
-                        case 2:
-                          return  Text('13 Jun', style: style);
-                        case 3:
-                          return  Text('14 Jun', style: style);
-                        case 4:
-                          return  Text('15 Jun', style: style);
-                        case 5:
-                          return  Text('16 Jun', style: style);
-                        case 6:
-                          return  Text('17 Jun', style: style);
-                        case 7:
-                          return  Text('18 Jun', style: style);
-                        default:
-                          return const Text('');
-                      }
-                    }),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, meta) {
+                        TextStyle style = AppTextStyle.body4;
+                        switch (value.toInt()) {
+                          case 1:
+                            return Text('12 Jun', style: style);
+                          case 2:
+                            return Text('13 Jun', style: style);
+                          case 3:
+                            return Text('14 Jun', style: style);
+                          case 4:
+                            return Text('15 Jun', style: style);
+                          case 5:
+                            return Text('16 Jun', style: style);
+                          case 6:
+                            return Text('17 Jun', style: style);
+                          case 7:
+                            return Text('18 Jun', style: style);
+                          default:
+                            return const Text('');
+                        }
+                      },
+                    ),
                   ),
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, meta) {
-                      return Text('${value.toInt()} Kms', style: const TextStyle(fontSize: 10));
-                    }),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          '${value.toInt()} Kms',
+                          style: const TextStyle(fontSize: 10),
+                        );
+                      },
+                    ),
                   ),
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 gridData: FlGridData(show: true),
                 borderData: FlBorderData(show: false),
@@ -285,7 +343,7 @@ class _DashboardView extends StatelessWidget {
                 maxY: 50,
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -300,9 +358,15 @@ class _DashboardView extends StatelessWidget {
             decoration: commonContainerDecoration(),
             child: Column(
               children: const [
-                Text('This Month', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  'This Month',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
                 SizedBox(height: 5),
-                Text('10020 Kms', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(
+                  '10020 Kms',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
               ],
             ),
           ),
@@ -314,9 +378,15 @@ class _DashboardView extends StatelessWidget {
             decoration: commonContainerDecoration(),
             child: Column(
               children: [
-                Text('Last 7 Days', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  'Last 7 Days',
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
                 5.height,
-                Text('10020 Kms', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(
+                  '10020 Kms',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
               ],
             ),
           ),
@@ -381,4 +451,3 @@ class _DashboardView extends StatelessWidget {
     );
   }
 }
-
