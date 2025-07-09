@@ -284,7 +284,7 @@ class Customer {
       mobileNumber: json["mobileNumber"] ?? "",
       companyTypeId: json["companyTypeId"] ?? 0,
       emailId: json["emailId"] ?? "",
-      blueId: json["blueId"],
+      blueId: json["blueId"] ?? "",
       kycRejectReason: json["kycRejectReason"],
       password: json["password"],
       companyName: json["companyName"] ?? "",
