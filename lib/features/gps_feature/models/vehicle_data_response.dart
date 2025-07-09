@@ -23,3 +23,47 @@ class VehicleDataResponse {
     required this.vehicleNumber,
   });
 }
+
+class VehicleData {
+  final String id;
+  final String vehicleNumber;
+  final VehicleStatus status;
+  final String statusDuration;
+  final String location;
+  final int networkSignal; // 1-5
+  final bool hasGPS;
+  final String odoReading;
+  final String todayDistance;
+  final String lastSpeed;
+  final DateTime lastUpdate;
+
+  VehicleData({
+    required this.id,
+    required this.vehicleNumber,
+    required this.status,
+    required this.statusDuration,
+    required this.location,
+    required this.networkSignal,
+    required this.hasGPS,
+    required this.odoReading,
+    required this.todayDistance,
+    required this.lastSpeed,
+    required this.lastUpdate,
+  });
+}
+
+enum VehicleStatus { active, off, inactive }
+
+enum VehicleTabType { all, active, off, inactive }
+
+class VehicleStatusCount {
+  final int active;
+  final int off;
+  final int inactive;
+
+  VehicleStatusCount({
+    required this.active,
+    required this.off,
+    required this.inactive,
+  });
+}

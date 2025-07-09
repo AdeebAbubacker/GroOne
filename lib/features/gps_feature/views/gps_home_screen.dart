@@ -1,105 +1,147 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
-import 'package:gro_one_app/features/gps_feature/constants/app_strings.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 
 class GpsHomeScreen extends StatelessWidget {
-  const GpsHomeScreen({Key? key}) : super(key: key);
+  const GpsHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // backgroundColor: AppConstants.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: AppConstants.cardColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: AppConstants.textPrimaryColor,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          AppStrings.gpsHome,
-          style: TextStyle(
-            color: AppConstants.textPrimaryColor,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: AppConstants.textPrimaryColor,
+    final GpsLoginCubit gpsLoginCubit = locator<GpsLoginCubit>();
+
+    // Auto-login on widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      gpsLoginCubit.login();
+    });
+
+    return BlocProvider.value(
+      value: gpsLoginCubit,
+      child: BlocListener<GpsLoginCubit, GpsLoginState>(
+        listener: (context, state) {
+          if (state.loginState?.status == Status.SUCCESS) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'GPS Login successful - Response stored in Realm',
+                ),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state.loginState?.status == Status.ERROR) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'GPS Login failed: ${state.loginState?.errorType?.toString() ?? 'Unknown error'}',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppConstants.cardColor,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.arrow_back,
+                color: AppConstants.textPrimaryColor,
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.home_outlined,
-              color: AppConstants.textPrimaryColor,
+            title: Text(
+              context.appText.gpsHome,
+              style: const TextStyle(
+                color: AppConstants.textPrimaryColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
             ),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: AppConstants.cardColor,
-              child: _buildAlertCard(),
-            ),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                // color: AppConstants.lightBlueBackground,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: AppConstants.textPrimaryColor,
+                ),
+                onPressed: () {},
+              ),
+              InkWell(
+                onTap: () {
+                  // TODO: Implement customer care bottom sheet
+                },
+                child: Image.asset(
+                  AppImage.png.customerSupport,
+                  height: 32,
+                  width: 32,
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              const SizedBox(width: 10),
+            ],
+          ),
+          body: BlocBuilder<GpsLoginCubit, GpsLoginState>(
+            builder: (context, state) {
+              return SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildMenuGrid(context),
-                    const SizedBox(height: AppConstants.defaultPadding),
-                    _buildTrackVehiclesCard(context),
-                    // Space for bottom illustration
+                    // Alert Card (expiring soon)
+                    _buildAlertCard(context),
+                    // Main content
+                    Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(
+                          AppConstants.defaultPadding,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildMenuGrid(context),
+                            const SizedBox(height: AppConstants.defaultPadding),
+                            _buildTrackVehiclesCard(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Bottom banner
+                    _buildBottomBannerImageWidget(),
+                    // Buy New GPS button
+                    _buildBuyNewGpsButton(context),
                   ],
                 ),
-              ),
-            ),
-            buildBottomBannerImageWidget(),
-            _buildBuyNewGpsButton(),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAlertCard() {
+  Widget _buildAlertCard(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      decoration: BoxDecoration(color: AppConstants.warningColor),
+      decoration: const BoxDecoration(color: AppConstants.warningColor),
       child: Row(
         children: [
           const Icon(Icons.warning, color: AppConstants.errorColor, size: 16),
-
           const SizedBox(width: AppConstants.smallPadding),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppStrings.expiryAlert,
+                  context.appText.expiryAlert,
                   style: const TextStyle(
                     color: AppConstants.errorColor,
                     fontWeight: FontWeight.w600,
@@ -107,7 +149,7 @@ class GpsHomeScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  AppStrings.devicesExpiringSoon,
+                  context.appText.devicesExpiringSoon,
                   style: const TextStyle(color: Colors.white, fontSize: 11),
                 ),
               ],
@@ -120,8 +162,8 @@ class GpsHomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              AppStrings.renewPlan,
-              style: TextStyle(
+              context.appText.renewPlan,
+              style: const TextStyle(
                 color: AppConstants.primaryColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
@@ -136,69 +178,66 @@ class GpsHomeScreen extends StatelessWidget {
   Widget _buildMenuGrid(BuildContext context) {
     final menuItems = [
       _MenuItem(
-        AppStrings.dashboard,
+        context.appText.dashboard,
         Icons.dashboard_outlined,
         AppConstants.primaryColor,
-        () {
-          context.push(AppRouteName.gpsDashboard);
-        },
+        () {},
       ),
       _MenuItem(
-        AppStrings.geofence,
+        context.appText.geofence,
         Icons.location_on_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.foi,
+        context.appText.foi,
         Icons.my_location_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.immobilise,
+        context.appText.immobilise,
         Icons.flash_off_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.vehicleShareUpdate,
+        context.appText.vehicleShareUpdate,
         Icons.share_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.subscription,
+        context.appText.subscription,
         Icons.credit_card_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.faq,
+        context.appText.faq,
         Icons.help_outline,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.settings,
+        context.appText.settings,
         Icons.settings_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.reports,
+        context.appText.reports,
         Icons.assessment_outlined,
         AppConstants.primaryColor,
         () {},
       ),
       _MenuItem(
-        AppStrings.orders,
+        context.appText.orders,
         Icons.shopping_cart_outlined,
         AppConstants.primaryColor,
         () {},
       ),
     ];
-
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -243,7 +282,7 @@ class GpsHomeScreen extends StatelessWidget {
               Text(
                 item.title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppConstants.textPrimaryColor,
@@ -279,34 +318,41 @@ class GpsHomeScreen extends StatelessWidget {
             color: AppConstants.backgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.location_on,
             color: AppConstants.primaryColor,
             size: 20,
           ),
         ),
         title: Text(
-          AppStrings.trackMyVehicles,
-          style: TextStyle(
+          context.appText.trackMyVehicles,
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
             color: AppConstants.textPrimaryColor,
             fontSize: 15,
           ),
         ),
-        trailing: Icon(
+        subtitle: Text(
+          'Tap to view vehicles',
+          style: const TextStyle(
+            color: AppConstants.textSecondaryColor,
+            fontSize: 12,
+          ),
+        ),
+        trailing: const Icon(
           Icons.arrow_forward_ios,
           size: 14,
           color: AppConstants.textSecondaryColor,
         ),
         onTap: () {
-          context.push(AppRouteName.gpsDashboard);
+          // Navigate to vehicle list screen
+          _navigateToVehicleList(context);
         },
       ),
     );
   }
 
-  // Bottom Banner Gro Image
-  Widget buildBottomBannerImageWidget() {
+  Widget _buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
       child: Image.asset(
@@ -317,7 +363,7 @@ class GpsHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBuyNewGpsButton() {
+  Widget _buildBuyNewGpsButton(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 48,
@@ -332,7 +378,7 @@ class GpsHomeScreen extends StatelessWidget {
           elevation: 0,
         ),
         child: Text(
-          AppStrings.buyNewGps,
+          context.appText.buyNewGps,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -342,6 +388,14 @@ class GpsHomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _navigateToVehicleList(BuildContext context) {
+    // Navigate to vehicle list screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const VehicleListScreen()),
+    );
+  }
 }
 
 class _MenuItem {
@@ -349,52 +403,5 @@ class _MenuItem {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-
   _MenuItem(this.title, this.icon, this.color, this.onTap);
-}
-
-class _BuildingsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = Colors.grey.withOpacity(0.2)
-          ..style = PaintingStyle.fill;
-
-    // Draw simple building shapes
-    final buildings = [
-      Rect.fromLTWH(0, size.height * 0.3, size.width * 0.15, size.height * 0.7),
-      Rect.fromLTWH(
-        size.width * 0.2,
-        size.height * 0.1,
-        size.width * 0.18,
-        size.height * 0.9,
-      ),
-      Rect.fromLTWH(
-        size.width * 0.45,
-        size.height * 0.4,
-        size.width * 0.15,
-        size.height * 0.6,
-      ),
-      Rect.fromLTWH(
-        size.width * 0.65,
-        size.height * 0.2,
-        size.width * 0.2,
-        size.height * 0.8,
-      ),
-      Rect.fromLTWH(
-        size.width * 0.9,
-        size.height * 0.5,
-        size.width * 0.1,
-        size.height * 0.5,
-      ),
-    ];
-
-    for (final building in buildings) {
-      canvas.drawRect(building, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

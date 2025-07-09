@@ -14,6 +14,7 @@ class AppRouteName {
   static const String enDhanCard = "/enDhanCard";
   static const String gps = "/gps";
   static const String gpsDashboard = "/gpsDashboard";
+  static const String vehicleList = "/vehicleList";
   static const String instantLoan = "/instantLoad";
   static const String insurance = "/insurance";
   static const String lpPayNowScreen = "/lpPayNowScreen";

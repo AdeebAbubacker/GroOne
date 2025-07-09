@@ -75,6 +75,11 @@ import 'package:gro_one_app/service/analytics_service.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/gps_feature/cubit/gps_login_cubit.dart';
+import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
+import '../features/gps_feature/repository/gps_login_repository.dart';
+import '../features/gps_feature/service/gps_login_service.dart';
+import '../features/gps_feature/service/gps_realm_service.dart';
 import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
@@ -232,6 +237,16 @@ void initLocator() {
       () => EnDhanRepository(locator<EnDhanService>()),
     );
 
+    // GPS Services
+    locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
+    locator.registerLazySingleton(() => GpsRealmService());
+    locator.registerLazySingleton(
+      () => GpsLoginRepository(
+        locator<GpsLoginService>(),
+        locator<GpsRealmService>(),
+      ),
+    );
+
     // View Model
     locator.registerLazySingleton(
       () => SplashViewModel(
@@ -375,6 +390,12 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => ProfileCubit(locator<ProfileRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsLoginCubit(locator<GpsLoginRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
     );
 
     CustomLog.info(locator, "All instances registered.");

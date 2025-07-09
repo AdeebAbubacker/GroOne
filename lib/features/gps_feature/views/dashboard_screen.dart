@@ -4,6 +4,7 @@ import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_strings.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/dashboard_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/models/vehicle_data_response.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -81,6 +82,8 @@ class _DashboardView extends StatelessWidget {
                 _buildChart(),
                 const SizedBox(height: AppConstants.defaultPadding),
                 _buildDistanceCards(data),
+                const SizedBox(height: AppConstants.defaultPadding),
+                _buildTrackVehiclesCard(context),
               ],
             ),
           );
@@ -476,6 +479,62 @@ class _DashboardView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTrackVehiclesCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppConstants.cardColor,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppConstants.primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            Icons.location_on,
+            color: AppConstants.primaryColor,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          AppStrings.trackMyVehicles,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppConstants.textPrimaryColor,
+            fontSize: 15,
+          ),
+        ),
+        subtitle: Text(
+          'View and manage all your vehicles',
+          style: TextStyle(
+            color: AppConstants.textSecondaryColor,
+            fontSize: 12,
+          ),
+        ),
+        trailing: Icon(
+          Icons.arrow_forward_ios,
+          size: 14,
+          color: AppConstants.textSecondaryColor,
+        ),
+        onTap: () {
+          Navigator.pushNamed(context, AppRouteName.vehicleList);
+        },
       ),
     );
   }

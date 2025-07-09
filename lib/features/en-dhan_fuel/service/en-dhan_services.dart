@@ -397,8 +397,8 @@ class EnDhanService {
         data: formData,
         options: Options(
           headers: headers,
-          sendTimeout: const Duration(seconds: 30).inMilliseconds,
-          receiveTimeout: const Duration(seconds: 30).inMilliseconds,
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
         ),
       );
 
