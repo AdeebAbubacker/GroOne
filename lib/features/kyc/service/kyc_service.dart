@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 
@@ -131,7 +130,8 @@ class KycService {
           "fileType" : fileType,
           "documentType" : documentType,
         },
-      );      if (result is Success) {
+      );
+      if (result is Success) {
         final data = UploadGSTDocumentModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
@@ -188,7 +188,8 @@ class KycService {
           "fileType" : fileType,
           "documentType" : documentType,
         },
-      );      if (result is Success) {
+      );
+      if (result is Success) {
         final data = UploadTDSDocumentModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
@@ -216,7 +217,8 @@ class KycService {
           "fileType" : fileType,
           "documentType" : documentType,
         },
-      );      if (result is Success) {
+      );
+      if (result is Success) {
         final data = UploadCancelledCheckedDocumentModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
@@ -244,7 +246,8 @@ class KycService {
           "fileType" : fileType,
           "documentType" : documentType,
         },
-      );      if (result is Success) {
+      );
+      if (result is Success) {
         final data = UploadTANDocumentModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
