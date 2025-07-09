@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_multiline_textfield.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -42,7 +44,7 @@ class LpLoadBottomWidget extends StatelessWidget {
   LpLoadBottomWidget({super.key, required this.loadItem, required this.kilometers});
 
   final lpLoadLocator = locator<LpLoadCubit>();
-
+  final TextEditingController feedbackController = TextEditingController();
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();
 
@@ -110,261 +112,272 @@ class LpLoadBottomWidget extends StatelessWidget {
         ? PriceHelper.formatINR(loadItem.rate)
         : PriceHelper.formatINRRange('${loadItem.rate} - ${loadItem.maxRate}');
 
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
-        decoration: commonContainerDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: [
-            SingleChildScrollView(
+    return     Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
+              decoration: commonContainerDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Truck Type Row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset(AppImage.png.truck, width: 57, height: 42),
-                      12.width,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if(loadItem.loadStatus < 4)
-                            ...[
-                              Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
-                              4.height,
-                              Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
-                            ],
-                          if(loadItem.loadStatus > 3)
-                            ...[
-                              5.height,
-                              Row(
-                                children: [
-                                  Container(
-                                      decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
-                                      padding: EdgeInsets.symmetric(horizontal: 2),
-                                      child: Text(loadItem.trip?.vehicle?.vehicleNumber ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
-                                  5.width,
-                                  Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
-                              ),
-                              5.height,
-                              Row(
-                                children: [
-                                  Text('Driver:  ', style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
-                                  Text(loadItem.trip?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
-                                ],
-                              ),
-                              5.height
-                            ],
-                          if(loadItem.loadStatus > 2)
-                            ...[
-                              4.height,
-                              Container(
-                                  padding: EdgeInsets.all(6),
-                                  decoration: commonContainerDecoration(
-                                      color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
-                                  child: Text(loadItem.customer?.customerDetails?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
-                            ]
-                        ],
-                      ),
-                      if(loadItem.loadStatus > 3)
-                        ...[
-                          Spacer(),
-                          GestureDetector(
-                            onTap: () async {
-                              await callRedirect(loadItem.trip?.driver?.mobile ?? '');
-                            },
-                            child: CircleAvatar(
-                                backgroundColor: AppColors.primaryColor,
-                                child: Icon(Icons.call,color: AppColors.white,)),
-                          )
-                        ]
-
-                    ],
-                  ),
-                  16.height,
-
-                  // Source & Destination card
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: commonContainerDecoration(
-                      color: AppColors.lightPrimaryColor2,
-                      borderColor: AppColors.borderColor,
-                    ),
-                    child: Row(
+                  SingleChildScrollView(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
-                        Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
-                        10.width,
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        // Truck Type Row
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-
-                            // Source (Pick Up)
+                            Image.asset(AppImage.png.truck, width: 57, height: 42),
+                            12.width,
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                6.height,
-                                Text(loadItem.pickUpWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                if(loadItem.loadStatus < 4)
+                                  ...[
+                                    Text('Requested', style: AppTextStyle.body3.copyWith(color: Colors.grey)),
+                                    4.height,
+                                    Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                                  ],
+                                if(loadItem.loadStatus > 3)
+                                  ...[
+                                    5.height,
+                                    Row(
+                                      children: [
+                                        Container(
+                                            decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
+                                            padding: EdgeInsets.symmetric(horizontal: 2),
+                                            child: Text(loadItem.trip?.vehicle?.vehicleNumber ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                        5.width,
+                                        Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
+                                    ),
+                                    5.height,
+                                    Row(
+                                      children: [
+                                        Text('Driver:  ', style: AppTextStyle.body3.copyWith(color: AppColors.greyIconColor)),
+                                        Text(loadItem.trip?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                      ],
+                                    ),
+                                    5.height
+                                  ],
+                                if(loadItem.loadStatus > 2)
+                                  ...[
+                                    4.height,
+                                    Container(
+                                        padding: EdgeInsets.all(6),
+                                        decoration: commonContainerDecoration(
+                                            color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
+                                        child: Text(loadItem.customer?.customerDetails?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
+                                  ]
                               ],
                             ),
-
-                            commonDivider(),
-
-                            // Destination
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                6.height,
-                                Text(loadItem.dropWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                              ],
-                            ),
-
+                            if(loadItem.loadStatus > 3)
+                              ...[
+                                Spacer(),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await callRedirect(loadItem.trip?.driver?.mobile ?? '');
+                                  },
+                                  child: CircleAvatar(
+                                      backgroundColor: AppColors.primaryColor,
+                                      child: Icon(Icons.call,color: AppColors.white,)),
+                                )
+                              ]
+          
                           ],
-                        ).expand()
-                      ],
-                    ),
-                  ),
-                  16.height,
-
-                  // Agreed Price
-                  Container(
-                    decoration: commonContainerDecoration(
-                      color: AppColors.primaryLightColor,
-                      borderRadius: BorderRadius.circular(commonPadding),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Agreed Price", style: AppTextStyle.body2),
-                        Text(
-                          loadPrice,
-                          style: AppTextStyle.h4.copyWith(
-                            color: AppColors.primaryColor,
+                        ),
+                        25.height,
+                        // Travel Progress
+                          _buildProgressEtaWidget(
+                          context: context,
+                          progressPercentage: 6,
+                          remainingDistance: "250 KMs",
+                          totalDistance: "456KMs",
+                          eta: "31-09-2024, 09:30 PM",
+                          ),
+                        16.height,
+                        // Source & Destination card
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: commonContainerDecoration(
+                            color: AppColors.lightPrimaryColor2,
+                            borderColor: AppColors.borderColor,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+          
+                              Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
+                              10.width,
+          
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+          
+                                  // Source (Pick Up)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                                      6.height,
+                                      Text(loadItem.pickUpWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                    ],
+                                  ),
+          
+                                  commonDivider(),
+          
+                                  // Destination
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                                      6.height,
+                                      Text(loadItem.dropWholeAddr, style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                                    ],
+                                  ),
+          
+                                ],
+                              ).expand()
+                            ],
                           ),
                         ),
-                      ],
-                    ).paddingAll(8),
-
-                  ),
-                  16.height,
-
-                  // Pay Adavance
-                  _buildAdvancePaymentCard(context: context, paymentState: 2),
                         16.height,
-                  //Consignee Details
-                   
-                         _buildConsigneeDetail(
-                         context: context,
-                         name: 'dd',
-                         email: 'd',
-                         phoneNo: '6587443',
-                         isUpdatable: true,
-                         isTextField: true,
-                         ),
-                    16.height,   
-                  // Download Documents  
-                    Text(context.appText.tripdocument, style: AppTextStyle.h4),
+          
+                        // Agreed Price
+                        Container(
+                          decoration: commonContainerDecoration(
+                            color: AppColors.primaryLightColor,
+                            borderRadius: BorderRadius.circular(commonPadding),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text("Agreed Price", style: AppTextStyle.body2),
+                              Text(
+                                loadPrice,
+                                style: AppTextStyle.h4.copyWith(
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ).paddingAll(8),
+          
+                        ),
+                        16.height,
+                       
+                        // Pay Adavance
+                        _buildAdvancePaymentCard(context: context, paymentState: 2),
+                              16.height,
+                               // load details
                         Column(
-                  children: [
-                    20.height,
-                    _buildUploadedDocPreviewItem(
-                      context: context,
-                      isDownloadable: true,
-                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                      fileTitle: 'LR copy',
-                      dateTime: '07-12-2024 | 02:52 pm',
-                      isFileAvailable: true,
-                    ),
-                    10.height,
-                    _buildUploadedDocPreviewItem(
-                      context: context,
-                      isDownloadable: true,
-                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                      fileTitle: 'E-way bill',
-                      dateTime: '07-12-2024 | 02:52 pm',
-                      isFileAvailable: true,
-                    ),
-                    10.height,
-                    _buildUploadedDocPreviewItem(
-                      context: context,
-                      isDownloadable: true,
-                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                      fileTitle: 'Material Invoice',
-                      dateTime: '07-12-2024 | 02:52 pm',
-                      isFileAvailable: true,
-                    ),
-                    20.height,                   
-                  ],
-                ),
-                16.height,
-                  // load details
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    spacing: 20,
-                    children: [
-                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 20,
+                          children: [
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppIcons.svg.orderBox, width: 20,color: Colors.black,),
+                                8.width,
+                                Text(loadItem.commodity?.name ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,color: Colors.black,),
+                                8.width,
+                                Text('${loadItem.weightage?.value} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
+                                8.width,
+                                Text("${lpLoadLocator.state.locationDistance ?? ''} KM", style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        25.height,
+                        //Consignee Details
+                         
+                               _buildConsigneeDetail(
+                               context: context,
+                               name: 'dd',
+                               email: 'd',
+                               phoneNo: '6587443',
+                               isUpdatable: true,
+                               isTextField: true,
+                               ),
+                          16.height,   
+                        // Download Documents  
+                          Text(context.appText.tripdocument, style: AppTextStyle.h4),
+                              Column(
                         children: [
-                          SvgPicture.asset(AppIcons.svg.orderBox, width: 20,color: Colors.black,),
-                          8.width,
-                          Text(loadItem.commodity?.name ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          20.height,
+                          _buildUploadedDocPreviewItem(
+                            context: context,
+                            isDownloadable: true,
+                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                            fileTitle: 'LR copy',
+                            dateTime: '07-12-2024 | 02:52 pm',
+                            isFileAvailable: true,
+                          ),
+                          10.height,
+                          _buildUploadedDocPreviewItem(
+                            context: context,
+                            isDownloadable: true,
+                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                            fileTitle: 'E-way bill',
+                            dateTime: '07-12-2024 | 02:52 pm',
+                            isFileAvailable: true,
+                          ),
+                          10.height,
+                          _buildUploadedDocPreviewItem(
+                            context: context,
+                            isDownloadable: true,
+                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                            fileTitle: 'Material Invoice',
+                            dateTime: '07-12-2024 | 02:52 pm',
+                            isFileAvailable: true,
+                          ),
+                          20.height,                   
                         ],
                       ),
-                      Row(
-                        children: [
-                          SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,color: Colors.black,),
-                          8.width,
-                          Text('${loadItem.weightage?.value} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
-                          8.width,
-                          Text("${lpLoadLocator.state.locationDistance ?? ''} KM", style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  25.height,
-
-                  // Timeline
-                  if(loadItem.loadStatus > 2)
-                    ...[
-                      Text("Timeline", style: AppTextStyle.h4),
-                      20.height,
-                      LoadTimelineWidget(timelineList: loadItem.timeline)
-                    ]
+                      16.height,
+                       
+                       // Feedback and Remarks
+                       _buildFeedbackRemarksWidget(context: context, controller: feedbackController),
+          
+                        // Timeline
+                        if(loadItem.loadStatus > 2)
+                          ...[
+                            Text("Timeline", style: AppTextStyle.h4),
+                            20.height,
+                            LoadTimelineWidget(timelineList: loadItem.timeline)
+                          ]
+                      ],
+                    ).paddingAll(16),
+                  ).expand(),
+                  if(loadItem.loadStatus == 4 && loadItem.isAgreed == 0)
+                    CustomSwipeButton(
+                      price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
+                      loadId: loadItem.loadId,
+                      onSubmit: () async {
+                       String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+          
+                        if (firstPostedLoadId != null && firstPostedLoadId == loadItem.loadId.toString()) {
+                          if(context.mounted) onSubmit(loadItem, context);
+                        } else {
+                          if(context.mounted) showAdvancePaymentDialog(context,loadItem, '');
+                        }
+                      },
+                    )
                 ],
-              ).paddingAll(16),
-            ).expand(),
-            if(loadItem.loadStatus == 4 && loadItem.isAgreed == 0)
-              CustomSwipeButton(
-                price:loadItem.rate == "" ? 0 : int.parse(loadItem.rate),
-                loadId: loadItem.loadId,
-                onSubmit: () async {
-                 String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
-                  if (firstPostedLoadId != null && firstPostedLoadId == loadItem.loadId.toString()) {
-                    if(context.mounted) onSubmit(loadItem, context);
-                  } else {
-                    if(context.mounted) showAdvancePaymentDialog(context,loadItem, '');
-                  }
-                },
-              )
-          ],
-        ),
-      ),
-    );
+              ),
+            ),
+          );
   }
 }
 
@@ -732,3 +745,137 @@ Widget _buildUploadedDocPreviewItem({
 }
 
 
+// Travel Progress Details
+Widget _buildProgressEtaWidget({
+  required BuildContext context,
+  required double progressPercentage,
+  required String remainingDistance,
+  required String totalDistance,
+  required String eta,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Radial Progress
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(
+              value: progressPercentage / 100,
+              strokeWidth: 4,
+              backgroundColor: Colors.grey.shade200,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            ),
+          ),
+          Text(
+            "${progressPercentage.toInt()}%",
+            style: AppTextStyle.radialProgressText,
+          ),
+        ],
+      ),
+
+      const SizedBox(width: 12),
+
+      // Main content with distance/ETA
+      Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Remaining Distance
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.remainingDistance,
+                    style: AppTextStyle.body3SoftGrey,
+                  ),
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: remainingDistance,
+                          style: AppTextStyle.body2.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' / $totalDistance',
+                          style: AppTextStyle.textDarkGreyColor14w400.copyWith(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Vertical Divider
+            Container(
+              width: 1,
+              height: 35,
+              color: Colors.grey.shade300,
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+
+            // ETA
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.estArrivalTime,
+                    style: AppTextStyle.body3SoftGrey,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(eta, style: AppTextStyle.body3),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+
+// Feedback and Remarks Widget
+Widget _buildFeedbackRemarksWidget({
+  required BuildContext context,
+  required TextEditingController controller,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      /// Header Row
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "${context.appText.feedback} / ${context.appText.remarks}",
+            style: AppTextStyle.h4,
+          ),
+           AppButton(
+           title: context.appText.update,
+           style: AppButtonStyle.outlineShrink,
+           textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+           onPressed: () {},
+          ),
+        ],
+      ),
+
+      10.height,
+
+      /// Multiline TextField
+      AppMultilineTextField(controller: controller,hintText: context.appText.enterRemarks,),
+    ],
+  );
+}
