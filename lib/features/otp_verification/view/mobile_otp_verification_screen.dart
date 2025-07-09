@@ -96,13 +96,8 @@ class _MobileOtpVerificationScreenState
   }
 
   // Home Redirection
-  void homeRedirection(
-    MobileOtpVerificationModel data,
-    BuildContext context, {
-    required tempFlag,
-  }) => frameCallback(() {
-    print('my tempflag${tempFlag}');
-    if (data?.user?.role == 1) {
+  void homeRedirection(MobileOtpVerificationModel data, BuildContext context, {required tempFlag}) => frameCallback(() {
+    if (data.user?.role == 1) {
 
       if (tempFlag) {
         context.push(
