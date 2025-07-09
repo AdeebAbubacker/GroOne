@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -13,9 +14,12 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -25,6 +29,11 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
 
 class LpLoadBottomWidget extends StatelessWidget {
   final LoadData loadItem;
@@ -249,6 +258,55 @@ class LpLoadBottomWidget extends StatelessWidget {
                   ),
                   16.height,
 
+                  // Pay Adavance
+                  _buildAdvancePaymentCard(context: context, paymentState: 2),
+                        16.height,
+                  //Consignee Details
+                   
+                         _buildConsigneeDetail(
+                         context: context,
+                         name: 'dd',
+                         email: 'd',
+                         phoneNo: '6587443',
+                         isUpdatable: true,
+                         isTextField: true,
+                         ),
+                    16.height,   
+                  // Download Documents  
+                    Text(context.appText.tripdocument, style: AppTextStyle.h4),
+                        Column(
+                  children: [
+                    20.height,
+                    _buildUploadedDocPreviewItem(
+                      context: context,
+                      isDownloadable: true,
+                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                      fileTitle: 'LR copy',
+                      dateTime: '07-12-2024 | 02:52 pm',
+                      isFileAvailable: true,
+                    ),
+                    10.height,
+                    _buildUploadedDocPreviewItem(
+                      context: context,
+                      isDownloadable: true,
+                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                      fileTitle: 'E-way bill',
+                      dateTime: '07-12-2024 | 02:52 pm',
+                      isFileAvailable: true,
+                    ),
+                    10.height,
+                    _buildUploadedDocPreviewItem(
+                      context: context,
+                      isDownloadable: true,
+                      fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                      fileTitle: 'Material Invoice',
+                      dateTime: '07-12-2024 | 02:52 pm',
+                      isFileAvailable: true,
+                    ),
+                    20.height,                   
+                  ],
+                ),
+                16.height,
                   // load details
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,3 +367,368 @@ class LpLoadBottomWidget extends StatelessWidget {
     );
   }
 }
+
+
+// Advance Payment Card
+Widget _buildAdvancePaymentCard({
+  required BuildContext context,
+  required int paymentState,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFEAF5FF),
+    borderRadius: BorderRadius.circular(commonPadding),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Agreed Price
+        _buildPriceRow(context.appText.agreedPrice, "₹ 79,000", context),
+        const SizedBox(height: 8),
+
+        // Payable Advance Row with Status
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  context.appText.payableAdvance,
+                  style: AppTextStyle.body2.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textBlackColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (paymentState == 2)
+                  Row(
+                    children: [
+                      const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                      const SizedBox(width: 4),
+                     Text(
+                     context.appText.pending,
+                     style: AppTextStyle.body.copyWith(
+                     fontSize: 10,
+                     color: AppColors.iconRed,
+                        ),
+                       ),
+                    ],
+                  )
+                else if (paymentState == 3)
+                 Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.boxGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text( 
+                      context.appText.paid,
+                      style: AppTextStyle.body.copyWith(
+                      fontSize: 12,
+                      color: AppColors.greenColor, 
+                     fontWeight: FontWeight.w500,
+)
+
+                    ),
+                  ),
+              ],
+            ),
+            Flexible(
+              child: Text(
+                "₹ 70,000",
+                style: AppTextStyle.body1GreyColor.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textGreyDetailColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 8),
+
+        // Payable Balance (only if paymentState is 2 or 3)
+        if (paymentState == 3)
+          _buildPriceRow(
+            context.appText.payableBalance,
+            "₹ 9,000",
+            context,
+            highlight: true,
+          ),
+
+        const SizedBox(height: 12),
+
+        // Action Button
+        if (paymentState == 1)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+          )
+        else if (paymentState == 2)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+            richTextWidget: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  AppIcons.svg.alertWarning,
+                  height: 18,
+                  width: 18,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  context.appText.payAdvance,
+                  style: AppTextStyle.buttonWhiteTextColor,
+                ),
+              ],
+            ),
+          )
+        else if (paymentState == 3)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+            richTextWidget: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.appText.payBalance,
+                  style: AppTextStyle.buttonWhiteTextColor,
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+
+// Prcie Row
+Widget _buildPriceRow(
+  String label,
+  String amount,
+  BuildContext context, {
+  bool highlight = false,
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w400,
+          color: AppColors.textBlackColor,
+        ),
+      ),
+      Flexible(
+        child: Text(
+          amount,
+          style: AppTextStyle.body1GreyColor.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color:
+                highlight
+                    ? AppColors.primaryColor
+                    : AppColors.textGreyDetailColor,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
+// Consignee Details
+Widget _buildConsigneeDetail({
+  required BuildContext context,
+   String? name,
+   String? phoneNo,
+   String? email,
+  bool isTextField = false,
+  bool isUpdatable = false,
+  TextEditingController? nameController,
+  TextEditingController? phoneController,
+  TextEditingController? emailController,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
+          Spacer(),
+          if (isUpdatable)
+           AppButton(
+           title: context.appText.update,
+           style: AppButtonStyle.outlineShrink,
+           textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+           onPressed: () {},
+          ),
+        ],
+      ),
+      if (isTextField)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            20.height,
+            // Name
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: nameController,
+              labelText: context.appText.name,
+              mandatoryStar: true,
+            ),
+            20.height,
+            // Contact Number
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: phoneController,
+              labelText: context.appText.contactNumber,
+              mandatoryStar: true,
+            ),
+            20.height,
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: emailController,
+              labelText: context.appText.emailId,
+              mandatoryStar: false,
+            ),
+          ],
+        )
+      else
+        Column(
+          children: [
+            20.height,
+            // Contact Name
+            _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
+
+            20.height,
+
+            // Contact Number
+            _buildDetailWidget(text1: context.appText.contactNo, text2: phoneNo ?? ""),
+            20.height,
+
+            // Email Id
+            _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
+          ],
+        ),
+    ],
+  );
+}
+
+// Detail Widget
+Widget _buildDetailWidget({required String text1, required String text2}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        text1,
+        style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
+      ),
+      Text(
+        text2,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF003CFF),
+        ),
+      ),
+    ],
+  );
+}
+
+
+// Doc Preview
+Widget _buildUploadedDocPreviewItem({
+  required String fileTitle,
+  required String dateTime,
+  required bool isFileAvailable,
+  required bool isDownloadable,
+  required String fileUrl,
+  required BuildContext context,
+}) {
+  Future<void> downloadAndOpenFile(String url) async {
+    try {
+      final fileName = path.basename(url);
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = path.join(directory.path, fileName);
+
+      final dio = Dio();
+      await dio.download(url, filePath);
+
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      debugPrint("Error downloading/opening file: $e");
+    }
+  }
+
+  return Container(
+    height: 55,
+    width: double.infinity,
+    margin:  EdgeInsets.symmetric(vertical: 5),
+    padding:  EdgeInsets.symmetric(horizontal: 12),
+    decoration: BoxDecoration(
+      color: AppColors.docViewCardBgColor,
+      borderRadius: BorderRadius.circular(commonTexFieldRadius),
+    ),
+    child: Row(
+      children: [
+        SvgPicture.asset(
+          AppIcons.svg.documentView,
+          width: 22,
+          height: 22,
+          colorFilter: AppColors.svg(
+            isFileAvailable ? AppColors.primaryColor : AppColors.iconRed,
+          ),
+        ),
+        10.width,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              isFileAvailable ? fileTitle : context.appText.fileNotFound,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+                color:
+                    isFileAvailable
+                        ? AppColors.textBlackColor
+                        : AppColors.iconRed,
+              ),
+            ),
+            4.height,
+            Text(
+              dateTime,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 10,
+                color: AppColors.textGreyColor,
+              ),
+            ),
+          ],
+        ).expand(),
+
+        if (isFileAvailable && isDownloadable)
+          IconButton(
+            icon: Icon(
+              Icons.download_rounded,
+              size: 20,
+              color: AppColors.primaryColor,
+            ),
+            onPressed: () => downloadAndOpenFile(fileUrl),
+          ),
+      ],
+    ),
+  );
+}
+
+
