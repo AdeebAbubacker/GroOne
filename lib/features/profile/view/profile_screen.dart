@@ -102,6 +102,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             buildProfileDetailWidget(),
+            5.height,
             profileOptionWidget(context),
             buildProfileVersionWidget(),
           ],
@@ -141,14 +142,14 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
                   ),
-                ),
+                ).isAnimate(),
 
-                Text(state.profileDetailUIState!.data!.customer!.companyName, style: AppTextStyle.h5),
+                Text(state.profileDetailUIState!.data!.customer!.companyName, style: AppTextStyle.h5).isAnimate(),
               ],
 
               // Customer Name
               if(state.profileDetailUIState?.data?.customer?.customerName != null && state.profileDetailUIState?.data?.customer?.customerName != "")
-              Text(state.profileDetailUIState!.data!.customer!.customerName, style: AppTextStyle.body),
+              Text(state.profileDetailUIState!.data!.customer!.customerName, style: AppTextStyle.body).isAnimate(),
 
               // Blue Id
               if(state.profileDetailUIState?.data?.customer?.blueId != null && state.profileDetailUIState?.data?.customer?.blueId != "")
@@ -164,7 +165,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   ),
                   child: Text("${context.appText.blueMembershipId} : ${state.profileDetailUIState!.data!.customer!.blueId}", style: AppTextStyle.h5WhiteColor),
                 ),
-              ),
+              ).isAnimate(),
             ],
 
           ],

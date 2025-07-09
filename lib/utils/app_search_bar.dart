@@ -67,7 +67,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 blurRadius: 2.5,
               ),
           ],
-          border: widget.border ?? Border.all(color: AppColors.borderColor, width: 1)
+          border: widget.border ?? Border.all(color: AppColors.borderColor, width: 1.5)
       ),
       child: Row(
         children: [
