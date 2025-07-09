@@ -278,7 +278,7 @@
   "benefitsOfFuelCardSubHeading1" : "Enables cashless fuel and toll payments, reducing risk and hassle.",
   "benefitsOfFuelCardSubHeading2" : "Gives real-time visibility of fund usage by each driver or vehicle.",
   "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting.",
-  
+
   "gpsHome": "GPS",
   "notification": "Notification",
   "dashboard": "Dashboard",
@@ -330,4 +330,19 @@
   "locationNotAvailable": "Location not available",
   "noUpdateTime": "No update time",
   "tryAdjustingSearchOrFilters": "Try adjusting your search or filters"
+  "buyNewTankLock" : "Buy New Tank Lock",
+  "fuelCard" : "Fuel Card (eN-Dhan)",
+  "benefitsOfFuelCard" : "Benefits of Fuel Card",
+  "benefitsOfFuelCardHeading1" : "Cashless Fuel & Toll Payments",
+  "benefitsOfFuelCardHeading2" : "Real-Time Expense Tracking",
+  "benefitsOfFuelCardHeading3" : "Easy Reconciliation",
+  "benefitsOfFuelCardSubHeading1" : "Enables cashless fuel and toll payments, reducing risk and hassle.",
+  "benefitsOfFuelCardSubHeading2" : "Gives real-time visibility of fund usage by each driver or vehicle.",
+  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting.",
+  "geofence" : "Geofence",
+  "vehicles" : "Vehicles",
+  "addNewGeofence" : "Add New Geofence",
+  "confirmLocation" : "Confirm Location",
+  "geofenceName" : "Geofence Name",
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
 }

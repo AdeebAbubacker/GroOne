@@ -275,7 +275,7 @@
   "deviceType": "சாதன வகை",
   "getYourTankLockNow": "இப்போது உங்கள் டாங் லாக் பெறுங்கள்",
   "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
-  
+
   "gpsHome": "GPS",
   "notification": "அறிவிப்பு",
   "dashboard": "டாஷ்போர்டு",
@@ -320,4 +320,12 @@
   "callCustomerSupportSubtitle": "உடனடி ஆதரவுக்கு, இப்போது எங்கள் குழுவுடன் பேசுங்கள்.",
   "callNow": "இப்போது அழைக்கவும்",
   "retry": "மீண்டும் முயற்சிக்கவும்"
+  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
+  "geofence" : "Geofence",
+  "vehicles" : "Vehicles",
+  "addNewGeofence" : "Add New Geofence",
+  "confirmLocation" : "Confirm Location",
+  "geofenceName" : "Geofence Name",
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
+
 }

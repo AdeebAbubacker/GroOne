@@ -55,28 +55,22 @@ class ApiService {
   }
 
   /// Get
-  Future<Result<dynamic>> get(
-    String url, {
-    Map<String, dynamic>? queryParams,
-    bool forceRefresh = false,
-    CancelToken? cancelToken,
-  }) async {
-    CustomLog.debug(
-      this,
-      "\nMethod : Get, \nURL : $url " +
-          (queryParams != null ? "\nQueryParams : $queryParams" : ""),
-    );
+  Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if (HasInternetConnection.isInternet != true) {
         return Error(InternetNetworkError());
       }
       await clearCache();
+
+      final headers = customHeaders ?? await _getHeaders();
+
       final response = await _dio.get(
         url,
         queryParameters: queryParams,
         cancelToken: cancelToken,
         // options: buildConfigurableCacheOptions(
-        //   options: Options(headers: await _getHeaders()),
+        //   options: Options(headers: headers),
         //   maxAge: const Duration(minutes: 30),
         //   maxStale: const Duration(days: 1),
         //   forceRefresh: forceRefresh,

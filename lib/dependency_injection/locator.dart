@@ -13,6 +13,9 @@ import 'package:gro_one_app/features/email_verification/service/email_verificati
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -128,6 +131,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
+    locator.registerLazySingleton(() => GpsService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
     locator.registerLazySingleton(
@@ -204,6 +208,9 @@ void initLocator() {
         locator<KavachService>(),
         locator<UserInformationRepository>(),
       ),
+    );
+    locator.registerLazySingleton(
+      () => GpsRepository(locator<GpsService>()),
     );
     locator.registerLazySingleton(
       () => LanguageRepository(locator<LanguageService>()),
@@ -390,6 +397,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => ProfileCubit(locator<ProfileRepository>()),
+    );
+    locator.registerLazySingleton(
+          () => GpsGeofenceCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsLoginCubit(locator<GpsLoginRepository>()),

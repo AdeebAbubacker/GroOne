@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
@@ -67,6 +68,13 @@ class AppRoutes {
         path: AppRouteName.gpsDashboard,
         builder: (BuildContext context, GoRouterState state) {
           return const DashboardScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsGeofence,
+        builder: (BuildContext context, GoRouterState state) {
+          return const GpsGeofenceScreen();
         },
       ),
 
