@@ -1,8 +1,15 @@
 import 'dart:io';
-
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
@@ -14,19 +21,9 @@ import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
-import '../../../data/model/result.dart';
-import '../../../data/network/api_service.dart';
-import '../../../data/network/api_urls.dart';
-import '../../../utils/app_string.dart';
-import '../../../utils/custom_log.dart';
-import '../api_request/addhar_otp_request.dart';
-import '../api_request/addhar_verify_otp_request.dart';
-import '../api_request/verify_pan_request.dart';
-import '../api_request/verify_tan_request.dart';
-import '../model/addhar_otp_response.dart';
-import '../model/verify_pan_response.dart';
-import '../model/verify_tan_response.dart';
 
 class KycService {
   final ApiService _apiService;
@@ -129,7 +126,8 @@ class KycService {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => UploadGSTDocumentModel.fromJson(data));
+        final data = UploadGSTDocumentModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -148,7 +146,8 @@ class KycService {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => UploadPANDocumentModel.fromJson(data));
+        final data = UploadPANDocumentModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -167,7 +166,8 @@ class KycService {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => UploadTDSDocumentModel.fromJson(data));
+        final data = UploadTDSDocumentModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -186,7 +186,8 @@ class KycService {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => UploadCancelledCheckedDocumentModel.fromJson(data));
+        final data = UploadCancelledCheckedDocumentModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -205,7 +206,8 @@ class KycService {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(url, file, pathName: "file", fields: {"userId" : userId, "fileType" : fileType});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => UploadTANDocumentModel.fromJson(data));
+        final data = UploadTANDocumentModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -223,7 +225,8 @@ class KycService {
     try {
       final result = await _apiService.post(ApiUrls.submitKyc+userID, body: request);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => SubmitKycModel.fromJson(data));
+        final data = SubmitKycModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -237,12 +240,18 @@ class KycService {
 
 
   /// Get State Service
-  Future<Result<StateModel>> fetchStateData() async {
+  Future<Result<List<StateModel>>> fetchStateData() async {
     try {
       final url = ApiUrls.getState;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => StateModel.fromJson(data));
+        final data = result.value;
+        if (data is List) {
+          final stateList = data.map((e) => StateModel.fromJson(e)).toList();
+          return Success(stateList);
+        } else {
+          return Error(GenericError());
+        }
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -256,12 +265,18 @@ class KycService {
 
 
   /// Get City Service
-  Future<Result<CityModel>> fetchCityData(String stateName) async {
+  Future<Result<List<CityModel>>> fetchCityData(String stateName) async {
     try {
       final url = ApiUrls.getCity;
       final result = await _apiService.get(url, queryParams: {"state" : stateName});
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => CityModel.fromJson(data));
+        final data = result.value;
+        if (data is List) {
+          final stateList = data.map((e) => CityModel.fromJson(e)).toList();
+          return Success(stateList);
+        } else {
+          return Error(GenericError());
+        }
       } else if (result is Error) {
         return Error(result.type);
       } else {

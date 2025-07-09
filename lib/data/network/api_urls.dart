@@ -96,8 +96,8 @@ class ApiUrls {
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
-  static final String  getCity = "$_baseUrl$_customer$_path$_v1/kyc/city";
-  static final String  getState = "$_baseUrl$_customer$_path$_v1/kyc/state";
+  static final String  getCity = "$_baseUrl$_load$_path$_v1/location/city";
+  static final String  getState = "$_baseUrl$_load$_path$_v1/location/state";
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
