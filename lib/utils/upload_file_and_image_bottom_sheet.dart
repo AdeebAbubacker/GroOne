@@ -13,8 +13,7 @@ class UploadFileAndImageBottomSheet extends StatefulWidget {
   const UploadFileAndImageBottomSheet({super.key});
 
   @override
-  State<UploadFileAndImageBottomSheet> createState() =>
-      _UploadFileAndImageBottomSheetState();
+  State<UploadFileAndImageBottomSheet> createState() => _UploadFileAndImageBottomSheetState();
 }
 
 class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottomSheet> {

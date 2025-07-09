@@ -86,9 +86,9 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
   void _setUploadRcTruckFileUIState(UIState<UploadRcTruckFileModel>? uiState){
     emit(state.copyWith(uploadRcFileUIState: uiState));
   }
-  Future<void> uploadRcTruckFile(File file) async {
+  Future<void> uploadRcTruckFile(File file, String? userId) async {
     _setUploadRcTruckFileUIState(UIState.loading());
-    Result result = await _repository.getUploadRcTruckData(file);
+    Result result = await _repository.getUploadRcTruckData(file, userId);
     if (result is Success<UploadRcTruckFileModel>) {
       _setUploadRcTruckFileUIState(UIState.success(result.value));
     }

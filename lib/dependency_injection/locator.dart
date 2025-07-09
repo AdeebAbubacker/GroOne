@@ -126,7 +126,7 @@ void initLocator() {
     locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
     locator.registerLazySingleton(() => MobileOtpVerificationRepository(locator<MobileOtpVerificationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
     locator.registerLazySingleton(() => KycRepository(locator<KycService>(),   locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>()));

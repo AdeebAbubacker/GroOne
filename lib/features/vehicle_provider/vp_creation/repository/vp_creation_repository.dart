@@ -14,8 +14,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 class VpCreationRepository {
   final VpCreationService _vpCreationService;
   final AuthRepository _authRepository;
-  final UserInformationRepository _userInformationRepository;
-  VpCreationRepository(this._vpCreationService, this._authRepository, this._userInformationRepository);
+  VpCreationRepository(this._vpCreationService, this._authRepository);
 
   /// Vp Create Account Repo
   Future<Result<UserModel?>> requestVpCreation(VpCreationApiRequest request, {required String id}) async {
@@ -44,7 +43,7 @@ class VpCreationRepository {
 
 
   /// Get Truck Type Repo
-  Future<Result<TruckTypeModel>> getTruckTypeData() async {
+  Future<Result<List<TruckTypeModel>>> getTruckTypeData() async {
     try {
       return await _vpCreationService.fetchTruckTypeData();
     } catch (e) {
@@ -76,9 +75,9 @@ class VpCreationRepository {
 
 
   /// Upload rc truck document repo
-  Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file) async {
+  Future<Result<UploadRcTruckFileModel>> getUploadRcTruckData(File file, userId) async {
     try {
-      return await _vpCreationService.fetchUploadRcTruckFileData(file, await _userInformationRepository.getUserID());
+      return await _vpCreationService.fetchUploadRcTruckFileData(file, userId);
     } catch (e) {
       CustomLog.error(this, "Failed to get upload rc truck data", e);
       return Error(ErrorWithMessage(message: e.toString()));
