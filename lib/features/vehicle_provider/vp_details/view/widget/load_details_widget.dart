@@ -38,16 +38,16 @@ class LoadDetailsWidget extends StatelessWidget {
   const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit,required this.vpHomeBloc});
 
 
-  changeLoadStatus(BuildContext context,int? id) async {
+  changeLoadStatus(BuildContext context,String? id) async {
+
     if(cubit.state.loadStatus==LoadStatus.accepted){
       await Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),)).then((value) {
-        cubit.getLoadDetails(id??0);
+        // cubit.getLoadDetails(id??"0");
       },);
       return;
     }
     String? userId=await vpHomeBloc.getUserId();
-    await cubit.changedLoadStatus(id??0,
-      customerId:int.tryParse(userId??"0"),
+    await cubit.changedLoadStatus(id??"0", customerId:userId,
       loadStatus: 3,
     ).then((value) {
       if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
@@ -358,8 +358,7 @@ class LoadDetailsWidget extends StatelessWidget {
                ),
              ),
              onPressed:   () async {
-
-               changeLoadStatus(context,loadDetails?.id??0);
+               changeLoadStatus(context,loadDetails?.loadId?.toString());
              },
              textStyle: TextStyle(
                fontSize: 14,

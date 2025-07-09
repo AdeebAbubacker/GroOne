@@ -41,13 +41,15 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  Future<void> getLoadDetails(int loadId) async {
+  Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(loadDetailsUIState: UIState.loading()));
-    Result result = await _loadDetailsRepository.fetchLoadDetails(loadId);
+    Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
     if (result is Success<LoadDetailsResponseModel>) {
       emit(state.copyWith(
           locationDistance: getDistance(result.value.data?.pickUpLatlon??"0",result.value.data?.dropLatlon??"0"),
           loadDetailsUIState: UIState.success(result.value)));
+
+      print("load status ${state.loadDetailsUIState?.data?.data?.loadStatus}");
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatus);
     }
     if (result is Error) {
@@ -56,8 +58,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   Future<void> changedLoadStatus(
-    int load, {
-    int? customerId,
+    String load, {
+    String? customerId,
     int? loadStatus,
   }) async {
     emit(state.copyWith(vpLoadStatus: UIState.loading()));
@@ -103,7 +105,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     Result result = await _vHomeRepository.scheduleTripResponse(
       apiRequest: scheduleTripRequest,
     );
-
     if (result is Success<ScheduleTripResponse>) {
       emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
       Navigator.pop(navigatorKey.currentState!.context);

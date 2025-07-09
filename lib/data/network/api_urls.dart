@@ -47,6 +47,8 @@ class ApiUrls {
   static String get _vendor => "/vendor";
   static String get _document => "/document";
   static String get _notification => "/notification";
+  static String get _loadDiscovery => "/load-discovery";
+  static String get _loadExecution => "/load-execution";
 
 
   // Base URL
@@ -79,13 +81,15 @@ class ApiUrls {
   /// VP Endpoints
   static final String createVpAccount = "$_customerBaseUrl$_vp/";
   static final String vpLoadList="$_baseUrl$_load$_path$_v1$_load$_vp/my-load";
-  static final String vehicleDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle/";
-  static final String driverDetails="$_baseUrl$_customer$_path$_v1$_vpMaster/driver/";
+  static final String vehicleDetails="$_baseUrl$_customer$_path$_v1/vehicle/";
+  static final String driverDetails="$_baseUrl$_customer$_path$_v1/drivers";
   static final String vpRecentLoads="$_baseUrl$_load$_path$_v1$_load$_vp/recent-load";
-  static final String vpAcceptLoad="$_baseUrl$_load$_path$_v1$_load/";
-  static final String scheduleTrip="$_baseUrl$_load$_path$_v1$_load/schedule-trip";
+  static final String vpAcceptLoad="$_baseUrl$_loadExecution$_path$_v1$_load/";
+  static final String scheduleTrip="$_baseUrl$_load$_path$_v1/loads/schedule-trip";
   static final String truckPrefLane="$_baseUrl$_rateDiscovery$_path$_v1/lane";
-  static final String getLoadById="$_baseUrl$_load$_path$_v1/load/";
+  static final String getLoadById="$_baseUrl$_loadDiscovery$_path$_v1/load/";
+  static final String getAllVpLoads="$_baseUrl$_loadDiscovery$_path$_v1$_load";
+
 
 
 
