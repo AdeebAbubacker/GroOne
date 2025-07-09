@@ -316,7 +316,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   bool validateDocs({
-    required String userRole, // "2" for VP, anything else for LP
+    required int userRole, // "2" for VP, anything else for LP
     required int companyId, // 1=sole, 2=individual …
     // document lists
     required List gstDoc,
@@ -332,7 +332,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     }
 
     // VP FLOW
-    if (userRole == "2") {
+    if (userRole == 2) {
       if (companyId == 2) {
         return need('Aadhaar', true) & need('Cancelled Cheque', checkDocLink.isNotEmpty); // always true – already taken on previous screen
       }
@@ -368,7 +368,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     if(_formKey.currentState!.validate()){
 
       final ok = validateDocs(
-        userRole: kycCubit.userRole ?? '',
+        userRole: kycCubit.userRole ?? 0,
         companyId: companyId,
         gstDoc: gstDoc,
         panDoc: panDoc,
@@ -475,7 +475,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               CustomLog.debug(this, "User Role: ${kycCubit.userRole}");
 
                               // For VP
-                              if(kycCubit.userRole == "2") {
+                              if(kycCubit.userRole == 2) {
                                 return Column(
                                   children: [
 

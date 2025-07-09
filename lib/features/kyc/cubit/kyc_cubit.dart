@@ -32,8 +32,8 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // fetch user role
-  String? userRole;
-  Future<String?> fetchUserRole() async {
+  int? userRole;
+  Future<int?> fetchUserRole() async {
     userRole = await _repo.getUserRole();
     return userRole;
   }
@@ -102,7 +102,7 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Aadhaar Otp
   Future<void> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
     emit(state.copyWith(aadhaarVerifyOtpState: UIState.loading()));
-    Result result = await _repo.verifyAddharOtp(request);
+    Result result = await _repo.verifyAadhaarOtp(request);
     if (result is Success<AadhaarVerifyOtpModel>) {
       emit(state.copyWith(aadhaarVerifyOtpState: UIState.success(result.value)));
     }

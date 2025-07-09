@@ -32,6 +32,8 @@ class KycRepository {
   final UserInformationRepository _userInformationRepository;
   KycRepository(this._kycService, this._userInformationRepository);
 
+
+  /// Send Kyc otp repo
   Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
     try {
       return await _kycService.kycSendOtp(request);
@@ -41,8 +43,9 @@ class KycRepository {
     }
   }
 
-  Future<Result<AadhaarVerifyOtpModel>> verifyAddharOtp(AddharVerifyOtpApiRequest request,
-  ) async {
+
+  /// Verify Aadhaar Repo
+  Future<Result<AadhaarVerifyOtpModel>> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
     try {
       return await _kycService.kycVerifyOtp(request);
     } catch (e) {
@@ -51,6 +54,8 @@ class KycRepository {
     }
   }
 
+
+  /// Verify Gst Repo
   Future<Result<bool>> verifyGST(VerifyGstApiRequest request) async {
     try {
       return await _kycService.verifyGst(request);
@@ -100,7 +105,8 @@ class KycRepository {
       return await _kycService.fetchUploadGstData(
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
-          fileType: GST_FILE_TYPE
+          fileType: GST_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload gst document data", e);
@@ -115,7 +121,8 @@ class KycRepository {
       return await _kycService.uploadTanDoc(
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
-          fileType: TAN_FILE_TYPE
+          fileType: TAN_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload tan document data", e);
@@ -130,7 +137,8 @@ class KycRepository {
       return await _kycService.uploadPanDoc(
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
-          fileType: PAN_FILE_TYPE
+          fileType: PAN_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload pan document data", e);
@@ -145,7 +153,8 @@ class KycRepository {
       return await _kycService.uploadTDSDoc(
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
-          fileType: TDS_FILE_TYPE
+          fileType: TDS_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload tds document data", e);
@@ -160,7 +169,8 @@ class KycRepository {
       return await _kycService.uploadCancelledCheckedDoc(
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
-          fileType: CHECKED_FILE_TYPE
+          fileType: CHECKED_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload cancelled checked document data", e);
@@ -192,7 +202,7 @@ class KycRepository {
 
 
   /// fetch user role
-  Future<String?> getUserRole() async {
+  Future<int?> getUserRole() async {
     return await _userInformationRepository.getUserRole();
   }
 

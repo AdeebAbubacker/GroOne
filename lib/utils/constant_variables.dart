@@ -35,6 +35,9 @@ const String TDS_FILE_TYPE = "tds";
 const String GST_FILE_TYPE = "gst_document";
 const String TAN_FILE_TYPE = "tan_document";
 const String CHECKED_FILE_TYPE = "cancelled_cheque";
+const String VP_DOCUMENT = "vp_document";
+const String LP_DOCUMENT = "lp_document";
+const String CUSTOMER_DOCUMENT = "customer_document";
 
 
 const String indianCurrencySymbol = "₹";
