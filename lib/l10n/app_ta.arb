@@ -274,6 +274,12 @@
   "tankType": "டாங்க் வகை",
   "deviceType": "சாதன வகை",
   "getYourTankLockNow": "இப்போது உங்கள் டாங் லாக் பெறுங்கள்",
-  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்"
+  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
+  "geofence" : "Geofence",
+  "vehicles" : "Vehicles",
+  "addNewGeofence" : "Add New Geofence",
+  "confirmLocation" : "Confirm Location",
+  "geofenceName" : "Geofence Name",
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
 
 }

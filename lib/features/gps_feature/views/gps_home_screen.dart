@@ -147,7 +147,9 @@ class GpsHomeScreen extends StatelessWidget {
         AppStrings.geofence,
         Icons.location_on_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsGeofence);
+        },
       ),
       _MenuItem(
         AppStrings.foi,
