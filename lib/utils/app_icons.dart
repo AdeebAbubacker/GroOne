@@ -29,6 +29,9 @@ class PngIcons {
   final String cardPayment = "${_pngBasePath}card_payment.png";
   final String tracking = "${_pngBasePath}tracking.png";
   final String reconcilation = "${_pngBasePath}reconcilation.png";
+
+  //gps
+  final String gpsDashboardRoad = "${_pngBasePath}gps_dashboard_road.png";
 }
 
 /// GIF Icons
@@ -94,6 +97,9 @@ class SvgIcons {
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
+  final String gpsDashboardInactive = "${_svgBasePath}gps_dashboard_inactive.svg";
+  final String gpsDashboardInsideFence = "${_svgBasePath}gps_dashboard_inside_fence.svg";
+  final String gpsDashboardOutsideFence = "${_svgBasePath}gps_dashboard_out_fence.svg";
 
 
 }
