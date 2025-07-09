@@ -63,10 +63,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-   final vpHomeBloc = locator<VpCreationBloc>();
-   final lpHomeBloc = locator<LpHomeBloc>();
-   final vpHomeScreenBloc = locator<VpHomeBloc>();
-   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+
+
 
   final searchController = TextEditingController();
 
