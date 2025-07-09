@@ -1,12 +1,12 @@
 
-class ChoosePreferenceModel {
+class KavachChoosePreferenceModel {
   final String? make;
   final String? model;
   final String? tankType;
   final String? engine;
   final String? deviceType;
 
-  const ChoosePreferenceModel({
+  const KavachChoosePreferenceModel({
     this.make,
     this.model,
     this.tankType,
@@ -14,8 +14,8 @@ class ChoosePreferenceModel {
     this.deviceType,
   });
 
-  factory ChoosePreferenceModel.fromMap(Map<String, String?> map) {
-    return ChoosePreferenceModel(
+  factory KavachChoosePreferenceModel.fromMap(Map<String, String?> map) {
+    return KavachChoosePreferenceModel(
       make: map['make'],
       model: map['model'],
       tankType: map['tankType'],
@@ -66,14 +66,14 @@ class ChoosePreferenceModel {
   }
 
 
-  ChoosePreferenceModel copyWith({
+  KavachChoosePreferenceModel copyWith({
     String? make,
     String? model,
     String? tankType,
     String? engine,
     String? deviceType,
   }) {
-    return ChoosePreferenceModel(
+    return KavachChoosePreferenceModel(
       make: make ?? this.make,
       model: model ?? this.model,
       tankType: tankType ?? this.tankType,
@@ -85,7 +85,7 @@ class ChoosePreferenceModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ChoosePreferenceModel &&
+    return other is KavachChoosePreferenceModel &&
         other.make == make &&
         other.model == model &&
         other.tankType == tankType &&

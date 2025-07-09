@@ -88,6 +88,10 @@ import 'package:gro_one_app/service/analytics_service.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
+import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+
 var locator = GetIt.instance;
 
 void initLocator() {
@@ -251,7 +255,8 @@ void initLocator() {
       () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>()),
     );
     locator.registerLazySingleton(
-      () => ProfileCubit(locator<ProfileRepository>()),
+      () => KavachTransactionsCubit(locator<KavachRepository>()));
+    locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()),
     );
 
 

@@ -284,4 +284,7 @@
   "gpsModels": "जीपीएस मॉडल्स",
   "aadharCard": "आधार कार्ड*",
   "panCardOptional": "पैन कार्ड (वैकल्पिक)"
+  "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
+  "success": "Success",
+  "failed": "Failed"
 }

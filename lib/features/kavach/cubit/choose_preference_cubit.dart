@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../data/model/result.dart';
-import '../model/masters_model.dart';
-import '../model/choose_preference_model.dart';
+import '../model/kavach_masters_model.dart';
+import '../model/kavach_choose_preference_model.dart';
 import '../repository/kavach_repository.dart';
 import 'choose_preference_state.dart';
 
@@ -18,12 +18,12 @@ class ChoosePreferenceCubit extends Cubit<ChoosePreferenceState> {
 
     final result = await _repository.getMasters();
 
-    if (result is Success<MastersModel>) {
+    if (result is Success<KavachMastersModel>) {
       emit(state.copyWith(
         mastersData: result.value,
         mastersLoading: false,
       ));
-    } else if (result is Error<MastersModel>) {
+    } else if (result is Error<KavachMastersModel>) {
       emit(state.copyWith(
         mastersError: result.type,
         mastersLoading: false,
@@ -32,7 +32,7 @@ class ChoosePreferenceCubit extends Cubit<ChoosePreferenceState> {
   }
 
   /// Updates user preferences
-  void updateUserPreferences(ChoosePreferenceModel preferences) {
+  void updateUserPreferences(KavachChoosePreferenceModel preferences) {
     emit(state.copyWith(userPreferences: preferences));
   }
 
