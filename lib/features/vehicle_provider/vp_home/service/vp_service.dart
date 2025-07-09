@@ -141,7 +141,8 @@ class VpHomeService {
       final result = await _apiService.put(
           '${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => VpLoadAcceptModel.fromJson(data));
+       final vpLoadAccepted= VpLoadAcceptModel.fromJson(result.value);
+        return Success(vpLoadAccepted);
       } else if (result is Error) {
         return Error(result.type);
       } else {

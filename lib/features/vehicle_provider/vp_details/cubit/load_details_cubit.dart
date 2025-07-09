@@ -73,7 +73,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       await Future.delayed(
         const Duration(milliseconds: 100),
       ); // slight delay to ensure UI handles it
-      acceptLoad(result.value.data?.load?.loadStatus);
+      acceptLoad(result.value.data?.loadStatus);
     }
 
     if (result is Error) {
