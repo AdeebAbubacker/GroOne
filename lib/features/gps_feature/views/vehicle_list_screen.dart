@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,6 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -23,16 +26,19 @@ class VehicleListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: locator<VehicleListCubit>()..loadVehicleData(),
-      child: const _VehicleListView(),
+      child: VehicleListView(),
     );
   }
 }
 
-class _VehicleListView extends StatelessWidget {
-  const _VehicleListView();
+class VehicleListView extends StatelessWidget {
+  const VehicleListView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Completer<GoogleMapController> mapControllerCompleter =
+        Completer<GoogleMapController>();
+
     return BlocListener<VehicleListCubit, VehicleListState>(
       listener: (context, state) {
         if (state.vehicleDataState?.status == Status.ERROR) {
@@ -54,6 +60,7 @@ class _VehicleListView extends StatelessWidget {
               Column(
                 children: [
                   _buildAppBar(context),
+                  // _buildExpiryAlert(context, 5),
                   BlocBuilder<VehicleListCubit, VehicleListState>(
                     builder: (context, state) {
                       if (state.expiringSoonCount > 0) {
@@ -76,7 +83,10 @@ class _VehicleListView extends StatelessWidget {
                             Expanded(
                               child:
                                   state.showMapView
-                                      ? _buildVehicleMap(context)
+                                      ? _buildVehicleMap(
+                                        context,
+                                        mapControllerCompleter,
+                                      )
                                       : _buildVehicleList(),
                             ),
                             _buildBottomBanner(),
@@ -86,6 +96,93 @@ class _VehicleListView extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              BlocBuilder<VehicleListCubit, VehicleListState>(
+                builder: (context, state) {
+                  if (!state.showMapView) return const SizedBox.shrink();
+                  return Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 120, right: 16),
+                      child: StatefulBuilder(
+                        builder: (context, setState) {
+                          bool isLoading = false;
+                          return GestureDetector(
+                            onTap: () async {
+                              setState(() => isLoading = true);
+                              try {
+                                final controller =
+                                    await mapControllerCompleter.future;
+                                final latLng =
+                                    await MapHelper.getCurrentLocation();
+                                if (latLng != null) {
+                                  await MapHelper.animateTo(controller, latLng);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Location unavailable or permission denied.',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to get current location.',
+                                    ),
+                                  ),
+                                );
+                              } finally {
+                                setState(() => isLoading = false);
+                              }
+                            },
+                            child: Material(
+                              elevation: 4,
+                              borderRadius: BorderRadius.circular(16),
+                              color: Colors.transparent,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.08),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child:
+                                    isLoading
+                                        ? SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation(
+                                              AppConstants.primaryColor,
+                                            ),
+                                          ),
+                                        )
+                                        : SvgPicture.asset(
+                                          AppIcons.svg.myLocation,
+                                          width: 28,
+                                          colorFilter: ColorFilter.mode(
+                                            AppConstants.primaryColor,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
               BlocBuilder<VehicleListCubit, VehicleListState>(
                 builder: (context, state) {
@@ -626,7 +723,10 @@ class _VehicleListView extends StatelessWidget {
     );
   }
 
-  Widget _buildVehicleMap(BuildContext context) {
+  Widget _buildVehicleMap(
+    BuildContext context,
+    Completer<GoogleMapController> mapControllerCompleter,
+  ) {
     return BlocBuilder<VehicleListCubit, VehicleListState>(
       builder: (context, state) {
         final vehicles = state.filteredVehicles;
@@ -662,6 +762,11 @@ class _VehicleListView extends StatelessWidget {
           markers: markers,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: true,
+          onMapCreated: (controller) {
+            if (!mapControllerCompleter.isCompleted) {
+              mapControllerCompleter.complete(controller);
+            }
+          },
         );
       },
     );
