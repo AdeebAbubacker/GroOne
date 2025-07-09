@@ -13,6 +13,12 @@ import 'package:gro_one_app/features/email_verification/service/email_verificati
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -138,6 +144,12 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
+    locator.registerLazySingleton(
+      () => GpsOrderApiService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
 
     // Repository
     locator.registerLazySingleton(
@@ -230,6 +242,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EnDhanRepository(locator<EnDhanService>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsOrderApiRepository(locator<GpsOrderApiService>()),
     );
 
     // View Model
@@ -372,6 +387,18 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EnDhanCubit(locator<EnDhanRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsProductsCubit(locator<GpsOrderApiRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsBillingAddressCubit(locator<GpsOrderApiRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>()),
     );
     locator.registerLazySingleton(
       () => ProfileCubit(locator<ProfileRepository>()),

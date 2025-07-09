@@ -20,6 +20,7 @@ class PngIcons {
   final String moreVertical = "${_pngBasePath}more_vertical.png";
   final String deleteIcon = "${_pngBasePath}delete_icon.png";
 
+
   //kavach payment icons
   final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
   final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
@@ -94,6 +95,7 @@ class SvgIcons {
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
+  final String alertCircle = "${_svgBasePath}alert_circle.svg";
 
 
 }

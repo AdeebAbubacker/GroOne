@@ -286,5 +286,16 @@
   "benefitsOfFuelCardHeading3" : "Easy Reconciliation",
   "benefitsOfFuelCardSubHeading1" : "Enables cashless fuel and toll payments, reducing risk and hassle.",
   "benefitsOfFuelCardSubHeading2" : "Gives real-time visibility of fund usage by each driver or vehicle.",
-  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting."
+  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting.",
+  "gpsBenefitGps": "Benefits of Fuel Card",
+  "benefitsOfGpsCardHeading1": "Cashless Fuel & Toll Payments",
+  "benefitsOfGpsCardHeading2": "Real-Time Expense Tracking",
+  "benefitsOfGpsCardHeading3": "Easy Reconciliation",
+  "benefitsOfGpsCardSubHeading1": "Enables cashless fuel and toll payments, reducing risk and hassle.",
+  "benefitsOfGpsCardSubHeading2": "Gives real-time visibility of fund usage by each driver or vehicle.",
+  "benefitsOfGpsCardSubHeading3": "Automated digital records reduce paperwork and help with GST input credit and accounting.",
+  "buyNewGps": "Buy New GPS",
+  "gpsModels": "GPS Models",
+  "aadharCard": "Aadhar Card*",
+  "panCardOptional": "PAN (Optional)"
 }

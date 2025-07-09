@@ -168,6 +168,11 @@ class ApiUrls {
   static final String enDhanRegional = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/regional/";
   static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
 
+  /// GPS
+  static final String gpsDocumentUpload = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
+  static final String gpsProductList = "https://gro-devapi.letsgro.co$_fleet$_path$_v1/product/list";
+  static final String gpsAddressList = "https://gro-devapi.letsgro.co$_customer$_path$_v1/address";
+
   // Document Upload API
   static final String documentUpload = "https://gro-uatapi.letsgro.co/customer/api/v1/upload";
 
