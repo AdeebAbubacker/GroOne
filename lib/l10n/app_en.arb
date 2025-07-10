@@ -359,6 +359,10 @@
   "newData" : "New Data",
   "unloadingHeld" : "Unloading Held",
   "unloadingHeldNotice"  : "Your Shipment is held from unloading due to non payment of advance",
-  "downloadInvoice" : "Download Invoice"
-  
+  "downloadInvoice" : "Download Invoice",
+  "tripPrice" :"Trip Price",
+  "agreedAdvance" : "Agreed Advance",
+  "received" :"Received",
+  "balancePayment" :"Balance payment",
+  "view" :"View"
  }
