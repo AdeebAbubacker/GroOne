@@ -14,20 +14,9 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
 
-class VpTripstatementScreen extends StatefulWidget {
+class VpTripstatementScreen extends StatelessWidget {
   const VpTripstatementScreen({super.key});
 
-  @override
-  State<VpTripstatementScreen> createState() => _VpTripstatementScreenState();
-}
-
-class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
-  final lpLoadLocator = locator<LpLoadCubit>();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +29,9 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
           child: Column(
             spacing: 10,
             children: [
-              buildMainDetailWidget(),
-              buildBankDetailsWidget(),
-              buildTruckSupplierWidget(),
+              buildMainDetailWidget(context: context),
+              buildBankDetailsWidget(context: context),
+              buildTruckSupplierWidget(context: context),
               10.height,
               AppButton(
                 title: context.appText.downloadInvoice,
@@ -58,7 +47,7 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
   }
 
   /// Main Details
-  Widget buildMainDetailWidget() {
+  Widget buildMainDetailWidget({required BuildContext context}) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -141,7 +130,7 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
   }
 
   /// Bank Details
-  Widget buildBankDetailsWidget() {
+  Widget buildBankDetailsWidget({required BuildContext context}) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -176,7 +165,7 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
   }
 
   /// Truck Supplier Details
-  Widget buildTruckSupplierWidget() {
+  Widget buildTruckSupplierWidget({required BuildContext context}) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),

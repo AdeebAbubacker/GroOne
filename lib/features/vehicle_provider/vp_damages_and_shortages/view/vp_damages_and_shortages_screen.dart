@@ -12,40 +12,18 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-class VpDamagesAndShortagesScreen extends StatefulWidget {
-  const VpDamagesAndShortagesScreen({super.key});
 
-  @override
-  State<VpDamagesAndShortagesScreen> createState() =>
-      _VpDamagesAndShortagesScreenState();
-}
-
-class _VpDamagesAndShortagesScreenState
-    extends State<VpDamagesAndShortagesScreen> {
-  String selectedFileName = "";
-  TextEditingController itemName = TextEditingController();
-  TextEditingController quantity = TextEditingController();
-  TextEditingController description = TextEditingController();
-  @override
-  void initState() {
-    initFunction();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    disposeFunction();
-    super.dispose();
-  }
-
-  void initFunction() => frameCallback(() async {});
-
-  void disposeFunction() => frameCallback(() {});
+class VpDamagesAndShortagesScreen extends StatelessWidget {
+   VpDamagesAndShortagesScreen({super.key});
+ final String selectedFileName = "";
+ final TextEditingController itemName = TextEditingController();
+ final TextEditingController quantity = TextEditingController();
+ final TextEditingController description = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+ 
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.damagesAndShortages),
       body: SingleChildScrollView(
@@ -97,6 +75,7 @@ class _VpDamagesAndShortagesScreenState
                 ),
                 10.height,
                 damageRecordCard(
+                  context: context,
                   imageUrl: "https://via.placeholder.com/150",
                   itemName: "LED TV 42”",
                   quantity: "2",
@@ -105,6 +84,7 @@ class _VpDamagesAndShortagesScreenState
                 ),
                 20.height,
                 damageRecordCard(
+                  context: context,
                   imageUrl: "https://via.placeholder.com/150",
                   itemName: "LED TV 42”",
                   quantity: "2",
@@ -113,6 +93,7 @@ class _VpDamagesAndShortagesScreenState
                 ),
                 20.height,
                 damageRecordCard(
+                  context: context,
                   imageUrl: "https://via.placeholder.com/150",
                   itemName: "LED TV 42”",
                   quantity: "2",
@@ -140,6 +121,7 @@ class _VpDamagesAndShortagesScreenState
 
 // Damages record card
   Widget damageRecordCard({
+    required BuildContext context,
     required String imageUrl,
     required String itemName,
     required String quantity,
@@ -222,3 +204,5 @@ class _VpDamagesAndShortagesScreenState
     );
   }
 }
+
+

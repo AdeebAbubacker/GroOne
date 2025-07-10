@@ -11,7 +11,6 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-
 class VpPodDispatchScreen extends StatefulWidget {
   const VpPodDispatchScreen({super.key});
 
