@@ -105,7 +105,7 @@ class LoadDetails {
   final dynamic deletedAt;
   final DataCommodity? commodity;
   final TruckType? truckType;
-  final Customer? customer;
+  final CustomerDetails? customer;
   final List<Timeline> timeline;
   final Trip? trip;
 
@@ -143,7 +143,7 @@ class LoadDetails {
     dynamic? deletedAt,
     DataCommodity? commodity,
     TruckType? truckType,
-    Customer? customer,
+    CustomerDetails? customer,
     List<Timeline>? timeline,
   }) {
     return LoadDetails(
@@ -221,7 +221,7 @@ class LoadDetails {
       deletedAt: json["deletedAt"],
       commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      customer: json["customer"] == null ? null : CustomerDetails.fromJson(json["customer"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
     );
   }
@@ -265,48 +265,8 @@ class DataCommodity {
       iconUrl: json["iconUrl"],
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "description": description,
-    "iconUrl": iconUrl,
-  };
-
 }
 
-class Customer {
-  Customer({
-    required this.id,
-    required this.customerDetails,
-  });
-
-  final int? id;
-  final CustomerDetails? customerDetails;
-
-  Customer copyWith({
-    int? id,
-    CustomerDetails? customerDetails,
-  }) {
-    return Customer(
-      id: id ?? this.id,
-      customerDetails: customerDetails ?? this.customerDetails,
-    );
-  }
-
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
-      id: json["id"],
-      customerDetails: json["customerDetails"] == null ? null : CustomerDetails.fromJson(json["customerDetails"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerDetails": customerDetails?.toJson(),
-  };
-
-}
 
 class CustomerDetails {
   CustomerDetails({
