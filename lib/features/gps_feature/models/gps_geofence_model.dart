@@ -80,7 +80,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class GpsGeofenceModel {
-  final String id;
+  String id;
   String name;
   final String area;
   final String shapeType; // "circle", "polygon", "polyline"

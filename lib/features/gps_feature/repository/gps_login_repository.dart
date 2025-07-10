@@ -107,4 +107,15 @@ class GpsLoginRepository {
   Future<void> saveVehicleData(List<GpsCombinedVehicleData> vehicles) async {
     await _realmService.saveVehicleData(vehicles);
   }
+
+
+  /// Save Set 
+  Future<void> saveUserDataGps(List<GpsCombinedVehicleData> vehicles) async {
+    await _realmService.saveVehicleData(vehicles);
+  }
+
+  /// Get userId
+  Future<GpsLoginResponseModel?> getUserDataGps() async {
+    return await _realmService.getLoginResponse();
+  }
 }

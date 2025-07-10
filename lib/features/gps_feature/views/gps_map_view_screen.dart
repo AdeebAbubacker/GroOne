@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
@@ -8,6 +9,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../helpers/map_helper.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_text_field.dart';
+import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../models/gps_geofence_model.dart';
 
 
@@ -428,6 +430,15 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   Set<Polyline> _polylines = {};
   Set<Marker> _markers = {};
 
+  MapType _mapType = MapType.normal;
+
+  void _toggleMapType() {
+    setState(() {
+      _mapType = _mapType == MapType.normal ? MapType.satellite : MapType.normal;
+    });
+  }
+
+
   final TextEditingController _geofenceNameController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
 
@@ -728,6 +739,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   // Resets the map and sets up for drawing a new geofence of the specified type
   void _resetMapForNewGeofence(String shapeType) {
+
     setState(() {
       _circles.clear();
       _polygons.clear();
@@ -748,7 +760,14 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
         _mode = GeofenceMode.addPolyline;
         _activeGeofence = GpsGeofenceModel.newPolyline();
       }
+
+      if (widget.geofence != null) {
+        _activeGeofence!.id = widget.geofence!.id; // Preserve ID
+        _activeGeofence!.name = widget.geofence!.name; // Preserve name
+      }
+
       _geofenceNameController.text = _activeGeofence!.name; // Update name input
+
     });
   }
 
@@ -767,7 +786,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     }
 
     // Call the onSave callback to pass data back to the parent
-    widget.onSave?.call(_activeGeofence!);
+    // widget.onSave?.call(_activeGeofence!);
+    context.read<GpsGeofenceCubit>().submitGeofence(_activeGeofence!);
     Navigator.pop(context); // Go back after saving
   }
 
@@ -816,6 +836,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 target: _currentCenter ?? const LatLng(28.6139, 77.2090),
                 zoom: _currentCenter != null ? 12 : 5,
               ),
+              mapType: _mapType,
               markers: _markers,
               circles: _circles,
               polygons: _polygons,
@@ -881,7 +902,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                     },
                     isActive: _mode == GeofenceMode.addCircle || _mode == GeofenceMode.editCircle,
                   ),
-                  const SizedBox(height: 10),
+                  10.height,
                   // Button to add a new polygon geofence
                   _buildFloatingButton(
                     Icons.square_outlined,
@@ -890,7 +911,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                     },
                     isActive: _mode == GeofenceMode.addPolygon || _mode == GeofenceMode.editPolygon,
                   ),
-                  const SizedBox(height: 10),
+                  10.height,
                   // Button to add a new polyline geofence
                   _buildFloatingButton(
                     Icons.timeline, // Using a timeline icon for polyline
@@ -899,12 +920,12 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                     },
                     isActive: _mode == GeofenceMode.addPolyline || _mode == GeofenceMode.editPolyline,
                   ),
-                  const SizedBox(height: 10),
+                  10.height,
                   // Button to remove last point (only for polygon/polyline drawing)
                   if ((_mode == GeofenceMode.addPolygon && _currentPolygonPoints.isNotEmpty) ||
                       (_mode == GeofenceMode.addPolyline && _currentPolylinePoints.isNotEmpty))
-                    _buildFloatingButton(Icons.backspace, _removeLastPoint, color: Colors.orange),
-                  const SizedBox(height: 10),
+                    _buildFloatingButton(Icons.backspace, _removeLastPoint, color: Colors.white),
+                  10.height,
                   // Edit button - only show if an existing geofence is being viewed, to switch to edit mode
                   if (widget.geofence != null && !isEditMode && !isAddMode)
                     _buildFloatingButton(
@@ -925,6 +946,12 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                       },
                       color: Colors.blue,
                     ),
+                  10.height,
+                  _buildFloatingButton(
+                    _mapType == MapType.normal ? Icons.satellite : Icons.map,
+                    _toggleMapType,
+                    color: Colors.white,
+                  ),
                 ],
               ),
             ),

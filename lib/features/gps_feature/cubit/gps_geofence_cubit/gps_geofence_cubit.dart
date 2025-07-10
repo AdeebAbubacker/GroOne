@@ -21,4 +21,15 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       emit(GpsGeofenceError(result.type.toString()));
     }
   }
+
+  Future<void> submitGeofence(GpsGeofenceModel model) async {
+    emit(GpsGeofenceLoading());
+    final result = await _repository.addOrUpdateGeofence(model);
+    if (result is Success<void>) {
+      await loadGeofences(); // Refresh list on success
+    } else if (result is Error<void>) {
+      emit(GpsGeofenceError(result.type.toString()));
+    }
+  }
+
 }
