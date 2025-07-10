@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -11,22 +10,18 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 
-class LpBottomNavigation extends StatefulWidget {
-
-  static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
-
-  const LpBottomNavigation({super.key});
+class BothBottomNavigation extends StatefulWidget {
+  const BothBottomNavigation({super.key});
 
   @override
-  State<LpBottomNavigation> createState() => _LpBottomNavigationState();
+  State<BothBottomNavigation> createState() => _BothBottomNavigationState();
 }
 
-class _LpBottomNavigationState extends State<LpBottomNavigation> {
+class _BothBottomNavigationState extends State<BothBottomNavigation> {
 
   final profileCubit = locator<ProfileCubit>();
   ProfileDetailModel? profileResponse;
@@ -36,7 +31,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     // TODO: implement initState
     frameCallback((){
       profileCubit.fetchUserRole();
-      setState(() {});
     });
     super.initState();
   }
@@ -49,13 +43,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
   void onItemTapped(int index) {
     selectedIndex = index;
-    int? role = profileCubit.userRole;
-
-    debugPrint("Role : $role");
-
-    if((role != null && role == 3)) {
-      context.go(AppRouteName.vpBottomNavigationBar);
-    }
     setState(() {});
   }
 
@@ -125,7 +112,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                 label: context.appText.support,
               ),
 
-              if (profileCubit.userRole != null && profileCubit.userRole == 3)
                 BottomNavigationBarItem(
                   icon:  Padding(
                     padding: EdgeInsets.only(top: 8.0),

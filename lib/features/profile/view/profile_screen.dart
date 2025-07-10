@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
@@ -258,13 +259,13 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           // Logout
           BlocConsumer<ProfileCubit, ProfileState>(
             bloc: profileCubit,
-            listenWhen: (previous, current) =>
-            previous.logoutUIState?.status != current.logoutUIState?.status,
+            listenWhen: (previous, current) => previous.logoutUIState?.status != current.logoutUIState?.status,
             listener: (context, state) {
               final status = state.logoutUIState?.status;
 
               if (status == Status.SUCCESS) {
-                context.push(AppRouteName.chooseLanguage);
+                LpBottomNavigation.selectedIndexNotifier.value = 0;
+                context.go(AppRouteName.login);
               }
 
               if (status == Status.ERROR) {

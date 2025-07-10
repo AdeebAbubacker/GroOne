@@ -107,14 +107,14 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
     } else if (data.user?.role == 2) {
       // VP Redirection
       if (tempFlag) {
-        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber), isForward: true));
+        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber, roleId: 2), isForward: true));
       } else {
         loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
       }
     } else if (data.user?.role == 3) {
       // Both VP & LP Redirection
       if (tempFlag) {
-        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber), isForward: true));
+        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber, roleId: 3), isForward: true));
       } else {
         loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
@@ -128,7 +128,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
       child: SuccessDialogView(
         heading: "Login Successfully",
         message: "Now you can explore the rates and post loads",
-        afterDismiss: () => context.push(routeName),
+        afterDismiss: () => context.go(routeName),
       ),
     );
   }

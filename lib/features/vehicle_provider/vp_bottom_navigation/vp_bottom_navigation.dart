@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
@@ -8,6 +9,7 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/vp_all_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -39,7 +41,9 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   }
 
   void initFunction() => frameCallback(() async {
+    profileCubit.fetchUserRole();
     await profileCubit.fetchProfileDetail();
+    setState(() {});
   });
 
 
@@ -55,6 +59,14 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       } else {
         vpAllLoadsInitialTabIndex = 0;
       }
+      debugPrint("Selective Index : $selectedIndex");
+
+      int? role = profileCubit.userRole;
+
+      if(selectedIndex == 3 && (role != null && role == 3)) {
+        context.go(AppRouteName.lpBottomNavigationBar);
+      }
+
     });
   }
 
@@ -63,6 +75,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
       VpAllLoadsScreen(initialTabIndex: vpAllLoadsInitialTabIndex),
       const Center(child: Text('Support')),
+      VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }
 
@@ -86,15 +99,26 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         }
       },
       builder: (context, state) {
+
+        int? role = profileCubit.userRole;
+
+        debugPrint("Role : $role");
+
+        if((role != null && role == 3)) {
+          _pages.add(VpHomeScreen(onViewAllOrSeeMore: changeTab));
+        }
+
         return Scaffold(
           body: _pages[selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: AppColors.primaryColor,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white70,
+            //backgroundColor: AppColors.primaryColor,
+            backgroundColor: Colors.white,
+            selectedItemColor: AppColors.primaryColor,
+            unselectedItemColor: AppColors.greyIconColor,
             currentIndex: selectedIndex,
             onTap: onItemTapped,
             items: [
+
               BottomNavigationBarItem(
                 icon: const Padding(
                   padding: EdgeInsets.only(top: 8.0),
@@ -102,6 +126,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                 ),
                 label: context.appText.home,
               ),
+
               BottomNavigationBarItem(
                 icon: const Padding(
                   padding: EdgeInsets.only(top: 8.0),
@@ -109,12 +134,23 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                 ),
                 label: context.appText.myLoads,
               ),
+
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.only(top: 8.0),
                   child: Icon(Icons.headset_mic_rounded),
                 ),
                 label: context.appText.support,
+              ),
+
+              if (profileCubit.userRole != null && profileCubit.userRole == 3)
+              BottomNavigationBarItem(
+                icon:  Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Icon(Icons.compare_arrows_rounded),
+                  //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                ),
+                label: "Switch Account",
               ),
             ],
           ),
