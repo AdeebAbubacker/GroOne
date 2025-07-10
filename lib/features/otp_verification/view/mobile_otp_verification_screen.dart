@@ -36,20 +36,13 @@ class MobileOtpVerificationScreen extends StatefulWidget {
   final String mobileNumber;
   final String roleId;
   final String otp;
-  const MobileOtpVerificationScreen({
-    super.key,
-    required this.mobileNumber,
-    required this.otp,
-    required this.roleId,
-  });
+  const MobileOtpVerificationScreen({super.key, required this.mobileNumber, required this.otp, required this.roleId});
 
   @override
-  State<MobileOtpVerificationScreen> createState() =>
-      _MobileOtpVerificationScreenState();
+  State<MobileOtpVerificationScreen> createState() => _MobileOtpVerificationScreenState();
 }
 
-class _MobileOtpVerificationScreenState
-    extends State<MobileOtpVerificationScreen> {
+class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScreen> {
   final otpBloc = locator<OtpBloc>();
 
   final otpTextController = TextEditingController();
@@ -97,13 +90,13 @@ class _MobileOtpVerificationScreenState
 
   // Home Redirection
   void homeRedirection(MobileOtpVerificationModel data, BuildContext context, {required tempFlag}) => frameCallback(() {
+    // LP Redirection
     if (data.user?.role == 1) {
-
       if (tempFlag) {
         context.push(
           AppRouteName.lpCreateAccount,
           extra: {
-            "userId": data!.user!.id.toString(),
+            "userId": data.user!.id.toString(),
             "mobileNumber": widget.mobileNumber,
             "roleId": widget.roleId,
           },
@@ -111,20 +104,19 @@ class _MobileOtpVerificationScreenState
       } else {
         loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
-    } else if (data?.user?.role == 2) {
+    } else if (data.user?.role == 2) {
+      // VP Redirection
       if (tempFlag) {
-        Navigator.push(
-          context,
-          commonRoute(
-            VpCreationFormScreen(
-              id: data.user?.id.toString() ?? '',
-              mobileNumber: widget.mobileNumber,
-            ),
-            isForward: true,
-          ),
-        );
+        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber), isForward: true));
       } else {
         loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
+      }
+    } else if (data.user?.role == 3) {
+      // Both VP & LP Redirection
+      if (tempFlag) {
+        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber), isForward: true));
+      } else {
+        loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
     }
   });

@@ -391,8 +391,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
           bloc: vpCreationCubit,
-          //listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
-         // buildWhen: (previous, current) => previous.truckTypeUIState?.status == Status.SUCCESS,
+          listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
+          buildWhen: (previous, current) => previous.truckTypeUIState?.status == Status.SUCCESS,
           listener: (context, state) {
             final status = state.truckTypeUIState?.status;
             if (status == Status.ERROR) {
