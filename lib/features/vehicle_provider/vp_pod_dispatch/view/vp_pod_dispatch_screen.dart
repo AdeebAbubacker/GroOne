@@ -3,6 +3,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -67,7 +68,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
               labelText: context.appText.podCenter,
               hintText: context.appText.selectCompanyType,
               dropdownValue: companyTypeDropDownValue,
-              decoration: commonInputDecoration(fillColor: Colors.white),
+              decoration: commonInputDecoration(fillColor: AppColors.white),
               dropDownList: [
                 DropdownMenuItem(
                   value: '1',
@@ -91,7 +92,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
             Spacer(),
             // Verify Button
             AppButton(
-              title: "Submit",
+              title: context.appText.submit,
               isLoading: false,
               style: AppButtonStyle.primary,
               onPressed: () {},
@@ -123,7 +124,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
             style: AppTextStyle.textGreyDetailColor14w400.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF003CFF),
+              color: AppColors.primaryColor,
               ),
           ),
         ),
