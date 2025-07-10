@@ -447,7 +447,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
             title: '${context.appText.advancePayment} (80%)',
             amount: advancePayment ?? "",
             statusText: context.appText.received,
-            statusColor: AppColors.lightGreenBox, // (125, 255, 159)
+            statusColor: AppColors.lightGreenBox, 
           ),
 
         if (paymentStatus == 3)
@@ -457,7 +457,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
               title: context.appText.balancePayment,
               amount: balancePayment ?? "",
               statusText: context.appText.received,
-              statusColor: AppColors.lightGreenBox, // (125, 255, 159)
+              statusColor: AppColors.lightGreenBox, 
             ),
           ),
 
@@ -670,7 +670,7 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
         text2,
         style: AppTextStyle.body2.copyWith(
           fontWeight: FontWeight.w500,
-          color: Color(0xFF003CFF),
+          color: AppColors.primaryColor,
         ),
       ),
     ],
@@ -875,6 +875,7 @@ Widget _buildDivider() {
 
 // Addable Section Header
 Widget _buildAdableSectionHeader({
+  required BuildContext context,
   required String title,
   required VoidCallback onAdd,
 }) {
@@ -886,7 +887,7 @@ Widget _buildAdableSectionHeader({
       GestureDetector(
         onTap: onAdd,
         child: Text(
-          '+ ADD',
+          '+ ${context.appText.add}',
           style: AppTextStyle.body2.copyWith(
             fontWeight: FontWeight.w500,
             color: AppColors.primaryColor,

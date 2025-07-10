@@ -364,5 +364,6 @@
   "agreedAdvance" : "Agreed Advance",
   "received" :"Received",
   "balancePayment" :"Balance payment",
-  "view" :"View"
+  "view" :"View",
+  "add" : "ADD"
  }
