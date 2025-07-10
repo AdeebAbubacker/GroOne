@@ -14,6 +14,9 @@ class GpsCombinedVehicleData {
   final String? lastSpeed;
   final DateTime? lastUpdate;
   final bool? isExpiringSoon;
+  final GpsPositionCounts? apiCounts;
+  final String? batteryPercent;
+  final String? idleTime;
 
   GpsCombinedVehicleData({
     this.deviceId,
@@ -28,36 +31,127 @@ class GpsCombinedVehicleData {
     this.lastSpeed,
     this.lastUpdate,
     this.isExpiringSoon,
+    this.apiCounts,
+    this.batteryPercent,
+    this.idleTime,
   });
+
+  GpsCombinedVehicleData copyWith({
+    int? deviceId,
+    String? vehicleNumber,
+    String? status,
+    String? statusDuration,
+    String? location,
+    int? networkSignal,
+    bool? hasGPS,
+    String? odoReading,
+    String? todayDistance,
+    String? lastSpeed,
+    DateTime? lastUpdate,
+    bool? isExpiringSoon,
+    GpsPositionCounts? apiCounts,
+    String? batteryPercent,
+    String? idleTime,
+  }) {
+    return GpsCombinedVehicleData(
+      deviceId: deviceId ?? this.deviceId,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
+      status: status ?? this.status,
+      statusDuration: statusDuration ?? this.statusDuration,
+      location: location ?? this.location,
+      networkSignal: networkSignal ?? this.networkSignal,
+      hasGPS: hasGPS ?? this.hasGPS,
+      odoReading: odoReading ?? this.odoReading,
+      todayDistance: todayDistance ?? this.todayDistance,
+      lastSpeed: lastSpeed ?? this.lastSpeed,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+      isExpiringSoon: isExpiringSoon ?? this.isExpiringSoon,
+      apiCounts: apiCounts ?? this.apiCounts,
+      batteryPercent: batteryPercent ?? this.batteryPercent,
+      idleTime: idleTime ?? this.idleTime,
+    );
+  }
 
   factory GpsCombinedVehicleData.fromExpiryAndPosition({
     required GpsDeviceExpiryData expiryData,
     required GpsDevicePositionData? positionData,
+    GpsPositionCounts? apiCounts,
   }) {
     return GpsCombinedVehicleData(
       deviceId: expiryData.id,
       vehicleNumber: expiryData.name,
-      status: _determineStatus(expiryData.status, positionData?.valid),
+      status: _determineStatus(expiryData, positionData),
       statusDuration: _calculateStatusDuration(expiryData.lastUpdate),
       location: _getLocation(positionData),
       networkSignal: _calculateNetworkSignal(positionData?.network),
       hasGPS: positionData?.gpsStatus ?? false,
       odoReading: _getOdoReading(positionData),
       todayDistance: _getTodayDistance(positionData),
-      lastSpeed: positionData?.speed ?? '0 km/h',
-      lastUpdate: _parseLastUpdate(expiryData.lastUpdate),
+      lastSpeed: positionData?.speed ?? '-',
+      lastUpdate:
+          _parseLastUpdate(expiryData.lastUpdate) ??
+          _parseLastUpdateString(positionData?.lastUpdate),
       isExpiringSoon: _checkIfExpiringSoon(expiryData.subscriptionExpiryDate),
+      apiCounts: apiCounts,
+      batteryPercent:
+          positionData
+              ?.posAttr, // If battery percent is in posAttr or another field, map it here
+      idleTime:
+          positionData
+              ?.idleFixTime, // If idle time is in idleFixTime or another field, map it here
     );
   }
 
-  static String _determineStatus(int? expiryStatus, String? positionValid) {
-    if (positionValid == "1") {
-      return 'idle';
-    } else if (expiryStatus == 0) {
-      return 'off';
-    } else {
-      return 'inactive';
+  static String _determineStatus(
+    GpsDeviceExpiryData expiryData,
+    GpsDevicePositionData? positionData,
+  ) {
+    // Priority: ignition field > status field > position valid > expiry status
+
+    // Check ignition field first
+    if (positionData?.ignition != null) {
+      final ignition = positionData!.ignition!.toLowerCase().trim();
+
+      // Handle various ignition field values
+      if (ignition == "on" ||
+          ignition == "1" ||
+          ignition == "true" ||
+          ignition == "yes" ||
+          ignition == "running") {
+        return 'IGNITION_ON';
+      } else if (ignition == "off" ||
+          ignition == "0" ||
+          ignition == "false" ||
+          ignition == "no" ||
+          ignition == "stopped") {
+        return 'IGNITION_OFF';
+      }
     }
+
+    // Check status field from position data
+    if (positionData?.status != null) {
+      final status = positionData!.status!;
+
+      // Map status values to our categories
+      if (status == 1) {
+        return 'IGNITION_ON';
+      } else if (status == 0) {
+        return 'IGNITION_OFF';
+      }
+    }
+
+    // Check position valid field
+    if (positionData?.valid == "1") {
+      return 'IDLE';
+    }
+
+    // Check expiry status
+    if (expiryData.status == 0) {
+      return 'IGNITION_OFF';
+    }
+
+    // Default to inactive
+    return 'INACTIVE';
   }
 
   static String _calculateStatusDuration(int? lastUpdate) {
@@ -127,6 +221,16 @@ class GpsCombinedVehicleData {
     return DateTime.fromMillisecondsSinceEpoch(lastUpdate);
   }
 
+  static DateTime? _parseLastUpdateString(String? lastUpdate) {
+    if (lastUpdate == null) return null;
+    // Try to parse as ISO8601 or timestamp string
+    try {
+      return DateTime.parse(lastUpdate);
+    } catch (_) {
+      return null;
+    }
+  }
+
   static bool _checkIfExpiringSoon(String? expiryDate) {
     if (expiryDate == null) return false;
 
@@ -135,7 +239,6 @@ class GpsCombinedVehicleData {
       final now = DateTime.now();
       final difference = expiry.difference(now);
 
-      // Consider expiring soon if within 30 days
       return difference.inDays <= 30 && difference.inDays >= 0;
     } catch (e) {
       return false;

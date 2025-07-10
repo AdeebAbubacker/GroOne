@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -180,39 +181,70 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     emit(state.copyWith(showMapView: showMap));
   }
 
+  void toggleTraffic() {
+    emit(state.copyWith(trafficEnabled: !(state.trafficEnabled ?? false)));
+  }
+
+  void toggleMapType() {
+    emit(
+      state.copyWith(
+        mapType:
+            (state.mapType == MapType.normal
+                ? MapType.satellite
+                : MapType.normal),
+      ),
+    );
+  }
+
   void _setVehicleDataUIState(UIState<List<GpsCombinedVehicleData>>? uiState) {
     emit(state.copyWith(vehicleDataState: uiState));
   }
 
   void _updateStatusCounts() {
-    int ignitionOnCount = 0;
-    int ignitionOffCount = 0;
-    int idleCount = 0;
-    int inactiveCount = 0;
-
-    for (final vehicle in _allVehicles) {
-      final status = vehicle.status?.toUpperCase();
-      if (status == 'IGNITION_ON') {
-        ignitionOnCount++;
-      } else if (status == 'IGNITION_OFF') {
-        ignitionOffCount++;
-      } else if (status == 'IDLE') {
-        idleCount++;
-      } else if (status == 'INACTIVE') {
-        inactiveCount++;
-      }
-    }
-    emit(
-      state.copyWith(
-        statusCount: StatusCount(
-          total: _allVehicles.length,
-          ignitionOn: ignitionOnCount,
-          ignitionOff: ignitionOffCount,
-          idle: idleCount,
-          inactive: inactiveCount,
+    if (_allVehicles.isNotEmpty && _allVehicles.first.apiCounts != null) {
+      final apiCounts = _allVehicles.first.apiCounts!;
+      emit(
+        state.copyWith(
+          statusCount: StatusCount(
+            total: apiCounts.total ?? 0,
+            ignitionOn: apiCounts.ignitionOn ?? 0,
+            ignitionOff: apiCounts.ignitionOff ?? 0,
+            idle: apiCounts.idle ?? 0,
+            inactive: apiCounts.inactive ?? 0,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      int ignitionOnCount = 0;
+      int ignitionOffCount = 0;
+      int idleCount = 0;
+      int inactiveCount = 0;
+
+      for (final vehicle in _allVehicles) {
+        final status = vehicle.status?.toUpperCase();
+        if (status == 'IGNITION_ON') {
+          ignitionOnCount++;
+        } else if (status == 'IGNITION_OFF') {
+          ignitionOffCount++;
+        } else if (status == 'IDLE') {
+          idleCount++;
+        } else if (status == 'INACTIVE') {
+          inactiveCount++;
+        }
+      }
+
+      emit(
+        state.copyWith(
+          statusCount: StatusCount(
+            total: _allVehicles.length,
+            ignitionOn: ignitionOnCount,
+            ignitionOff: ignitionOffCount,
+            idle: idleCount,
+            inactive: inactiveCount,
+          ),
+        ),
+      );
+    }
   }
 
   void _filterVehicles() {
@@ -232,7 +264,6 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     // Apply tab filter
     switch (state.selectedTab) {
       case VehicleTabType.Total:
-        // No filter, show all
         break;
       case VehicleTabType.IgnitionON:
         filtered =

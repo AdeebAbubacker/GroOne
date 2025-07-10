@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -10,6 +11,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -18,6 +20,7 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 
 import '../constants/app_constants.dart';
+import '../widgets/map_floating_menu.dart';
 
 class VehicleListScreen extends StatelessWidget {
   const VehicleListScreen({super.key});
@@ -38,7 +41,6 @@ class VehicleListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Completer<GoogleMapController> mapControllerCompleter =
         Completer<GoogleMapController>();
-
     return BlocListener<VehicleListCubit, VehicleListState>(
       listener: (context, state) {
         if (state.vehicleDataState?.status == Status.ERROR) {
@@ -89,7 +91,7 @@ class VehicleListView extends StatelessWidget {
                                       )
                                       : _buildVehicleList(),
                             ),
-                            _buildBottomBanner(),
+                            if (!state.showMapView) _buildBottomBanner(),
                           ],
                         );
                       },
@@ -242,6 +244,49 @@ class VehicleListView extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                  );
+                },
+              ),
+              // Add the floating action menu only on map view
+              BlocBuilder<VehicleListCubit, VehicleListState>(
+                builder: (context, state) {
+                  if (!state.showMapView) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 16,
+                    bottom: 180,
+                    child: MapFloatingMenu(
+                      onToggleTraffic:
+                          () =>
+                              context.read<VehicleListCubit>().toggleTraffic(),
+                      onToggleMapType:
+                          () =>
+                              context.read<VehicleListCubit>().toggleMapType(),
+                      onReachability: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Reachability feature coming soon!'),
+                          ),
+                        );
+                      },
+                      onNearbyVehicles: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Nearby Vehicles feature coming soon!',
+                            ),
+                          ),
+                        );
+                      },
+                      onNearbyPlaces: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Nearby Places feature coming soon!'),
+                          ),
+                        );
+                      },
+                      isTrafficEnabled: state.trafficEnabled,
+                      isSatellite: state.mapType == MapType.satellite,
                     ),
                   );
                 },
@@ -537,122 +582,130 @@ class VehicleListView extends StatelessWidget {
     BuildContext context,
     GpsCombinedVehicleData vehicle,
   ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            spreadRadius: 0,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                vehicle.vehicleNumber ?? context.appText.unknown,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: AppConstants.textPrimaryColor,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppConstants.successColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: AppConstants.successColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      vehicle.statusDuration ?? context.appText.notAvailable,
-                      style: TextStyle(
-                        color: AppConstants.successColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              _buildSignalIndicator(context, vehicle.networkSignal ?? 0),
-              const SizedBox(width: 8),
-              _buildGPSIndicator(context, vehicle.hasGPS ?? false),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            vehicle.lastUpdate?.toString() ?? context.appText.noUpdateTime,
-            style: TextStyle(
-              color: AppConstants.textSecondaryColor,
-              fontSize: 12,
+    return GestureDetector(
+      onTap: () {
+        context.push(AppRouteName.vehicleMapDetail, extra: vehicle);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppConstants.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              spreadRadius: 0,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: AppConstants.textSecondaryColor,
-                size: 16,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  vehicle.location ?? context.appText.locationNotAvailable,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  vehicle.vehicleNumber ?? context.appText.unknown,
                   style: TextStyle(
-                    color: AppConstants.textSecondaryColor,
-                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppConstants.textPrimaryColor,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  context.appText.odo,
-                  vehicle.odoReading ?? 'N/A',
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppConstants.successColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: AppConstants.successColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        vehicle.statusDuration ?? context.appText.notAvailable,
+                        style: TextStyle(
+                          color: AppConstants.successColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const Spacer(),
+                _buildSignalIndicator(context, vehicle.networkSignal ?? 0),
+                const SizedBox(width: 8),
+                _buildGPSIndicator(context, vehicle.hasGPS ?? false),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              vehicle.lastUpdate?.toString() ?? context.appText.noUpdateTime,
+              style: TextStyle(
+                color: AppConstants.textSecondaryColor,
+                fontSize: 12,
               ),
-              Expanded(
-                child: _buildStatItem(
-                  context.appText.today,
-                  vehicle.todayDistance ?? 'N/A',
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on_outlined,
+                  color: AppConstants.textSecondaryColor,
+                  size: 16,
                 ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  context.appText.lastSpeed,
-                  vehicle.lastSpeed ?? 'N/A',
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    vehicle.location ?? context.appText.locationNotAvailable,
+                    style: TextStyle(
+                      color: AppConstants.textSecondaryColor,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatItem(
+                    context.appText.odo,
+                    vehicle.odoReading ?? 'N/A',
+                  ),
+                ),
+                Expanded(
+                  child: _buildStatItem(
+                    context.appText.today,
+                    vehicle.todayDistance ?? 'N/A',
+                  ),
+                ),
+                Expanded(
+                  child: _buildStatItem(
+                    context.appText.lastSpeed,
+                    vehicle.lastSpeed ?? 'N/A',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -762,6 +815,8 @@ class VehicleListView extends StatelessWidget {
           markers: markers,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: true,
+          mapType: state.mapType,
+          trafficEnabled: state.trafficEnabled,
           onMapCreated: (controller) {
             if (!mapControllerCompleter.isCompleted) {
               mapControllerCompleter.complete(controller);

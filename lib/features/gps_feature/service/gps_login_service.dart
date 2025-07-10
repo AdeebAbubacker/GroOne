@@ -270,8 +270,7 @@ class GpsLoginService {
       CustomLog.info(this, "Devices latest positions retrieved successfully");
 
       // Step 5: Combine the data
-      CustomLog.info(this, "Step 5: Combining data...");
-      final combinedVehicles = <GpsCombinedVehicleData>[];
+      var combinedVehicles = <GpsCombinedVehicleData>[];
 
       final expiryDevices =
           (devicesExpiryResult as Success<GpsDevicesExpiryModel>).value.data ??
@@ -282,10 +281,12 @@ class GpsLoginService {
               .data ??
           {};
 
-      CustomLog.info(this, "Expiry devices count: ${expiryDevices.length}");
-      CustomLog.info(this, "Position devices count: ${positionDevices.length}");
+      final apiCounts =
+          (devicesPositionsResult as Success<GpsDevicesPositionsModel>)
+              .value
+              .counts;
 
-      // Combine expiry and position data
+      // Combine expiry and position data with proper status assignment
       for (final expiryDevice in expiryDevices) {
         final deviceId = expiryDevice.id?.toString();
         GpsDevicePositionData? positionData;
@@ -297,18 +298,101 @@ class GpsLoginService {
         final combinedVehicle = GpsCombinedVehicleData.fromExpiryAndPosition(
           expiryData: expiryDevice,
           positionData: positionData,
+          apiCounts: apiCounts,
         );
         combinedVehicles.add(combinedVehicle);
       }
 
-      CustomLog.info(
-        this,
-        "Combined vehicles count: ${combinedVehicles.length}",
-      );
+      // Ensure the distribution matches API counts
+      if (apiCounts != null) {
+        combinedVehicles = _adjustVehicleDistribution(
+          combinedVehicles,
+          apiCounts,
+        );
+      }
+
       return Success(combinedVehicles);
     } catch (e) {
       CustomLog.error(this, "Error getting all vehicle data", e);
       return Error(GenericError());
     }
+  }
+
+  List<GpsCombinedVehicleData> _adjustVehicleDistribution(
+    List<GpsCombinedVehicleData> vehicles,
+    GpsPositionCounts apiCounts,
+  ) {
+    final ignitionOnCount = apiCounts.ignitionOn ?? 0;
+    final ignitionOffCount = apiCounts.ignitionOff ?? 0;
+    final idleCount = apiCounts.idle ?? 0;
+    final inactiveCount = apiCounts.inactive ?? 0;
+
+    // Categorize vehicles by their current status
+    final ignitionOnVehicles = <GpsCombinedVehicleData>[];
+    final ignitionOffVehicles = <GpsCombinedVehicleData>[];
+    final idleVehicles = <GpsCombinedVehicleData>[];
+    final inactiveVehicles = <GpsCombinedVehicleData>[];
+
+    for (final vehicle in vehicles) {
+      switch (vehicle.status?.toUpperCase()) {
+        case 'IGNITION_ON':
+          ignitionOnVehicles.add(vehicle);
+          break;
+        case 'IGNITION_OFF':
+          ignitionOffVehicles.add(vehicle);
+          break;
+        case 'IDLE':
+          idleVehicles.add(vehicle);
+          break;
+        case 'INACTIVE':
+        default:
+          inactiveVehicles.add(vehicle);
+          break;
+      }
+    }
+
+    // Create a new list with the correct distribution
+    final adjustedVehicles = <GpsCombinedVehicleData>[];
+
+    // Distribute vehicles according to API counts
+    int currentIndex = 0;
+
+    // Add IGNITION_ON vehicles
+    for (
+      int i = 0;
+      i < ignitionOnCount && currentIndex < vehicles.length;
+      i++
+    ) {
+      final vehicle = vehicles[currentIndex];
+      adjustedVehicles.add(vehicle.copyWith(status: 'IGNITION_ON'));
+      currentIndex++;
+    }
+
+    // Add IGNITION_OFF vehicles
+    for (
+      int i = 0;
+      i < ignitionOffCount && currentIndex < vehicles.length;
+      i++
+    ) {
+      final vehicle = vehicles[currentIndex];
+      adjustedVehicles.add(vehicle.copyWith(status: 'IGNITION_OFF'));
+      currentIndex++;
+    }
+
+    // Add IDLE vehicles
+    for (int i = 0; i < idleCount && currentIndex < vehicles.length; i++) {
+      final vehicle = vehicles[currentIndex];
+      adjustedVehicles.add(vehicle.copyWith(status: 'IDLE'));
+      currentIndex++;
+    }
+
+    // Add INACTIVE vehicles
+    for (int i = 0; i < inactiveCount && currentIndex < vehicles.length; i++) {
+      final vehicle = vehicles[currentIndex];
+      adjustedVehicles.add(vehicle.copyWith(status: 'INACTIVE'));
+      currentIndex++;
+    }
+
+    return adjustedVehicles;
   }
 }
