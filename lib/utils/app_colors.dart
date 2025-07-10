@@ -108,6 +108,7 @@ class AppColors {
   static final Color thinLightGray = Color(0xff626262);
   static const Color docViewCardBgColor = Color(0xFFF6F8FA);
   static final Color chevronGreyColor = Color(0xff999999);
+  static const Color mediumGreyColor = Color(0xFF626262);
 
 
   static WidgetStateProperty<Color> materialStateColor(Color color) {
