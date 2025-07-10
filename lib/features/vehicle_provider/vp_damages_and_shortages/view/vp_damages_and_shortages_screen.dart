@@ -82,7 +82,7 @@ class _VpDamagesAndShortagesScreenState
 
             // Submit Button
             AppButton(
-              title: "Submit",
+              title: context.appText.submit,
               isLoading: false,
               style: AppButtonStyle.primary,
               onPressed: () {},
@@ -93,7 +93,7 @@ class _VpDamagesAndShortagesScreenState
               children: [
                 Text(
                   context.appText.damagesRecorded,
-                  style: AppTextStyle.body1.copyWith(color: Color(0xFF2B2B2B)),
+                  style: AppTextStyle.body1.copyWith(color: AppColors.textBlackColor),
                 ),
                 10.height,
                 damageRecordCard(
@@ -121,8 +121,6 @@ class _VpDamagesAndShortagesScreenState
                 ),
               ],
             ),
-
-            // Verify Button
             20.height,
           ],
         ),
@@ -150,7 +148,7 @@ class _VpDamagesAndShortagesScreenState
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FB),
+        color: AppColors.extraLightBackgroundColor,
         borderRadius: BorderRadius.circular(12),
       ),
       height: 100,
@@ -170,12 +168,12 @@ class _VpDamagesAndShortagesScreenState
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Colors.grey[300],
+                    color: AppColors.lightGrey300,
                     alignment: Alignment.center,
-                    child: const Icon(
+                    child: Icon(
                       Icons.image_not_supported,
                       size: 20,
-                      color: Colors.grey,
+                      color: AppColors.shimmerBaseColor,
                     ),
                   );
                 },
@@ -201,7 +199,7 @@ class _VpDamagesAndShortagesScreenState
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Quantity: $quantity",
+                    "${context.appText.quantity}: $quantity",
                     style: AppTextStyle.textGreyColor10w400,
                   ),
                   Text(description, style: AppTextStyle.textGreyColor10w400),
