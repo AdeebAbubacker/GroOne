@@ -247,28 +247,28 @@ class DatumCustomer {
     required this.customer,
     required this.address,
     required this.bankDetails,
-    required this.kycDocs,
+    // required this.kycDocs,
     required this.vehicles,
   });
 
   final CustomerCustomer? customer;
   final Address? address;
   final BankDetails? bankDetails;
-  final List<KycDoc> kycDocs;
+  // final List<KycDoc> kycDocs;
   final List<Vehicle> vehicles;
 
   DatumCustomer copyWith({
     CustomerCustomer? customer,
     Address? address,
     BankDetails? bankDetails,
-    List<KycDoc>? kycDocs,
+    // List<KycDoc>? kycDocs,
     List<Vehicle>? vehicles,
   }) {
     return DatumCustomer(
       customer: customer ?? this.customer,
       address: address ?? this.address,
       bankDetails: bankDetails ?? this.bankDetails,
-      kycDocs: kycDocs ?? this.kycDocs,
+      // kycDocs: kycDocs ?? this.kycDocs,
       vehicles: vehicles ?? this.vehicles,
     );
   }
@@ -278,7 +278,7 @@ class DatumCustomer {
       customer: json["customer"] == null ? null : CustomerCustomer.fromJson(json["customer"]),
       address: json["address"] == null ? null : Address.fromJson(json["address"]),
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
-      kycDocs: json["kycDocs"] == null ? [] : List<KycDoc>.from(json["kycDocs"]!.map((x) => KycDoc.fromJson(x))),
+      // kycDocs: json["kycDocs"] == null ? [] : List<KycDoc>.from(json["kycDocs"]!.map((x) => KycDoc.fromJson(x))),
       vehicles: json["vehicles"] == null ? [] : List<Vehicle>.from(json["vehicles"]!.map((x) => Vehicle.fromJson(x))),
     );
   }
