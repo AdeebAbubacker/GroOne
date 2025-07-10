@@ -7,6 +7,8 @@ class VehicleListState {
   final VehicleTabType selectedTab;
   final String searchQuery;
   final bool showMapView;
+  final bool trafficEnabled;
+  final MapType mapType;
 
   VehicleListState({
     this.vehicleDataState,
@@ -21,6 +23,8 @@ class VehicleListState {
     this.selectedTab = VehicleTabType.Total,
     this.searchQuery = '',
     this.showMapView = false,
+    this.trafficEnabled = false,
+    this.mapType = MapType.normal,
   });
 
   VehicleListState copyWith({
@@ -30,6 +34,8 @@ class VehicleListState {
     VehicleTabType? selectedTab,
     String? searchQuery,
     bool? showMapView,
+    bool? trafficEnabled,
+    MapType? mapType,
   }) {
     return VehicleListState(
       vehicleDataState: vehicleDataState ?? this.vehicleDataState,
@@ -38,6 +44,8 @@ class VehicleListState {
       selectedTab: selectedTab ?? this.selectedTab,
       searchQuery: searchQuery ?? this.searchQuery,
       showMapView: showMapView ?? this.showMapView,
+      trafficEnabled: trafficEnabled ?? this.trafficEnabled,
+      mapType: mapType ?? this.mapType,
     );
   }
 
