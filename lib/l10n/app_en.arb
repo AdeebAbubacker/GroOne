@@ -307,5 +307,14 @@
   "remainingDistance":"Remaining Distance",
   "feedback":"Feedback",
   "remarks":"Remarks",
-  "enterRemarks" : "Enter remarks"
+  "enterRemarks" : "Enter remarks",
+  "chooseFiles": "Choose files",
+  "noFileChoosen": "No file chosen",
+  "damagesAndShortages": "Damages and Shortages",
+  "itemName": "Item Name",
+  "quantity": "Quantity",
+  "productPhoto": "Product Photo",
+  "description": "Description",
+  "tvCrackedScreenNote": "One TV has a cracked screen",
+  "damagesRecorded": "Damages Recorded"
  }
