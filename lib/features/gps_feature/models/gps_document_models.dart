@@ -321,10 +321,24 @@ class GpsAadhaarVerifyOtpResponse {
   });
 
   factory GpsAadhaarVerifyOtpResponse.fromJson(Map<String, dynamic> json) {
+    // Handle the actual API response structure
+    final status = json['status'] as bool? ?? false;
+    final message = json['message'] as String? ?? '';
+    
+    // Check if verification was successful based on status and data
+    bool isVerified = false;
+    if (status) {
+      final data = json['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        final dataMessage = data['message'] as String? ?? '';
+        isVerified = dataMessage.toLowerCase().contains('verified successfully');
+      }
+    }
+    
     return GpsAadhaarVerifyOtpResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      isVerified: json['is_verified'] ?? false,
+      success: status,
+      message: message,
+      isVerified: isVerified,
     );
   }
 
@@ -355,10 +369,24 @@ class GpsPanVerificationResponse {
   });
 
   factory GpsPanVerificationResponse.fromJson(Map<String, dynamic> json) {
+    // Handle the actual API response structure
+    final status = json['status'] as bool? ?? false;
+    final message = json['message'] as String? ?? '';
+    
+    // Check if verification was successful based on status and data
+    bool isVerified = false;
+    if (status) {
+      final data = json['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        final dataMessage = data['message'] as String? ?? '';
+        isVerified = dataMessage.toLowerCase().contains('verified successfully');
+      }
+    }
+    
     return GpsPanVerificationResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      isVerified: json['is_verified'] ?? false,
+      success: status,
+      message: message,
+      isVerified: isVerified,
     );
   }
 
@@ -548,5 +576,43 @@ class GpsAddress {
   @override
   String toString() {
     return 'GpsAddress{id: $id, addressName: $addressName, fullAddress: $fullAddress}';
+  }
+}
+
+/// GPS Add Address Response
+class GpsAddAddressResponse {
+  final bool success;
+  final String message;
+  final GpsAddress? data;
+  final int? statusCode;
+
+  const GpsAddAddressResponse({
+    required this.success,
+    required this.message,
+    this.data,
+    this.statusCode,
+  });
+
+  factory GpsAddAddressResponse.fromJson(Map<String, dynamic> json) {
+    return GpsAddAddressResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: json['data'] != null ? GpsAddress.fromJson(json['data']) : null,
+      statusCode: json['statusCode'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'success': success,
+      'message': message,
+      'data': data?.toJson(),
+      'statusCode': statusCode,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'GpsAddAddressResponse{success: $success, message: $message, data: $data, statusCode: $statusCode}';
   }
 } 

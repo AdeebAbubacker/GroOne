@@ -110,7 +110,7 @@ class GpsProductListRequest {
 
 /// GPS Address List Request
 class GpsAddressListRequest {
-  final int customerId;
+  final String customerId; // Changed from int to String for UUID
   final int limit;
   final int page;
 
@@ -186,5 +186,52 @@ class GpsPanVerificationRequest {
       'pan': pan,
       'force': force,
     };
+  }
+}
+
+/// GPS Add Address Request
+class GpsAddAddressRequest {
+  final String customerId;
+  final String addrName;
+  final String addr;
+  final String city;
+  final String state;
+  final String pincode;
+  final bool isDefault;
+  final String addrType; // "1" for shipping, "2" for billing
+  final String country;
+  final String? gstIn;
+
+  const GpsAddAddressRequest({
+    required this.customerId,
+    required this.addrName,
+    required this.addr,
+    required this.city,
+    required this.state,
+    required this.pincode,
+    required this.isDefault,
+    required this.addrType,
+    required this.country,
+    this.gstIn,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'customerId': customerId,
+      'addrName': addrName,
+      'addr': addr,
+      'city': city,
+      'state': state,
+      'pincode': pincode,
+      'isDefault': isDefault,
+      'addrType': addrType,
+      'country': country,
+      if (gstIn != null && gstIn!.isNotEmpty) 'gstIn': gstIn,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'GpsAddAddressRequest{customerId: $customerId, addrName: $addrName, addr: $addr, city: $city, state: $state, pincode: $pincode, isDefault: $isDefault, addrType: $addrType, country: $country, gstIn: $gstIn}';
   }
 }

@@ -95,9 +95,9 @@ class ApiUrls {
 
   /// Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
-  static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
-  static final String  panVerification = "$verification/pan";
+  static final String  aadhaarSendOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/send-otp";
+  static final String  aadhaarVerifyOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/verify-otp";
+  static final String  panVerification = "https://gro-devapi.letsgro.co/external/api/v1/verification/pan";
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";

@@ -87,7 +87,7 @@ class GpsOrderApiRepository {
 
   /// Fetch GPS Addresses Repository
   Future<Result<GpsAddressListResponse>> fetchGpsAddresses({
-    required int customerId,
+    required String customerId,
     int limit = 10,
     int page = 1,
   }) async {
@@ -100,6 +100,18 @@ class GpsOrderApiRepository {
       return await _gpsOrderApiService.fetchGpsAddresses(request);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch GPS addresses", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Add GPS Address Repository
+  Future<Result<GpsAddAddressResponse>> addGpsAddress(
+    GpsAddAddressRequest request,
+  ) async {
+    try {
+      return await _gpsOrderApiService.addGpsAddress(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to add GPS address", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

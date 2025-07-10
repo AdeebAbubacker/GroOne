@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -28,6 +29,9 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import '../../gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 
 class GpsUploadDocumentScreen extends StatelessWidget {
   const GpsUploadDocumentScreen({super.key});
@@ -35,7 +39,7 @@ class GpsUploadDocumentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => locator<GpsUploadDocumentCubit>(),
+      create: (_) => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
       child: const _GpsUploadDocumentContent(),
     );
   }
@@ -65,6 +69,19 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
     commonBottomSheetWithBGBlur(
       context: context,
       screen: GpsOtpVerificationBottomSheet(cubit: cubit),
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: 'KYC documents uploaded successfully!',
+        onContinue: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(commonRoute(GpsModelsScreen()));
+        },
+      ),
     );
   }
 
@@ -103,17 +120,24 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     BlocListener<GpsUploadDocumentCubit, GpsUploadDocumentState>(
                       listenWhen: (previous, current) => previous.aadhaarSendOtpState != current.aadhaarSendOtpState,
                       listener: (context, state) {
+                        print('🔍 GPS Aadhaar Send OTP State changed: ${state.aadhaarSendOtpState?.status}');
                         if (state.aadhaarSendOtpState?.status == Status.SUCCESS) {
+                          print('🔍 GPS Showing OTP bottom sheet');
                           _showOtpBottomSheet(context, cubit);
                         }
                         if (state.aadhaarSendOtpState?.status == Status.ERROR) {
+                          print('🔍 GPS Aadhaar Send OTP failed');
                           final error = state.aadhaarSendOtpState?.errorType;
                           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                         }
                       },
                       child: AppButton(
                         onPressed: (state.isAadhaarValid && !state.isAadhaarVerified)
-                            ? () { cubit.sendAadhaarOtp(); }
+                            ? () { 
+                                print('🔍 GPS Get OTP button pressed');
+                                print('🔍 GPS Current aadhaar: "${state.aadhaar}"');
+                                cubit.sendAadhaarOtp(); 
+                              }
                             : () {},
                         title: state.isAadhaarVerified ? 'Verified' : context.appText.getOtp,
                         textStyle: TextStyle(color: AppColors.primaryColor),
@@ -157,6 +181,12 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     UploadAttachmentFiles(
                       multiFilesList: gpsDocList,
                       isSingleFile: true,
+                      thenUploadFileToSever: () {
+                        // Trigger rebuild when documents are added/removed
+                        setState(() {});
+                        // Update the cubit with the current document list
+                        cubit.updateGpsDocuments(gpsDocList);
+                      },
                     ),
                     if (gpsDocList.isEmpty && state.hasAttemptedSubmit)
                       Padding(
@@ -167,6 +197,8 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         ),
                       ),
                     30.height,
+                    
+                  
                   ],
                 ).paddingAll(commonSafeAreaPadding),
               );
@@ -174,18 +206,50 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
           ),
         ),
       ),
-      bottomNavigationBar: AppButton(
-        title: context.appText.submit,
-        onPressed: () {
-          cubit.markFormSubmitted();
-          if (_formKey.currentState!.validate() && gpsDocList.isNotEmpty) {
-            // Add your submit logic here
-            Navigator.of(context).push(commonRoute(GpsModelsScreen()));
-          } else {
-            ToastMessages.alert(message: "Please fill all required fields correctly");
+      bottomNavigationBar: BlocConsumer<GpsUploadDocumentCubit, GpsUploadDocumentState>(
+        bloc: cubit,
+        listenWhen: (previous, current) => previous.uploadKycState != current.uploadKycState,
+        listener: (context, state) {
+          if (state.uploadKycState?.status == Status.SUCCESS) {
+            _showSuccessDialog(context);
+          }
+          if (state.uploadKycState?.status == Status.ERROR) {
+            final error = state.uploadKycState?.errorType;
+            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
           }
         },
-      ).paddingAll(20),
+        builder: (context, state) {
+          final bool isLoading = state.uploadKycState?.status == Status.LOADING;
+          final bool isFormValid = state.isAadhaarVerified && gpsDocList.isNotEmpty;
+          
+          // Debug the form validation
+          print('🔍 GPS Submit Button Debug:');
+          print('  - isLoading: $isLoading');
+          print('  - isAadhaarVerified: ${state.isAadhaarVerified}');
+          print('  - gpsDocList.isEmpty: ${gpsDocList.isEmpty}');
+          print('  - gpsDocList.length: ${gpsDocList.length}');
+          print('  - isFormValid: $isFormValid');
+
+          return AppButton(
+            onPressed: (!isLoading && isFormValid) ? () {
+              print('🔍 GPS Submit button pressed');
+              cubit.debugCubitStatus();
+              cubit.markFormSubmitted();
+              if (_formKey.currentState!.validate()) {
+                // Update the cubit with the current document list
+                cubit.updateGpsDocuments(gpsDocList);
+                // Call the upload API
+                cubit.uploadKycDocumentsMultipart();
+              } else {
+                ToastMessages.alert(message: "Please fill all required fields correctly");
+              }
+            } : () {},
+            title: context.appText.submit,
+            isLoading: isLoading,
+            style: isFormValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+          ).paddingAll(20);
+        },
+      ),
     );
   }
 
@@ -286,11 +350,19 @@ class _GpsOtpVerificationBottomSheetState extends State<GpsOtpVerificationBottom
         bloc: widget.cubit,
         listenWhen: (previous, current) => previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState,
         listener: (context, state) {
+          print('🔍 GPS OTP Verification State changed: ${state.aadhaarVerifyOtpState?.status}');
           if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
-            Navigator.of(context).pop();
-            ToastMessages.success(message: 'Aadhaar verified successfully!');
+            print('🔍 GPS OTP verification successful, closing bottom sheet');
+            // Add a small delay to ensure the state is properly updated
+            Future.delayed(Duration(milliseconds: 500), () {
+              if (context.mounted) {
+                Navigator.of(context).pop();
+                ToastMessages.success(message: 'Aadhaar verified successfully!');
+              }
+            });
           }
           if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
+            print('🔍 GPS OTP verification failed');
             final error = state.aadhaarVerifyOtpState?.errorType;
             ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
           }
@@ -331,21 +403,30 @@ class _GpsOtpVerificationBottomSheetState extends State<GpsOtpVerificationBottom
               bloc: widget.cubit,
               builder: (context, state) {
                 final bool isLoading = state.aadhaarVerifyOtpState?.status == Status.LOADING;
-                return AppButton(
-                  onPressed: isLoading
-                      ? () {}
-                      : () {
-                          if (otpValue.length == 6) {
-                            widget.cubit.verifyAadhaarOtp(otpValue);
-                          } else {
-                            ToastMessages.alert(message: 'Please enter a valid 6-digit OTP');
-                          }
-                        },
-                  title: 'Verify OTP',
-                  isLoading: isLoading,
-                  style: otpValue.length == 6 && !isLoading
-                      ? AppButtonStyle.primary
-                      : AppButtonStyle.disableButton,
+                final bool isSuccess = state.aadhaarVerifyOtpState?.status == Status.SUCCESS;
+                
+                return Column(
+                  children: [
+                    AppButton(
+                      onPressed: isLoading
+                          ? () {}
+                          : () {
+                              if (otpValue.length == 6) {
+                                // Debug the cubit status before verification
+                                widget.cubit.debugCubitStatus();
+                                widget.cubit.verifyAadhaarOtp(otpValue);
+                              } else {
+                                ToastMessages.alert(message: 'Please enter a valid 6-digit OTP');
+                              }
+                            },
+                      title: 'Verify OTP',
+                      isLoading: isLoading,
+                      style: otpValue.length == 6 && !isLoading
+                          ? AppButtonStyle.primary
+                          : AppButtonStyle.disableButton,
+                    ),
+                
+                  ],
                 );
               },
             ),

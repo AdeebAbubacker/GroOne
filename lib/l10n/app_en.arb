@@ -317,8 +317,7 @@
     "remainingDistance":"Remaining Distance",
     "feedback":"Feedback",
     "remarks":"Remarks",
-    "enterRemarks" : "Enter remarks"
-  "benefitsOfFuelCardSubHeading3" : "Automated digital records reduce paperwork and help with GST input credit and accounting.",
+    "enterRemarks" : "Enter remarks",
   "success": "Success",
   "failed": "Failed"
 }

@@ -97,11 +97,21 @@ class GpsOrderApiService {
         String? refreshToken = await _secureSharedPrefs.get(
           AppString.sessionKey.refreshToken,
         );
+        CustomLog.debug(this, "🔐 Token retrieval attempt:");
+        CustomLog.debug(this, "🔐 Raw token value: '$refreshToken'");
+        CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
+        CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
+        CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
+        
         if (refreshToken != null && refreshToken.isNotEmpty) {
-          headers['Authorization'] = 'Bearer $refreshToken';
-          CustomLog.debug(this, "🔐 Using token: $refreshToken");
+          final authHeader = 'Bearer $refreshToken';
+          headers['Authorization'] = authHeader;
+          CustomLog.debug(this, "🔐 Using token for API call: $refreshToken");
+          CustomLog.debug(this, "🔐 Authorization header set: $authHeader");
+          CustomLog.debug(this, "🔐 Full headers: $headers");
         } else {
-          CustomLog.debug(this, "🔐 No token found");
+          CustomLog.debug(this, "🔐 No token found - cannot authenticate");
+          CustomLog.debug(this, "🔐 Headers without auth: $headers");
         }
       } catch (e) {
         CustomLog.error(this, "Error getting authentication token", e);
@@ -152,7 +162,11 @@ class GpsOrderApiService {
     GpsAadhaarSendOtpRequest request,
   ) async {
     try {
+      // Aadhaar OTP doesn't require authentication token
       final url = ApiUrls.aadhaarSendOtp;
+      CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - URL: $url");
+      CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - Request: ${request.toJson()}");
+      
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
@@ -161,6 +175,7 @@ class GpsOrderApiService {
           (data) => GpsAadhaarSendOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
+        CustomLog.error(this, "🔐 GPS Aadhaar Send OTP failed: ${result.type}", null);
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -176,7 +191,11 @@ class GpsOrderApiService {
     GpsAadhaarVerifyOtpRequest request,
   ) async {
     try {
+      // Aadhaar OTP verification doesn't require authentication token
       final url = ApiUrls.aadhaarVerifyOtp;
+      CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - URL: $url");
+      CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - Request: ${request.toJson()}");
+      
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
@@ -185,6 +204,7 @@ class GpsOrderApiService {
           (data) => GpsAadhaarVerifyOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
+        CustomLog.error(this, "🔐 GPS Aadhaar Verify OTP failed: ${result.type}", null);
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -200,7 +220,11 @@ class GpsOrderApiService {
     GpsPanVerificationRequest request,
   ) async {
     try {
+      // PAN verification doesn't require authentication token
       final url = ApiUrls.panVerification;
+      CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
+      CustomLog.debug(this, "🔐 GPS PAN Verification - Request: ${request.toJson()}");
+      
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
@@ -209,6 +233,7 @@ class GpsOrderApiService {
           (data) => GpsPanVerificationResponse.fromJson(data),
         );
       } else if (result is Error) {
+        CustomLog.error(this, "🔐 GPS PAN Verification failed: ${result.type}", null);
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -260,6 +285,30 @@ class GpsOrderApiService {
         return await _apiService.getResponseStatus(
           result.value,
           (data) => GpsAddressListResponse.fromJson(data),
+        );
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Add GPS Address
+  Future<Result<GpsAddAddressResponse>> addGpsAddress(
+    GpsAddAddressRequest request,
+  ) async {
+    try {
+      final url = ApiUrls.gpsAddressList;
+      final result = await _apiService.post(url, body: request.toJson());
+
+      if (result is Success) {
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => GpsAddAddressResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);

@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -37,8 +38,16 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
   @override
   void initState() {
     super.initState();
-    _gpsProductsCubit = locator<GpsProductsCubit>();
-    _gpsProductsCubit.fetchGpsProducts();
+    try {
+      _gpsProductsCubit = locator<GpsProductsCubit>();
+      _gpsProductsCubit.fetchGpsProducts();
+    } catch (e) {
+      print('Error getting GpsProductsCubit: $e');
+      // Fallback: create a new instance directly
+      final repository = locator<GpsOrderApiRepository>();
+      _gpsProductsCubit = GpsProductsCubit(repository);
+      _gpsProductsCubit.fetchGpsProducts();
+    }
   }
 
   @override

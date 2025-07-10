@@ -3,14 +3,15 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
 // Events
 abstract class GpsBillingAddressEvent {}
 
 class FetchGpsBillingAddresses extends GpsBillingAddressEvent {
-  final int customerId;
+  final String? customerId;
 
-  FetchGpsBillingAddresses({this.customerId = 851}); // Default customer ID
+  FetchGpsBillingAddresses({this.customerId}); // Remove static customer ID
 }
 
 class SelectGpsBillingAddress extends GpsBillingAddressEvent {
@@ -51,13 +52,25 @@ class GpsBillingAddressError extends GpsBillingAddressState {
 // Cubit
 class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
   final GpsOrderApiRepository _repository;
+  final UserInformationRepository _userRepository;
 
-  GpsBillingAddressCubit(this._repository) : super(GpsBillingAddressInitial());
+  GpsBillingAddressCubit(this._repository, this._userRepository) : super(GpsBillingAddressInitial());
 
-  Future<void> fetchGpsBillingAddresses({int customerId = 851}) async {
+  Future<void> fetchGpsBillingAddresses({String? customerId}) async {
     emit(GpsBillingAddressLoading());
 
-    final result = await _repository.fetchGpsAddresses(customerId: customerId);
+    // Get customer ID dynamically if not provided
+    String? dynamicCustomerId = customerId;
+    if (dynamicCustomerId == null || dynamicCustomerId.isEmpty) {
+      dynamicCustomerId = await _userRepository.getUserID();
+    }
+
+    if (dynamicCustomerId == null || dynamicCustomerId.isEmpty) {
+      emit(GpsBillingAddressError('Unable to get customer ID'));
+      return;
+    }
+
+    final result = await _repository.fetchGpsAddresses(customerId: dynamicCustomerId);
 
     if (result is Success<GpsAddressListResponse>) {
       final response = result.value;

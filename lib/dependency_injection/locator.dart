@@ -194,7 +194,10 @@ void initLocator() {
 
     // Cubits
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
-    locator.registerLazySingleton(() => KycCubit(locator<KycRepository>()));
+    locator.registerLazySingleton(() => KycCubit(
+      locator<KycRepository>(),
+      locator<UserInformationRepository>(),
+    ));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>()));
@@ -204,44 +207,10 @@ void initLocator() {
     locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
     locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
-
-    // Cubit
-    locator.registerLazySingleton(
-      () => LPHomeCubit(locator<LpHomeRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => KycCubit(
-        locator<KycRepository>(),
-        locator<UserInformationRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => LpLoadCubit(locator<LpLoadRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => VpHomeRepository(
-        locator<VpHomeService>(),
-        locator<UserInformationRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => LoadDetailsCubit(
-        locator<LoadDetailsRepository>(),
-        locator<VpHomeRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => ChoosePreferenceCubit(locator<KavachRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => KavachAddVehicleFormCubit(locator<KavachRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => EnDhanCubit(locator<EnDhanRepository>()),
-    );
+    locator.registerLazySingleton(() => VpHomeRepository(
+      locator<VpHomeService>(),
+      locator<UserInformationRepository>(),
+    ));
     locator.registerLazySingleton(
       () => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
     );
@@ -249,14 +218,13 @@ void initLocator() {
       () => GpsProductsCubit(locator<GpsOrderApiRepository>()),
     );
     locator.registerLazySingleton(
-      () => GpsBillingAddressCubit(locator<GpsOrderApiRepository>()),
+      () => GpsBillingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
     );
     locator.registerLazySingleton(
-      () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>()),
+      () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
     );
     locator.registerLazySingleton(
-      () => KavachTransactionsCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()),
+      () => KavachTransactionsCubit(locator<KavachRepository>()),
     );
 
 

@@ -107,9 +107,9 @@ class GpsOrderBenefitsAndOrderListScreen extends StatelessWidget {
         AppButton(
           title: context.appText.buyNewGps,
           onPressed: () {
-            //Navigator.push(context,commonRoute(GpsUploadDocumentScreen()));
-              Navigator.push(context,commonRoute(GpsModelsScreen()));
-            
+           // Navigator.push(context,commonRoute(GpsUploadDocumentScreen()));
+            Navigator.push(context,commonRoute(GpsModelsScreen()));
+
           },
         ).paddingOnly(bottom: 30, left: 15, right: 15, top: 10),
       ],
@@ -175,9 +175,9 @@ class GpsOrderBenefitsAndOrderListScreen extends StatelessWidget {
         ),
         20.height,
         innerUIWidget(
-          icon: AppIcons.png.tracking,
-          title: context.appText.benefitsOfGpsCardHeading2,
-          subTitle: context.appText.benefitsOfGpsCardSubHeading2
+            icon: AppIcons.png.tracking,
+            title: context.appText.benefitsOfGpsCardHeading2,
+            subTitle: context.appText.benefitsOfGpsCardSubHeading2
         ),
         20.height,
         innerUIWidget(
@@ -283,80 +283,81 @@ class GpsOrderBenefitsAndOrderListScreen extends StatelessWidget {
               child: filteredOrders.isEmpty
                   ? Center(child: Text('No orders found', style: AppTextStyle.h5))
                   : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                      itemCount: filteredOrders.length,
-                      separatorBuilder: (_, __) => 8.height,
-                      itemBuilder: (context, index) {
-                        final order = filteredOrders[index];
-                        final statusColor = getKavachOrderStatusColor(order['status'] as String);
-                        return Container(
-                          decoration: commonContainerDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                            shadow: true,
-                            borderColor: AppColors.borderColor,
-                      
-                          ),
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                 Text(
-                                      'Order ID: ${order['orderId']}',
-                                      style: AppTextStyle.h4PrimaryColor.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
-                                    ).expand(),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: commonContainerDecoration(
-                                      color: statusColor.withOpacity(0.09),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      order['status'] as String,
-                                      style: TextStyle(
-                                        color: statusColor,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              6.height,
-                              Row(
-                                children: [
-                                  Text(
-                                      order['product'] as String,
-                                      style: AppTextStyle.textGreyColor14w300,
-                                    ).expand(),
-                                  Text(
-                                    '₹${(order['amount'] as num).toStringAsFixed(0)}',
-                                    style: AppTextStyle.h4,
-                                  ),
-                                ],
-                              ),
-                              8.height,
-                              Row(
-                                children: [
-                                  InkWell(
-                                    onTap: () {}, // TODO: Add details navigation
-                                    child: Text('View Details', style: AppTextStyle.primaryColor16w400),
-                                  ),
-                                  15.width,
-                                  Text(
-                                      'Purchased on ${formatDateTimeKavach(order['date'] as String)}',
-                                      style: AppTextStyle.textGreyColor14w300,
-                                      maxLines: 1,
-                                    ).expand()
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                itemCount: filteredOrders.length,
+                separatorBuilder: (_, __) => 8.height,
+                itemBuilder: (context, index) {
+                  final order = filteredOrders[index];
+                  final statusColor = AppColors.greenColor;
+                  //KavachHelper.getKavachOrderStatusColor(order['status'] as String);
+                  return Container(
+                    decoration: commonContainerDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      shadow: true,
+                      borderColor: AppColors.borderColor,
+
                     ),
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Order ID: ${order['orderId']}',
+                              style: AppTextStyle.h4PrimaryColor.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                            ).expand(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: commonContainerDecoration(
+                                color: statusColor.withOpacity(0.09),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                order['status'] as String,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        6.height,
+                        Row(
+                          children: [
+                            Text(
+                              order['product'] as String,
+                              style: AppTextStyle.textGreyColor14w300,
+                            ).expand(),
+                            Text(
+                              '₹${(order['amount'] as num).toStringAsFixed(0)}',
+                              style: AppTextStyle.h4,
+                            ),
+                          ],
+                        ),
+                        8.height,
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {}, // TODO: Add details navigation
+                              child: Text('View Details', style: AppTextStyle.primaryColor16w400),
+                            ),
+                            15.width,
+                            Text(
+                              'Purchased on ${formatDateTimeKavach(order['date'] as String)}',
+                              style: AppTextStyle.textGreyColor14w300,
+                              maxLines: 1,
+                            ).expand()
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         );
@@ -364,4 +365,3 @@ class GpsOrderBenefitsAndOrderListScreen extends StatelessWidget {
     );
   }
 }
-

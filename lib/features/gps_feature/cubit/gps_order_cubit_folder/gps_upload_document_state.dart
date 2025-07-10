@@ -16,6 +16,8 @@ class GpsUploadDocumentState extends Equatable {
   final UIState<GpsPanVerificationResponse>? panVerificationState;
 
   final bool hasAttemptedSubmit;
+  final List<Map<String, dynamic>>? gpsDocuments;
+  final UIState<GpsDocumentUploadResponse>? uploadKycState;
 
   const GpsUploadDocumentState({
     required this.aadhaar,
@@ -29,6 +31,8 @@ class GpsUploadDocumentState extends Equatable {
     required this.isPanVerified,
     required this.panVerificationState,
     required this.hasAttemptedSubmit,
+    this.gpsDocuments,
+    this.uploadKycState,
   });
 
   factory GpsUploadDocumentState.initial() => GpsUploadDocumentState(
@@ -39,10 +43,12 @@ class GpsUploadDocumentState extends Equatable {
     aadhaarVerifyOtpState: null,
     aadhaarRequestId: null,
     pan: '',
-    isPanValid: false, // Changed from true to false since PAN is now required
+    isPanValid: true, // PAN is optional, so it's valid by default
     isPanVerified: false,
     panVerificationState: null,
     hasAttemptedSubmit: false,
+    gpsDocuments: null,
+    uploadKycState: null,
   );
 
   GpsUploadDocumentState copyWith({
@@ -57,6 +63,8 @@ class GpsUploadDocumentState extends Equatable {
     bool? isPanVerified,
     UIState<GpsPanVerificationResponse>? panVerificationState,
     bool? hasAttemptedSubmit,
+    List<Map<String, dynamic>>? gpsDocuments,
+    UIState<GpsDocumentUploadResponse>? uploadKycState,
   }) {
     return GpsUploadDocumentState(
       aadhaar: aadhaar ?? this.aadhaar,
@@ -70,6 +78,8 @@ class GpsUploadDocumentState extends Equatable {
       isPanVerified: isPanVerified ?? this.isPanVerified,
       panVerificationState: panVerificationState ?? this.panVerificationState,
       hasAttemptedSubmit: hasAttemptedSubmit ?? this.hasAttemptedSubmit,
+      gpsDocuments: gpsDocuments ?? this.gpsDocuments,
+      uploadKycState: uploadKycState ?? this.uploadKycState,
     );
   }
 
@@ -86,5 +96,7 @@ class GpsUploadDocumentState extends Equatable {
     isPanVerified,
     panVerificationState,
     hasAttemptedSubmit,
+    gpsDocuments,
+    uploadKycState,
   ];
 } 

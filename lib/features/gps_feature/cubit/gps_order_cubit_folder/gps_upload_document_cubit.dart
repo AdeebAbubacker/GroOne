@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -101,6 +102,8 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
   Future<void> sendAadhaarOtp() async {
     print('🔍 GPS sendAadhaarOtp called, cubit closed: $_isClosed');
+    print('🔍 GPS Current aadhaar: "${state.aadhaar}"');
+    
     if (_isClosed) {
       print('🔍 GPS Cubit is closed, returning early');
       return;
@@ -110,6 +113,8 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       print('🔍 GPS Aadhaar is empty, returning early');
       return;
     }
+
+    // Aadhaar OTP doesn't require authentication
 
     print('🔍 GPS Setting Aadhaar send OTP UI state to loading...');
     _setAadhaarSendOtpUIState(UIState.loading());
@@ -129,8 +134,19 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
       if (result is Success<GpsAadhaarSendOtpResponse>) {
         final response = result.value;
-        print('🔍 GPS Aadhaar OTP sent successfully, requestId: ${response.requestId}');
-        emit(state.copyWith(aadhaarRequestId: response.requestId));
+        print('🔍 GPS Aadhaar OTP sent successfully, response: $response');
+        print('🔍 GPS Response JSON: ${response.toJson()}');
+        print('🔍 GPS Raw response.requestId: "${response.requestId}"');
+        print('🔍 GPS Response.requestId is null: ${response.requestId == null}');
+        print('🔍 GPS Response.requestId is empty: ${response.requestId?.isEmpty}');
+        
+        // Use actual request ID from API response, fallback to static if not provided
+        final requestId = response.requestId?.isNotEmpty == true ? response.requestId! : 'static_request_id_123';
+        print('🔍 GPS Final requestId to use: "$requestId"');
+        
+        print('🔍 GPS Emitting new state with requestId: $requestId');
+        emit(state.copyWith(aadhaarRequestId: requestId));
+        print('🔍 GPS State updated, new requestId: ${state.aadhaarRequestId}');
         _setAadhaarSendOtpUIState(UIState.success(response));
       } else if (result is Error) {
         print('❌ GPS Aadhaar OTP send failed: ${(result as Error).type}');
@@ -146,6 +162,11 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
   Future<void> verifyAadhaarOtp(String otp) async {
     print('🔍 GPS verifyAadhaarOtp called with OTP: "$otp", cubit closed: $_isClosed');
+    print('🔍 GPS Current state: aadhaar="${state.aadhaar}", requestId="${state.aadhaarRequestId}"');
+    
+    // Debug the current cubit status
+    debugCubitStatus();
+    
     if (_isClosed) {
       print('🔍 GPS Cubit is closed, returning early');
       return;
@@ -153,8 +174,12 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
     if (state.aadhaarRequestId == null || state.aadhaar.isEmpty) {
       print('🔍 GPS Missing requestId or Aadhaar, returning early');
+      print('🔍 GPS Debug: aadhaarRequestId is null: ${state.aadhaarRequestId == null}');
+      print('🔍 GPS Debug: aadhaar is empty: ${state.aadhaar.isEmpty}');
       return;
     }
+
+    // Aadhaar OTP verification doesn't require authentication
 
     print('🔍 GPS Setting Aadhaar verify OTP UI state to loading...');
     _setAadhaarVerifyOtpUIState(UIState.loading());
@@ -166,6 +191,12 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         aadhaar: state.aadhaar,
       );
 
+      print('🔍 GPS Verify OTP Request:');
+      print('🔍 GPS   requestId: "${request.requestId}"');
+      print('🔍 GPS   otp: "${request.otp}"');
+      print('🔍 GPS   aadhaar: "${request.aadhaar}"');
+      print('🔍 GPS   Request JSON: ${request.toJson()}');
+
       final result = await _repository.verifyAadhaarOtp(request);
 
       if (_isClosed) {
@@ -176,8 +207,17 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       if (result is Success<GpsAadhaarVerifyOtpResponse>) {
         final response = result.value;
         print('🔍 GPS Aadhaar OTP verification successful');
+        print('🔍 GPS Response: $response');
+        print('🔍 GPS Response JSON: ${response.toJson()}');
+        print('🔍 GPS Response.isVerified: ${response.isVerified}');
+        print('🔍 GPS Response.success: ${response.success}');
+        print('🔍 GPS Response.message: ${response.message}');
+        print('🔍 GPS Setting isAadhaarVerified to: ${response.isVerified}');
         emit(state.copyWith(isAadhaarVerified: response.isVerified));
+        print('🔍 GPS Setting verify OTP UI state to success');
         _setAadhaarVerifyOtpUIState(UIState.success(response));
+        print('🔍 GPS State updated successfully');
+        print('🔍 GPS New state.isAadhaarVerified: ${state.isAadhaarVerified}');
       } else if (result is Error) {
         print('❌ GPS Aadhaar OTP verification failed: ${(result as Error).type}');
         _setAadhaarVerifyOtpUIState(UIState.error((result as Error).type));
@@ -214,8 +254,8 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     if (!_isClosed) {
       emit(state.copyWith(isPanValid: isValid));
 
-      // Auto-verify PAN when input is valid and complete (10 characters)
-      if (isValid && value.length == 10 && !state.isPanVerified) {
+      // Auto-verify PAN when input is valid and complete (10 characters) and not empty
+      if (isValid && value.isNotEmpty && value.length == 10 && !state.isPanVerified) {
         print('🔍 GPS PAN Auto-verification triggered!');
         // Add a small delay to avoid too many API calls
         Future.delayed(Duration(milliseconds: 500), () {
@@ -231,6 +271,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       } else {
         print('🔍 GPS PAN Auto-verification conditions not met:');
         print('  - isValid: $isValid');
+        print('  - value.isNotEmpty: ${value.isNotEmpty}');
         print('  - length == 10: ${value.length == 10}');
         print('  - !isPanVerified: ${!state.isPanVerified}');
       }
@@ -244,7 +285,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
   String? _validatePan(String value) {
     if (value.isEmpty) {
-      return 'PAN number is required';
+      return null; // PAN is optional, empty is valid
     }
     String cleanPan = value.replaceAll(RegExp(r'\s+'), '').toUpperCase();
     RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
@@ -268,9 +309,12 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
 
     if (state.pan.isEmpty) {
-      print('🔍 GPS PAN Verification Debug: PAN is empty, returning');
+      print('🔍 GPS PAN Verification Debug: PAN is empty, marking as verified (optional field)');
+      emit(state.copyWith(isPanVerified: true));
       return;
     }
+
+    // PAN verification doesn't require authentication
 
     print('🔍 GPS PAN Verification Debug: PAN to verify: "${state.pan}"');
     _setPanVerificationUIState(UIState.loading());
@@ -291,6 +335,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       if (result is Success<GpsPanVerificationResponse>) {
         final response = result.value;
         print('🔍 GPS PAN Verification Debug: Success response: $response');
+        print('🔍 GPS PAN Verification Debug: Response JSON: ${response.toJson()}');
         print('🔍 GPS PAN Verification Debug: Setting isPanVerified to ${response.isVerified}');
         emit(state.copyWith(isPanVerified: response.isVerified));
         _setPanVerificationUIState(UIState.success(response));
@@ -302,6 +347,81 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       print('💥 GPS PAN Verification exception: $e');
       if (!_isClosed) {
         _setPanVerificationUIState(UIState.error(GenericError()));
+      }
+    }
+  }
+
+  // ==================== Document Upload Logic ====================
+
+  void updateGpsDocuments(List<Map<String, dynamic>> documents) {
+    if (!_isClosed) {
+      emit(state.copyWith(gpsDocuments: documents));
+    }
+  }
+
+  void _setUploadKycUIState(UIState<GpsDocumentUploadResponse> uiState) {
+    if (!_isClosed) {
+      emit(state.copyWith(uploadKycState: uiState));
+    }
+  }
+
+  Future<void> uploadKycDocumentsMultipart() async {
+    print('🔍 GPS uploadKycDocumentsMultipart called, cubit closed: $_isClosed');
+    if (_isClosed) {
+      print('🔍 GPS Cubit is closed, returning early');
+      return;
+    }
+
+
+    // Validate required fields
+    if (state.aadhaar.isEmpty) {
+      print('🔍 GPS Aadhaar is empty, returning early');
+      return;
+    }
+
+    if (!state.isAadhaarVerified) {
+      print('🔍 GPS Aadhaar is not verified, returning early');
+      return;
+    }
+
+    print('🔍 GPS Setting upload KYC UI state to loading...');
+    _setUploadKycUIState(UIState.loading());
+
+    try {
+      // Get the first document file if available
+      File? panImageFile;
+      if (state.gpsDocuments != null && state.gpsDocuments!.isNotEmpty) {
+        final document = state.gpsDocuments!.first;
+        if (document['file'] != null && document['file'] is File) {
+          panImageFile = document['file'] as File;
+        }
+      }
+
+      final request = GpsDocumentUploadMultipartApiRequest(
+        aadhar: state.aadhaar,
+        pan: state.pan.isNotEmpty ? state.pan : null,
+        panImage: panImageFile,
+      );
+
+      final result = await _repository.uploadGpsDocumentsMultipart(request);
+
+      if (_isClosed) {
+        print('🔍 GPS Cubit is closed after API call, returning early');
+        return;
+      }
+
+      if (result is Success<GpsDocumentUploadResponse>) {
+        final response = result.value;
+        print('🔍 GPS KYC documents uploaded successfully');
+        _setUploadKycUIState(UIState.success(response));
+      } else if (result is Error) {
+        print('❌ GPS KYC documents upload failed: ${(result as Error).type}');
+        _setUploadKycUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      print('💥 GPS KYC documents upload exception: $e');
+      if (!_isClosed) {
+        _setUploadKycUIState(UIState.error(GenericError()));
       }
     }
   }
