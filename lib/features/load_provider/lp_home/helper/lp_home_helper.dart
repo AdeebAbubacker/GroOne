@@ -182,7 +182,30 @@ static Color getLoadStatusTextColor(String loadType) {
    return "$cleanedAddress, $cleanedLocation";
  }
 
+ static LoadStatus? getLoadStatusFromString(String? loadType) {
+   switch (loadType) {
+     case 'KYC Pending':
+       return LoadStatus.kycPending;
+     case 'Matching':
+       return LoadStatus.matching;
+     case 'Confirmed':
+       return LoadStatus.confirmed;
+     case 'Assigned':
+       return LoadStatus.assigned;
+     default:
+       return null;
+   }
+ }
 
 
 
+
+
+}
+
+enum LoadStatus {
+  kycPending,
+  matching,
+  confirmed,
+  assigned
 }
