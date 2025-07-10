@@ -316,5 +316,11 @@
   "productPhoto": "Product Photo",
   "description": "Description",
   "tvCrackedScreenNote": "One TV has a cracked screen",
-  "damagesRecorded": "Damages Recorded"
+  "damagesRecorded": "Damages Recorded",
+  "settlements" : "Settlements",
+  "detentions": "Detentions",
+  "amount": "Amount",
+  "loadingCharges": "Loading charges",
+  "unloadingCharges": "Unloading charges",
+  "noOfDays": "No. of Days"
  }
