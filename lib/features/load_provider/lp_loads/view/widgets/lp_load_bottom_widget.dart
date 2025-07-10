@@ -442,9 +442,7 @@ Widget _buildAdvancePaymentCard({
                       fontSize: 12,
                       color: AppColors.greenColor, 
                      fontWeight: FontWeight.w500,
-)
-
-                    ),
+)),
                   ),
               ],
             ),
