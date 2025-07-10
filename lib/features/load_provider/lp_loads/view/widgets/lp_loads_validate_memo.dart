@@ -5,6 +5,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -38,7 +39,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   }
 
   void initFunction() => frameCallback(() {
-    lpLoadLocator.getLpLoadsMemoDetails(loadId: int.parse(widget.loadId));
+    lpLoadLocator.getLpLoadsMemoDetails(loadId: widget.loadId);
   });
 
 
@@ -55,7 +56,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: Text('MEMO Generated'),
+        title: Text(context.appText.memoGenerated),
         titleTextStyle: AppTextStyle.h4,
         centerTitle: true,
       ),
@@ -70,14 +71,14 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
             }
 
             if (uiState.status == Status.ERROR) {
-              return const Center(
-                child: Text("Failed to load memo details.", style: TextStyle(fontSize: 16)),
+              return Center(
+                child: Text(context.appText.failedToLoadMemo, style: TextStyle(fontSize: 16)),
               );
             }
 
             if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
-              return const Center(
-                child: Text("No Memo Found.", style: TextStyle(fontSize: 16)),
+              return Center(
+                child: Text(context.appText.noMemoFound, style: TextStyle(fontSize: 16)),
               );
             }
 
@@ -95,14 +96,16 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                   buildNotesWidget(),
                   10.height,
                   AppButton(
-                    title: "E-Sign Memo",
+                    title: context.appText.eSignMemo,
                     onPressed: () async {
-                      await lpLoadLocator.sendOtp(loadId: memoDetails.id.toString());
+                      await lpLoadLocator.sendOtp(loadId: widget.loadId);
                       final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
                       if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.data?.message ?? "OTP sent";
+                        final message = otpState?.data?.message ?? "OTP sent";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
+                          AppDialog.show(context, child: MemoOtpDialogWidget(
+                              parentContext: context, loadId: widget.loadId));
                         }
                         setState(() {});
                       } else if (otpState?.status == Status.ERROR) {
@@ -110,10 +113,6 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                         ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()),
                         );
                       }
-                    if (context.mounted) {
-                      AppDialog.show(context, child: MemoOtpDialogWidget(
-                          parentContext: context, loadId: memoDetails.id.toString()));
-                    }
                     },
                   ),
                   40.height,
@@ -127,7 +126,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   }
 
   /// Main Details
-  Widget buildMainDetailWidget(LoadMemoData memoDetails) {
+  Widget buildMainDetailWidget(LpLoadMemoResponse memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -138,20 +137,21 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           buildHeadingText('Main Details'),
           buildDMemoDetailWidget(label: "Load ID", value: memoDetails.loadId),
           buildDMemoDetailWidget(label: "Transporter", value: memoDetails.transporter),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.trip?.vehicle?.vehicleNumber ?? ''),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.vehicleNumber ?? ''),
           buildDMemoDetailWidget(label: "MEMO#", value: memoDetails.memoNumber),
           buildDMemoDetailWidget(label: "Lane", value: memoDetails.lane),
           buildDMemoDetailWidget(label: "Total Freight", value: PriceHelper.formatINR(memoDetails.totalFreight, symbol: 'Rs ')),
           buildDMemoDetailWidget(label: "Handling Charges", value:' (-)   ${PriceHelper.formatINR(memoDetails.handlingCharges, symbol: 'Rs ')}'),
           buildDMemoDetailWidget(label: "Net Freight", value: PriceHelper.formatINR(memoDetails.netFreight, symbol: 'Rs ')),
           buildDMemoDetailWidget(label: "Advance (${memoDetails.advancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.advanceAmount, symbol: 'Rs ')),
-          buildDMemoDetailWidget(label: "Balance (${memoDetails.balancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.balanceAmount, symbol: 'Rs ')),],
+          buildDMemoDetailWidget(label: "Balance (${memoDetails.balancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.balanceAmount, symbol: 'Rs ')),
+        ],
       ),
     );
   }
 
   /// Bank Details
-  Widget buildBankDetailsWidget(LoadMemoData memoDetails) {
+  Widget buildBankDetailsWidget(LpLoadMemoResponse memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -171,7 +171,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
   }
 
   /// Truck Supplier Details
-  Widget buildTruckSupplierWidget(LoadMemoData memoDetails) {
+  Widget buildTruckSupplierWidget(LpLoadMemoResponse memoDetails) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -182,7 +182,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           buildHeadingText("Truck Supplier"),
           buildDMemoDetailWidget(label: "Partner Name", value: memoDetails.truckSupplier?.partnerName ?? ''),
           buildDMemoDetailWidget(label: "PAN Number", value: memoDetails.truckSupplier?.panNumber ?? ''),
-          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.trip?.vehicle?.vehicleNumber ?? ''),
+          buildDMemoDetailWidget(label: "Vehicle Number", value: memoDetails.truckSupplier?.vehicleNumber ?? ''),
         ],
       ),
     );

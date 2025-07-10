@@ -68,7 +68,7 @@ class LpHomeRepository{
   Future<Result<CreateLoadModel>> getCreateLoadData(CreateLoadApiRequest request) async {
     try {
       String? userId = await _userInformationRepository.getUserID();
-      return await _lpHomeService.fetchCreateLoadData(request.copyWith(customerId: int.parse(userId ?? "0")));
+      return await _lpHomeService.fetchCreateLoadData(request.copyWith(customerId: userId));
     } catch (e) {
       CustomLog.error(this, "Failed to request create load data", e);
       return Error(ErrorWithMessage(message: e.toString()));
