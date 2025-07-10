@@ -322,5 +322,11 @@
   "amount": "Amount",
   "loadingCharges": "Loading charges",
   "unloadingCharges": "Unloading charges",
-  "noOfDays": "No. of Days"
+  "noOfDays": "No. of Days",
+  "podDispatch" : "POD Dispatch",
+  "courierCompany": "Courier company",
+  "awbNumber": "AWB Number",
+  "or": "OR",
+  "podCenter": "POD Center",
+  "settlements" : "Settlements"
  }
