@@ -112,8 +112,8 @@ class AppColors {
   static const Color lightGrey300 = Color(0xFFE0E0E0); 
   static const Color lightGrey200 = Color(0xFFEEEEEE); 
   static const Color extraLightBackgroundColor = Color(0xFFF8F9FB);
-
-
+  static const Color lightGreenBox = Color(0xFFA7F0BA);
+  static const Color bottomSheetDividerColor = Color(0xFFE1E1E1);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +16,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -22,6 +24,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -30,6 +33,10 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/validator.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
@@ -385,4 +392,512 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
   }
+}
+
+
+
+//Payment View only
+Widget _buildLoadProviderAdvancePaymentCardViewOnly({
+  required BuildContext context,
+  String? tripPrice,
+  String? agreedPrice,
+  required String agreedAdvance,
+  String? advancePayment,
+  String? balancePayment,
+  required int paymentStatus,
+  VoidCallback? onViewTap,
+}) {
+  return Container(
+    margin: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF7F9FC),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+         if (paymentStatus == 1 && tripPrice != null)
+          _buildPriceRow(
+            context.appText.tripPrice,
+            tripPrice,
+            context,
+            highlight: true,
+          ),
+          
+        if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
+          _buildPriceRow(
+            context.appText.agreedPrice,
+            agreedPrice ?? '',
+            context,
+            highlight: true,
+          ),
+        8.height,
+        _buildPriceRow(
+          context.appText.agreedAdvance,
+          agreedAdvance,
+          context,
+          highlight: true,
+        ),
+        12.height,
+
+        if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
+          _buildStatusRow(
+            title: '${context.appText.advancePayment} (80%)',
+            amount: advancePayment ?? "",
+            statusText: context.appText.received,
+            statusColor: AppColors.lightGreenBox, 
+          ),
+
+        if (paymentStatus == 3)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _buildStatusRow(
+              title: context.appText.balancePayment,
+              amount: balancePayment ?? "",
+              statusText: context.appText.received,
+              statusColor: AppColors.lightGreenBox, 
+            ),
+          ),
+
+        12.height,
+        if(paymentStatus != 4 )
+        Align(
+          alignment: Alignment.center,
+          child: GestureDetector(
+            onTap: onViewTap,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.appText.view,
+                  style: AppTextStyle.body.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 25,
+                  color: AppColors.black,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+// Prcie Row
+Widget _buildPriceRow(
+  String label,
+  String amount,
+  BuildContext context, {
+  bool highlight = false,
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w400,
+          color: AppColors.textBlackColor,
+        ),
+      ),
+      Flexible(
+        child: Text(
+          amount,
+          style: AppTextStyle.body1GreyColor.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color:
+                highlight
+                    ? AppColors.primaryColor
+                    : AppColors.textGreyDetailColor,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+// Status Details
+Widget _buildStatusRow({
+  required String title,
+  required String amount,
+  required String statusText,
+  required Color statusColor,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: AppTextStyle.body.copyWith(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: AppColors.darkDividerColor,
+        ),
+      ),
+      6.height,
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            amount,
+            style: AppTextStyle.body.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textBlackColor,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: statusColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              statusText,
+              style: AppTextStyle.textBlackColor12w400.copyWith(
+                color: AppColors.textGreen,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+
+// Consignee Details
+Widget _buildConsigneeDetail({
+  required BuildContext context,
+   String? name,
+   String? phoneNo,
+   String? email,
+  bool isTextField = false,
+  bool isUpdatable = false,
+  TextEditingController? nameController,
+  TextEditingController? phoneController,
+  TextEditingController? emailController,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
+          Spacer(),
+          if (isUpdatable)
+           AppButton(
+           title: context.appText.update,
+           style: AppButtonStyle.outlineShrink,
+           textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+           onPressed: () {},
+          ),
+        ],
+      ),
+      if (isTextField)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            20.height,
+            // Name
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: nameController,
+              labelText: context.appText.name,
+              mandatoryStar: true,
+            ),
+            20.height,
+            // Contact Number
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: phoneController,
+              labelText: context.appText.contactNumber,
+              mandatoryStar: true,
+            ),
+            20.height,
+            AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: emailController,
+              labelText: context.appText.emailId,
+              mandatoryStar: false,
+            ),
+          ],
+        )
+      else
+        Column(
+          children: [
+            20.height,
+            // Contact Name
+            _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
+
+            20.height,
+
+            // Contact Number
+            _buildDetailWidget(text1: context.appText.contactNo, text2: phoneNo ?? ""),
+            20.height,
+
+            // Email Id
+            _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
+          ],
+        ),
+    ],
+  );
+}
+
+
+// Detail Widget
+Widget _buildDetailWidget({required String text1, required String text2}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        text1,
+        style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
+      ),
+      Text(
+        text2,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w500,
+          color: AppColors.primaryColor,
+        ),
+      ),
+    ],
+  );
+}
+
+
+
+
+// Doc Preview
+Widget _buildUploadedDocPreviewItem({
+  required String fileTitle,
+  required String dateTime,
+  required bool isFileAvailable,
+  required bool isDownloadable,
+  required String fileUrl,
+  required BuildContext context,
+}) {
+  Future<void> downloadAndOpenFile(String url) async {
+    try {
+      final fileName = path.basename(url);
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = path.join(directory.path, fileName);
+
+      final dio = Dio();
+      await dio.download(url, filePath);
+
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      debugPrint("Error downloading/opening file: $e");
+    }
+  }
+
+  return Container(
+    height: 55,
+    width: double.infinity,
+    margin:  EdgeInsets.symmetric(vertical: 5),
+    padding:  EdgeInsets.symmetric(horizontal: 12),
+    decoration: BoxDecoration(
+      color: AppColors.docViewCardBgColor,
+      borderRadius: BorderRadius.circular(commonTexFieldRadius),
+    ),
+    child: Row(
+      children: [
+        SvgPicture.asset(
+          AppIcons.svg.documentView,
+          width: 22,
+          height: 22,
+          colorFilter: AppColors.svg(
+            isFileAvailable ? AppColors.primaryColor : AppColors.iconRed,
+          ),
+        ),
+        10.width,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              isFileAvailable ? fileTitle : context.appText.fileNotFound,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+                color:
+                    isFileAvailable
+                        ? AppColors.textBlackColor
+                        : AppColors.iconRed,
+              ),
+            ),
+            4.height,
+            Text(
+              dateTime,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 10,
+                color: AppColors.textGreyColor,
+              ),
+            ),
+          ],
+        ).expand(),
+
+        if (isFileAvailable && isDownloadable)
+          IconButton(
+            icon: Icon(
+              Icons.download_rounded,
+              size: 20,
+              color: AppColors.primaryColor,
+            ),
+            onPressed: () => downloadAndOpenFile(fileUrl),
+          ),
+      ],
+    ),
+  );
+}
+
+// Travel Progress Details
+Widget _buildProgressEtaWidget({
+  required BuildContext context,
+  required double progressPercentage,
+  required String remainingDistance,
+  required String totalDistance,
+  required String eta,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Radial Progress
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(
+              value: progressPercentage / 100,
+              strokeWidth: 4,
+              backgroundColor: Colors.grey.shade200,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            ),
+          ),
+          Text(
+            "${progressPercentage.toInt()}%",
+            style: AppTextStyle.radialProgressText,
+          ),
+        ],
+      ),
+
+      const SizedBox(width: 12),
+
+      // Main content with distance/ETA
+      Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Remaining Distance
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.remainingDistance,
+                    style: AppTextStyle.body3SoftGrey,
+                  ),
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: remainingDistance,
+                          style: AppTextStyle.body2.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' / $totalDistance',
+                          style: AppTextStyle.textDarkGreyColor14w400.copyWith(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Vertical Divider
+            Container(
+              width: 1,
+              height: 35,
+              color: Colors.grey.shade300,
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+
+            // ETA
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.estArrivalTime,
+                    style: AppTextStyle.body3SoftGrey,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(eta, style: AppTextStyle.body3),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+
+// Divider
+Widget _buildDivider() {
+  return Divider(color: AppColors.bottomSheetDividerColor, thickness: 3);
+}
+
+
+// Addable Section Header
+Widget _buildAdableSectionHeader({
+  required BuildContext context,
+  required String title,
+  required VoidCallback onAdd,
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      _buildHeading(text: title),
+      Spacer(),
+      GestureDetector(
+        onTap: onAdd,
+        child: Text(
+          '+ ${context.appText.add}',
+          style: AppTextStyle.body2.copyWith(
+            fontWeight: FontWeight.w500,
+            color: AppColors.primaryColor,
+          ),
+        ),
+      ),
+      10.width,
+    ],
+  );
+}
+// Heading
+Widget _buildHeading({required String text}) {
+  return Text(text, style: AppTextStyle.h4).paddingSymmetric(horizontal: 15);
 }
