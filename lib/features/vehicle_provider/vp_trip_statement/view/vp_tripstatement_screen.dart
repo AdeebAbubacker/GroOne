@@ -34,12 +34,6 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(title: context.appText.tripStatement),
-
-      // appBar: AppBar(
-      //   title: Text(context.appText.tripStatement),
-      //   titleTextStyle: AppTextStyle.h4,
-      //   centerTitle: true,
-      // ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
         child: SingleChildScrollView(
@@ -51,9 +45,8 @@ class _VpTripstatementScreenState extends State<VpTripstatementScreen> {
               buildTruckSupplierWidget(),
               10.height,
               AppButton(
-                title: context.appText.payBalance,
+                title: context.appText.downloadInvoice,
                 onPressed: () {
-                  showPaymentInfoPopup(context);
                 },
               ),
               40.height,
@@ -280,167 +273,6 @@ void showUnloadingHeldPopup(BuildContext context) {
           ).paddingSymmetric(horizontal: 10),
         ],
       ),
-    ),
-  );
-}
-
-void showPaymentInfoPopup(BuildContext context) {
-  AppDialog.show(
-    context,
-    child: CommonDialogView(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      hideCloseButton: true,
-      showYesNoButtonButtons: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Payment Information",
-            style: AppTextStyle.h5w500,
-          ).paddingBottom(12),
-
-          // Trip Cost Box
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.backGroundBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Text("Trip Cost", style: AppTextStyle.body),
-                const Spacer(),
-                Text(
-                  "₹ 73,000",
-                  style: AppTextStyle.body.copyWith(
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ).paddingBottom(12),
-
-          // Advance payment (80%) header
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "Advance payment (80%)",
-                  style: AppTextStyle.body,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.boxGreen,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  "Completed",
-                  style: AppTextStyle.body4.copyWith(
-                    color: AppColors.textGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
-            ],
-          ).paddingBottom(8),
-
-          // ₹14000
-          Text(
-            "₹14,000",
-            style: AppTextStyle.h3.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ).paddingBottom(12),
-
-          // Breakdown rows
-          _buildPaymentRow("Advance Received (80%)", "₹14,000"),
-          _buildPaymentRow("Transaction ID", "467896765432"),
-          _buildPaymentRow("Payment mode", "NEFT"),
-          _buildPaymentRow("Received on", "12 June 2025, 7:51 AM"),
-
-          const SizedBox(height: 12),
-
-          // Balance payout
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Balance payout",
-                style: AppTextStyle.body,
-              ),
-              Row(
-                children: [
-                  Text(
-                    "₹3,200",
-                    style: AppTextStyle.body.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.appRedColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      "Pending",
-                      style: AppTextStyle.body4.copyWith(
-                        color: AppColors.textRed,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ).paddingBottom(20),
-
-          // Proceed button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                "Proceed",
-                style: AppTextStyle.buttonWhiteTextColor,
-              ),
-            ),
-          )
-        ],
-      ),
-    ),
-  );
-}
-
-// Helper for payment row
-Widget _buildPaymentRow(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4.0),
-    child: Row(
-      children: [
-        Icon(Icons.circle, size: 8, color: AppColors.greyIconColor),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
-          ),
-        ),
-        Text(
-          value,
-          style: AppTextStyle.body4.copyWith(fontWeight: FontWeight.w500),
-        ),
-      ],
     ),
   );
 }

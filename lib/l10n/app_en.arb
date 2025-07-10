@@ -358,6 +358,7 @@
   "withHeld": "With Held",
   "newData" : "New Data",
   "unloadingHeld" : "Unloading Held",
-  "unloadingHeldNotice"  : "Your Shipment is held from unloading due to non payment of advance"
+  "unloadingHeldNotice"  : "Your Shipment is held from unloading due to non payment of advance",
+  "downloadInvoice" : "Download Invoice"
   
  }
