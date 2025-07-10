@@ -33,9 +33,10 @@ class LpMyAccount extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 20,
             children: [
-              headingText(text: context.appText.personalDetails),
+              0.height,
 
               if (customerDetail != null)...[
+                headingText(text: context.appText.personalDetails),
                 buildDetailWidget(
                   text1: context.appText.name,
                   text2: checkUserDetails(customerDetail?.customerName),
@@ -52,8 +53,8 @@ class LpMyAccount extends StatelessWidget {
                 ),
                 dividerWidget(),
 
+                // Account Detail
                 headingText(text: context.appText.accountDetails),
-
                 buildDetailWidget(
                     text1: context.appText.blueMembershipId,
                     text2: checkUserDetails(customerDetail?.blueId)
@@ -76,14 +77,13 @@ class LpMyAccount extends StatelessWidget {
                 ),
 
                 dividerWidget(),
-              ] else...[],
+              ],
 
 
 
               // Bank Details
-              headingText(text: 'Bank Details'),
-
               if(bankDetails == null)...[
+                headingText(text: 'Bank Details'),
                 buildDetailWidget(
                   text1: 'Account no.',
                   text2: checkUserDetails(bankDetails?.bankAccount),
