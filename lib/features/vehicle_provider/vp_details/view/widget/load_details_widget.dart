@@ -158,7 +158,7 @@ class LoadDetailsWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if(loadStatus==LoadStatus.assigned)
-                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle)
+                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle,loadDetails?.truckType)
               else
               Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
                   fontWeight: FontWeight.w400,
@@ -189,7 +189,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   /// assigned truck details
-  Widget _buildAssignedTruckDetails(Vehicle? vehicle){
+  Widget _buildAssignedTruckDetails(Vehicle? vehicle,TruckType? truckType){
     return Row(
       children: [
         Container(
@@ -200,11 +200,11 @@ class LoadDetailsWidget extends StatelessWidget {
           child: Text(vehicle?.vehicleNumber??"").paddingSymmetric(vertical: 2,horizontal: 5),
         ),
         5.width,
-        Text(vehicle?.truckType?.type??"",style: AppTextStyle.body3.copyWith(
+        Text(truckType?.type??"",style: AppTextStyle.body3.copyWith(
           color: AppColors.thinLightGray
         ),),
         5.width,
-        Text("(${vehicle?.truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
+        Text("(${truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
             color: AppColors.thinLightGray
         ),)
       ],

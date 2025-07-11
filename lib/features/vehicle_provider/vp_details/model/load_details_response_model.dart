@@ -186,8 +186,9 @@ class LoadDetails {
   }
 
   factory LoadDetails.fromJson(Map<String, dynamic> json){
+
     return LoadDetails(
-      trip:json['trip']!=null ? Trip.fromJson(json['trip']):null,
+      trip:json['scheduleTripDetails']!=null ? Trip.fromJson(json['scheduleTripDetails']):null,
       loadId: json["loadId"],
       loadSeriesID: json["loadSeriesId"],
       laneId: json["laneId"],
@@ -380,6 +381,8 @@ class Trip {
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
+
+    print("json is ${json['driver']}");
     return Trip(
       driver: Driver.fromJson(json['driver']),
       vehicle: Vehicle.fromJson(json['vehicle']),
@@ -421,8 +424,8 @@ class Vehicle {
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
       id: json['id'],
-      vehicleNumber: json['vehicleNumber'],
-      truckType: TruckType.fromJson(json['truckType']),
+      vehicleNumber: json['truckNo'],
+      truckType: TruckType.fromJson(json),
     );
   }
 }
