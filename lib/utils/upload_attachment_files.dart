@@ -27,6 +27,7 @@ class UploadAttachmentFiles extends StatefulWidget {
   final bool? hideDeleteButton;
   final String? title;
   final Function? thenUploadFileToSever;
+  final void Function(int)? onDelete;
   const UploadAttachmentFiles({super.key,
     required this.multiFilesList,
     this.isSingleFile = false,
@@ -34,6 +35,7 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.title, this.thenUploadFileToSever,
     this.isLoading = false,
     this.hideDeleteButton = false,
+    this.onDelete,
   });
 
   @override
@@ -165,23 +167,18 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                               builder: (context){
                                 final isLastIndex = index == widget.multiFilesList.length - 1;
 
-                                if(!widget.isLoading!){
+                                if(widget.isLoading!){
+                                  if(isLastIndex) {
+                                    return CupertinoActivityIndicator().paddingRight(10);
+                                  } else{
+                                    return _buildRemoveDocumentWidget(index);
+                                  }
+                                } else {
                                   if(widget.hideDeleteButton!) {
                                     return const SizedBox();
                                   } else {
-                                    return AppIconButton(
-                                      onPressed: (){
-                                        widget.multiFilesList.removeAt(index);
-                                        commonHapticFeedback();
-                                        commonHideKeyboard(context);
-                                        setState(() {});
-                                      },
-                                      icon: AppIcons.svg.delete,
-                                      iconColor: AppColors.activeRedColor,
-                                    );
+                                    return _buildRemoveDocumentWidget(index);
                                   }
-                                } else {
-                                  return CupertinoActivityIndicator().paddingRight(10);
                                 }
                               },
                             ),
@@ -260,4 +257,21 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
       }
     });
   }
+
+  Widget _buildRemoveDocumentWidget(int index){
+    return AppIconButton(
+      onPressed: (){
+        widget.multiFilesList.removeAt(index);
+        commonHapticFeedback();
+        commonHideKeyboard(context);
+        if(widget.onDelete != null){
+          widget.onDelete?.call(index);
+        }
+        setState(() {});
+      },
+      icon: AppIcons.svg.delete,
+      iconColor: AppColors.activeRedColor,
+    );
+  }
+
 }
