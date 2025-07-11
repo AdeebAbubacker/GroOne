@@ -141,25 +141,22 @@ class LoadDetailsWidget extends StatelessWidget {
                           advancePayment: "300",
                           agreedPrice: "600",
                           balancePayment: "500",
-                          onViewTap: () {
-
-                          },
+                          onViewTap: () {},
                           tripPrice: "1000"
                         ),
+
                         _buildConsigneeDetail(
                           context: context,
-                          name: 'dd',
-                          email: 'd',
-                          phoneNo: '6587443',
+                          name: loadDetails?.consignee?.name,
+                          email: loadDetails?.consignee?.email,
+                          phoneNo: loadDetails?.consignee?.email,
                           isUpdatable: false,
                           isTextField: false,
                         ),
 
-
                         20.height,
                         Text("Trip Documents", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
                         20.height,
-
                         _buildUploadedDocPreviewItem(
                           context: context,
                           isDownloadable: true,
@@ -168,6 +165,7 @@ class LoadDetailsWidget extends StatelessWidget {
                           dateTime: '07-12-2024 | 02:52 pm',
                           isFileAvailable: true,
                         ),
+                        20.height,
                         _buildAdableSectionHeader(context: context, title: 'Damages and Shortages', onAdd: () {
                           Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen()));
                         }),

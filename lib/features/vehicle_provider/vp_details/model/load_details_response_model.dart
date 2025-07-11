@@ -71,6 +71,7 @@ class LoadDetails {
     required this.customer,
     required this.timeline,
     required this.trip,
+    required this.consignee,
   });
 
   final String? loadId;
@@ -108,6 +109,7 @@ class LoadDetails {
   final CustomerDetails? customer;
   final List<Timeline> timeline;
   final Trip? trip;
+  final Consignee? consignee;
 
   LoadDetails copyWith({
     String? id,
@@ -145,9 +147,11 @@ class LoadDetails {
     TruckType? truckType,
     CustomerDetails? customer,
     List<Timeline>? timeline,
+    Consignee? consignee
   }) {
     return LoadDetails(
-     trip: trip ?? this.trip,
+      consignee: consignee ?? this.consignee,
+      trip: trip ?? this.trip,
       loadId: id ?? this.loadId,
       loadSeriesID: loadId ?? this.loadSeriesID,
       laneId: laneId ?? this.laneId,
@@ -182,12 +186,14 @@ class LoadDetails {
       truckType: truckType ?? this.truckType,
       customer: customer ?? this.customer,
       timeline: timeline ?? this.timeline,
+
     );
   }
 
   factory LoadDetails.fromJson(Map<String, dynamic> json){
 
     return LoadDetails(
+      consignee: json['consignee']!=null ? Consignee.fromJson(json['consignee']):null,
       trip:json['scheduleTripDetails']!=null ? Trip.fromJson(json['scheduleTripDetails']):null,
       loadId: json["loadId"],
       loadSeriesID: json["loadSeriesId"],
@@ -428,6 +434,32 @@ class Vehicle {
     );
   }
 }
+
+class Consignee {
+  final int id;
+  final String name;
+  final String email;
+  final String mobileNumber;
+
+  Consignee({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.mobileNumber,
+  });
+
+  factory Consignee.fromJson(Map<String, dynamic> json) {
+    return Consignee(
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
+      mobileNumber: json['mobileNumber'],
+    );
+  }
+
+
+}
+
 
 
 
