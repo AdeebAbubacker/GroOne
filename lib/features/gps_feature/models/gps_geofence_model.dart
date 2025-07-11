@@ -103,7 +103,7 @@ class GpsGeofenceModel {
   /// Factory constructor for new circle geofence
   factory GpsGeofenceModel.newCircle() {
     return GpsGeofenceModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: '-1',
       name: 'New Circle Geofence',
       area: '',
       shapeType: 'circle',
@@ -115,7 +115,7 @@ class GpsGeofenceModel {
   /// Factory constructor for new polygon geofence
   factory GpsGeofenceModel.newPolygon() {
     return GpsGeofenceModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: '-1',
       name: 'New Polygon Geofence',
       area: '',
       shapeType: 'polygon',
@@ -126,7 +126,7 @@ class GpsGeofenceModel {
   /// Factory constructor for new polyline geofence
   factory GpsGeofenceModel.newPolyline() {
     return GpsGeofenceModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: '-1',
       name: 'New Polyline Geofence',
       area: '',
       shapeType: 'polyline',

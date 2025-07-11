@@ -5,404 +5,19 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../helpers/map_helper.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_text_field.dart';
+import '../../../utils/extra_utils.dart';
+import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import '../cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
+import '../cubit/gps_geofence_map_cubit/gps_geofence_map_state.dart';
 import '../models/gps_geofence_model.dart';
-
-
-// class GeofenceMapViewScreen extends StatefulWidget {
-//   final GpsGeofenceModel geofence;
-//   final bool isEditMode; // <-- NEW
-//
-//   const GeofenceMapViewScreen({
-//     super.key,
-//     required this.geofence,
-//     required this.isEditMode,
-//   });
-//
-//   @override
-//   State<GeofenceMapViewScreen> createState() => _GeofenceMapViewScreenState();
-// }
-//
-//
-// class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
-//   GoogleMapController? _mapController;
-//   LatLng? _center;
-//   double? _radius;
-//   Set<Circle> _circles = {};
-//   Set<Polygon> _polygons = {};
-//   Set<Marker> _markers = {};
-//   Set<Polyline> _polylines = {};
-//
-//   final TextEditingController _geofenceNameController = TextEditingController();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     _geofenceNameController.text = widget.geofence.name;
-//
-//     if (widget.isEditMode) {
-//       if (widget.geofence.shapeType == "circle") {
-//             _center = widget.geofence.center ?? const LatLng(28.6139, 77.2090); // fallback to Delhi
-//             _radius = widget.geofence.radius ?? 500; // fallback radius
-//
-//             _setCircle(_center!, _radius!);
-//             _setMarker(_center!); // ✅ marker for circle
-//           } else if (widget.geofence.shapeType == "polygon") {
-//             final polygonPoints = widget.geofence.polygonPoints ?? [];
-//             if (polygonPoints.isNotEmpty) {
-//               _center = _getPolygonCenter(polygonPoints); // ✅ calculate polygon center
-//               _setPolygon(polygonPoints);
-//               _setMarker(_center!); // ✅ add marker at center
-//             }
-//           }else if (widget.geofence.shapeType == "polyline") {
-//             final polylinePoints = widget.geofence.polygonPoints ?? [];
-//             if (polylinePoints.isNotEmpty) {
-//               _center = _getPolylineCenter(polylinePoints); // calculate polyline center
-//               _setPolyline(polylinePoints);
-//               _setMarker(_center!); // place marker at center
-//             }
-//           }
-//     }
-//
-//
-//   }
-//
-//   void _setCircle(LatLng center, double radius) {
-//     setState(() {
-//       _circles = {
-//         Circle(
-//           circleId: const CircleId("geofence_circle"),
-//           center: center,
-//           radius: radius,
-//           fillColor: Colors.blue.withOpacity(0.2),
-//           strokeColor: Colors.blue,
-//           strokeWidth: 2,
-//         ),
-//       };
-//     });
-//   }
-//
-//   LatLng _getPolygonCenter(List<LatLng> points) {
-//     double lat = 0;
-//     double lng = 0;
-//
-//     for (var point in points) {
-//       lat += point.latitude;
-//       lng += point.longitude;
-//     }
-//
-//     return LatLng(lat / points.length, lng / points.length);
-//   }
-//
-//   void _setPolyline(List<LatLng> points) {
-//     setState(() {
-//       _polylines = {
-//         Polyline(
-//           polylineId: const PolylineId("geofence_polyline"),
-//           points: points,
-//           color: Colors.red,
-//           width: 3,
-//         ),
-//       };
-//     });
-//
-//     // Adjust camera to fit polyline
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       _moveCameraToPolyline(points);
-//     });
-//   }
-//
-//   LatLng _getPolylineCenter(List<LatLng> points) {
-//     double lat = 0;
-//     double lng = 0;
-//
-//     for (var point in points) {
-//       lat += point.latitude;
-//       lng += point.longitude;
-//     }
-//
-//     return LatLng(lat / points.length, lng / points.length);
-//   }
-//
-//   void _moveCameraToPolyline(List<LatLng> points) {
-//     final bounds = _getLatLngBounds(points);
-//     _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-//   }
-//
-//
-//
-//
-//
-//   void _setPolygon(List<LatLng> points) {
-//     if (points.length >= 3) {
-//       setState(() {
-//         _polygons = {
-//           Polygon(
-//             polygonId: const PolygonId("geofence_polygon"),
-//             points: points,
-//             fillColor: Colors.green.withOpacity(0.2),
-//             strokeColor: Colors.green,
-//             strokeWidth: 2,
-//           ),
-//         };
-//       });
-//
-//       // Adjust camera to fit the polygon
-//       WidgetsBinding.instance.addPostFrameCallback((_) {
-//         _moveCameraToPolygon(points);
-//       });
-//     }
-//   }
-//
-//   void _moveCameraToPolygon(List<LatLng> points) {
-//     final bounds = _getLatLngBounds(points);
-//     _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
-//   }
-//
-//   LatLngBounds _getLatLngBounds(List<LatLng> points) {
-//     double minLat = points.first.latitude;
-//     double maxLat = points.first.latitude;
-//     double minLng = points.first.longitude;
-//     double maxLng = points.first.longitude;
-//
-//     for (var point in points) {
-//       if (point.latitude < minLat) minLat = point.latitude;
-//       if (point.latitude > maxLat) maxLat = point.latitude;
-//       if (point.longitude < minLng) minLng = point.longitude;
-//       if (point.longitude > maxLng) maxLng = point.longitude;
-//     }
-//
-//     return LatLngBounds(
-//       southwest: LatLng(minLat, minLng),
-//       northeast: LatLng(maxLat, maxLng),
-//     );
-//   }
-//
-//
-//   void _setMarker(LatLng position) {
-//     setState(() {
-//       _markers = {
-//         Marker(
-//           markerId: const MarkerId("geofence_marker"),
-//           position: position,
-//         ),
-//       };
-//     });
-//   }
-//
-//   void _onMapCreated(GoogleMapController controller) {
-//     _mapController = controller;
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: Stack(
-//           children: [
-//             GoogleMap(
-//               onMapCreated: _onMapCreated,
-//               initialCameraPosition: CameraPosition(
-//                 target: _center ?? const LatLng(28.6139, 77.2090),
-//                 zoom: _center != null ? 12 : 5, // fallback to zoomed-out view
-//               ),
-//               markers: _markers,
-//               circles: _circles,
-//               polygons: _polygons,
-//               polylines: _polylines,
-//               myLocationEnabled: true,
-//               zoomControlsEnabled: false,
-//             ),
-//
-//             // AppBar with back & search
-//             Positioned(
-//               top: 40,
-//               left: 16,
-//               right: 16,
-//               child: Container(
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(8),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black12,
-//                       blurRadius: 5,
-//                       offset: Offset(0, 2),
-//                     ),
-//                   ],
-//                 ),
-//                 child: Row(
-//                   children: [
-//                     IconButton(
-//                       icon: const Icon(Icons.arrow_back),
-//                       onPressed: () => Navigator.pop(context),
-//                     ),
-//                     Expanded(
-//                       child: TextField(
-//                         decoration: const InputDecoration(
-//                           hintText: 'Search',
-//                           border: InputBorder.none,
-//                         ),
-//                       ),
-//                     ),
-//                     IconButton(
-//                       icon: const Icon(Icons.search),
-//                       onPressed: () {},
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//
-//             // Floating buttons
-//             Positioned(
-//               right: 16,
-//               top: 150,
-//               child: Column(
-//                 children: [
-//                   // _buildFloatingButton(Icons.circle_outlined, () {}),
-//                   // const SizedBox(height: 10),
-//                   // _buildFloatingButton(Icons.square_outlined, () {}),
-//                   // const SizedBox(height: 10),
-//                   // _buildFloatingButton(Icons.edit_outlined, () {}),
-//                   // const SizedBox(height: 10),
-//                   // _buildFloatingButton(Icons.close, () {}, color: Colors.blue),
-//                   _buildFloatingButton(Icons.circle_outlined, () {
-//                     if (!widget.isEditMode) {
-//                       // _startDrawingCircle();
-//                     }
-//                   }),
-//                   _buildFloatingButton(Icons.square_outlined, () {
-//                     if (!widget.isEditMode) {
-//                       // _startDrawingPolygon();
-//                     }
-//                   }),
-//                   _buildFloatingButton(Icons.edit_outlined, () {
-//                     if (widget.isEditMode) {
-//                       // _enableEditingShape();
-//                     }
-//                   }),
-//
-//                 ],
-//               ),
-//             ),
-//
-//             // Bottom Sheet
-//             Positioned(
-//               left: 0,
-//               right: 0,
-//               bottom: 0,
-//               child: Container(
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: const BorderRadius.vertical(
-//                     top: Radius.circular(20),
-//                   ),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black12,
-//                       blurRadius: 10,
-//                       offset: Offset(0, -2),
-//                     ),
-//                   ],
-//                 ),
-//                 padding: const EdgeInsets.all(16),
-//                 child: Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     if (_radius != null)
-//                       Row(
-//                         children: [
-//                           const Text('Geofence Radius:'),
-//                           const SizedBox(width: 8),
-//                           Text(
-//                             '${_radius!.toInt()} Mts',
-//                             style: const TextStyle(
-//                               color: Colors.blue,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                           ),
-//                         ],
-//                       )
-//                     else
-//                       const Text(
-//                         'Polygon Geofence',
-//                         style: TextStyle(
-//                           color: Colors.green,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     const SizedBox(height: 12),
-//
-//                     // Geofence Name Input
-//                     TextField(
-//                       controller: _geofenceNameController,
-//                       decoration: const InputDecoration(
-//                         labelText: 'Geofence name',
-//                         border: OutlineInputBorder(),
-//                       ),
-//                     ),
-//                     const SizedBox(height: 16),
-//
-//                     // Confirm Button
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         debugPrint(
-//                           'Geofence: ${_center?.latitude}, ${_center?.longitude}, '
-//                               'Radius: $_radius, Name: ${_geofenceNameController.text}',
-//                         );
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: Colors.blue,
-//                         foregroundColor: Colors.white,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(8),
-//                         ),
-//                         padding: const EdgeInsets.symmetric(vertical: 14),
-//                       ),
-//                       child: const Center(
-//                         child: Text(
-//                           'Confirm Location',
-//                           style: TextStyle(fontSize: 16),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildFloatingButton(
-//       IconData icon,
-//       VoidCallback onPressed, {
-//         Color color = Colors.white,
-//       }) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: color,
-//         shape: BoxShape.circle,
-//         boxShadow: const [
-//           BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-//         ],
-//       ),
-//       child: IconButton(
-//         icon: Icon(icon, color: Colors.black),
-//         onPressed: onPressed,
-//       ),
-//     );
-//   }
-// }
-
 
 class GeofenceMapViewScreen extends StatefulWidget {
   final GpsGeofenceModel? geofence; // Now nullable for new geofences
@@ -788,7 +403,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     // Call the onSave callback to pass data back to the parent
     // widget.onSave?.call(_activeGeofence!);
     context.read<GpsGeofenceCubit>().submitGeofence(_activeGeofence!);
-    Navigator.pop(context); // Go back after saving
+    // Navigator.pop(context); // Go back after saving
   }
 
   // Function to remove the last point for polygon/polyline drawing
@@ -805,6 +420,79 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       }
     });
   }
+
+  Widget buildLocationSearchField(BuildContext context) {
+    return AppTextField(
+      controller: searchController,
+      labelText: "Location",
+      hintText: "Search for a location",
+      decoration: commonInputDecoration(
+        suffixIcon: Icon(Icons.clear, size: 20),
+        suffixOnTap: () {
+          searchController.clear();
+          context.read<GpsGeofenceMapCubit>().resetAutoCompleteState();
+        },
+      ),
+      onChanged: (value) {
+        if (value.isNotEmpty && value.length > 2) {
+          context.read<GpsGeofenceMapCubit>().fetchAutoComplete(value);
+        } else {
+          context.read<GpsGeofenceMapCubit>().resetAutoCompleteState();
+        }
+      },
+    );
+  }
+
+  Widget buildSuggestionListWidget(BuildContext context) {
+    return BlocConsumer<GpsGeofenceMapCubit, GpsGeofenceMapState>(
+      listenWhen: (prev, curr) =>
+      prev is! GpsGeofenceMapError && curr is GpsGeofenceMapError,
+      listener: (context, state) {
+        if (state is GpsGeofenceMapError) {
+          ToastMessages.error(message: state.message);
+        }
+      },
+      builder: (context, state) {
+        if (state is GpsGeofenceMapAutoCompleteLoaded) {
+          final suggestions = state.autoCompleteData.data?.predictions;
+          if (suggestions!.isEmpty) return Container();
+          return ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 200),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) {
+                final item = suggestions[index];
+                return ListTile(
+                  title: Text(item.description ?? "Unknown"),
+                  onTap: () {
+                    // Call verify location API
+                    final request = VerifyLocationApiRequest(
+                      placeId: item.placeId ?? "",
+                      locationdetails: LocationDetails(
+                        id: 0,
+                        name: item.description ?? "",
+                        slug: item.description?.toLowerCase() ?? "",
+
+                      ),
+                      type: 1,
+                    );
+                    context.read<GpsGeofenceMapCubit>().verifyLocation(request);
+                  },
+                );
+              },
+            ),
+          );
+        }
+        if (state is GpsGeofenceMapLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Container();
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -826,7 +514,27 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     bool isPolylineShape = _activeGeofence?.shapeType == "polyline" && (_mode == GeofenceMode.addPolyline || _mode == GeofenceMode.editPolyline);
 
 
-    return Scaffold(
+    return BlocListener<GpsGeofenceCubit, GpsGeofenceState>(
+      listener: (context, state) {
+        if (state is GpsGeofenceLoaded) {
+          showSuccessDialog(
+            context,
+            text: widget.geofence == null
+                ? 'Geofence added successfully'
+                : 'Geofence updated successfully',
+            subheading: '',
+          );
+
+          Future.delayed(const Duration(seconds: 3), () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          });
+        } else if (state is GpsGeofenceError) {
+          // Show error dialog if needed
+          ToastMessages.error(message: state.message);
+        }
+      },
+  child: Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
@@ -872,11 +580,12 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                     const Expanded(
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: 'Search (Not implemented)',
+                          hintText: 'Search',
                           border: InputBorder.none,
                         ),
                       ),
                     ),
+                    // buildLocationSearchField(context).expand(),
                     AppIconButton(
                       icon: Icon(Icons.search),
                       onPressed: () {
@@ -1071,7 +780,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
           ],
         ),
       ),
-    );
+    ),
+);
   }
 
   Widget _buildFloatingButton(
