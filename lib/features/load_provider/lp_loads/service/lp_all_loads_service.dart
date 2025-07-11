@@ -45,8 +45,8 @@ class LpLoadService {
   }
 
 
-  Future<Result<LpLoadGetByIdResponse>> fetchLoadsById({
-    required int loadId,
+  Future<Result<LoadGetByIdResponse>> fetchLoadsById({
+    required String loadId,
     bool forceRefresh = false
   }) async {
 
@@ -59,7 +59,7 @@ class LpLoadService {
 
       if (response is Success) {
         final data = response.value;
-        final loads = LpLoadGetByIdResponse.fromJson(data);
+        final loads = LoadGetByIdResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -71,15 +71,15 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
+  Future<Result<LpLoadMemoResponse>> fetchMemoDetails({required String loadId, bool forceRefresh = false}) async {
 
     try {
       final url = ApiUrls.lpLoadMemo;
       final response = await _apiService.get('$url/$loadId/memo', forceRefresh: forceRefresh);
 
       if (response is Success) {
-        final data = response.value['data'];
-        final loads = LoadMemoData.fromJson(data);
+        final data = response.value;
+        final loads = LpLoadMemoResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -144,31 +144,13 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String customerId, required String otp, required String loadId}) async {
+  Future<Result<LpLoadMemoVerifyOtpResponse>> verifyOtp({required String customerId, required String otp, required String loadId}) async {
     try {
       final url = ApiUrls.lpLoadVerifyOtp;
       final response = await _apiService.post(url, body: {"otp":otp, "customerId":customerId, "loadId": loadId});
 
       if (response is Success) {
-        final loads = LpLoadMemoOtpResponse.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-  Future<Result<LpLoadMemoOtpResponse>> applyFilter({required int fromRoute, required int toRoute, required String truckType, required String loadPostedDate}) async {
-    try {
-      final url = ApiUrls.lpLoadList;
-      final response = await _apiService.get('$url?fromLocationId=$fromRoute&toLocationId=$toRoute&truckTypeId=$truckType&loadPostDate=$loadPostedDate');
-
-      if (response is Success) {
-        final loads = LpLoadMemoOtpResponse.fromJson(response.value);
+        final loads = LpLoadMemoVerifyOtpResponse.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

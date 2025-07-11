@@ -95,17 +95,32 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   Future<void> _handleCurrentLocation() async {
-    final pos = await MapHelper.getCurrentLocation();
-    if (pos != null) {
-      setState(() {
-        _centerLatLng = pos;
-        latLngData = "${pos.latitude},${pos.longitude}";
-      });
-      _setMarker(pos);
-      if (_mapController != null) {
-        await MapHelper.animateTo(_mapController!, pos);
+    try {
+      // Use cached last known location first if available
+      final cachedPos = await MapHelper.getLastKnownLocation();
+      if (cachedPos != null) {
+        _updateMapToLocation(cachedPos);
       }
+
+      // Fetch fresh GPS location in background
+      final currentPos = await MapHelper.getCurrentLocation();
+      if (currentPos != null) {
+        _updateMapToLocation(currentPos);
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error fetching current location", e);
     }
+  }
+
+// Helper method to update map camera and marker
+  void _updateMapToLocation(LatLng pos) {
+    _centerLatLng ??= pos;
+    latLngData = "${pos.latitude},${pos.longitude}";
+    _setMarker(pos);
+    if (_mapController != null) {
+      MapHelper.animateTo(_mapController!, pos);
+    }
+    setState(() {});
   }
 
 
@@ -175,7 +190,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             lpHomeCubit.setDestinationLocationDetailId(data.locationdetails!.id);
           }
           if(data.lane != null){
-            lpHomeCubit.setLaneId(data.lane?.id);
+            lpHomeCubit.setLaneId(data.lane?.masterLaneId);
             CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
           }
           lpHomeCubit.resetAutoCompleteState();
@@ -284,30 +299,30 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     return Positioned.fill(
       top: 0,
       bottom: 320,
-      child: Builder(
-        builder: (context) {
-          if (_centerLatLng == null) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _centerLatLng!,
-                zoom: 10,
-              ),
-              onMapCreated: (controller) async {
-                _mapController = controller;
-                await _setMapStyle(controller);
-              },
-              zoomGesturesEnabled: true,
-              scrollGesturesEnabled: true,
-              myLocationButtonEnabled: false,
-              onCameraMove: _onCameraMove,
-              markers: _markers,
-              zoomControlsEnabled: false,
-            );
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _centerLatLng ?? LatLng(13.0827, 80.2707), // default Chennai center
+          zoom: 10,
+        ),
+        onMapCreated: (controller) async {
+          _mapController = controller;
+          await _setMapStyle(controller);
+        },
+        zoomGesturesEnabled: true,
+        scrollGesturesEnabled: true,
+        myLocationButtonEnabled: false,
+        onCameraMove: (CameraPosition position) {
+          _centerLatLng = position.target;
+          latLngData = "${position.target.latitude},${position.target.longitude}";
+        },
+        onCameraIdle: () {
+          if (_centerLatLng != null) {
+            _updateAddress(_centerLatLng!);
           }
         },
-      )
+        markers: _markers,
+        zoomControlsEnabled: false,
+      ),
     );
   }
 

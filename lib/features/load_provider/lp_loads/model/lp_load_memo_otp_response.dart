@@ -1,38 +1,5 @@
 class LpLoadMemoOtpResponse {
   LpLoadMemoOtpResponse({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final Data? data;
-
-  LpLoadMemoOtpResponse copyWith({
-    bool? success,
-    String? message,
-    Data? data,
-  }) {
-    return LpLoadMemoOtpResponse(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory LpLoadMemoOtpResponse.fromJson(Map<String, dynamic> json){
-    return LpLoadMemoOtpResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class Data {
-  Data({
     required this.message,
     required this.mobile,
     required this.otp,
@@ -40,25 +7,48 @@ class Data {
 
   final String message;
   final String mobile;
-  final String otp;
+  final int otp;
 
-  Data copyWith({
+  LpLoadMemoOtpResponse copyWith({
     String? message,
     String? mobile,
-    String? otp,
+    int? otp,
   }) {
-    return Data(
+    return LpLoadMemoOtpResponse(
       message: message ?? this.message,
       mobile: mobile ?? this.mobile,
       otp: otp ?? this.otp,
     );
   }
 
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
+  factory LpLoadMemoOtpResponse.fromJson(Map<String, dynamic> json){
+    return LpLoadMemoOtpResponse(
       message: json["message"] ?? "",
       mobile: json["mobile"] ?? "",
       otp: json["otp"] ?? "",
+    );
+  }
+
+}
+
+class LpLoadMemoVerifyOtpResponse {
+  LpLoadMemoVerifyOtpResponse({
+    required this.message
+  });
+
+  final String message;
+
+  LpLoadMemoVerifyOtpResponse copyWith({
+    String? message,
+  }) {
+    return LpLoadMemoVerifyOtpResponse(
+      message: message ?? this.message,
+    );
+  }
+
+  factory LpLoadMemoVerifyOtpResponse.fromJson(Map<String, dynamic> json){
+    return LpLoadMemoVerifyOtpResponse(
+      message: json["message"] ?? "",
     );
   }
 
