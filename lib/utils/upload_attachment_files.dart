@@ -163,6 +163,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
 
                             Builder(
                               builder: (context){
+                                final isLastIndex = index == widget.multiFilesList.length - 1;
+
                                 if(!widget.isLoading!){
                                   if(widget.hideDeleteButton!) {
                                     return const SizedBox();

@@ -1,4 +1,4 @@
-import '../../../load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 
 class LoadDetailModel {
   LoadDetailModel({

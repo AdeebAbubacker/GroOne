@@ -12,11 +12,13 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -123,6 +125,20 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 
+  void showSuccessDialog(BuildContext context) => frameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: "Your damage has been recorded.",
+        heading: "We have notified the concerned team.",
+        onContinue: (){
+          Navigator.of(context).pop(true);
+        },
+      ),
+    );
+  });
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +220,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               final status = state.createDamageUIState?.status;
               if (status == Status.SUCCESS) {
                 clearValues();
+                showSuccessDialog(context);
               }
               if (status == Status.ERROR) {
                 final error = state.createDamageUIState?.errorType;
@@ -235,15 +252,15 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         if (status == Status.SUCCESS) {
           if (state.uploadDamageUIState?.data != null &&  state.uploadDamageUIState!.data!.url.isNotEmpty){
             uploadedDamageFileList.add(state.uploadDamageUIState!.data!.url);
-            CustomLog.debug(this, "File List : $uploadedDamageFileList");
+            CustomLog.debug(this, "File List : ${uploadedDamageFileList.length}");
             cubit.resetUploadDamageFileUIState();
-            ToastMessages.success(message: "File uploaded successfully");
           }
         }
 
         if (status == Status.ERROR) {
           final error = state.uploadDamageUIState?.errorType;
           multiFilesList.clear();
+          uploadedDamageFileList.clear();
           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
 
