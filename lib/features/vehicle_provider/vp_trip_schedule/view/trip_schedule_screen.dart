@@ -109,7 +109,6 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 spacing: 20,
                 children: [
                   TripDetails(),
-
                   AppDropdown(
                     validator: (value) => Validator.fieldRequired(value, fieldName: "Truck Number Required*"),
                     labelTextStyle: AppTextStyle.textBlackColor18w400,

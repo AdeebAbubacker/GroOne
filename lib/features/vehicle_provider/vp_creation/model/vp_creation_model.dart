@@ -30,7 +30,6 @@ class UserModel {
     }
 
     factory UserModel.fromJson(Map<String, dynamic> json){
-        print("json is user model ${json}");
         return UserModel(
             message: json["message"] ?? "",
             customer: json["customer"] == null ? null : VpCustomerModel.fromJson(json["customer"]),

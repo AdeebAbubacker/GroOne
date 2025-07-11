@@ -49,7 +49,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           locationDistance: getDistance(result.value.data?.pickUpLatlon??"0",result.value.data?.dropLatlon??"0"),
           loadDetailsUIState: UIState.success(result.value)));
 
-      print("load status ${state.loadDetailsUIState?.data?.data?.loadStatus}");
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatus);
     }
     if (result is Error) {
