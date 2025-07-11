@@ -77,16 +77,16 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             return Stack(
               children: [
                 Positioned.fill(child: GoogleMapWidget(
-                  pickupLocation: loads!.data!.pickUpLocation,
-                  dropLocation: loads.data!.dropLocation,
-                  pickUpLatLong: loads.data!.pickUpLatlon,
-                  dropLatLong: loads.data!.dropLatlon,
+                  pickupLocation: loads?.data?.loadRoute?.pickUpLocation,
+                  dropLocation: loads?.data?.loadRoute?.dropLocation,
+                  pickUpLatLong: loads?.data?.loadRoute?.pickUpLatlon,
+                  dropLatLong: loads?.data?.loadRoute?.dropLatlon,
                 )),
                 Positioned(
                   top: 65,
                   left: 15,
                   right: 15,
-                  child: buildSourceAndDestinationWidget(loads.data!)
+                  child: buildSourceAndDestinationWidget(loads?.data)
                 ),
                 LoadDetailsWidget(
                   vpHomeBloc: vpHomeBloc,
@@ -101,7 +101,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   }
 
   /// Build Source And Destination
-  Widget buildSourceAndDestinationWidget(LoadDetails loadDetails) {
+  Widget buildSourceAndDestinationWidget(LoadDetailModelData? loadDetails) {
     return BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
       builder: (context, state) {
         return Container(
@@ -117,14 +117,14 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   },child: Icon(Icons.arrow_back)),
                   8.width,
                   Text(
-                    "${loadDetails.loadSeriesID}",
+                    "${loadDetails?.loadSeriesId}",
                     style: TextStyle(color: AppColors.textBlackDetailColor),
                   ),
                   Spacer(),
 
                   Text(
                     DateTimeHelper.formatCustomDate(
-                      loadDetails.createdAt ?? DateTime.now(),
+                      loadDetails?.createdAt ?? DateTime.now(),
                     ),
                     style: TextStyle(
                       fontSize: 10,
@@ -138,16 +138,16 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildLocationDetailsTileWidget(
-                    loadDetails.pickUpLocation,
+                    loadDetails?.loadRoute?.pickUpLocation,
                     DateTimeHelper.getFormattedDate(
-                      DateTime.tryParse(loadDetails.pickUpDateTime??"")?? DateTime.now(),
+                      loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
                   Icon(Icons.arrow_forward).expand(),
                   _buildLocationDetailsTileWidget(
-                    loadDetails.dropLocation,
+                    loadDetails?.loadRoute?.dropLocation,
                     DateTimeHelper.getFormattedDate(
-                      loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
+                      loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
                   if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)...[

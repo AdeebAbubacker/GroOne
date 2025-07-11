@@ -50,7 +50,6 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   changeLoadStatus(BuildContext context,String? id) async {
-
     if(cubit.state.loadStatus==LoadStatus.accepted){
       await Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),)).then((value) {
         // cubit.getLoadDetails(id??"0");
@@ -73,7 +72,6 @@ class LoadDetailsWidget extends StatelessWidget {
         );
       }
     },);
-
   }
 
   @override
@@ -83,7 +81,7 @@ class LoadDetailsWidget extends StatelessWidget {
       listener: (context, state) {},
       bloc: cubit,
       builder: (context, state) {
-        LoadDetails? loadDetails;
+        LoadDetailModelData? loadDetails;
         if (state.loadDetailsUIState?.status == Status.LOADING) {
           return CircularProgressIndicator().center();
         }
@@ -126,11 +124,11 @@ class LoadDetailsWidget extends StatelessWidget {
                         12.height,
 
                         SourceDestinationWidget(
-                          pickUpLocation: loadDetails?.pickUpLocation,
-                          dropLocation:  loadDetails?.dropLocation,
+                          pickUpLocation: loadDetails?.loadRoute?.pickUpLocation,
+                          dropLocation:  loadDetails?.loadRoute?.dropLocation,
                         ).paddingSymmetric(horizontal: 15),
                         15.height,
-                        _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
+                        _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.loadPrice?.rate.toString(), loadDetails?.loadPrice?.vpRate, loadDetails?.loadPrice?.vpMaxRate),
                         15.height,
                         _buildLoadEntityWidget(loadDetails,state.locationDistance),
                         20.height,
@@ -175,7 +173,7 @@ class LoadDetailsWidget extends StatelessWidget {
                             context: context,
                             title: 'Damages and Shortages',
                             onAdd: () {
-                              Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.trip?.vehicle?.id, loadId: loadDetails?.loadId)));
+                              Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.scheduleTripDetails?.vehicle?.vehicleId, loadId: loadDetails?.loadId)));
                             },
                         ),
 
@@ -206,7 +204,7 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   /// Build Request Widget
-  Widget _buildRequestWidget(bool isAccepted,LoadDetails? loadDetails,LoadStatus? loadStatus) {
+  Widget _buildRequestWidget(bool isAccepted,LoadDetailModelData? loadDetails,LoadStatus? loadStatus) {
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -220,7 +218,7 @@ class LoadDetailsWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if(loadStatus==LoadStatus.assigned)
-                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle,loadDetails?.truckType)
+                _buildAssignedTruckDetails(loadDetails?.scheduleTripDetails?.vehicle,loadDetails?.truckType)
               else
               Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
                   fontWeight: FontWeight.w400,
@@ -228,7 +226,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   color:Color(0xff979797)
               )),
               if(loadStatus==LoadStatus.assigned)
-                  _buildAssignedDriverDetails(loadDetails?.trip?.driver)
+                  _buildAssignedDriverDetails(loadDetails?.scheduleTripDetails?.driver)
                 else
                   Text(
                 "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
@@ -242,7 +240,7 @@ class LoadDetailsWidget extends StatelessWidget {
           ),
           if(loadStatus==LoadStatus.assigned)
           GestureDetector(
-              onTap: () => callRedirect(loadDetails?.trip?.driver?.mobile??""),
+              onTap: () => callRedirect(loadDetails?.scheduleTripDetails?.driver?.mobile??""),
               child: SvgPicture.asset(AppIcons.svg.phoneCall)),
         ],
       ),
@@ -251,7 +249,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   /// assigned truck details
-  Widget _buildAssignedTruckDetails(Vehicle? vehicle,TruckType? truckType){
+  Widget _buildAssignedTruckDetails(ScheduleTripDetailsVehicle? vehicle,DataTruckType? truckType){
     return Row(
       children: [
         Container(
@@ -259,7 +257,7 @@ class LoadDetailsWidget extends StatelessWidget {
             color: Color(0xffFFC100),
             borderRadius: BorderRadius.circular(4)
           ),
-          child: Text(vehicle?.vehicleNumber??"").paddingSymmetric(vertical: 2,horizontal: 5),
+          child: Text(vehicle?.truckNo??"").paddingSymmetric(vertical: 2,horizontal: 5),
         ),
         5.width,
         Text(truckType?.type??"",style: AppTextStyle.body3.copyWith(
@@ -312,7 +310,7 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildLoadEntityWidget(LoadDetails? loadDetails,String?locationDistance ) {
+  Widget _buildLoadEntityWidget(LoadDetailModelData? loadDetails,String?locationDistance ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -381,7 +379,7 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildBottomButtonWidget(LoadDetails? loadDetails,LoadDetailsState state,BuildContext context){
+  Widget _buildBottomButtonWidget(LoadDetailModelData? loadDetails,LoadDetailsState state,BuildContext context){
   return  Container(
       decoration: commonContainerDecoration(
           color: Colors.white,

@@ -34,11 +34,11 @@ class TripDetails extends StatelessWidget {
 
     return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
       builder: (context, state)  {
-        LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
+        LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
 
-        String amount=(loadDetails?.vpMaxRate??"").isNotEmpty && (loadDetails?.vpMaxRate??"").trim()!="0" ?
-        "$indianCurrencySymbol${loadDetails?.vpRate} - $indianCurrencySymbol${loadDetails?.vpMaxRate}":
-        "$indianCurrencySymbol${(loadDetails?.vpRate??"").isNotEmpty ? loadDetails?.vpRate : "0000 - 0000"}";
+        String amount=(loadDetails?.loadPrice?.vpMaxRate??"").isNotEmpty && (loadDetails?.loadPrice?.vpMaxRate??"").trim()!="0" ?
+        "$indianCurrencySymbol${loadDetails?.loadPrice?.vpRate} - $indianCurrencySymbol${loadDetails?.loadPrice?.vpMaxRate}":
+        "$indianCurrencySymbol${(loadDetails?.loadPrice?.vpRate??"").isNotEmpty ? loadDetails?.loadPrice?.vpRate : "0000 - 0000"}";
 
         return Container(
           decoration: BoxDecoration(
@@ -74,7 +74,7 @@ class TripDetails extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  loadDetails?.loadSeriesID??"",
+                                  loadDetails?.loadSeriesId??"",
                                   style: AppTextStyle.h5w500.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -128,9 +128,9 @@ class TripDetails extends StatelessWidget {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("${loadDetails?.pickUpLocation?.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          Text("${loadDetails?.loadRoute?.pickUpLocation.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,),
                                           Icon(Icons.arrow_forward, size: 12),
-                                          Text("${loadDetails?.dropLocation?.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          Text("${loadDetails?.loadRoute?.dropLocation?.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,),
                                         ],
                                       ),
                                     ),

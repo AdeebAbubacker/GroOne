@@ -49,10 +49,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
-          locationDistance: getDistance(result.value.data?.pickUpLatlon??"0",result.value.data?.dropLatlon??"0"),
+          locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"),
           loadDetailsUIState: UIState.success(result.value)));
 
-      acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatus);
+      acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));

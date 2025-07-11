@@ -593,10 +593,10 @@ class LoadPrice {
 
   final String loadPriceId;
   final String loadId;
-  final int rate;
-  final int maxRate;
-  final int vpRate;
-  final int vpMaxRate;
+  final String rate;
+  final String maxRate;
+  final String vpRate;
+  final String vpMaxRate;
   final int handlingCharges;
   final int status;
   final DateTime? createAt;
@@ -606,10 +606,10 @@ class LoadPrice {
   LoadPrice copyWith({
     String? loadPriceId,
     String? loadId,
-    int? rate,
-    int? maxRate,
-    int? vpRate,
-    int? vpMaxRate,
+    String? rate,
+    String? maxRate,
+    String? vpRate,
+    String? vpMaxRate,
     int? handlingCharges,
     int? status,
     DateTime? createAt,
@@ -635,10 +635,10 @@ class LoadPrice {
     return LoadPrice(
       loadPriceId: json["loadPriceId"] ?? "",
       loadId: json["loadId"] ?? "",
-      rate: json["rate"] ?? 0,
-      maxRate: json["maxRate"] ?? 0,
-      vpRate: json["vpRate"] ?? 0,
-      vpMaxRate: json["vpMaxRate"] ?? 0,
+      rate: json["rate"]?.toString() ?? '0',
+      maxRate: json["maxRate"]?.toString() ?? '0',
+      vpRate: json["vpRate"]?.toString() ?? '0',
+      vpMaxRate: json["vpMaxRate"]?.toString() ?? '0',
       handlingCharges: json["handlingCharges"] ?? 0,
       status: json["status"] ?? 0,
       createAt: DateTime.tryParse(json["createAt"] ?? ""),
@@ -1120,147 +1120,9 @@ class ScheduleTripDetailsVehicle {
 
 }
 
-class Timeline {
-  Timeline({
-    required this.id,
-    required this.label,
-    required this.status,
-    required this.timestamp,
-    required this.commodity,
-    required this.truckType,
-    required this.loadProvider,
-  });
 
-  final int id;
-  final String label;
-  final String status;
-  final DateTime? timestamp;
-  final TimelineCommodity? commodity;
-  final TimelineTruckType? truckType;
-  final LoadProvider? loadProvider;
 
-  Timeline copyWith({
-    int? id,
-    String? label,
-    String? status,
-    DateTime? timestamp,
-    TimelineCommodity? commodity,
-    TimelineTruckType? truckType,
-    LoadProvider? loadProvider,
-  }) {
-    return Timeline(
-      id: id ?? this.id,
-      label: label ?? this.label,
-      status: status ?? this.status,
-      timestamp: timestamp ?? this.timestamp,
-      commodity: commodity ?? this.commodity,
-      truckType: truckType ?? this.truckType,
-      loadProvider: loadProvider ?? this.loadProvider,
-    );
-  }
 
-  factory Timeline.fromJson(Map<String, dynamic> json){
-    return Timeline(
-      id: json["id"] ?? 0,
-      label: json["label"] ?? "",
-      status: json["status"] ?? "",
-      timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
-      commodity: json["commodity"] == null ? null : TimelineCommodity.fromJson(json["commodity"]),
-      truckType: json["truckType"] == null ? null : TimelineTruckType.fromJson(json["truckType"]),
-      loadProvider: json["loadProvider"] == null ? null : LoadProvider.fromJson(json["loadProvider"]),
-    );
-  }
-
-}
-
-class TimelineCommodity {
-  TimelineCommodity({
-    required this.id,
-    required this.name,
-    required this.description,
-  });
-
-  final int id;
-  final String name;
-  final dynamic description;
-
-  TimelineCommodity copyWith({
-    int? id,
-    String? name,
-    dynamic? description,
-  }) {
-    return TimelineCommodity(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-    );
-  }
-
-  factory TimelineCommodity.fromJson(Map<String, dynamic> json){
-    return TimelineCommodity(
-      id: json["id"] ?? 0,
-      name: json["name"] ?? "",
-      description: json["description"],
-    );
-  }
-
-}
-
-class LoadProvider {
-  LoadProvider({
-    required this.companyName,
-  });
-
-  final String companyName;
-
-  LoadProvider copyWith({
-    String? companyName,
-  }) {
-    return LoadProvider(
-      companyName: companyName ?? this.companyName,
-    );
-  }
-
-  factory LoadProvider.fromJson(Map<String, dynamic> json){
-    return LoadProvider(
-      companyName: json["companyName"] ?? "",
-    );
-  }
-
-}
-
-class TimelineTruckType {
-  TimelineTruckType({
-    required this.id,
-    required this.type,
-    required this.subType,
-  });
-
-  final int id;
-  final String type;
-  final String subType;
-
-  TimelineTruckType copyWith({
-    int? id,
-    String? type,
-    String? subType,
-  }) {
-    return TimelineTruckType(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      subType: subType ?? this.subType,
-    );
-  }
-
-  factory TimelineTruckType.fromJson(Map<String, dynamic> json){
-    return TimelineTruckType(
-      id: json["id"] ?? 0,
-      type: json["type"] ?? "",
-      subType: json["subType"] ?? "",
-    );
-  }
-
-}
 
 class DataTruckType {
   DataTruckType({

@@ -104,7 +104,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
         child: BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
               bloc:cubit,
               builder: (context, state)  {
-                LoadDetails? loadDetails=state.loadDetailsUIState?.data?.data;
+                LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
               return Column(
                 spacing: 20,
                 children: [
@@ -140,7 +140,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     },
                   ),
                   ///Scheduled Pickup Date
-                  buildReadOnlyField("Scheduled Pickup Date",DateTimeHelper.formatCustomDate(DateTime.tryParse(loadDetails?.pickUpDateTime??"")??DateTime.now()), fillColor: Color(0xffEBEBEB)),
+                  buildReadOnlyField("Scheduled Pickup Date",DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
 
                   ///Expected Delivery date
 
