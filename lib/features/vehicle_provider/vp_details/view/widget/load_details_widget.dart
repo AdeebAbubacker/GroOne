@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
@@ -55,7 +56,7 @@ class LoadDetailsWidget extends StatelessWidget {
     required this.vpHomeBloc,
   });
 
-  changeLoadStatus(BuildContext context, String? id) async {
+  changeLoadStatus(BuildContext context, String? id, {int? loadStatus}) async {
     if (cubit.state.loadStatus == LoadStatus.accepted) {
       await Navigator.push(
         context,
@@ -83,6 +84,8 @@ class LoadDetailsWidget extends StatelessWidget {
           }
         });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -160,24 +163,25 @@ class LoadDetailsWidget extends StatelessWidget {
                           context: context,
                           name: loadDetails?.consignee?.name,
                           email: loadDetails?.consignee?.email,
-                          phoneNo: loadDetails?.consignee?.email,
+                          phoneNo: loadDetails?.consignee?.mobileNumber,
                           isUpdatable: false,
                           isTextField: false,
                         ),
-
                         20.height,
                         Text(
                           "Trip Documents",
                           style: AppTextStyle.h4,
                         ).paddingSymmetric(horizontal: 15),
-                        20.height,
-                        _buildUploadedDocPreviewItem(
-                          context: context,
-                          isDownloadable: true,
-                          fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                          fileTitle: 'Material Invoice',
-                          dateTime: '07-12-2024 | 02:52 pm',
-                          isFileAvailable: true,
+                        15.height,
+                        UploadAttachmentFiles(
+                          multiFilesList: [],
+                          isSingleFile: true,
+                          isLoading: false,
+                          hideDeleteButton: true,
+                          hintText: context.appText.uploadLorryReceipt,
+                          isSpaceBetwenUpload: true,
+                        ).paddingSymmetric(
+                          horizontal: 10
                         ),
                         20.height,
                         _buildAdableSectionHeader(
@@ -369,7 +373,7 @@ class LoadDetailsWidget extends StatelessWidget {
           _buildLoadProviderAdvancePaymentCardViewOnly(
             context: context,
             agreedAdvance: "500",
-            paymentStatus: 2,
+            paymentStatus: 1,
             advancePayment: "300",
             agreedPrice: "600",
             balancePayment: "500",
@@ -507,7 +511,7 @@ class LoadDetailsWidget extends StatelessWidget {
                 },
                 textStyle: TextStyle(fontSize: 14, color: AppColors.white),
               ).expand(),
-            if (state.loadStatus == LoadStatus.assigned)
+            if ((state.loadStatusId??0)>=4)
               SizedBox(
                 height: 60,
                 width: MediaQuery.of(context).size.width * 0.90,
@@ -517,7 +521,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   loadId: "",
                   text: "Swipe to Start Trip",
                   onSubmit: () {
-                    return null;
+                    changeLoadStatus(context, loadDetails?.loadId?.toString(),loadStatus:(state.loadStatusId??0)+1 );
                   },
                 ),
               ),
@@ -567,14 +571,6 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (paymentStatus == 1 && tripPrice != null)
-        _buildPriceRow(
-          context.appText.tripPrice,
-          tripPrice,
-          context,
-          highlight: true,
-        ),
-
       if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
         _buildPriceRow(
           context.appText.agreedPrice,

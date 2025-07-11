@@ -18,6 +18,7 @@ class CustomSwipeButton extends StatelessWidget {
     return SlideAction(
       borderRadius: 16,
       elevation: 0,
+
       height: 55,
       innerColor: Colors.transparent,
       outerColor: const Color(0xffE5EBFF),

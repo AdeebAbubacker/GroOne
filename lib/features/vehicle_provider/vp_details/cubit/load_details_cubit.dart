@@ -27,17 +27,17 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
-    switch(status){
-      case 3 :
-        loadStatus=LoadStatus.accepted;
-        break;
-      case 4:
-        loadStatus=LoadStatus.assigned;
-        break;
-      default:
-        loadStatus=LoadStatus.matching;
-    }
-    emit(state.copyWith(loadStatus:loadStatus));
+    loadStatus=switch(status){
+      3 => LoadStatus.accepted,
+      4 => LoadStatus.assigned,
+      5 => LoadStatus.loading,
+      6=>LoadStatus.unloading,
+      7=>LoadStatus.inTransit,
+      8=>LoadStatus.completed,
+      null||  int() => throw LoadStatus.matching};
+    emit(state.copyWith(
+        loadStatusId: status,
+        loadStatus:loadStatus));
   }
 
 

@@ -21,6 +21,7 @@ class DriverLoadDetailsScreen extends StatefulWidget {
 class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
   final LoadDetails mockLoadDetails = LoadDetails(
   loadSeriesID: '1',
+  consignee: null,
   loadId: "LOAD123",
   laneId: "LANE001",
   rateId: 1,

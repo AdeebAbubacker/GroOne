@@ -89,6 +89,7 @@ class ApiUrls {
   static final String truckPrefLane="$_baseUrl$_rateDiscovery$_path$_v1/lane";
   static final String getLoadById="$_baseUrl$_loadDiscovery$_path$_v1/load/";
   static final String getAllVpLoads="$_baseUrl$_loadDiscovery$_path$_v1$_load";
+  static final String updateLoadStatus="$_baseUrl$_loadExecution$_path$_v1$_load/updateStatus";
 
 
 

@@ -152,7 +152,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
-                  if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)
+                  if ((state.loadStatusId??1)>=3)
                    ...[
                      LoadStatusLabel(loadStatus: state.loadStatus!),
                    ]

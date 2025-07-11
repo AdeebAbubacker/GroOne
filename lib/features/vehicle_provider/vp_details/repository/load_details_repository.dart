@@ -21,7 +21,6 @@ class LoadDetailsRepository {
     }
   }
 
-
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({
     required String customerId,required String loadId,required int? loadStatus}) async {
     try {
@@ -33,27 +32,4 @@ class LoadDetailsRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
-  Future<Result<VpLoadAcceptModel>> load({
-    required String customerId,required String loadId,required int? loadStatus}) async {
-    try {
-      return await _vpDetailsService.changeLoadStatus(
-          loadStatus: loadStatus,
-          loadId: loadId,userId: customerId);
-    } catch (e) {
-      CustomLog.error(this, "Failed to request Login In", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-
-
-  }
-
-
-
-
-
-
-
-
-
 }

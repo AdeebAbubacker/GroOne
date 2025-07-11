@@ -13,19 +13,34 @@ class VpHelper{
   }
 
  static String getLoadStatus(LoadStatus loadStatus){
-   switch(loadStatus){
-     case LoadStatus.assigned:
-       return "Assigned";
-     default:
-       return "confirmed";
-   }
+   return switch(loadStatus){
+     LoadStatus.matching => "",
+     LoadStatus.accepted => "Confirmed",
+     // TODO: Handle this case.
+     LoadStatus.assigned => "Assigned",
+     // TODO: Handle this case.
+     LoadStatus.loading => "Loading",
+     // TODO: Handle this case.
+     LoadStatus.unloading => "Unloading",
+     // TODO: Handle this case.
+     LoadStatus.inTransit => "In Transit",
+     // TODO: Handle this case.
+     LoadStatus.completed => "Completed",
+   };
+
  }
 }
 
 
 
 enum LoadStatus {
-  accepted,
   matching,
-  assigned
+  accepted,
+  assigned,
+  loading,
+  unloading,
+  inTransit,
+  completed
+
+
 }

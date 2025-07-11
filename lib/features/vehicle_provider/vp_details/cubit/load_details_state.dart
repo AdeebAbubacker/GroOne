@@ -15,6 +15,7 @@ class LoadDetailsState extends Equatable {
   final UIState<ScheduleTripResponse>? scheduleTripResponse;
   final String? possibleDeliveryDate;
   final String? locationDistance;
+  final int? loadStatusId;
 
   const LoadDetailsState({
     this.directionApiResponse,
@@ -24,6 +25,7 @@ class LoadDetailsState extends Equatable {
     this.loadDetailsUIState,
     this.vpLoadStatus,
     this.possibleDeliveryDate,
+    this.loadStatusId,
   });
 
   LoadDetailsState copyWith({
@@ -35,8 +37,10 @@ class LoadDetailsState extends Equatable {
     UIState<ScheduleTripResponse>? scheduleTripResponse,
     String? possibleDeliveryDate,
     String? locationDistance,
+    int? loadStatusId
   }) {
     return LoadDetailsState(
+      loadStatusId: loadStatusId?? this.loadStatusId,
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
       locationDistance: locationDistance ?? this.locationDistance,
       scheduleTripResponse: scheduleTripResponse ?? this.scheduleTripResponse,
@@ -55,5 +59,6 @@ class LoadDetailsState extends Equatable {
     possibleDeliveryDate,
     scheduleTripResponse,
     directionApiResponse,
+    loadStatusId
   ];
 }

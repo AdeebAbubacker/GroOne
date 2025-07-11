@@ -37,11 +37,12 @@ class VpDetailsService{
 
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String? userId,required String loadId,required int? loadStatus}) async {
     try {
+      final statusUpdateUrl=(loadStatus??0)>4?ApiUrls.updateLoadStatus:ApiUrls.vpAcceptLoad;
       final result = await _apiService.put(
         queryParams: {
           "loadStatus":loadStatus
         },
-          '${ApiUrls.vpAcceptLoad}$userId/$loadId');
+          '$statusUpdateUrl$userId/$loadId');
       if (result is Success) {
        final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
         return Success(changeLoadStatusResponse);
