@@ -69,7 +69,7 @@ class ApiUrls {
   static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
-
+  static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
   /// Onboarding
   static final String sendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/send";
   static final String resendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/resend";
