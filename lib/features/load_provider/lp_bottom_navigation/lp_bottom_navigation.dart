@@ -116,10 +116,10 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
           body: pages[selectedIndex],
           //bottomNavigationBar: _buildBottomNavigationBarWidget(),
           bottomNavigationBar: BottomNavigationBar(
-            //backgroundColor: AppColors.primaryColor,
-            backgroundColor: Colors.red,
-            selectedItemColor: AppColors.primaryColor,
-            unselectedItemColor: AppColors.greyIconColor,
+            backgroundColor: AppColors.primaryColor,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white54,
             currentIndex: selectedIndex,
             onTap: onItemTapped,
             items: [

@@ -81,7 +81,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-
     return BlocConsumer<ProfileCubit, ProfileState>(
       bloc: profileCubit,
       listener: (context, state) {
@@ -111,10 +110,10 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         return Scaffold(
           body: _pages[selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
-            //backgroundColor: AppColors.primaryColor,
-            backgroundColor: Colors.white,
-            selectedItemColor: AppColors.primaryColor,
-            unselectedItemColor: AppColors.greyIconColor,
+            backgroundColor: AppColors.primaryColor,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white54,
             currentIndex: selectedIndex,
             onTap: onItemTapped,
             items: [
