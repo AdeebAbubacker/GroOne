@@ -79,10 +79,13 @@ import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
+import '../features/gps_feature/cubit/path_replay_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
+import '../features/gps_feature/repository/path_replay_repository.dart';
 import '../features/gps_feature/service/gps_login_service.dart';
 import '../features/gps_feature/service/gps_realm_service.dart';
+import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
@@ -407,6 +410,10 @@ void initLocator() {
     locator.registerLazySingleton(
       () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
     );
+    locator.registerLazySingleton(() => PathReplayService(locator<ApiService>()));
+    locator.registerLazySingleton(() => PathReplayRepository(locator<PathReplayService>()));
+    locator.registerLazySingleton(() => PathReplayCubit(locator<PathReplayRepository>()));
+
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

@@ -28,6 +28,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/gps_feature/cubit/path_replay_cubit.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
@@ -79,6 +80,7 @@ class MultiBlocWrapper extends StatelessWidget {
         // EnDhanCubit removed from MultiBlocWrapper to control lifecycle manually
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
         BlocProvider<GpsGeofenceCubit>(create: (_) => locator<GpsGeofenceCubit>()),
+        BlocProvider<PathReplayCubit>(create: (_) => locator<PathReplayCubit>()),
       ],
       child: child,
     );

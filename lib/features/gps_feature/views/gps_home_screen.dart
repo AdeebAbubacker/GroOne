@@ -5,10 +5,13 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+
+import '../cubit/path_replay_cubit.dart';
 
 class GpsHomeScreen extends StatelessWidget {
   const GpsHomeScreen({super.key});
@@ -203,7 +206,27 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.immobilise,
         Icons.flash_off_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+
+          final Map<String, dynamic> queryParams = {
+            "start": "2025-07-02T18:30:00.000Z",  // convertedDateFrom
+            "end": "2025-07-03T18:29:00.000Z",    // convertedDateTo
+            "timezone_offset": "0",               // "0" for UTC
+            "inputs": {},                         // empty map
+            "device_ids": 44,                // Example device ID as list
+            "fwd_variable": 0.0                     // Same as Java
+          };
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PathReplayScreen(
+                token: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTIxNDU4MTMsIm5iZiI6MTc1MjE0NTgxMywianRpIjoiMTgwNmQ5ODMtMTI5OS00NTEzLWIzY2UtMmY4ZDRiODFhZTA1IiwiZXhwIjoxNzUyNDA1MDEzLCJpZGVudGl0eSI6eyJpZCI6MTYzLCJkYiI6MSwiY28iOjEsIm5hbWUiOiJ0ZXNyIiwidHlwZSI6ImFkbWluIiwicmVhZF9vbmx5IjowLCJ0eiI6LTMzMCwidHpfcyI6IkFzaWEvS29sa2F0YSIsInNzbyI6MCwiZGV2aWNlIjoid2ViIiwiYWxpYXMiOiIifSwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.Uj8kJqHCU0qRNWhUN1ZfxS9pOabeG8FVpTMT443NOX4',
+                queryParams: queryParams,
+              ),
+            ),
+          );
+        },
       ),
       _MenuItem(
         context.appText.vehicleShareUpdate,
