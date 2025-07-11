@@ -145,68 +145,61 @@ class LoadDetailsWidget extends StatelessWidget {
                         ).paddingSymmetric(horizontal: 15),
                         15.height,
                         _buildQuotedPriceWidget(
-                          (state.loadStatus == LoadStatus.accepted ||
-                              state.loadStatus == LoadStatus.assigned),
+                          (state.loadStatusId??0)>=4,
                           loadDetails?.rate,
                           loadDetails?.vpRate,
                           loadDetails?.vpMaxRate,
                           context,
+                            state.loadStatusId??0
                         ),
                         15.height,
                         _buildLoadEntityWidget(
                           loadDetails,
                           state.locationDistance,
                         ),
-                        20.height,
+                        if ((state.loadStatusId??0) >4)...[
+                          20.height,
+                          _buildConsigneeDetail(
+                            context: context,
+                            name: loadDetails?.consignee?.name,
+                            email: loadDetails?.consignee?.email,
+                            phoneNo: loadDetails?.consignee?.mobileNumber,
+                            isUpdatable: false,
+                            isTextField: false,
+                          ),
+                          20.height,
+                          Text(
+                            "Trip Documents",
+                            style: AppTextStyle.h4,
+                          ).paddingSymmetric(horizontal: 15),
+                          15.height,
+                          buildAttachmentView(context),
+                          20.height,
+                          _buildAdableSectionHeader(
+                            context: context,
+                            title: 'Damages and Shortages',
+                            onAdd: () {
+                              Navigator.push(
+                                context,
+                                commonRoute(VpDamagesAndShortagesScreen()),
+                              );
+                            },
+                          ),
+                          20.height,
+                          _buildAdableSectionHeader(
+                            context: context,
+                            title: 'Settlements',
+                            onAdd: () {
+                              Navigator.push(
+                                context,
+                                commonRoute(VpSettlementsScreen()),
+                              );
+                            },
+                          ),
+                        ],
 
-                        _buildConsigneeDetail(
-                          context: context,
-                          name: loadDetails?.consignee?.name,
-                          email: loadDetails?.consignee?.email,
-                          phoneNo: loadDetails?.consignee?.mobileNumber,
-                          isUpdatable: false,
-                          isTextField: false,
-                        ),
                         20.height,
-                        Text(
-                          "Trip Documents",
-                          style: AppTextStyle.h4,
-                        ).paddingSymmetric(horizontal: 15),
-                        15.height,
-                        UploadAttachmentFiles(
-                          multiFilesList: [],
-                          isSingleFile: true,
-                          isLoading: false,
-                          hideDeleteButton: true,
-                          hintText: context.appText.uploadLorryReceipt,
-                          isSpaceBetwenUpload: true,
-                        ).paddingSymmetric(
-                          horizontal: 10
-                        ),
-                        20.height,
-                        _buildAdableSectionHeader(
-                          context: context,
-                          title: 'Damages and Shortages',
-                          onAdd: () {
-                            Navigator.push(
-                              context,
-                              commonRoute(VpDamagesAndShortagesScreen()),
-                            );
-                          },
-                        ),
-                        20.height,
-                        _buildAdableSectionHeader(
-                          context: context,
-                          title: 'Settlements',
-                          onAdd: () {
-                            Navigator.push(
-                              context,
-                              commonRoute(VpSettlementsScreen()),
-                            );
-                          },
-                        ),
-                        20.height,
-                        if (state.loadStatus == LoadStatus.assigned) ...[
+                        if ((state.loadStatusId??0) >=4) ...[
                           Text(
                             "Timeline",
                             style: AppTextStyle.h4,
@@ -338,6 +331,7 @@ class LoadDetailsWidget extends StatelessWidget {
     String? vpRate,
     String? vpMaxRate,
     BuildContext context,
+    int loadStatusID,
   ) {
     final vpLoadPrice =
         (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
@@ -369,6 +363,8 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
+        if(loadStatusID>4)
+        ...[
           5.height,
           _buildLoadProviderAdvancePaymentCardViewOnly(
             context: context,
@@ -382,6 +378,7 @@ class LoadDetailsWidget extends StatelessWidget {
             },
             tripPrice: "1000",
           ),
+        ]
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -519,9 +516,9 @@ class LoadDetailsWidget extends StatelessWidget {
                   padding: 0,
                   price: 0,
                   loadId: "",
-                  text: "Swipe to Start Trip",
+                  text: getBottomButtonTitle(state.loadStatus??LoadStatus.matching),
                   onSubmit: () {
-                    changeLoadStatus(context, loadDetails?.loadId?.toString(),loadStatus:(state.loadStatusId??0)+1 );
+                  return changeLoadStatus(context, loadDetails?.loadId?.toString(),loadStatus:(state.loadStatusId??0)+1 );
                   },
                 ),
               ),
@@ -553,6 +550,19 @@ class LoadDetailsWidget extends StatelessWidget {
           buttonText: "Proceed",
         );
       },
+    );
+  }
+
+  Widget buildAttachmentView(BuildContext context){
+   return UploadAttachmentFiles(
+      multiFilesList: [],
+      isSingleFile: true,
+      isLoading: false,
+      hideDeleteButton: true,
+      hintText: context.appText.uploadLorryReceipt,
+      isSpaceBetwenUpload: true,
+    ).paddingSymmetric(
+        horizontal: 10
     );
   }
 }

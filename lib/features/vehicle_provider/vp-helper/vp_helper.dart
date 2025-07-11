@@ -44,3 +44,16 @@ enum LoadStatus {
 
 
 }
+
+String getBottomButtonTitle(LoadStatus status){
+  switch(status){
+    case LoadStatus.loading:
+      return "Swipe to complete Loading";
+      case LoadStatus.inTransit:
+      return "Swipe to complete unloading";
+      case LoadStatus.unloading:
+      return "Swipe to complete Trip";
+    default:
+      return "Swipe to Start Trip";
+  }
+}
