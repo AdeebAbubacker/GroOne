@@ -11,7 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_damages_and_shortages/view/vp_damages_and_shortages_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -168,17 +168,24 @@ class LoadDetailsWidget extends StatelessWidget {
                           dateTime: '07-12-2024 | 02:52 pm',
                           isFileAvailable: true,
                         ),
-                        _buildAdableSectionHeader(context: context, title: 'Damages and Shortages', onAdd: () {
-                          Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen()));
-                        }),
+                        20.height,
+
+                        // Damage & Shortage
+                        _buildAdableSectionHeader(
+                            context: context,
+                            title: 'Damages and Shortages',
+                            onAdd: () {
+                              Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.trip?.vehicle?.id, loadId: loadDetails?.loadId)));
+                            },
+                        ),
+
                         20.height,
                         _buildAdableSectionHeader(context: context, title: 'Settlements', onAdd: () {
                           Navigator.push(context, commonRoute(VpSettlementsScreen()));
                         }),
                         20.height,
 
-                        if(state.loadStatus==LoadStatus.assigned)
-                          ...[
+                        if(state.loadStatus==LoadStatus.assigned)...[
                             Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
                             20.height,
                             LoadTimelineWidget(
@@ -413,7 +420,7 @@ class LoadDetailsWidget extends StatelessWidget {
                ),
              ),
              onPressed:   () async {
-               changeLoadStatus(context,loadDetails?.loadId?.toString());
+               changeLoadStatus(context, loadDetails?.loadId?.toString());
              },
              textStyle: TextStyle(
                fontSize: 14,

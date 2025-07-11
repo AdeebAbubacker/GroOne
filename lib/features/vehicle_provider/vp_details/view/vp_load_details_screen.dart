@@ -56,48 +56,46 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
-          bloc: cubit,
-          builder: (context, state) {
-            if (state.loadDetailsUIState?.status == Status.LOADING) {
-              return CircularProgressIndicator().center();
+    return Scaffold(
+      body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+        bloc: cubit,
+        builder: (context, state) {
+          if (state.loadDetailsUIState?.status == Status.LOADING) {
+            return CircularProgressIndicator().center();
+          }
+          if (state.loadDetailsUIState?.status == Status.ERROR) {
+            return genericErrorWidget(
+              error: state.loadDetailsUIState?.errorType,
+            );
+          }
+          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+            final loads = state.loadDetailsUIState?.data;
+            if (loads?.data == null) {
+              return genericErrorWidget(error: NotFoundError());
             }
-            if (state.loadDetailsUIState?.status == Status.ERROR) {
-              return genericErrorWidget(
-                error: state.loadDetailsUIState?.errorType,
-              );
-            }
-            if (state.loadDetailsUIState?.status == Status.SUCCESS) {
-              final loads = state.loadDetailsUIState?.data;
-              if (loads?.data == null) {
-                return genericErrorWidget(error: NotFoundError());
-              }
 
-              return Stack(
-                children: [
-                  Positioned.fill(child: GoogleMapWidget(
-                    pickupLocation: loads!.data!.pickUpLocation,
-                    dropLocation: loads.data!.dropLocation,
-                    pickUpLatLong: loads.data!.pickUpLatlon,
-                    dropLatLong: loads.data!.dropLatlon,
-                  )),
-                  Positioned(
-                    top: 15,
-                    left: 15,
-                    right: 15,
-                    child: buildSourceAndDestinationWidget(loads.data!)
-                  ),
-                  LoadDetailsWidget(
-                    vpHomeBloc: vpHomeBloc,
-                    cubit: cubit,lpHomeCubit: homeCubit,),
-                ],
-              );
-            }
-            return genericErrorWidget(error: GenericError());
-          },
-        ),
+            return Stack(
+              children: [
+                Positioned.fill(child: GoogleMapWidget(
+                  pickupLocation: loads!.data!.pickUpLocation,
+                  dropLocation: loads.data!.dropLocation,
+                  pickUpLatLong: loads.data!.pickUpLatlon,
+                  dropLatLong: loads.data!.dropLatlon,
+                )),
+                Positioned(
+                  top: 65,
+                  left: 15,
+                  right: 15,
+                  child: buildSourceAndDestinationWidget(loads.data!)
+                ),
+                LoadDetailsWidget(
+                  vpHomeBloc: vpHomeBloc,
+                  cubit: cubit,lpHomeCubit: homeCubit,),
+              ],
+            );
+          }
+          return genericErrorWidget(error: GenericError());
+        },
       ),
     );
   }
@@ -152,8 +150,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
-                  if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)
-                   ...[
+                  if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)...[
                      LoadStatusLabel(loadStatus: state.loadStatus!),
                    ]
                 ],
