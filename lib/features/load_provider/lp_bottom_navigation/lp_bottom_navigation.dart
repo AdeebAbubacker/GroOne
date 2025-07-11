@@ -126,7 +126,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
               BottomNavigationBarItem(
                 icon: const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
+                  padding: EdgeInsets.only(top: 10.0),
                   child: Icon(CupertinoIcons.home),
                 ),
                 label: context.appText.home,
@@ -134,7 +134,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
               BottomNavigationBarItem(
                 icon: const Padding(
-                  padding: EdgeInsets.only(top: 8.0),
+                  padding: EdgeInsets.only(top: 10.0),
                   child: Icon(CupertinoIcons.cube),
                 ),
                 label: context.appText.myLoads,
@@ -142,7 +142,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
               BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.only(top: 8.0),
+                  padding: EdgeInsets.only(top: 10.0),
                   child: Icon(Icons.headset_mic_rounded),
                 ),
                 label: context.appText.support,
@@ -151,7 +151,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
               if (profileCubit.userRole != null && profileCubit.userRole == 3)
                 BottomNavigationBarItem(
                   icon:  Padding(
-                    padding: EdgeInsets.only(top: 8.0),
+                    padding: EdgeInsets.only(top: 10.0),
                     child: Icon(Icons.compare_arrows_rounded),
                     //child: SvgPicture.asset(AppIcons.svg.switchIcon),
                   ),
