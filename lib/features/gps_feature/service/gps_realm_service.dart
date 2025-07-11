@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:realm/realm.dart';
 
@@ -32,17 +34,47 @@ class GpsRealmService {
       final documentsDir = await getApplicationDocumentsDirectory();
       final realmPath = '${documentsDir.path}/$_realmName';
 
-      final config = Configuration.local([
-        GpsCombinedVehicleRealmData.schema,
-        GpsLoginResponseRealmModel.schema,
-        GpsUserDetailsRealmModel.schema,
-      ], path: realmPath);
+      final config = Configuration.local(
+        [
+          GpsCombinedVehicleRealmData.schema,
+          GpsLoginResponseRealmModel.schema,
+          GpsUserDetailsRealmModel.schema,
+        ],
+        path: realmPath,
+        schemaVersion: 2,
+      );
 
       _realm = Realm(config);
       _vehicleData = _realm!.all<GpsCombinedVehicleRealmData>();
       _userDetailsData = _realm!.all<GpsUserDetailsRealmModel>();
     } catch (e) {
-      throw Exception('Failed to initialize Realm: $e');
+      // If migration fails, clear the database and try again
+      if (e.toString().contains('Migration required') ||
+          e.toString().contains('schema mismatch')) {
+        print("🔄 Migration required, clearing database and retrying...");
+        await clearEntireDatabase();
+
+        // Try again with fresh database
+        final documentsDir = await getApplicationDocumentsDirectory();
+        final realmPath = '${documentsDir.path}/$_realmName';
+
+        final config = Configuration.local(
+          [
+            GpsCombinedVehicleRealmData.schema,
+            GpsLoginResponseRealmModel.schema,
+            GpsUserDetailsRealmModel.schema,
+          ],
+          path: realmPath,
+          schemaVersion: 2,
+        );
+
+        _realm = Realm(config);
+        _vehicleData = _realm!.all<GpsCombinedVehicleRealmData>();
+        _userDetailsData = _realm!.all<GpsUserDetailsRealmModel>();
+        print("✅ Database initialized successfully after migration");
+      } else {
+        throw Exception('Failed to initialize Realm: $e');
+      }
     }
   }
 
@@ -122,6 +154,7 @@ class GpsRealmService {
             existingVehicle.lastSpeed = vehicle.lastSpeed;
             existingVehicle.lastUpdate = vehicle.lastUpdate;
             existingVehicle.isExpiringSoon = vehicle.isExpiringSoon;
+            existingVehicle.address = vehicle.address;
           } else {
             // Add new vehicle
             final realmData = GpsCombinedVehicleRealmDataMapper.fromDomain(
@@ -169,6 +202,31 @@ class GpsRealmService {
     } catch (e) {
       print("❌ Failed to clear vehicle data from Realm: $e");
       throw Exception('Failed to clear vehicle data from Realm: $e');
+    }
+  }
+
+  /// Clear entire Realm database (use for migration issues)
+  Future<void> clearEntireDatabase() async {
+    try {
+      if (_realm != null) {
+        _realm!.close();
+      }
+
+      final documentsDir = await getApplicationDocumentsDirectory();
+      final realmPath = '${documentsDir.path}/$_realmName';
+
+      // Delete the realm file
+      final file = File(realmPath);
+      if (await file.exists()) {
+        await file.delete();
+        print("🗑️ Entire Realm database cleared");
+      }
+
+      // Reset initialization flag
+      _isInitialized = false;
+    } catch (e) {
+      print("❌ Failed to clear entire database: $e");
+      throw Exception('Failed to clear entire database: $e');
     }
   }
 

@@ -19,6 +19,7 @@ class _GpsCombinedVehicleRealmData {
   String? lastSpeed;
   DateTime? lastUpdate;
   bool? isExpiringSoon;
+  String? address;
 }
 
 extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
@@ -35,6 +36,7 @@ extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
     lastSpeed: lastSpeed,
     lastUpdate: lastUpdate,
     isExpiringSoon: isExpiringSoon,
+    address: address,
   );
 
   static GpsCombinedVehicleRealmData fromDomain(GpsCombinedVehicleData data) {
@@ -52,6 +54,7 @@ extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
       lastUpdate: data.lastUpdate,
       isExpiringSoon: data.isExpiringSoon,
     );
+    obj.address = data.address;
     return obj;
   }
 }

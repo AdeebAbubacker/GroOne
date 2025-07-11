@@ -24,6 +24,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
     String? lastSpeed,
     DateTime? lastUpdate,
     bool? isExpiringSoon,
+    String? address,
   }) {
     RealmObjectBase.set(this, 'deviceId', deviceId);
     RealmObjectBase.set(this, 'vehicleNumber', vehicleNumber);
@@ -37,6 +38,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
     RealmObjectBase.set(this, 'lastSpeed', lastSpeed);
     RealmObjectBase.set(this, 'lastUpdate', lastUpdate);
     RealmObjectBase.set(this, 'isExpiringSoon', isExpiringSoon);
+    RealmObjectBase.set(this, 'address', address);
   }
 
   GpsCombinedVehicleRealmData._();
@@ -118,6 +120,12 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
       RealmObjectBase.set(this, 'isExpiringSoon', value);
 
   @override
+  String? get address =>
+      RealmObjectBase.get<String>(this, 'address') as String?;
+  @override
+  set address(String? value) => RealmObjectBase.set(this, 'address', value);
+
+  @override
   Stream<RealmObjectChanges<GpsCombinedVehicleRealmData>> get changes =>
       RealmObjectBase.getChanges<GpsCombinedVehicleRealmData>(this);
 
@@ -147,6 +155,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
       'lastSpeed': lastSpeed.toEJson(),
       'lastUpdate': lastUpdate.toEJson(),
       'isExpiringSoon': isExpiringSoon.toEJson(),
+      'address': address.toEJson(),
     };
   }
 
@@ -168,6 +177,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
         lastSpeed: fromEJson(ejson['lastSpeed']),
         lastUpdate: fromEJson(ejson['lastUpdate']),
         isExpiringSoon: fromEJson(ejson['isExpiringSoon']),
+        address: fromEJson(ejson['address']),
       ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -218,6 +228,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
           RealmPropertyType.bool,
           optional: true,
         ),
+        SchemaProperty('address', RealmPropertyType.string, optional: true),
       ],
     );
   }();

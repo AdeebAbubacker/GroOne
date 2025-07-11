@@ -133,6 +133,9 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         _setVehicleDataUIState(UIState.success(result.value));
         _updateStatusCounts();
         _filterVehicles();
+
+        // Fetch addresses in background for vehicles that don't have them
+        _fetchAddressesInBackground(result.value);
       } else if (result is Error) {
         _setVehicleDataUIState(UIState.error((result as Error).type));
 
@@ -182,7 +185,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   }
 
   void toggleTraffic() {
-    emit(state.copyWith(trafficEnabled: !(state.trafficEnabled ?? false)));
+    emit(state.copyWith(trafficEnabled: !(state.trafficEnabled)));
   }
 
   void toggleMapType() {
@@ -296,6 +299,26 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     }
 
     emit(state.copyWith(filteredVehicles: filtered));
+  }
+
+  /// Fetch addresses in background for vehicles that don't have them
+  void _fetchAddressesInBackground(List<GpsCombinedVehicleData> vehicles) {
+    // Run in background without blocking the UI
+    Future.microtask(() async {
+      try {
+        await _repository.fetchAndUpdateAddresses(vehicles);
+
+        // Reload data from realm to get updated addresses
+        final updatedVehicles = await _repository.getOfflineVehicleData();
+        if (updatedVehicles.isNotEmpty) {
+          _allVehicles = updatedVehicles;
+          _filterVehicles();
+        }
+      } catch (e) {
+        // Silently handle errors in background
+        print("Background address fetch error: $e");
+      }
+    });
   }
 }
 

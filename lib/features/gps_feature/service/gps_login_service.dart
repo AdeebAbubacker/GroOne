@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -394,5 +395,56 @@ class GpsLoginService {
     }
 
     return adjustedVehicles;
+  }
+
+  // Method to fetch addresses for vehicles and update realm data
+  Future<void> fetchAndUpdateAddresses(
+    List<GpsCombinedVehicleData> vehicles,
+  ) async {
+    try {
+      CustomLog.info(
+        this,
+        "Starting address fetch for ${vehicles.length} vehicles",
+      );
+
+      for (final vehicle in vehicles) {
+        if (vehicle.address == null &&
+            vehicle.location != null &&
+            vehicle.location!.contains(',')) {
+          try {
+            final parts = vehicle.location!.split(',');
+            final lat = double.tryParse(parts[0].trim());
+            final lng = double.tryParse(parts[1].trim());
+
+            if (lat != null && lng != null) {
+              final address = await MapHelper.getAddressFromLatLngDoubles(
+                lat,
+                lng,
+              );
+
+              // Create updated vehicle with address
+              final updatedVehicle = vehicle.copyWith(address: address);
+
+              // Update in realm service (this would need to be injected)
+              // For now, we'll just log the address
+              CustomLog.info(
+                this,
+                "Fetched address for vehicle ${vehicle.vehicleNumber}: $address",
+              );
+            }
+          } catch (e) {
+            CustomLog.error(
+              this,
+              "Failed to fetch address for vehicle ${vehicle.vehicleNumber}",
+              e,
+            );
+          }
+        }
+      }
+
+      CustomLog.info(this, "Address fetch completed");
+    } catch (e) {
+      CustomLog.error(this, "Error in fetchAndUpdateAddresses", e);
+    }
   }
 }

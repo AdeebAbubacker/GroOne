@@ -17,6 +17,7 @@ class GpsCombinedVehicleData {
   final GpsPositionCounts? apiCounts;
   final String? batteryPercent;
   final String? idleTime;
+  final String? address;
 
   GpsCombinedVehicleData({
     this.deviceId,
@@ -34,6 +35,7 @@ class GpsCombinedVehicleData {
     this.apiCounts,
     this.batteryPercent,
     this.idleTime,
+    this.address,
   });
 
   GpsCombinedVehicleData copyWith({
@@ -52,6 +54,7 @@ class GpsCombinedVehicleData {
     GpsPositionCounts? apiCounts,
     String? batteryPercent,
     String? idleTime,
+    String? address,
   }) {
     return GpsCombinedVehicleData(
       deviceId: deviceId ?? this.deviceId,
@@ -69,6 +72,7 @@ class GpsCombinedVehicleData {
       apiCounts: apiCounts ?? this.apiCounts,
       batteryPercent: batteryPercent ?? this.batteryPercent,
       idleTime: idleTime ?? this.idleTime,
+      address: address ?? this.address,
     );
   }
 
@@ -99,6 +103,7 @@ class GpsCombinedVehicleData {
       idleTime:
           positionData
               ?.idleFixTime, // If idle time is in idleFixTime or another field, map it here
+      address: _getAddressFromLocation(positionData),
     );
   }
 
@@ -243,5 +248,14 @@ class GpsCombinedVehicleData {
     } catch (e) {
       return false;
     }
+  }
+
+  static String? _getAddressFromLocation(GpsDevicePositionData? positionData) {
+    if (positionData?.latitude != null && positionData?.longitude != null) {
+      // Return null initially - the address will be fetched asynchronously
+      // and stored in the realm when available
+      return null;
+    }
+    return null;
   }
 }

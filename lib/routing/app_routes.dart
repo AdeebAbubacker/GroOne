@@ -7,7 +7,7 @@ import 'package:gro_one_app/features/gps_feature/views/dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicle_map_detail_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -217,10 +217,16 @@ class AppRoutes {
         },
       ),
       GoRoute(
-        path: AppRouteName.vehicleMapDetail,
+        path: AppRouteName.vehicleMap,
         builder: (BuildContext context, GoRouterState state) {
-          final vehicle = state.extra as GpsCombinedVehicleData;
-          return VehicleMapDetailScreen(vehicle: vehicle);
+          final data = state.extra as Map<String, dynamic>;
+          final vehicles = data['vehicles'] as List<GpsCombinedVehicleData>;
+          final initialSelectedVehicle =
+              data['initialSelectedVehicle'] as GpsCombinedVehicleData?;
+          return VehicleMapScreen(
+            vehicles: vehicles,
+            initialSelectedVehicle: initialSelectedVehicle,
+          );
         },
       ),
     ],

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -39,8 +37,6 @@ class VehicleListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Completer<GoogleMapController> mapControllerCompleter =
-        Completer<GoogleMapController>();
     return BlocListener<VehicleListCubit, VehicleListState>(
       listener: (context, state) {
         if (state.vehicleDataState?.status == Status.ERROR) {
@@ -82,16 +78,8 @@ class VehicleListView extends StatelessWidget {
                         return Column(
                           children: [
                             _buildSearchBar(context),
-                            Expanded(
-                              child:
-                                  state.showMapView
-                                      ? _buildVehicleMap(
-                                        context,
-                                        mapControllerCompleter,
-                                      )
-                                      : _buildVehicleList(),
-                            ),
-                            if (!state.showMapView) _buildBottomBanner(),
+                            Expanded(child: _buildVehicleList()),
+                            _buildBottomBanner(),
                           ],
                         );
                       },
@@ -99,154 +87,48 @@ class VehicleListView extends StatelessWidget {
                   ),
                 ],
               ),
-              BlocBuilder<VehicleListCubit, VehicleListState>(
-                builder: (context, state) {
-                  if (!state.showMapView) return const SizedBox.shrink();
-                  return Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 120, right: 16),
-                      child: StatefulBuilder(
-                        builder: (context, setState) {
-                          bool isLoading = false;
-                          return GestureDetector(
-                            onTap: () async {
-                              setState(() => isLoading = true);
-                              try {
-                                final controller =
-                                    await mapControllerCompleter.future;
-                                final latLng =
-                                    await MapHelper.getCurrentLocation();
-                                if (latLng != null) {
-                                  await MapHelper.animateTo(controller, latLng);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Location unavailable or permission denied.',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Failed to get current location.',
-                                    ),
-                                  ),
-                                );
-                              } finally {
-                                setState(() => isLoading = false);
-                              }
-                            },
-                            child: Material(
-                              elevation: 4,
-                              borderRadius: BorderRadius.circular(16),
-                              color: Colors.transparent,
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.08),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child:
-                                    isLoading
-                                        ? SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation(
-                                              AppConstants.primaryColor,
-                                            ),
-                                          ),
-                                        )
-                                        : SvgPicture.asset(
-                                          AppIcons.svg.myLocation,
-                                          width: 28,
-                                          colorFilter: ColorFilter.mode(
-                                            AppConstants.primaryColor,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+              // Remove the floating map/list toggle button and map view logic
+              // Add a button to navigate to VehicleMapScreen
+              Positioned(
+                right: 16,
+                bottom: 60,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  );
-                },
-              ),
-              BlocBuilder<VehicleListCubit, VehicleListState>(
-                builder: (context, state) {
-                  return Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 60, right: 16),
-                      child: GestureDetector(
-                        onTap: () {
-                          context.read<VehicleListCubit>().toggleMapView(
-                            !state.showMapView,
-                          );
-                        },
-                        child: Material(
-                          elevation: 4,
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.transparent,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  state.showMapView
-                                      ? Icons.list
-                                      : Icons.map_outlined,
-                                  color: AppConstants.primaryColor,
-                                  size: 28,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  state.showMapView
-                                      ? context.appText.listView
-                                      : context.appText.viewAllVehicles,
-                                  style: TextStyle(
-                                    color: AppConstants.primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                    elevation: 4,
+                  ),
+                  icon: Icon(
+                    Icons.map_outlined,
+                    color: AppConstants.primaryColor,
+                  ),
+                  label: Text(
+                    context.appText.viewAllVehicles,
+                    style: TextStyle(
+                      color: AppConstants.primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                     ),
-                  );
-                },
+                  ),
+                  onPressed: () {
+                    final vehicles =
+                        context
+                            .read<VehicleListCubit>()
+                            .state
+                            .vehicleDataState
+                            ?.data ??
+                        [];
+                    context.push(
+                      AppRouteName.vehicleMap,
+                      extra: {
+                        'vehicles': vehicles,
+                        'initialSelectedVehicle': null,
+                      },
+                    );
+                  },
+                ),
               ),
               // Add the floating action menu only on map view
               BlocBuilder<VehicleListCubit, VehicleListState>(
@@ -584,7 +466,13 @@ class VehicleListView extends StatelessWidget {
   ) {
     return GestureDetector(
       onTap: () {
-        context.push(AppRouteName.vehicleMapDetail, extra: vehicle);
+        context.push(
+          AppRouteName.vehicleMap,
+          extra: {
+            'vehicles': [vehicle],
+            'initialSelectedVehicle': vehicle,
+          },
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -671,13 +559,63 @@ class VehicleListView extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Expanded(
-                  child: Text(
-                    vehicle.location ?? context.appText.locationNotAvailable,
-                    style: TextStyle(
-                      color: AppConstants.textSecondaryColor,
-                      fontSize: 12,
-                    ),
-                  ),
+                  child:
+                      vehicle.address != null && vehicle.address!.isNotEmpty
+                          ? Text(
+                            vehicle.address!,
+                            style: TextStyle(
+                              color: AppConstants.textSecondaryColor,
+                              fontSize: 12,
+                            ),
+                          )
+                          : (vehicle.location != null &&
+                              vehicle.location!.contains(','))
+                          ? FutureBuilder<String>(
+                            future: () {
+                              final parts = vehicle.location!.split(',');
+                              final lat = double.tryParse(parts[0].trim()) ?? 0;
+                              final lng = double.tryParse(parts[1].trim()) ?? 0;
+                              return MapHelper.getAddressFromLatLngDoubles(
+                                lat,
+                                lng,
+                              );
+                            }(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Text(
+                                  'Fetching address...',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                                );
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  snapshot.data!,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black87,
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                  'No address found',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                          )
+                          : Text(
+                            context.appText.locationNotAvailable,
+                            style: TextStyle(
+                              color: AppConstants.textSecondaryColor,
+                              fontSize: 12,
+                            ),
+                          ),
                 ),
               ],
             ),
@@ -776,57 +714,6 @@ class VehicleListView extends StatelessWidget {
     );
   }
 
-  Widget _buildVehicleMap(
-    BuildContext context,
-    Completer<GoogleMapController> mapControllerCompleter,
-  ) {
-    return BlocBuilder<VehicleListCubit, VehicleListState>(
-      builder: (context, state) {
-        final vehicles = state.filteredVehicles;
-        final markers = <Marker>{};
-        for (final vehicle in vehicles) {
-          final loc = vehicle.location;
-          if (loc != null && loc.contains(',')) {
-            final parts = loc.split(',');
-            final lat = double.tryParse(parts[0].trim());
-            final lng = double.tryParse(parts[1].trim());
-            if (lat != null && lng != null) {
-              markers.add(
-                Marker(
-                  markerId: MarkerId(vehicle.vehicleNumber ?? 'unknown'),
-                  position: LatLng(lat, lng),
-                  infoWindow: InfoWindow(title: vehicle.vehicleNumber),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueYellow,
-                  ),
-                ),
-              );
-            }
-          }
-        }
-        return GoogleMap(
-          initialCameraPosition:
-              markers.isNotEmpty
-                  ? CameraPosition(target: markers.first.position, zoom: 12)
-                  : const CameraPosition(
-                    target: LatLng(20.5937, 78.9629),
-                    zoom: 4,
-                  ),
-          markers: markers,
-          myLocationButtonEnabled: false,
-          zoomControlsEnabled: true,
-          mapType: state.mapType,
-          trafficEnabled: state.trafficEnabled,
-          onMapCreated: (controller) {
-            if (!mapControllerCompleter.isCompleted) {
-              mapControllerCompleter.complete(controller);
-            }
-          },
-        );
-      },
-    );
-  }
-
   Widget _buildBottomBanner() {
     return BlocBuilder<VehicleListCubit, VehicleListState>(
       builder: (context, state) {
@@ -891,7 +778,7 @@ class VehicleListView extends StatelessWidget {
                 ),
                 Text(
                   // e.g. '3 Devices Is Expiring Soon'
-                  '${expiringCount} ${context.appText.devicesExpiringSoon}',
+                  '$expiringCount ${context.appText.devicesExpiringSoon}',
                   style: const TextStyle(color: Colors.white, fontSize: 11),
                 ),
               ],
