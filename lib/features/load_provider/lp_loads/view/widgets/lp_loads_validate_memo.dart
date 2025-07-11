@@ -63,26 +63,26 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
 
       body: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
-            // final uiState = state.lpLoadMemoDetails;
-            //
-            //
-            // if (uiState == null || uiState.status == Status.LOADING) {
-            //   return const Center(child: CircularProgressIndicator());
-            // }
-            //
-            // if (uiState.status == Status.ERROR) {
-            //   return Center(
-            //     child: Text(context.appText.failedToLoadMemo, style: TextStyle(fontSize: 16)),
-            //   );
-            // }
-            //
-            // if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
-            //   return Center(
-            //     child: Text(context.appText.noMemoFound, style: TextStyle(fontSize: 16)),
-            //   );
-            // }
-            //
-            // final  memoDetails = uiState.data;
+            final uiState = state.lpLoadMemoDetails;
+
+
+            if (uiState == null || uiState.status == Status.LOADING) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (uiState.status == Status.ERROR) {
+              return Center(
+                child: Text(context.appText.failedToLoadMemo, style: TextStyle(fontSize: 16)),
+              );
+            }
+
+            if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {
+              return Center(
+                child: Text(context.appText.noMemoFound, style: TextStyle(fontSize: 16)),
+              );
+            }
+
+            final  memoDetails = uiState.data;
 
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -90,9 +90,9 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
               child: Column(
                 spacing: 10,
                 children: [
-                  // buildMainDetailWidget(memoDetails!),
-                  // buildBankDetailsWidget(memoDetails),
-                  // buildTruckSupplierWidget(memoDetails),
+                  buildMainDetailWidget(memoDetails!),
+                  buildBankDetailsWidget(memoDetails),
+                  buildTruckSupplierWidget(memoDetails),
                   buildNotesWidget(notes),
                   10.height,
                   AppButton(
