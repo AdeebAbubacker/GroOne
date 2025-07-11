@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_damages_and_shortages/view/vp_damages_and_shortages_screen.dart';
@@ -138,11 +139,13 @@ class LoadDetailsWidget extends StatelessWidget {
                         _buildLoadProviderAdvancePaymentCardViewOnly(
                           context: context,
                           agreedAdvance: "500",
-                          paymentStatus: 1,
+                          paymentStatus: 2,
                           advancePayment: "300",
                           agreedPrice: "600",
                           balancePayment: "500",
-                          onViewTap: () {},
+                          onViewTap: () {
+                            showPaymentView(context);
+                          },
                           tripPrice: "1000"
                         ),
 
@@ -175,7 +178,6 @@ class LoadDetailsWidget extends StatelessWidget {
                           Navigator.push(context, commonRoute(VpSettlementsScreen()));
                         }),
                         20.height,
-
                         if(state.loadStatus==LoadStatus.assigned)
                           ...[
                             Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
@@ -446,7 +448,7 @@ class LoadDetailsWidget extends StatelessWidget {
         builder: (BuildContext context) {
           return showCustomDialogue(
               hideButton: true,
-              disableButton: true,
+
               context: context, child: PaymentInformationDialogView(
             advanceAmount: 14000,
             balancePayout: 3200,
@@ -481,7 +483,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
     margin: const EdgeInsets.all(16),
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: const Color(0xFFF7F9FC),
+      color: AppColors.lightBlueColor,
       borderRadius: BorderRadius.circular(8),
     ),
     child: Column(
