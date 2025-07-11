@@ -36,13 +36,18 @@ class VpCreationService {
   }
 
   // Fetch Truck Type
-  Future<Result<TruckTypeModel>> fetchTruckTypeData() async {
+  Future<Result<List<TruckTypeModel>>> fetchTruckTypeData() async {
     try {
       final url = ApiUrls.loadTruckType;
       final result = await _apiService.get(url);
       if (result is Success) {
-        final data = TruckTypeModel.fromJson(result.value);
-        return  Success(data);
+        final data = result.value;
+        if (data is List) {
+          final truckType = data.map((e) => TruckTypeModel.fromJson(e)).toList();
+          return Success(truckType);
+        } else {
+          return Error(GenericError());
+        }
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -54,19 +59,14 @@ class VpCreationService {
     }
   }
 
-    // Fetch Truck Pref Lane
+  // Fetch Truck Pref Lane
   Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
     try {
       final url = location?.isNotEmpty == true ? "${ApiUrls.truckPrefLane}?search=$location" : ApiUrls.truckPrefLane;
       final result = await _apiService.get(url);
       if (result is Success) {
-        final data = result.value;
-        if (result is List) {
-          final truckType = data.map((e) => VpCompanyTypeModel.fromJson(e)).toList();
-          return Success(truckType);
-        } else {
-          return Error(DeserializationError());
-        }
+        final data = TruckPrefLaneModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {

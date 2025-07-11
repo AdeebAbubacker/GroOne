@@ -9,7 +9,7 @@ class VerifyEmailOtpApiRequest extends Serializable<VerifyEmailOtpApiRequest>{
 
   final String? email;
   final String? otp;
-  final num? customerId;
+  final dynamic customerId;
 
   VerifyEmailOtpApiRequest copyWith({
     String? email,

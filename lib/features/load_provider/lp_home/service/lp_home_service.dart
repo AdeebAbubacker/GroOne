@@ -28,7 +28,8 @@ class LpHomeService{
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LpGetLoadModel.fromJson(data));
+        final data = LpGetLoadModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -108,7 +109,8 @@ class LpHomeService{
       final url = ApiUrls.getRecentRoute;
       final result = await _apiService.get(url, queryParams: {'customerId': userId});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RecentRoutesModel.fromJson(data));
+        final data = RecentRoutesModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -146,7 +148,8 @@ class LpHomeService{
       final url = ApiUrls.createLoad;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> CreateLoadModel.fromJson(data));
+        final data = CreateLoadModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -165,7 +168,8 @@ class LpHomeService{
       final url = ApiUrls.getRateDiscoveryPrice;
       final result = await _apiService.get(url, queryParams: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RateDiscoveryModel.fromJson(data));
+        final data = RateDiscoveryModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {

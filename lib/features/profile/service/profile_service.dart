@@ -145,7 +145,8 @@ class ProfileService {
       final url = ApiUrls.logout;
       final result = await _apiService.post(url, body: {"customerId" : (await _userInformationRepository.getUserID() ?? "")});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LogOutModel.fromJson(data));
+        final logOutModel= LogOutModel.fromJson(result.value);
+        return  Success(logOutModel);
       } else if (result is Error) {
         return Error(result.type);
       } else {

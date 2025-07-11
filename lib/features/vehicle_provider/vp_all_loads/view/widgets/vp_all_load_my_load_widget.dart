@@ -66,7 +66,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   //   style: AppTextStyle.textDarkGreyColor14w500,
                   // ),
                   Text(
-                    formatDateTimeKavach(widget.data.dueDate!.toString()),
+                    formatDateTimeKavach(widget.data.createdAt?.toString()??DateTime.now().toString()),
                     style: AppTextStyle.primaryColor12w400,
                   ),
                 ],

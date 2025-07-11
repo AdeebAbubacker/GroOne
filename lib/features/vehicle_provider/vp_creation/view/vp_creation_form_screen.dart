@@ -44,7 +44,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
   final String mobileNumber;
-  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber});
+  final int roleId;
+  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber, required this.roleId});
 
   @override
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
@@ -145,7 +146,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         customerName: nameTextController.text,
         mobileNumber: mobileNumberTextController.text,
         companyName: companyNameTextController.text,
-        companyTypeId: companyTypeDropDownValue,
+        companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
         truckType: selectedTruckTypeList,
         ownedTrucks: ownedTruckTextController.text,
         attachedTrucks: attachedTruckTextController.text,
@@ -153,6 +154,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         emailId: emailTextController.text,
         pincode: pinCodeTextController.text,
         uploadRc: uploadedRcFile,
+        roleId: widget.roleId,
       );
       vpCreationCubit.createAccount(request, widget.id);
     }
@@ -392,7 +394,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
           bloc: vpCreationCubit,
           listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
-          buildWhen: (previous, current) => previous.truckTypeUIState?.status == Status.SUCCESS,
           listener: (context, state) {
             final status = state.truckTypeUIState?.status;
             if (status == Status.ERROR) {
@@ -403,36 +404,40 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           builder: (context, state) {
             final data = state.truckTypeUIState?.data;
             if (data != null) {
-              return AppMultiSelectionDropdown<int>(
-                labelText: context.appText.truckType,
-                hintText: context.appText.selectTruckType,
-                controller: truckTypeController,
-                mandatoryStar: true,
-                items: state.truckTypeUIState!.data!.map((e) => DropdownItem<int>(
-                  value: e.id,
-                  label: "${e.type} ${e.subType}",
-                )).toList(),
-                onSelectionChange: (selected) {
-                  if (selected.isNotEmpty) {
-                    selectedTruckTypeList = selected; // already List<int>
-                  } else {
-                    truckTypeDropDownValue = null;
-                    selectedTruckTypeList.clear();
-                  }
-                  CustomLog.debug(this, 'Selected truck type: $selectedTruckTypeList');
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "${context.appText.truckType} ${context.appText.pinCode}";
-                  }
-                  return null;
-                },
+              return Column(
+                children: [
+                  AppMultiSelectionDropdown<int>(
+                    labelText: context.appText.truckType,
+                    hintText: context.appText.selectTruckType,
+                    controller: truckTypeController,
+                    mandatoryStar: true,
+                    items: state.truckTypeUIState!.data!.map((e) => DropdownItem<int>(
+                      value: e.id,
+                      label: "${e.type} ${e.subType}",
+                    )).toList(),
+                    onSelectionChange: (selected) {
+                      if (selected.isNotEmpty) {
+                        selectedTruckTypeList = selected; // already List<int>
+                      } else {
+                        truckTypeDropDownValue = null;
+                        selectedTruckTypeList.clear();
+                      }
+                      CustomLog.debug(this, 'Selected truck type: $selectedTruckTypeList');
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "${context.appText.truckType} ${context.appText.pinCode}";
+                      }
+                      return null;
+                    },
+                  ),
+                  20.height,
+                ],
               );
             }
             return const SizedBox();
           },
         ),
-        20.height,
 
 
         // Owned Truck
@@ -468,7 +473,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
           bloc: vpCreationCubit,
           listenWhen: (previous, current) =>  previous.prefLaneUIState?.status != current.prefLaneUIState?.status,
-          buildWhen: (previous, current) => previous.prefLaneUIState?.status == Status.SUCCESS,
           listener: (context, state) {
             final status = state.prefLaneUIState?.status;
             if (status == Status.ERROR) {
@@ -477,9 +481,9 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
             }
           },
           builder: (context, state) {
-            if (state.prefLaneUIState?.data?.data != null) {
-              final preferredLaneItems = state.prefLaneUIState!.data!.data!.data.map((e) => DropdownItem<int>(
-                value: e.id,
+            if (state.prefLaneUIState?.data?.data != null && state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
+              final preferredLaneItems = state.prefLaneUIState!.data?.data?.items.map((e) => DropdownItem<int>(
+                value: e.masterLaneId,
                 label: '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
               ),
               ).toList();
@@ -488,7 +492,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 hintText: context.appText.selectLaneType,
                 controller: preferredLanesTypeController,
                 mandatoryStar: true,
-                items: preferredLaneItems,
+                items: preferredLaneItems ?? [],
                 onSelectionChange: (selected) {
                   CustomLog.debug(this, 'Selected lane: $selected');
                   if (selected.isNotEmpty) {
@@ -534,8 +538,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 uploadedRcFile = state.uploadRcFileUIState!.data!.data!.url;
                 vpCreationCubit.resetUploadRcFileUIState();
                 ToastMessages.success(message: "File uploaded successfully");
-              } else {
-                multiFilesList.clear();
               }
             }
 
@@ -555,7 +557,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               isLoading: isLoading,
               thenUploadFileToSever: ()  {
                 if (multiFilesList.isNotEmpty) {
-                  vpCreationCubit.uploadRcTruckFile(File(multiFilesList.first['path']));
+                  vpCreationCubit.uploadRcTruckFile(File(multiFilesList.first['path']), widget.id);
                 }
               },
             );

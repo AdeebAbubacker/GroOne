@@ -30,11 +30,14 @@ const String MSG = "msg";
 
 
 // Kyc Upload Doc file type
-const String PAN_FILE_TYPE = "PAN_FILE_TYPE";
-const String TDS_FILE_TYPE = "TDS_FILE_TYPE";
-const String GST_FILE_TYPE = "GST_FILE_TYPE";
-const String TAN_FILE_TYPE = "TAN_FILE_TYPE";
-const String CHECKED_FILE_TYPE = "CHECKED_FILE_TYPE";
+const String PAN_FILE_TYPE = "pan_card";
+const String TDS_FILE_TYPE = "tds";
+const String GST_FILE_TYPE = "gst_document";
+const String TAN_FILE_TYPE = "tan_document";
+const String CHECKED_FILE_TYPE = "cancelled_cheque";
+const String VP_DOCUMENT = "vp_document";
+const String LP_DOCUMENT = "lp_document";
+const String CUSTOMER_DOCUMENT = "customer_document";
 
 
 const String indianCurrencySymbol = "₹";

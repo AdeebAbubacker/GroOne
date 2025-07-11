@@ -97,8 +97,8 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: context.appText.accountCreatedSuccessfully,
-        heading: context.appText.accountCreatedSuccessfullySubHeading,
+        heading: context.appText.accountCreatedSuccessfully,
+        message: context.appText.accountCreatedSuccessfullySubHeading,
         afterDismiss: (){
           context.go(AppRouteName.lpBottomNavigationBar);
           disposeFunction();

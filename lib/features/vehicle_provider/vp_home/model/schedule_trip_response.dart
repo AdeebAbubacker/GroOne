@@ -1,27 +1,17 @@
 class ScheduleTripResponse {
   ScheduleTripResponse({
-    required this.success,
-    required this.message,
+
     required this.data,
   });
 
-  final bool success;
-  final String message;
+
   final Data? data;
 
   factory ScheduleTripResponse.fromJson(Map<String, dynamic> json){
     return ScheduleTripResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
 
 }
 
@@ -40,14 +30,14 @@ class Data {
   });
 
   final DateTime? createdAt;
-  final int id;
-  final num vehicleId;
-  final num driverId;
-  final num acceptedBy;
+  final String? id;
+  final String? vehicleId;
+  final String? driverId;
+  final String? acceptedBy;
   final DateTime? etaForPickUp;
   final DateTime? expectedDeliveryDate;
-  final num status;
-  final num loadId;
+  final dynamic status;
+  final dynamic loadId;
   final dynamic deletedAt;
 
   factory Data.fromJson(Map<String, dynamic> json){

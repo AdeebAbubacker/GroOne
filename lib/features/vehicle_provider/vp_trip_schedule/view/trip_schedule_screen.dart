@@ -58,8 +58,10 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
 
   void initFunction() => frameCallback(() async {
+
     cubit.resetState();
-    int? userId= int.tryParse(await vpHomeScreenBloc.getUserId()??"0");
+    String? userId= await vpHomeScreenBloc.getUserId()??"0";
+
     vpHomeScreenBloc.add(
       VpVehicleListRequested(userId:userId.toString() ),
     );
@@ -107,7 +109,6 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 spacing: 20,
                 children: [
                   TripDetails(),
-
                   AppDropdown(
                     validator: (value) => Validator.fieldRequired(value, fieldName: "Truck Number Required*"),
                     labelTextStyle: AppTextStyle.textBlackColor18w400,
@@ -116,7 +117,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     decoration: commonInputDecoration(fillColor: Colors.white),
                     dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
                       value: e.id.toString(),
-                      child: Text(e.vehicleNumber, style: AppTextStyle.body),
+                      child: Text(e.truckNumber, style: AppTextStyle.body),
                     ),
                     ).toList(),
                     onChanged: (onChangeValue) {
@@ -187,12 +188,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         onPressed: () async {
                           String? userId=await vpHomeScreenBloc.getUserId();
                           cubit.scheduleTripApi(ScheduleTripRequest(
-                            loadId: loadDetails?.id ?? 0,
-                            vehicleId: int.parse(truckType ?? "0"),
-                            driverId: int.parse(driverType ?? "0"),
-                            acceptedBy: int.parse(userId??""),
+                            loadId: loadDetails?.loadId ?? "",
+                            expectedDeliveryDate: loadDetails?.expectedDeliveryDateTime?.toString(),
+                            vehicleId: truckType,
+                            driverId: driverType ?? "0",
+                            acceptedBy: userId??"",
                             etaForPickUp: (loadDetails?.pickUpDateTime.toString()??DateTime.now()).toString(),
-                            expectedDeliveryDate:possibleDeliveryDate,
+                            possibleDeliveryDate:possibleDeliveryDate,
                           ),);
                           },
                       );

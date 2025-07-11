@@ -61,5 +61,18 @@ class MapHelper {
     HapticFeedback.mediumImpact();
   }
 
+  static Future<LatLng?> getLastKnownLocation() async {
+    try {
+      final pos = await Geolocator.getLastKnownPosition();
+      if (pos != null) {
+        return LatLng(pos.latitude, pos.longitude);
+      }
+    } catch (e) {
+      // log("Failed to get last known position: $e");
+    }
+    return null;
+  }
+
+
 
 }

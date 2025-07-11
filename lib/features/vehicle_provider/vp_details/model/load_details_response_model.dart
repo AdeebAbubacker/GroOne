@@ -36,8 +36,8 @@ class LoadDetailsResponseModel {
 
 class LoadDetails {
   LoadDetails({
-    required this.id,
     required this.loadId,
+    required this.loadSeriesID,
     required this.laneId,
     required this.rateId,
     required this.customerId,
@@ -73,11 +73,11 @@ class LoadDetails {
     required this.trip,
   });
 
-  final int? id;
   final String? loadId;
+  final String? loadSeriesID;
   final dynamic laneId;
   final int? rateId;
-  final int? customerId;
+  final String? customerId;
   final int? commodityId;
   final int? truckTypeId;
   final String? pickUpAddr;
@@ -99,22 +99,22 @@ class LoadDetails {
   final String? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
   final int? handlingCharges;
-  final int? acceptedBy;
+  final String? acceptedBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
   final DataCommodity? commodity;
   final TruckType? truckType;
-  final Customer? customer;
+  final CustomerDetails? customer;
   final List<Timeline> timeline;
   final Trip? trip;
 
   LoadDetails copyWith({
-    int? id,
+    String? id,
     String? loadId,
     dynamic? laneId,
     int? rateId,
-    int? customerId,
+    String? customerId,
     int? commodityId,
     int? truckTypeId,
     String? pickUpAddr,
@@ -137,19 +137,19 @@ class LoadDetails {
     String? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     int? handlingCharges,
-    int? acceptedBy,
+    String? acceptedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
     DataCommodity? commodity,
     TruckType? truckType,
-    Customer? customer,
+    CustomerDetails? customer,
     List<Timeline>? timeline,
   }) {
     return LoadDetails(
      trip: trip ?? this.trip,
-      id: id ?? this.id,
-      loadId: loadId ?? this.loadId,
+      loadId: id ?? this.loadId,
+      loadSeriesID: loadId ?? this.loadSeriesID,
       laneId: laneId ?? this.laneId,
       rateId: rateId ?? this.rateId,
       customerId: customerId ?? this.customerId,
@@ -186,41 +186,43 @@ class LoadDetails {
   }
 
   factory LoadDetails.fromJson(Map<String, dynamic> json){
+
     return LoadDetails(
-      trip:json['trip']!=null ? Trip.fromJson(json['trip']):null,
-      id: json["id"],
+      trip:json['scheduleTripDetails']!=null ? Trip.fromJson(json['scheduleTripDetails']):null,
       loadId: json["loadId"],
+      loadSeriesID: json["loadSeriesId"],
       laneId: json["laneId"],
       rateId: json["rateId"],
       customerId: json["customerId"],
       commodityId: json["commodityId"],
       truckTypeId: json["truckTypeId"],
-      pickUpAddr: json["pickUpAddr"],
-      pickUpLocation: json["pickUpLocation"],
+      pickUpAddr:  json['loadRoute']!=null ?  json['loadRoute']["pickUpAddr"]:"",
+      pickUpLocation: json['loadRoute']!=null ?  json['loadRoute']["pickUpLocation"]:"",
       assignStatus: json["assignStatus"],
-      pickUpLatlon: json["pickUpLatlon"],
-      dropAddr: json["dropAddr"],
-      dropLocation: json["dropLocation"],
-      dropLatlon: json["dropLatlon"],
+      pickUpLatlon: json['loadRoute']!=null ?  json['loadRoute']["pickUpLatlon"]:"",
+      dropAddr: json['loadRoute']!=null ?  json['loadRoute']["dropAddr"]:"",
+      dropLocation: json['loadRoute']!=null ?  json['loadRoute']["dropLocation"]:"",
+      dropLatlon: json['loadRoute']!=null ?  json['loadRoute']["dropLatlon"]:"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
+      consignmentWeight: json['weight']!=null ?json['weight']['value'] :0,
       notes: json["notes"],
-      rate: json["rate"],
-      vpRate: json["vpRate"],
-      vpMaxRate: json["vpMaxRate"],
+      rate: json['loadPrice']!=null ?  json['loadPrice']["rate"]?.toString():"",
+      vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
+      vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
+
       status: json["status"],
-      loadStatus: json["loadStatus"],
+      loadStatus: json["loadStatusId"],
       vehicleLength: json["vehicleLength"],
       pickUpDateTime:json["pickUpDateTime"] ?? "",
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       handlingCharges: json["handlingCharges"],
-      acceptedBy: json["acceptedBy"],
+      acceptedBy: json["acceptedBy"]??"",
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
       commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      customer: json["customer"] == null ? null : CustomerDetails.fromJson(json["customer"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
     );
   }
@@ -264,48 +266,8 @@ class DataCommodity {
       iconUrl: json["iconUrl"],
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "description": description,
-    "iconUrl": iconUrl,
-  };
-
 }
 
-class Customer {
-  Customer({
-    required this.id,
-    required this.customerDetails,
-  });
-
-  final int? id;
-  final CustomerDetails? customerDetails;
-
-  Customer copyWith({
-    int? id,
-    CustomerDetails? customerDetails,
-  }) {
-    return Customer(
-      id: id ?? this.id,
-      customerDetails: customerDetails ?? this.customerDetails,
-    );
-  }
-
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
-      id: json["id"],
-      customerDetails: json["customerDetails"] == null ? null : CustomerDetails.fromJson(json["customerDetails"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerDetails": customerDetails?.toJson(),
-  };
-
-}
 
 class CustomerDetails {
   CustomerDetails({
@@ -419,6 +381,7 @@ class Trip {
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
+
     return Trip(
       driver: Driver.fromJson(json['driver']),
       vehicle: Vehicle.fromJson(json['vehicle']),
@@ -460,8 +423,8 @@ class Vehicle {
   factory Vehicle.fromJson(Map<String, dynamic> json) {
     return Vehicle(
       id: json['id'],
-      vehicleNumber: json['vehicleNumber'],
-      truckType: TruckType.fromJson(json['truckType']),
+      vehicleNumber: json['truckNo'],
+      truckType: TruckType.fromJson(json),
     );
   }
 }

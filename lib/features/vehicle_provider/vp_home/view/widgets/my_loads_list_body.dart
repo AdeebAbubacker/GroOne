@@ -69,14 +69,13 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
             ).paddingSymmetric(vertical: 10),
             title: Text('${widget.data.loadId}', style: AppTextStyle.h5),
             subtitle: Text(
-              formatDateTimeKavach(widget.data.dueDate!.toString()),
+              formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
               style: AppTextStyle.primaryColor12w400,
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-
                 if(widget.data.assignStatus==3)
                 Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
                 if(widget.data.assignStatus==4)

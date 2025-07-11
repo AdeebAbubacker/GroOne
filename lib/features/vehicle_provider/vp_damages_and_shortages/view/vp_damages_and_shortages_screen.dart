@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
 
 
 class VpDamagesAndShortagesScreen extends StatelessWidget {
@@ -23,7 +24,6 @@ class VpDamagesAndShortagesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
- 
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.damagesAndShortages),
       body: SingleChildScrollView(
@@ -36,7 +36,6 @@ class VpDamagesAndShortagesScreen extends StatelessWidget {
             AppTextField(
               controller: itemName,
               labelText: context.appText.itemName,
-
               hintText: "LED TV 42”",
             ),
 
@@ -48,8 +47,15 @@ class VpDamagesAndShortagesScreen extends StatelessWidget {
               hintText: "2",
             ),
 
-           // Prodcut Photo
-            AppFilePickerField(labelText: "Product Photo", mandatoryStar: true),
+          UploadAttachmentFiles(
+          multiFilesList: [],
+          title: "Product Photo",
+          isSingleFile: true,
+          isLoading: false,
+          thenUploadFileToSever: ()  {
+
+          },
+          ),
             
             // Description
             AppTextField(

@@ -30,7 +30,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class VpLoadDetailsScreen extends StatefulWidget {
-  final int? loadId;
+  final String? loadId;
   const VpLoadDetailsScreen({super.key, required this.loadId});
 
   @override
@@ -45,7 +45,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
 
   /// Map Style
   getLoadDetails() {
-    frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
+    frameCallback(() => cubit.getLoadDetails(widget.loadId ?? ""));
   }
 
   @override
@@ -54,13 +54,10 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     super.initState();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-
         body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
           bloc: cubit,
           builder: (context, state) {
@@ -122,7 +119,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   },child: Icon(Icons.arrow_back)),
                   8.width,
                   Text(
-                    "${loadDetails.loadId}",
+                    "${loadDetails.loadSeriesID}",
                     style: TextStyle(color: AppColors.textBlackDetailColor),
                   ),
                   Spacer(),

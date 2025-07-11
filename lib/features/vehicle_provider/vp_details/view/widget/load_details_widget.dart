@@ -5,15 +5,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_damages_and_shortages/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_setllements/view/vp_settlements_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -24,6 +27,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -45,16 +49,16 @@ class LoadDetailsWidget extends StatelessWidget {
   const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit,required this.vpHomeBloc});
 
 
-  changeLoadStatus(BuildContext context,int? id) async {
+  changeLoadStatus(BuildContext context,String? id) async {
+
     if(cubit.state.loadStatus==LoadStatus.accepted){
       await Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),)).then((value) {
-        cubit.getLoadDetails(id??0);
+        // cubit.getLoadDetails(id??"0");
       },);
       return;
     }
     String? userId=await vpHomeBloc.getUserId();
-    await cubit.changedLoadStatus(id??0,
-      customerId:int.tryParse(userId??"0"),
+    await cubit.changedLoadStatus(id??"0", customerId:userId,
       loadStatus: 3,
     ).then((value) {
       if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
@@ -120,6 +124,7 @@ class LoadDetailsWidget extends StatelessWidget {
                         10.height,
                         Divider(color: Color(0xffE1E1E1), thickness: 3),
                         12.height,
+
                         SourceDestinationWidget(
                           pickUpLocation: loadDetails?.pickUpLocation,
                           dropLocation:  loadDetails?.dropLocation,
@@ -129,6 +134,49 @@ class LoadDetailsWidget extends StatelessWidget {
                         15.height,
                         _buildLoadEntityWidget(loadDetails,state.locationDistance),
                         20.height,
+                        _buildLoadProviderAdvancePaymentCardViewOnly(
+                          context: context,
+                          agreedAdvance: "500",
+                          paymentStatus: 1,
+                          advancePayment: "300",
+                          agreedPrice: "600",
+                          balancePayment: "500",
+                          onViewTap: () {
+
+                          },
+                          tripPrice: "1000"
+                        ),
+                        _buildConsigneeDetail(
+                          context: context,
+                          name: 'dd',
+                          email: 'd',
+                          phoneNo: '6587443',
+                          isUpdatable: false,
+                          isTextField: false,
+                        ),
+
+
+                        20.height,
+                        Text("Trip Documents", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
+                        20.height,
+
+                        _buildUploadedDocPreviewItem(
+                          context: context,
+                          isDownloadable: true,
+                          fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                          fileTitle: 'Material Invoice',
+                          dateTime: '07-12-2024 | 02:52 pm',
+                          isFileAvailable: true,
+                        ),
+                        _buildAdableSectionHeader(context: context, title: 'Damages and Shortages', onAdd: () {
+                          Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen()));
+                        }),
+                        20.height,
+                        _buildAdableSectionHeader(context: context, title: 'Settlements', onAdd: () {
+                          Navigator.push(context, commonRoute(VpSettlementsScreen()));
+                        }),
+                        20.height,
+
                         if(state.loadStatus==LoadStatus.assigned)
                           ...[
                             Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
@@ -165,7 +213,7 @@ class LoadDetailsWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if(loadStatus==LoadStatus.assigned)
-                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle)
+                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle,loadDetails?.truckType)
               else
               Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
                   fontWeight: FontWeight.w400,
@@ -196,7 +244,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   /// assigned truck details
-  Widget _buildAssignedTruckDetails(Vehicle? vehicle){
+  Widget _buildAssignedTruckDetails(Vehicle? vehicle,TruckType? truckType){
     return Row(
       children: [
         Container(
@@ -207,11 +255,11 @@ class LoadDetailsWidget extends StatelessWidget {
           child: Text(vehicle?.vehicleNumber??"").paddingSymmetric(vertical: 2,horizontal: 5),
         ),
         5.width,
-        Text(vehicle?.truckType?.type??"",style: AppTextStyle.body3.copyWith(
+        Text(truckType?.type??"",style: AppTextStyle.body3.copyWith(
           color: AppColors.thinLightGray
         ),),
         5.width,
-        Text("(${vehicle?.truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
+        Text("(${truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
             color: AppColors.thinLightGray
         ),)
       ],
@@ -365,8 +413,7 @@ class LoadDetailsWidget extends StatelessWidget {
                ),
              ),
              onPressed:   () async {
-
-               changeLoadStatus(context,loadDetails?.id??0);
+               changeLoadStatus(context,loadDetails?.loadId?.toString());
              },
              textStyle: TextStyle(
                fontSize: 14,
@@ -653,7 +700,7 @@ Widget _buildConsigneeDetail({
           ],
         ),
     ],
-  );
+  ).paddingSymmetric(horizontal: 15);
 }
 
 
@@ -762,7 +809,7 @@ Widget _buildUploadedDocPreviewItem({
           ),
       ],
     ),
-  );
+  ).paddingSymmetric(horizontal: 15);
 }
 
 // Travel Progress Details

@@ -42,7 +42,6 @@ class TripSchedulingScreen extends StatefulWidget {
 
 class _TripSchedulingScreenState extends BaseState<TripSchedulingScreen> {
 
-
   final lpHomeBloc = locator<LpHomeBloc>();
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final _formKey = GlobalKey<FormState>();
@@ -295,7 +294,7 @@ class _TripSchedulingScreenState extends BaseState<TripSchedulingScreen> {
                    decoration: commonInputDecoration(fillColor: Colors.white),
                    dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
                        value: e.id.toString(),
-                       child: Text(e.vehicleNumber, style: AppTextStyle.body),
+                       child: Text(e.truckNumber, style: AppTextStyle.body),
                      ),
                    ).toList(),
                    onChanged: (onChangeValue) {

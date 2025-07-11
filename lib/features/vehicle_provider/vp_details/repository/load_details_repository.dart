@@ -12,7 +12,7 @@ class LoadDetailsRepository {
 
   LoadDetailsRepository(this._vpDetailsService,this._vpHomeService);
 
-  Future<Result<LoadDetailsResponseModel>> fetchLoadDetails(int? loadId) async {
+  Future<Result<LoadDetailsResponseModel>> fetchLoadDetails(String? loadId) async {
     try {
       return await _vpDetailsService.fetchLoadDetails(loadId);
     } catch (e) {

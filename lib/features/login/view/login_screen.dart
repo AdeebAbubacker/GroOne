@@ -72,8 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber":
-                    state.loginApiResponseModel.user?.mobileNumber,
+                "mobileNumber": state.loginApiResponseModel.user?.mobileNumber,
                 "otp": state.loginApiResponseModel.user?.otp.toString(),
                 "roleId": widget.roleId.toString(),
               },
