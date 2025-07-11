@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart' as geo;
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
+import 'package:gro_one_app/service/location_service.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
@@ -120,7 +123,7 @@ class VehicleMapScreen extends StatelessWidget {
                             ),
                             onPressed: () => context.pop(),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Text(
                               'SB Matric School',
@@ -180,9 +183,52 @@ class VehicleMapScreen extends StatelessWidget {
                     },
                   ),
                 ],
+                // Current Location Button
                 Positioned(
                   right: 16,
                   bottom: 180,
+                  child: FloatingActionButton(
+                    heroTag: "currentLocation",
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.blue,
+                    elevation: 4,
+                    onPressed: () async {
+                      try {
+                        final locationService = LocationService();
+                        final result =
+                            await locationService.getCurrentLatLong();
+                        if (result is Success<geo.Position>) {
+                          final position = result.value;
+                          final controller = await mapController.future;
+                          await controller.animateCamera(
+                            CameraUpdate.newLatLngZoom(
+                              LatLng(position.latitude, position.longitude),
+                              15,
+                            ),
+                          );
+                        } else if (result is Error<geo.Position>) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(result.type.getText(context)),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Error getting current location'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    child: const Icon(Icons.my_location),
+                  ),
+                ),
+                Positioned(
+                  right: 16,
+                  bottom: 260,
                   child: MapFloatingMenu(
                     onToggleTraffic:
                         () => context.read<VehicleListCubit>().toggleTraffic(),
@@ -195,12 +241,60 @@ class VehicleMapScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    onNearbyVehicles: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Nearby Vehicles feature coming soon!'),
-                        ),
-                      );
+                    onNearbyVehicles: () async {
+                      final locationService = LocationService();
+                      final result = await locationService.getCurrentLatLong();
+                      if (result is Success<geo.Position>) {
+                        final userPos = result.value;
+                        double minDistance = double.infinity;
+                        GpsCombinedVehicleData? nearestVehicle;
+                        double? nearestDistance;
+
+                        for (final vehicle in vehicles) {
+                          if (vehicle.location != null &&
+                              vehicle.location!.contains(',')) {
+                            final parts = vehicle.location!.split(',');
+                            final lat = double.tryParse(parts[0].trim());
+                            final lng = double.tryParse(parts[1].trim());
+                            if (lat != null && lng != null) {
+                              final distance =
+                                  geo.Geolocator.distanceBetween(
+                                    userPos.latitude,
+                                    userPos.longitude,
+                                    lat,
+                                    lng,
+                                  ) /
+                                  1000; // in km
+                              if (distance < minDistance) {
+                                minDistance = distance;
+                                nearestVehicle = vehicle;
+                                nearestDistance = distance;
+                              }
+                            }
+                          }
+                        }
+
+                        if (nearestVehicle != null && nearestDistance != null) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => NearestVehicleDialog(
+                                  vehicle: nearestVehicle!,
+                                  distance: nearestDistance!,
+                                ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('No vehicles found')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Could not get current location'),
+                          ),
+                        );
+                      }
                     },
                     onNearbyPlaces: () {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -269,7 +363,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       _StatusChip(
                         label: (vehicle.status ?? '-').capitalize(),
-                        color: Colors.green,
+                        color: _getStatusColor(vehicle.status),
                       ),
                     ],
                   ),
@@ -278,16 +372,12 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      vehicle.status == 'IGNITION_ON'
-                          ? 'ON'
-                          : (vehicle.status == 'IGNITION_OFF' ? 'OFF' : '-'),
+                      _getIgnitionStatus(vehicle.ignition, vehicle.status),
                       style: TextStyle(
-                        color:
-                            vehicle.status == 'IGNITION_ON'
-                                ? Colors.green
-                                : (vehicle.status == 'IGNITION_OFF'
-                                    ? Colors.red
-                                    : Colors.grey),
+                        color: _getIgnitionColor(
+                          vehicle.ignition,
+                          vehicle.status,
+                        ),
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -374,6 +464,67 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status?.toUpperCase()) {
+      case 'IGNITION_ON':
+      case 'ACTIVE':
+        return Colors.green;
+      case 'IGNITION_OFF':
+      case 'OFF':
+        return Colors.red;
+      case 'IDLE':
+        return Colors.orange;
+      case 'INACTIVE':
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getIgnitionStatus(String? ignition, String? status) {
+    if (ignition != null) {
+      final ignitionLower = ignition.toLowerCase();
+      if (ignitionLower == 'on' ||
+          ignitionLower == '1' ||
+          ignitionLower == 'true') {
+        return 'ON';
+      } else if (ignitionLower == 'off' ||
+          ignitionLower == '0' ||
+          ignitionLower == 'false') {
+        return 'OFF';
+      }
+    }
+
+    // Fallback to status field
+    switch (status?.toUpperCase()) {
+      case 'IGNITION_ON':
+      case 'ACTIVE':
+        return 'ON';
+      case 'IGNITION_OFF':
+      case 'OFF':
+      case 'INACTIVE':
+        return 'OFF';
+      case 'IDLE':
+        return 'IDLE';
+      default:
+        return '-';
+    }
+  }
+
+  Color _getIgnitionColor(String? ignition, String? status) {
+    final ignitionStatus = _getIgnitionStatus(ignition, status);
+    switch (ignitionStatus) {
+      case 'ON':
+        return Colors.green;
+      case 'OFF':
+        return Colors.red;
+      case 'IDLE':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
@@ -476,9 +627,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            widget.vehicle.odoReading?.isNotEmpty == true
-                                ? widget.vehicle.odoReading!
-                                : '-',
+                            _formatOdoReading(widget.vehicle.odoReading),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -509,9 +658,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            widget.vehicle.todayDistance?.isNotEmpty == true
-                                ? widget.vehicle.todayDistance!
-                                : '-',
+                            _formatDistance(widget.vehicle.todayDistance),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -548,17 +695,20 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            '2',
-                            style: TextStyle(
+                          Text(
+                            _formatIdleCount(widget.vehicle.idleTime),
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            '2hrs 2 mins',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          Text(
+                            _formatIdleTime(widget.vehicle.idleTime),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -615,31 +765,32 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                     _InfoRow(
                       icon: Icons.vpn_key,
                       label: 'Ignition On Since',
-                      value: '15-05-25, 09:30 PM',
+                      value: _formatIgnitionOnTime(
+                        widget.vehicle.lastIgnitionOnFixTime,
+                      ),
                     ),
                     const Divider(height: 1),
                     _InfoRow(
                       icon: Icons.speed,
                       label: 'Last Trip Distance',
-                      value: '100 Kms',
+                      value: _formatDistance(widget.vehicle.totalDistance),
                     ),
                     const Divider(height: 1),
                     _InfoRow(
                       icon: Icons.access_time,
                       label: 'Last Trip Time',
-                      value: '10:30 PM',
+                      value: _formatLastTripTime(widget.vehicle.lastUpdate),
                     ),
                     const Divider(height: 1),
                     _InfoRow(
                       icon: Icons.speed,
                       label: 'Max Speed',
-                      value: '48 Km/h',
+                      value: _formatSpeed(widget.vehicle.lastSpeed),
                     ),
                   ],
                 ),
               ),
             ),
-            // Action buttons row
 
             // Bottom Immobilizer row (now expandable)
             Padding(
@@ -669,7 +820,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                             icon: Icons.flash_on,
                             iconColor: Colors.blue,
                             label: 'Immobilizer',
-                            value: 'OFF',
+                            value: _getImmobilizerStatus(widget.vehicle.alarm),
                             valueColor: Colors.black,
                           ),
                         ),
@@ -678,7 +829,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                             icon: Icons.door_front_door,
                             iconColor: Colors.red,
                             label: 'Door',
-                            value: 'N/A',
+                            value: _getDoorStatus(widget.vehicle.deviceStatus),
                             valueColor: Colors.black,
                           ),
                         ),
@@ -687,7 +838,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                             icon: Icons.thermostat,
                             iconColor: Colors.orange,
                             label: 'Temp',
-                            value: 'N/A',
+                            value: _formatTemperature(widget.vehicle.tmp),
                             valueColor: Colors.black,
                           ),
                         ),
@@ -725,7 +876,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.public,
                               iconColor: Colors.green,
                               label: 'Geofence',
-                              value: 'Outside',
+                              value: _getGeofenceStatus(
+                                widget.vehicle.geofenceIds,
+                              ),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -734,7 +887,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.local_parking,
                               iconColor: Colors.blue,
                               label: 'Parking',
-                              value: 'N/A',
+                              value: _getParkingStatus(widget.vehicle.valid),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -742,8 +895,10 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                             child: _StatusIconText(
                               icon: Icons.agriculture,
                               iconColor: Colors.green,
-                              label: 'Vehicel Btt',
-                              value: '13',
+                              label: 'Vehicle Btt',
+                              value: _formatBatteryPercent(
+                                widget.vehicle.batteryPercent,
+                              ),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -759,7 +914,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.ac_unit,
                               iconColor: Colors.teal,
                               label: 'A/C',
-                              value: 'OFF',
+                              value: _getACStatus(widget.vehicle.deviceStatus),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -768,7 +923,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.electric_car,
                               iconColor: Colors.green,
                               label: 'GPS Btt',
-                              value: '100',
+                              value: _formatGPSBattery(widget.vehicle.extBatt),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -785,6 +940,124 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
         ),
       ),
     );
+  }
+
+  String _formatOdoReading(String? odoReading) {
+    if (odoReading == null || odoReading.isEmpty) return '-';
+    try {
+      final odo = double.tryParse(odoReading);
+      if (odo != null) {
+        return '${odo.toStringAsFixed(0)} km';
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return odoReading;
+  }
+
+  String _formatDistance(String? distance) {
+    if (distance == null || distance.isEmpty) return '-';
+    try {
+      final dist = double.tryParse(distance);
+      if (dist != null) {
+        return '${dist.toStringAsFixed(1)} km';
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return distance;
+  }
+
+  String _formatIdleCount(String? idleTime) {
+    if (idleTime == null || idleTime.isEmpty) return '-';
+    // Try to extract count from idle time if it contains count information
+    // For now, return a default value since we don't have idle count in the API
+    return '0';
+  }
+
+  String _formatIdleTime(String? idleTime) {
+    if (idleTime == null || idleTime.isEmpty) return '-';
+    return formatDuration(idleTime);
+  }
+
+  String _formatIgnitionOnTime(String? lastIgnitionOnFixTime) {
+    if (lastIgnitionOnFixTime == null || lastIgnitionOnFixTime.isEmpty) {
+      return 'N/A';
+    }
+    try {
+      final dateTime = DateTime.parse(lastIgnitionOnFixTime);
+      return '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year.toString().substring(2)}, ${_formatTime(dateTime)}';
+    } catch (e) {
+      return lastIgnitionOnFixTime;
+    }
+  }
+
+  String _formatLastTripTime(DateTime? lastUpdate) {
+    if (lastUpdate == null) return 'N/A';
+    return _formatTime(lastUpdate);
+  }
+
+  String _formatSpeed(String? speed) {
+    if (speed == null || speed.isEmpty) return 'N/A';
+    return '$speed Km/h';
+  }
+
+  String _getImmobilizerStatus(String? alarm) {
+    if (alarm == null || alarm.isEmpty) return 'N/A';
+    return alarm.toUpperCase();
+  }
+
+  String _getDoorStatus(String? deviceStatus) {
+    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
+    return deviceStatus.toUpperCase();
+  }
+
+  String _formatTemperature(String? tmp) {
+    if (tmp == null || tmp.isEmpty) return 'N/A';
+    try {
+      final temp = double.tryParse(tmp);
+      if (temp != null) {
+        return '${temp.toStringAsFixed(1)}°C';
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return '$tmp°C';
+  }
+
+  String _getGeofenceStatus(String? geofenceIds) {
+    if (geofenceIds == null || geofenceIds.isEmpty) return 'N/A';
+    // If geofenceIds is present, it means the vehicle is outside a geofence
+    // This is a simplified logic - in a real app, you'd check against specific geofence definitions
+    return 'Outside';
+  }
+
+  String _getParkingStatus(String? valid) {
+    if (valid == null || valid.isEmpty) return 'N/A';
+    return valid == '1' ? 'Parked' : 'Moving';
+  }
+
+  String _formatBatteryPercent(String? batteryPercent) {
+    if (batteryPercent == null || batteryPercent.isEmpty) return 'N/A';
+    try {
+      final battery = double.tryParse(batteryPercent);
+      if (battery != null && battery >= 0 && battery <= 100) {
+        return battery.toInt().toString();
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return batteryPercent;
+  }
+
+  String _getACStatus(String? deviceStatus) {
+    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
+    return 'OFF';
+  }
+
+  String _formatGPSBattery(double? battery) {
+    if (battery == null) return 'N/A';
+    return battery.toStringAsFixed(2) + 'V';
   }
 }
 
@@ -992,6 +1265,155 @@ class _StatusIconText extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ],
+    );
+  }
+}
+
+String formatDuration(dynamic rawIdleTime) {
+  int totalSeconds = 0;
+
+  if (rawIdleTime == null) return '-';
+
+  // Try to parse if it's a string number
+  if (rawIdleTime is String) {
+    totalSeconds = int.tryParse(rawIdleTime) ?? 0;
+  } else if (rawIdleTime is int) {
+    totalSeconds = rawIdleTime;
+  }
+
+  // If the value is in minutes (and not seconds), convert to seconds
+  // This is a crude check; adjust as needed for your data
+  if (totalSeconds < 100000 && totalSeconds > 0) {
+    totalSeconds *= 60;
+  }
+
+  final duration = Duration(seconds: totalSeconds);
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return '${hours}hrs ${minutes} mins';
+  } else if (hours > 0) {
+    return '${hours}hrs';
+  } else if (minutes > 0) {
+    return '${minutes} mins';
+  } else {
+    return '0 min';
+  }
+}
+
+String _formatVoltage(double? v) {
+  if (v == null) return '-';
+  return v.toStringAsFixed(2) + 'V';
+}
+
+String _formatOdoMeters(int? meters) {
+  if (meters == null) return '-';
+  return (meters / 1000).toStringAsFixed(0) + ' km';
+}
+
+String _formatTripDistance(double? km) {
+  if (km == null) return '-';
+  return km.toStringAsFixed(2) + ' km';
+}
+
+String _formatSignal(int? rssi) {
+  if (rssi == null) return '-';
+  return '$rssi/5';
+}
+
+String _formatSat(int? sat) {
+  if (sat == null) return '-';
+  return sat.toString();
+}
+
+String _formatMotion(bool? motion) {
+  if (motion == null) return '-';
+  return motion ? 'Moving' : 'Stopped';
+}
+
+class NearestVehicleDialog extends StatelessWidget {
+  final GpsCombinedVehicleData vehicle;
+  final double distance;
+
+  const NearestVehicleDialog({
+    super.key,
+    required this.vehicle,
+    required this.distance,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Replace icon with asset image
+            SizedBox(
+              height: 160,
+              width: 160,
+              child: Image.asset(
+                'assets/icons/png/nearest_vehicle_illustration.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Nearest Vehicle',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              vehicle.vehicleNumber ?? '-',
+              style: const TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
+            ),
+            const SizedBox(height: 8),
+            RichText(
+              text: TextSpan(
+                text: 'You are ',
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
+                children: [
+                  TextSpan(
+                    text: '${distance.toStringAsFixed(1)} Kms',
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const TextSpan(text: ' away from the nearest vehicle'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
