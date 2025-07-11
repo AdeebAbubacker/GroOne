@@ -13,19 +13,10 @@ import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
 import '../../../../../utils/constant_variables.dart';
 
-class DriverLoadWidget extends StatefulWidget {
-  const DriverLoadWidget({
-    super.key,
-    required this.onClickAssignDriver,
-  });
-
+class DriverLoadWidget extends StatelessWidget {  
   final void Function()? onClickAssignDriver;
+  const DriverLoadWidget({super.key, required this.onClickAssignDriver,});
 
-  @override
-  State<DriverLoadWidget> createState() => _DriverLoadWidgetState();
-}
-
-class _DriverLoadWidgetState extends State<DriverLoadWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -160,7 +151,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
               10.width,
               AppButton(
                 buttonHeight: 40,
-                onPressed: widget.onClickAssignDriver ?? () {},
+                onPressed: onClickAssignDriver ?? () {},
                 title: "Start Trip",
                 style: AppButtonStyle.primary,
               ).expand(),
