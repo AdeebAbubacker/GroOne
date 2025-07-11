@@ -38,8 +38,8 @@ class VpHomeService {
       } else {
         return Error(GenericError());
       }
-    } catch (e,stacktrass) {
-      print(stacktrass);
+    } catch (e) {
+
       CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }

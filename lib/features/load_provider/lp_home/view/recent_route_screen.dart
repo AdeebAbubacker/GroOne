@@ -83,13 +83,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   void updateSelectedRouteState(int index, RecentRouteData data){
     selectedRecentRoutes = index;
 
-    pickupLocation = data.pickUpLocation;
-    pickupAddress = data.pickUpAddr;
-    pickupLatLong = data.pickUpLatlon;
+    pickupLocation = data.loadRoute?.pickUpLocation;
+    pickupAddress = data.loadRoute?.pickUpAddr;
+    pickupLatLong = data.loadRoute?.pickUpLatlon;
 
-    destinationLocation = data.dropLocation;
-    destinationAddress = data.dropAddr;
-    destinationLatLong = data.dropLatlon;
+    destinationLocation = data.loadRoute?.dropLocation;
+    destinationAddress = data.loadRoute?.dropAddr;
+    destinationLatLong = data.loadRoute?.dropLatlon;
 
     laneId = data.laneId;
 
@@ -101,8 +101,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
 
   String pickUpLocationText(RecentRouteData data){
-    if (data.pickUpWholeAddr.isNotEmpty && data.pickUpLocation.isNotEmpty){
-      return data.pickUpWholeAddr;
+    if (data.loadRoute!.pickUpWholeAddr.isNotEmpty && data.loadRoute!.pickUpLocation.isNotEmpty){
+      return data.loadRoute?.pickUpWholeAddr ?? '';
     } else {
       return "";
     }
@@ -119,8 +119,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   }
 
   String destinationLocationText(RecentRouteData data){
-    if (data.dropWholeAddr.isNotEmpty && data.dropLocation.isNotEmpty){
-      return data.dropWholeAddr;
+    if (data.loadRoute!.dropWholeAddr.isNotEmpty && data.loadRoute!.dropLocation.isNotEmpty){
+      return data.loadRoute?.dropWholeAddr ?? '';
     } else {
       return "";
     }

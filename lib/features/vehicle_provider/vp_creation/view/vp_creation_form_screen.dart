@@ -44,7 +44,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 class VpCreationFormScreen extends StatefulWidget {
   final String id;
   final String mobileNumber;
-  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber});
+  final int roleId;
+  const VpCreationFormScreen({super.key,required this.id, required this.mobileNumber, required this.roleId});
 
   @override
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
@@ -153,6 +154,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         emailId: emailTextController.text,
         pincode: pinCodeTextController.text,
         uploadRc: uploadedRcFile,
+        roleId: widget.roleId,
       );
       vpCreationCubit.createAccount(request, widget.id);
     }
@@ -164,8 +166,8 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: context.appText.accountCreatedSuccessfully,
-        heading: context.appText.accountCreatedSuccessfullySubHeading,
+        heading: context.appText.accountCreatedSuccessfully,
+        message: context.appText.accountCreatedSuccessfullySubHeading,
         afterDismiss: () {
           context.go(AppRouteName.vpBottomNavigationBar);
           disposeFunction();
@@ -391,8 +393,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
           bloc: vpCreationCubit,
-          //listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
-         // buildWhen: (previous, current) => previous.truckTypeUIState?.status == Status.SUCCESS,
+          listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
           listener: (context, state) {
             final status = state.truckTypeUIState?.status;
             if (status == Status.ERROR) {
@@ -472,7 +473,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
           bloc: vpCreationCubit,
           listenWhen: (previous, current) =>  previous.prefLaneUIState?.status != current.prefLaneUIState?.status,
-          buildWhen: (previous, current) => previous.prefLaneUIState?.status == Status.SUCCESS,
           listener: (context, state) {
             final status = state.prefLaneUIState?.status;
             if (status == Status.ERROR) {

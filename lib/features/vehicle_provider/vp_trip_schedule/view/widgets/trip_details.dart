@@ -11,6 +11,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -79,19 +80,21 @@ class TripDetails extends StatelessWidget {
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      width: 2,
-                                      color: AppColors.primaryColor,
+                                GestureDetector(
+                                  onTap: () =>  commonSupportDialog(context),
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        width: 2,
+                                        color: AppColors.primaryColor,
+                                      ),
                                     ),
+                                    child: SvgPicture.asset(AppImage.svg.support),
                                   ),
-                                  child: SvgPicture.asset(AppImage.svg.support),
                                 ),
-
                               ],
                             ),
 
@@ -104,7 +107,7 @@ class TripDetails extends StatelessWidget {
                                     // TODO:
                                     // put company name
                                     Text(
-                                      "${loadDetails?.customer?.customerDetails?.companyName}",
+                                      "${loadDetails?.customer?.companyName}",
                                       style: AppTextStyle.h5w500.copyWith(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w400,
@@ -148,8 +151,6 @@ class TripDetails extends StatelessWidget {
                   indent: 30,
                   endIndent: 30,
                   thickness: 0.5),
-
-             
 
               Row(
                 spacing: 10,
@@ -198,13 +199,6 @@ class TripDetails extends StatelessWidget {
                 ),
               ).paddingSymmetric(horizontal: 20),
               15.height,
-
-
-
-
-
-
-
             ],
           ),
         );

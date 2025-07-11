@@ -9,8 +9,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.pickUpLatlon,
      this.dropAddr,
      this.dropLatlon,
-     this.dueDate,
-     this.consignmentWeight,
+     // this.dueDate,
+     this.pickUpDateTime,
+     this.weightId,
      this.note,
      this.rate,
      this.maxRate,
@@ -24,7 +25,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     this.dropWholeAddr
   });
 
-  final num? customerId;
+  final String? customerId;
   final num? commodityId;
   final num? truckTypeId;
   final String? pickUpAddr;
@@ -33,8 +34,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? dropLatlon;
   final String? pickUpLocation;
   final String? dropLocation;
-  final String? dueDate;
-  final num? consignmentWeight;
+  // final String? dueDate;
+  final String? pickUpDateTime;
+  final int? weightId;
   final String? note;
   final String? rate;
   final String? maxRate;
@@ -46,15 +48,16 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? dropWholeAddr;
 
   CreateLoadApiRequest copyWith({
-    num? customerId,
+    String? customerId,
     num? commodityId,
     num? truckTypeId,
     String? pickUpAddr,
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLatlon,
-    String? dueDate,
-    num? consignmentWeight,
+    // String? dueDate,
+    String? pickUpDateTime,
+    int? weightId,
     String? note,
     String? rate,
     String? maxRate,
@@ -75,8 +78,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
       dropLatlon: dropLatlon ?? this.dropLatlon,
-      dueDate: dueDate ?? this.dueDate,
-      consignmentWeight: consignmentWeight ?? this.consignmentWeight,
+      // dueDate: dueDate ?? this.dueDate,
+      pickUpDateTime: pickUpDateTime ?? this.pickUpDateTime,
+      weightId: weightId ?? this.weightId,
       note: note ?? this.note,
       rate: rate ?? this.rate,
       maxRate: maxRate ?? this.maxRate,
@@ -100,9 +104,9 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "pickUpLatlon": pickUpLatlon ?? "",
     "dropAddr": dropAddr ?? "",
     "dropLatlon": dropLatlon ?? "",
-    "dueDate": dueDate ?? "",
-    "pickUpDateTime": dueDate ?? "",
-    "consignmentWeight": consignmentWeight ?? 0,
+    // "dueDate": dueDate ?? "",
+    "pickUpDateTime": pickUpDateTime ?? "",
+    "weightId": weightId ?? 0,
     "notes": note  ??"",
     "rate": rate ?? "",
     "maxRate": maxRate ?? "",
