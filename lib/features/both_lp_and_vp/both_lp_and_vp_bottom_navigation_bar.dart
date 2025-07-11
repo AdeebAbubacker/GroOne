@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -11,53 +10,27 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
-class LpBottomNavigation extends StatefulWidget {
-
-  static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
-
-  const LpBottomNavigation({super.key});
+class BothBottomNavigation extends StatefulWidget {
+  const BothBottomNavigation({super.key});
 
   @override
-  State<LpBottomNavigation> createState() => _LpBottomNavigationState();
+  State<BothBottomNavigation> createState() => _BothBottomNavigationState();
 }
 
-class _LpBottomNavigationState extends State<LpBottomNavigation> {
+class _BothBottomNavigationState extends State<BothBottomNavigation> {
 
   final profileCubit = locator<ProfileCubit>();
-
   ProfileDetailModel? profileResponse;
-
-  int selectedIndex = 0;
-
-  List<String> tabTitles = [
-    "Home",
-    "My Loads",
-    "Support",
-    // "Switch Account",
-  ];
-
-  List<IconData> tabIcons = [
-    CupertinoIcons.home,
-    CupertinoIcons.cube,
-    Icons.headset_mic_rounded,
-    // Icons.compare_arrows_rounded,
-  ];
 
   @override
   void initState() {
     // TODO: implement initState
     frameCallback((){
       profileCubit.fetchUserRole();
-      setState(() {});
     });
     super.initState();
   }
@@ -70,18 +43,10 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
   void onItemTapped(int index) {
     selectedIndex = index;
-    int? role = profileCubit.userRole;
-
-    debugPrint("Role : $role");
-
-    if((role != null && role == 3)) {
-      context.go(AppRouteName.vpBottomNavigationBar);
-    }
-
-    pages[selectedIndex];
     setState(() {});
   }
 
+  int selectedIndex = 0;
 
 
   @override
@@ -114,10 +79,9 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
         return Scaffold(
           body: pages[selectedIndex],
-          //bottomNavigationBar: _buildBottomNavigationBarWidget(),
           bottomNavigationBar: BottomNavigationBar(
             //backgroundColor: AppColors.primaryColor,
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.white,
             selectedItemColor: AppColors.primaryColor,
             unselectedItemColor: AppColors.greyIconColor,
             currentIndex: selectedIndex,
@@ -148,7 +112,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                 label: context.appText.support,
               ),
 
-              if (profileCubit.userRole != null && profileCubit.userRole == 3)
                 BottomNavigationBarItem(
                   icon:  Padding(
                     padding: EdgeInsets.only(top: 8.0),
@@ -163,32 +126,4 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       },
     );
   }
-
-
-  Widget _buildBottomNavigationBarWidget(){
-    return Container(
-      color: AppColors.primaryColor,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < tabTitles.length; i++)
-            InkWell(
-              onTap: (){
-                onItemTapped(i);
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(tabIcons[i], color: selectedIndex == i ? AppColors.white : Colors.white54),
-                  5.height,
-                  Text(tabTitles[i], style: selectedIndex == i ?  AppTextStyle.bodyWhiteColor : AppTextStyle.body.copyWith(color: Colors.white54))
-                ],
-              ),
-            )
-        ],
-      ).paddingOnly(top: 20, bottom: 30, right: 20, left: 20),
-    );
-  }
-
 }

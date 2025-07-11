@@ -52,6 +52,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   int? userRole;
   Future<int?> fetchUserRole() async {
     userRole = await _repo.getUserRole();
+    CustomLog.debug(this, "User Role Type : $userRole");
     return userRole;
   }
 
