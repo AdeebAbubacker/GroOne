@@ -71,74 +71,74 @@ class DriverRecentLoadData {
 
   final int id;
   final String loadId;
-  final num laneId;
-  final num rateId;
-  final num customerId;
-  final num commodityId;
-  final num truckTypeId;
+  final int laneId;
+  final int rateId;
+  final int customerId;
+  final int commodityId;
+  final int truckTypeId;
   final String pickUpAddr;
   final String pickUpLocation;
-  final num assignStatus;
+  final int assignStatus;
   final String pickUpLatlon;
   final String dropAddr;
   final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
-  final num consignmentWeight;
+  final int consignmentWeight;
   final String notes;
   final String rate;
-  final num status;
-  final num loadStatus;
+  final int status;
+  final int loadStatus;
   final String vehicleLength;
   final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
-  final num handlingCharges;
+  final int handlingCharges;
   final dynamic acceptedBy;
-  final num agreedPrice;
-  final num acceptedVehicleId;
+  final int agreedPrice;
+  final int acceptedVehicleId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
   final Commodity? commodity;
   final TruckType? truckType;
-  final Customer? customer;
-  final CustomerDetail? customerDetail;
+  final DriversCustomer? customer;
+  final DriversCustomerDetail? customerDetail;
 
   DriverRecentLoadData copyWith({
     int? id,
     String? loadId,
-    num? laneId,
-    num? rateId,
-    num? customerId,
-    num? commodityId,
-    num? truckTypeId,
+    int? laneId,
+    int? rateId,
+    int? customerId,
+    int? commodityId,
+    int? truckTypeId,
     String? pickUpAddr,
     String? pickUpLocation,
-    num? assignStatus,
+    int? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
-    num? consignmentWeight,
+    int? consignmentWeight,
     String? notes,
     String? rate,
-    num? status,
-    num? loadStatus,
+    int? status,
+    int? loadStatus,
     String? vehicleLength,
     DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
-    num? handlingCharges,
+    int? handlingCharges,
     dynamic? acceptedBy,
-    num? agreedPrice,
-    num? acceptedVehicleId,
+    int? agreedPrice,
+    int? acceptedVehicleId,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
     Commodity? commodity,
     TruckType? truckType,
-    Customer? customer,
-    CustomerDetail? customerDetail,
+    DriversCustomer? customer,
+    DriversCustomerDetail? customerDetail,
   }) {
     return DriverRecentLoadData(
       id: id ?? this.id,
@@ -212,8 +212,8 @@ class DriverRecentLoadData {
       deletedAt: DateTime.tryParse(json["deletedAt"] ?? ""),
       commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-      customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+      customer: json["customer"] == null ? null : DriversCustomer.fromJson(json["customer"]),
+      customerDetail: json["customerDetail"] == null ? null : DriversCustomerDetail.fromJson(json["customerDetail"]),
     );
   }
 
@@ -252,8 +252,8 @@ class Commodity {
 
 }
 
-class Customer {
-  Customer({
+class DriversCustomer {
+  DriversCustomer({
     required this.id,
     required this.customerName,
     required this.mobileNumber,
@@ -265,13 +265,13 @@ class Customer {
   final String mobileNumber;
   final String emailId;
 
-  Customer copyWith({
+  DriversCustomer copyWith({
     int? id,
     String? customerName,
     String? mobileNumber,
     String? emailId,
   }) {
-    return Customer(
+    return DriversCustomer(
       id: id ?? this.id,
       customerName: customerName ?? this.customerName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
@@ -279,8 +279,8 @@ class Customer {
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
+  factory DriversCustomer.fromJson(Map<String, dynamic> json){
+    return DriversCustomer(
       id: json["id"] ?? 0,
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
@@ -290,8 +290,8 @@ class Customer {
 
 }
 
-class CustomerDetail {
-  CustomerDetail({
+class DriversCustomerDetail {
+  DriversCustomerDetail({
     required this.id,
     required this.companyName,
     required this.companyTypeId,
@@ -299,22 +299,22 @@ class CustomerDetail {
 
   final int id;
   final String companyName;
-  final num companyTypeId;
+  final int companyTypeId;
 
-  CustomerDetail copyWith({
+  DriversCustomerDetail copyWith({
     int? id,
     String? companyName,
-    num? companyTypeId,
+    int? companyTypeId,
   }) {
-    return CustomerDetail(
+    return DriversCustomerDetail(
       id: id ?? this.id,
       companyName: companyName ?? this.companyName,
       companyTypeId: companyTypeId ?? this.companyTypeId,
     );
   }
 
-  factory CustomerDetail.fromJson(Map<String, dynamic> json){
-    return CustomerDetail(
+  factory DriversCustomerDetail.fromJson(Map<String, dynamic> json){
+    return DriversCustomerDetail(
       id: json["id"] ?? 0,
       companyName: json["companyName"] ?? "",
       companyTypeId: json["companyTypeId"] ?? 0,

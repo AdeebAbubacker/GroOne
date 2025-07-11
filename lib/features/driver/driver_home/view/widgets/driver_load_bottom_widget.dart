@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
@@ -67,11 +68,8 @@ class DriverLoadBottomWidget extends StatelessWidget {
                 totalDistance: "456KMs",
                 eta: "31-09-2024, 09:30 PM",
               ).paddingSymmetric(horizontal: 15),
-              12.height,
-                            //  _buildSourceDestinationWidget(context, true, loadDetails),
               20.height,
               _buildAdvancePaymentCard(context: context, paymentState: 2),
-                            //  _buildLoadEntityWidget(loadDetails),
               20.height,
               _buildDivider(),
               20.height,
@@ -94,50 +92,50 @@ class DriverLoadBottomWidget extends StatelessWidget {
               Column(
                 children: [
                   // Upload Lorrry Receipt
-                  // UploadAttachmentFiles(
-                  //   multiFilesList: [],
-                  //   isSingleFile: true,
-                  //   isLoading: false,
-                  //   hideDeleteButton: false,
-                  //   hintText: context.appText.uploadLorryReceipt,
-                  //   isSpaceBetwenUpload: true,
-                  // ),
+                  UploadAttachmentFiles(
+                    multiFilesList: [],
+                    isSingleFile: true,
+                    isLoading: false,
+                    hideDeleteButton: false,
+                    hintText: context.appText.uploadLorryReceipt,
+                    isSpaceBetwenUpload: true,
+                  ),
                 
                   20.height,
                 
                   // Upload E-way bill
-                  // UploadAttachmentFiles(
-                  //   multiFilesList: [],
-                  //   isSingleFile: true,
-                  //   isLoading: false,
-                  //   hideDeleteButton: false,
-                  //   hintText: context.appText.uploadEwayBill,
-                  //   isSpaceBetwenUpload: true,
-                  // ),
+                  UploadAttachmentFiles(
+                    multiFilesList: [],
+                    isSingleFile: true,
+                    isLoading: false,
+                    hideDeleteButton: false,
+                    hintText: context.appText.uploadEwayBill,
+                    isSpaceBetwenUpload: true,
+                  ),
                 
                   20.height,
                 
                   // Upload Material Invoice
-                  // UploadAttachmentFiles(
-                  //   multiFilesList: [],
-                  //   isSingleFile: true,
-                  //   isLoading: false,
-                  //   hideDeleteButton: false,
-                  //   hintText: context.appText.uploadMaterialInvoice,
-                  //   isSpaceBetwenUpload: true,
-                  // ),
+                  UploadAttachmentFiles(
+                    multiFilesList: [],
+                    isSingleFile: true,
+                    isLoading: false,
+                    hideDeleteButton: false,
+                    hintText: context.appText.uploadMaterialInvoice,
+                    isSpaceBetwenUpload: true,
+                  ),
                 
                   20.height,
                 
                   // Upload Other documents
-                  // UploadAttachmentFiles(
-                  //   multiFilesList: [],
-                  //   isSingleFile: true,
-                  //   isLoading: false,
-                  //   hideDeleteButton: false,
-                  //   hintText: context.appText.uploadOtherDocs,
-                  //   isSpaceBetwenUpload: true,
-                  // ),
+                  UploadAttachmentFiles(
+                    multiFilesList: [],
+                    isSingleFile: true,
+                    isLoading: false,
+                    hideDeleteButton: false,
+                    hintText: context.appText.uploadOtherDocs,
+                    isSpaceBetwenUpload: true,
+                  ),
                 ],
               ).paddingSymmetric(horizontal: 15),
               20.height,
@@ -170,46 +168,6 @@ class DriverLoadBottomWidget extends StatelessWidget {
 }
 
 // Build Request Widget
-// Widget _buildRequestWidget(
-//   BuildContext context,
-//   bool isAccepted,
-//   LoadDetails? loadDetails,
-// ) {
-//   return SizedBox(
-//     height: 80,
-//     child: Row(
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       crossAxisAlignment: CrossAxisAlignment.center,
-//       spacing: 10,
-//       children: [
-//         Image.asset(AppImage.png.dummyTruckLoad, width: 57, height: 42),
-//         Column(
-//           spacing: 8,
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Text(
-//               context.appText.requested,
-//               style: AppTextStyle.body1GreyColor.copyWith(
-//                 fontWeight: FontWeight.w400,
-//                 fontSize: 12,
-//                 color: Color(0xff979797),
-//               ),
-//             ),
-//             Text(
-//               "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
-//               style: AppTextStyle.body1BlackColor.copyWith(
-//                 fontWeight: FontWeight.w400,
-//                 fontSize: 12,
-//                 color: AppColors.textBlackDetailColor,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ],
-//     ),
-//   ).paddingSymmetric(horizontal: 15);
-// }
 
 Widget _buildRequestWidget() {
   return SizedBox(

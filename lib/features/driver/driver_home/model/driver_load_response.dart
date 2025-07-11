@@ -39,13 +39,13 @@ class DriverLoadData {
   });
 
   final List<DriverLoadItem> data;
-  final num total;
-  final PageMeta? pageMeta;
+  final int total;
+  final DriverPageMeta? pageMeta;
 
   DriverLoadData copyWith({
     List<DriverLoadItem>? data,
-    num? total,
-    PageMeta? pageMeta,
+    int? total,
+    DriverPageMeta? pageMeta,
   }) {
     return DriverLoadData(
       data: data ?? this.data,
@@ -58,7 +58,7 @@ class DriverLoadData {
     return DriverLoadData(
       data: json["data"] == null ? [] : List<DriverLoadItem>.from(json["data"]!.map((x) => DriverLoadItem.fromJson(x))),
       total: json["total"] ?? 0,
-      pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+      pageMeta: json["pageMeta"] == null ? null : DriverPageMeta.fromJson(json["pageMeta"]),
     );
   }
 
@@ -109,84 +109,84 @@ class DriverLoadItem {
 
   final int id;
   final String loadId;
-  final num laneId;
-  final num rateId;
-  final num customerId;
-  final num commodityId;
-  final num truckTypeId;
+  final int laneId;
+  final int rateId;
+  final int customerId;
+  final int commodityId;
+  final int truckTypeId;
   final String pickUpAddr;
   final String pickUpLocation;
-  final num assignStatus;
+  final int assignStatus;
   final String pickUpLatlon;
   final String dropAddr;
   final String dropLocation;
   final String dropLatlon;
   final DateTime? dueDate;
-  final num consignmentWeight;
+  final int consignmentWeight;
   final String notes;
   final String rate;
-  final num status;
-  final num loadStatus;
+  final int status;
+  final int loadStatus;
   final String vehicleLength;
   final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
-  final num handlingCharges;
-  final num acceptedBy;
+  final int handlingCharges;
+  final int acceptedBy;
   final dynamic agreedPrice;
-  final num acceptedVehicleId;
+  final int acceptedVehicleId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
   final DatumCommodity? commodity;
-  final DatumTruckType? truckType;
+  final DriverTruckType? truckType;
   final AcceptedCustomerClass? customer;
   final AcceptedCustomerClass? acceptedCustomer;
-  final CustomerDetail? customerDetail;
+  final DriverCustomerDetail? customerDetail;
   final AcceptedVehicle? acceptedVehicle;
   final VehicleProvider? vehicleProvider;
   final ConsigneeDetails? consigneeDetails;
-  final List<Timeline> timeline;
+  final List<DriverTimeline> timeline;
 
   DriverLoadItem copyWith({
     int? id,
     String? loadId,
-    num? laneId,
-    num? rateId,
-    num? customerId,
-    num? commodityId,
-    num? truckTypeId,
+    int? laneId,
+    int? rateId,
+    int? customerId,
+    int? commodityId,
+    int? truckTypeId,
     String? pickUpAddr,
     String? pickUpLocation,
-    num? assignStatus,
+    int? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
-    num? consignmentWeight,
+    int? consignmentWeight,
     String? notes,
     String? rate,
-    num? status,
-    num? loadStatus,
+    int? status,
+    int? loadStatus,
     String? vehicleLength,
     DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
-    num? handlingCharges,
-    num? acceptedBy,
+    int? handlingCharges,
+    int? acceptedBy,
     dynamic? agreedPrice,
-    num? acceptedVehicleId,
+    int? acceptedVehicleId,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
     DatumCommodity? commodity,
-    DatumTruckType? truckType,
+    DriverTruckType? truckType,
     AcceptedCustomerClass? customer,
     AcceptedCustomerClass? acceptedCustomer,
-    CustomerDetail? customerDetail,
+    DriverCustomerDetail? customerDetail,
     AcceptedVehicle? acceptedVehicle,
     VehicleProvider? vehicleProvider,
     ConsigneeDetails? consigneeDetails,
-    List<Timeline>? timeline,
+    List<DriverTimeline>? timeline,
   }) {
     return DriverLoadItem(
       id: id ?? this.id,
@@ -264,14 +264,14 @@ class DriverLoadItem {
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
       commodity: json["commodity"] == null ? null : DatumCommodity.fromJson(json["commodity"]),
-      truckType: json["truckType"] == null ? null : DatumTruckType.fromJson(json["truckType"]),
+      truckType: json["truckType"] == null ? null : DriverTruckType.fromJson(json["truckType"]),
       customer: json["customer"] == null ? null : AcceptedCustomerClass.fromJson(json["customer"]),
       acceptedCustomer: json["acceptedCustomer"] == null ? null : AcceptedCustomerClass.fromJson(json["acceptedCustomer"]),
-      customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+      customerDetail: json["customerDetail"] == null ? null : DriverCustomerDetail.fromJson(json["customerDetail"]),
       acceptedVehicle: json["acceptedVehicle"] == null ? null : AcceptedVehicle.fromJson(json["acceptedVehicle"]),
       vehicleProvider: json["vehicleProvider"] == null ? null : VehicleProvider.fromJson(json["vehicleProvider"]),
       consigneeDetails: json["consigneeDetails"] == null ? null : ConsigneeDetails.fromJson(json["consigneeDetails"]),
-      timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
+      timeline: json["timeline"] == null ? [] : List<DriverTimeline>.from(json["timeline"]!.map((x) => DriverTimeline.fromJson(x))),
     );
   }
 
@@ -332,15 +332,15 @@ class AcceptedVehicle {
   });
 
   final int id;
-  final num customerId;
+  final int customerId;
   final String vehicleNumber;
-  final num vehicleTypeId;
+  final int vehicleTypeId;
   final dynamic commodityId;
   final dynamic rcNumber;
   final dynamic rcDocLink;
   final dynamic capacity;
-  final num assignStatus;
-  final num status;
+  final int assignStatus;
+  final int status;
   final dynamic consigneeName;
   final dynamic consigneeContact;
   final dynamic consigneeEmail;
@@ -356,15 +356,15 @@ class AcceptedVehicle {
 
   AcceptedVehicle copyWith({
     int? id,
-    num? customerId,
+    int? customerId,
     String? vehicleNumber,
-    num? vehicleTypeId,
+    int? vehicleTypeId,
     dynamic? commodityId,
     dynamic? rcNumber,
     dynamic? rcDocLink,
     dynamic? capacity,
-    num? assignStatus,
-    num? status,
+    int? assignStatus,
+    int? status,
     dynamic? consigneeName,
     dynamic? consigneeContact,
     dynamic? consigneeEmail,
@@ -461,16 +461,16 @@ class AcceptedVehicleCustomer {
   final String emailId;
   final String blueId;
   final dynamic password;
-  final num otp;
-  final num otpAttempt;
-  final num isKyc;
-  final num roleId;
+  final int otp;
+  final int otpAttempt;
+  final int isKyc;
+  final int roleId;
   final bool tempFlg;
-  final num status;
+  final int status;
   final bool isLogin;
   final DateTime? createdAt;
   final dynamic deletedAt;
-  final CustomerDetail? customerDetails;
+  final DriverCustomerDetail? customerDetails;
 
   AcceptedVehicleCustomer copyWith({
     int? id,
@@ -480,16 +480,16 @@ class AcceptedVehicleCustomer {
     String? emailId,
     String? blueId,
     dynamic? password,
-    num? otp,
-    num? otpAttempt,
-    num? isKyc,
-    num? roleId,
+    int? otp,
+    int? otpAttempt,
+    int? isKyc,
+    int? roleId,
     bool? tempFlg,
-    num? status,
+    int? status,
     bool? isLogin,
     DateTime? createdAt,
     dynamic? deletedAt,
-    CustomerDetail? customerDetails,
+    DriverCustomerDetail? customerDetails,
   }) {
     return AcceptedVehicleCustomer(
       id: id ?? this.id,
@@ -530,14 +530,14 @@ class AcceptedVehicleCustomer {
       isLogin: json["isLogin"] ?? false,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
-      customerDetails: json["customerDetails"] == null ? null : CustomerDetail.fromJson(json["customerDetails"]),
+      customerDetails: json["customerDetails"] == null ? null : DriverCustomerDetail.fromJson(json["customerDetails"]),
     );
   }
 
 }
 
-class CustomerDetail {
-  CustomerDetail({
+class DriverCustomerDetail {
+  DriverCustomerDetail({
     required this.id,
     required this.customerId,
     required this.companyName,
@@ -582,9 +582,9 @@ class CustomerDetail {
   });
 
   final int id;
-  final num customerId;
+  final int customerId;
   final String companyName;
-  final num companyTypeId;
+  final int companyTypeId;
   final String gstin;
   final String gstinDocLink;
   final String aadhar;
@@ -607,11 +607,11 @@ class CustomerDetail {
   final String bankName;
   final String branchName;
   final String ifscCode;
-  final num status;
-  final List<num> truckType;
-  final num ownedTrucks;
-  final num attachedTrucks;
-  final List<num> preferredLanes;
+  final int status;
+  final List<int> truckType;
+  final int ownedTrucks;
+  final int attachedTrucks;
+  final List<int> preferredLanes;
   final String uploadRc;
   final String pincode;
   final String address1;
@@ -623,11 +623,11 @@ class CustomerDetail {
   final dynamic deletedAt;
   final int customerDetailCustomerId;
 
-  CustomerDetail copyWith({
+  DriverCustomerDetail copyWith({
     int? id,
-    num? customerId,
+    int? customerId,
     String? companyName,
-    num? companyTypeId,
+    int? companyTypeId,
     String? gstin,
     String? gstinDocLink,
     String? aadhar,
@@ -650,11 +650,11 @@ class CustomerDetail {
     String? bankName,
     String? branchName,
     String? ifscCode,
-    num? status,
-    List<num>? truckType,
-    num? ownedTrucks,
-    num? attachedTrucks,
-    List<num>? preferredLanes,
+    int? status,
+    List<int>? truckType,
+    int? ownedTrucks,
+    int? attachedTrucks,
+    List<int>? preferredLanes,
     String? uploadRc,
     String? pincode,
     String? address1,
@@ -666,7 +666,7 @@ class CustomerDetail {
     dynamic? deletedAt,
     int? customerDetailCustomerId,
   }) {
-    return CustomerDetail(
+    return DriverCustomerDetail(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
       companyName: companyName ?? this.companyName,
@@ -711,8 +711,8 @@ class CustomerDetail {
     );
   }
 
-  factory CustomerDetail.fromJson(Map<String, dynamic> json){
-    return CustomerDetail(
+  factory DriverCustomerDetail.fromJson(Map<String, dynamic> json){
+    return DriverCustomerDetail(
       id: json["id"] ?? 0,
       customerId: json["customerId"] ?? 0,
       companyName: json["companyName"] ?? "",
@@ -740,10 +740,10 @@ class CustomerDetail {
       branchName: json["branchName"] ?? "",
       ifscCode: json["ifscCode"] ?? "",
       status: json["status"] ?? 0,
-      truckType: json["truckType"] == null ? [] : List<num>.from(json["truckType"]!.map((x) => x)),
+      truckType: json["truckType"] == null ? [] : List<int>.from(json["truckType"]!.map((x) => x)),
       ownedTrucks: json["ownedTrucks"] ?? 0,
       attachedTrucks: json["attachedTrucks"] ?? 0,
-      preferredLanes: json["preferredLanes"] == null ? [] : List<num>.from(json["preferredLanes"]!.map((x) => x)),
+      preferredLanes: json["preferredLanes"] == null ? [] : List<int>.from(json["preferredLanes"]!.map((x) => x)),
       uploadRc: json["uploadRc"] ?? "",
       pincode: json["pincode"] ?? "",
       address1: json["address1"] ?? "",
@@ -774,7 +774,7 @@ class AcceptedVehicleTruckType {
   final String type;
   final String subType;
   final dynamic iconUrl;
-  final num status;
+  final int status;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
@@ -783,7 +783,7 @@ class AcceptedVehicleTruckType {
     String? type,
     String? subType,
     dynamic? iconUrl,
-    num? status,
+    int? status,
     DateTime? createdAt,
     dynamic? deletedAt,
   }) {
@@ -873,8 +873,8 @@ class ConsigneeDetails {
 
 }
 
-class Timeline {
-  Timeline({
+class DriverTimeline {
+  DriverTimeline({
     required this.id,
     required this.label,
     required this.status,
@@ -892,7 +892,7 @@ class Timeline {
   final TruckTypeClass? truckType;
   final dynamic loadProvider;
 
-  Timeline copyWith({
+  DriverTimeline copyWith({
     int? id,
     String? label,
     String? status,
@@ -901,7 +901,7 @@ class Timeline {
     TruckTypeClass? truckType,
     dynamic? loadProvider,
   }) {
-    return Timeline(
+    return DriverTimeline(
       id: id ?? this.id,
       label: label ?? this.label,
       status: status ?? this.status,
@@ -912,8 +912,8 @@ class Timeline {
     );
   }
 
-  factory Timeline.fromJson(Map<String, dynamic> json){
-    return Timeline(
+  factory DriverTimeline.fromJson(Map<String, dynamic> json){
+    return DriverTimeline(
       id: json["id"] ?? 0,
       label: json["label"] ?? "",
       status: json["status"] ?? "",
@@ -949,8 +949,8 @@ class TruckTypeClass {
 
 }
 
-class DatumTruckType {
-  DatumTruckType({
+class DriverTruckType {
+  DriverTruckType({
     required this.id,
     required this.type,
   });
@@ -958,18 +958,18 @@ class DatumTruckType {
   final int id;
   final String type;
 
-  DatumTruckType copyWith({
+  DriverTruckType copyWith({
     int? id,
     String? type,
   }) {
-    return DatumTruckType(
+    return DriverTruckType(
       id: id ?? this.id,
       type: type ?? this.type,
     );
   }
 
-  factory DatumTruckType.fromJson(Map<String, dynamic> json){
-    return DatumTruckType(
+  factory DriverTruckType.fromJson(Map<String, dynamic> json){
+    return DriverTruckType(
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
     );
@@ -1015,8 +1015,8 @@ class VehicleProvider {
 
 }
 
-class PageMeta {
-  PageMeta({
+class DriverPageMeta {
+  DriverPageMeta({
     required this.page,
     required this.pageSize,
     required this.total,
@@ -1024,20 +1024,20 @@ class PageMeta {
     required this.nextPage,
   });
 
-  final num page;
-  final num pageSize;
-  final num total;
-  final num pageCount;
+  final int page;
+  final int pageSize;
+  final int total;
+  final int pageCount;
   final dynamic nextPage;
 
-  PageMeta copyWith({
-    num? page,
-    num? pageSize,
-    num? total,
-    num? pageCount,
+  DriverPageMeta copyWith({
+    int? page,
+    int? pageSize,
+    int? total,
+    int? pageCount,
     dynamic? nextPage,
   }) {
-    return PageMeta(
+    return DriverPageMeta(
       page: page ?? this.page,
       pageSize: pageSize ?? this.pageSize,
       total: total ?? this.total,
@@ -1046,8 +1046,8 @@ class PageMeta {
     );
   }
 
-  factory PageMeta.fromJson(Map<String, dynamic> json){
-    return PageMeta(
+  factory DriverPageMeta.fromJson(Map<String, dynamic> json){
+    return DriverPageMeta(
       page: json["page"] ?? 0,
       pageSize: json["pageSize"] ?? 0,
       total: json["total"] ?? 0,
