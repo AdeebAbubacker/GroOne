@@ -207,25 +207,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     }
   }
 
-  Future showPaymentView() {
-    return showDialog(
 
-        context: context,
-        builder: (BuildContext context) {
-          return showCustomDialogue(
-            hideButton: true,
-            disableButton: true,
-              context: context, child: PaymentInformationDialogView(
-            advanceAmount: 14000,
-            balancePayout: 3200,
-            isAdvanceCompleted: true,
-            isBalancePending: true,
-            onProceed: () {},
-            paymentMode: "NEFT",
-            receivedOn: "12 Jun2 2025, 7:34 AM",
-            transactionId: "467898765432",
-            tripCost: 73000,
-          ), buttonText: "Proceed");
-        });
-  }
+
+
 }

@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
@@ -30,6 +31,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
@@ -385,4 +387,27 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
   }
+
+  Future showPaymentView(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return showCustomDialogue(
+              hideButton: true,
+              disableButton: true,
+              context: context, child: PaymentInformationDialogView(
+            advanceAmount: 14000,
+            balancePayout: 3200,
+            isAdvanceCompleted: true,
+            isBalancePending: true,
+            onProceed: () {},
+            paymentMode: "NEFT",
+            receivedOn: "12 Jun2 2025, 7:34 AM",
+            transactionId: "467898765432",
+            tripCost: 73000,
+          ), buttonText: "Proceed");
+        });
+  }
 }
+
+
