@@ -5,7 +5,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 
 class LoadStatusLabel extends StatelessWidget {
   final LoadStatus loadStatus;
-   LoadStatusLabel({super.key,  required this.loadStatus});
+   const LoadStatusLabel({super.key,  required this.loadStatus});
 
   @override
   Widget build(BuildContext context) {

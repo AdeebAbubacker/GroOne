@@ -41,6 +41,7 @@ import 'package:gro_one_app/utils/validator.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:gro_one_app/utils/extra_utils.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
@@ -440,7 +441,30 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
   }
+
+  Future showPaymentView(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return showCustomDialogue(
+              hideButton: true,
+              disableButton: true,
+              context: context, child: PaymentInformationDialogView(
+            advanceAmount: 14000,
+            balancePayout: 3200,
+            isAdvanceCompleted: true,
+            isBalancePending: true,
+            onProceed: () {},
+            paymentMode: "NEFT",
+            receivedOn: "12 Jun2 2025, 7:34 AM",
+            transactionId: "467898765432",
+            tripCost: 73000,
+          ), buttonText: "Proceed");
+        });
+  }
 }
+
+
 
 
 
@@ -472,7 +496,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
             context,
             highlight: true,
           ),
-          
+
         if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
           _buildPriceRow(
             context.appText.agreedPrice,
@@ -494,7 +518,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
             title: '${context.appText.advancePayment} (80%)',
             amount: advancePayment ?? "",
             statusText: context.appText.received,
-            statusColor: AppColors.lightGreenBox, 
+            statusColor: AppColors.lightGreenBox,
           ),
 
         if (paymentStatus == 3)
@@ -504,7 +528,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
               title: context.appText.balancePayment,
               amount: balancePayment ?? "",
               statusText: context.appText.received,
-              statusColor: AppColors.lightGreenBox, 
+              statusColor: AppColors.lightGreenBox,
             ),
           ),
 
