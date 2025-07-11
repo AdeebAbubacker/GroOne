@@ -74,7 +74,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
     debugPrint("Role : $role");
 
-    if((role != null && role == 3)) {
+    if(index == 3 && (role != null && role == 3)) {
       context.go(AppRouteName.vpBottomNavigationBar);
     }
 
