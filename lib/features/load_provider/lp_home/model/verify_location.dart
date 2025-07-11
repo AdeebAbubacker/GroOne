@@ -320,6 +320,7 @@ class Photo {
 class Lane {
   Lane({
     required this.id,
+    required this.masterLaneId,
     required this.fromLocationId,
     required this.toLocationId,
     required this.fromLocation,
@@ -327,6 +328,7 @@ class Lane {
   });
 
   final int id;
+  final int masterLaneId;
   final num fromLocationId;
   final num toLocationId;
   final LocationDetails? fromLocation;
@@ -341,6 +343,7 @@ class Lane {
   }) {
     return Lane(
       id: id ?? this.id,
+      masterLaneId: masterLaneId ?? this.masterLaneId,
       fromLocationId: fromLocationId ?? this.fromLocationId,
       toLocationId: toLocationId ?? this.toLocationId,
       fromLocation: fromLocation ?? this.fromLocation,
@@ -351,6 +354,7 @@ class Lane {
   factory Lane.fromJson(Map<String, dynamic> json){
     return Lane(
       id: json["id"] ?? 0,
+      masterLaneId: json["masterLaneId"] ?? 0,
       fromLocationId: json["fromLocationId"] ?? 0,
       toLocationId: json["toLocationId"] ?? 0,
       fromLocation: json["fromLocation"] == null ? null : LocationDetails.fromJson(json["fromLocation"]),

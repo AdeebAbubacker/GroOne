@@ -292,6 +292,8 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       }
     }
 
+    if(rateDiscoveryPrice == '00000') return;
+
     // Api Request store data in the class
     final request = CreateLoadApiRequest(
         commodityId: int.parse(commodityId ?? "0"),
@@ -302,14 +304,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         dropAddr:   lpHomeCubit.state.destination?.data?.address ?? "",
         dropLocation:   lpHomeCubit.state.destination?.data?.location ?? "",
         dropLatlon:  lpHomeCubit.state. destination?.data?.latLng ??"",
-        dueDate: selectedDateTime.toString(),
-        consignmentWeight: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
+        // dueDate: selectedDateTime.toString(),
+        pickUpDateTime: selectedDateTime.toString() ,
+        weightId: int.parse(lpHomeCubit.state.selectedWeight!.id.toString()),
         // rate: rateDiscoveryPrice ?? "0000 - 0000",
         rate: minRate,
         maxRate: maxRate,
         laneId: lpHomeCubit.state.laneId,
         // rateId: 0,
-        rateId: lpHomeCubit.state.rateDiscoveryUIState?.data?.data?.id ?? 0,
+        rateId: lpHomeCubit.state.rateDiscoveryUIState?.data?.data?.rateDiscoveryId ?? 0,
         pickUpWholeAddr: lpHomeCubit.state.pickup?.data?.location ?? "",
         dropWholeAddr: lpHomeCubit.state.destination?.data?.location ?? "",
     );
@@ -540,7 +543,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
-          final blueIdFromStorage = await profileCubit.getBlueId();
+          final blueIdFromStorage = await profileCubit.fetchBlueId();
           bool popupShownFlag = await profileCubit.getHasShowBluePopup();
 
           debugPrint("💡 BlueId from API: $blueIdFromApi");
@@ -906,10 +909,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                                 String? suggestedPrice;
                                 if (data?.minPrice != null) {
-                                  if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                  if (data?.maxPrice == null || data?.maxPrice == 0) {
                                     suggestedPrice = data?.minPrice.toString();
                                   } else {
-                                    suggestedPrice = "${data.minPrice} - ${data.maxPrice}";
+                                    suggestedPrice = "${data?.minPrice} - ${data?.maxPrice}";
                                   }
                                   minRate = data?.minPrice.toString();
                                   maxRate = data?.maxPrice.toString();
@@ -922,10 +925,10 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                                 String formattedPrice;
                                 if (data?.minPrice == null) {
                                   formattedPrice = "₹0";
-                                } else if (data?.maxPrice == null || data!.maxPrice!.isEmpty || data.maxPrice == '0') {
+                                } else if (data?.maxPrice == null || data?.maxPrice == 0) {
                                   formattedPrice = PriceHelper.formatINR(data!.minPrice);
                                 } else {
-                                  formattedPrice = PriceHelper.formatINRRange('${data.minPrice} - ${data.maxPrice}');
+                                  formattedPrice = PriceHelper.formatINRRange('${data?.minPrice} - ${data?.maxPrice}');
                                 }
 
                                 return Text(

@@ -117,16 +117,16 @@ class ApiUrls {
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
-  static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
-  static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
-  static final String  lpLoadById="$_baseUrl$_load$_path$_v1$_load";
-  static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
-  static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
+  static final String  lpLoadList="$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
+  static final String  lpLoadMemo="$_baseUrl$_loadExecution$_path$_v1$_load";
+  static final String  lpLoadById="$_baseUrl$_loadDiscovery$_path$_v1$_load";
+  static final String  lpLoadSendOtp="$_baseUrl$_loadExecution$_path$_v1$_load/Esignmemo";
+  static final String  lpLoadVerifyOtp="$_baseUrl$_loadExecution$_path$_v1$_load/verify-esign-otp";
   static final String  lpLoadRoute="$_baseUrl$_rateDiscovery$_path$_v1/lane";
   static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
-  static final String  lpLoadAgree="$_baseUrl$_load$_path$_v1$_load/lp-agree";
-  static final String  lpLoadVerifyAdvance="$_baseUrl$_load$_path$_v1$_load/verify-advance";
+  static final String  lpLoadAgree="$_baseUrl$_loadExecution$_path$_v1$_load/lp-agree";
+  static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
@@ -137,12 +137,12 @@ class ApiUrls {
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
-  static final String  getRecentRoute = "$baseUrl$_path$_v1$_load/distinct-source-destination";
+  static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
 
   // Load
-  static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";
-  static final String  getLoads = "$baseUrl$_path$_v1$_load$_customer/";
+  static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
+  static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
 

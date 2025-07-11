@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -15,14 +16,14 @@ class LowCreditDialog extends StatelessWidget {
     return CommonDialogView(
       hideCloseButton: true,
       showYesNoButtonButtons: true,
-      noButtonText: "Back",
-      yesButtonText: "Support",
+      noButtonText: context.appText.back,
+      yesButtonText: context.appText.support,
       child: Column(
         children: [
           Lottie.asset(AppJSON.alert, repeat: true, frameRate: FrameRate(200)),
-          Text("Low credit balance", style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
+          Text(context.appText.lowCreditBalance, style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
           10.height,
-          Text("You cannot post this load due to your low credit balance", textAlign: TextAlign.center, style: AppTextStyle.body3),
+          Text(context.appText.lowCreditBalanceAlertMsg, textAlign: TextAlign.center, style: AppTextStyle.body3),
           10.height,
         ],
       ),

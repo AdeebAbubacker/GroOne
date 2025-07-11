@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -80,6 +81,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
+                    CustomLog.debug(this, "Role Id : ${state.index + 1}");
                     context.push(AppRouteName.login, extra: "${state.index + 1}");
                   },
                 ),

@@ -97,6 +97,11 @@ class ProfileRepository {
     return await _userInformationRepository.getCustomerTypeID();
   }
 
+  /// Get Show Blue
+  Future<int?> getUserRole() async {
+    return await _userInformationRepository.getUserRole();
+  }
+
   /// Get Blue Id
   Future<Result<String>> getBlueId() async {
     try {

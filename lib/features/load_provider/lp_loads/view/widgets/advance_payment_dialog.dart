@@ -24,7 +24,7 @@ class AdvancePaymentDialog extends StatelessWidget {
 
   final String loadId;
   final String creditLimit;
-  final LpLoadAgreeData lpLoadAgreeData;
+  final LpLoadAgreeResponse lpLoadAgreeData;
   final lpLoadLocator = locator<LpLoadCubit>();
 
 
