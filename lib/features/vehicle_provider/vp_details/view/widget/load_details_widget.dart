@@ -48,40 +48,46 @@ class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
   final LPHomeCubit lpHomeCubit;
   final VpHomeBloc vpHomeBloc;
-  const LoadDetailsWidget({super.key, required this.cubit,required this.lpHomeCubit,required this.vpHomeBloc});
+  const LoadDetailsWidget({
+    super.key,
+    required this.cubit,
+    required this.lpHomeCubit,
+    required this.vpHomeBloc,
+  });
 
-
-  changeLoadStatus(BuildContext context,String? id) async {
-
-    if(cubit.state.loadStatus==LoadStatus.accepted){
-      await Navigator.push(context, MaterialPageRoute(builder: (context) => TripScheduleScreen(),)).then((value) {
+  changeLoadStatus(BuildContext context, String? id) async {
+    if (cubit.state.loadStatus == LoadStatus.accepted) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TripScheduleScreen()),
+      ).then((value) {
         // cubit.getLoadDetails(id??"0");
-      },);
+      });
       return;
     }
-    String? userId=await vpHomeBloc.getUserId();
-    await cubit.changedLoadStatus(id??"0", customerId:userId,
-      loadStatus: 3,
-    ).then((value) {
-      if(cubit.state.loadStatus==LoadStatus.accepted && cubit.state.vpLoadStatus?.status==Status.SUCCESS){
-        AppDialog.show(
-          context,
-          child: SuccessDialogView(
-            message: 'Load Accepted Successfully',
-            afterDismiss: () {
-              Navigator.pop(context);
-            },
-          ),
-        );
-      }
-    },);
-
+    String? userId = await vpHomeBloc.getUserId();
+    await cubit
+        .changedLoadStatus(id ?? "0", customerId: userId, loadStatus: 3)
+        .then((value) {
+          if (cubit.state.loadStatus == LoadStatus.accepted &&
+              cubit.state.vpLoadStatus?.status == Status.SUCCESS) {
+            AppDialog.show(
+              context,
+              child: SuccessDialogView(
+                message: 'Load Accepted Successfully',
+                afterDismiss: () {
+                  Navigator.pop(context);
+                },
+              ),
+            );
+          }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-      buildWhen: (previous, current) => current!=previous,
+      buildWhen: (previous, current) => current != previous,
       listener: (context, state) {},
       bloc: cubit,
       builder: (context, state) {
@@ -90,8 +96,7 @@ class LoadDetailsWidget extends StatelessWidget {
           return CircularProgressIndicator().center();
         }
         if (state.loadDetailsUIState?.status == Status.ERROR) {
-          return genericErrorWidget(
-              error: state.loadDetailsUIState?.errorType);
+          return genericErrorWidget(error: state.loadDetailsUIState?.errorType);
         }
         if (state.loadDetailsUIState?.status == Status.SUCCESS) {
           final loads = state.loadDetailsUIState?.data;
@@ -99,22 +104,22 @@ class LoadDetailsWidget extends StatelessWidget {
           if (loads?.data == null) {
             return genericErrorWidget(error: NotFoundError());
           }
-          loadDetails=loads?.data;
-
+          loadDetails = loads?.data;
           return Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
               constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.45),
-              decoration:commonContainerDecoration(
+                maxHeight: MediaQuery.of(context).size.height * 0.45,
+              ),
+              decoration: commonContainerDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
-                shadow: true
+                shadow: true,
               ),
               child: Column(
                 children: [
@@ -122,32 +127,34 @@ class LoadDetailsWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildRequestWidget((state.loadStatus==LoadStatus.accepted),loadDetails,state.loadStatus),
+                        _buildRequestWidget(
+                          (state.loadStatus == LoadStatus.accepted),
+                          loadDetails,
+                          state.loadStatus,
+                        ),
                         10.height,
                         Divider(color: Color(0xffE1E1E1), thickness: 3),
                         12.height,
 
                         SourceDestinationWidget(
                           pickUpLocation: loadDetails?.pickUpLocation,
-                          dropLocation:  loadDetails?.dropLocation,
+                          dropLocation: loadDetails?.dropLocation,
                         ).paddingSymmetric(horizontal: 15),
                         15.height,
-                        _buildQuotedPriceWidget((state.loadStatus==LoadStatus.accepted),loadDetails?.rate, loadDetails?.vpRate, loadDetails?.vpMaxRate),
-                        15.height,
-                        _buildLoadEntityWidget(loadDetails,state.locationDistance),
-                        20.height,
-                        _buildLoadProviderAdvancePaymentCardViewOnly(
-                          context: context,
-                          agreedAdvance: "500",
-                          paymentStatus: 2,
-                          advancePayment: "300",
-                          agreedPrice: "600",
-                          balancePayment: "500",
-                          onViewTap: () {
-                            showPaymentView(context);
-                          },
-                          tripPrice: "1000"
+                        _buildQuotedPriceWidget(
+                          (state.loadStatus == LoadStatus.accepted ||
+                              state.loadStatus == LoadStatus.assigned),
+                          loadDetails?.rate,
+                          loadDetails?.vpRate,
+                          loadDetails?.vpMaxRate,
+                          context,
                         ),
+                        15.height,
+                        _buildLoadEntityWidget(
+                          loadDetails,
+                          state.locationDistance,
+                        ),
+                        20.height,
 
                         _buildConsigneeDetail(
                           context: context,
@@ -159,7 +166,10 @@ class LoadDetailsWidget extends StatelessWidget {
                         ),
 
                         20.height,
-                        Text("Trip Documents", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
+                        Text(
+                          "Trip Documents",
+                          style: AppTextStyle.h4,
+                        ).paddingSymmetric(horizontal: 15),
                         20.height,
                         _buildUploadedDocPreviewItem(
                           context: context,
@@ -170,37 +180,58 @@ class LoadDetailsWidget extends StatelessWidget {
                           isFileAvailable: true,
                         ),
                         20.height,
-                        _buildAdableSectionHeader(context: context, title: 'Damages and Shortages', onAdd: () {
-                          Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen()));
-                        }),
+                        _buildAdableSectionHeader(
+                          context: context,
+                          title: 'Damages and Shortages',
+                          onAdd: () {
+                            Navigator.push(
+                              context,
+                              commonRoute(VpDamagesAndShortagesScreen()),
+                            );
+                          },
+                        ),
                         20.height,
-                        _buildAdableSectionHeader(context: context, title: 'Settlements', onAdd: () {
-                          Navigator.push(context, commonRoute(VpSettlementsScreen()));
-                        }),
+                        _buildAdableSectionHeader(
+                          context: context,
+                          title: 'Settlements',
+                          onAdd: () {
+                            Navigator.push(
+                              context,
+                              commonRoute(VpSettlementsScreen()),
+                            );
+                          },
+                        ),
                         20.height,
-                        if(state.loadStatus==LoadStatus.assigned)
-                          ...[
-                            Text("Timeline", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
-                            20.height,
-                            LoadTimelineWidget(
-                              timelineList: loadDetails?.timeline??[],
-                            ).paddingSymmetric(horizontal: 15),
-                          ]
+                        if (state.loadStatus == LoadStatus.assigned) ...[
+                          Text(
+                            "Timeline",
+                            style: AppTextStyle.h4,
+                          ).paddingSymmetric(horizontal: 15),
+                          20.height,
+                          LoadTimelineWidget(
+                            timelineList: loadDetails?.timeline ?? [],
+                          ).paddingSymmetric(horizontal: 15),
+                        ],
                       ],
                     ),
                   ).expand(),
-                  _buildBottomButtonWidget(loadDetails ,state,context)
+                  _buildBottomButtonWidget(loadDetails, state, context),
                 ],
               ).paddingTop(15),
             ),
           );
         }
         return genericErrorWidget(error: GenericError());
-      });
+      },
+    );
   }
 
   /// Build Request Widget
-  Widget _buildRequestWidget(bool isAccepted,LoadDetails? loadDetails,LoadStatus? loadStatus) {
+  Widget _buildRequestWidget(
+    bool isAccepted,
+    LoadDetails? loadDetails,
+    LoadStatus? loadStatus,
+  ) {
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -213,100 +244,149 @@ class LoadDetailsWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if(loadStatus==LoadStatus.assigned)
-                _buildAssignedTruckDetails(loadDetails?.trip?.vehicle,loadDetails?.truckType)
+              if (loadStatus == LoadStatus.assigned)
+                _buildAssignedTruckDetails(
+                  loadDetails?.trip?.vehicle,
+                  loadDetails?.truckType,
+                )
               else
-              Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 12,
-                  color:Color(0xff979797)
-              )),
-              if(loadStatus==LoadStatus.assigned)
-                  _buildAssignedDriverDetails(loadDetails?.trip?.driver)
-                else
-                  Text(
-                "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
-                style: AppTextStyle.body1BlackColor.copyWith(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 12,
-                  color: AppColors.textBlackDetailColor
+                Text(
+                  "Requested",
+                  style: AppTextStyle.body1GreyColor.copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xff979797),
+                  ),
                 ),
-              ),
+              if (loadStatus == LoadStatus.assigned)
+                _buildAssignedDriverDetails(loadDetails?.trip?.driver)
+              else
+                Text(
+                  "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
+                  style: AppTextStyle.body1BlackColor.copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: AppColors.textBlackDetailColor,
+                  ),
+                ),
             ],
           ),
-          if(loadStatus==LoadStatus.assigned)
-          GestureDetector(
-              onTap: () => callRedirect(loadDetails?.trip?.driver?.mobile??""),
-              child: SvgPicture.asset(AppIcons.svg.phoneCall)),
+          if (loadStatus == LoadStatus.assigned)
+            GestureDetector(
+              onTap:
+                  () => callRedirect(loadDetails?.trip?.driver?.mobile ?? ""),
+              child: SvgPicture.asset(AppIcons.svg.phoneCall),
+            ),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
 
-
   /// assigned truck details
-  Widget _buildAssignedTruckDetails(Vehicle? vehicle,TruckType? truckType){
+  Widget _buildAssignedTruckDetails(Vehicle? vehicle, TruckType? truckType) {
     return Row(
       children: [
         Container(
           decoration: commonContainerDecoration(
             color: Color(0xffFFC100),
-            borderRadius: BorderRadius.circular(4)
+            borderRadius: BorderRadius.circular(4),
           ),
-          child: Text(vehicle?.vehicleNumber??"").paddingSymmetric(vertical: 2,horizontal: 5),
+          child: Text(
+            vehicle?.vehicleNumber ?? "",
+          ).paddingSymmetric(vertical: 2, horizontal: 5),
         ),
         5.width,
-        Text(truckType?.type??"",style: AppTextStyle.body3.copyWith(
-          color: AppColors.thinLightGray
-        ),),
+        Text(
+          truckType?.type ?? "",
+          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
+        ),
         5.width,
-        Text("(${truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
-            color: AppColors.thinLightGray
-        ),)
+        Text(
+          "(${truckType?.subType ?? ""})",
+          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
+        ),
       ],
     );
   }
-
 
   /// show trip assigned driver details
-  Widget _buildAssignedDriverDetails(Driver? driver){
+  Widget _buildAssignedDriverDetails(Driver? driver) {
     return Row(
       children: [
-        Text("Driver:",style: AppTextStyle.body3.copyWith(
-          color: AppColors.thinLightGray
-        ),),
-        Text(" ${driver?.name.capitalizeFirst}",style: AppTextStyle.h3w500.copyWith(
-          fontSize: 13,
-          color: AppColors.textBlackDetailColor
-        ),),
+        Text(
+          "Driver:",
+          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
+        ),
+        Text(
+          " ${driver?.name.capitalizeFirst}",
+          style: AppTextStyle.h3w500.copyWith(
+            fontSize: 13,
+            color: AppColors.textBlackDetailColor,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildQuotedPriceWidget(bool isAccepted,String? rate, String? vpRate, String? vpMaxRate) {
-    final vpLoadPrice = (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
-        ? PriceHelper.formatINR(vpRate)
-        : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
+  Widget _buildQuotedPriceWidget(
+    bool isAccepted,
+    String? rate,
+    String? vpRate,
+    String? vpMaxRate,
+    BuildContext context,
+  ) {
+    final vpLoadPrice =
+        (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
+            ? PriceHelper.formatINR(vpRate)
+            : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
     return Container(
-      height: 37,
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
 
-      decoration:commonContainerDecoration( color: AppColors.lightBlueColor,borderRadius: BorderRadius.circular(6)),
+      decoration: commonContainerDecoration(
+        color: AppColors.lightBlueColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
 
-      child: Row(
-        mainAxisAlignment:isAccepted ?  MainAxisAlignment.spaceAround:MainAxisAlignment.spaceAround,
+      child: Column(
         children: [
-          Text( isAccepted? "Trip Price": "Quoted price"),
-          Text(
-            vpLoadPrice,
-            style: AppTextStyle.h1PrimaryColor.copyWith(fontSize: 20),
+          Row(
+            mainAxisAlignment:
+                isAccepted
+                    ? MainAxisAlignment.spaceBetween
+                    : MainAxisAlignment.spaceAround,
+            children: [
+              Text(isAccepted ? "Trip Price" : "Quoted price",style: AppTextStyle.body2.copyWith(
+                fontWeight: FontWeight.w400,
+                color: AppColors.textBlackColor,
+              ),),
+              Text(
+                vpLoadPrice,
+                style: AppTextStyle.h1PrimaryColor.copyWith(fontSize: 20),
+              ),
+            ],
+          ),
+          5.height,
+          _buildLoadProviderAdvancePaymentCardViewOnly(
+            context: context,
+            agreedAdvance: "500",
+            paymentStatus: 2,
+            advancePayment: "300",
+            agreedPrice: "600",
+            balancePayment: "500",
+            onViewTap: () {
+              showPaymentView(context);
+            },
+            tripPrice: "1000",
           ),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildLoadEntityWidget(LoadDetails? loadDetails,String?locationDistance ) {
+  Widget _buildLoadEntityWidget(
+    LoadDetails? loadDetails,
+    String? locationDistance,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -319,7 +399,7 @@ class LoadDetailsWidget extends StatelessWidget {
           children: [
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
-              loadDetails?.commodity?.name??"",
+              loadDetails?.commodity?.name ?? "",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -375,81 +455,87 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildBottomButtonWidget(LoadDetails? loadDetails,LoadDetailsState state,BuildContext context){
-  return  Container(
+  Widget _buildBottomButtonWidget(
+    LoadDetails? loadDetails,
+    LoadDetailsState state,
+    BuildContext context,
+  ) {
+    return Container(
       decoration: commonContainerDecoration(
-          color: Colors.white,
-          blurRadius: 30,
-          shadow: state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned
-      ), child: Row(
-      spacing: 10,
-      children:   [
-        ...[
-           if(state.loadStatus==LoadStatus.matching)
-            AppButton(
-              title: "Support",
-             style: AppButtonStyle.outline.copyWith(
-               shape: WidgetStatePropertyAll(
-                 RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(8),
-                 ),
-               ),
-             ),
-             onPressed: () {
-               commonSupportDialog(context);
-             },
-             textStyle: TextStyle(fontSize: 14),
-           ).expand(),
-           if(state.loadStatus==LoadStatus.matching || state.loadStatus==LoadStatus.accepted)
-           AppButton(
-             isLoading:state.vpLoadStatus?.status==Status.LOADING,
-             title: state.loadStatus==LoadStatus.accepted
-                 ? "Assign Driver"
-                 : "Accept Load",
-             style: AppButtonStyle.primary.copyWith(
-               shape: WidgetStatePropertyAll(
-                 RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(8),
-                 ),
-               ),
-             ),
-             onPressed:   () async {
-               changeLoadStatus(context,loadDetails?.loadId?.toString());
-             },
-             textStyle: TextStyle(
-               fontSize: 14,
-               color: AppColors.white,
-             ),
-           ).expand(),
-           if(state.loadStatus==LoadStatus.assigned)
-             SizedBox(
-               height: 60,
-               width:MediaQuery.of(context).size.width * 0.90,
-               child: CustomSwipeButton(
-                 padding: 0,
-                 price:0,
-                 loadId: "",
-                 text: "Swipe to Start Trip",
-                 onSubmit: () {
-                   return null;
-
-                   },),
-             )
-
-         ],
-      ],
-    ).paddingSymmetric(horizontal: 15, vertical: 12),
+        color: Colors.white,
+        blurRadius: 30,
+        shadow:
+            state.loadStatus == LoadStatus.accepted ||
+            state.loadStatus == LoadStatus.assigned,
+      ),
+      child: Row(
+        spacing: 10,
+        children: [
+          ...[
+            if (state.loadStatus == LoadStatus.matching)
+              AppButton(
+                title: "Support",
+                style: AppButtonStyle.outline.copyWith(
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  commonSupportDialog(context);
+                },
+                textStyle: TextStyle(fontSize: 14),
+              ).expand(),
+            if (state.loadStatus == LoadStatus.matching ||
+                state.loadStatus == LoadStatus.accepted)
+              AppButton(
+                isLoading: state.vpLoadStatus?.status == Status.LOADING,
+                title:
+                    state.loadStatus == LoadStatus.accepted
+                        ? "Assign Driver"
+                        : "Accept Load",
+                style: AppButtonStyle.primary.copyWith(
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                onPressed: () async {
+                  changeLoadStatus(context, loadDetails?.loadId?.toString());
+                },
+                textStyle: TextStyle(fontSize: 14, color: AppColors.white),
+              ).expand(),
+            if (state.loadStatus == LoadStatus.assigned)
+              SizedBox(
+                height: 60,
+                width: MediaQuery.of(context).size.width * 0.90,
+                child: CustomSwipeButton(
+                  padding: 0,
+                  price: 0,
+                  loadId: "",
+                  text: "Swipe to Start Trip",
+                  onSubmit: () {
+                    return null;
+                  },
+                ),
+              ),
+          ],
+        ],
+      ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
   }
 
   Future showPaymentView(BuildContext context) {
     return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return showCustomDialogue(
-              hideButton: true,
+      context: context,
+      builder: (BuildContext context) {
+        return showCustomDialogue(
+          hideButton: true,
 
-              context: context, child: PaymentInformationDialogView(
+          context: context,
+          child: PaymentInformationDialogView(
             advanceAmount: 14000,
             balancePayout: 3200,
             isAdvanceCompleted: true,
@@ -459,14 +545,13 @@ class LoadDetailsWidget extends StatelessWidget {
             receivedOn: "12 Jun2 2025, 7:34 AM",
             transactionId: "467898765432",
             tripCost: 73000,
-          ), buttonText: "Proceed");
-        });
+          ),
+          buttonText: "Proceed",
+        );
+      },
+    );
   }
 }
-
-
-
-
 
 //Payment View only
 Widget _buildLoadProviderAdvancePaymentCardViewOnly({
@@ -479,61 +564,54 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   required int paymentStatus,
   VoidCallback? onViewTap,
 }) {
-  return Container(
-    margin: const EdgeInsets.all(16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: AppColors.lightBlueColor,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-         if (paymentStatus == 1 && tripPrice != null)
-          _buildPriceRow(
-            context.appText.tripPrice,
-            tripPrice,
-            context,
-            highlight: true,
-          ),
-
-        if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
-          _buildPriceRow(
-            context.appText.agreedPrice,
-            agreedPrice ?? '',
-            context,
-            highlight: true,
-          ),
-        8.height,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (paymentStatus == 1 && tripPrice != null)
         _buildPriceRow(
-          context.appText.agreedAdvance,
-          agreedAdvance,
+          context.appText.tripPrice,
+          tripPrice,
           context,
           highlight: true,
         ),
-        12.height,
 
-        if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
-          _buildStatusRow(
-            title: '${context.appText.advancePayment} (80%)',
-            amount: advancePayment ?? "",
+      if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
+        _buildPriceRow(
+          context.appText.agreedPrice,
+          agreedPrice ?? '',
+          context,
+          highlight: true,
+        ),
+      8.height,
+      _buildPriceRow(
+        context.appText.agreedAdvance,
+        agreedAdvance,
+        context,
+        highlight: true,
+      ),
+      12.height,
+
+      if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
+        _buildStatusRow(
+          title: '${context.appText.advancePayment} (80%)',
+          amount: advancePayment ?? "",
+          statusText: context.appText.received,
+          statusColor: AppColors.lightGreenBox,
+        ),
+
+      if (paymentStatus == 3)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: _buildStatusRow(
+            title: context.appText.balancePayment,
+            amount: balancePayment ?? "",
             statusText: context.appText.received,
             statusColor: AppColors.lightGreenBox,
           ),
+        ),
 
-        if (paymentStatus == 3)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: _buildStatusRow(
-              title: context.appText.balancePayment,
-              amount: balancePayment ?? "",
-              statusText: context.appText.received,
-              statusColor: AppColors.lightGreenBox,
-            ),
-          ),
-
-        12.height,
-        if(paymentStatus != 4 )
+      12.height,
+      if (paymentStatus != 4)
         Align(
           alignment: Alignment.center,
           child: GestureDetector(
@@ -558,12 +636,9 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
             ),
           ),
         ),
-      ],
-    ),
+    ],
   );
 }
-
-
 
 // Prcie Row
 Widget _buildPriceRow(
@@ -648,13 +723,12 @@ Widget _buildStatusRow({
   );
 }
 
-
 // Consignee Details
 Widget _buildConsigneeDetail({
   required BuildContext context,
-   String? name,
-   String? phoneNo,
-   String? email,
+  String? name,
+  String? phoneNo,
+  String? email,
   bool isTextField = false,
   bool isUpdatable = false,
   TextEditingController? nameController,
@@ -669,12 +743,12 @@ Widget _buildConsigneeDetail({
           Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
           Spacer(),
           if (isUpdatable)
-           AppButton(
-           title: context.appText.update,
-           style: AppButtonStyle.outlineShrink,
-           textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-           onPressed: () {},
-          ),
+            AppButton(
+              title: context.appText.update,
+              style: AppButtonStyle.outlineShrink,
+              textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+              onPressed: () {},
+            ),
         ],
       ),
       if (isTextField)
@@ -716,17 +790,22 @@ Widget _buildConsigneeDetail({
             20.height,
 
             // Contact Number
-            _buildDetailWidget(text1: context.appText.contactNo, text2: phoneNo ?? ""),
+            _buildDetailWidget(
+              text1: context.appText.contactNo,
+              text2: phoneNo ?? "",
+            ),
             20.height,
 
             // Email Id
-            _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
+            _buildDetailWidget(
+              text1: context.appText.emailId,
+              text2: email ?? "",
+            ),
           ],
         ),
     ],
   ).paddingSymmetric(horizontal: 15);
 }
-
 
 // Detail Widget
 Widget _buildDetailWidget({required String text1, required String text2}) {
@@ -747,9 +826,6 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
     ],
   );
 }
-
-
-
 
 // Doc Preview
 Widget _buildUploadedDocPreviewItem({
@@ -778,8 +854,8 @@ Widget _buildUploadedDocPreviewItem({
   return Container(
     height: 55,
     width: double.infinity,
-    margin:  EdgeInsets.symmetric(vertical: 5),
-    padding:  EdgeInsets.symmetric(horizontal: 12),
+    margin: EdgeInsets.symmetric(vertical: 5),
+    padding: EdgeInsets.symmetric(horizontal: 12),
     decoration: BoxDecoration(
       color: AppColors.docViewCardBgColor,
       borderRadius: BorderRadius.circular(commonTexFieldRadius),
@@ -937,12 +1013,10 @@ Widget _buildProgressEtaWidget({
   );
 }
 
-
 // Divider
 Widget _buildDivider() {
   return Divider(color: AppColors.bottomSheetDividerColor, thickness: 3);
 }
-
 
 // Addable Section Header
 Widget _buildAdableSectionHeader({
@@ -969,6 +1043,7 @@ Widget _buildAdableSectionHeader({
     ],
   );
 }
+
 // Heading
 Widget _buildHeading({required String text}) {
   return Text(text, style: AppTextStyle.h4).paddingSymmetric(horizontal: 15);

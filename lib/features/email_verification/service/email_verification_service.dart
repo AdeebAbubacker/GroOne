@@ -37,7 +37,8 @@ class EmailVerificationService {
       final url = ApiUrls.resendEmailOtp;
       final result = await _apiService.post(url, body: {"email": email});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> ResendEmailOtpModel.fromJson(data));
+      final resentOtpResponse= ResendEmailOtpModel.fromJson(result.value);
+        return  Success(resentOtpResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
