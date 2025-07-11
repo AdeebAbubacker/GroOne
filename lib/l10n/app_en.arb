@@ -365,12 +365,10 @@
   "received" :"Received",
   "balancePayment" :"Balance payment",
   "view" :"View",
-  "add" : "ADD",
   "uploadOtherDocs":"Upload Other documents",
   "uploadEwayBill":"Upload E-Way bill",
   "uploadMaterialInvoice":"Upload Material Invoice",
-  "uploadLorryReceipt": "Upload Lorry Receipt"
- }
+  "uploadLorryReceipt": "Upload Lorry Receipt",
   "add" : "ADD",
   "enterRemarks" : "Enter remarks",
   "noLoadFound" : "No loads found.",

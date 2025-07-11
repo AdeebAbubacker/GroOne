@@ -20,11 +20,11 @@ class DriverLoadDetailsScreen extends StatefulWidget {
 
 class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
   final LoadDetails mockLoadDetails = LoadDetails(
-  id: 1,
+  loadSeriesID: '1',
   loadId: "LOAD123",
   laneId: "LANE001",
   rateId: 1,
-  customerId: 1,
+  customerId: '1',
   commodityId: 1,
   truckTypeId: 1,
   pickUpAddr: "Guindy, Chennai",
@@ -46,7 +46,7 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
   pickUpDateTime: "2024-08-10T10:00:00Z",
   expectedDeliveryDateTime: DateTime.parse("2024-08-11T18:30:00Z"),
   handlingCharges: 300,
-  acceptedBy: 2,
+  acceptedBy: '2',
   createdAt: DateTime.parse("2024-08-09T15:30:00Z"),
   updatedAt: null,
   deletedAt: null,
