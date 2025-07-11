@@ -366,8 +366,8 @@
   "balancePayment" :"Balance payment",
   "view" :"View",
   "add" : "ADD",
+  "uploadOtherDocs":"Upload Other documents",
   "uploadEwayBill":"Upload E-Way bill",
   "uploadMaterialInvoice":"Upload Material Invoice",
-  "uploadOtherDocs":"Upload Other documents",
   "uploadLorryReceipt": "Upload Lorry Receipt"
  }
