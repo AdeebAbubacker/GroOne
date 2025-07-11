@@ -382,7 +382,6 @@ class Trip {
 
   factory Trip.fromJson(Map<String, dynamic> json) {
 
-    print("json is ${json['driver']}");
     return Trip(
       driver: Driver.fromJson(json['driver']),
       vehicle: Vehicle.fromJson(json['vehicle']),

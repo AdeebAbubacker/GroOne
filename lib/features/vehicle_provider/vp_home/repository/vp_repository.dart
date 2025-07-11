@@ -75,7 +75,6 @@ class VpHomeRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return await _vpService.getVpRecentLoads(customerId);
     } catch (e) {
-      print("error in getting recent loads");
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }

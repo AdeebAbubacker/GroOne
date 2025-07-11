@@ -24,7 +24,6 @@ class VpDamagesAndShortagesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
- 
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.damagesAndShortages),
       body: SingleChildScrollView(
@@ -37,7 +36,6 @@ class VpDamagesAndShortagesScreen extends StatelessWidget {
             AppTextField(
               controller: itemName,
               labelText: context.appText.itemName,
-
               hintText: "LED TV 42”",
             ),
 
