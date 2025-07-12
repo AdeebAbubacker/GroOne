@@ -18,6 +18,8 @@ class LpLoadState extends Equatable {
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final UIState<ConsigneAddedSuccessModel>? lpAddConsignee;
   final UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee;
+  final UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption;
+  final UIState<LpCreateOrderResponse>? lpCreateOrder;
   final int selectedTabIndex;
   final String? matchingText;
   final Advance? selectedAdvance;
@@ -45,6 +47,8 @@ class LpLoadState extends Equatable {
     this.lpDocumentById,
     this.trackingConsent,
     this.trackingDistance,
+    this.lpAddCustomerPaymentOption,
+    this.lpCreateOrder,
     this.lpAddConsignee,
     this.lpUpdateConsignee,
     this.matchingText,
@@ -74,6 +78,8 @@ class LpLoadState extends Equatable {
     UIState<TrackingDistanceResponse>? trackingDistance,
     UIState<ConsigneAddedSuccessModel>? lpAddConsignee,
     UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee,
+    UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption,
+    UIState<LpCreateOrderResponse>? lpCreateOrder,
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
@@ -105,6 +111,8 @@ class LpLoadState extends Equatable {
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
       locationDistance: locationDistance ?? this.locationDistance,
+      lpAddCustomerPaymentOption: lpAddCustomerPaymentOption ?? this.lpAddCustomerPaymentOption,
+      lpCreateOrder: lpCreateOrder ?? this.lpCreateOrder,
       isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
       downloadedFiles: downloadedFiles ?? this.downloadedFiles,
     );
@@ -134,6 +142,8 @@ class LpLoadState extends Equatable {
     selectedPercentageId,
     selectedAdvance,
     locationDistance,
+    lpAddCustomerPaymentOption,
+    lpCreateOrder,
     isFeedbackAdded,
     downloadedFiles
   ];

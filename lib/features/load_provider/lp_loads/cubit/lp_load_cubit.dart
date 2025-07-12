@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consigne
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
@@ -21,6 +22,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_r
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
@@ -397,7 +399,6 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     } else if (result is Error) {
       _setTrackingDistanceState(UIState.error(result.type));
     }
-
   }
  
 
@@ -437,6 +438,63 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _updateConsigneeState(UIState.error(result.type));
     }    
   }
+
+     // Create orderid
+  void setCustomerPaymentResult(UIState<OrderAddedSuccess>? uiState) {
+    emit(state.copyWith(lpAddCustomerPaymentOption: uiState));
+  }
+
+  // Genrate payment id
+  Future<void> addCustomerPaymentOption({required String orderId,
+  required int amount,
+  required String customerName,
+  required String customerEmail,
+  required String customerMobile,
+  required String customerCity,}) async {
+    setCustomerPaymentResult(UIState.loading());
+
+    Result result = await _repository.addCustomerPaymentOption(   orderId: orderId,
+    amount: amount,
+    customerName: customerName,
+    customerEmail: customerEmail,
+    customerMobile: customerMobile,
+    customerCity: customerCity,);
+
+    if (result is Success<OrderAddedSuccess>) {
+      setCustomerPaymentResult(UIState.success(result.value));
+    } else if (result is Error) {
+      setCustomerPaymentResult(UIState.error(result.type));
+    }
+  }
+
+// Initiate Payment
+void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
+  emit(state.copyWith(lpCreateOrder: uiState));
+}
+
+//Initiate payment
+Future<void> createOrder({
+  required String loadId,
+  required int amount,
+  required String type,
+  required String action,
+}) async {
+  _setCreateOrderResult(UIState.loading());
+
+  Result result = await _repository.createOrder(
+    loadId: loadId,
+    amount: amount,
+    type: type,
+    action: action,
+  );
+
+  if (result is Success<LpCreateOrderResponse>) {
+    _setCreateOrderResult(UIState.success(result.value));
+  } else if (result is Error) {
+    _setCreateOrderResult(UIState.error(result.type));
+  }
+}
+
  
   void updateFeedbackText(String text) {
     final currentLoadById = state.lpLoadById?.data?.data;

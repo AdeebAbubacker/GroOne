@@ -138,7 +138,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                       
                   // Truck Type Row
                   Row(
@@ -301,7 +300,16 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   // Pay Advance
                   if(widget.loadStatus.index >= LoadStatus.loading.index)
                     ...[
-                      _buildAdvancePaymentCard(context: context, paymentState: 1),
+                     _buildAdvancePaymentCard(
+                    context: context, 
+                    paymentState: 1, 
+                    loadId: widget.loadItem.loadId,
+                    customerCity: 'null',
+                    advanceAmount: 20,
+                    customerEmail:  widget.loadItem.customer?.emailId ?? '',
+                    customerMobile: widget.loadItem.customer?.mobileNumber ?? '',
+                    customerName: widget.loadItem.customer?.customerName ?? '',
+                    ),
                       16.height,
                     ],
 
@@ -475,7 +483,15 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 Widget _buildAdvancePaymentCard({
   required BuildContext context,
   required int paymentState,
+  required String loadId,
+  required String customerName,
+  required String customerEmail,
+  required String customerMobile,
+  required String customerCity,
+  required int advanceAmount,
 }) {
+  final lpLoadCubit = context.read<LpLoadCubit>();
+
   return Container(
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
@@ -528,13 +544,12 @@ Widget _buildAdvancePaymentCard({
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                        context.appText.paid,
-                        style: AppTextStyle.body.copyWith(
-                          fontSize: 12,
-                          color: AppColors.greenColor,
-                          fontWeight: FontWeight.w500,
-                        )
-
+                      context.appText.paid,
+                      style: AppTextStyle.body.copyWith(
+                        fontSize: 12,
+                        color: AppColors.greenColor,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
               ],
@@ -566,48 +581,76 @@ Widget _buildAdvancePaymentCard({
         const SizedBox(height: 12),
 
         // Action Button
-        if (paymentState == 1)
+        if (paymentState == 1 || paymentState == 2 || paymentState == 3)
           AppButton(
             isLoading: false,
             title: context.appText.payAdvance,
-            onPressed: () {},
-          )
-        else if (paymentState == 2)
-          AppButton(
-            isLoading: false,
-            title: context.appText.payAdvance,
-            onPressed: () {},
-            richTextWidget: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
-                  AppIcons.svg.alertWarning,
-                  height: 18,
-                  width: 18,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  context.appText.payAdvance,
-                  style: AppTextStyle.buttonWhiteTextColor,
-                ),
-              ],
-            ),
-          )
-        else if (paymentState == 3)
-            AppButton(
-              isLoading: false,
-              title: context.appText.payAdvance,
-              onPressed: () {},
-              richTextWidget: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    context.appText.payBalance,
-                    style: AppTextStyle.buttonWhiteTextColor,
-                  ),
-                ],
-              ),
-            ),
+            onPressed: () async {
+              // Step 1: Create Order
+              await lpLoadCubit.createOrder(
+                loadId: "23d870ee-1134-4860-ae10-edf8d53f0149",
+                amount: advanceAmount,
+                type: 'online',
+                action: 'pay_advance',
+              );
+
+              final createOrderState = lpLoadCubit.state.lpCreateOrder;
+
+              if (createOrderState?.status == Status.SUCCESS) {
+                final orderId = createOrderState?.data?.orderId;
+                if (orderId != null) {
+                  // Step 2: Add Customer Payment Option
+                  await lpLoadCubit.addCustomerPaymentOption(
+                    orderId: orderId,
+                    amount: advanceAmount,
+                    customerName: customerName,
+                    customerEmail: customerEmail,
+                    customerMobile: customerMobile,
+                    customerCity: customerCity,
+                  );
+
+                  final paymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+
+                  if (paymentState?.status == Status.SUCCESS) {
+                    ToastMessages.success(message: "Payment successful");
+                  } else {
+                    ToastMessages.error(message: "Payment failed");
+                  }
+                } else {
+                  ToastMessages.error(message: "Order ID not found");
+                }
+              } else {
+                ToastMessages.error(message: "Order creation failed");
+              }
+            },
+            richTextWidget: paymentState == 2
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        AppIcons.svg.alertWarning,
+                        height: 18,
+                        width: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        context.appText.payAdvance,
+                        style: AppTextStyle.buttonWhiteTextColor,
+                      ),
+                    ],
+                  )
+                : paymentState == 3
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.appText.payBalance,
+                            style: AppTextStyle.buttonWhiteTextColor,
+                          ),
+                        ],
+                      )
+                    : null,
+          ),
       ],
     ),
   );

@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consigne
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
@@ -15,6 +16,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_r
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
@@ -222,4 +224,42 @@ class  LpLoadRepository {
     }
   }
 
+
+Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
+  required String orderId,
+  required int amount,
+  required String customerName,
+  required String customerEmail,
+  required String customerMobile,
+  required String customerCity,
+}) async {
+  try {
+ 
+    return service.addCustomerPaymentOption(
+      orderId: orderId,
+      amount: amount,
+      customerName: customerName,
+      customerEmail: customerEmail,
+      customerMobile: customerMobile,
+      customerCity: customerCity,
+    );
+  } catch (e) {
+    CustomLog.error(this, "Failed to add customer payment option", e);
+    return Error(ErrorWithMessage(message: e.toString()));
+  }
+}
+
+Future<Result<LpCreateOrderResponse>> createOrder({
+   required String loadId,
+  required int amount,
+  required String type,  
+  required String action, 
+}) async {
+  try {
+    return service.createLpOrder(loadId: loadId, amount: amount, type: type, action: action);
+  } catch (e) {
+    CustomLog.error(this, "Failed to add customer payment option", e);
+    return Error(ErrorWithMessage(message: e.toString()));
+  }
+}
 }

@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consigne
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
@@ -16,6 +17,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_r
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 
@@ -364,6 +366,83 @@ class LpLoadService {
       return Error(GenericError());
     }
   } catch (e) { print("error");
+    return Error(DeserializationError());
+  }
+}
+
+ 
+Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
+  required String orderId,
+  required int amount,
+  required String customerName,
+  required String customerEmail,
+  required String customerMobile,
+  required String customerCity,
+}) async {
+  try {
+    final url = 'https://gro-devapi.letsgro.co/vendor/api/v1/payment/addCustomerPaymentOption';
+
+    final response = await _apiService.post(
+      url,
+      body: {
+        "orderId": orderId,
+        "amount": amount,
+        "customer_name": customerName,
+        "customer_email_id": customerEmail,
+        "customer_mobile_no": customerMobile,
+        "customer_city": customerCity,
+      },
+    );
+
+    if (response is Success) {
+      final data = response.value;
+      final result = OrderAddedSuccess.fromJson(data);
+      print("Payment Option Added Successfully");
+      return Success(result);
+    } else if (response is Error) {
+      print("API Error");
+      return Error(response.type);
+    } else {
+      print("Unknown Error");
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print("Deserialization Error: $e");
+    return Error(DeserializationError());
+  }
+}
+
+Future<Result<LpCreateOrderResponse>> createLpOrder({
+  required String loadId,
+  required int amount,
+  required String type,   
+  required String action
+}) async {
+  try {
+  final url = 'https://gro-devapi.letsgro.co/payment-broker/api/v1/order/pay?loadId=$loadId';
+    final response = await _apiService.post(
+      url,
+      body: {
+        'amount': amount,
+        'type': type,
+        'action': action,
+      },
+    );
+
+    if (response is Success) {
+      final data = response.value;
+      final result = LpCreateOrderResponse.fromJson(data);
+      print('Order pay request successful: $data');
+      return Success(result);
+    } else if (response is Error) {
+      print('API Error: ${response.type}');
+      return Error(response.type);
+    } else {
+      print('Unknown response type');
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print('Deserialization/Error: $e');
     return Error(DeserializationError());
   }
 }
