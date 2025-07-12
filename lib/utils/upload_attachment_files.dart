@@ -22,6 +22,7 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
+  final bool isMultipleSelectionFile;
   final bool? isLoading;
   final bool? hideDeleteButton;
   final String? title;
@@ -46,14 +47,17 @@ class UploadAttachmentFiles extends StatefulWidget {
 }
 
 class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
+
   bool isFile = false;
   final double documentHeight = 50;
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -283,98 +287,58 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                 10.height,
               ],
 
-              GestureDetector(
-                onTap:
-                    !isFile
-                        ? () {
-                          commonHideKeyboard(context);
-                          commonBottomSheet(
-                            context: context,
-                            barrierDismissible: true,
-                            screen: const UploadFileAndImageBottomSheet(),
-                          ).then((value) {
-                            debugPrint("First Time : $value");
-                            isFile = true;
-                            if (value != null) {
-                              for (int i = 0; i < value.length;) {
-                                if (value.length <= 8) {
-                                  isFile = false;
-                                  widget.multiFilesList.add(value);
-                                  widget.thenUploadFileToSever?.call();
-                                } else {
-                                  isFile = false;
-                                }
-                                break;
-                              }
-                            } else {
-                              isFile = false;
-                            }
-                            if (!context.mounted) return;
-                            commonHideKeyboard(context);
-                          });
-                          setState(() {});
-                        }
-                        : () {},
-                child: DottedBorder(
-                  color: Colors.black26,
-                  strokeWidth: 1,
-                  radius: const Radius.circular(commonTexFieldRadius),
-                  borderType: BorderType.RRect,
-                  child: Container(
-                    height: documentHeight,
-                    color: AppColors.textFieldFillColor,
-                    alignment: Alignment.center,
-                    child:
-                        isFile
-                            ? Text(
-                              AppString.label.loading,
-                              style: AppTextStyle.body2,
-                            )
-                            : widget.isSpaceBetwenUpload
-                            ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [ 10.width,
-                                Text(
-                                  widget.hintText ??
-                                      context.appText.uploadDocument,
-                                  style: AppTextStyle.textFiled,
-                                ),
-                               Spacer(),
-                                SvgPicture.asset(
-                                  AppIcons.svg.documentUpload,
-                                  width: 16,
-                                  colorFilter: AppColors.svg(
-                                    AppColors.iconColor,
-                                  ),
-                                ), 10.width,
-                              ],
-                            )
-                            : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  context.appText.uploadDocument,
-                                  style: AppTextStyle.textFiled,
-                                ),
-                                10.width,
-                                SvgPicture.asset(
-                                  AppIcons.svg.documentUpload,
-                                  width: 16,
-                                  colorFilter: AppColors.svg(
-                                    AppColors.iconColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                  ),
+            GestureDetector(
+              onTap: !isFile ? () {
+                commonHideKeyboard(context);
+                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
+                  debugPrint("First Time : $value");
+                  isFile = true;
+                  if (value != null) {
+                    for (int i = 0; i < value.length;) {
+                      if (value.length <= 8) {
+                        isFile = false;
+                        widget.multiFilesList.add(value);
+                        widget.thenUploadFileToSever?.call();
+                      } else {
+                        isFile = false;
+                      }
+                      break;
+                    }
+                  } else {
+                    isFile = false;
+                  }
+                  if(!context.mounted) return;
+                  commonHideKeyboard(context);
+                });
+                setState(() {});
+              } : () {},
+              child: DottedBorder(
+                color:  Colors.black26,
+                strokeWidth: 1,
+                radius:  const Radius.circular(commonTexFieldRadius),
+                borderType: BorderType.RRect,
+                child: Container(
+                  height: documentHeight,
+                  color: AppColors.textFieldFillColor,
+                  alignment: Alignment.center,
+                  child: isFile
+                      ? Text(AppString.label.loading, style: AppTextStyle.body2)
+                      :  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                          Text(context.appText.uploadDocument, style: AppTextStyle.textFiled),
+                          10.width,
+                          SvgPicture.asset(AppIcons.svg.documentUpload, width: 16, colorFilter: AppColors.svg(AppColors.iconColor)),
+                        ],
+                      ),
                 ),
               ),
-            ],
-          );
-        }
-      },
-    );
+            ),
+          ],
+        );
+
+      }
+    });
   }
 }

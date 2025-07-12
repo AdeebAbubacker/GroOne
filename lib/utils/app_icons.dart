@@ -49,6 +49,7 @@ class SvgIcons {
   final String gallery = "${_svgBasePath}gallery.svg";
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
+  final String folder = "${_svgBasePath}folder.svg";
   final String addIcon = "${_svgBasePath}plus_icon.svg";
   final String alertWarning = "${_svgBasePath}alertWarning.svg";
   final String documentView = "${_svgBasePath}documentView.svg";

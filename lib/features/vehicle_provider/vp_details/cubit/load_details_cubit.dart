@@ -1,12 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
@@ -22,7 +26,6 @@ import 'load_details_state.dart';
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-
   LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
 
   acceptLoad(int? status) {
@@ -44,12 +47,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
-    if (result is Success<LoadDetailsResponseModel>) {
+    if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
-          locationDistance: getDistance(result.value.data?.pickUpLatlon??"0",result.value.data?.dropLatlon??"0"),
+          locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"),
           loadDetailsUIState: UIState.success(result.value)));
 
-      acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatus);
+      acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));
@@ -140,11 +143,70 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  // Create Damage Api Call
+  void _setDamageUIState(UIState<DamageModel>? uiState){
+    emit(state.copyWith(createDamageUIState: uiState));
+  }
+  Future<void> createDamage(DamageApiRequest req) async {
+    _setDamageUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getSubmitDamageData(req);
+    if (result is Success<DamageModel>) {
+      _setDamageUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDamageUIState(UIState.error(result.type));
+    }
+  }
+
+
+  //  Damage list Api Call
+  void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
+    emit(state.copyWith(damageListUIState: uiState));
+  }
+  Future<void> fetchDamageList(String loadId) async {
+    _setDamageListUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getDamageListData(loadId);
+    if (result is Success<GetDamageListModel>) {
+      _setDamageListUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDamageListUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // // Upload TDS File
+  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
+    emit(state.copyWith(uploadDamageUIState: uiState));
+  }
+  Future<void> uploadDamageFile(File file) async {
+    _setUploadDamageFileUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
+    if (result is Success<UploadDamageFileModel>) {
+      _setUploadDamageFileUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setUploadDamageFileUIState(UIState.error(result.type));
+    }
+  }
+
+
+  void resetUploadDamageFileUIState(){
+    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
+  }
+
+
+  void resetSubmitDamageUIState(){
+    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(state.createDamageUIState)));
+  }
+
 
   void resetState(){
     emit(state.copyWith(
       possibleDeliveryDate: "",
       scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse),
+      uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState),
+      createDamageUIState : resetUIState<DamageModel>(state.createDamageUIState),
     ));
   }
 }

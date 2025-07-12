@@ -10,7 +10,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class UploadFileAndImageBottomSheet extends StatefulWidget {
-  const UploadFileAndImageBottomSheet({super.key});
+  final bool isMultipleSelectionFile;
+  const UploadFileAndImageBottomSheet({super.key,  this.isMultipleSelectionFile = true});
 
   @override
   State<UploadFileAndImageBottomSheet> createState() => _UploadFileAndImageBottomSheetState();
@@ -21,7 +22,7 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
   final List<String> icons = [
     AppIcons.svg.camera,
     AppIcons.svg.gallery,
-    AppIcons.svg.documentUpload, // Add this in your AppIcons.svg
+    AppIcons.svg.folder, // Add this in your AppIcons.svg
   ];
 
   final List<String> labels = [
@@ -32,6 +33,10 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.isMultipleSelectionFile) {
+      icons.removeLast();
+      labels.removeLast();
+    }
     return Material(
       color: Colors.white,
       child: Column(
@@ -73,9 +78,9 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
                     child: Row(
                       children: [
                         10.width,
-                        SvgPicture.asset(icons[i], colorFilter : AppColors.svg(AppColors.greyIconColor)),
+                        SvgPicture.asset(icons[i], colorFilter : AppColors.svg(AppColors.iconColor)),
                         20.width,
-                        Text(labels[i].toString(), style: AppTextStyle.body2)
+                        Text(labels[i].toString(), style: AppTextStyle.body)
                       ],
                     ),
                   ),

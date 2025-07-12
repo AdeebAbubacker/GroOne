@@ -265,7 +265,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
               if (status == Status.SUCCESS) {
                 LpBottomNavigation.selectedIndexNotifier.value = 0;
-                context.go(AppRouteName.login);
+                context.go(AppRouteName.chooseLanguage);
               }
 
               if (status == Status.ERROR) {

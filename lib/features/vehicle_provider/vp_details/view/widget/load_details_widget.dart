@@ -12,7 +12,7 @@ import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_damages_and_shortages/view/vp_damages_and_shortages_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -90,16 +90,17 @@ class LoadDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-      buildWhen: (previous, current) => current != previous,
+      buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {},
       bloc: cubit,
       builder: (context, state) {
-        LoadDetails? loadDetails;
+        LoadDetailModelData? loadDetails;
         if (state.loadDetailsUIState?.status == Status.LOADING) {
           return CircularProgressIndicator().center();
         }
         if (state.loadDetailsUIState?.status == Status.ERROR) {
-          return genericErrorWidget(error: state.loadDetailsUIState?.errorType);
+          return genericErrorWidget(
+              error: state.loadDetailsUIState?.errorType);
         }
         if (state.loadDetailsUIState?.status == Status.SUCCESS) {
           final loads = state.loadDetailsUIState?.data;
@@ -107,22 +108,22 @@ class LoadDetailsWidget extends StatelessWidget {
           if (loads?.data == null) {
             return genericErrorWidget(error: NotFoundError());
           }
-          loadDetails = loads?.data;
+          loadDetails=loads?.data;
+
           return Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.45,
-              ),
-              decoration: commonContainerDecoration(
+                  maxHeight: MediaQuery.of(context).size.height * 0.45),
+              decoration:commonContainerDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
-                shadow: true,
+                shadow: true
               ),
               child: Column(
                 children: [
@@ -140,8 +141,8 @@ class LoadDetailsWidget extends StatelessWidget {
                         12.height,
 
                         SourceDestinationWidget(
-                          pickUpLocation: loadDetails?.pickUpLocation,
-                          dropLocation: loadDetails?.dropLocation,
+                          pickUpLocation: loadDetails?.loadRoute?.pickUpLocation,
+                          dropLocation:  loadDetails?.loadRoute?.dropLocation,
                         ).paddingSymmetric(horizontal: 15),
                         15.height,
                         _buildQuotedPriceWidget(
@@ -199,6 +200,57 @@ class LoadDetailsWidget extends StatelessWidget {
                           ),
                         ],
 
+                        _buildLoadEntityWidget(loadDetails,state.locationDistance),
+                        20.height,
+                        _buildLoadProviderAdvancePaymentCardViewOnly(
+                          context: context,
+                          agreedAdvance: "500",
+                          paymentStatus: 1,
+                          advancePayment: "300",
+                          agreedPrice: "600",
+                          balancePayment: "500",
+                          onViewTap: () {
+
+                          },
+                          tripPrice: "1000"
+                        ),
+                        _buildConsigneeDetail(
+                          context: context,
+                          name: 'dd',
+                          email: 'd',
+                          phoneNo: '6587443',
+                          isUpdatable: false,
+                          isTextField: false,
+                        ),
+
+
+                        20.height,
+                        Text("Trip Documents", style: AppTextStyle.h4).paddingSymmetric(horizontal: 15),
+                        20.height,
+
+                        _buildUploadedDocPreviewItem(
+                          context: context,
+                          isDownloadable: true,
+                          fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
+                          fileTitle: 'Material Invoice',
+                          dateTime: '07-12-2024 | 02:52 pm',
+                          isFileAvailable: true,
+                        ),
+                        20.height,
+
+                        // Damage & Shortage
+                        _buildAdableSectionHeader(
+                            context: context,
+                            title: 'Damages and Shortages',
+                            onAdd: () {
+                              Navigator.push(context, commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.scheduleTripDetails?.vehicle?.vehicleId, loadId: loadDetails?.loadId)));
+                            },
+                        ),
+
+                        20.height,
+                        _buildAdableSectionHeader(context: context, title: 'Settlements', onAdd: () {
+                          Navigator.push(context, commonRoute(VpSettlementsScreen()));
+                        }),
                         20.height,
                         if ((state.loadStatusId??0) >=4) ...[
                           Text(
@@ -225,11 +277,7 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   /// Build Request Widget
-  Widget _buildRequestWidget(
-    bool isAccepted,
-    LoadDetails? loadDetails,
-    LoadStatus? loadStatus,
-  ) {
+  Widget _buildRequestWidget(bool isAccepted,LoadDetailModelData? loadDetails,LoadStatus? loadStatus) {
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -242,86 +290,72 @@ class LoadDetailsWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (loadStatus == LoadStatus.assigned)
-                _buildAssignedTruckDetails(
-                  loadDetails?.trip?.vehicle,
-                  loadDetails?.truckType,
-                )
+              if(loadStatus==LoadStatus.assigned)
+                _buildAssignedTruckDetails(loadDetails?.scheduleTripDetails?.vehicle,loadDetails?.truckType)
               else
-                Text(
-                  "Requested",
-                  style: AppTextStyle.body1GreyColor.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Color(0xff979797),
-                  ),
+              Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color:Color(0xff979797)
+              )),
+              if(loadStatus==LoadStatus.assigned)
+                  _buildAssignedDriverDetails(loadDetails?.scheduleTripDetails?.driver)
+                else
+                  Text(
+                "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
+                style: AppTextStyle.body1BlackColor.copyWith(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: AppColors.textBlackDetailColor
                 ),
-              if (loadStatus == LoadStatus.assigned)
-                _buildAssignedDriverDetails(loadDetails?.trip?.driver)
-              else
-                Text(
-                  "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
-                  style: AppTextStyle.body1BlackColor.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: AppColors.textBlackDetailColor,
-                  ),
-                ),
+              ),
             ],
           ),
-          if (loadStatus == LoadStatus.assigned)
-            GestureDetector(
-              onTap:
-                  () => callRedirect(loadDetails?.trip?.driver?.mobile ?? ""),
-              child: SvgPicture.asset(AppIcons.svg.phoneCall),
-            ),
+          if(loadStatus==LoadStatus.assigned)
+          GestureDetector(
+              onTap: () => callRedirect(loadDetails?.scheduleTripDetails?.driver?.mobile??""),
+              child: SvgPicture.asset(AppIcons.svg.phoneCall)),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
 
+
   /// assigned truck details
-  Widget _buildAssignedTruckDetails(Vehicle? vehicle, TruckType? truckType) {
+  Widget _buildAssignedTruckDetails(ScheduleTripDetailsVehicle? vehicle,DataTruckType? truckType){
     return Row(
       children: [
         Container(
           decoration: commonContainerDecoration(
             color: Color(0xffFFC100),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(4)
           ),
-          child: Text(
-            vehicle?.vehicleNumber ?? "",
-          ).paddingSymmetric(vertical: 2, horizontal: 5),
+          child: Text(vehicle?.truckNo??"").paddingSymmetric(vertical: 2,horizontal: 5),
         ),
         5.width,
-        Text(
-          truckType?.type ?? "",
-          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
+        Text(truckType?.type??"",style: AppTextStyle.body3.copyWith(
+          color: AppColors.thinLightGray
+        ),),
         5.width,
-        Text(
-          "(${truckType?.subType ?? ""})",
-          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
+        Text("(${truckType?.subType??""})",style: AppTextStyle.body3.copyWith(
+            color: AppColors.thinLightGray
+        ),)
       ],
     );
   }
 
+
   /// show trip assigned driver details
-  Widget _buildAssignedDriverDetails(Driver? driver) {
+  Widget _buildAssignedDriverDetails(Driver? driver){
     return Row(
       children: [
-        Text(
-          "Driver:",
-          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
-        Text(
-          " ${driver?.name.capitalizeFirst}",
-          style: AppTextStyle.h3w500.copyWith(
-            fontSize: 13,
-            color: AppColors.textBlackDetailColor,
-          ),
-        ),
+        Text("Driver:",style: AppTextStyle.body3.copyWith(
+          color: AppColors.thinLightGray
+        ),),
+        Text(" ${driver?.name.capitalizeFirst}",style: AppTextStyle.h3w500.copyWith(
+          fontSize: 13,
+          color: AppColors.textBlackDetailColor
+        ),),
       ],
     );
   }
@@ -385,10 +419,7 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildLoadEntityWidget(
-    LoadDetails? loadDetails,
-    String? locationDistance,
-  ) {
+  Widget _buildLoadEntityWidget(LoadDetailModelData? loadDetails,String?locationDistance ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -401,7 +432,7 @@ class LoadDetailsWidget extends StatelessWidget {
           children: [
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
-              loadDetails?.commodity?.name ?? "",
+              loadDetails?.commodity?.name??"",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -457,75 +488,70 @@ class LoadDetailsWidget extends StatelessWidget {
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildBottomButtonWidget(
-    LoadDetails? loadDetails,
-    LoadDetailsState state,
-    BuildContext context,
-  ) {
-    return Container(
+  Widget _buildBottomButtonWidget(LoadDetailModelData? loadDetails,LoadDetailsState state,BuildContext context){
+  return  Container(
       decoration: commonContainerDecoration(
-        color: Colors.white,
-        blurRadius: 30,
-        shadow:
-            state.loadStatus == LoadStatus.accepted ||
-            state.loadStatus == LoadStatus.assigned,
-      ),
-      child: Row(
-        spacing: 10,
-        children: [
-          ...[
-            if (state.loadStatus == LoadStatus.matching)
-              AppButton(
-                title: "Support",
-                style: AppButtonStyle.outline.copyWith(
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                onPressed: () {
-                  commonSupportDialog(context);
-                },
-                textStyle: TextStyle(fontSize: 14),
-              ).expand(),
-            if (state.loadStatus == LoadStatus.matching ||
-                state.loadStatus == LoadStatus.accepted)
-              AppButton(
-                isLoading: state.vpLoadStatus?.status == Status.LOADING,
-                title:
-                    state.loadStatus == LoadStatus.accepted
-                        ? "Assign Driver"
-                        : "Accept Load",
-                style: AppButtonStyle.primary.copyWith(
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                onPressed: () async {
-                  changeLoadStatus(context, loadDetails?.loadId?.toString());
-                },
-                textStyle: TextStyle(fontSize: 14, color: AppColors.white),
-              ).expand(),
-            if ((state.loadStatusId??0)>=4)
-              SizedBox(
-                height: 60,
-                width: MediaQuery.of(context).size.width * 0.90,
-                child: CustomSwipeButton(
-                  padding: 0,
-                  price: 0,
-                  loadId: "",
-                  text: getBottomButtonTitle(state.loadStatus??LoadStatus.matching),
-                  onSubmit: () {
-                  return changeLoadStatus(context, loadDetails?.loadId?.toString(),loadStatus:(state.loadStatusId??0)+1 );
-                  },
-                ),
-              ),
-          ],
-        ],
-      ).paddingSymmetric(horizontal: 15, vertical: 12),
+          color: Colors.white,
+          blurRadius: 30,
+          shadow: state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned
+      ), child: Row(
+      spacing: 10,
+      children:   [
+        ...[
+           if(state.loadStatus==LoadStatus.matching)
+            AppButton(
+              title: "Support",
+             style: AppButtonStyle.outline.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed: () {
+               commonSupportDialog(context);
+             },
+             textStyle: TextStyle(fontSize: 14),
+           ).expand(),
+           if(state.loadStatus==LoadStatus.matching || state.loadStatus==LoadStatus.accepted)
+           AppButton(
+             isLoading:state.vpLoadStatus?.status==Status.LOADING,
+             title: state.loadStatus==LoadStatus.accepted
+                 ? "Assign Driver"
+                 : "Accept Load",
+             style: AppButtonStyle.primary.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed:   () async {
+               changeLoadStatus(context, loadDetails?.loadId?.toString());
+             },
+             textStyle: TextStyle(
+               fontSize: 14,
+               color: AppColors.white,
+             ),
+           ).expand(),
+           if(state.loadStatus==LoadStatus.assigned)
+             SizedBox(
+               height: 60,
+               width:MediaQuery.of(context).size.width * 0.90,
+               child: CustomSwipeButton(
+                 padding: 0,
+                 price:0,
+                 loadId: "",
+                 text: "Swipe to Start Trip",
+                 onSubmit: () {
+                   return null;
+
+                   },),
+             )
+
+         ],
+      ],
+    ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
   }
 
