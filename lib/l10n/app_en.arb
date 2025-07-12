@@ -398,5 +398,7 @@
   "disclaimerNote2": "Delayed intimation related to POD non-submission will not be accepted.",
   "disclaimerNote3": "Transit insurance will be customer scope. Shortage/Damage debits up to ₹15,000/- or Load balance amount whichever is lower.",
   "disclaimerNote4": "Payment terms:- We need a 90% advance within 24 hours from the loading and 10% balance 15 days from the date of submission of the hard POD and invoices.",
-  "disclaimerNote5": "Loss of POD: In case of physical copy of POD is lost means we can submit an indemnity bond or we can accept ₹3000/- debit only as indemnity charges."
+  "disclaimerNote5": "Loss of POD: In case of physical copy of POD is lost means we can submit an indemnity bond or we can accept ₹3000/- debit only as indemnity charges.",
+  "advanceUnpaid": "Advance Unpaid",
+  "sim": "SIM"
 }

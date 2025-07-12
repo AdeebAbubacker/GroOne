@@ -49,6 +49,8 @@ class ApiUrls {
   static String get _notification => "/notification";
   static String get _loadDiscovery => "/load-discovery";
   static String get _loadExecution => "/load-execution";
+  static String get _loadTracking => "/load-tracking";
+  static String get _tracking => "/tracking";
 
 
   // Base URL
@@ -127,6 +129,8 @@ class ApiUrls {
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  lpLoadAgree="$_baseUrl$_loadExecution$_path$_v1$_load/lp-agree";
   static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
+  static final String  lpLoadFeedback="$_baseUrl$_loadExecution$_path$_v1$_load/";
+  static final String  lpLoadDocument ="$_baseUrl$_document$_path$_v1/documents/";
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
@@ -183,4 +187,8 @@ class ApiUrls {
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
+
+  /// Tracking
+  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
+  static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

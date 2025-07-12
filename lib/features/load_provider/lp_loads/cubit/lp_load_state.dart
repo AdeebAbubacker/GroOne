@@ -12,11 +12,18 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
   final UIState<LpLoadAgreeResponse>? lpLoadAgree;
   final UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance;
+  final UIState<LpLoadFeedbackResponse>? lpLoadFeedback;
+  final UIState<DocumentDetails>? lpDocumentById;
+  final UIState<TrackingConsentStatusResponse>? trackingConsent;
+  final UIState<TrackingDistanceResponse>? trackingDistance;
   final int selectedTabIndex;
   final String? matchingText;
   final Advance? selectedAdvance;
   final int? selectedPercentageId;
   final String? locationDistance;
+  final bool? isFeedbackAdded;
+  final Map<String, bool> downloadedFiles;
+
 
 
   const LpLoadState({
@@ -32,10 +39,17 @@ class LpLoadState extends Equatable {
     this.lpCreditUpdate,
     this.lpLoadAgree,
     this.lpLoadVerifyAdvance,
+    this.lpLoadFeedback,
+    this.lpDocumentById,
+    this.trackingConsent,
+    this.trackingDistance,
     this.matchingText,
     this.selectedAdvance,
     this.selectedPercentageId,
     this.locationDistance,
+    this.isFeedbackAdded = false,
+    this.downloadedFiles = const {},
+
   });
 
   LpLoadState copyWith({
@@ -50,11 +64,17 @@ class LpLoadState extends Equatable {
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,
     UIState<LpLoadAgreeResponse>? lpLoadAgree,
     UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance,
+    UIState<LpLoadFeedbackResponse>? lpLoadFeedback,
+    UIState<DocumentDetails>? lpDocumentById,
+    UIState<TrackingConsentStatusResponse>? trackingConsent,
+    UIState<TrackingDistanceResponse>? trackingDistance,
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
     int? selectedPercentageId,
     String? locationDistance,
+    bool? isFeedbackAdded,
+    Map<String, bool>? downloadedFiles,
   }) {
     return LpLoadState(
       lpLoadResponse: lpLoadResponse ?? this.lpLoadResponse,
@@ -69,10 +89,16 @@ class LpLoadState extends Equatable {
       lpCreditUpdate: lpCreditUpdate ?? this.lpCreditUpdate,
       lpLoadAgree: lpLoadAgree ?? this.lpLoadAgree,
       lpLoadVerifyAdvance: lpLoadVerifyAdvance ?? this.lpLoadVerifyAdvance,
+      lpLoadFeedback: lpLoadFeedback ?? this.lpLoadFeedback,
+      lpDocumentById: lpDocumentById ?? this.lpDocumentById,
+      trackingConsent: trackingConsent ?? this.trackingConsent,
+      trackingDistance: trackingDistance ?? this.trackingDistance,
       matchingText: matchingText ?? this.matchingText,
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
       locationDistance: locationDistance ?? this.locationDistance,
+      isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
+      downloadedFiles: downloadedFiles ?? this.downloadedFiles,
     );
   }
 
@@ -90,9 +116,15 @@ class LpLoadState extends Equatable {
     lpCreditUpdate,
     lpLoadAgree,
     lpLoadVerifyAdvance,
+    lpLoadFeedback,
+    lpDocumentById,
+    trackingConsent,
+    trackingDistance,
     matchingText,
     selectedPercentageId,
     selectedAdvance,
-    locationDistance
+    locationDistance,
+    isFeedbackAdded,
+    downloadedFiles
   ];
 }

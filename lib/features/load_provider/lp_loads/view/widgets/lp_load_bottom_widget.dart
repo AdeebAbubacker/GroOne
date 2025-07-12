@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -10,8 +10,11 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/feedback_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -20,7 +23,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_multiline_textfield.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -31,9 +33,6 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 class LpLoadBottomWidget extends StatelessWidget {
   final LoadData loadItem;
@@ -43,7 +42,7 @@ class LpLoadBottomWidget extends StatelessWidget {
   LpLoadBottomWidget({super.key, required this.loadItem, required this.kilometers, required this.loadStatus});
 
   final lpLoadLocator = locator<LpLoadCubit>();
-  final TextEditingController feedbackController = TextEditingController();
+
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();
 
@@ -134,24 +133,22 @@ class LpLoadBottomWidget extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // if(loadStatus.index < 4)
                           if(loadStatus.index < LoadStatus.assigned.index)
                             ...[
                               Text(context.appText.requested, style: AppTextStyle.body3.copyWith(color: Colors.grey)),
                               4.height,
                               Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
                             ],
-                          // if(loadItem.loadStatusId > 3)
-                          if(loadStatus.index > LoadStatus.confirmed.index)
+                          if(loadStatus.index >= LoadStatus.assigned.index)
                             ...[
                               5.height,
                               Row(
                                 children: [
                                   Container(
                                       decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
-                                      padding: EdgeInsets.symmetric(horizontal: 2),
+                                      padding: EdgeInsets.symmetric(horizontal: 4),
                                       child: Text(loadItem.scheduleTripDetails?.vehicle?.truckNo ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
-                                  5.width,
+                                  8.width,
                                   Text('${loadItem.truckType?.type ?? ''} - ${loadItem.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
                               ),
                               5.height,
@@ -163,11 +160,11 @@ class LpLoadBottomWidget extends StatelessWidget {
                               ),
                               5.height
                             ],
-                          // if(loadItem.loadStatusId > 2)
-                            if(loadStatus.index > LoadStatus.confirmed.index)
+                            if(loadStatus.index >= LoadStatus.confirmed.index)
                               ...[
                               4.height,
                               Container(
+                                width: loadStatus.index >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
                                   padding: EdgeInsets.all(6),
                                   decoration: commonContainerDecoration(
                                       color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
@@ -175,7 +172,7 @@ class LpLoadBottomWidget extends StatelessWidget {
                             ]
                         ],
                       ),
-                      if(loadStatus.index > LoadStatus.confirmed.index)
+                      if(loadStatus.index >= LoadStatus.assigned.index)
                         ...[
                           Spacer(),
                           GestureDetector(
@@ -192,15 +189,22 @@ class LpLoadBottomWidget extends StatelessWidget {
                   ),
 
                   // Travel Progress
-                 if(loadStatus.index > LoadStatus.assigned.index)
+                 if(loadStatus.index >= LoadStatus.loading.index)
                    ...[
                      25.height,
-                     _buildProgressEtaWidget(
-                       context: context,
-                       progressPercentage: 6,
-                       remainingDistance: "250 KMs",
-                       totalDistance: "456KMs",
-                       eta: "31-09-2024, 09:30 PM",
+                     BlocBuilder<LpLoadCubit, LpLoadState>(
+                       builder: (context, state) {
+                         final trackingData = state.trackingDistance?.data;
+                         if (trackingData == null) {
+                           return SizedBox();
+                         }
+                         return TrackingProgress(
+                           progressPercentage: trackingData.percentage,
+                           remainingDistance: trackingData.currentdistance ?? '--',
+                           totalDistance: trackingData.overalldistance ?? '--',
+                           eta: trackingData.durationValue,
+                         );
+                       },
                      ),
                    ],
 
@@ -253,30 +257,33 @@ class LpLoadBottomWidget extends StatelessWidget {
                   ),
                   16.height,
 
-                  // Agreed Price
-                  Container(
-                    decoration: commonContainerDecoration(
-                      color: AppColors.primaryLightColor,
-                      borderRadius: BorderRadius.circular(commonPadding),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(context.appText.agreedPrice, style: AppTextStyle.body2),
-                        Text(
-                          loadPrice,
-                          style: AppTextStyle.h4.copyWith(
-                            color: AppColors.primaryColor,
-                          ),
+                  if(loadStatus.index <= LoadStatus.assigned.index)
+                    ...[
+                      // Agreed Price
+                      Container(
+                        decoration: commonContainerDecoration(
+                          color: AppColors.primaryLightColor,
+                          borderRadius: BorderRadius.circular(commonPadding),
                         ),
-                      ],
-                    ).paddingAll(8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(context.appText.agreedPrice, style: AppTextStyle.body2),
+                            Text(
+                              loadPrice,
+                              style: AppTextStyle.h4.copyWith(
+                                color: AppColors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ).paddingAll(8),
 
-                  ),
-                  16.height,
+                      ),
+                      16.height,
+                    ],
 
                   // Pay Advance
-                  if(loadStatus.index > LoadStatus.assigned.index)
+                  if(loadStatus.index >= LoadStatus.loading.index)
                     ...[
                       _buildAdvancePaymentCard(context: context, paymentState: 1),
                       16.height,
@@ -312,60 +319,50 @@ class LpLoadBottomWidget extends StatelessWidget {
                   ),
                   25.height,
 
-                  // if(loadStatus.index > LoadStatus.assigned.index)
+                  if(loadStatus.index >= LoadStatus.loading.index)
                     ...[
                       _buildConsigneeDetail(
                         context: context,
-                        name: 'dd',
-                        email: 'd',
-                        phoneNo: '6587443',
+                        name: loadItem.consigneeDetails?.name,
+                        email: loadItem.consigneeDetails?.email,
+                        phoneNo: loadItem.consigneeDetails?.mobileNumber,
                         isUpdatable: true,
                         isTextField: true,
                       ),
                       16.height,
+
+                      if(loadItem.loadDocument.isNotEmpty)
                       // Download Documents
-                      Text(context.appText.tripdocument, style: AppTextStyle.h4),
-                      Column(
-                        children: [
-                          20.height,
-                          _buildUploadedDocPreviewItem(
-                            context: context,
-                            isDownloadable: true,
-                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                            fileTitle: 'LR copy',
-                            dateTime: '07-12-2024 | 02:52 pm',
-                            isFileAvailable: true,
-                          ),
-                          10.height,
-                          _buildUploadedDocPreviewItem(
-                            context: context,
-                            isDownloadable: true,
-                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                            fileTitle: 'E-way bill',
-                            dateTime: '07-12-2024 | 02:52 pm',
-                            isFileAvailable: true,
-                          ),
-                          10.height,
-                          _buildUploadedDocPreviewItem(
-                            context: context,
-                            isDownloadable: true,
-                            fileUrl: 'https://picsum.photos/id/237/500/300.jpg',
-                            fileTitle: 'Material Invoice',
-                            dateTime: '07-12-2024 | 02:52 pm',
-                            isFileAvailable: true,
-                          ),
-                          20.height,
-                        ],
-                      ),
+                     ...[
+                       Text(context.appText.tripdocument, style: AppTextStyle.h4),
+                       10.height,
+                       Column(
+                         children: loadItem.loadDocument.map((doc) {
+                           return Column(
+                             children: [
+                               TripDocuments(
+                                 docName: doc.documentDetails?.title ?? '',
+                                 docDateTime: doc.createdAt!,
+                                 docUrl: doc.documentDetails?.filePath ?? '',
+                                 downloadKey: doc.loadDocumentId,
+                                 docId: doc.documentId,
+                               ),
+                               10.height,
+                             ],
+                           );
+                         }).toList(),
+                       ),
+                     ],
 
                       // Feedback and Remarks
-                      _buildFeedbackRemarksWidget(context: context, controller: feedbackController),
+                      if(loadStatus.index >= LoadStatus.unloading.index)
+                      FeedbackWidget(loadId: loadItem.loadId),
 
                       20.height
                     ],
 
                   // Timeline
-                  if(loadStatus.index > LoadStatus.matching.index)
+                  if(loadStatus.index >= LoadStatus.confirmed.index)
                     ...[
                       Text(context.appText.timeline, style: AppTextStyle.h4),
                       20.height,
@@ -374,6 +371,8 @@ class LpLoadBottomWidget extends StatelessWidget {
                 ],
               ).paddingAll(16),
             ).expand(),
+
+
             if(loadStatus == LoadStatus.assigned && loadItem.isAgreed == 0)
               CustomSwipeButton(
                 price: loadItem.loadPrice?.rate ?? 0,
@@ -673,210 +672,4 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
 }
 
 
-// Doc Preview
-Widget _buildUploadedDocPreviewItem({
-  required String fileTitle,
-  required String dateTime,
-  required bool isFileAvailable,
-  required bool isDownloadable,
-  required String fileUrl,
-  required BuildContext context,
-}) {
-  Future<void> downloadAndOpenFile(String url) async {
-    try {
-      final uri = Uri.parse(url);
-      final fileName = path.basename(uri.path);
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = path.join(directory.path, fileName);
 
-      final dio = Dio();
-      await dio.download(url, filePath);
-
-      await OpenFilex.open(filePath);
-    } catch (e) {
-      debugPrint("Error downloading/opening file: $e");
-    }
-  }
-
-  return Container(
-    height: 55,
-    width: double.infinity,
-    margin:  EdgeInsets.symmetric(vertical: 5),
-    padding:  EdgeInsets.symmetric(horizontal: 12),
-    decoration: BoxDecoration(
-      color: AppColors.docViewCardBgColor,
-      borderRadius: BorderRadius.circular(commonTexFieldRadius),
-    ),
-    child: Row(
-      children: [
-        SvgPicture.asset(
-          AppIcons.svg.documentView,
-          width: 22,
-          height: 22,
-          colorFilter: AppColors.svg(
-            isFileAvailable ? AppColors.primaryColor : AppColors.iconRed,
-          ),
-        ),
-        10.width,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              isFileAvailable ? fileTitle : context.appText.fileNotFound,
-              style: AppTextStyle.body.copyWith(
-                fontWeight: FontWeight.w400,
-                fontSize: 12,
-                color:
-                isFileAvailable
-                    ? AppColors.textBlackColor
-                    : AppColors.iconRed,
-              ),
-            ),
-            4.height,
-            Text(
-              dateTime,
-              style: AppTextStyle.body4.copyWith(color: AppColors.textGreyColor),
-            ),
-          ],
-        ).expand(),
-
-        if (isFileAvailable && isDownloadable)
-          IconButton(
-            icon: Icon(
-              Icons.download_rounded,
-              size: 20,
-              color: AppColors.primaryColor,
-            ),
-            onPressed: () => downloadAndOpenFile(fileUrl),
-          ),
-      ],
-    ),
-  );
-}
-
-
-// Travel Progress Details
-Widget _buildProgressEtaWidget({
-  required BuildContext context,
-  required double progressPercentage,
-  required String remainingDistance,
-  required String totalDistance,
-  required String eta,
-}) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Radial Progress
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(
-              value: progressPercentage / 100,
-              strokeWidth: 4,
-              backgroundColor: Colors.grey.shade200,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-            ),
-          ),
-          Text(
-            "${progressPercentage.toInt()}%",
-            style: AppTextStyle.radialProgressText,
-          ),
-        ],
-      ),
-
-      const SizedBox(width: 12),
-
-      // Main content with distance/ETA
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Remaining Distance
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.appText.remainingDistance,
-                style: AppTextStyle.body3SoftGrey.copyWith(color: AppColors.subtleTextGreyColor),
-              ),
-              const SizedBox(height: 4),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: remainingDistance,
-                      style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.w600, fontSize: 14, ),
-                    ),
-                    TextSpan(
-                      text: ' / $totalDistance',
-                      style: AppTextStyle.body4.copyWith(color: AppColors.darkDividerColor),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          // Vertical Divider
-          Container(
-            width: 1,
-            height: 35,
-            color: Colors.grey.shade300,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-          ),
-
-          // ETA
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.appText.estArrivalTime,
-                style: AppTextStyle.body3SoftGrey.copyWith(color: AppColors.subtleTextGreyColor),
-              ),
-              const SizedBox(height: 4),
-              Text(eta, style: AppTextStyle.body3),
-            ],
-          ),
-        ],
-      ).expand(),
-    ],
-  );
-}
-
-
-// Feedback and Remarks Widget
-Widget _buildFeedbackRemarksWidget({
-  required BuildContext context,
-  required TextEditingController controller,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      /// Header Row
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "${context.appText.feedback} / ${context.appText.remarks}",
-            style: AppTextStyle.body3.copyWith(color: AppColors.textBlackColor, fontSize: 14),
-          ),
-          AppButton(
-            buttonHeight: 35,
-            title: context.appText.update,
-            style: AppButtonStyle.outlineShrink,
-            textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-            onPressed: () {},
-          ),
-        ],
-      ),
-
-      10.height,
-
-      /// Multiline TextField
-      AppMultilineTextField(controller: controller,hintText: context.appText.enterRemarks,),
-    ],
-  );
-}
