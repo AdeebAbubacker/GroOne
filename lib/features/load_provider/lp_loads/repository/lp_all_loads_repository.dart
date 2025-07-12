@@ -34,7 +34,7 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadGetByIdResponse>> fetchLoadById({required int loadId, bool forceRefresh = false}) async {
+  Future<Result<LoadGetByIdResponse>> fetchLoadById({required String loadId, bool forceRefresh = false}) async {
     try {
       return service.fetchLoadsById(loadId: loadId,forceRefresh: forceRefresh);
     } catch (e) {
@@ -43,7 +43,7 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
+  Future<Result<LpLoadMemoResponse>> fetchMemoDetails({required String loadId, bool forceRefresh = false}) async {
     try {
       return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
     } catch (e) {
@@ -52,7 +52,7 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
       return service.fetchTruckTypeList();
     } catch (e) {
@@ -81,21 +81,12 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String otp, required String loadId}) async {
+  Future<Result<LpLoadMemoVerifyOtpResponse>> verifyOtp({required String otp, required String loadId}) async {
     try {
       final customerId = await userRepo.getUserID() ?? '';
       return service.verifyOtp(customerId: customerId, otp: otp, loadId: loadId);
     } catch (e) {
       CustomLog.error(this, "Failed to get verify OTP data", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
-  Future<Result<LpLoadMemoOtpResponse>> applyFilter({required int fromRoute, required int toRoute, required String truckType, required String loadPostedDate}) async {
-    try {
-      return service.applyFilter(fromRoute: fromRoute, toRoute: toRoute, truckType: truckType, loadPostedDate: loadPostedDate);
-    } catch (e) {
-      CustomLog.error(this, "Failed to get apply filter data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

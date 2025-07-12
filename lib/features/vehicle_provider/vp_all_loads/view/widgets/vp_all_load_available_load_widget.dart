@@ -93,7 +93,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                       ],
                     ),
                     Text(
-                      formatDateTimeKavach(widget.data.dueDate!.toString()),
+                      formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
                       style: AppTextStyle.primaryColor12w400,
                     ),
                   ],

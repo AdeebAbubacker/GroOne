@@ -49,8 +49,10 @@ class SvgIcons {
   final String gallery = "${_svgBasePath}gallery.svg";
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
+  final String folder = "${_svgBasePath}folder.svg";
   final String addIcon = "${_svgBasePath}plus_icon.svg";
-
+  final String alertWarning = "${_svgBasePath}alertWarning.svg";
+  final String documentView = "${_svgBasePath}documentView.svg";
   // App Icons
   final String support = "${_svgBasePath}support.svg";
   final String filledSupport = "${_svgBasePath}filled_Support.svg";
@@ -94,6 +96,7 @@ class SvgIcons {
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
+  final String switchIcon = "${_svgBasePath}switch.svg";
   final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
   final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
 

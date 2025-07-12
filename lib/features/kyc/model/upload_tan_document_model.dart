@@ -1,45 +1,44 @@
 class UploadTANDocumentModel {
   UploadTANDocumentModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final Data? data;
-
-  factory UploadTANDocumentModel.fromJson(Map<String, dynamic> json){
-    return UploadTANDocumentModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
-
-}
-
-class Data {
-  Data({
     required this.url,
+    required this.filePath,
+    required this.originalName,
+    required this.size,
+    required this.mimeType,
   });
 
   final String url;
+  final String filePath;
+  final String originalName;
+  final int size;
+  final String mimeType;
 
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
-      url: json["url"] ?? "",
+  UploadTANDocumentModel copyWith({
+    String? url,
+    String? filePath,
+    String? originalName,
+    int? size,
+    String? mimeType,
+  }) {
+    return UploadTANDocumentModel(
+      url: url ?? this.url,
+      filePath: filePath ?? this.filePath,
+      originalName: originalName ?? this.originalName,
+      size: size ?? this.size,
+      mimeType: mimeType ?? this.mimeType,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "url": url,
-  };
+  factory UploadTANDocumentModel.fromJson(Map<String, dynamic> json){
+    return UploadTANDocumentModel(
+      url: json["url"] ?? "",
+      filePath: json["filePath"] ?? "",
+      originalName: json["originalName"] ?? "",
+      size: json["size"] ?? 0,
+      mimeType: json["mimeType"] ?? "",
+    );
+  }
 
 }
+
+

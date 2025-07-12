@@ -2,11 +2,11 @@ part of 'lp_load_cubit.dart';
 
 class LpLoadState extends Equatable {
   final UIState<LpLoadResponse>? lpLoadResponse;
-  final UIState<LpLoadGetByIdResponse>? lpLoadById;
-  final UIState<LoadMemoData>? lpLoadMemoDetails;
+  final UIState<LoadGetByIdResponse>? lpLoadById;
+  final UIState<LpLoadMemoResponse>? lpLoadMemoDetails;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp;
-  final UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp;
-  final UIState<LoadTruckTypeListModel>? lpLoadTruckTypes;
+  final UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp;
+  final UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes;
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
   final UIState<CreditCheckApiResponse>? lpCreditCheck;
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
@@ -40,11 +40,11 @@ class LpLoadState extends Equatable {
 
   LpLoadState copyWith({
     UIState<LpLoadResponse>? lpLoadResponse,
-    UIState<LpLoadGetByIdResponse>? lpLoadById,
-    UIState<LoadMemoData>? lpLoadMemoDetails,
+    UIState<LoadGetByIdResponse>? lpLoadById,
+    UIState<LpLoadMemoResponse>? lpLoadMemoDetails,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp,
-    UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp,
-    UIState<LoadTruckTypeListModel>? lpLoadTruckTypes,
+    UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp,
+    UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes,
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
     UIState<CreditCheckApiResponse>? lpCreditCheck,
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,

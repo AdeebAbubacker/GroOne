@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -13,26 +14,21 @@ class AuthRepository {
 
 
 
-  /// Save user data
+  /// Save user data from login
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
-      final userData = user.data;
-      if (userData?.user == null) {
-        CustomLog.error(this, "Save user failed", "User data is null");
-        return Error(LoginAttemptError());
-      }
+      final userData = user;
 
       // Log token information for debugging
       CustomLog.debug(this, "Saving token from login API - Token: ${userData?.token.isNotEmpty == true ? '${userData!.token.substring(0, 10)}...' : 'empty'}, User ID: ${userData?.user?.id}, Role: ${userData?.user?.role}, TempFlag: ${userData?.user?.tempflg}");
 
-      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData!.user!.id.toString());
-      await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.user!.role.toString());
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.user!.id.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
 
       // Verify token was saved
       String? savedToken = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
       CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
-
       return const Success(true);
     } catch (e) {
       CustomLog.error(this, "Save Resident user info to preferences error", e);
@@ -41,23 +37,46 @@ class AuthRepository {
   }
 
 
-  /// Save user data from create account
-  Future<Result<bool>> saveUserInfoFromCreateAccount(UserModel user) async {
+  /// Save user data from home
+  Future<Result<bool>> saveUserInfoFromHome(ProfileDetailModel user) async {
     try {
-      final userData = user.data;
+      final userData = user.customer;
       if (userData == null) {
         CustomLog.error(this, "Save user failed", "User data is null");
         return Error(LoginAttemptError());
       }
-      
+
+      // Save customer details basic user info
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.companyTypeId);
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
+      //await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
+
+      CustomLog.debug(this, "Save user from home saved successfully");
+      return const Success(true);
+    } catch (e) {
+      CustomLog.error(this, "Save Resident user info to preferences error", e);
+      return Error(GenericError());
+    }
+  }
+
+
+
+  /// Save user data from create account
+  Future<Result<bool>> saveUserInfoFromCreateAccount(UserModel user) async {
+    try {
+      final userData = user;
+
       // Save basic user info
       if(userData.customer != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.id.toString());
-        await _securedSharedPref.saveKey(AppString.sessionKey.userRole, userData.customer!.roleId.toString());
+        await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customer!.customerId);
+        await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.customer!.roleId);
+        await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.customer!.companyTypeId);
+      }else{
+        CustomLog.error(this, "Save user failed", "User data is null");
+        return Error(LoginAttemptError());
       }
-      if(userData.details != null){
-        await _securedSharedPref.saveKey(AppString.sessionKey.companyTypeId, userData.details!.companyTypeId.toString());
-      }
+     //  await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
      return const Success(true);
     } catch (e) {
 

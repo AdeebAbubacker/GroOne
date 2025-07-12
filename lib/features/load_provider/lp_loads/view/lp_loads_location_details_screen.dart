@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_bottom_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -16,12 +17,13 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../model/lp_load_get_by_id_response.dart';
 
 class LpLoadsLocationDetailsScreen extends StatefulWidget {
-  final int loadId;
+  final String loadId;
 
   const LpLoadsLocationDetailsScreen({super.key,
     required this.loadId
@@ -50,13 +52,13 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     super.dispose();
   }
 
-  void _updateCountDown(String? status, LoadData loadItem) {
-    if (status == 'Matching') {
+  void _updateCountDown(LoadStatus? status, LoadData loadItem) {
+    if (status == LoadStatus.matching) {
       final matchingStartDate = loadItem.matchingStartDate;
       if (matchingStartDate != null) {
         _countDown = LpHomeHelper.getMatchingTime(matchingStartDate.toIso8601String());
       }
-    } else if (status == 'KYC Pending') {
+    } else if (status == LoadStatus.kycPending) {
       final kycPendingDate = loadItem.customer?.kycPendingDate;
       if (kycPendingDate != null) {
         _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
@@ -71,9 +73,11 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   }
 
   void callTimer(LoadData loadItem){
-    if(loadItem.createdAt != null && loadItem.loadStatusDetails?.loadType != null){
-      final status = loadItem.loadStatusDetails?.loadType;
-      if (status == 'Matching' || status == 'KYC Pending') {
+    if(loadItem.createdAt != null && loadItem.loadStatusDetails?.loadStatus != null){
+      // final status = loadItem.loadStatusDetails?.loadStatus;
+      final statusString = loadItem.loadStatusDetails?.loadStatus;
+      final status = LpHomeHelper.getLoadStatusFromString(statusString);
+      if (status == LoadStatus.matching || status == LoadStatus.kycPending) {
         _updateCountDown(status, loadItem);                                   // first paint
         _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
           _updateCountDown(status, loadItem);
@@ -96,24 +100,26 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final loadItem = uiState.data?.loadData as LoadData;
+              final loadItem = uiState.data?.data as LoadData;
 
-              if (loadItem == null) {
-                return const Center(child: Text("No loads found."));
+              if (loadItem.isNull) {
+                return Center(child: Text(context.appText.noLoadFound));
               }
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 callTimer(loadItem);
               });
+              final status = LpHomeHelper.getLoadStatusFromString(loadItem.loadStatusDetails?.loadStatus);
+
               return Stack(
                 children: [
                   GoogleMapWidget(
-                    pickupLocation: loadItem.pickUpLocation,
-                    dropLocation: loadItem.dropLocation,
-                    pickUpLatLong: loadItem.pickUpLatlon,
-                    dropLatLong: loadItem.dropLatlon,
+                    pickupLocation: loadItem.loadRoute?.pickUpLocation,
+                    dropLocation: loadItem.loadRoute?.dropLocation,
+                    pickUpLatLong: loadItem.loadRoute?.pickUpLatlon,
+                    dropLatLong: loadItem.loadRoute?.dropLatlon,
                   ),
-                  buildTopLocationWidget(loadItem),
-                  LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers),
+                  buildTopLocationWidget(loadItem, status),
+                  LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers, loadStatus: status!),
                   buildSupportWidget(),
                 ],
               );
@@ -125,7 +131,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   
 
   /// Location Details
-  Widget buildTopLocationWidget(LoadData loadItem) {
+  Widget buildTopLocationWidget(LoadData loadItem, LoadStatus? status) {
     return Positioned(
       top: 15,
       left: 16,
@@ -141,7 +147,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   Navigator.pop(context);
                 },child: Icon(Icons.arrow_back)),
                 8.width,
-                Text(loadItem.loadId, style: AppTextStyle.body3),
+                Text(loadItem.loadSeriesId, style: AppTextStyle.body3),
                 Spacer(),
                 Text(
                   loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(loadItem.createdAt!) : "--",
@@ -161,7 +167,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     SizedBox(
                       width: 80,
                       child: Text(
-                        loadItem.pickUpLocation,
+                        loadItem.loadRoute?.pickUpLocation ?? '',
                         style: AppTextStyle.body2.copyWith(color: AppColors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -186,7 +192,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     SizedBox(
                       width: 80,
                       child: Text(
-                        loadItem.dropLocation,
+                        loadItem.loadRoute?.dropLocation ?? '',
                         style: AppTextStyle.body2.copyWith(color: AppColors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -208,18 +214,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   children: [
                     Container(
                       decoration: commonContainerDecoration(
-                        color: LpHomeHelper.getLoadStatusColor(loadItem.loadStatusDetails?.loadType ?? ''),
+                        color: LpHomeHelper.getLoadStatusColor(loadItem.loadStatusDetails?.loadStatus ?? ''),
                       ),
                       // width: 80,
                       child: Text(
-                        LpHomeHelper.getLoadTypeDisplayText(loadItem.loadStatusDetails?.loadType ?? ''),
+                        LpHomeHelper.getLoadTypeDisplayText(loadItem.loadStatusDetails?.loadStatus ?? ''),
                         style: AppTextStyle.body3.copyWith(
-                          color: LpHomeHelper.getLoadStatusTextColor(loadItem.loadStatusDetails?.loadType ?? ''),
+                          color: LpHomeHelper.getLoadStatusTextColor(loadItem.loadStatusDetails?.loadStatus ?? ''),
                         ),
                       ).center().paddingSymmetric(vertical: 4,horizontal: 10),
                     ),
                     4.height,
-                    if (loadItem.loadStatus == 1)
+                    if (status == LoadStatus.kycPending)
                       if(loadItem.customer?.kycPendingDate != null)
                         Text(
                         _countDown,
@@ -228,7 +234,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ).paddingRight(5),
-                    if (loadItem.loadStatus == 2)
+                    if (status == LoadStatus.matching)
                         Text(
                         _countDown,
                         // LpHomeHelper.getMatchingTime(loadItem.matchingStartDate.toString()),

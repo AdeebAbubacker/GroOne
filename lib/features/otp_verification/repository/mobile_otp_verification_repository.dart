@@ -1,12 +1,13 @@
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/model/login_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/mobile_otp_verification_api_request.dart';
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
+import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
-import '../../../data/model/result.dart';
-import '../../../utils/custom_log.dart';
-import '../service/mobile_otp_verification_service.dart';
 
 class MobileOtpVerificationRepository {
   final MobileOtpVerificationService _otpService;
@@ -19,13 +20,17 @@ class MobileOtpVerificationRepository {
       Result<dynamic> result = await _otpService.fetchSendOtpData(request);
       if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
-          // Always save token from login API response, regardless of tempflg status
-          dynamic saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
-          if (saveUserResult is Success) {
+          dynamic saveUserResult;
+          if (result.value?.user?.tempflg == false) {
+            saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
+            if (saveUserResult is Success) {
+              return result;
+            }
+            if (saveUserResult is Error) {
+              return Error(saveUserResult.type);
+            }
+          } else {
             return result;
-          }
-          if (saveUserResult is Error) {
-            return Error(saveUserResult.type);
           }
         }
       }
@@ -40,7 +45,7 @@ class MobileOtpVerificationRepository {
   }
 
   /// Resend Otp Repo
-  Future<Result<LoginApiResponseModel>> resendOtp(
+  Future<Result<MobileOtpResendModel>> resendOtp(
     LoginApiRequest request,
   ) async {
     try {

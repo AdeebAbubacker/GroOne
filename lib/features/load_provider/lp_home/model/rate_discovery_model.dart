@@ -1,21 +1,17 @@
 class RateDiscoveryModel {
   RateDiscoveryModel({
-    required this.success,
     required this.message,
     required this.data,
   });
 
-  final bool success;
   final String message;
   final Data? data;
 
   RateDiscoveryModel copyWith({
-    bool? success,
     String? message,
     Data? data,
   }) {
     return RateDiscoveryModel(
-      success: success ?? this.success,
       message: message ?? this.message,
       data: data ?? this.data,
     );
@@ -23,7 +19,6 @@ class RateDiscoveryModel {
 
   factory RateDiscoveryModel.fromJson(Map<String, dynamic> json){
     return RateDiscoveryModel(
-      success: json["success"] ?? false,
       message: json["message"] ?? "",
       data: json["data"] == null ? null : Data.fromJson(json["data"]),
     );
@@ -33,178 +28,77 @@ class RateDiscoveryModel {
 
 class Data {
   Data({
-    required this.id,
+    required this.rateDiscoveryId,
     required this.laneId,
     required this.truckTypeId,
     required this.price,
     required this.minPrice,
     required this.maxPrice,
-    required this.lane,
-    required this.truckType,
+    required this.weightId,
+    required this.monthYear,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deletedAt,
   });
 
-  final int id;
-  final num laneId;
-  final num truckTypeId;
+  final int rateDiscoveryId;
+  final int laneId;
+  final int truckTypeId;
   final String price;
-  final String minPrice;
-  final String? maxPrice;
-  final Lane? lane;
-  final TruckType? truckType;
+  final int minPrice;
+  final int maxPrice;
+  final int weightId;
+  final String monthYear;
+  final int status;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
 
   Data copyWith({
-    int? id,
-    num? laneId,
-    num? truckTypeId,
+    int? rateDiscoveryId,
+    int? laneId,
+    int? truckTypeId,
     String? price,
-    String? minPrice,
-    String? maxPrice,
-    Lane? lane,
-    TruckType? truckType,
+    int? minPrice,
+    int? maxPrice,
+    int? weightId,
+    String? monthYear,
+    int? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? deletedAt,
   }) {
     return Data(
-      id: id ?? this.id,
+      rateDiscoveryId: rateDiscoveryId ?? this.rateDiscoveryId,
       laneId: laneId ?? this.laneId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       price: price ?? this.price,
       minPrice: minPrice ?? this.minPrice,
       maxPrice: maxPrice ?? this.maxPrice,
-      lane: lane ?? this.lane,
-      truckType: truckType ?? this.truckType,
+      weightId: weightId ?? this.weightId,
+      monthYear: monthYear ?? this.monthYear,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
   factory Data.fromJson(Map<String, dynamic> json){
     return Data(
-      id: json["id"] ?? 0,
+      rateDiscoveryId: json["rateDiscoveryId"] ?? 0,
       laneId: json["laneId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
-      price: json["price"] ?? 0,
-      minPrice: json["minPrice"]?.toString() ?? "0",
-      maxPrice: json["maxPrice"]?.toString(),
-      lane: json["lane"] == null ? null : Lane.fromJson(json["lane"]),
-      truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-    );
-  }
-
-  // Add this helper method in the same class or above
-  static num _parseNum(dynamic value) {
-    if (value is num) return value;
-    if (value is String) return num.tryParse(value) ?? 0;
-    return 0;
-  }
-
-}
-
-class Lane {
-  Lane({
-    required this.id,
-    required this.fromLocationId,
-    required this.toLocationId,
-    required this.fromLocation,
-    required this.toLocation,
-  });
-
-  final int id;
-  final num fromLocationId;
-  final num toLocationId;
-  final Location? fromLocation;
-  final Location? toLocation;
-
-  Lane copyWith({
-    int? id,
-    num? fromLocationId,
-    num? toLocationId,
-    Location? fromLocation,
-    Location? toLocation,
-  }) {
-    return Lane(
-      id: id ?? this.id,
-      fromLocationId: fromLocationId ?? this.fromLocationId,
-      toLocationId: toLocationId ?? this.toLocationId,
-      fromLocation: fromLocation ?? this.fromLocation,
-      toLocation: toLocation ?? this.toLocation,
-    );
-  }
-
-  factory Lane.fromJson(Map<String, dynamic> json){
-    return Lane(
-      id: json["id"] ?? 0,
-      fromLocationId: json["fromLocationId"] ?? 0,
-      toLocationId: json["toLocationId"] ?? 0,
-      fromLocation: json["fromLocation"] == null ? null : Location.fromJson(json["fromLocation"]),
-      toLocation: json["toLocation"] == null ? null : Location.fromJson(json["toLocation"]),
-    );
-  }
-
-}
-
-class Location {
-  Location({
-    required this.id,
-    required this.name,
-    required this.slug,
-  });
-
-  final int id;
-  final String name;
-  final String slug;
-
-  Location copyWith({
-    int? id,
-    String? name,
-    String? slug,
-  }) {
-    return Location(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      slug: slug ?? this.slug,
-    );
-  }
-
-  factory Location.fromJson(Map<String, dynamic> json){
-    return Location(
-      id: json["id"] ?? 0,
-      name: json["name"] ?? "",
-      slug: json["slug"] ?? "",
-    );
-  }
-
-}
-
-class TruckType {
-  TruckType({
-    required this.id,
-    required this.type,
-    required this.subType,
-    required this.iconUrl,
-  });
-
-  final int id;
-  final String type;
-  final String subType;
-  final dynamic iconUrl;
-
-  TruckType copyWith({
-    int? id,
-    String? type,
-    String? subType,
-    dynamic? iconUrl,
-  }) {
-    return TruckType(
-      id: id ?? this.id,
-      type: type ?? this.type,
-      subType: subType ?? this.subType,
-      iconUrl: iconUrl ?? this.iconUrl,
-    );
-  }
-
-  factory TruckType.fromJson(Map<String, dynamic> json){
-    return TruckType(
-      id: json["id"] ?? 0,
-      type: json["type"] ?? "",
-      subType: json["subType"] ?? "",
-      iconUrl: json["iconUrl"],
+      price: json["price"] ?? "",
+      minPrice: json["minPrice"] ?? 0,
+      maxPrice: json["maxPrice"] ?? 0,
+      weightId: json["weightId"] ?? 0,
+      monthYear: json["monthYear"] ?? "",
+      status: json["status"] ?? 0,
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
     );
   }
 

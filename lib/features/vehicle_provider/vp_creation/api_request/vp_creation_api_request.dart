@@ -4,7 +4,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? customerName;
   final String? mobileNumber;
   final String? companyName;
-  final String? companyTypeId;
+  final int? companyTypeId;
   final List<int>? truckType;
   final String? ownedTrucks;
   final String? attachedTrucks;
@@ -12,6 +12,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
   final String? uploadRc;
   final String? emailId;
   final String? pincode;
+  final int? roleId;
   VpCreationApiRequest({
     this.customerName,
     this.mobileNumber,
@@ -24,6 +25,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     this.uploadRc,
     this.emailId,
     this.pincode,
+    this.roleId,
   });
 
   @override
@@ -39,7 +41,8 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       "preferredLanes": preferredLanes ?? [] ,
       "uploadRc": uploadRc ?? "",
       "emailId": emailId ?? "",
-      "pincode": pincode ?? ""
+      "pincode": pincode ?? "",
+      "roleId": roleId ?? 0
     };
   }
 
@@ -47,7 +50,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     String? customerName,
     String? mobileNumber,
     String? companyName,
-    String? companyTypeId,
+    int? companyTypeId,
     List<int>? truckType,
     String? ownedTrucks,
     String? attachedTrucks,
@@ -55,6 +58,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
     String? uploadRc,
     String? emailId,
     String? pincode,
+    int? roleId,
   }) {
     return VpCreationApiRequest(
       customerName: customerName ?? this.customerName,
@@ -68,6 +72,7 @@ class VpCreationApiRequest implements Serializable<VpCreationApiRequest> {
       uploadRc: uploadRc ?? this.uploadRc,
       emailId: emailId ?? this.emailId,
       pincode: pincode ?? this.pincode,
+      roleId: roleId ?? this.roleId,
     );
   }
 }
