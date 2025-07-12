@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -54,7 +55,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
     } else if (status == LoadStatus.kycPending) {
       final kycPendingDate = widget.loadData.customer?.customer?.kycPendingDate;
       if (kycPendingDate != null) {
-        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
+        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate);
       }
     } else {
       _countDown = "--:--:--";
@@ -83,7 +84,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
   @override
   Widget build(BuildContext context) {
-    final loadPrice = (widget.loadData.loadPrice?.maxRate == null || widget.loadData.loadPrice?.maxRate == "0")
+    final loadPrice = (widget.loadData.loadPrice?.maxRate == null || widget.loadData.loadPrice?.maxRate == 0)
         ? PriceHelper.formatINR(widget.loadData.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadData.loadPrice?.rate} - ${widget.loadData.loadPrice?.maxRate}');
     final status = LpHomeHelper.getLoadStatusFromString(widget.loadData.loadStatusDetails?.loadStatus);
@@ -196,10 +197,10 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Agreed Price", style: AppTextStyle.body1Normal),
+                  Text(context.appText.agreedPrice, style: AppTextStyle.body1Normal),
                   Text(
                       loadPrice,
-                      style: AppTextStyle.h3.copyWith(color: AppColors.primaryColor)
+                      style: AppTextStyle.h3.copyWith(color: AppColors.primaryColor, fontSize: 20)
                   ),
                 ],
               ).paddingSymmetric(horizontal: 15, vertical: 10),

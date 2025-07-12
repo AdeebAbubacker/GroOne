@@ -1,5 +1,3 @@
-import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
-
 class LoadGetByIdResponse {
   LoadGetByIdResponse({
     required this.message,
@@ -57,6 +55,9 @@ class LoadData {
     required this.loadStatusDetails,
     required this.loadPrice,
     required this.scheduleTripDetails,
+    required this.consigneeDetails,
+    required this.loadDocument,
+    required this.trackingDetails,
     required this.timeline,
     required this.customer,
     required this.vpCustomer,
@@ -90,6 +91,9 @@ class LoadData {
   final LoadStatusDetails? loadStatusDetails;
   final LoadPrice? loadPrice;
   final ScheduleTripDetails? scheduleTripDetails;
+  final ConsigneeDetails? consigneeDetails;
+  final List<LoadDocumentData> loadDocument;
+  final TrackingDetails? trackingDetails;
   final List<Timeline> timeline;
   final Customer? customer;
   final Customer? vpCustomer;
@@ -123,6 +127,9 @@ class LoadData {
     LoadStatusDetails? loadStatusDetails,
     LoadPrice? loadPrice,
     ScheduleTripDetails? scheduleTripDetails,
+    ConsigneeDetails? consigneeDetails,
+    List<LoadDocumentData>? loadDocument,
+    TrackingDetails? trackingDetails,
     List<Timeline>? timeline,
     Customer? customer,
     Customer? vpCustomer,
@@ -156,6 +163,9 @@ class LoadData {
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
       scheduleTripDetails: scheduleTripDetails ?? this.scheduleTripDetails,
+      consigneeDetails: consigneeDetails ?? this.consigneeDetails,
+      loadDocument: loadDocument ?? this.loadDocument,
+      trackingDetails: trackingDetails ?? this.trackingDetails,
       timeline: timeline ?? this.timeline,
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
@@ -192,6 +202,9 @@ class LoadData {
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
+      consigneeDetails: json["consigneeDetails"] == null ? null : ConsigneeDetails.fromJson(json["consigneeDetails"]),
+      loadDocument: json["loadDocument"] == null ? [] : List<LoadDocumentData>.from(json["loadDocument"]!.map((x) => LoadDocumentData.fromJson(x))),
+      trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
@@ -804,6 +817,304 @@ class ScheduleTripDetails {
   }
 
 }
+
+class ConsigneeDetails {
+  ConsigneeDetails({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.mobileNumber,
+  });
+
+  final int id;
+  final String name;
+  final String email;
+  final String mobileNumber;
+
+  ConsigneeDetails copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? mobileNumber,
+  }) {
+    return ConsigneeDetails(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+    );
+  }
+
+  factory ConsigneeDetails.fromJson(Map<String, dynamic> json){
+    return ConsigneeDetails(
+      id: json["id"] ?? 0,
+      name: json["name"] ?? "",
+      email: json["email"] ?? "",
+      mobileNumber: json["mobileNumber"] ?? "",
+    );
+  }
+
+}
+
+class LoadDocumentData {
+  LoadDocumentData({
+    required this.loadDocumentId,
+    required this.loadId,
+    required this.documentId,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deletedAt,
+    required this.documentDetails,
+    required this.documentError,
+  });
+
+  final String loadDocumentId;
+  final String loadId;
+  final String documentId;
+  final int status;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
+  final DocumentDetails? documentDetails;
+  final String documentError;
+
+  LoadDocumentData copyWith({
+    String? loadDocumentId,
+    String? loadId,
+    String? documentId,
+    int? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? deletedAt,
+    DocumentDetails? documentDetails,
+    String? documentError,
+  }) {
+    return LoadDocumentData(
+      loadDocumentId: loadDocumentId ?? this.loadDocumentId,
+      loadId: loadId ?? this.loadId,
+      documentId: documentId ?? this.documentId,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      documentDetails: documentDetails ?? this.documentDetails,
+      documentError: documentError ?? this.documentError,
+    );
+  }
+
+  factory LoadDocumentData.fromJson(Map<String, dynamic> json){
+    return LoadDocumentData(
+      loadDocumentId: json["loadDocumentId"] ?? "",
+      loadId: json["loadId"] ?? "",
+      documentId: json["documentId"] ?? "",
+      status: json["status"] ?? 0,
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+      documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
+      documentError: json["documentError"] ?? "",
+    );
+  }
+
+}
+
+class TrackingDetails {
+  TrackingDetails({
+    required this.uuid,
+    required this.shipperId,
+    required this.supplierId,
+    required this.tripId,
+    required this.trackMode,
+    required this.tripStatus,
+    required this.currentLat,
+    required this.currentLong,
+    required this.currentAddress,
+    required this.originLat,
+    required this.originLong,
+    required this.destinationLat,
+    required this.destinationLong,
+    required this.intugineId,
+    required this.driverName,
+    required this.driverNumber,
+    required this.truckNumber,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.lastTrackDt,
+    required this.flaggedTrip,
+  });
+
+  final String uuid;
+  final String shipperId;
+  final String supplierId;
+  final String tripId;
+  final String trackMode;
+  final String tripStatus;
+  final dynamic currentLat;
+  final dynamic currentLong;
+  final dynamic currentAddress;
+  final double originLat;
+  final double originLong;
+  final double destinationLat;
+  final double destinationLong;
+  final String intugineId;
+  final String driverName;
+  final String driverNumber;
+  final String truckNumber;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic lastTrackDt;
+  final bool flaggedTrip;
+
+  TrackingDetails copyWith({
+    String? uuid,
+    String? shipperId,
+    String? supplierId,
+    String? tripId,
+    String? trackMode,
+    String? tripStatus,
+    dynamic? currentLat,
+    dynamic? currentLong,
+    dynamic? currentAddress,
+    double? originLat,
+    double? originLong,
+    double? destinationLat,
+    double? destinationLong,
+    String? intugineId,
+    String? driverName,
+    String? driverNumber,
+    String? truckNumber,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? lastTrackDt,
+    bool? flaggedTrip,
+  }) {
+    return TrackingDetails(
+      uuid: uuid ?? this.uuid,
+      shipperId: shipperId ?? this.shipperId,
+      supplierId: supplierId ?? this.supplierId,
+      tripId: tripId ?? this.tripId,
+      trackMode: trackMode ?? this.trackMode,
+      tripStatus: tripStatus ?? this.tripStatus,
+      currentLat: currentLat ?? this.currentLat,
+      currentLong: currentLong ?? this.currentLong,
+      currentAddress: currentAddress ?? this.currentAddress,
+      originLat: originLat ?? this.originLat,
+      originLong: originLong ?? this.originLong,
+      destinationLat: destinationLat ?? this.destinationLat,
+      destinationLong: destinationLong ?? this.destinationLong,
+      intugineId: intugineId ?? this.intugineId,
+      driverName: driverName ?? this.driverName,
+      driverNumber: driverNumber ?? this.driverNumber,
+      truckNumber: truckNumber ?? this.truckNumber,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lastTrackDt: lastTrackDt ?? this.lastTrackDt,
+      flaggedTrip: flaggedTrip ?? this.flaggedTrip,
+    );
+  }
+
+  factory TrackingDetails.fromJson(Map<String, dynamic> json){
+    return TrackingDetails(
+      uuid: json["uuid"] ?? "",
+      shipperId: json["shipperId"] ?? "",
+      supplierId: json["supplierId"] ?? "",
+      tripId: json["tripId"] ?? "",
+      trackMode: json["trackMode"] ?? "",
+      tripStatus: json["tripStatus"] ?? "",
+      currentLat: json["currentLat"],
+      currentLong: json["currentLong"],
+      currentAddress: json["currentAddress"],
+      originLat: json["originLat"] ?? 0.0,
+      originLong: json["originLong"] ?? 0.0,
+      destinationLat: json["destinationLat"] ?? 0.0,
+      destinationLong: json["destinationLong"] ?? 0.0,
+      intugineId: json["intugineId"] ?? "",
+      driverName: json["driverName"] ?? "",
+      driverNumber: json["driverNumber"] ?? "",
+      truckNumber: json["truckNumber"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      lastTrackDt: json["lastTrackDt"],
+      flaggedTrip: json["flaggedTrip"] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "uuid": uuid,
+    "shipperId": shipperId,
+    "supplierId": supplierId,
+    "tripId": tripId,
+    "trackMode": trackMode,
+    "tripStatus": tripStatus,
+    "currentLat": currentLat,
+    "currentLong": currentLong,
+    "currentAddress": currentAddress,
+    "originLat": originLat,
+    "originLong": originLong,
+    "destinationLat": destinationLat,
+    "destinationLong": destinationLong,
+    "intugineId": intugineId,
+    "driverName": driverName,
+    "driverNumber": driverNumber,
+    "truckNumber": truckNumber,
+    "createdAt": createdAt?.toIso8601String(),
+    "updatedAt": updatedAt?.toIso8601String(),
+    "lastTrackDt": lastTrackDt,
+    "flaggedTrip": flaggedTrip,
+  };
+
+}
+
+
+class DocumentDetails {
+  DocumentDetails({
+    required this.documentId,
+    required this.title,
+    required this.documentType,
+    required this.fileSize,
+    required this.filePath,
+    required this.originalFilename,
+  });
+
+  final String documentId;
+  final String title;
+  final String documentType;
+  final String fileSize;
+  final String filePath;
+  final String originalFilename;
+
+  DocumentDetails copyWith({
+    String? documentId,
+    String? title,
+    String? documentType,
+    String? fileSize,
+    String? filePath,
+    String? originalFilename,
+  }) {
+    return DocumentDetails(
+      documentId: documentId ?? this.documentId,
+      title: title ?? this.title,
+      documentType: documentType ?? this.documentType,
+      fileSize: fileSize ?? this.fileSize,
+      filePath: filePath ?? this.filePath,
+      originalFilename: originalFilename ?? this.originalFilename,
+    );
+  }
+
+  factory DocumentDetails.fromJson(Map<String, dynamic> json){
+    return DocumentDetails(
+      documentId: json["documentId"] ?? "",
+      title: json["title"] ?? "",
+      documentType: json["documentType"] ?? "",
+      fileSize: json["fileSize"] ?? "",
+      filePath: json["filePath"] ?? "",
+      originalFilename: json["originalFilename"] ?? "",
+    );
+  }
+
+}
+
 
 class Driver {
   Driver({
