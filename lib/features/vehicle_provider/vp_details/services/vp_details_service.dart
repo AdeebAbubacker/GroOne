@@ -1,13 +1,17 @@
+import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 
 
 /// TODO:
@@ -100,28 +104,32 @@ class VpDetailsService{
     }
   }
 
-  // Future<Result<UploadRcTruckFileModel>> fetchUploadRcTruckFileData(File files,String? userId) async {
-  //   try {
-  //     final url = ApiUrls.upload;
-  //     final result = await _apiService.multipart(
-  //       url,
-  //       files,
-  //       fields: {"fileType":"upload_rc", "userId": userId ?? ""},
-  //       pathName: "file",
-  //     );
-  //     if (result is Success) {
-  //       final data = UploadRcTruckFileModel.fromJson(result.value);
-  //       return   Success(data);
-  //     } else if (result is Error) {
-  //       return Error(result.type);
-  //     } else {
-  //       return Error(GenericError());
-  //     }
-  //   } catch(e) {
-  //     CustomLog.error(this, AppString.error.deserializationError, e);
-  //     return Error(DeserializationError());
-  //   }
-  // }
+  Future<Result<UploadDocumentResponse>> uploadDocument({required File file, required String fileType,required String userId, required String documentType}) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: {
+          "userId" : userId,
+          "fileType" : fileType,
+          "documentType" : documentType,
+        },
+      );
+      if (result is Success) {
+        final data = UploadDocumentResponse.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
 
 
 

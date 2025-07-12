@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
@@ -29,6 +32,20 @@ class LoadDetailsRepository {
           loadId: loadId,userId: customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<UploadDocumentResponse>> getUploadDamageFileData(File file) async {
+    try {
+      return await _vpDetailsService.uploadDocument(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: DAMAGES_AND_SHORTAGES,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
