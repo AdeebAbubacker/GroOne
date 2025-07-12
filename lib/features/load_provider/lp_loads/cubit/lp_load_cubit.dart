@@ -7,8 +7,10 @@ import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
@@ -397,7 +399,45 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
 
   }
+ 
 
+  
+  // Adds a consignee to the load.
+  void _setaddConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
+    emit(state.copyWith(lpAddConsignee: uiState));
+  }
+
+  // Create New consignee to a load
+  Future<void> addConsignee({required AddConsigneeApiRequest addConsigneeReq}) async {
+    _setaddConsigneeState(UIState.loading());
+
+    Result result = await _repository.addConsignee(addConsigneeReq: addConsigneeReq);
+
+    if (result is Success<ConsigneAddedSuccessModel>) {
+      _setaddConsigneeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setaddConsigneeState(UIState.error(result.type));
+    }    
+  }
+
+   // Updates consignee to the load.
+  void _updateConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
+    emit(state.copyWith(lpUpdateConsignee: uiState));
+  }
+
+  // Updates Excisting consignee to a load
+  Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {
+    _updateConsigneeState(UIState.loading());
+
+    Result result = await _repository.updateConsignee(updateConsigneeReq: updateConsigneeReq,consigneeId: consigneeId);
+
+    if (result is Success<ConsigneAddedSuccessModel>) {
+      _updateConsigneeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _updateConsigneeState(UIState.error(result.type));
+    }    
+  }
+ 
   void updateFeedbackText(String text) {
     final currentLoadById = state.lpLoadById?.data?.data;
     if (currentLoadById != null) {

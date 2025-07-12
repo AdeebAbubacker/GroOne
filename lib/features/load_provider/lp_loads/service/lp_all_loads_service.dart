@@ -2,8 +2,10 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
@@ -316,5 +318,54 @@ class LpLoadService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<ConsigneAddedSuccessModel>> addConsignee({
+  required AddConsigneeApiRequest addConsigneeReq,
+}) async {
+  try {
+    final url = ApiUrls.lpLoadAddConsignee; 
+    final response = await _apiService.post(
+      url,
+      body: addConsigneeReq.toJson());
+
+    if (response is Success) {
+      final data = response.value;
+      final result = ConsigneAddedSuccessModel.fromJson(data);
+      print("Sucesss");
+      return Success(result);
+    } else if (response is Error) {
+        print("error");
+      return Error(response.type);
+    } else { print("error");
+      return Error(GenericError());
+    }
+  } catch (e) { print("error");
+    return Error(DeserializationError());
+  }
+ }
+
+ Future<Result<ConsigneAddedSuccessModel>> updateConsignee({
+  required String consigneId,
+  required UpdateConsigneeApiRequest request,
+}) async {
+  try {
+    final url = '${ApiUrls.lpLoadAddConsignee}/$consigneId';
+    final response = await _apiService.put(url, body: request.toJson());
+
+  if (response is Success) {
+      final data = response.value;
+      final result = ConsigneAddedSuccessModel.fromJson(data);
+      print("Sucesss");
+      return Success(result);
+    } else if (response is Error) {
+        print("error");
+      return Error(response.type);
+    } else { print("error");
+      return Error(GenericError());
+    }
+  } catch (e) { print("error");
+    return Error(DeserializationError());
+  }
+}
 }
 

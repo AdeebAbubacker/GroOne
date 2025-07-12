@@ -16,6 +16,8 @@ class LpLoadState extends Equatable {
   final UIState<DocumentDetails>? lpDocumentById;
   final UIState<TrackingConsentStatusResponse>? trackingConsent;
   final UIState<TrackingDistanceResponse>? trackingDistance;
+  final UIState<ConsigneAddedSuccessModel>? lpAddConsignee;
+  final UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee;
   final int selectedTabIndex;
   final String? matchingText;
   final Advance? selectedAdvance;
@@ -43,6 +45,8 @@ class LpLoadState extends Equatable {
     this.lpDocumentById,
     this.trackingConsent,
     this.trackingDistance,
+    this.lpAddConsignee,
+    this.lpUpdateConsignee,
     this.matchingText,
     this.selectedAdvance,
     this.selectedPercentageId,
@@ -68,6 +72,8 @@ class LpLoadState extends Equatable {
     UIState<DocumentDetails>? lpDocumentById,
     UIState<TrackingConsentStatusResponse>? trackingConsent,
     UIState<TrackingDistanceResponse>? trackingDistance,
+    UIState<ConsigneAddedSuccessModel>? lpAddConsignee,
+    UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee,
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
@@ -93,6 +99,8 @@ class LpLoadState extends Equatable {
       lpDocumentById: lpDocumentById ?? this.lpDocumentById,
       trackingConsent: trackingConsent ?? this.trackingConsent,
       trackingDistance: trackingDistance ?? this.trackingDistance,
+      lpAddConsignee: lpAddConsignee ?? this.lpAddConsignee,
+      lpUpdateConsignee: lpUpdateConsignee ?? this.lpUpdateConsignee,
       matchingText: matchingText ?? this.matchingText,
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
@@ -120,6 +128,8 @@ class LpLoadState extends Equatable {
     lpDocumentById,
     trackingConsent,
     trackingDistance,
+    lpAddConsignee,
+    lpUpdateConsignee,
     matchingText,
     selectedPercentageId,
     selectedAdvance,

@@ -131,6 +131,7 @@ class ApiUrls {
   static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
   static final String  lpLoadFeedback="$_baseUrl$_loadExecution$_path$_v1$_load/";
   static final String  lpLoadDocument ="$_baseUrl$_document$_path$_v1/documents/";
+  static final String lpLoadAddConsignee = "$_baseUrl$_load$_path$_v1/consignee";
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation

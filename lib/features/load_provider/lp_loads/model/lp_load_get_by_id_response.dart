@@ -62,6 +62,7 @@ class LoadData {
     required this.customer,
     required this.vpCustomer,
     required this.weight,
+    required this.consignees,
   });
 
   final String loadId;
@@ -98,6 +99,7 @@ class LoadData {
   final Customer? customer;
   final Customer? vpCustomer;
   final Weight? weight;
+  final List<Consignee> consignees;
 
   LoadData copyWith({
     String? loadId,
@@ -170,6 +172,7 @@ class LoadData {
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
       weight: weight ?? this.weight,
+      consignees: consignees ?? this.consignees,
     );
   }
 
@@ -209,6 +212,9 @@ class LoadData {
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
+      consignees: json["consignees"] == null
+          ? []
+          : List<Consignee>.from(json["consignees"].map((x) => Consignee.fromJson(x))),
     );
   }
 
@@ -1552,5 +1558,50 @@ class Weight {
       deletedAt: json["deletedAt"],
     );
   }
+
+}
+
+
+
+class Consignee {
+    Consignee({
+        required this.id,
+        required this.name,
+        required this.email,
+        required this.mobileNumber,
+        required this.loadId,
+    });
+
+    final String id;
+    final String name;
+    final String email;
+    final String mobileNumber;
+    final String loadId;
+
+    Consignee copyWith({
+        String? id,
+        String? name,
+        String? email,
+        String? mobileNumber,
+        String? loadId,
+    }) {
+        return Consignee(
+            id: id ?? this.id,
+            name: name ?? this.name,
+            email: email ?? this.email,
+            mobileNumber: mobileNumber ?? this.mobileNumber,
+            loadId: loadId ?? this.loadId,
+        );
+    }
+
+    factory Consignee.fromJson(Map<String, dynamic> json){ 
+        return Consignee(
+            id: json["id"] ?? "",
+            name: json["name"] ?? "",
+            email: json["email"] ?? "",
+            mobileNumber: json["mobileNumber"] ?? "",
+            loadId: json["loadId"] ?? "",
+        );
+    }
 
 }

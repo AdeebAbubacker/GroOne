@@ -400,5 +400,8 @@
   "disclaimerNote4": "Payment terms:- We need a 90% advance within 24 hours from the loading and 10% balance 15 days from the date of submission of the hard POD and invoices.",
   "disclaimerNote5": "Loss of POD: In case of physical copy of POD is lost means we can submit an indemnity bond or we can accept ₹3000/- debit only as indemnity charges.",
   "advanceUnpaid": "Advance Unpaid",
-  "sim": "SIM"
+  "sim": "SIM",
+  "consigneeUpdatedSuccesfully" : "Consignee updated successfully",
+  "consigneeAddedSuccesfully" : "Consignee added successfully",
+  "allFieldsAremandatory" : "All fields are mandatory"
 }
