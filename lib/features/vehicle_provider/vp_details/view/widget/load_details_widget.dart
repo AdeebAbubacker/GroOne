@@ -68,7 +68,7 @@ class LoadDetailsWidget extends StatelessWidget {
     }
     String? userId = await vpHomeBloc.getUserId();
     await cubit
-        .changedLoadStatus(id ?? "0", customerId: userId, loadStatus: 3)
+        .changedLoadStatus(id ?? "0", customerId: userId, loadStatus: loadStatus?? 3)
         .then((value) {
           if (cubit.state.loadStatus == LoadStatus.accepted &&
               cubit.state.vpLoadStatus?.status == Status.SUCCESS) {
@@ -157,7 +157,8 @@ class LoadDetailsWidget extends StatelessWidget {
                           loadDetails,
                           state.locationDistance,
                         ),
-                        if ((state.loadStatusId??0) >4)...[
+                        // if ((state.loadStatusId??0) >4)
+                          ...[
                           20.height,
                           _buildConsigneeDetail(
                             context: context,

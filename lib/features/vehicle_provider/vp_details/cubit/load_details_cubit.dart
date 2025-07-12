@@ -35,7 +35,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       7=>LoadStatus.inTransit,
       8=>LoadStatus.completed,
       null||  int() => throw LoadStatus.matching};
-    emit(state.copyWith(
+      emit(state.copyWith(
         loadStatusId: status,
         loadStatus:loadStatus));
   }
