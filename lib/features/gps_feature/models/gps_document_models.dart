@@ -531,13 +531,27 @@ class GpsAddress {
   });
 
   factory GpsAddress.fromJson(Map<String, dynamic> json) {
+    // Handle the actual API response format
+    final id = json['preferedAddressId']?.toString() ?? json['id']?.toString() ?? '';
+    final addressName = json['addrName'] ?? json['addressName'] ?? '';
+    final addr = json['addr'] ?? json['addr1'] ?? '';
+    final city = json['city'] ?? '';
+    final state = json['state'] ?? '';
+    final pincode = json['pincode'] ?? '';
+    final gstin = json['gstIn'] ?? json['gstin'] as String?;
+    final addrType = json['addrType']?.toString() ?? '';
+    final isDefault = json['isDefault'] ?? false;
+    
+    // Construct full address from components
+    final fullAddress = '$addr, $city, $state, India - $pincode';
+    
     return GpsAddress(
-      id: json['id']?.toString() ?? '',
-      addressName: json['addressName'] ?? '',
-      fullAddress: json['fullAddress'] ?? '',
-      gstin: json['gstin'] as String?,
-      addressType: json['addressType'] as String?,
-      isDefault: json['isDefault'] ?? false,
+      id: id,
+      addressName: addressName,
+      fullAddress: fullAddress,
+      gstin: gstin,
+      addressType: addrType,
+      isDefault: isDefault,
     );
   }
 
@@ -594,11 +608,33 @@ class GpsAddAddressResponse {
   });
 
   factory GpsAddAddressResponse.fromJson(Map<String, dynamic> json) {
+    // Handle case where API returns address data directly
+    if (json.containsKey('preferedAddressId') || json.containsKey('customerId')) {
+      // This is the address data returned directly from API
+      return GpsAddAddressResponse(
+        success: true,
+        message: 'Address added successfully',
+        data: GpsAddress.fromJson(json),
+        statusCode: 200,
+      );
+    }
+    
+    // Handle case where API returns wrapped response
+    if (json.containsKey('success')) {
+      return GpsAddAddressResponse(
+        success: json['success'] ?? false,
+        message: json['message'] ?? '',
+        data: json['data'] != null ? GpsAddress.fromJson(json['data']) : null,
+        statusCode: json['statusCode'] as int?,
+      );
+    }
+    
+    // Fallback for unknown response format
     return GpsAddAddressResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: json['data'] != null ? GpsAddress.fromJson(json['data']) : null,
-      statusCode: json['statusCode'] as int?,
+      success: true,
+      message: 'Address added successfully',
+      data: GpsAddress.fromJson(json),
+      statusCode: 200,
     );
   }
 

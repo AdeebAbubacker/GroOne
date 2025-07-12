@@ -55,7 +55,8 @@ class _GpsUploadDocumentContent extends StatefulWidget {
 class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   final aadharNoController = TextEditingController();
   final panNoController = TextEditingController();
-  List<Map<String, dynamic>> gpsDocList = [];
+  // Only PAN document list
+  List<Map<String, dynamic>> panDocList = [];
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -149,7 +150,9 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     30.height,
 
                     // PAN Card Section
-                    _buildLabelWithInfoIcon(context, 'PAN (Optional)', isMandatory: true, isVerified: state.isPanVerified),
+                    _buildLabelWithInfoIcon(context, 'PAN ', isMandatory: true, isVerified: state.isPanVerified),
+                    // _buildLabelWithInfoIcon(context, 'PAN (Optional)', isMandatory: true, isVerified: state.isPanVerified),
+                    
                     10.height,
                     AppTextField(
                       hintText: 'Enter PAN number (e.g., ABCDE1234F)',
@@ -179,26 +182,26 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
 
                     // Document Upload Section
                     UploadAttachmentFiles(
-                      multiFilesList: gpsDocList,
+                      multiFilesList: panDocList,
                       isSingleFile: true,
                       thenUploadFileToSever: () {
                         // Trigger rebuild when documents are added/removed
                         setState(() {});
                         // Update the cubit with the current document list
-                        cubit.updateGpsDocuments(gpsDocList);
+                        cubit.updatePanDocuments(panDocList);
                       },
                     ),
-                    if (gpsDocList.isEmpty && state.hasAttemptedSubmit)
+                    if (panDocList.isEmpty && state.hasAttemptedSubmit)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          'GPS document is required',
+                          'PAN document is required',
                           style: AppTextStyle.body3.copyWith(color: AppColors.activeRedColor),
                         ),
                       ),
                     30.height,
-                    
-                  
+                   
+                   
                   ],
                 ).paddingAll(commonSafeAreaPadding),
               );
@@ -220,14 +223,15 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         },
         builder: (context, state) {
           final bool isLoading = state.uploadKycState?.status == Status.LOADING;
-          final bool isFormValid = state.isAadhaarVerified && gpsDocList.isNotEmpty;
+          final bool isFormValid = state.isAadhaarVerified && 
+            panDocList.isNotEmpty;
           
           // Debug the form validation
           print('🔍 GPS Submit Button Debug:');
           print('  - isLoading: $isLoading');
           print('  - isAadhaarVerified: ${state.isAadhaarVerified}');
-          print('  - gpsDocList.isEmpty: ${gpsDocList.isEmpty}');
-          print('  - gpsDocList.length: ${gpsDocList.length}');
+          print('  - panDocList.isEmpty: ${panDocList.isEmpty}');
+          print('  - panDocList.length: ${panDocList.length}');
           print('  - isFormValid: $isFormValid');
 
           return AppButton(
@@ -236,8 +240,8 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
               cubit.debugCubitStatus();
               cubit.markFormSubmitted();
               if (_formKey.currentState!.validate()) {
-                // Update the cubit with the current document list
-                cubit.updateGpsDocuments(gpsDocList);
+                // Update the cubit with all document lists
+                cubit.updatePanDocuments(panDocList);
                 // Call the upload API
                 cubit.uploadKycDocumentsMultipart();
               } else {
@@ -291,8 +295,9 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                 '• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n'
                 '• PAN will be automatically verified when complete';
         break;
-      case 'GPS Document':
-        message = '• Upload your GPS device document\n'
+      case 'PAN Document':
+        message = '• Upload your PAN card document\n'
+                '• This document will be used for all KYC requirements\n'
                 '• Ensure all details are clearly visible\n'
                 '• File size should be less than 5MB\n'
                 '• Supported formats: PDF, JPG, PNG';

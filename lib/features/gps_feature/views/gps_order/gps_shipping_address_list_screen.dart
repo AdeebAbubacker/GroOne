@@ -14,7 +14,12 @@ import '../../../kavach/model/kavach_address_model.dart';
 import 'gps_add_address_bottom_sheet.dart';
 
 class GpsShippingAddressListScreen extends StatelessWidget {
-  const GpsShippingAddressListScreen({super.key});
+  final GpsShippingAddressCubit shippingAddressCubit;
+  
+  const GpsShippingAddressListScreen({
+    super.key,
+    required this.shippingAddressCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +27,23 @@ class GpsShippingAddressListScreen extends StatelessWidget {
       title: context.appText.shippingAddress,
       body: SizedBox(
           height: MediaQuery.of(context).size.height * 0.5,
-          child: _buildBody(context: context)),
+         child: _buildBody(context: context)),
     );
   }
 
-  Widget addAddressButton(BuildContext context){
+  Widget addVehicleButton(BuildContext context){
     return AppButton(
       onPressed: () async {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: GpsAddAddressBottomSheet(
-            addrType: "1", // Shipping address type
+            addrType: 1, // Shipping address type
             title: context.appText.shippingAddress,
           ),
         );
-        // After adding address, refetch the shipping addresses
-        context.read<GpsShippingAddressCubit>().fetchGpsShippingAddresses();
+        // After adding address, wait a bit and then refetch the shipping addresses
+        await Future.delayed(Duration(milliseconds: 500));
+        shippingAddressCubit.fetchGpsShippingAddresses();
       },
       title: context.appText.addNewAddress,
       style: AppButtonStyle.outline,
@@ -46,17 +52,29 @@ class GpsShippingAddressListScreen extends StatelessWidget {
 
   Widget _buildBody({required BuildContext context}) {
     return BlocBuilder<GpsShippingAddressCubit, GpsShippingAddressState>(
+      bloc: shippingAddressCubit,
       builder: (context, state) {
         if (state is GpsShippingAddressLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const CircularProgressIndicator();
         }
 
-        if (state is GpsShippingAddressLoaded) {
-          final addresses = state.addresses;
+        if (state is GpsShippingAddressLoaded || state is GpsShippingAddressSelected) {
+          final addresses = state is GpsShippingAddressLoaded 
+              ? (state as GpsShippingAddressLoaded).addresses
+              : (state as GpsShippingAddressSelected).addresses;
+
+          // Check if addresses list is null or empty
+          if (addresses.isEmpty) {
+            return Column(
+              children: [
+                addVehicleButton(context)
+              ],
+            );
+          }
 
           return Column(
             children: [
-              addAddressButton(context),
+              addVehicleButton(context),
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
@@ -65,14 +83,17 @@ class GpsShippingAddressListScreen extends StatelessWidget {
                   separatorBuilder: (context, index) => 10.height,
                   itemBuilder: (context, index) {
                     final address = addresses[index];
-                    return AddressListItem(address: address);
+                    return AddressListItem(
+                      address: address,
+                      shippingAddressCubit: shippingAddressCubit,
+                    );
                   },
                 ),
               ),
-              20.height,
+              10.height,
               AppButton(
                 onPressed: () {
-                  final selectedAddress = context.read<GpsShippingAddressCubit>().state;
+                  final selectedAddress = shippingAddressCubit.state;
                   if (selectedAddress is GpsShippingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
@@ -82,7 +103,7 @@ class GpsShippingAddressListScreen extends StatelessWidget {
                 title: context.appText.deliverHere,
                 style: AppButtonStyle.primary,
               ),
-              20.height,
+              
             ],
           );
         }
@@ -90,7 +111,7 @@ class GpsShippingAddressListScreen extends StatelessWidget {
         // Empty state - show add address button
         return Column(
           children: [
-            addAddressButton(context)
+            addVehicleButton(context)
           ],
         );
       },
@@ -100,20 +121,23 @@ class GpsShippingAddressListScreen extends StatelessWidget {
 
 class AddressListItem extends StatelessWidget {
   final KavachAddressModel address;
+  final GpsShippingAddressCubit shippingAddressCubit;
 
-  const AddressListItem({super.key, required this.address});
+  const AddressListItem({
+    super.key, 
+    required this.address,
+    required this.shippingAddressCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final selectedAddress = context.select((GpsShippingAddressCubit cubit) {
-      final state = cubit.state;
-      if (state is GpsShippingAddressSelected) return state.selectedAddress;
-      return null;
-    });
+    final selectedAddress = shippingAddressCubit.state is GpsShippingAddressSelected 
+        ? (shippingAddressCubit.state as GpsShippingAddressSelected).selectedAddress 
+        : null;
 
     return GestureDetector(
       onTap: () {
-        context.read<GpsShippingAddressCubit>().selectGpsShippingAddress(address);
+        shippingAddressCubit.selectGpsShippingAddress(address);
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -124,7 +148,7 @@ class AddressListItem extends StatelessWidget {
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                context.read<GpsShippingAddressCubit>().selectGpsShippingAddress(address);
+                shippingAddressCubit.selectGpsShippingAddress(address);
               },
             ),
             Expanded(
@@ -133,8 +157,6 @@ class AddressListItem extends StatelessWidget {
                 children: [
                   Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
                   Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
-                  if (address.gstin != null && address.gstin!.isNotEmpty)
-                    Text("GST: ${address.gstin}", style: AppTextStyle.textDarkGreyColor14w500),
                 ],
               ),
             ),

@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
@@ -224,9 +225,20 @@ void initLocator() {
       () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
     );
     locator.registerLazySingleton(
+      () => GpsOrderCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+    );
+    locator.registerLazySingleton(
       () => KavachTransactionsCubit(locator<KavachRepository>()),
     );
 
+    // Verify GPS cubits are registered
+    try {
+      locator<GpsBillingAddressCubit>();
+      locator<GpsShippingAddressCubit>();
+      CustomLog.info(locator, "GPS cubits successfully registered and accessible.");
+    } catch (e) {
+      CustomLog.error(locator, "ERROR: GPS cubits not properly registered", e);
+    }
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

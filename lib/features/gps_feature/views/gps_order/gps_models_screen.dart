@@ -21,6 +21,7 @@ import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_search_bar.dart';
 import '../../../../utils/app_text_style.dart';
+import '../../../kavach/view/kavach_support_screen.dart';
 import '../../widgets/gps_model_widget.dart';
 import 'gps_order_checkout_screen.dart';
 
@@ -72,6 +73,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Track quantities for each product
   final Map<String, int> _quantities = {};
+  
+  // Track previous vehicle selections
+  Map<String, List<String>>? _previousVehicleSelection;
 
   // Filtered products based on search
   List<KavachProduct> get _filteredProducts {
@@ -232,23 +236,52 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
             )
           ).toList(),
           quantities: _selectedQuantities,
+          previousVehicleSelection: _previousVehicleSelection,
         ),
       ),
     );
 
     // Handle result from checkout screen
     if (result != null) {
+      print('GPS Models: Received result from checkout: $result');
       setState(() {
         // Update quantities based on result from checkout
         _quantities.clear();
-        if (result is Map<String, int>) {
-          _quantities.addAll(result);
+        if (result is Map<String, dynamic>) {
+          // Handle new format with quantities and vehicles
+          if (result.containsKey('quantities')) {
+            final quantities = result['quantities'] as Map<String, int>;
+            _quantities.addAll(quantities);
+            print('GPS Models: Updated quantities: $_quantities');
+          } else if (result is Map<String, int>) {
+            // Handle old format (just quantities)
+            _quantities.addAll(result);
+            print('GPS Models: Updated quantities (old format): $_quantities');
+          }
+          
+          // Store vehicle selections for next navigation
+          if (result.containsKey('vehicles')) {
+            try {
+              final vehiclesData = result['vehicles'] as Map<String, dynamic>;
+              _previousVehicleSelection = vehiclesData.map(
+                (key, value) => MapEntry(
+                  key,
+                  (value as List<dynamic>).map((item) => item.toString()).toList(),
+                ),
+              );
+              print('GPS Models: Stored vehicle selections: $_previousVehicleSelection');
+            } catch (e) {
+              print('Error parsing vehicle selections: $e');
+              _previousVehicleSelection = null;
+            }
+          }
         }
       });
     } else {
       // Clear quantities when returning from checkout (order completed or cancelled)
       setState(() {
         _quantities.clear();
+        _previousVehicleSelection = null;
       });
     }
   }
@@ -263,7 +296,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           AppIconButton(
             onPressed: () {
               // Navigate to support screen
-              
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

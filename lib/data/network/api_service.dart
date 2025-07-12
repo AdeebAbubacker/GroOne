@@ -34,18 +34,9 @@ class ApiService {
     };
     
     try {
+     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
-      print("🔐 API Service - Token retrieval:");
-      print("🔐 Token value: '$refreshToken'");
-      print("🔐 Token is null: ${refreshToken == null}");
-      print("🔐 Token is empty: ${refreshToken?.isEmpty}");
-      print("🔐 Token length: ${refreshToken?.length}");
-      
-      CustomLog.debug(this, "🔐 API Service - Token retrieval:");
-      CustomLog.debug(this, "🔐 Token value: '$refreshToken'");
-      CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
-      CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
-      CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
+
       
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';

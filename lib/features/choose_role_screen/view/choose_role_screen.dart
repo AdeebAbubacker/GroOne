@@ -80,7 +80,10 @@ class ChooseRoleScreen extends StatelessWidget {
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
-                    context.push(AppRouteName.login, extra: "${state.index + 1}");
+                    context.push(
+                      AppRouteName.login,
+                      //AppRouteName.vpBottomNavigationBar,
+                     extra: "${state.index + 1}");
                   },
                 ),
                  50.height,

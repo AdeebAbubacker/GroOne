@@ -14,31 +14,36 @@ import '../../../kavach/model/kavach_address_model.dart';
 import 'gps_add_address_bottom_sheet.dart';
 
 class GpsBillingAddressListScreen extends StatelessWidget {
-  const GpsBillingAddressListScreen({super.key});
+  final GpsBillingAddressCubit billingAddressCubit;
+  
+  const GpsBillingAddressListScreen({
+    super.key,
+    required this.billingAddressCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.billingAddress,
-      hideDivider: false,
       body: SizedBox(
           height: MediaQuery.of(context).size.height * 0.5,
-          child: _buildBody(context: context)),
+         child: _buildBody(context: context)),
     );
   }
 
-  Widget addAddressButton(BuildContext context){
+  Widget addVehicleButton(BuildContext context){
     return AppButton(
       onPressed: () async {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: GpsAddAddressBottomSheet(
-            addrType: "2", // Billing address type
+            addrType: 2, // Billing address type
             title: context.appText.billingAddress,
           ),
         );
-        // After adding address, refetch the billing addresses
-        context.read<GpsBillingAddressCubit>().fetchGpsBillingAddresses();
+        // After adding address, wait a bit and then refetch the billing addresses
+        await Future.delayed(Duration(milliseconds: 500));
+        billingAddressCubit.fetchGpsBillingAddresses();
       },
       title: context.appText.addNewAddress,
       style: AppButtonStyle.outline,
@@ -47,17 +52,29 @@ class GpsBillingAddressListScreen extends StatelessWidget {
 
   Widget _buildBody({required BuildContext context}) {
     return BlocBuilder<GpsBillingAddressCubit, GpsBillingAddressState>(
+      bloc: billingAddressCubit,
       builder: (context, state) {
         if (state is GpsBillingAddressLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const CircularProgressIndicator();
         }
 
-        if (state is GpsBillingAddressLoaded) {
-          final addresses = state.addresses;
+        if (state is GpsBillingAddressLoaded || state is GpsBillingAddressSelected) {
+          final addresses = state is GpsBillingAddressLoaded 
+              ? (state as GpsBillingAddressLoaded).addresses
+              : (state as GpsBillingAddressSelected).addresses;
+
+          // Check if addresses list is null or empty
+          if (addresses.isEmpty) {
+            return Column(
+              children: [
+                addVehicleButton(context)
+              ],
+            );
+          }
 
           return Column(
             children: [
-              addAddressButton(context),
+              addVehicleButton(context),
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
@@ -66,14 +83,17 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                   separatorBuilder: (context, index) => 10.height,
                   itemBuilder: (context, index) {
                     final address = addresses[index];
-                    return AddressListItem(address: address);
+                    return AddressListItem(
+                      address: address,
+                      billingAddressCubit: billingAddressCubit,
+                    );
                   },
                 ),
               ),
               20.height,
               AppButton(
                 onPressed: () {
-                  final selectedAddress = context.read<GpsBillingAddressCubit>().state;
+                  final selectedAddress = billingAddressCubit.state;
                   if (selectedAddress is GpsBillingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
@@ -91,7 +111,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
         // Empty state - show add address button
         return Column(
           children: [
-            addAddressButton(context)
+            addVehicleButton(context)
           ],
         );
       },
@@ -101,20 +121,23 @@ class GpsBillingAddressListScreen extends StatelessWidget {
 
 class AddressListItem extends StatelessWidget {
   final KavachAddressModel address;
+  final GpsBillingAddressCubit billingAddressCubit;
 
-  const AddressListItem({super.key, required this.address});
+  const AddressListItem({
+    super.key, 
+    required this.address,
+    required this.billingAddressCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final selectedAddress = context.select((GpsBillingAddressCubit cubit) {
-      final state = cubit.state;
-      if (state is GpsBillingAddressSelected) return state.selectedAddress;
-      return null;
-    });
+    final selectedAddress = billingAddressCubit.state is GpsBillingAddressSelected 
+        ? (billingAddressCubit.state as GpsBillingAddressSelected).selectedAddress 
+        : null;
 
     return GestureDetector(
       onTap: () {
-        context.read<GpsBillingAddressCubit>().selectGpsBillingAddress(address);
+        billingAddressCubit.selectGpsBillingAddress(address);
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -125,7 +148,7 @@ class AddressListItem extends StatelessWidget {
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                context.read<GpsBillingAddressCubit>().selectGpsBillingAddress(address);
+                billingAddressCubit.selectGpsBillingAddress(address);
               },
             ),
             Expanded(
@@ -134,8 +157,6 @@ class AddressListItem extends StatelessWidget {
                 children: [
                   Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
                   Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
-                  if (address.gstin != null && address.gstin!.isNotEmpty)
-                    Text("GST: ${address.gstin}", style: AppTextStyle.textDarkGreyColor14w500),
                 ],
               ),
             ),

@@ -6,6 +6,8 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 
 import 'gps_upload_document_state.dart';
 
@@ -353,9 +355,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
   // ==================== Document Upload Logic ====================
 
-  void updateGpsDocuments(List<Map<String, dynamic>> documents) {
+  void updatePanDocuments(List<Map<String, dynamic>> documents) {
     if (!_isClosed) {
-      emit(state.copyWith(gpsDocuments: documents));
+      emit(state.copyWith(panDocuments: documents));
     }
   }
 
@@ -372,6 +374,17 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       return;
     }
 
+    // Get customer ID
+    final userRepository = locator<UserInformationRepository>();
+    final customerId = await userRepository.getUserID();
+    
+    if (customerId == null || customerId.isEmpty) {
+      print('🔍 GPS Customer ID is null or empty, returning early');
+      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')));
+      return;
+    }
+    
+    print('🔍 GPS Customer ID: $customerId');
 
     // Validate required fields
     if (state.aadhaar.isEmpty) {
@@ -388,20 +401,50 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     _setUploadKycUIState(UIState.loading());
 
     try {
-      // Get the first document file if available
+      // Get PAN document file
       File? panImageFile;
-      if (state.gpsDocuments != null && state.gpsDocuments!.isNotEmpty) {
-        final document = state.gpsDocuments!.first;
-        if (document['file'] != null && document['file'] is File) {
-          panImageFile = document['file'] as File;
+      if (state.panDocuments.isNotEmpty) {
+        final document = state.panDocuments.first;
+        if (document['path'] != null) {
+          panImageFile = File(document['path']);
+          print('🔍 GPS PAN document: ${panImageFile?.path}');
         }
       }
+
+      // Use the same PAN image for all document fields
+      File? addressProofFrontFile = panImageFile;
+      File? addressProofBackFile = panImageFile;
+      File? identityProofFrontFile = panImageFile;
+      File? identityProofBackFile = panImageFile;
+
+      print('🔍 GPS Using PAN image for all document fields:');
+      print('  - PAN Image: ${panImageFile?.path}');
+      print('  - Address Proof Front: ${addressProofFrontFile?.path}');
+      print('  - Address Proof Back: ${addressProofBackFile?.path}');
+      print('  - Identity Proof Front: ${identityProofFrontFile?.path}');
+      print('  - Identity Proof Back: ${identityProofBackFile?.path}');
 
       final request = GpsDocumentUploadMultipartApiRequest(
         aadhar: state.aadhaar,
         pan: state.pan.isNotEmpty ? state.pan : null,
         panImage: panImageFile,
+        addressProofFront: addressProofFrontFile,
+        addressProofBack: addressProofBackFile,
+        identityProofFront: identityProofFrontFile,
+        identityProofBack: identityProofBackFile,
+        customerId: customerId,
       );
+
+      print('🔍 GPS Upload request debug:');
+      print('  - Aadhar: ${request.aadhar}');
+      print('  - PAN: ${request.pan}');
+      print('  - PanImage: ${request.panImage?.path}');
+      print('  - AddressProofFront: ${request.addressProofFront?.path}');
+      print('  - AddressProofBack: ${request.addressProofBack?.path}');
+      print('  - IdentityProofFront: ${request.identityProofFront?.path}');
+      print('  - IdentityProofBack: ${request.identityProofBack?.path}');
+      print('  - Form fields: ${request.getFormFields()}');
+      print('  - Files: ${request.getFiles().keys.toList()}');
 
       final result = await _repository.uploadGpsDocumentsMultipart(request);
 

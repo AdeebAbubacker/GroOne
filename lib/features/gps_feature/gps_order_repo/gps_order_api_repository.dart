@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -90,6 +91,7 @@ class GpsOrderApiRepository {
     required String customerId,
     int limit = 10,
     int page = 1,
+    int? addrType,
   }) async {
     try {
       final request = GpsAddressListRequest(
@@ -97,7 +99,7 @@ class GpsOrderApiRepository {
         limit: limit,
         page: page,
       );
-      return await _gpsOrderApiService.fetchGpsAddresses(request);
+      return await _gpsOrderApiService.fetchGpsAddresses(request, addrType: addrType);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch GPS addresses", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -112,6 +114,53 @@ class GpsOrderApiRepository {
       return await _gpsOrderApiService.addGpsAddress(request);
     } catch (e) {
       CustomLog.error(this, "Failed to add GPS address", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Check GPS KYC Documents Repository
+  Future<Result<GpsKycCheckModel>> checkKycDocuments(String customerId) async {
+    try {
+      return await _gpsOrderApiService.checkKycDocuments(customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to check GPS KYC documents", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Create GPS Order Repository
+  Future<Result<void>> createGpsOrder(GpsOrderRequest request) async {
+    try {
+      return await _gpsOrderApiService.createGpsOrder(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to create GPS order", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get GPS Order Summary Repository
+  Future<Result<GpsOrderSummaryResponse>> getGpsOrderSummary(GpsOrderSummaryRequest request) async {
+    try {
+      return await _gpsOrderApiService.getGpsOrderSummary(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get GPS order summary", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<GpsOrderListResponse>> getGpsCustomerOrdersList({
+    required String customerId,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await _gpsOrderApiService.getGpsCustomerOrdersList(
+        customerId: customerId,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get GPS customer orders list", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

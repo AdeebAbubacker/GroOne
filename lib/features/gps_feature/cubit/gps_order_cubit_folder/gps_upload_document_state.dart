@@ -16,7 +16,8 @@ class GpsUploadDocumentState extends Equatable {
   final UIState<GpsPanVerificationResponse>? panVerificationState;
 
   final bool hasAttemptedSubmit;
-  final List<Map<String, dynamic>>? gpsDocuments;
+  // Only PAN document list (used for all document fields)
+  final List<Map<String, dynamic>> panDocuments;
   final UIState<GpsDocumentUploadResponse>? uploadKycState;
 
   const GpsUploadDocumentState({
@@ -31,7 +32,7 @@ class GpsUploadDocumentState extends Equatable {
     required this.isPanVerified,
     required this.panVerificationState,
     required this.hasAttemptedSubmit,
-    this.gpsDocuments,
+    this.panDocuments = const [],
     this.uploadKycState,
   });
 
@@ -47,7 +48,7 @@ class GpsUploadDocumentState extends Equatable {
     isPanVerified: false,
     panVerificationState: null,
     hasAttemptedSubmit: false,
-    gpsDocuments: null,
+    panDocuments: [],
     uploadKycState: null,
   );
 
@@ -63,7 +64,7 @@ class GpsUploadDocumentState extends Equatable {
     bool? isPanVerified,
     UIState<GpsPanVerificationResponse>? panVerificationState,
     bool? hasAttemptedSubmit,
-    List<Map<String, dynamic>>? gpsDocuments,
+    List<Map<String, dynamic>>? panDocuments,
     UIState<GpsDocumentUploadResponse>? uploadKycState,
   }) {
     return GpsUploadDocumentState(
@@ -78,7 +79,7 @@ class GpsUploadDocumentState extends Equatable {
       isPanVerified: isPanVerified ?? this.isPanVerified,
       panVerificationState: panVerificationState ?? this.panVerificationState,
       hasAttemptedSubmit: hasAttemptedSubmit ?? this.hasAttemptedSubmit,
-      gpsDocuments: gpsDocuments ?? this.gpsDocuments,
+      panDocuments: panDocuments ?? this.panDocuments,
       uploadKycState: uploadKycState ?? this.uploadKycState,
     );
   }
@@ -96,7 +97,7 @@ class GpsUploadDocumentState extends Equatable {
     isPanVerified,
     panVerificationState,
     hasAttemptedSubmit,
-    gpsDocuments,
+    panDocuments,
     uploadKycState,
   ];
 } 

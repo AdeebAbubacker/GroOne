@@ -88,7 +88,7 @@ class _OurValueAddedServicesWidgetState
                       title: context.appText.gps,
                       imageString: AppImage.png.gps,
                       onClick: () {
-                        Navigator.push(context, commonRoute(GpsOrderBenefitsAndOrderListScreen(showBenefits: true,)));
+                        Navigator.push(context, commonRoute(GpsOrderBenefitsAndOrderListScreen()));
                         // context.push(AppRouteName.gps);
                       },
                     ),

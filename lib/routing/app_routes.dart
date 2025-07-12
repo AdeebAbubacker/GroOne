@@ -4,6 +4,7 @@ import 'package:gro_one_app/features/choose_language_screen/view/choose_language
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -66,6 +67,13 @@ class AppRoutes {
         path: AppRouteName.gpsDashboard,
         builder: (BuildContext context, GoRouterState state) {
           return const DashboardScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsOrderBenefits,
+        builder: (BuildContext context, GoRouterState state) {
+          return GpsOrderBenefitsAndOrderListScreen();
         },
       ),
 
