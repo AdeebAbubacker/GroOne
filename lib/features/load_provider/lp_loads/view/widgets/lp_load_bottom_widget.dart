@@ -142,7 +142,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
             SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [               
+                children: [  
+                               
                   // Truck Type Row
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -638,13 +639,13 @@ Widget _buildAdvancePaymentCard({
                   if (addpaymentState?.status == Status.SUCCESS) {
                     Navigator.of(context).push(commonRoute(PaymentsScreen(url: addpaymentState?.data?.data?.data?.tinyUrl ?? "")));
                   } else {
-                    ToastMessages.error(message: "Payment failed");
+                    ToastMessages.error(message: context.appText.paymentFailed);
                   }
                 } else {
-                  ToastMessages.error(message: "Order ID not found");
+                  ToastMessages.error(message: context.appText.orderIdNotFound);
                 }
               } else {
-                ToastMessages.error(message: "Order creation failed");
+                ToastMessages.error(message: context.appText.orderCreationFailed);
               }
             },
             richTextWidget: paymentState == 2 || paymentState == 4 || paymentState == 5
