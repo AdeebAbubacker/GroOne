@@ -7,6 +7,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
@@ -309,11 +311,14 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       context: context,
                       paymentState: LpHomeHelper.getPaymentState(widget.loadStatus),
                       loadId: widget.loadItem.loadId,
-                      customerCity: 'null',
-                      advanceAmount: 20,
+                      customerCity: widget.loadItem.customer?.customerAddress?.city ?? '',
                       customerEmail: widget.loadItem.customer?.emailId ?? '',
                       customerMobile: widget.loadItem.customer?.mobileNumber ?? '',
                       customerName: widget.loadItem.customer?.customerName ?? '',
+                      advancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.advancePaid ?? '',
+                      agreedPrice: widget.loadItem.lpPaymentsData?.data.payments.last.agreedPrice ?? '',
+                      payableAdvance: widget.loadItem.lpPaymentsData?.data.payments.last.payableAdvance ?? '',
+                      payableBalance: widget.loadItem.lpPaymentsData?.data.payments.last.payableBalance ?? '',
                     ),
                       16.height,
                     ],
@@ -493,7 +498,10 @@ Widget _buildAdvancePaymentCard({
   required String customerEmail,
   required String customerMobile,
   required String customerCity,
-  required int advanceAmount,
+  required String agreedPrice,
+  required String payableAdvance,
+  required String payableBalance,
+  required String advancePaid,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
 
@@ -508,11 +516,11 @@ Widget _buildAdvancePaymentCard({
       children: [
          8.height,
         // Agreed Price
-        _buildPriceRow(context.appText.agreedPrice, "₹ 79,000", context),
+        _buildPriceRow(context.appText.agreedPrice, "₹ $agreedPrice", context),
         8.height,
         if (paymentState == 5)
         // Advance paid 
-        _buildPriceRow(context.appText.advancePaid, "₹ 79,000", context),
+        _buildPriceRow(context.appText.advancePaid, "₹ $advancePaid", context),
         8.height,
 
         if (paymentState != 5)
@@ -567,7 +575,7 @@ Widget _buildAdvancePaymentCard({
             ),
             Flexible(
               child: Text(
-                "₹ 70,000",
+                "₹ $payableAdvance",
                 style: AppTextStyle.body1GreyColor.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -584,7 +592,7 @@ Widget _buildAdvancePaymentCard({
         if (paymentState == 3 || paymentState == 5)
           _buildPriceRow(
             context.appText.payableBalance,
-            "₹ 9,000",
+            "₹ $payableBalance",
             context,
             highlight: true,
           ),
@@ -597,33 +605,38 @@ Widget _buildAdvancePaymentCard({
             isLoading: false,
             title: context.appText.payAdvance,
             onPressed: () async {
-              // Step 1: Create Order
+              final isPayingBalance = paymentState == 3 || paymentState == 5;
+              // Create Order
               await lpLoadCubit.createOrder(
                 loadId: loadId,
-                amount: advanceAmount,
+                createOrderidReuest: CreateOrderIdRequest(
+                      amount: int.parse(isPayingBalance ? payableBalance : payableAdvance),
                 type: 'online',
-                action: 'pay_advance',
-              );
+                action: isPayingBalance ? 'pay_balance' : 'pay_advance',
+                      )
+                  );
 
               final createOrderState = lpLoadCubit.state.lpCreateOrder;
 
               if (createOrderState?.status == Status.SUCCESS) {
                 final orderId = createOrderState?.data?.orderId;
                 if (orderId != null) {
-                  // Step 2: Add Customer Payment Option
-                  await lpLoadCubit.addCustomerPaymentOption(
-                    orderId: orderId,
-                    amount: advanceAmount,
-                    customerName: customerName,
-                    customerEmail: customerEmail,
-                    customerMobile: customerMobile,
-                    customerCity: customerCity,
+                  // Initiate Payment
+                  await lpLoadCubit.initaitepayment(
+                    initiatePaymentRequest: 
+                    InitiatePaymentRequest(
+                      orderId: orderId, 
+                      amount: int.parse(isPayingBalance ? payableBalance : payableAdvance),
+                      customerName: customerName, 
+                      customerEmail: customerEmail, 
+                      customerMobile: customerMobile, 
+                      customerCity: customerCity)
                   );
 
-                  final paymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+                  final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
-                  if (paymentState?.status == Status.SUCCESS) {
-                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: paymentState?.data?.data?.data?.tinyUrl ?? "")));
+                  if (addpaymentState?.status == Status.SUCCESS) {
+                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: addpaymentState?.data?.data?.data?.tinyUrl ?? "")));
                   } else {
                     ToastMessages.error(message: "Payment failed");
                   }

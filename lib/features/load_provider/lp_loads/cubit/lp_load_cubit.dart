@@ -8,6 +8,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
@@ -439,26 +441,20 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }    
   }
 
-     // Create orderid
+     // Initiate payment
   void setCustomerPaymentResult(UIState<OrderAddedSuccess>? uiState) {
     emit(state.copyWith(lpAddCustomerPaymentOption: uiState));
   }
 
-  // Genrate payment id
-  Future<void> addCustomerPaymentOption({required String orderId,
-  required int amount,
-  required String customerName,
-  required String customerEmail,
-  required String customerMobile,
-  required String customerCity,}) async {
+  // Initiate Payment for created Order
+  Future<void> initaitepayment({
+  required InitiatePaymentRequest initiatePaymentRequest,
+  }) async {
     setCustomerPaymentResult(UIState.loading());
 
-    Result result = await _repository.addCustomerPaymentOption(   orderId: orderId,
-    amount: amount,
-    customerName: customerName,
-    customerEmail: customerEmail,
-    customerMobile: customerMobile,
-    customerCity: customerCity,);
+    Result result = await _repository.initiatePayment(   
+    initiatePaymentRequest: initiatePaymentRequest,
+    );
 
     if (result is Success<OrderAddedSuccess>) {
       setCustomerPaymentResult(UIState.success(result.value));
@@ -467,25 +463,21 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
   }
 
-// Initiate Payment
+// Create Order
 void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
   emit(state.copyWith(lpCreateOrder: uiState));
 }
 
-//Initiate payment
+// Craete order for a particular load
 Future<void> createOrder({
   required String loadId,
-  required int amount,
-  required String type,
-  required String action,
+  required CreateOrderIdRequest createOrderidReuest,
 }) async {
   _setCreateOrderResult(UIState.loading());
 
   Result result = await _repository.createOrder(
     loadId: loadId,
-    amount: amount,
-    type: type,
-    action: action,
+    createOrderIdRequest: createOrderidReuest,
   );
 
   if (result is Success<LpCreateOrderResponse>) {

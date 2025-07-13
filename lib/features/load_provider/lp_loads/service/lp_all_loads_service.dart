@@ -3,6 +3,8 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
@@ -372,26 +374,14 @@ class LpLoadService {
 
  
 Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
-  required String orderId,
-  required int amount,
-  required String customerName,
-  required String customerEmail,
-  required String customerMobile,
-  required String customerCity,
+  required InitiatePaymentRequest initiatePaymentRequest,
 }) async {
   try {
-    final url = 'https://gro-devapi.letsgro.co/vendor/api/v1/payment/addCustomerPaymentOption';
+    final url = ApiUrls.lppayment;
 
     final response = await _apiService.post(
       url,
-      body: {
-        "orderId": orderId,
-        "amount": amount,
-        "customer_name": customerName,
-        "customer_email_id": customerEmail,
-        "customer_mobile_no": customerMobile,
-        "customer_city": customerCity,
-      },
+      body: initiatePaymentRequest.toJson(),
     );
 
     if (response is Success) {
@@ -413,20 +403,15 @@ Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
 }
 
 Future<Result<LpCreateOrderResponse>> createLpOrder({
+   required CreateOrderIdRequest createOrderIdRequest,
   required String loadId,
-  required int amount,
-  required String type,   
-  required String action
+
 }) async {
   try {
-  final url = 'https://gro-devapi.letsgro.co/payment-broker/api/v1/order/pay?loadId=$loadId';
+  final url = "${ApiUrls.lpCreateOrderBase}?loadId=$loadId";
     final response = await _apiService.post(
       url,
-      body: {
-        'amount': amount,
-        'type': type,
-        'action': action,
-      },
+      body: createOrderIdRequest.toJson(),
     );
 
     if (response is Success) {
