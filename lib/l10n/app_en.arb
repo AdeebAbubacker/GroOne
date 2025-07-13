@@ -403,5 +403,6 @@
   "sim": "SIM",
   "consigneeUpdatedSuccesfully" : "Consignee updated successfully",
   "consigneeAddedSuccesfully" : "Consignee added successfully",
-  "allFieldsAremandatory" : "All fields are mandatory"
+  "allFieldsAremandatory" : "All fields are mandatory",
+  "advancePaid" : "Advance Paid"
 }

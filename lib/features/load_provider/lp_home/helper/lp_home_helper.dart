@@ -137,6 +137,26 @@ class LpHomeHelper {
    }
  }
 
+ // Get Load Status State
+ static int getPaymentState(LoadStatus loadStatus) {
+  switch (loadStatus) {
+    case LoadStatus.loading:
+      return 1;
+    case LoadStatus.inTransit:
+      return 2;
+    case LoadStatus.unloading:
+      return 3;
+    case LoadStatus.unloadingHeld:
+      return 4;
+     case LoadStatus.completed:
+      return 5;  
+    default:
+      return 0; // Not eligible or unknown
+  }
+}
+
+
+
 
  // Get Load Status Text Color
 static Color getLoadStatusTextColor(String loadType) {

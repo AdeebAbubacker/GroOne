@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_cre
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
+import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -25,6 +26,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -123,6 +125,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final loadPrice = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
+     print('----------------------${LpHomeHelper.getPaymentState(widget.loadStatus)}');
     return Positioned(
       bottom: 0,
       left: 0,
@@ -137,8 +140,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
             SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                      
+                children: [               
                   // Truck Type Row
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -300,15 +302,18 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   // Pay Advance
                   if(widget.loadStatus.index >= LoadStatus.loading.index)
                     ...[
-                     _buildAdvancePaymentCard(
-                    context: context, 
-                    paymentState: 1, 
-                    loadId: widget.loadItem.loadId,
-                    customerCity: 'null',
-                    advanceAmount: 20,
-                    customerEmail:  widget.loadItem.customer?.emailId ?? '',
-                    customerMobile: widget.loadItem.customer?.mobileNumber ?? '',
-                    customerName: widget.loadItem.customer?.customerName ?? '',
+                      
+                      if (LpHomeHelper.getPaymentState(widget.loadStatus) >= 1 &&
+                      LpHomeHelper.getPaymentState(widget.loadStatus) <= 5)
+                    _buildAdvancePaymentCard(
+                      context: context,
+                      paymentState: LpHomeHelper.getPaymentState(widget.loadStatus),
+                      loadId: widget.loadItem.loadId,
+                      customerCity: 'null',
+                      advanceAmount: 20,
+                      customerEmail: widget.loadItem.customer?.emailId ?? '',
+                      customerMobile: widget.loadItem.customer?.mobileNumber ?? '',
+                      customerName: widget.loadItem.customer?.customerName ?? '',
                     ),
                       16.height,
                     ],
@@ -501,10 +506,16 @@ Widget _buildAdvancePaymentCard({
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+         8.height,
         // Agreed Price
         _buildPriceRow(context.appText.agreedPrice, "₹ 79,000", context),
-        const SizedBox(height: 8),
+        8.height,
+        if (paymentState == 5)
+        // Advance paid 
+        _buildPriceRow(context.appText.advancePaid, "₹ 79,000", context),
+        8.height,
 
+        if (paymentState != 5)
         // Payable Advance Row with Status
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -518,12 +529,12 @@ Widget _buildAdvancePaymentCard({
                     color: AppColors.textBlackColor,
                   ),
                 ),
-                const SizedBox(width: 8),
-                if (paymentState == 2)
+               8.width,
+                if (paymentState == 2 ||paymentState == 4 )
                   Row(
                     children: [
                       const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                      const SizedBox(width: 4),
+                      4.width,
                       Text(
                         context.appText.pending,
                         style: AppTextStyle.body.copyWith(
@@ -567,10 +578,10 @@ Widget _buildAdvancePaymentCard({
           ],
         ),
 
-        const SizedBox(height: 8),
+         8.height,
 
         // Payable Balance (only if paymentState is 2 or 3)
-        if (paymentState == 3)
+        if (paymentState == 3 || paymentState == 5)
           _buildPriceRow(
             context.appText.payableBalance,
             "₹ 9,000",
@@ -578,17 +589,17 @@ Widget _buildAdvancePaymentCard({
             highlight: true,
           ),
 
-        const SizedBox(height: 12),
+         12.height,
 
         // Action Button
-        if (paymentState == 1 || paymentState == 2 || paymentState == 3)
+        if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5)
           AppButton(
             isLoading: false,
             title: context.appText.payAdvance,
             onPressed: () async {
               // Step 1: Create Order
               await lpLoadCubit.createOrder(
-                loadId: "23d870ee-1134-4860-ae10-edf8d53f0149",
+                loadId: loadId,
                 amount: advanceAmount,
                 type: 'online',
                 action: 'pay_advance',
@@ -612,7 +623,7 @@ Widget _buildAdvancePaymentCard({
                   final paymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
                   if (paymentState?.status == Status.SUCCESS) {
-                    ToastMessages.success(message: "Payment successful");
+                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: paymentState?.data?.data?.data?.tinyUrl ?? "")));
                   } else {
                     ToastMessages.error(message: "Payment failed");
                   }
@@ -623,7 +634,7 @@ Widget _buildAdvancePaymentCard({
                 ToastMessages.error(message: "Order creation failed");
               }
             },
-            richTextWidget: paymentState == 2
+            richTextWidget: paymentState == 2 || paymentState == 4 || paymentState == 5
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -632,9 +643,9 @@ Widget _buildAdvancePaymentCard({
                         height: 18,
                         width: 18,
                       ),
-                      const SizedBox(width: 8),
+                      8.width,
                       Text(
-                        context.appText.payAdvance,
+                        paymentState == 5 ? context.appText.payBalance : context.appText.payAdvance,  
                         style: AppTextStyle.buttonWhiteTextColor,
                       ),
                     ],
@@ -644,7 +655,7 @@ Widget _buildAdvancePaymentCard({
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            context.appText.payBalance,
+                       context.appText.payBalance ,
                             style: AppTextStyle.buttonWhiteTextColor,
                           ),
                         ],

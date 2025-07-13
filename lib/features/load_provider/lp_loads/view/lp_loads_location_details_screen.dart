@@ -150,14 +150,14 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
               return Stack(
                 children: [
-                  // GoogleMapWidget(
-                  //   pickupLocation: loadItem.loadRoute?.pickUpLocation,
-                  //   dropLocation: loadItem.loadRoute?.dropLocation,
-                  //   pickUpLatLong: loadItem.loadRoute?.pickUpLatlon,
-                  //   dropLatLong: loadItem.loadRoute?.dropLatlon,
-                  //   driverLat: loadItem.trackingDetails?.currentLat,
-                  //   driverLong: loadItem.trackingDetails?.currentLong,
-                  // ),
+                  GoogleMapWidget(
+                    pickupLocation: loadItem.loadRoute?.pickUpLocation,
+                    dropLocation: loadItem.loadRoute?.dropLocation,
+                    pickUpLatLong: loadItem.loadRoute?.pickUpLatlon,
+                    dropLatLong: loadItem.loadRoute?.dropLatlon,
+                    driverLat: loadItem.trackingDetails?.currentLat,
+                    driverLong: loadItem.trackingDetails?.currentLong,
+                  ),
                   buildTopLocationWidget(loadItem, status),
                   LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers, loadStatus: status!),
                   buildFloatingWidget(status),
