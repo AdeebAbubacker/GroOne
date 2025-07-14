@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,12 +7,14 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -20,6 +23,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -27,6 +31,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -51,6 +56,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
   List<dynamic> multiFilesList = [];
   List<String> uploadedDamageFileList = [];
+  List<String> updateDamageFileList = [];
 
  final TextEditingController itemNameTextController = TextEditingController();
  final TextEditingController quantityTextController = TextEditingController();
@@ -78,27 +84,28 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   void disposeFunction() => frameCallback(() {
     multiFilesList.clear();
     uploadedDamageFileList.clear();
+    updateDamageFileList.clear();
     itemNameTextController.clear();
     quantityTextController.clear();
     descriptionTextController.clear();
     cubit.resetState();
-    cubit.resetUploadDamageFileUIState();
-    cubit.resetSubmitDamageUIState();
   });
 
 
   void clearValues()=> frameCallback((){
     multiFilesList.clear();
     uploadedDamageFileList.clear();
+    updateDamageFileList.clear();
     itemNameTextController.clear();
     quantityTextController.clear();
     descriptionTextController.clear();
     cubit.resetUploadDamageFileUIState();
     cubit.resetSubmitDamageUIState();
+    cubit.resetUpdateDamageUIState();
   });
 
 
-  // Vp Creation Api call
+  // Create Damage Api call
   void createDamageAndShortageApiCall() {
     if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
       ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
@@ -128,6 +135,33 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 
+  // Update Api call
+  Future<void> updateDamageAndShortageApiCall(String damageId) async {
+    if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
+      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
+      return;
+    }
+    if (formKey.currentState!.validate()) {
+      if (updateDamageFileList.isEmpty) {
+        ToastMessages.alert(message: "Please upload Product Photo");
+        return;
+      }
+      if(int.parse(quantityTextController.text) == 0){
+        ToastMessages.alert(message: "You can't add 0 quantity");
+        return;
+      }
+
+      final apiRequest = UpdateDamageApiRequest(
+        itemName: itemNameTextController.text,
+        quantity: int.parse(quantityTextController.text),
+        description: descriptionTextController.text,
+        image: updateDamageFileList,
+      );
+      await cubit.updateDamage(apiRequest, damageId);
+    }
+  }
+
+
   void showSuccessDialog(BuildContext context) => frameCallback(() {
     AppDialog.show(
       context,
@@ -143,10 +177,72 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   });
 
 
+
+  void confirmDeleteDamageDialog(BuildContext context, String damageId) => frameCallback(() {
+    AppDialog.show(
+      context,
+      child: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+        bloc: cubit,
+        builder: (context, state) {
+          final isLoading = state.deleteDamageUIState?.status == Status.LOADING;
+          final status = state.deleteDamageUIState?.status;
+
+          return CommonDialogView(
+            message: "Are you sure you want to delete this damage?",
+            messageTextStyle: AppTextStyle.body2,
+            hideCloseButton: true,
+            showYesNoButtonButtons: true,
+            yesButtonLoading: isLoading,
+            onClickYesButton: () async {
+              await cubit.deleteDamage(damageId);
+
+              if (status == Status.SUCCESS) {
+                cubit.resetDeleteDamageUIState();
+              }
+              if (status == Status.ERROR) {
+                final error = state.deleteDamageUIState?.errorType;
+                if (error is NotFoundError) {
+                  ToastMessages.error(message: getErrorMsg(errorType: error));
+                } else {
+                  ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                }
+              }
+              debugPrint("Status-- : ${status}");
+              if(!context.mounted) return;
+              frameCallback((){
+                Navigator.of(context).pop();
+              });
+
+            },
+          );
+        },
+      )
+    );
+  });
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.damagesAndShortages),
+      appBar: CommonAppBar(
+          title: context.appText.damagesAndShortages,
+          actions: [
+            BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+                bloc: cubit,
+                builder: (context, state) {
+                  if(state.isUpdateDamage != null  && state.isUpdateDamage!){
+                    return TextButton(
+                      onPressed: ()=> cubit.setIsUpdateDamage(false),
+                      child: Text("Cancel Edit"),
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
+            ),
+
+          ],
+      ),
       body: _buildBodyWidget(context),
     );
   }
@@ -161,7 +257,6 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         children: [
           // Damage And Shortage Form
           _buildDamageAndShortagesFormWidget(),
-
           10.height,
 
           // Damage Recorded List
@@ -204,6 +299,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
           // Upload Product Photo
           _buildUploadProductPhotoWidget(),
+          _buildUpdateImageViewerListWidget(),
           20.height,
 
           // Description
@@ -217,33 +313,131 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           30.height,
 
           // Submit Damage Button
-          BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-            bloc: cubit,
-            listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
-            listener: (context, state) async {
-              final status = state.createDamageUIState?.status;
-              if (status == Status.SUCCESS) {
-                clearValues();
-                showSuccessDialog(context);
+          BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+              bloc: cubit,
+              builder: (context, state) {
+                if(state.isUpdateDamage != null  && state.isUpdateDamage!){
+                  return _buildUpdateDamageButton();
+                } else {
+                  return _buildSubmitDamageButton();
+                }
               }
-              if (status == Status.ERROR) {
-                final error = state.createDamageUIState?.errorType;
-                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-              }
-            },
-            builder: (context, state) {
-              final isLoading = state.createDamageUIState?.status == Status.LOADING;
-              return AppButton(
-                title: context.appText.submit,
-                isLoading: isLoading,
-                onPressed: isLoading ? (){} : () => createDamageAndShortageApiCall(),
-              );
-            },
-          )
+          ),
         ],
       ),
     );
   }
+
+
+  /// Upload Submit Damage Button
+  Widget _buildSubmitDamageButton(){
+    return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+      bloc: cubit,
+      listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
+      listener: (context, state) async {
+        final status = state.createDamageUIState?.status;
+        if (status == Status.SUCCESS) {
+          clearValues();
+          showSuccessDialog(context);
+        }
+        if (status == Status.ERROR) {
+          final error = state.createDamageUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state.createDamageUIState?.status == Status.LOADING;
+        return AppButton(
+          title: context.appText.submit,
+          isLoading: isLoading,
+          onPressed: isLoading ? (){} : () => createDamageAndShortageApiCall(),
+        );
+      },
+    );
+  }
+
+
+  /// Update Submit Damage Button
+  Widget _buildUpdateDamageButton(){
+    return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+      bloc: cubit,
+      listenWhen: (previous, current) =>  previous.updateDamageUIState?.status != current.uploadDamageUIState?.status,
+      listener: (context, state) async {
+        final status = state.updateDamageUIState?.status;
+        if (status == Status.SUCCESS) {
+          cubit.setIsUpdateDamage(false);
+          clearValues();
+          initFunction();
+          ToastMessages.success(message: "Damage Updated Successfully");
+        }
+        if (status == Status.ERROR) {
+          final error = state.updateDamageUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state.updateDamageUIState?.status == Status.LOADING;
+        return AppButton(
+          title: context.appText.update,
+          isLoading: isLoading,
+          onPressed: isLoading ? (){} : (){
+            if(state.damageId != null) {
+              updateDamageAndShortageApiCall(state.damageId!);
+            } else {
+              ToastMessages.error(message: "Damage Id is null ${state.damageId}");
+            }
+          },
+        );
+      },
+    );
+  }
+
+
+  /// Build Update Image viewer list
+  Widget _buildUpdateImageViewerListWidget() {
+    return BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+        bloc: cubit,
+        builder: (context, state) {
+          if(state.isUpdateDamage != null  && state.isUpdateDamage!){
+            return  Column(
+              children: [
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: updateDamageFileList.length,
+                  itemBuilder: (context, index) {
+                    return  Stack(
+                      children: [
+                        commonCacheNetworkImage(
+                          height: 120,
+                          width: double.infinity,
+                          path: updateDamageFileList[index],
+                          errorImage: Icons.image_not_supported,
+                        ),
+
+                        AppIconButton(
+                            onPressed: (){
+                              updateDamageFileList.removeAt(index);
+                              setState(() {});
+                            },
+                            style: AppButtonStyle.circularIconButtonStyle,
+                            icon: Icon(CupertinoIcons.clear, color: Colors.red, size: 20),
+                        ).align(Alignment.topRight)
+                      ],
+                    );
+                  },
+                  separatorBuilder: (context, index) => 15.height,
+                ),
+                20.height,
+              ],
+            );
+          } else {
+            return Container();
+          }
+        }
+    );
+  }
+
 
   /// Upload Product Photo
   Widget _buildUploadProductPhotoWidget(){
@@ -256,6 +450,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         if (status == Status.SUCCESS) {
           if (state.uploadDamageUIState?.data != null &&  state.uploadDamageUIState!.data!.url.isNotEmpty){
             uploadedDamageFileList.add(state.uploadDamageUIState!.data!.url);
+            updateDamageFileList.add(state.uploadDamageUIState!.data!.url);
             CustomLog.debug(this, "File List : ${uploadedDamageFileList.length}");
             cubit.resetUploadDamageFileUIState();
           }
@@ -326,11 +521,31 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                     itemName: data.itemName,
                     quantity:  data.quantity.toString(),
                     description:  data.description,
-                    onDelete: () {
-                      debugPrint("Deleted item at index $index");
+                    onDelete: () async {
+                      await cubit.deleteDamage(data.damageId);
+                      final status = state.deleteDamageUIState?.status;
+                      if (status == Status.SUCCESS) {
+                        cubit.resetDeleteDamageUIState();
+                        ToastMessages.success(message: "Damage deleted successfully");
+                      }
+                      if (status == Status.ERROR) {
+                        final error = state.deleteDamageUIState?.errorType;
+                        if (error is NotFoundError) {
+                          ToastMessages.error(message: getErrorMsg(errorType: error));
+                        } else {
+                          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                        }
+                      }
+                      initFunction();
                     },
                     onEdit: () {
-
+                      itemNameTextController.text = data.itemName;
+                      quantityTextController.text = data.quantity.toString();
+                      descriptionTextController.text = data.description;
+                      updateDamageFileList = data.image;
+                      cubit.setIsUpdateDamage(true);
+                      cubit.setDamageId(data.damageId);
+                      setState(() {});
                     }
                   );
                 },
@@ -382,7 +597,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               width: 110,
               height: double.infinity,
               child: commonCacheNetworkImage(
-                  path: imageUrl.first,
+                  path: imageUrl.isNotEmpty ? imageUrl.first : "",
                   errorImage: Icons.image_not_supported,
                   radius: 0
               ),
