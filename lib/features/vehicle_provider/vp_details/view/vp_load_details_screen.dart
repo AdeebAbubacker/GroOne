@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 
@@ -20,9 +21,12 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/loa
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -41,6 +45,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final cubit = locator<LoadDetailsCubit>();
   final homeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpHomeBloc>();
+  bool _consentStatusCalled = false;
 
 
   /// Map Style
@@ -54,11 +59,27 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     super.initState();
   }
 
+  callApi(LoadDetailModelData loadItem) async {
+    if(loadItem.trackingDetails==null){
+      return;
+    }
+
+    await cubit.getTrackingDistance(request: TrackingDistanceApiRequest(
+      originLat: loadItem.trackingDetails?.originLat ?? 0.0,
+      originLong: loadItem.trackingDetails?.originLong ?? 0.0,
+      currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
+      currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
+      destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
+      destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+      body: BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
         bloc: cubit,
+
         builder: (context, state) {
           if (state.loadDetailsUIState?.status == Status.LOADING) {
             return CircularProgressIndicator().center();
@@ -77,6 +98,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             return Stack(
               children: [
                 Positioned.fill(child: GoogleMapWidget(
+                  driverLat: loads?.data?.trackingDetails?.currentLat,
+                  driverLong:  loads?.data?.trackingDetails?.currentLong,
                   pickupLocation: loads?.data?.loadRoute?.pickUpLocation,
                   dropLocation: loads?.data?.loadRoute?.dropLocation,
                   pickUpLatLong: loads?.data?.loadRoute?.pickUpLatlon,
@@ -92,13 +115,54 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   vpHomeBloc: vpHomeBloc,
                   cubit: cubit,lpHomeCubit: homeCubit,
                 ),
+                if((state.loadStatusId??0)>4)
+                buildSimConsentWidget(loads?.data?.driverConsent??0)
               ],
             );
           }
           return genericErrorWidget(error: GenericError());
         },
+        listener: (context, state) {
+          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+            final loads = state.loadDetailsUIState?.data;
+
+            if (loads?.data !=null) {
+              if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
+                _consentStatusCalled = true;
+                callApi(loads!.data!);
+              }
+            }
+          }
+        }
+
+
       ),
     );
+  }
+
+  Widget buildSimConsentWidget(int driverConsent) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+    final isTrackingAllowed = driverConsent==1;
+
+    return Positioned(
+        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
+        onPressed: () {
+          commonSupportDialog(context);
+        },
+        icon: Container(
+          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+          child: Row(
+            children: [
+              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+              10.width,
+              Text(context.appText.sim, style: AppTextStyle.h5 )
+            ],
+          ).paddingAll(8),
+        )
+    ));
+
+
   }
 
   /// Build Source And Destination

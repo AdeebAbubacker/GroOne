@@ -309,7 +309,6 @@ class LpLoadService {
     try {
       final url = ApiUrls.trackingDistance;
       final response = await _apiService.post(url, body: request.toJson());
-
       if (response is Success) {
         final loads = TrackingDistanceResponse.fromJson(response.value);
         return Success(loads);

@@ -68,6 +68,9 @@ class LoadDetailModelData {
     required this.paymentDetails,
     required this.paymentEntry,
     required this.driverConsent,
+    required this.loadMemo,
+    required this.trackingDetails,
+
   });
 
   final String loadId;
@@ -108,6 +111,8 @@ class LoadDetailModelData {
   final PaymentDetails? paymentDetails;
   final PaymentEntry? paymentEntry;
   final int? driverConsent;
+  final dynamic loadMemo;
+  final TrackingDetails? trackingDetails;
 
 
   LoadDetailModelData copyWith({
@@ -149,8 +154,12 @@ class LoadDetailModelData {
     PaymentDetails? paymentDetails,
     PaymentEntry? paymentEntry,
     int? driverConsent,
+    dynamic loadMemo,
+    TrackingDetails? trackingDetails,
   }) {
     return LoadDetailModelData(
+      trackingDetails: trackingDetails?? this.trackingDetails,
+      loadMemo: loadMemo?? this.loadMemo,
       driverConsent: driverConsent??this.driverConsent,
       paymentEntry: paymentEntry??this.paymentEntry,
       loadId: loadId ?? this.loadId,
@@ -170,6 +179,7 @@ class LoadDetailModelData {
       createdPlatform: createdPlatform ?? this.createdPlatform,
       updatedPlatform: updatedPlatform ?? this.updatedPlatform,
       status: status ?? this.status,
+
       matchingStartDate: matchingStartDate ?? this.matchingStartDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -194,6 +204,8 @@ class LoadDetailModelData {
 
   factory LoadDetailModelData.fromJson(Map<String, dynamic> json){
     return LoadDetailModelData(
+      loadMemo:json['loadMemo'],
+      trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
       driverConsent: json['driverConsent'],
       paymentEntry: json['paymentDetails']!=null && json['paymentDetails']['data']['payments']!=null ? PaymentEntry.fromJson(json['paymentDetails']['data']['payments'][0]):null,
       loadId: json["loadId"] ?? "",

@@ -4,6 +4,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
@@ -30,45 +33,53 @@ import 'load_details_state.dart';
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState(
-    tripDocumentList:documentTypeList
+  final LpLoadRepository _lpLoadRepository;
+
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository)
+      : super(LoadDetailsState(
+      tripDocumentList: documentTypeList
   ));
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
-    loadStatus=switch(status){
+    loadStatus = switch(status){
       3 => LoadStatus.accepted,
       4 => LoadStatus.assigned,
       5 => LoadStatus.loading,
-      6=>LoadStatus.unloading,
-      7=>LoadStatus.inTransit,
-      8=>LoadStatus.completed,
-      null||  int() =>  LoadStatus.matching};
-      emit(state.copyWith(
+      6 => LoadStatus.unloading,
+      7 => LoadStatus.inTransit,
+      8 => LoadStatus.completed,
+      null || int() => LoadStatus.matching
+    };
+    emit(state.copyWith(
         loadStatusId: status,
-        loadStatus:loadStatus));
+        loadStatus: loadStatus));
   }
 
 
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
-    Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
+    Result result = await _loadDetailsRepository.fetchLoadDetails(
+        loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
-          locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"),
+          locationDistance: getDistance(
+              result.value.data?.loadRoute?.pickUpLatlon ?? "0",
+              result.value.data?.loadRoute?.dropLatlon ?? "0"),
           loadDetailsUIState: UIState.success(result.value)));
 
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
+
       /// SET TRIP DOCUMENT
-      setTripDocuments(state.loadDetailsUIState?.data?.data?.loadDocument??[]);
+      setTripDocuments(
+          state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));
     }
   }
 
-  Future<void> changedLoadStatus(
-    String load, {
+  Future<void> changedLoadStatus(String load, {
     String? customerId,
     int? loadStatus,
   }) async {
@@ -88,11 +99,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     if (result is Error) {
       emit(state.copyWith(vpLoadStatus: UIState.error(result.type)));
-      ToastMessages.error(message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
+      ToastMessages.error(
+          message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
     }
   }
 
-   String getDistance(String pickUpLatLong,dropLatLong){
+  String getDistance(String pickUpLatLong, dropLatLong) {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -111,50 +123,62 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future scheduleTripApi(ScheduleTripRequest scheduleTripRequest) async {
     emit(state.copyWith(scheduleTripResponse: UIState.loading()));
-    try{
-    Result result = await _vHomeRepository.scheduleTripResponse(
-      apiRequest: scheduleTripRequest,
-    );
-    if (result is Success<ScheduleTripResponse>) {
-      emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
-      Navigator.pop(navigatorKey.currentState!.context);
-    } else if (result is Error) {
-      emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
-      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
-    } else {
-      emit(state.copyWith(scheduleTripResponse: UIState.error(GenericError())));
-      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
-    }
-  }catch(e){
-      ToastMessages.error(message:e.toString(),);
-      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+    try {
+      Result result = await _vHomeRepository.scheduleTripResponse(
+        apiRequest: scheduleTripRequest,
+      );
+      if (result is Success<ScheduleTripResponse>) {
+        emit(state.copyWith(
+            scheduleTripResponse: UIState.success(result.value)));
+        Navigator.pop(navigatorKey.currentState!.context);
+      } else if (result is Error) {
+        emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+        ToastMessages.error(message: getErrorMsg(
+            errorType: state.scheduleTripResponse?.errorType ??
+                GenericError()));
+      } else {
+        emit(state.copyWith(
+            scheduleTripResponse: UIState.error(GenericError())));
+        ToastMessages.error(message: getErrorMsg(
+            errorType: state.scheduleTripResponse?.errorType ??
+                GenericError()));
       }
+    } catch (e) {
+      ToastMessages.error(message: e.toString(),);
+      emit(state.copyWith(
+          scheduleTripResponse: UIState.error(DeserializationError())));
+    }
   }
 
 
-  Future getMapRouting({String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong}) async {
+  Future getMapRouting(
+      {String? pickUpLat, String? pickUpLong, String? dropLat, String? dropLong}) async {
     emit(state.copyWith(directionApiResponse: UIState.loading()));
-    try{
-      DirectionResponse? directionResponse = await _vHomeRepository.getGoogleDirectionResponse(
+    try {
+      DirectionResponse? directionResponse = await _vHomeRepository
+          .getGoogleDirectionResponse(
           pickUpLat,
           pickUpLong,
           dropLat,
           dropLong
       );
-      if (directionResponse!=null) {
-        emit(state.copyWith(directionApiResponse: UIState.success(directionResponse)));
+      if (directionResponse != null) {
+        emit(state.copyWith(
+            directionApiResponse: UIState.success(directionResponse)));
       }
-    }catch(e){
-      ToastMessages.error(message:e.toString(),);
-      emit(state.copyWith(directionApiResponse: UIState.error(DeserializationError())));
+    } catch (e) {
+      ToastMessages.error(message: e.toString(),);
+      emit(state.copyWith(
+          directionApiResponse: UIState.error(DeserializationError())));
     }
   }
 
 
   // Create Damage Api Call
-  void _setDamageUIState(UIState<DamageModel>? uiState){
+  void _setDamageUIState(UIState<DamageModel>? uiState) {
     emit(state.copyWith(createDamageUIState: uiState));
   }
+
   Future<void> createDamage(DamageApiRequest req) async {
     _setDamageUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitDamageData(req);
@@ -168,9 +192,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   //  Damage list Api Call
-  void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
+  void _setDamageListUIState(UIState<GetDamageListModel>? uiState) {
     emit(state.copyWith(damageListUIState: uiState));
   }
+
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getDamageListData(loadId);
@@ -184,7 +209,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // // Upload TDS File
-  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
+  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState) {
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
 
@@ -200,31 +225,54 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  Future<void> uploadDocument(File file,String fileType,String? title,int? documentTypeId,String loadId,int index) async {
+  Future<void> uploadDocument(File file, String fileType, String? title,
+      int? documentTypeId, String loadId, int index) async {
     /// upload document = > Create Document = > Map Document with load
     try {
-      uploadLoadingStatus(index,null);
-      Result result = await _loadDetailsRepository.uploadDocument(file,fileType);
+      uploadLoadingStatus(index, null);
+      Result result = await _loadDetailsRepository.uploadDocument(
+          file, fileType);
       if (result is Success<UploadDamageFileModel>) {
         ///Create Document
-        await createDocument(title??"",documentTypeId??1,result.value).then((value) async {
-         if(value!=null){
-           /// Map document with load
-          await saveDocument(value,loadId).then((value) {
-            uploadLoadingStatus(index,value);
-          },);
-
-         }
-       },);
+        await createDocument(title ?? "", documentTypeId ?? 1, result.value)
+            .then((value) async {
+          if (value != null) {
+            /// Map document with load
+            await saveDocument(value, loadId).then((value) {
+              uploadLoadingStatus(index, value);
+            },);
+          }
+        },);
       }
       if (result is Error) {
-        uploadLoadingStatus(index,null);
+        uploadLoadingStatus(index, null);
       }
-    }  catch (e) {
-      uploadLoadingStatus(index,null);
-      return ;
+    } catch (e) {
+      uploadLoadingStatus(index, null);
+      return;
     }
   }
+
+  // Updates the UI state related to tracking distance.
+  void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
+    emit(state.copyWith(trackingDistance: uiState));
+  }
+
+
+  // Lp load tracking distance
+  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+    _setTrackingDistanceState(UIState.loading());
+
+    Result result = await _lpLoadRepository.getTrackingDistance(request: request);
+
+    if (result is Success<TrackingDistanceResponse>) {
+      _setTrackingDistanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setTrackingDistanceState(UIState.error(result.type));
+    }
+  }
+
+
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
@@ -244,112 +292,134 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-
-  Future<CreateDocumentResponse?> createDocument(String title,int documentTypeId,UploadDamageFileModel uploadImage) async{
+  Future<CreateDocumentResponse?> createDocument(String title,
+      int documentTypeId, UploadDamageFileModel uploadImage) async {
     try {
-      return await _loadDetailsRepository.createNewDocument(CreateDocumentRequest(
-          title:title,
-          description: title,
-          documentTypeId: documentTypeId,
-          filePath:uploadImage.filePath ,
-          fileSize: uploadImage.size,
-          mimeType:uploadImage.mimeType,
-          originalFilename: uploadImage.originalName,
-          fileExtension:uploadImage.originalName.split(".").last)
+      return await _loadDetailsRepository.createNewDocument(
+          CreateDocumentRequest(
+              title: title,
+              description: title,
+              documentTypeId: documentTypeId,
+              filePath: uploadImage.filePath,
+              fileSize: uploadImage.size,
+              mimeType: uploadImage.mimeType,
+              originalFilename: uploadImage.originalName,
+              fileExtension: uploadImage.originalName
+                  .split(".")
+                  .last)
       ).then((value) {
-        if(value is Success<CreateDocumentResponse>){
+        if (value is Success<CreateDocumentResponse>) {
           return value.value;
         }
         return null;
       },);
-    }  catch (e) {
+    } catch (e) {
       return null;
     }
   }
 
-  Future<LoadDocument?> saveDocument(CreateDocumentResponse createDocumentResponse,String loadId) async{
+  Future<LoadDocument?> saveDocument(
+      CreateDocumentResponse createDocumentResponse, String loadId) async {
     try {
       return await _loadDetailsRepository.saveLoadDocument(
-        documentId: createDocumentResponse.documentId??"",
-        loadId:loadId
+          documentId: createDocumentResponse.documentId ?? "",
+          loadId: loadId
       ).then((value) {
-        if(value is Success<LoadDocument>){
+        if (value is Success<LoadDocument>) {
           return value.value;
         }
         return null;
       },);
-    }  catch (e) {
+    } catch (e) {
       return null;
     }
   }
 
-  Future viewDocument(String documentId,int index) async{
+  Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
-          downloadAndOpenFile(result.value.filePath??"",originalFileName: result.value.originalFilename);
+          downloadAndOpenFile(result.value.filePath ?? "",
+              originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {
           uploadLoadingStatus(index, null);
         }
       },);
-    }  catch (e) {
+    } catch (e) {
       uploadLoadingStatus(index, null);
       return null;
     }
   }
 
 
-  void resetUploadDamageFileUIState(){
-    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
+  void resetUploadDamageFileUIState() {
+    emit(state.copyWith(
+        uploadDamageUIState: resetUIState<UploadDamageFileModel>(
+            state.uploadDamageUIState)));
   }
 
 
-  void resetSubmitDamageUIState(){
-    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(state.createDamageUIState)));
+  void resetSubmitDamageUIState() {
+    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(
+        state.createDamageUIState)));
   }
 
 
-  void resetState(){
+  void resetState() {
     emit(state.copyWith(
       possibleDeliveryDate: "",
-      scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse),
-      uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState),
-      createDamageUIState : resetUIState<DamageModel>(state.createDamageUIState),
+      scheduleTripResponse: resetUIState<ScheduleTripResponse>(
+          state.scheduleTripResponse),
+      uploadDamageUIState: resetUIState<UploadDamageFileModel>(
+          state.uploadDamageUIState),
+      createDamageUIState: resetUIState<DamageModel>(state.createDamageUIState),
     ));
   }
 
 
-  setTripDocuments(List<LoadDocument>? loadDocument){
-
-    List<DocumentEntity> documentList=List.from(state.tripDocumentList??[]);
-    for(DocumentEntity item in documentList){
+  setTripDocuments(List<LoadDocument>? loadDocument) {
+    List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+    for (DocumentEntity item in documentList) {
       /// find load item for api response set into local document entity
       try {
         item.loadDocument = loadDocument!.firstWhere(
-              (element) => element.documentDetails?.documentType == item.documentType,
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
         );
       } catch (e) {
-        item.loadDocument=null;
+        item.loadDocument = null;
       }
     }
     emit(state.copyWith(
-      tripDocumentList: documentList
+        tripDocumentList: documentList
     ));
   }
 
 
-  bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity){
-    try{
-      DocumentEntity? document= documentEntity.firstWhere((element) => element.loadDocument==null);
-      return document==null;
-    } catch(e){
+  bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
+    try {
+      DocumentEntity? document = documentEntity.firstWhere((element) =>
+      element.loadDocument == null);
+      return document == null;
+    } catch (e) {
       return true;
     }
+  }
 
+ bool isNextProcessButtonEnabled({required List<
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+      case LoadStatus.assigned:
+        return memo!=null;
+        case LoadStatus.loading:
+      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+      default:
+        return true;
+    }
   }
 }

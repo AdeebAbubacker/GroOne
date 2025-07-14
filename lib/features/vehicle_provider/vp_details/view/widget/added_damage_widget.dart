@@ -16,8 +16,11 @@ class AddedDamageWidget extends StatelessWidget {
         DamageReport? damageReportModel=damageReport?[index];
       return damageRecordCard(
         context: context,
+        onEdit: () {
+
+        },
         description: damageReportModel?.description??"",
-        imageUrl: (damageReportModel?.image??[]).isNotEmpty ? damageReportModel?.image?.first??"":"",
+        imageUrl:  damageReportModel?.image??[],
         itemName: damageReportModel?.itemName??"",
         onDelete: () {
 

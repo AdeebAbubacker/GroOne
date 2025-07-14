@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
@@ -23,9 +24,11 @@ class LoadDetailsState extends Equatable {
   final UIState<UploadDamageFileModel>? uploadDamageUIState;
   final UIState<GetDamageListModel>? damageListUIState;
   final List<DocumentEntity>? tripDocumentList ;
+  final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
 
   const LoadDetailsState({
+    this.trackingDistance,
     this.directionApiResponse,
     this.scheduleTripResponse,
     this.locationDistance,
@@ -41,7 +44,7 @@ class LoadDetailsState extends Equatable {
   });
 
   LoadDetailsState copyWith({
-
+    UIState<TrackingDistanceResponse>? trackingDistance,
     UIState<VpLoadAcceptModel>? vpLoadStatus,
     LoadStatus? loadStatus,
     String? loadDetails,
@@ -58,6 +61,7 @@ class LoadDetailsState extends Equatable {
 
   }) {
     return LoadDetailsState(
+      trackingDistance: trackingDistance ?? this.trackingDistance,
       tripDocumentList:tripDocumentList?? this.tripDocumentList ,
       loadStatusId: loadStatusId?? this.loadStatusId,
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
@@ -87,6 +91,7 @@ class LoadDetailsState extends Equatable {
     locationDistance,
     damageListUIState,
     tripDocumentList,
+    trackingDistance
   ];
 
 }
