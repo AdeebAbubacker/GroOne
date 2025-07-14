@@ -64,6 +64,53 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     super.dispose();
   }
 
+  void _showAlreadyAddedCardDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: AppColors.primaryColor,
+                size: 24,
+              ),
+              8.width,
+              Text(
+                'Card Already Added',
+                style: AppTextStyle.h5.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'You have already added a fuel card.',
+            style: AppTextStyle.h5,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
     @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -76,7 +123,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           // Check if widget is still mounted
           if (!mounted) return;
           
-          // If KYC documents exist, fetch cards
+          // If KYC documents exist, fetch cards and balance
           if (state.kycCheckState?.status == Status.SUCCESS && 
               state.hasKycDocuments && 
               !_hasAttemptedCardsFetch &&
@@ -86,6 +133,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             final cubit = context.read<EnDhanCubit>();
             if (!cubit.isClosed && mounted) {
               cubit.fetchCards();
+              cubit.fetchCardBalance();
             }
           }
         },
@@ -160,7 +208,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                      // Check if there are already cards
+                      final cards = state.cardsState?.data?.data?.document ?? [];
+                      if (cards.isNotEmpty) {
+                        // Show popup if cards already exist
+                        _showAlreadyAddedCardDialog(context);
+                      } else {
+                        // Navigate to create card screen if no cards exist
+                        Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                      }
                     },
                     icon: Icon(Icons.add, color: Colors.white),
                     style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -182,9 +238,40 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     16.height,
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
-                        style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                            style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          // Show balance if available
+                          if (state.cardBalanceState?.status == Status.SUCCESS)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Balance: ',
+                                    style: AppTextStyle.body3.copyWith(
+                                      color: AppColors.greyTextColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                        ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
+                                        : '₹0.00',
+                                    style: AppTextStyle.body3.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                          ? AppColors.primaryColor
+                                          : AppColors.greyTextColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     12.height,

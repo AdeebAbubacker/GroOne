@@ -43,6 +43,8 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
+import '../../../../trip_tracking/widgets/payment_information_dialogue.dart';
+
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
   final LPHomeCubit lpHomeCubit;

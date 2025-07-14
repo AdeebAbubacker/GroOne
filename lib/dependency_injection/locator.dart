@@ -186,7 +186,7 @@ void initLocator() {
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>()));
+    locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
     locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
@@ -195,12 +195,12 @@ void initLocator() {
     locator.registerLazySingleton(
       () => LPHomeCubit(locator<LpHomeRepository>()),
     );
-    locator.registerLazySingleton(
-      () => KycCubit(
-        locator<KycRepository>(),
-        locator<UserInformationRepository>(),
-      ),
-    );
+    // locator.registerLazySingleton(
+    //   () => KycCubit(
+    //     locator<KycRepository>(),
+    //     locator<UserInformationRepository>(),
+    //   ),
+    // );
     locator.registerLazySingleton(
       () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
     );
@@ -226,7 +226,7 @@ void initLocator() {
       () => KavachAddVehicleFormCubit(locator<KavachRepository>()),
     );
     locator.registerLazySingleton(
-      () => EnDhanCubit(locator<EnDhanRepository>()),
+      () => EnDhanCubit(locator<EnDhanRepository>(), locator<UserInformationRepository>()),
     );
     locator.registerLazySingleton(
       () => KavachTransactionsCubit(locator<KavachRepository>()));

@@ -16,9 +16,9 @@ class EnDhanRepository {
   EnDhanRepository(this._enDhanService);
 
   /// Check KYC Documents Repository
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
     try {
-      return await _enDhanService.checkKycDocuments();
+      return await _enDhanService.checkKycDocuments(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to check KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -28,9 +28,10 @@ class EnDhanRepository {
   /// Upload KYC Documents Repository
   Future<Result<EnDhanKycModel>> uploadKycDocuments(
     EnDhanKycApiRequest request,
+    String customerId,
   ) async {
     try {
-      return await _enDhanService.uploadKycDocuments(request);
+      return await _enDhanService.uploadKycDocuments(request, customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to upload KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -117,11 +118,26 @@ class EnDhanRepository {
   /// Upload KYC Documents Multipart Repository
   Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(
     EnDhanKycMultipartApiRequest request,
+    String customerId,
   ) async {
     try {
-      return await _enDhanService.uploadKycDocumentsMultipart(request);
+      return await _enDhanService.uploadKycDocumentsMultipart(request, customerId);
     } catch (e) {
       CustomLog.error(this, "Error uploading KYC documents", e);
+      return Error(GenericError());
+    }
+  }
+
+  /// Fetch Card Balance Repository
+  Future<Result<api_models.EnDhanCardBalanceResponse>> fetchCardBalance() async {
+    print('🔄 EnDhanRepository.fetchCardBalance called');
+    try {
+      final result = await _enDhanService.fetchCardBalance();
+      print('📥 Repository result: ${result.runtimeType}');
+      return result;
+    } catch (e) {
+      print('❌ Repository error: $e');
+      CustomLog.error(this, "Error fetching card balance", e);
       return Error(GenericError());
     }
   }

@@ -108,6 +108,7 @@ class EnDhanCardCreationApiRequest {
 
 /// Customer Creation Request
 class EnDhanCustomerCreationApiRequest {
+  final String customerId; // Added customerId parameter
   final String customerName;
   final String title;
   final int zonalOffice;
@@ -121,9 +122,11 @@ class EnDhanCustomerCreationApiRequest {
   final String communicationMobileNo;
   final String communicationEmailid;
   final String incomeTaxPan;
+  final String? referralCode; // Added referral code parameter
   final List<EnDhanCardDetailRequest> objCardDetailsAl;
 
   const EnDhanCustomerCreationApiRequest({
+    required this.customerId, // Added customerId parameter
     required this.customerName,
     required this.title,
     required this.zonalOffice,
@@ -137,11 +140,13 @@ class EnDhanCustomerCreationApiRequest {
     required this.communicationMobileNo,
     required this.communicationEmailid,
     required this.incomeTaxPan,
+    this.referralCode, // Added referral code parameter
     required this.objCardDetailsAl,
   });
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
+      'customerId': customerId, // Added customerId to JSON
       'CustomerName': customerName,
       'title': title,
       'ZonalOffice': zonalOffice,
@@ -155,6 +160,7 @@ class EnDhanCustomerCreationApiRequest {
       'CommunicationMobileNo': communicationMobileNo,
       'CommunicationEmailid': communicationEmailid,
       'IncomeTaxPan': incomeTaxPan,
+      'referralCode': referralCode, // Added referral code to JSON
       'ObjCardDetailsAl': objCardDetailsAl.map((e) => e.toJson()).toList(),
     };
   }
@@ -190,12 +196,8 @@ class EnDhanCardDetailRequest {
       'VinNumber': vinNumber,
       'RcDocument': rcDocument,
       'RcNumber': rcNumber,
+      'MobileNo': mobileNo, // Always include MobileNo, even if null
     };
-    
-    // Only include mobileNo if it's not null and not empty
-    if (mobileNo != null && mobileNo!.trim().isNotEmpty) {
-      data['MobileNo'] = mobileNo;
-    }
     
     return data;
   }

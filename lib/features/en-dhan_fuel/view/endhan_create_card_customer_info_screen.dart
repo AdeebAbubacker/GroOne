@@ -17,6 +17,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
@@ -32,6 +33,15 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
     final profileCubit = locator<ProfileCubit>();
     final userInfoRepo = locator<UserInformationRepository>();
     final formKey = GlobalKey<FormState>();
+    final referralCodeController = TextEditingController();
+
+    // Referral code suggestions
+    final List<String> referralSuggestions = [
+      'John Doe GDP67543',
+      'David GDP67544',
+      'Michael GDP67545',
+      'Sarah GDP67546',
+    ];
 
     // Initialize data when widget is first built
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -55,9 +65,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
         
         // Get username from profile state
         final profileState = profileCubit.state;
-        if (profileState.profileDetailUIState?.data?.data?.customer?.customerName != null) {
-          username = profileState.profileDetailUIState!.data!.data!.customer!.customerName;
-          mobileNumber = profileState.profileDetailUIState!.data!.data!.customer!.mobileNumber;
+        if (profileState.profileDetailUIState?.data?.customer?.customerName != null) {
+          username = profileState.profileDetailUIState!.data!.customer!.customerName;
+          mobileNumber = profileState.profileDetailUIState!.data!.customer!.mobileNumber;
         }
       } else {
         debugPrint('[EndhanCreateCardCustomerInfoScreen] Username from session: $username');
@@ -484,7 +494,16 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                               return null;
                             },
                           ),
-                          32.height,
+                          16.height,
+                          ReferralAutoCompleteTextField(
+                            controller: referralCodeController,
+                            suggestions: referralSuggestions,
+                            labelText: 'Referral Code (Optional)',
+                            onSelected: (value) {
+                              cubit.setReferralCode(value);
+                            },
+                          ),
+                          40.height,
                           AppButton(
                             title: 'Next',
                             style: AppButtonStyle.primary,

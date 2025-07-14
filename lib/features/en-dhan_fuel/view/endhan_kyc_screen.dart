@@ -29,6 +29,8 @@ import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../kavach/view/kavach_support_screen.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
 class EndhanKycScreen extends StatefulWidget {
   const EndhanKycScreen({super.key});
@@ -39,16 +41,26 @@ class EndhanKycScreen extends StatefulWidget {
 
 class _EndhanKycScreenState extends State<EndhanKycScreen> {
   @override
+  void initState() {
+    super.initState();
+    // No need to reset here since we'll create a fresh cubit
+  }
+
+  @override
   void dispose() {
-    // Reset KYC form state when leaving the screen
-    locator<EnDhanCubit>().resetKycFormState();
+    // No need to reset since we're using a fresh cubit
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => locator<EnDhanCubit>(),
+      create: (context) {
+        // Create a completely fresh cubit instance with new dependencies
+        final repository = locator<EnDhanRepository>();
+        final userInfoRepository = locator<UserInformationRepository>();
+        return EnDhanCubit(repository, userInfoRepository);
+      },
       child: const _EndhanKycScreenContent(),
     );
   }

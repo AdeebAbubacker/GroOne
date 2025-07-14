@@ -21,6 +21,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 
+import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
@@ -606,19 +607,31 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
       // 4. Show SuccessDialogView only once
       if (cubit.state.customerCreationState?.status == Status.SUCCESS) {
         if (mounted) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => SuccessDialogView(
+          AppDialog.show(
+             context,
+            child : SuccessDialogView(
               message: 'Customer and cards created successfully!',
               onContinue: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacement(
+                    Navigator.of(context).pop();
+                   Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
                 );
               },
-            ),
+            )
           );
+          // showDialog(
+          //   context: context,
+          //   barrierDismissible: false,
+          //   builder: (context) => SuccessDialogView(
+          //     message: 'Customer and cards created successfully!',
+          //     onContinue: () {
+          //       Navigator.of(context).pop();
+          //       Navigator.of(context).pushReplacement(
+          //         MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+          //       );
+          //     },
+          //   ),
+          // );
         }
         cubit.resetCustomerCreationState();
         cubit.resetCubit();

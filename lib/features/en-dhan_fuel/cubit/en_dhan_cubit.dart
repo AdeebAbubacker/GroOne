@@ -11,14 +11,16 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
 part 'en_dhan_state.dart';
 
 class EnDhanCubit extends BaseCubit<EnDhanState> {
   final EnDhanRepository _repository;
+  final UserInformationRepository _userInformationRepository;
   bool _isClosed = false;
 
-  EnDhanCubit(this._repository) : super(EnDhanState.initial());
+  EnDhanCubit(this._repository, this._userInformationRepository) : super(EnDhanState.initial());
 
   @override
   Future<void> close() {
@@ -33,6 +35,14 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     print('🔄 Resetting EnDhanCubit state');
     _isClosed = false;
     emit(EnDhanState.initial());
+  }
+
+  /// Comprehensive reset for KYC screen - ensures all states are cleared
+  void resetKycScreenCompletely() {
+    print('🔄 Comprehensive KYC screen reset');
+    if (!_isClosed) {
+      emit(EnDhanState.initial());
+    }
   }
 
   /// Debug method to check cubit status
@@ -60,35 +70,37 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     _setKycCheckUIState(UIState.loading());
 
     try {
-      final result = await _repository.checkKycDocuments();
-
-      if (_isClosed) return; // Check again after async operation
+      // Get customer ID dynamically
+      final customerId = await _userInformationRepository.getUserID();
+      if (customerId == null || customerId.isEmpty) {
+        print('❌ Customer ID not found');
+        _setKycCheckUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
+        return;
+      }
+      
+      print('🔍 Customer ID: $customerId');
+      
+      final result = await _repository.checkKycDocuments(customerId);
+      
+      if (_isClosed) return;
 
       if (result is Success<EnDhanKycCheckModel>) {
-        final kycModel = result.value;
-        final hasDocuments = kycModel.hasKycDocuments;
-
-        print('📋 KYC Check Response:');
-        print('  Success: ${kycModel.success}');
-        print('  Message: ${kycModel.message}');
-        print('  Data Type: ${kycModel.data.runtimeType}');
-        print('  Data: ${kycModel.data}');
-        print('  Has Documents: $hasDocuments');
-        print('  KYC Data: ${kycModel.kycData}');
-
-        emit(
-          state.copyWith(
-            hasKycDocuments: hasDocuments,
-            kycData: kycModel.kycData,
-          ),
-        );
-        _setKycCheckUIState(UIState.success(kycModel));
+        print('✅ KYC check successful: ${result.value.message}');
+        print('🔍 Has KYC Documents: ${result.value.hasKycDocuments}');
+        print('🔍 KYC Data: ${result.value.kycData}');
+        
+        // Update the state with KYC check results
+        emit(state.copyWith(
+          kycCheckState: UIState.success(result.value),
+          hasKycDocuments: result.value.hasKycDocuments,
+          kycData: result.value.kycData,
+        ));
       } else if (result is Error) {
-        print('❌ KYC Check failed: ${(result as Error).type}');
+        print('❌ KYC check failed: ${(result as Error).type}');
         _setKycCheckUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('💥 KYC Check exception: $e');
+      print('❌ Exception in checkKycDocuments: $e');
       if (!_isClosed) {
         _setKycCheckUIState(UIState.error(GenericError()));
       }
@@ -114,23 +126,51 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     _setUploadKycUIState(UIState.loading());
 
-    final request = EnDhanKycApiRequest(
-      customerId: state.customerId,
-      aadhar: state.aadhaar,
-      pan: state.pan,
-      addressProofFront: state.addressProofFront,
-      addressProofBack: state.addressProofBack,
-      identityProofFront: state.identityProofFront,
-      identityProofBack: state.identityProofBack,
-      panImage: state.panImage,
-    );
+    // Get customer ID dynamically
+    final customerId = await _userInformationRepository.getUserID();
+    if (customerId == null || customerId.isEmpty) {
+      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
+      return;
+    }
 
-    Result result = await _repository.uploadKycDocuments(request);
+    try {
+      // Helper function to get path from document
+      String getDocumentPath(List documents) {
+        if (documents.isNotEmpty) {
+          final document = documents.first;
+          if (document is Map && document['path'] != null) {
+            return document['path'];
+          }
+        }
+        return '';
+      }
 
-    if (result is Success<EnDhanKycModel>) {
-      _setUploadKycUIState(UIState.success(result.value));
-    } else if (result is Error) {
-      _setUploadKycUIState(UIState.error(result.type));
+      final request = EnDhanKycApiRequest(
+        aadhar: state.aadhaar,
+        pan: state.pan,
+        addressProofFront: getDocumentPath(state.addressFrontDocuments),
+        addressProofBack: getDocumentPath(state.addressBackDocuments),
+        identityProofFront: getDocumentPath(state.identityFrontDocuments),
+        identityProofBack: getDocumentPath(state.identityBackDocuments),
+        panImage: getDocumentPath(state.panDocuments),
+      );
+
+      final result = await _repository.uploadKycDocuments(request, customerId);
+
+      if (_isClosed) return;
+
+      if (result is Success<EnDhanKycModel>) {
+        print('✅ KYC upload successful: ${result.value.message}');
+        _setUploadKycUIState(UIState.success(result.value));
+      } else if (result is Error) {
+        print('❌ KYC upload failed: ${(result as Error).type}');
+        _setUploadKycUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      print('❌ Exception in uploadKycDocuments: $e');
+      if (!_isClosed) {
+        _setUploadKycUIState(UIState.error(GenericError()));
+      }
     }
   }
 
@@ -148,67 +188,110 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     _setUploadKycUIState(UIState.loading());
 
-    // Convert file paths to File objects from document lists
-    File? addressProofFrontFile;
-    File? addressProofBackFile;
-    File? identityProofFrontFile;
-    File? identityProofBackFile;
-    File? panImageFile;
-
-    // Extract file paths from document lists
-    if (state.addressFrontDocuments.isNotEmpty) {
-      final document = state.addressFrontDocuments.first;
-      if (document['path'] != null) {
-        addressProofFrontFile = File(document['path']);
-      }
+    // Get customer ID dynamically
+    final customerId = await _userInformationRepository.getUserID();
+    if (customerId == null || customerId.isEmpty) {
+      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
+      return;
     }
 
-    if (state.addressBackDocuments.isNotEmpty) {
-      final document = state.addressBackDocuments.first;
-      if (document['path'] != null) {
-        addressProofBackFile = File(document['path']);
+    try {
+      // Convert document lists to File objects
+      File? addressProofFrontFile;
+      File? addressProofBackFile;
+      File? identityProofFrontFile;
+      File? identityProofBackFile;
+      File? panImageFile;
+
+      if (state.addressFrontDocuments.isNotEmpty) {
+        final document = state.addressFrontDocuments.first;
+        if (document is Map && document['path'] != null) {
+          addressProofFrontFile = File(document['path']);
+        }
+      }
+      if (state.addressBackDocuments.isNotEmpty) {
+        final document = state.addressBackDocuments.first;
+        if (document is Map && document['path'] != null) {
+          addressProofBackFile = File(document['path']);
+        }
+      }
+      if (state.identityFrontDocuments.isNotEmpty) {
+        final document = state.identityFrontDocuments.first;
+        if (document is Map && document['path'] != null) {
+          identityProofFrontFile = File(document['path']);
+        }
+      }
+      if (state.identityBackDocuments.isNotEmpty) {
+        final document = state.identityBackDocuments.first;
+        if (document is Map && document['path'] != null) {
+          identityProofBackFile = File(document['path']);
+        }
+      }
+      if (state.panDocuments.isNotEmpty) {
+        final document = state.panDocuments.first;
+        if (document is Map && document['path'] != null) {
+          panImageFile = File(document['path']);
+        }
+      }
+
+      final request = EnDhanKycMultipartApiRequest(
+        aadhar: state.aadhaar,
+        pan: state.pan,
+        addressProofFront: addressProofFrontFile,
+        addressProofBack: addressProofBackFile,
+        identityProofFront: identityProofFrontFile,
+        identityProofBack: identityProofBackFile,
+        panImage: panImageFile,
+      );
+
+      final result = await _repository.uploadKycDocumentsMultipart(request, customerId);
+
+      if (_isClosed) return;
+
+      if (result is Success<EnDhanKycModel>) {
+        print('✅ KYC multipart upload successful: ${result.value.message}');
+        _setUploadKycUIState(UIState.success(result.value));
+      } else if (result is Error) {
+        print('❌ KYC multipart upload failed: ${(result as Error).type}');
+        _setUploadKycUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      print('❌ Exception in uploadKycDocumentsMultipart: $e');
+      if (!_isClosed) {
+        _setUploadKycUIState(UIState.error(GenericError()));
       }
     }
+  }
 
-    if (state.identityFrontDocuments.isNotEmpty) {
-      final document = state.identityFrontDocuments.first;
-      if (document['path'] != null) {
-        identityProofFrontFile = File(document['path']);
+  /// Fetch Card Balance
+  Future<void> fetchCardBalance() async {
+    print('🔍 EnDhanCubit.fetchCardBalance called');
+    print('🔍 Cubit closed status: $_isClosed');
+
+    if (_isClosed) return;
+
+    print('🔍 Starting card balance fetch...');
+    _setCardBalanceUIState(UIState.loading());
+
+    try {
+      final result = await _repository.fetchCardBalance();
+      
+      if (_isClosed) return;
+
+      if (result is Success<api_models.EnDhanCardBalanceResponse>) {
+        print('✅ Card balance fetch successful: ${result.value.message}');
+        print('🔍 Balance data: ${result.value.data?.balance}');
+        
+        _setCardBalanceUIState(UIState.success(result.value));
+      } else if (result is Error) {
+        print('❌ Card balance fetch failed: ${(result as Error).type}');
+        _setCardBalanceUIState(UIState.error((result as Error).type));
       }
-    }
-
-    if (state.identityBackDocuments.isNotEmpty) {
-      final document = state.identityBackDocuments.first;
-      if (document['path'] != null) {
-        identityProofBackFile = File(document['path']);
+    } catch (e) {
+      print('❌ Exception in fetchCardBalance: $e');
+      if (!_isClosed) {
+        _setCardBalanceUIState(UIState.error(GenericError()));
       }
-    }
-
-    if (state.panDocuments.isNotEmpty) {
-      final document = state.panDocuments.first;
-      if (document['path'] != null) {
-        panImageFile = File(document['path']);
-      }
-    }
-
-    final request = EnDhanKycMultipartApiRequest(
-      aadhar: state.aadhaar,
-      pan: state.pan,
-      addressProofFront: addressProofFrontFile,
-      addressProofBack: addressProofBackFile,
-      identityProofFront: identityProofFrontFile,
-      identityProofBack: identityProofBackFile,
-      panImage: panImageFile,
-    );
-
-    final result = await _repository.uploadKycDocumentsMultipart(request);
-
-    if (_isClosed) return; // Check again after async operation
-
-    if (result is Success<EnDhanKycModel>) {
-      _setUploadKycUIState(UIState.success(result.value));
-    } else if (result is Error<EnDhanKycModel>) {
-      _setUploadKycUIState(UIState.error(result.type));
     }
   }
 
@@ -464,6 +547,16 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     _setCustomerCreationUIState(UIState.loading());
 
+    // Get customer ID dynamically
+    final customerId = await _userInformationRepository.getUserID();
+    if (customerId == null || customerId.isEmpty) {
+      print('❌ Customer ID not found');
+      _setCustomerCreationUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
+      return;
+    }
+    
+    print('🔍 Customer ID: $customerId');
+
     // Debug: Log the current state of cards
     print('=== DEBUG: Creating customer with cards ===');
     print('Number of cards in state: ${state.cards.length}');
@@ -510,6 +603,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     }
 
     final request = EnDhanCustomerCreationApiRequest(
+      customerId: customerId, // Added customerId parameter
       customerName: state.customerName,
       title:
           state.title.isNotEmpty
@@ -526,6 +620,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       communicationMobileNo: state.mobile,
       communicationEmailid: state.email,
       incomeTaxPan: state.pan,
+      referralCode: state.referralCode.isNotEmpty ? state.referralCode : null, // Added referral code
       objCardDetailsAl: cardDetails,
     );
 
@@ -1054,6 +1149,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     emit(state.copyWith(pincode: value));
   }
 
+  // Set referral code
+  void setReferralCode(String value) {
+    emit(state.copyWith(referralCode: value));
+  }
+
   // Set selected state ID
   void setSelectedStateId(int? value) {
     // Clear districts when state changes
@@ -1351,6 +1451,13 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     }
   }
 
+  /// Sets the card balance UI state
+  void _setCardBalanceUIState(UIState<api_models.EnDhanCardBalanceResponse>? uiState) {
+    if (!_isClosed) {
+      emit(state.copyWith(cardBalanceState: uiState));
+    }
+  }
+
   /// Reset cards UI state
   void resetCardsUIState() {
     if (!_isClosed) {
@@ -1396,19 +1503,40 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   void resetKycFormState() {
     if (!_isClosed) {
       emit(state.copyWith(
+        // Clear form fields
         aadhaar: '',
         pan: '',
+        
+        // Reset verification status
         isAadhaarVerified: false,
         isPanVerified: false,
         aadhaarRequestId: null,
+        
+        // Reset validation states
+        isAadhaarValid: false,
+        isPanValid: false,
+        
+        // Reset upload flags
+        isPanImageUploaded: false,
+        isIdentityFrontUploaded: false,
+        isIdentityBackUploaded: false,
+        isAddressFrontUploaded: false,
+        isAddressBackUploaded: false,
+        
+        // Clear document lists
         panDocuments: [],
         identityFrontDocuments: [],
         identityBackDocuments: [],
         addressFrontDocuments: [],
         addressBackDocuments: [],
+        
+        // Reset UI states
         aadhaarSendOtpState: null,
         aadhaarVerifyOtpState: null,
         panVerificationState: null,
+        uploadKycState: null,
+        
+        // Reset form submission flag
         hasAttemptedSubmit: false,
       ));
     }

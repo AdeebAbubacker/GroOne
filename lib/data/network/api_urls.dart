@@ -40,8 +40,8 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
-  static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  static String get _verification => "https://verification-service-dev.letsgro.co/api/v1/verification";
+  static String get _kucDocUpload => "https://verification-service-dev.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
   static String get _vendor => "/vendor";
@@ -166,10 +166,11 @@ class ApiUrls {
   //static final String enDhanKycUpload = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static final String enDhanKycUpload = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
  // static final String enDhanKycCheck = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
-  static final String enDhanKycCheck = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
+  static String enDhanKycCheck(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
 
   // En-Dhan Card APIs
-  static final String enDhanCards = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/card";
+  static String enDhanCards(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/card/$customerId";
+  static String enDhanCardBalance(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/cardBalance/$customerId";
 
   // En-Dhan Customer Creation and Master Data APIs
   static final String enDhanCreateCustomer = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/createCustomer";

@@ -12,6 +12,7 @@ class EnDhanState extends Equatable {
   final UIState<api_models.EnDhanVehicleTypeResponse>? vehicleTypesState;
   final UIState<DocumentUploadResponse>? documentUploadState;
   final UIState<api_models.EnDhanCardListModel>? cardsState;
+  final UIState<api_models.EnDhanCardBalanceResponse>? cardBalanceState;
   final UIState<AadhaarSendOtpResponse>? aadhaarSendOtpState;
   final UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState;
   final UIState<PanVerificationResponse>? panVerificationState;
@@ -69,6 +70,7 @@ class EnDhanState extends Equatable {
   final String address2;
   final String cityName;
   final String pincode;
+  final String referralCode; // Added referral code field
   final String shippingAddress;
   final bool saveAsShipping;
   final String regionalOffice;
@@ -100,6 +102,7 @@ class EnDhanState extends Equatable {
     this.vehicleTypesState,
     this.documentUploadState,
     this.cardsState,
+    this.cardBalanceState,
     this.aadhaarSendOtpState,
     this.aadhaarVerifyOtpState,
     this.panVerificationState,
@@ -139,6 +142,7 @@ class EnDhanState extends Equatable {
     this.address2 = '',
     this.cityName = '',
     this.pincode = '',
+    this.referralCode = '', // Added referral code with default value
     this.shippingAddress = '',
     this.saveAsShipping = true,
     this.regionalOffice = 'Chennai',
@@ -161,11 +165,45 @@ class EnDhanState extends Equatable {
   /// Factory constructor for initial state with mutable document lists
   factory EnDhanState.initial() {
     return EnDhanState(
+      // Reset all verification states
+      isAadhaarVerified: false,
+      isPanVerified: false,
+      isAadhaarValid: false,
+      isPanValid: false,
+      isPanImageUploaded: false,
+      isIdentityFrontUploaded: false,
+      isIdentityBackUploaded: false,
+      isAddressFrontUploaded: false,
+      isAddressBackUploaded: false,
+      hasAttemptedSubmit: false,
+      
+      // Clear all form fields
+      aadhaar: '',
+      pan: '',
+      addressProofFront: '',
+      addressProofBack: '',
+      identityProofFront: '',
+      identityProofBack: '',
+      panImage: '',
+      
+      // Clear all document lists
       panDocuments: [],
       identityFrontDocuments: [],
       identityBackDocuments: [],
       addressFrontDocuments: [],
       addressBackDocuments: [],
+      
+      // Reset all UI states
+      uploadKycState: null,
+      kycCheckState: null,
+      aadhaarSendOtpState: null,
+      aadhaarVerifyOtpState: null,
+      panVerificationState: null,
+      vehicleVerificationState: null,
+      
+      // Clear verification data
+      aadhaarRequestId: null,
+      verifiedVehicleNumbers: const {},
     );
   }
 
@@ -180,6 +218,7 @@ class EnDhanState extends Equatable {
     UIState<api_models.EnDhanVehicleTypeResponse>? vehicleTypesState,
     UIState<DocumentUploadResponse>? documentUploadState,
     UIState<api_models.EnDhanCardListModel>? cardsState,
+    UIState<api_models.EnDhanCardBalanceResponse>? cardBalanceState,
     UIState<AadhaarSendOtpResponse>? aadhaarSendOtpState,
     UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState,
     UIState<PanVerificationResponse>? panVerificationState,
@@ -219,6 +258,7 @@ class EnDhanState extends Equatable {
     String? address2,
     String? cityName,
     String? pincode,
+    String? referralCode, // Added referral code parameter
     String? shippingAddress,
     bool? saveAsShipping,
     String? regionalOffice,
@@ -247,8 +287,9 @@ class EnDhanState extends Equatable {
       regionalOfficesState: regionalOfficesState ?? this.regionalOfficesState,
       vehicleTypesState: vehicleTypesState ?? this.vehicleTypesState,
       documentUploadState: documentUploadState ?? this.documentUploadState,
-      cardsState: cardsState ?? this.cardsState,
-      aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
+          cardsState: cardsState ?? this.cardsState,
+    cardBalanceState: cardBalanceState ?? this.cardBalanceState,
+    aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
       aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
       panVerificationState: panVerificationState ?? this.panVerificationState,
       vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
@@ -287,6 +328,7 @@ class EnDhanState extends Equatable {
       address2: address2 ?? this.address2,
       cityName: cityName ?? this.cityName,
       pincode: pincode ?? this.pincode,
+      referralCode: referralCode ?? this.referralCode, // Added referral code
       shippingAddress: shippingAddress ?? this.shippingAddress,
       saveAsShipping: saveAsShipping ?? this.saveAsShipping,
       regionalOffice: regionalOffice ?? this.regionalOffice,
@@ -329,8 +371,9 @@ class EnDhanState extends Equatable {
     regionalOfficesState,
     vehicleTypesState,
     documentUploadState,
-    cardsState,
-    aadhaarSendOtpState,
+          cardsState,
+      cardBalanceState,
+      aadhaarSendOtpState,
     aadhaarVerifyOtpState,
     panVerificationState,
     vehicleVerificationState,
@@ -368,6 +411,7 @@ class EnDhanState extends Equatable {
     address2,
     cityName,
     pincode,
+    referralCode, // Added referral code
     shippingAddress,
     saveAsShipping,
     regionalOffice,

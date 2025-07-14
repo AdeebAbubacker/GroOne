@@ -20,9 +20,9 @@ class EnDhanService {
   EnDhanService(this._apiService, this._secureSharedPrefs);
 
   /// Check KYC Documents Existence
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
     try {
-      final url = ApiUrls.enDhanKycCheck;
+      final url = ApiUrls.enDhanKycCheck(customerId);
       final result = await _apiService.get(url);
 
       if (result is Success) {
@@ -53,10 +53,16 @@ class EnDhanService {
   /// Upload KYC Documents
   Future<Result<EnDhanKycModel>> uploadKycDocuments(
     EnDhanKycApiRequest request,
+    String customerId,
   ) async {
     try {
       final url = ApiUrls.enDhanKycUpload;
-      final result = await _apiService.post(url, body: request.toJson());
+      
+      // Add customerId to the request body
+      final requestBody = request.toJson();
+      requestBody['customerId'] = customerId;
+      
+      final result = await _apiService.post(url, body: requestBody);
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
@@ -327,12 +333,16 @@ class EnDhanService {
   /// Upload KYC Documents Multipart
   Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(
     EnDhanKycMultipartApiRequest request,
+    String customerId,
   ) async {
     try {
       final url = ApiUrls.enDhanKycUpload;
 
       // Get form fields (string data)
       final fields = request.getFormFields();
+      
+      // Add customerId to the form fields
+      fields['customerId'] = customerId;
 
       // Get files for multipart upload
       final files = request.getFiles();
@@ -471,11 +481,69 @@ class EnDhanService {
     }
   }
 
+  /// Fetch Card Balance
+  Future<Result<EnDhanCardBalanceResponse>> fetchCardBalance() async {
+    print('🔄 EnDhanService.fetchCardBalance called');
+    try {
+      // Get customer ID from secure storage
+      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (customerId == null || customerId.isEmpty) {
+        print('❌ Customer ID not found in secure storage');
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+      
+      final url = ApiUrls.enDhanCardBalance(customerId);
+      print('🌐 Making API call to: $url');
+      CustomLog.debug(this, "Fetching card balance from: $url");
+
+      final result = await _apiService.get(url);
+      print('📥 API service result type: ${result.runtimeType}');
+
+      if (result is Success) {
+        print('✅ API call successful');
+        print('📄 Raw response: ${result.value}');
+        CustomLog.debug(this, "Card balance API raw response: ${result.value}");
+
+        try {
+          final response = EnDhanCardBalanceResponse.fromJson(result.value);
+          print('✅ Successfully parsed card balance response');
+          print('🔍 Response success: ${response.success}');
+          print('🔍 Response message: ${response.message}');
+          print('🔍 Balance data: ${response.data?.balance}');
+          CustomLog.debug(this, "Parsed card balance response: $response");
+
+          return Success(response);
+        } catch (e) {
+          print('❌ Error parsing card balance response: $e');
+          CustomLog.error(this, "Error parsing card balance response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        print('❌ API service returned error: ${result.type}');
+        return Error(result.type);
+      } else {
+        print('❌ API service returned unknown result type: ${result.runtimeType}');
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print('❌ Exception in fetchCardBalance: $e');
+      CustomLog.error(this, "Error fetching card balance", e);
+      return Error(GenericError());
+    }
+  }
+
   /// Fetch Cards List
   Future<Result<EnDhanCardListModel>> fetchCards({String? searchTerm}) async {
     print('🔄 EnDhanService.fetchCards called with searchTerm: $searchTerm');
     try {
-      String url = ApiUrls.enDhanCards;
+      // Get customer ID from secure storage
+      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (customerId == null || customerId.isEmpty) {
+        print('❌ Customer ID not found in secure storage');
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+      
+      String url = ApiUrls.enDhanCards(customerId);
       if (searchTerm != null && searchTerm.isNotEmpty) {
         url += '?searchTerm=$searchTerm';
       }
@@ -711,7 +779,7 @@ class EnDhanService {
     VehicleVerificationRequest request,
   ) async {
     try {
-      final url = 'https://verification-service-uat.letsgro.co/api/v1/verification/vehicle';
+      final url = 'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle';
       final requestBody = request.toJson();
       
       CustomLog.debug(
