@@ -76,6 +76,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_loa
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/service/analytics_service.dart';
+import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -246,10 +247,12 @@ void initLocator() {
     // GPS Services
     locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
     locator.registerLazySingleton(() => GpsRealmService());
+    locator.registerLazySingleton(() => HasInternetConnection());
     locator.registerLazySingleton(
       () => GpsLoginRepository(
         locator<GpsLoginService>(),
         locator<GpsRealmService>(),
+        locator<HasInternetConnection>(),
       ),
     );
 

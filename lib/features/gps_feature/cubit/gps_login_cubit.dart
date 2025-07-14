@@ -37,6 +37,13 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
       // Store login response in Realm
       await _repository.saveLoginResponse(result.value);
       print("💾 Login response stored in Realm");
+
+      // Fetch and store user config and device fuel data after successful login
+      if (result.value.token != null) {
+        await _repository.fetchAndStoreUserConfig(result.value.token!);
+        await _repository.fetchAndStoreDeviceFuel(result.value.token!);
+        await _repository.fetchAndStoreGeofences(result.value.token!);
+      }
     } else if (result is Error) {
       print("❌ GpsLoginCubit.login() failed: ${(result as Error).type}");
       _setLoginUIState(UIState.error((result as Error).type));

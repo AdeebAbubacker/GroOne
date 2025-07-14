@@ -5,16 +5,31 @@ import 'package:realm/realm.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_combined_vehicle_realm_model.dart';
+import '../model/gps_device_fuel_model.dart';
+import '../model/gps_device_fuel_realm_model.dart';
+import '../model/gps_geofence_realm_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_login_realm_model.dart';
+import '../model/gps_mobile_config_model.dart';
+import '../model/gps_mobile_config_realm_model.dart';
+import '../model/gps_user_config_model.dart';
+import '../model/gps_user_config_realm_model.dart';
+import '../model/gps_user_configuration_model.dart';
+import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
+import '../models/gps_geofence_model.dart';
 
 class GpsRealmService {
   static const String _realmName = 'gps_vehicle_data.realm';
   Realm? _realm;
   RealmResults<GpsCombinedVehicleRealmData>? _vehicleData;
   RealmResults<GpsUserDetailsRealmModel>? _userDetailsData;
+  RealmResults<GpsUserConfigRealmModel>? _userConfigData;
+  RealmResults<GpsDeviceFuelRealmModel>? _deviceFuelData;
+  RealmResults<GpsMobileConfigRealmModel>? _mobileConfigData;
+  RealmResults<GpsUserConfigurationRealmModel>? _userConfigurationData;
+  RealmResults<GpsGeofenceRealmModel>? _geofenceData;
   bool _isInitialized = false;
 
   GpsRealmService() {
@@ -39,14 +54,24 @@ class GpsRealmService {
           GpsCombinedVehicleRealmData.schema,
           GpsLoginResponseRealmModel.schema,
           GpsUserDetailsRealmModel.schema,
+          GpsUserConfigRealmModel.schema,
+          GpsDeviceFuelRealmModel.schema,
+          GpsMobileConfigRealmModel.schema,
+          GpsUserConfigurationRealmModel.schema,
+          GpsGeofenceRealmModel.schema,
         ],
         path: realmPath,
-        schemaVersion: 2,
+        schemaVersion: 4,
       );
 
       _realm = Realm(config);
       _vehicleData = _realm!.all<GpsCombinedVehicleRealmData>();
       _userDetailsData = _realm!.all<GpsUserDetailsRealmModel>();
+      _userConfigData = _realm!.all<GpsUserConfigRealmModel>();
+      _deviceFuelData = _realm!.all<GpsDeviceFuelRealmModel>();
+      _mobileConfigData = _realm!.all<GpsMobileConfigRealmModel>();
+      _userConfigurationData = _realm!.all<GpsUserConfigurationRealmModel>();
+      _geofenceData = _realm!.all<GpsGeofenceRealmModel>();
     } catch (e) {
       // If migration fails, clear the database and try again
       if (e.toString().contains('Migration required') ||
@@ -63,14 +88,24 @@ class GpsRealmService {
             GpsCombinedVehicleRealmData.schema,
             GpsLoginResponseRealmModel.schema,
             GpsUserDetailsRealmModel.schema,
+            GpsUserConfigRealmModel.schema,
+            GpsDeviceFuelRealmModel.schema,
+            GpsMobileConfigRealmModel.schema,
+            GpsUserConfigurationRealmModel.schema,
+            GpsGeofenceRealmModel.schema,
           ],
           path: realmPath,
-          schemaVersion: 2,
+          schemaVersion: 4,
         );
 
         _realm = Realm(config);
         _vehicleData = _realm!.all<GpsCombinedVehicleRealmData>();
         _userDetailsData = _realm!.all<GpsUserDetailsRealmModel>();
+        _userConfigData = _realm!.all<GpsUserConfigRealmModel>();
+        _deviceFuelData = _realm!.all<GpsDeviceFuelRealmModel>();
+        _mobileConfigData = _realm!.all<GpsMobileConfigRealmModel>();
+        _userConfigurationData = _realm!.all<GpsUserConfigurationRealmModel>();
+        _geofenceData = _realm!.all<GpsGeofenceRealmModel>();
         print("✅ Database initialized successfully after migration");
       } else {
         throw Exception('Failed to initialize Realm: $e');
@@ -403,6 +438,280 @@ class GpsRealmService {
     }
   }
 
+  // ==================== USER CONFIG OPERATIONS ====================
+
+  /// Save user config to Realm
+  Future<void> saveUserConfig(GpsUserConfigModel userConfig) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing user config data
+        _realm!.deleteAll<GpsUserConfigRealmModel>();
+
+        // Add new user config data
+        if (userConfig.data != null) {
+          for (final configData in userConfig.data!) {
+            final realmData = GpsUserConfigRealmModelMapper.fromDomain(
+              configData,
+            );
+            _realm!.add(realmData);
+          }
+        }
+      });
+      print("💾 User config saved to Realm");
+    } catch (e) {
+      print("❌ Failed to save user config to Realm: $e");
+      throw Exception('Failed to save user config to Realm: $e');
+    }
+  }
+
+  /// Get stored user config from Realm
+  Future<GpsUserConfigModel?> getUserConfig() async {
+    await _ensureInitialized();
+    try {
+      final realmDataList = _userConfigData!.toList();
+      if (realmDataList.isNotEmpty) {
+        final configDataList =
+            realmDataList.map((realmData) => realmData.toDomain()).toList();
+        return GpsUserConfigModel(data: configDataList);
+      }
+      return null;
+    } catch (e) {
+      print("❌ Failed to read user config from Realm: $e");
+      return null;
+    }
+  }
+
+  /// Update user config in Realm
+  Future<void> updateUserConfig(GpsUserConfigModel userConfig) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing user config data
+        _realm!.deleteAll<GpsUserConfigRealmModel>();
+
+        // Add new user config data
+        if (userConfig.data != null) {
+          for (final configData in userConfig.data!) {
+            final realmData = GpsUserConfigRealmModelMapper.fromDomain(
+              configData,
+            );
+            _realm!.add(realmData);
+          }
+        }
+      });
+      print("💾 User config updated in Realm");
+    } catch (e) {
+      print("❌ Failed to update user config in Realm: $e");
+      throw Exception('Failed to update user config in Realm: $e');
+    }
+  }
+
+  /// Clear user config from Realm
+  Future<void> clearUserConfig() async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<GpsUserConfigRealmModel>();
+      });
+      print("🗑️ User config cleared from Realm");
+    } catch (e) {
+      print("❌ Failed to clear user config from Realm: $e");
+      throw Exception('Failed to clear user config from Realm: $e');
+    }
+  }
+
+  // ==================== DEVICE FUEL OPERATIONS ====================
+
+  /// Save device fuel data to Realm
+  Future<void> saveDeviceFuel(GpsDeviceFuelModel deviceFuel) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing device fuel data
+        _realm!.deleteAll<GpsDeviceFuelRealmModel>();
+
+        // Add new device fuel data
+        if (deviceFuel.data != null) {
+          for (final fuelData in deviceFuel.data!) {
+            final realmData = GpsDeviceFuelRealmModelMapper.fromDomain(
+              fuelData,
+            );
+            _realm!.add(realmData);
+          }
+        }
+      });
+      print("💾 Device fuel data saved to Realm");
+    } catch (e) {
+      print("❌ Failed to save device fuel data to Realm: $e");
+      throw Exception('Failed to save device fuel data to Realm: $e');
+    }
+  }
+
+  /// Get stored device fuel data from Realm
+  Future<GpsDeviceFuelModel?> getDeviceFuel() async {
+    await _ensureInitialized();
+    try {
+      final realmDataList = _deviceFuelData!.toList();
+      if (realmDataList.isNotEmpty) {
+        final fuelDataList =
+            realmDataList.map((realmData) => realmData.toDomain()).toList();
+        return GpsDeviceFuelModel(
+          data: fuelDataList,
+          success: true,
+          total: fuelDataList.length,
+        );
+      }
+      return null;
+    } catch (e) {
+      print("❌ Failed to read device fuel data from Realm: $e");
+      return null;
+    }
+  }
+
+  /// Update device fuel data in Realm
+  Future<void> updateDeviceFuel(GpsDeviceFuelModel deviceFuel) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing device fuel data
+        _realm!.deleteAll<GpsDeviceFuelRealmModel>();
+
+        // Add new device fuel data
+        if (deviceFuel.data != null) {
+          for (final fuelData in deviceFuel.data!) {
+            final realmData = GpsDeviceFuelRealmModelMapper.fromDomain(
+              fuelData,
+            );
+            _realm!.add(realmData);
+          }
+        }
+      });
+      print("💾 Device fuel data updated in Realm");
+    } catch (e) {
+      print("❌ Failed to update device fuel data in Realm: $e");
+      throw Exception('Failed to update device fuel data in Realm: $e');
+    }
+  }
+
+  /// Clear device fuel data from Realm
+  Future<void> clearDeviceFuel() async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<GpsDeviceFuelRealmModel>();
+      });
+      print("🗑️ Device fuel data cleared from Realm");
+    } catch (e) {
+      print("❌ Failed to clear device fuel data from Realm: $e");
+      throw Exception('Failed to clear device fuel data from Realm: $e');
+    }
+  }
+
+  // ==================== MOBILE CONFIG OPERATIONS ====================
+  Future<void> saveMobileConfig(GpsMobileConfigData mobileConfig) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<GpsMobileConfigRealmModel>();
+        final realmData = GpsMobileConfigRealmModelMapper.fromDomain(
+          mobileConfig,
+        );
+        _realm!.add(realmData);
+      });
+      print("💾 Mobile config saved to Realm");
+    } catch (e) {
+      print("❌ Failed to save mobile config to Realm: $e");
+      throw Exception('Failed to save mobile config to Realm: $e');
+    }
+  }
+
+  Future<GpsMobileConfigData?> getMobileConfig() async {
+    await _ensureInitialized();
+    try {
+      final realmData = _mobileConfigData!.firstOrNull;
+      return realmData?.toDomain();
+    } catch (e) {
+      print("❌ Failed to read mobile config from Realm: $e");
+      return null;
+    }
+  }
+
+  // ==================== USER CONFIGURATION OPERATIONS ====================
+  Future<void> saveUserConfiguration(
+    GpsUserConfigurationData userConfig,
+  ) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<GpsUserConfigurationRealmModel>();
+        final realmData = GpsUserConfigurationRealmModelMapper.fromDomain(
+          userConfig,
+        );
+        _realm!.add(realmData);
+      });
+      print("💾 User configuration saved to Realm");
+    } catch (e) {
+      print("❌ Failed to save user configuration to Realm: $e");
+      throw Exception('Failed to save user configuration to Realm: $e');
+    }
+  }
+
+  Future<GpsUserConfigurationData?> getUserConfiguration() async {
+    await _ensureInitialized();
+    try {
+      final realmData = _userConfigurationData!.firstOrNull;
+      return realmData?.toDomain();
+    } catch (e) {
+      print("❌ Failed to read user configuration from Realm: $e");
+      return null;
+    }
+  }
+
+  // ==================== GEOFENCE OPERATIONS ====================
+  Future<void> saveGeofences(List<GpsGeofenceModel> geofences) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing geofence data
+        _realm!.deleteAll<GpsGeofenceRealmModel>();
+
+        // Add new geofence data
+        for (final geofence in geofences) {
+          final realmData = GpsGeofenceRealmModelMapper.fromDomain(geofence);
+          _realm!.add(realmData);
+        }
+      });
+      print("💾 Geofence data saved to Realm: ${geofences.length} geofences");
+    } catch (e) {
+      print("❌ Failed to save geofence data to Realm: $e");
+      throw Exception('Failed to save geofence data to Realm: $e');
+    }
+  }
+
+  Future<List<GpsGeofenceModel>> getGeofences() async {
+    await _ensureInitialized();
+    try {
+      return _geofenceData!.map((realmData) => realmData.toDomain()).toList();
+    } catch (e) {
+      print("❌ Failed to read geofence data from Realm: $e");
+      throw Exception('Failed to read geofence data from Realm: $e');
+    }
+  }
+
+  Future<void> clearGeofences() async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<GpsGeofenceRealmModel>();
+      });
+      print("🗑️ Geofence data cleared from Realm");
+    } catch (e) {
+      print("❌ Failed to clear geofence data from Realm: $e");
+      throw Exception('Failed to clear geofence data from Realm: $e');
+    }
+  }
+
   // ==================== GENERAL OPERATIONS ====================
 
   /// Check if user is logged in (has valid login data)
@@ -424,11 +733,21 @@ class GpsRealmService {
       final vehicleCount = _vehicleData!.length;
       final hasLoginData = _realm!.all<GpsLoginResponseRealmModel>().isNotEmpty;
       final hasUserDetails = _userDetailsData!.isNotEmpty;
+      final hasUserConfig = _userConfigData!.isNotEmpty;
+      final hasDeviceFuel = _deviceFuelData!.isNotEmpty;
+      final hasMobileConfig = _mobileConfigData!.isNotEmpty;
+      final hasUserConfiguration = _userConfigurationData!.isNotEmpty;
+      final hasGeofences = _geofenceData!.isNotEmpty;
 
       return {
         'vehicleCount': vehicleCount,
         'hasLoginData': hasLoginData,
         'hasUserDetails': hasUserDetails,
+        'hasUserConfig': hasUserConfig,
+        'hasDeviceFuel': hasDeviceFuel,
+        'hasMobileConfig': hasMobileConfig,
+        'hasUserConfiguration': hasUserConfiguration,
+        'hasGeofences': hasGeofences,
         'lastUpdated': DateTime.now().toIso8601String(),
       };
     } catch (e) {
@@ -445,6 +764,11 @@ class GpsRealmService {
         _realm!.deleteAll<GpsCombinedVehicleRealmData>();
         _realm!.deleteAll<GpsLoginResponseRealmModel>();
         _realm!.deleteAll<GpsUserDetailsRealmModel>();
+        _realm!.deleteAll<GpsUserConfigRealmModel>();
+        _realm!.deleteAll<GpsDeviceFuelRealmModel>();
+        _realm!.deleteAll<GpsMobileConfigRealmModel>();
+        _realm!.deleteAll<GpsUserConfigurationRealmModel>();
+        _realm!.deleteAll<GpsGeofenceRealmModel>();
       });
       print("🗑️ All GPS data cleared from Realm");
     } catch (e) {

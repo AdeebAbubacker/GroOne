@@ -6,10 +6,15 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
+import '../model/gps_device_fuel_model.dart';
 import '../model/gps_devices_expiry_model.dart';
 import '../model/gps_devices_positions_model.dart';
 import '../model/gps_login_model.dart';
+import '../model/gps_mobile_config_model.dart';
+import '../model/gps_user_config_model.dart';
+import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_details_model.dart';
+import '../models/gps_geofence_model.dart';
 
 class GpsLoginService {
   final ApiService _apiService;
@@ -158,6 +163,164 @@ class GpsLoginService {
     }
   }
 
+  Future<Result<GpsUserConfigModel>> getUserConfig(String token) async {
+    try {
+      CustomLog.info(this, "Getting user config...");
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/user_config',
+        'GET',
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "User config API call successful");
+        try {
+          final userConfig = GpsUserConfigModel.fromJson(result.value);
+          return Success(userConfig);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing user config response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "User config API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<GpsDeviceFuelModel>> getDeviceFuel(String token) async {
+    try {
+      CustomLog.info(this, "Getting device fuel data...");
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/device_fuel',
+        'GET',
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "Device fuel API call successful");
+        try {
+          final deviceFuel = GpsDeviceFuelModel.fromJson(result.value);
+          return Success(deviceFuel);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing device fuel response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Device fuel API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<GpsMobileConfigModel>> getMobileConfig(
+    String token,
+    int userId,
+  ) async {
+    try {
+      CustomLog.info(this, "Getting mobile config...");
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/get_user_mobile_app_settings?user_id=$userId',
+        'GET',
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "Mobile config API call successful");
+        try {
+          final mobileConfig = GpsMobileConfigModel.fromJson(result.value);
+          return Success(mobileConfig);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing mobile config response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Mobile config API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<GpsUserConfigurationModel>> getUserConfiguration(
+    String token,
+    int userId,
+  ) async {
+    try {
+      CustomLog.info(this, "Getting user configuration...");
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/user_configuration?__id__equal=$userId',
+        'GET',
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "User configuration API call successful");
+        try {
+          final userConfig = GpsUserConfigurationModel.fromJson(result.value);
+          return Success(userConfig);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing user configuration response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "User configuration API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<GpsGeofenceModel>>> getGeofences(String token) async {
+    try {
+      CustomLog.info(this, "Getting geofences...");
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/tc_geofences?__include=area&__include=attributes&__limit=10000',
+        'GET',
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "Geofences API call successful");
+        try {
+          final data = result.value['data'] as List;
+          final geofences =
+              data.map((e) => GpsGeofenceModel.fromJson(e)).toList();
+          return Success(geofences);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing geofences response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Geofences API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
   // Helper method to make authenticated requests
   Future<Result<dynamic>> _makeAuthenticatedRequest(
     String url,
@@ -250,6 +413,39 @@ class GpsLoginService {
         // Continue anyway as this is not critical
       } else {
         CustomLog.info(this, "User details retrieved successfully");
+      }
+
+      // Step 2.5: Get user config
+      CustomLog.info(this, "Step 2.5: Getting user config...");
+      final userConfigResult = await getUserConfig(authToken);
+      if (userConfigResult is Error) {
+        CustomLog.error(this, "Failed to get user config", null);
+        // Continue anyway as this is not critical
+      } else {
+        CustomLog.info(this, "User config retrieved successfully");
+      }
+
+      // Step 2.6: Get device fuel data
+      CustomLog.info(this, "Step 2.6: Getting device fuel data...");
+      final deviceFuelResult = await getDeviceFuel(authToken);
+      if (deviceFuelResult is Error) {
+        CustomLog.error(this, "Failed to get device fuel data", null);
+        // Continue anyway as this is not critical
+      } else {
+        CustomLog.info(this, "Device fuel data retrieved successfully");
+      }
+
+      // Step 2.7: Get geofences
+      CustomLog.info(this, "Step 2.7: Getting geofences...");
+      final geofencesResult = await getGeofences(authToken);
+      if (geofencesResult is Error) {
+        CustomLog.error(this, "Failed to get geofences", null);
+        // Continue anyway as this is not critical
+      } else {
+        CustomLog.info(
+          this,
+          "Geofences retrieved successfully: ${(geofencesResult as Success<List<GpsGeofenceModel>>).value.length} geofences",
+        );
       }
 
       // Step 3: Get devices with expiry
