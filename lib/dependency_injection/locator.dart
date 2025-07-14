@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_ge
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_detail_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/report_service.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -80,8 +81,10 @@ import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
+import '../features/gps_feature/cubit/report_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
+import '../features/gps_feature/repository/report_repository.dart';
 import '../features/gps_feature/service/gps_login_service.dart';
 import '../features/gps_feature/service/gps_realm_service.dart';
 import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
@@ -246,12 +249,10 @@ void initLocator() {
     // GPS Services
     locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
     locator.registerLazySingleton(() => GpsRealmService());
-    locator.registerLazySingleton(
-      () => GpsLoginRepository(
-        locator<GpsLoginService>(),
-        locator<GpsRealmService>(),
-      ),
-    );
+    locator.registerLazySingleton(() => GpsReportService(locator<ApiService>()),);
+
+    locator.registerLazySingleton(() => GpsReportRepository(locator<GpsReportService>()),);
+    locator.registerLazySingleton(() => GpsLoginRepository(locator<GpsLoginService>(), locator<GpsRealmService>(),),);
 
     // View Model
     locator.registerLazySingleton(
@@ -405,6 +406,10 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
+    );
+
+    locator.registerLazySingleton(
+      () => GpsReportCubit(repository: locator<GpsReportRepository>()),
     );
     locator.registerLazySingleton(() => VehicleDetailCubit());
 

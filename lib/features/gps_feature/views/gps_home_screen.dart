@@ -233,7 +233,9 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.reports,
         Icons.assessment_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsReports,);
+        },
       ),
       _MenuItem(
         context.appText.orders,

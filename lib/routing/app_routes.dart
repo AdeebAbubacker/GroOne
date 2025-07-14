@@ -27,6 +27,7 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
+import '../features/gps_feature/views/report_screen.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
 class AppRoutes {
@@ -156,6 +157,12 @@ class AppRoutes {
         path: AppRouteName.lpPayNowAndTrackLoad,
         builder: (BuildContext context, GoRouterState state) {
           return LPTrackLoadScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.gpsReports,
+        builder: (BuildContext context, GoRouterState state) {
+          return GpsReportScreen();
         },
       ),
 
