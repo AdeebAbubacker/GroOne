@@ -15,27 +15,39 @@ class PaymentsScreen extends StatefulWidget {
 
 class PaymentsScreenState extends State<PaymentsScreen> {
   late final WebViewController _controller;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // instantiate the controller and configure it
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.white)
-      ..loadRequest(
-        Uri.parse(widget.url),
-      );
+      ..setBackgroundColor(Colors.white);
+
+    _delayedLoad();
+  }
+
+  Future<void> _delayedLoad() async {
+    await Future.delayed(const Duration(seconds: 7));
+    if (mounted) {
+      await _controller.loadRequest(Uri.parse(widget.url));
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBarWidget(context),
-      body: WebViewWidget(controller: _controller),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : WebViewWidget(controller: _controller),
     );
   }
 }
+
 
   // appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
