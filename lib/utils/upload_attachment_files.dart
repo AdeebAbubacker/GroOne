@@ -124,7 +124,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                               ),
                             ),
                           ),
-                        ).paddingOnly(right: 5, left: 5, top: 5);
+                        ).paddingOnly(top: 5);
                       } else {
                         return 0.width;
                       }

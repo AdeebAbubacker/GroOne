@@ -383,11 +383,12 @@ class LoadDetailsWidget extends StatelessWidget {
 
   Widget _buildBottomButtonWidget(LoadDetailModelData? loadDetails,LoadDetailsState state,BuildContext context){
   return  Container(
-      decoration: commonContainerDecoration(
+    decoration: commonContainerDecoration(
           color: Colors.white,
           blurRadius: 30,
           shadow: state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned
-      ), child: Row(
+      ),
+    child: Row(
       spacing: 10,
       children:   [
         ...[
@@ -440,11 +441,11 @@ class LoadDetailsWidget extends StatelessWidget {
                    return null;
 
                    },),
-             ).paddingBottom(20)
+             )
 
          ],
       ],
-    ).paddingSymmetric(horizontal: 15, vertical: 12),
+    ).bottomNavigationPadding(),
     );
   }
 

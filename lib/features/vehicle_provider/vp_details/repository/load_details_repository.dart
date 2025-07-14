@@ -4,9 +4,12 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
@@ -74,10 +77,10 @@ class LoadDetailsRepository {
   }
 
 
-  /// Edit Damage Repo
-  Future<Result<DamageModel>> getEditDamageData(DamageApiRequest request) async {
+  /// Update Damage Repo
+  Future<Result<UpdateDamageModel>> getUpdateDamageData(UpdateDamageApiRequest request, String damageId) async {
     try {
-      return await _vpDetailsService.editDamage(request);
+      return await _vpDetailsService.updateDamage(request, damageId);
     } catch (e) {
       CustomLog.error(this, "Failed to request edit damage submit data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -86,9 +89,9 @@ class LoadDetailsRepository {
 
 
   /// Delete Damage Repo
-  Future<Result<DamageModel>> deleteEditDamageData(DamageApiRequest request) async {
+  Future<Result<DeleteDamageModel>> getDeleteDamageData(String damageId) async {
     try {
-      return await _vpDetailsService.deleteDamage(request);
+      return await _vpDetailsService.deleteDamage(damageId);
     } catch (e) {
       CustomLog.error(this, "Failed to request delete damage submit data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -107,7 +110,7 @@ class LoadDetailsRepository {
   }
 
 
-  /// Upload GST Repo
+  /// Upload File Repo
   Future<Result<UploadDamageFileModel>> getUploadDamageFileData(File file) async {
     try {
       return await _vpDetailsService.fetchUploadDamageData(

@@ -4,9 +4,12 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -96,13 +99,13 @@ class VpDetailsService{
   }
 
 
-  /// Edit Damage Service
-  Future<Result<DamageModel>> editDamage(DamageApiRequest request) async {
+  /// Update Damage Service
+  Future<Result<UpdateDamageModel>> updateDamage(UpdateDamageApiRequest request, String damageId) async {
     try {
-      final url = ApiUrls.damage;
-      final result = await _apiService.post(url, body: request.toJson());
+      final url = ApiUrls.updateDamage+damageId;
+      final result = await _apiService.put(url, body: request.toJson());
       if (result is Success) {
-        final data= DamageModel.fromJson(result.value);
+        final data= UpdateDamageModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);
@@ -117,12 +120,12 @@ class VpDetailsService{
 
 
   /// Delete Damage Service
-  Future<Result<DamageModel>> deleteDamage(DamageApiRequest request) async {
+  Future<Result<DeleteDamageModel>> deleteDamage(String damageId) async {
     try {
-      final url = ApiUrls.damage;
-      final result = await _apiService.post(url, body: request.toJson());
+      final url = ApiUrls.deleteDamage+damageId;
+      final result = await _apiService.delete(url);
       if (result is Success) {
-        final data= DamageModel.fromJson(result.value);
+        final data= DeleteDamageModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);
@@ -156,7 +159,7 @@ class VpDetailsService{
   }
 
 
-  /// Upload Gst File Repo Service
+  /// Upload File Service
   Future<Result<UploadDamageFileModel>> fetchUploadDamageData({required File file, required String fileType,required String userId, required String documentType}) async {
     try {
       final url = ApiUrls.upload;
