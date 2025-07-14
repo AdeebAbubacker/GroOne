@@ -17,7 +17,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_setllements/view/vp_settlements_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_settlements_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -440,7 +440,7 @@ class LoadDetailsWidget extends StatelessWidget {
                    return null;
 
                    },),
-             )
+             ).paddingBottom(20)
 
          ],
       ],
