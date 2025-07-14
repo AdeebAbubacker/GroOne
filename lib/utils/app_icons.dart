@@ -99,6 +99,8 @@ class SvgIcons {
   final String translation = "${_svgBasePath}translation.svg";
   final String switchIcon = "${_svgBasePath}switch.svg";
   final String download = "${_svgBasePath}download.svg";
+  final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
+  final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
 
 
 }

@@ -1,5 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -110,7 +111,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: getKavachOrderStatusColor(
+              color: KavachHelper.getKavachOrderStatusColor(
                 order.statusHistory.last.statusLabel,
               ).withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(6),
@@ -118,7 +119,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
             child: Text(
               order.statusHistory.last.statusLabel,
               style: TextStyle(
-                color: getKavachOrderStatusColor(
+                color: KavachHelper.getKavachOrderStatusColor(
                   order.statusHistory.last.statusLabel,
                 ),
                 fontWeight: FontWeight.w600,

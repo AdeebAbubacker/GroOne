@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
-import 'package:gro_one_app/features/kavach/model/choose_preference_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 import 'package:http/http.dart' as http;
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
@@ -15,10 +15,11 @@ import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
+import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_truck_type_model.dart';
 import '../model/kavach_vehicle_model.dart';
-import 'package:gro_one_app/features/kavach/model/masters_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 
 class KavachRepository {
@@ -28,7 +29,7 @@ class KavachRepository {
   KavachRepository(this._service, this.userInfoRepo);
 
   /// Fetches Kavach products with optional search and preference filters
-  Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1,  ChoosePreferenceModel? preferences, }) async {
+  Future<Result<List<KavachProduct>>> fetchProducts({String search = "", int page = 1,  KavachChoosePreferenceModel? preferences, }) async {
     try {
       return await _service.fetchProducts(
         search: search,
@@ -81,7 +82,7 @@ class KavachRepository {
         return Error(ErrorWithMessage(message: "Customer ID not found"));
       }
       // Set the customer ID in the request
-      request.customerId = int.tryParse(customerId) ?? 0;
+      request.customerId = customerId;
 
       return await _service.addAddress(request);
     } catch (e) {
@@ -179,11 +180,35 @@ class KavachRepository {
 
 
   /// Fetches masters data for vehicle preferences
-  Future<Result<MastersModel>> getMasters() async {
+  Future<Result<KavachMastersModel>> getMasters() async {
     try {
       return await _service.getMasters();
     } catch (e) {
       CustomLog.error(this, "Failed to fetch masters data in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Verifies vehicle number
+  Future<Result<bool>> verifyVehicle(String vehicleNumber, {bool force = true}) async {
+    try {
+      return await _service.verifyVehicle(vehicleNumber, force: force);
+    } catch (e) {
+      CustomLog.error(this, "Failed to verify vehicle in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches transactions for the user
+  Future<Result<List<KavachTransactionModel>>> fetchTransactions() async {
+    try {
+      final customerId = await userInfoRepo.getUserID() ?? '';
+      if (customerId.isEmpty) {
+        return Error(ErrorWithMessage(message: "Customer ID not found"));
+      }
+      return await _service.getTransactions(customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch transactions in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
