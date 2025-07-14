@@ -252,6 +252,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
+//Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
