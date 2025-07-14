@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_detail_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
@@ -80,6 +81,7 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
@@ -211,7 +213,7 @@ void initLocator() {
         locator<UserInformationRepository>(),
       ),
     );
-    locator.registerLazySingleton(() => GpsRepository(locator<GpsService>()));
+    locator.registerLazySingleton(() => GpsRepository(locator<GpsService>(),locator<GpsLoginRepository>(),));
     locator.registerLazySingleton(
       () => LanguageRepository(locator<LanguageService>()),
     );
@@ -402,6 +404,12 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => GpsGeofenceCubit(locator<GpsRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsNotificationCubit(locator<GpsRepository>()),
+    );
+    locator.registerLazySingleton(
+          () => GpsGeofenceMapCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsLoginCubit(locator<GpsLoginRepository>()),

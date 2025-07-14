@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
@@ -27,6 +28,8 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
+import '../dependency_injection/locator.dart';
+import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
 class AppRoutes {
@@ -76,9 +79,13 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.gpsGeofence,
         builder: (BuildContext context, GoRouterState state) {
-          return const GpsGeofenceScreen();
+          return BlocProvider.value(
+            value: locator<VehicleListCubit>()..loadVehicleData(),
+            child: GpsGeofenceScreen(),
+          );
         },
       ),
+
 
       GoRoute(
         path: AppRouteName.instantLoan,

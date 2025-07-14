@@ -5,10 +5,14 @@ import 'package:gro_one_app/features/gps_feature/views/gps_map_view_screen.dart'
 import 'package:gro_one_app/features/gps_feature/views/gps_notification_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import '../../../data/model/result.dart';
+import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -16,7 +20,10 @@ import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import '../cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
+import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
+import '../repository/gps_repository.dart';
 
 class GpsGeofenceScreen extends StatefulWidget {
   const GpsGeofenceScreen({super.key});
@@ -30,19 +37,11 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
   late TabController _tabController;
 
   final gpsGeofenceCubit = locator<GpsGeofenceCubit>();
-  Map<String, Map<String, bool>> vehicleGeofenceStates = {}; // { vehicleId: { geofenceId: isEnabled } }
 
-  final List<Map<String, String>> geofences = [
-    {'name': 'Zone!', 'area': '2342.1 Hcts'},
-    {'name': 'Hussain Garden', 'area': '8.9 Hcts'},
-    {'name': 'Zone!', 'area': '2342.1 Hcts'},
-    {'name': 'Zone!', 'area': '2342.1 Hcts'},
-    {'name': 'Zone!', 'area': '2342.1 Hcts'},
-    {'name': 'Zone!', 'area': '2342.1 Hcts'},
-  ];
+  Map<String, Map<String, bool>> vehicleGeofenceStates =
+  {}; // { vehicleId: { geofenceId: isEnabled } }
 
-  String selectedVehicle = 'R17-KA32C7098';
-  final List<String> vehicles = ['R17-KA32C7098', 'MH12-DE3456', 'UP65-XY7890'];
+  String selectedVehicle = '';
 
   @override
   void initState() {
@@ -50,10 +49,33 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     gpsGeofenceCubit.loadGeofences();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      if (mounted) {
-        setState(() {}); // rebuild to hide/show button
+      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+        final vehicleListState = locator<VehicleListCubit>().state;
+
+        final uniqueVehicleNumbers = vehicleListState.filteredVehicles
+            .map((v) => v.vehicleNumber)
+            .whereType<String>() // removes nulls
+            .toSet()
+            .toList();
+
+        if (selectedVehicle.isEmpty && uniqueVehicleNumbers.isNotEmpty) {
+          selectedVehicle = uniqueVehicleNumbers.first;
+        }
+
+        if (selectedVehicle.isNotEmpty) {
+          final selectedVehicleData = vehicleListState.filteredVehicles
+              .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+
+          gpsGeofenceCubit.loadVehicleGeofences(
+            userId: "163",
+            deviceId: selectedVehicleData.deviceId.toString(),
+            vehicleId: selectedVehicle,
+          );
+        }
       }
+
     });
+
   }
 
   @override
@@ -75,8 +97,51 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     }
   }
 
-
-
+  Future<bool?> _showConfirmationDialog(BuildContext context,
+      bool enable,) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AppDialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              10.height,
+              Text(
+                enable ? "Add Geofence" : "Remove Geofence",
+                style: AppTextStyle.h5,
+              ),
+              10.height,
+              Text(
+                enable
+                    ? "Are you sure you want to enable this geofence?"
+                    : "Are you sure you want to disable this geofence?",
+                style: AppTextStyle.blackColor14w400,
+              ),
+              20.height,
+              Row(
+                children: [
+                  AppButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    title: 'No',
+                    style: AppButtonStyle.outline,
+                  ).expand(),
+                  10.width,
+                  AppButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    title: 'Yes',
+                    style: AppButtonStyle.primary,
+                  ).expand(),
+                ],
+              ),
+              20.height,
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +152,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(GpsNotificationScreen()));
+              Navigator.push(context, commonRoute(BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsNotificationScreen(),
+              )));
             },
             icon: SvgPicture.asset(AppIcons.svg.notification, height: 20),
             iconColor: AppColors.primaryColor,
@@ -120,27 +188,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
   }
 
   Widget buildGeofenceList() {
-    // return ListView.builder(
-    //   padding: const EdgeInsets.all(16),
-    //   itemCount: geofences.length,
-    //   itemBuilder: (context, index) {
-    //     final item = geofences[index];
-    //     return Card(
-    //       color: AppColors.white,
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(10),
-    //       ),
-    //       elevation: 0,
-    //       child: ListTile(
-    //         title: Text('${item['name']} (${item['area']})'),
-    //         trailing: const Icon(Icons.chevron_right),
-    //         onTap: () {
-    //           // Handle tap
-    //         },
-    //       ),
-    //     );
-    //   },
-    // );
     return BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
       builder: (context, state) {
         if (state is GpsGeofenceLoading) {
@@ -159,21 +206,40 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 color: AppColors.white,
                 elevation: 0,
                 child: ListTile(
-                  title: Text('${item.name} (${_getFormattedValue(item)})', style: AppTextStyle.h5),
+                  title: Text(
+                    '${item.name} (${_getFormattedValue(item)})',
+                    style: AppTextStyle.h5,
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    Navigator.push(context, commonRoute(GeofenceMapViewScreen(
-                      geofence: item,
-                      onSave: (updatedGeofence) {
-                        // Handle the updated geofence data (e.g., save to database, API)
-                        print("Geofence updated: ${updatedGeofence.name}, ID: ${updatedGeofence.id}");
-                        if (updatedGeofence.shapeType == "circle") {
-                          print("Center: ${updatedGeofence.center}, Radius: ${updatedGeofence.radius}");
-                        } else if (updatedGeofence.shapeType == "polygon") {
-                          print("Polygon Points: ${updatedGeofence.polygonPoints}");
-                        }
-                      },
-                    ),));
+                    Navigator.push(
+                      context,
+                      commonRoute(
+                        GeofenceMapViewScreen(
+                          geofence: item,
+                          onSave: (updatedGeofence) {
+                            // Handle the updated geofence data (e.g., save to database, API)
+                            print(
+                              "Geofence updated: ${updatedGeofence
+                                  .name}, ID: ${updatedGeofence.id}",
+                            );
+                            if (updatedGeofence.shapeType == "circle") {
+                              print(
+                                "Center: ${updatedGeofence
+                                    .center}, Radius: ${updatedGeofence
+                                    .radius}",
+                              );
+                            } else if (updatedGeofence.shapeType ==
+                                "polygon") {
+                              print(
+                                "Polygon Points: ${updatedGeofence
+                                    .polygonPoints}",
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    );
                   },
                 ),
               );
@@ -190,36 +256,74 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
   Widget buildVehiclesTab() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: AppDropdown(
-            labelText: "Select Vehicle",
-            dropdownValue: selectedVehicle,
-            dropDownList: vehicles.map((vehicle) {
-              return DropdownMenuItem<String>(
-                value: vehicle,
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 15,
-                      backgroundColor: AppColors.primaryLightColor,
-                      child: SvgPicture.asset(
-                        AppIcons.svg.truck,
-                        width: 20,
+        BlocBuilder<VehicleListCubit, VehicleListState>(
+          builder: (context, vehicleState) {
+            if (vehicleState.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (vehicleState.error != null) {
+              return Center(child: Text('Error loading vehicles'));
+            } else {
+              // Extract unique vehicle numbers
+              final uniqueVehicleNumbers =
+              vehicleState.filteredVehicles
+                  .map((v) => v.vehicleNumber)
+                  .whereType<String>() // removes nulls
+                  .toSet() // remove duplicates
+                  .toList();
+
+              // If no vehicles found
+              if (uniqueVehicleNumbers.isEmpty) {
+                return Center(child: Text('No vehicles available'));
+              }
+
+              // Ensure selectedVehicle is in the dropdown
+              if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
+                selectedVehicle = uniqueVehicleNumbers.first;
+              }
+
+              return Padding(
+                padding: const EdgeInsets.all(15),
+                child: AppDropdown(
+                  labelText: "Select Vehicle",
+                  dropdownValue:
+                  selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                  dropDownList:
+                  uniqueVehicleNumbers.map((vehicleNumber) {
+                    return DropdownMenuItem<String>(
+                      value: vehicleNumber,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primaryLightColor,
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(vehicleNumber, style: AppTextStyle.h6),
+                        ],
                       ),
-                    ),
-                    10.width,
-                    Text(vehicle, style: AppTextStyle.h6),
-                  ],
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedVehicle = newValue!;
+                    });
+
+                    final selectedVehicleData = vehicleState.filteredVehicles
+                        .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                    gpsGeofenceCubit.loadVehicleGeofences(
+                      userId: "163", // Fetch from secured storage
+                      deviceId: selectedVehicleData.deviceId.toString(),
+                      vehicleId: selectedVehicle, // use vehicle number or ID
+                    );
+                  },
                 ),
               );
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedVehicle = newValue!;
-              });
-            },
-          ),
+            }
+          },
         ),
         Expanded(
           child: BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
@@ -227,50 +331,82 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               if (state is GpsGeofenceLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is GpsGeofenceLoaded) {
-                final geofences = state.geofences;
+                final gpsState = context
+                    .watch<GpsGeofenceCubit>()
+                    .state;
 
-                // Initialize state map for selected vehicle if not present
-                vehicleGeofenceStates.putIfAbsent(
-                  selectedVehicle,
-                      () => {
-                    for (var geofence in geofences)
-                      geofence.id: false, // Default all switches off
-                  },
-                );
+                if (gpsState is GpsGeofenceLoaded) {
+                  final activeGeofences =
+                      gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
 
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: geofences.length,
-                  itemBuilder: (context, index) {
-                    final item = geofences[index];
-                    final isEnabled = vehicleGeofenceStates[selectedVehicle]?[item.id] ?? false;
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: gpsState.geofences.length,
+                    itemBuilder: (context, index) {
+                      final item = gpsState.geofences[index];
+                      final activeGeofences =
+                          gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
+                      final isEnabled = activeGeofences.contains(item.id);
 
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      color: AppColors.white,
-                      elevation: 0,
-                      child: ListTile(
-                        title: Text(
-                          '${item.name} (${_getFormattedValue(item)})',
-                          style: AppTextStyle.h6,
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        trailing: Switch(
-                          value: isEnabled,
-                          onChanged: (bool value) {
-                            setState(() {
-                              vehicleGeofenceStates[selectedVehicle]?[item.id] = value;
-                              // TODO: Optionally call API to update server here
-                              print(
-                                  'Geofence ${item.id} for $selectedVehicle is now ${value ? "enabled" : "disabled"}');
-                            });
-                          },
+                        color: AppColors.white,
+                        elevation: 0,
+                        child: ListTile(
+                          title: Text(
+                            '${item.name} (${_getFormattedValue(item)})',
+                            style: AppTextStyle.h6,
+                          ),
+                          trailing: Switch(
+                            value: isEnabled,
+                            // onChanged: (bool value) {
+                            //   final selectedVehicleData = context
+                            //       .read<VehicleListCubit>()
+                            //       .state
+                            //       .filteredVehicles
+                            //       .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                            //
+                            //   gpsGeofenceCubit.toggleGeofenceForVehicle(
+                            //     userId: "163", // Get this dynamically
+                            //     deviceId: selectedVehicleData.deviceId.toString(),
+                            //     vehicleId: selectedVehicle,
+                            //     geofenceId: item.id,
+                            //     enable: value,
+                            //   );
+                            // },
+                            onChanged: (bool value) async {
+                              final confirmed = await _showConfirmationDialog(
+                                context,
+                                value,
+                              );
+                              if (confirmed == true) {
+                                final selectedVehicleData = context
+                                    .read<VehicleListCubit>()
+                                    .state
+                                    .filteredVehicles
+                                    .firstWhere(
+                                      (v) => v.vehicleNumber == selectedVehicle,
+                                );
+
+                                gpsGeofenceCubit.toggleGeofenceForVehicle(
+                                  userId: "163",
+                                  // Get this dynamically
+                                  deviceId:
+                                  selectedVehicleData.deviceId.toString(),
+                                  vehicleId: selectedVehicle,
+                                  geofenceId: item.id,
+                                  enable: value,
+                                );
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
+                      );
+                    },
+                  );
+                }
               } else if (state is GpsGeofenceError) {
                 return Center(child: Text('Error: ${state.message}'));
               }
@@ -281,74 +417,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
       ],
     );
   }
-
-
-  // Widget buildVehiclesTab() {
-  //   return Column(
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.all(16.0),
-  //         child: AppDropdown(
-  //           labelText: "Select Vehicle",
-  //           dropdownValue: selectedVehicle,
-  //           dropDownList:
-  //               vehicles.map((vehicle) {
-  //                 return DropdownMenuItem<String>(
-  //                   value: vehicle,
-  //                   child: Row(
-  //                     children: [
-  //                       CircleAvatar(
-  //                         radius: 15,
-  //                         backgroundColor: AppColors.primaryLightColor,
-  //                         child: SvgPicture.asset(
-  //                           AppIcons.svg.truck,
-  //                           width: 20,
-  //                         ),
-  //                       ),
-  //                       10.width,
-  //                       Text(vehicle, style: AppTextStyle.h6),
-  //                     ],
-  //                   ),
-  //                 );
-  //               }).toList(),
-  //           onChanged: (String? newValue) {
-  //             setState(() {
-  //               selectedVehicle = newValue!;
-  //             });
-  //           },
-  //         ),
-  //       ),
-  //       Expanded(
-  //         child: ListView.builder(
-  //           padding: const EdgeInsets.symmetric(horizontal: 16),
-  //           itemCount: geofences.length,
-  //           itemBuilder: (context, index) {
-  //             final item = geofences[index];
-  //             return Card(
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(10),
-  //               ),
-  //               color: AppColors.white,
-  //               elevation: 0,
-  //               child: ListTile(
-  //                 title: Text(
-  //                   '${item['name']} (${item['area']})',
-  //                   style: AppTextStyle.h6,
-  //                 ),
-  //                 trailing: Switch(
-  //                   value: true, // TODO: Replace with actual toggle state
-  //                   onChanged: (bool value) {
-  //                     // TODO: Handle toggle change for geofence
-  //                   },
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget buildAddNewGeofenceButtonWidget() {
     // If current tab is "Vehicles" (index 1), hide the button
@@ -363,224 +431,17 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GeofenceMapViewScreen(
-              geofence: null,
-              onSave: (newGeofence) {
-                print("New Geofence added: ${newGeofence.name}");
-              },
-            ),
+            builder:
+                (context) =>
+                GeofenceMapViewScreen(
+                  geofence: null,
+                  onSave: (newGeofence) {
+                    print("New Geofence added: ${newGeofence.name}");
+                  },
+                ),
           ),
         );
       },
     ).bottomNavigationPadding();
   }
 }
-
-// class GpsGeofenceScreen extends StatefulWidget {
-//   const GpsGeofenceScreen({super.key});
-//
-//   @override
-//   State<GpsGeofenceScreen> createState() => _GpsGeofenceScreenState();
-// }
-//
-// class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
-//     with SingleTickerProviderStateMixin {
-//   late TabController _tabController;
-//
-//   final gpsGeofenceCubit = locator<GpsGeofenceCubit>();
-//
-//   final List<Map<String, String>> geofences = [
-//     {'name': 'Zone!', 'area': '2342.1 Hcts'},
-//     {'name': 'Hussain Garden', 'area': '8.9 Hcts'},
-//     {'name': 'Zone!', 'area': '2342.1 Hcts'},
-//     {'name': 'Zone!', 'area': '2342.1 Hcts'},
-//     {'name': 'Zone!', 'area': '2342.1 Hcts'},
-//     {'name': 'Zone!', 'area': '2342.1 Hcts'},
-//   ];
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     gpsGeofenceCubit.loadGeofences();
-//     _tabController = TabController(length: 2, vsync: this);
-//   }
-//
-//   @override
-//   void dispose() {
-//     _tabController.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // return Scaffold(
-//     //   appBar: CommonAppBar(
-//     //     title: context.appText.geofence,
-//     //     actions: [
-//     //       AppIconButton(
-//     //         onPressed: () {},
-//     //         icon: SvgPicture.asset(AppIcons.svg.notification,height: 20,),
-//     //         iconColor: AppColors.primaryColor,
-//     //       ),
-//     //       AppIconButton(
-//     //         onPressed: () {},
-//     //         icon: Image.asset(AppIcons.png.moreVertical),
-//     //         iconColor: AppColors.primaryColor,
-//     //       ),
-//     //     ],
-//     //     bottom: TabBar(
-//     //       controller: _tabController,
-//     //       indicatorColor: AppColors.primaryColor,
-//     //       indicatorSize: TabBarIndicatorSize.tab,
-//     //       labelColor: AppColors.primaryColor,
-//     //       unselectedLabelColor: Colors.grey,
-//     //       labelStyle: AppTextStyle.h5,
-//     //       tabs:  [
-//     //         Tab(text: context.appText.geofence),
-//     //         Tab(text: context.appText.vehicles),
-//     //       ],
-//     //     ),
-//     //   ),
-//     //   bottomNavigationBar: buildAddNewGeofenceButtonWidget(),
-//     //   body: Column(
-//     //     children: [
-//     //       Expanded(
-//     //         child: TabBarView(
-//     //           controller: _tabController,
-//     //           children: [
-//     //             ListView.builder(
-//     //               padding: const EdgeInsets.all(16),
-//     //               itemCount: geofences.length,
-//     //               itemBuilder: (context, index) {
-//     //                 final item = geofences[index];
-//     //                 return Card(
-//     //                   shape: RoundedRectangleBorder(
-//     //                     borderRadius: BorderRadius.circular(10),
-//     //                   ),
-//     //                   elevation: 1,
-//     //                   child: ListTile(
-//     //                     title: Text('${item['name']} (${item['area']})'),
-//     //                     trailing: const Icon(Icons.chevron_right),
-//     //                     onTap: () {
-//     //                       // Handle tap
-//     //                     },
-//     //                   ),
-//     //                 );
-//     //               },
-//     //             ),
-//     //
-//     //             // Vehicles Tab
-//     //             const Center(
-//     //               child: Text(
-//     //                 'No vehicles available.',
-//     //                 style: TextStyle(color: Colors.grey),
-//     //               ),
-//     //             ),
-//     //           ],
-//     //         ),
-//     //       ),
-//     //     ],
-//     //   ),
-//     // );
-//     return Scaffold(
-//       backgroundColor: AppColors.backgroundColor,
-//       appBar: CommonAppBar(
-//         title: context.appText.geofence,
-//         actions: [
-//           AppIconButton(
-//             onPressed: () {
-//             },
-//             icon: SvgPicture.asset(AppIcons.svg.notification, height: 20),
-//             iconColor: AppColors.primaryColor,
-//           ),
-//           AppIconButton(
-//             onPressed: () {},
-//             icon: Image.asset(AppIcons.png.moreVertical),
-//             iconColor: AppColors.primaryColor,
-//           ),
-//         ],
-//         bottom: TabBar(
-//           controller: _tabController,
-//           indicatorColor: AppColors.primaryColor,
-//           indicatorSize: TabBarIndicatorSize.tab,
-//           labelColor: AppColors.primaryColor,
-//           unselectedLabelColor: Colors.grey,
-//           labelStyle: AppTextStyle.h5,
-//           tabs: [
-//             Tab(text: context.appText.geofence),
-//             Tab(text: context.appText.vehicles),
-//           ],
-//         ),
-//       ),
-//       bottomNavigationBar: buildAddNewGeofenceButtonWidget(),
-//       body: BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
-//         builder: (context, state) {
-//           if (state is GpsGeofenceLoading) {
-//             return const Center(child: CircularProgressIndicator());
-//           } else if (state is GpsGeofenceLoaded) {
-//             final geofences = state.geofences;
-//             return ListView.builder(
-//               padding: const EdgeInsets.all(16),
-//               itemCount: geofences.length,
-//               itemBuilder: (context, index) {
-//                 final item = geofences[index];
-//                 return Card(
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                   color: AppColors.white,
-//                   elevation: 0,
-//                   child: ListTile(
-//                     title: Text(item.name,style: AppTextStyle.h5,),
-//                     trailing: const Icon(Icons.chevron_right),
-//                     onTap: () {
-//                         // Navigator.push(
-//                         //   context,
-//                         //   MaterialPageRoute(
-//                         //     builder: (_) => GeofenceMapViewScreen(
-//                         //       geofence: item, // pass GpsGeofenceModel
-//                         //     ),
-//                         //   ),
-//                         // );
-//                     },
-//                   ),
-//                 );
-//               },
-//             );
-//           } else if (state is GpsGeofenceError) {
-//             return Center(child: Text('Error: ${state.message}'));
-//           }
-//           return const SizedBox();
-//         },
-//       ),
-//     );
-//
-//   }
-//
-//
-//
-//   Widget buildAddNewGeofenceButtonWidget() {
-//     return AppButton(
-//       title: context.appText.addNewGeofence,
-//       onPressed: () {
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => GeofenceMapViewScreen(
-//               geofence: null, // Pass null to indicate adding a new geofence
-//               onSave: (newGeofence) {
-//                 // Handle the newly created geofence data
-//                 print("New Geofence added: ${newGeofence.name}, ID: ${newGeofence.id}");
-//                 if (newGeofence.shapeType == "circle") {
-//                   print("Center: ${newGeofence.center}, Radius: ${newGeofence.radius}");
-//                 } else if (newGeofence.shapeType == "polygon") {
-//                   print("Polygon Points: ${newGeofence.polygonPoints}");
-//                 }
-//               },
-//             ),
-//           ),
-//         );
-//       },
-//     ).bottomNavigationPadding();
-//   }
-// }
