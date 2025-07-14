@@ -244,4 +244,5 @@ class GpsCombinedVehicleData {
       return false;
     }
   }
+
 }

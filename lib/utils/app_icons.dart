@@ -100,6 +100,12 @@ class SvgIcons {
   final String gpsDashboardInactive = "${_svgBasePath}gps_dashboard_inactive.svg";
   final String gpsDashboardInsideFence = "${_svgBasePath}gps_dashboard_inside_fence.svg";
   final String gpsDashboardOutsideFence = "${_svgBasePath}gps_dashboard_out_fence.svg";
-
+  final String dashboardGeofenceIn = "${_svgBasePath}dashboard_geofence_in.svg";
+  final String dashboardGeofenceOut = "${_svgBasePath}dashboard_geofence_out.svg";
+  final String dashboardIgnitionOff = "${_svgBasePath}dashboard_ignition_off.svg";
+  final String dashboardIgnitionOn = "${_svgBasePath}dashboard_ignition_on.svg";
+  final String dashboardLowBattery = "${_svgBasePath}dashboard_low_battery.svg";
+  final String dashboardPowerCut = "${_svgBasePath}dashboard_powercut.svg";
+  final String dashboardVibration = "${_svgBasePath}dashboard_vibration.svg";
 
 }
