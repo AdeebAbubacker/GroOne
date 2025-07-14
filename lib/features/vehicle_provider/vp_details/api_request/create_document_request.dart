@@ -7,8 +7,7 @@ class CreateDocumentRequest {
   int? fileSize;
   String? mimeType;
   String? fileExtension;
-  int? status;
-  String? createdBy;
+
 
   CreateDocumentRequest({
     this.documentTypeId,
@@ -19,12 +18,12 @@ class CreateDocumentRequest {
     this.fileSize,
     this.mimeType,
     this.fileExtension,
-    this.status,
-    this.createdBy,
+
+
   });
 
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson(String? createdBy) {
     return {
       'document_type_id': documentTypeId,
       'title': title,
@@ -34,7 +33,7 @@ class CreateDocumentRequest {
       'file_size': fileSize,
       'mime_type': mimeType,
       'file_extension': fileExtension,
-      'status': status,
+      'status': 1,
       'created_by': createdBy,
     };
   }

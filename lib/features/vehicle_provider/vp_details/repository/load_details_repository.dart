@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
@@ -80,6 +83,53 @@ class LoadDetailsRepository {
           userId: await _userInformationRepository.getUserID() ?? "",
           fileType: DAMAGES_AND_SHORTAGES,
           documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<UploadDamageFileModel>> uploadDocument(File file,String fileType) async {
+    try {
+      return await _vpDetailsService.fetchUploadDamageData(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: fileType,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<CreateDocumentResponse>> createNewDocument(CreateDocumentRequest createDocumentRequest) async {
+    try {
+      final userId=await _userInformationRepository.getUserID() ?? "";
+      return await _vpDetailsService.createNewDocument(createDocumentRequest: createDocumentRequest,userId: userId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  Future<Result<LoadDocument>> saveLoadDocument({required String documentId,String? loadId}) async {
+    try {
+      return await _vpDetailsService.saveLoadDocument(
+        documentId: documentId, loadId: loadId
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<ViewDocumentResponse>> viewDocument({required String documentId}) async {
+    try {
+      return await _vpDetailsService.viewDocument(
+      documentId: documentId
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get upload gst document data", e);

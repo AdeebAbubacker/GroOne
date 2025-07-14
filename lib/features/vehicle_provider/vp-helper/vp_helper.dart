@@ -1,3 +1,9 @@
+
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 class VpHelper{
 
 
@@ -13,6 +19,7 @@ class VpHelper{
   }
 
  static String getLoadStatus(LoadStatus loadStatus){
+   print("loadStatus is on label ${loadStatus}");
    return switch(loadStatus){
      LoadStatus.matching => "",
      LoadStatus.accepted => "Confirmed",
@@ -57,3 +64,20 @@ String getBottomButtonTitle(LoadStatus status){
       return "Swipe to Start Trip";
   }
 }
+
+Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
+  try {
+    final fileName = path.basename(url);
+    print("fileName is ${fileName}");
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = path.join(directory.path, originalFileName);
+
+    final dio = Dio();
+    await dio.download(url, filePath);
+
+    await OpenFilex.open(filePath);
+  } catch (e) {
+    debugPrint("Error downloading/opening file: $e");
+  }
+}
+

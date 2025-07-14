@@ -6,11 +6,15 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
@@ -26,7 +30,9 @@ import 'load_details_state.dart';
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
+  LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState(
+    tripDocumentList:documentTypeList
+  ));
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
@@ -37,7 +43,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       6=>LoadStatus.unloading,
       7=>LoadStatus.inTransit,
       8=>LoadStatus.completed,
-      null||  int() => throw LoadStatus.matching};
+      null||  int() =>  LoadStatus.matching};
       emit(state.copyWith(
         loadStatusId: status,
         loadStatus:loadStatus));
@@ -45,7 +51,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
+    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
     Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
@@ -53,6 +59,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           loadDetailsUIState: UIState.success(result.value)));
 
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
+      /// SET TRIP DOCUMENT
+      setTripDocuments(state.loadDetailsUIState?.data?.data?.loadDocument??[]);
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));
@@ -179,6 +187,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
+
+
   Future<void> uploadDamageFile(File file) async {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
@@ -187,6 +197,109 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
     if (result is Error) {
       _setUploadDamageFileUIState(UIState.error(result.type));
+    }
+  }
+
+  Future<void> uploadDocument(File file,String fileType,String? title,int? documentTypeId,String loadId,int index) async {
+    /// upload document = > Create Document = > Map Document with load
+    try {
+      uploadLoadingStatus(index,null);
+      Result result = await _loadDetailsRepository.uploadDocument(file,fileType);
+      if (result is Success<UploadDamageFileModel>) {
+        ///Create Document
+        await createDocument(title??"",documentTypeId??1,result.value).then((value) async {
+         if(value!=null){
+           /// Map document with load
+          await saveDocument(value,loadId).then((value) {
+            uploadLoadingStatus(index,value);
+          },);
+
+         }
+       },);
+      }
+      if (result is Error) {
+        uploadLoadingStatus(index,null);
+      }
+    }  catch (e) {
+      uploadLoadingStatus(index,null);
+      return ;
+    }
+  }
+
+  void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+
+    // Get current document and create a new one with updated fields
+    final currentDocument = currentList[index];
+    final updatedDocument = currentDocument.copyWith(
+      loadDocument: currentDocument.loadDocument ?? loadDocument,
+      isLoading: !(currentDocument.isLoading ?? false),
+    );
+
+    // Replace the document in the list
+    currentList[index] = updatedDocument;
+
+    // Emit new state with updated list
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
+
+
+  Future<CreateDocumentResponse?> createDocument(String title,int documentTypeId,UploadDamageFileModel uploadImage) async{
+    try {
+      return await _loadDetailsRepository.createNewDocument(CreateDocumentRequest(
+          title:title,
+          description: title,
+          documentTypeId: documentTypeId,
+          filePath:uploadImage.filePath ,
+          fileSize: uploadImage.size,
+          mimeType:uploadImage.mimeType,
+          originalFilename: uploadImage.originalName,
+          fileExtension:uploadImage.originalName.split(".").last)
+      ).then((value) {
+        if(value is Success<CreateDocumentResponse>){
+          return value.value;
+        }
+        return null;
+      },);
+    }  catch (e) {
+      return null;
+    }
+  }
+
+  Future<LoadDocument?> saveDocument(CreateDocumentResponse createDocumentResponse,String loadId) async{
+    try {
+      return await _loadDetailsRepository.saveLoadDocument(
+        documentId: createDocumentResponse.documentId??"",
+        loadId:loadId
+      ).then((value) {
+        if(value is Success<LoadDocument>){
+          return value.value;
+        }
+        return null;
+      },);
+    }  catch (e) {
+      return null;
+    }
+  }
+
+  Future viewDocument(String documentId,int index) async{
+    try {
+      uploadLoadingStatus(index, null);
+      return await _loadDetailsRepository.viewDocument(
+        documentId: documentId,
+      ).then((result) {
+        if (result is Success<ViewDocumentResponse>) {
+          downloadAndOpenFile(result.value.filePath??"",originalFileName: result.value.originalFilename);
+          uploadLoadingStatus(index, null);
+        }
+        if (result is Error) {
+          uploadLoadingStatus(index, null);
+        }
+      },);
+    }  catch (e) {
+      uploadLoadingStatus(index, null);
+      return null;
     }
   }
 
@@ -208,5 +321,35 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState),
       createDamageUIState : resetUIState<DamageModel>(state.createDamageUIState),
     ));
+  }
+
+
+  setTripDocuments(List<LoadDocument>? loadDocument){
+
+    List<DocumentEntity> documentList=List.from(state.tripDocumentList??[]);
+    for(DocumentEntity item in documentList){
+      /// find load item for api response set into local document entity
+      try {
+        item.loadDocument = loadDocument!.firstWhere(
+              (element) => element.documentDetails?.documentType == item.documentType,
+        );
+      } catch (e) {
+        item.loadDocument=null;
+      }
+    }
+    emit(state.copyWith(
+      tripDocumentList: documentList
+    ));
+  }
+
+
+  bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity){
+    try{
+      DocumentEntity? document= documentEntity.firstWhere((element) => element.loadDocument==null);
+      return document==null;
+    } catch(e){
+      return true;
+    }
+
   }
 }

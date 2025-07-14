@@ -253,7 +253,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         return UploadAttachmentFiles(
           title: "Product Photo",
           multiFilesList: multiFilesList,
-          isMultipleSelectionFile: false,
+          // isMultipleSelectionFile: false,
           isSingleFile: false,
           isLoading: isLoading,
           thenUploadFileToSever: ()  {
@@ -313,79 +313,84 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
     );
   }
 
+}
+
 // Damages record card
-  Widget damageRecordCard({
-    required BuildContext context,
-    required String imageUrl,
-    required String itemName,
-    required String quantity,
-    required String description,
-    required VoidCallback onDelete,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.extraLightBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      height: 100,
-      child: Row(
-        children: [
-          // Left-side Image with only left corners rounded
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-            ),
-            child: Container(
-              width: 90,
-              height: double.infinity,
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.lightGrey300,
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.image_not_supported,
-                      size: 20,
-                      color: AppColors.shimmerBaseColor,
-                    ),
-                  );
-                },
-              ),
+Widget damageRecordCard({
+  required BuildContext context,
+  required String imageUrl,
+  required String itemName,
+  required String quantity,
+  required String description,
+  required VoidCallback onDelete,
+  bool? showDeleteIcon,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      color: AppColors.extraLightBackgroundColor,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    height: 100,
+    child: Row(
+      children: [
+        // Left-side Image with only left corners rounded
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          ),
+          child: Container(
+            width: 90,
+            height: double.infinity,
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: AppColors.lightGrey300,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 20,
+                    color: AppColors.shimmerBaseColor,
+                  ),
+                );
+              },
             ),
           ),
+        ),
 
-          const SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-          // Text content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    itemName,
-                    style: AppTextStyle.textBlackColor12w400.copyWith(
-                      color: const Color(0xFF2B2B2B),
-                    ),
+        // Text content
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  itemName,
+                  style: AppTextStyle.textBlackColor12w400.copyWith(
+                    color: const Color(0xFF2B2B2B),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${context.appText.quantity}: $quantity",
-                    style: AppTextStyle.textGreyColor10w400,
-                  ),
-                  Text(description, style: AppTextStyle.textGreyColor10w400),
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "${context.appText.quantity}: $quantity",
+                  style: AppTextStyle.textGreyColor10w400,
+                ),
+                Text(description, style: AppTextStyle.textGreyColor10w400),
+              ],
             ),
           ),
+        ),
 
-          // Delete button
-          Padding(
+        // Delete button
+        Visibility(
+          visible: showDeleteIcon??true,
+          child: Padding(
             padding: const EdgeInsets.only(right: 12),
             child: AppIconButton(
               onPressed: onDelete,
@@ -393,10 +398,10 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               iconColor: AppColors.activeRedColor,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
 
 

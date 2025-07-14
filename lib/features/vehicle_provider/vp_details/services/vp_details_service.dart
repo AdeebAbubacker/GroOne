@@ -2,11 +2,14 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -63,13 +66,15 @@ class VpDetailsService{
     }
   }
 
-  Future<Result<VpLoadAcceptModel>> createNewDocument({required CreateDocumentRequest createDocumentRequest}) async {
+  Future<Result<CreateDocumentResponse>> createNewDocument({required CreateDocumentRequest createDocumentRequest,String? userId}) async {
     try {
       final statusUpdateUrl=ApiUrls.createDocument;
-      final result = await _apiService.post(statusUpdateUrl,queryParams: createDocumentRequest.toJson());
+      final result = await _apiService.post(statusUpdateUrl,body: createDocumentRequest.toJson(
+          userId
+      ));
       if (result is Success) {
-       final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
-        return Success(changeLoadStatusResponse);
+       final createDocumentResponse= CreateDocumentResponse.fromJson(result.value);
+        return Success(createDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -81,16 +86,16 @@ class VpDetailsService{
     }
   }
 
-  Future<Result<VpLoadAcceptModel>> saveLoadDocument({required String? documentUrl,String? loadId}) async {
+  Future<Result<LoadDocument>> saveLoadDocument({required String? documentId,String? loadId}) async {
     try {
       final statusUpdateUrl=ApiUrls.loadDocument;
-      final result = await _apiService.post(statusUpdateUrl,queryParams:{
-        "documentId":documentUrl,
+      final result = await _apiService.post(statusUpdateUrl,body:{
+        "documentId":documentId,
         "loadId":loadId
       });
       if (result is Success) {
-        final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
-        return Success(changeLoadStatusResponse);
+        final loadDocumentResponse= LoadDocument.fromJson(result.value);
+        return Success(loadDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -101,23 +106,14 @@ class VpDetailsService{
       return Error(DeserializationError());
     }
   }
-
-  Future<Result<UploadDocumentResponse>> uploadDocument({required File file, required String fileType,required String userId, required String documentType}) async {
+  /// VIEW TRIP DOCUMENT
+  Future<Result<ViewDocumentResponse>> viewDocument({required String? documentId,}) async {
     try {
-      final url = ApiUrls.upload;
-      final result = await _apiService.multipart(
-        url,
-        file,
-        pathName: "file",
-        fields: {
-          "userId" : userId,
-          "fileType" : fileType,
-          "documentType" : documentType,
-        },
-      );
+      final viewDocument=ApiUrls.viewDocument;
+      final result = await _apiService.get("$viewDocument$documentId");
       if (result is Success) {
-        final data = UploadDocumentResponse.fromJson(result.value);
-        return Success(data);
+        final viewDocumentResponse= ViewDocumentResponse.fromJson(result.value);
+        return Success(viewDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -128,8 +124,6 @@ class VpDetailsService{
       return Error(DeserializationError());
     }
   }
-
-
 
 
   /// Submit Damage Service

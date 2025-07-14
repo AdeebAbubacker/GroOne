@@ -11,23 +11,27 @@ class CustomSwipeButton extends StatelessWidget {
   final Future<dynamic>? Function()?  onSubmit;
   final double? padding;
   final String? text;
-  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit,this.padding,this.text});
+  final bool enable;
+  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit,this.padding,this.text,this.enable=true});
 
   @override
   Widget build(BuildContext context) {
     return SlideAction(
       borderRadius: 16,
       elevation: 0,
-
       height: 55,
       innerColor: Colors.transparent,
-      outerColor: const Color(0xffE5EBFF),
-      sliderButtonIcon: _buildChevronIcon(),
+      outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withOpacity(0.5),
+      enabled: enable,
+      sliderButtonIcon: Visibility(
+        visible: enable,
+          child: _buildChevronIcon()),
       sliderRotate: false,
       sliderButtonYOffset: -20,
       text: text ?? context.appText.swipeToAgree,
-      textStyle: AppTextStyle.body2.copyWith(color: AppColors.primaryColor),
+      textStyle: AppTextStyle.body2.copyWith(color:enable?  AppColors.primaryColor:AppColors.disableColor),
       onSubmit: onSubmit,
+
     ).paddingAll(padding??10);
   }
 

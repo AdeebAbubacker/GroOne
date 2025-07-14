@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -21,7 +22,7 @@ class LoadDetailsState extends Equatable {
   final String? locationDistance;
   final UIState<UploadDamageFileModel>? uploadDamageUIState;
   final UIState<GetDamageListModel>? damageListUIState;
-
+  final List<DocumentEntity>? tripDocumentList ;
   final int? loadStatusId;
 
   const LoadDetailsState({
@@ -36,9 +37,11 @@ class LoadDetailsState extends Equatable {
     this.loadStatusId,
     this.uploadDamageUIState,
     this.damageListUIState,
+    this.tripDocumentList
   });
 
   LoadDetailsState copyWith({
+
     UIState<VpLoadAcceptModel>? vpLoadStatus,
     LoadStatus? loadStatus,
     String? loadDetails,
@@ -48,11 +51,14 @@ class LoadDetailsState extends Equatable {
     UIState<DamageModel>? createDamageUIState,
     String? possibleDeliveryDate,
     String? locationDistance,
-    int? loadStatusId
+    int? loadStatusId,
     UIState<UploadDamageFileModel>? uploadDamageUIState,
     UIState<GetDamageListModel>? damageListUIState,
+    List<DocumentEntity>? tripDocumentList
+
   }) {
     return LoadDetailsState(
+      tripDocumentList:tripDocumentList?? this.tripDocumentList ,
       loadStatusId: loadStatusId?? this.loadStatusId,
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
       locationDistance: locationDistance ?? this.locationDistance,
@@ -75,10 +81,14 @@ class LoadDetailsState extends Equatable {
     possibleDeliveryDate,
     scheduleTripResponse,
     directionApiResponse,
-    loadStatusId
+    loadStatusId,
     createDamageUIState,
     uploadDamageUIState,
     locationDistance,
     damageListUIState,
+    tripDocumentList,
   ];
+
 }
+
+

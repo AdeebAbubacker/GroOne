@@ -188,7 +188,6 @@ class ApiService {
       // Handling file upload (single or multiple)
       if (files != null) {
         if (files is List<File>) {
-
           for (var file in files) {
             if (await file.exists()) {
               formData.files.add(MapEntry(

@@ -90,7 +90,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                 ),
                 LoadDetailsWidget(
                   vpHomeBloc: vpHomeBloc,
-                  cubit: cubit,lpHomeCubit: homeCubit,),
+                  cubit: cubit,lpHomeCubit: homeCubit,
+                ),
               ],
             );
           }

@@ -66,6 +66,8 @@ class LoadDetailModelData {
     required this.vpCustomer,
     required this.weight,
     required this.paymentDetails,
+    required this.paymentEntry,
+    required this.driverConsent,
   });
 
   final String loadId;
@@ -97,13 +99,16 @@ class LoadDetailModelData {
   final LoadPrice? loadPrice;
   final ScheduleTripDetails? scheduleTripDetails;
   final Consignee? consignee;
-  final List<dynamic> loadDocument;
-  final List<dynamic> damageShortage;
+  final List<LoadDocument>? loadDocument;
+  final List<DamageReport>? damageShortage;
   final List<Timeline> timeline;
   final Customer? customer;
   final Customer? vpCustomer;
   final Weight? weight;
   final PaymentDetails? paymentDetails;
+  final PaymentEntry? paymentEntry;
+  final int? driverConsent;
+
 
   LoadDetailModelData copyWith({
     String? loadId,
@@ -135,15 +140,19 @@ class LoadDetailModelData {
     LoadPrice? loadPrice,
     ScheduleTripDetails? scheduleTripDetails,
     Consignee? consignee,
-    List<dynamic>? loadDocument,
-    List<dynamic>? damageShortage,
+    List<LoadDocument>? loadDocument,
+    List<DamageReport>? damageShortage,
     List<Timeline>? timeline,
     Customer? customer,
     Customer? vpCustomer,
     Weight? weight,
     PaymentDetails? paymentDetails,
+    PaymentEntry? paymentEntry,
+    int? driverConsent,
   }) {
     return LoadDetailModelData(
+      driverConsent: driverConsent??this.driverConsent,
+      paymentEntry: paymentEntry??this.paymentEntry,
       loadId: loadId ?? this.loadId,
       loadSeriesId: loadSeriesId ?? this.loadSeriesId,
       laneId: laneId ?? this.laneId,
@@ -185,6 +194,8 @@ class LoadDetailModelData {
 
   factory LoadDetailModelData.fromJson(Map<String, dynamic> json){
     return LoadDetailModelData(
+      driverConsent: json['driverConsent'],
+      paymentEntry: json['paymentDetails']!=null && json['paymentDetails']['data']['payments']!=null ? PaymentEntry.fromJson(json['paymentDetails']['data']['payments'][0]):null,
       loadId: json["loadId"] ?? "",
       loadSeriesId: json["loadSeriesId"] ?? "",
       laneId: json["laneId"] ?? 0,
@@ -214,8 +225,8 @@ class LoadDetailModelData {
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
       consignee: json["consignee"] == null ? null : Consignee.fromJson(json["consignee"]),
-      loadDocument: json["loadDocument"] == null ? [] : List<dynamic>.from(json["loadDocument"]!.map((x) => x)),
-      damageShortage: json["damageShortage"] == null ? [] : List<dynamic>.from(json["damageShortage"]!.map((x) => x)),
+      loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
+      damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
@@ -1120,10 +1131,6 @@ class ScheduleTripDetailsVehicle {
 
 }
 
-
-
-
-
 class DataTruckType {
   DataTruckType({
     required this.id,
@@ -1227,8 +1234,192 @@ class Weight {
       deletedAt: json["deletedAt"],
     );
   }
+}
+
+class LoadDocument {
+  String? loadDocumentId;
+  String? loadId;
+  String? documentId;
+  int? status;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  DateTime? deletedAt;
+  DocumentDetails? documentDetails;
+  String? documentError;
+
+  LoadDocument({
+    this.loadDocumentId,
+    this.loadId,
+    this.documentId,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+    this.documentDetails,
+    this.documentError,
+  });
+
+  factory LoadDocument.fromJson(Map<String, dynamic> json) {
+    return LoadDocument(
+      loadDocumentId: json['loadDocumentId'],
+      loadId: json['loadId'],
+      documentId: json['documentId'],
+      status: json['status'],
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      documentDetails: json['documentDetails'] != null
+          ? DocumentDetails.fromJson(json['documentDetails'])
+          : null,
+      documentError: json['documentError'],
+    );
+  }
+}
+
+class DocumentDetails {
+  String? documentId;
+  String? title;
+  String? documentType;
+  String? fileSize;
+  String? originalFilename;
+
+  DocumentDetails({
+    this.documentId,
+    this.title,
+    this.documentType,
+    this.fileSize,
+    this.originalFilename,
+  });
+
+  factory DocumentDetails.fromJson(Map<String, dynamic> json) {
+    return DocumentDetails(
+      documentId: json['documentId'],
+      title: json['title'],
+      documentType: json['documentType'],
+      fileSize: json['fileSize'],
+      originalFilename: json['originalFilename'],
+    );
+  }
+
 
 }
+
+
+class PaymentEntry {
+  final String? id;
+  final String? loadId;
+  final String? orderId;
+  final String? erpOrderId;
+  final String? amount;
+  final String? agreedPrice;
+  final String? payableAdvance;
+  final String? payableBalance;
+  final String? advancePaid;
+  final DateTime? paymentDate;
+  final String? paymentType;
+  final String? paymentStatus;
+  final String? action;
+  final int? status;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+
+  PaymentEntry({
+    this.id,
+    this.loadId,
+    this.orderId,
+    this.erpOrderId,
+    this.amount,
+    this.agreedPrice,
+    this.payableAdvance,
+    this.payableBalance,
+    this.advancePaid,
+    this.paymentDate,
+    this.paymentType,
+    this.paymentStatus,
+    this.action,
+    this.status,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory PaymentEntry.fromJson(Map<String, dynamic> json) {
+    return PaymentEntry(
+      id: json['id'],
+      loadId: json['loadId'],
+      orderId: json['orderId'],
+      erpOrderId: json['erpOrderId'],
+      amount: json['amount'],
+      agreedPrice: json['agreedPrice'],
+      payableAdvance: json['payableAdvance'],
+      payableBalance: json['payableBalance'],
+      advancePaid: json['advancePaid'],
+      paymentDate: json['payment_date'] != null
+          ? DateTime.parse(json['payment_date'])
+          : null,
+      paymentType: json['paymentType'],
+      paymentStatus: json['paymentStatus'],
+      action: json['action'],
+      status: json['status'],
+      createdAt:
+      json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt:
+      json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      deletedAt:
+      json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+    );
+  }
+}
+
+
+
+
+
+class DamageReport {
+  String? damageId;
+  String? vehicleId;
+  String? loadId;
+  String? itemName;
+  int? quantity;
+  List<String>? image;
+  String? description;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  DateTime? deletedAt;
+
+  DamageReport({
+    this.damageId,
+    this.vehicleId,
+    this.loadId,
+    this.itemName,
+    this.quantity,
+    this.image,
+    this.description,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory DamageReport.fromJson(Map<String, dynamic> json) {
+    return DamageReport(
+      damageId: json['damageId'] as String?,
+      vehicleId: json['vehicleId'] as String?,
+      loadId: json['loadId'] as String?,
+      itemName: json['itemName'] as String?,
+      quantity: json['quantity'] as int?,
+      image: (json['image'] as List?)?.map((e) => e.toString()).toList(),
+      description: json['description'] as String?,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+    );
+  }
+
+
+}
+
+
 
 
 

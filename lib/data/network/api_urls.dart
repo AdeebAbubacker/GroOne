@@ -91,7 +91,8 @@ class ApiUrls {
   static final String getLoadById="$_baseUrl$_loadDiscovery$_path$_v1/load/";
   static final String getAllVpLoads="$_baseUrl$_loadDiscovery$_path$_v1$_load";
   static final String updateLoadStatus="$_baseUrl$_loadExecution$_path$_v1$_load/updateStatus";
-  static final String loadDocument = "$_fetchUrl$_document$_path$_v1/load-document";
+  static final String loadDocument = "$_fetchUrl$_load$_path$_v1/loads/load-document";
+  static final String viewDocument = "$_fetchUrl$_document$_path$_v1/documents/";
 
 
 

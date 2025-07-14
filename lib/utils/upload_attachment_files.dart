@@ -22,7 +22,6 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
-  final bool isMultipleSelectionFile;
   final bool? isLoading;
   final bool? hideDeleteButton;
   final String? title;
@@ -40,6 +39,7 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.hideDeleteButton = false,
     this.hintText,
     this.isSpaceBetwenUpload = false,
+
   });
 
   @override
@@ -47,17 +47,14 @@ class UploadAttachmentFiles extends StatefulWidget {
 }
 
 class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
-
   bool isFile = false;
   final double documentHeight = 50;
-
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -87,42 +84,42 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                 scrollDirection: Axis.vertical,
                 padding: EdgeInsets.zero,
                 gridDelegate:
-                    const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                    ),
+                const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1,
+                ),
                 itemCount:
-                    !widget.isSingleFile!
-                        ? (widget.multiFilesList.length + 1)
-                        : widget.multiFilesList.length,
+                !widget.isSingleFile!
+                    ? (widget.multiFilesList.length + 1)
+                    : widget.multiFilesList.length,
                 itemBuilder: (ctx, index) {
                   if (widget.multiFilesList.length == index &&
                       !widget.isSingleFile!) {
                     if (widget.multiFilesList.length <= 7) {
                       return GestureDetector(
                         onTap:
-                            !isFile
-                                ? () {
-                                  commonHideKeyboard(context);
-                                  commonBottomSheetWithBGBlur(
-                                    context: context,
-                                    screen:
-                                        const UploadFileAndImageBottomSheet(),
-                                  ).then((value) {
-                                    if (value != null) {
-                                      isFile = true;
-                                      widget.multiFilesList.add(value);
-                                      isFile = false;
-                                      widget.thenUploadFileToSever?.call();
-                                      debugPrint("Add new : $value");
-                                    } else {
-                                      isFile = false;
-                                    }
-                                    if (!context.mounted) return;
-                                    commonHideKeyboard(context);
-                                  });
-                                  setState(() {});
-                                }
-                                : () {},
+                        !isFile
+                            ? () {
+                          commonHideKeyboard(context);
+                          commonBottomSheetWithBGBlur(
+                            context: context,
+                            screen:
+                            const UploadFileAndImageBottomSheet(),
+                          ).then((value) {
+                            if (value != null) {
+                              isFile = true;
+                              widget.multiFilesList.add(value);
+                              isFile = false;
+                              widget.thenUploadFileToSever?.call();
+                              debugPrint("Add new : $value");
+                            } else {
+                              isFile = false;
+                            }
+                            if (!context.mounted) return;
+                            commonHideKeyboard(context);
+                          });
+                          setState(() {});
+                        }
+                            : () {},
                         child: DottedBorder(
                           color: Colors.black38,
                           strokeWidth: 1.5,
@@ -132,33 +129,33 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             height: documentHeight,
                             alignment: Alignment.center,
                             child:
-                                isFile
-                                    ? Text(
-                                      AppString.label.loading,
-                                      style: AppTextStyle.body,
-                                    )
-                                    : Center(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            AppString.label.addMore,
-                                            style: AppTextStyle.body2GreyColor,
-                                          ),
-                                          10.width,
-                                          SvgPicture.asset(
-                                            AppIcons.svg.documentUpload,
-                                            width: 20,
-                                            colorFilter: AppColors.svg(
-                                              AppColors.greyIconColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                            isFile
+                                ? Text(
+                              AppString.label.loading,
+                              style: AppTextStyle.body,
+                            )
+                                : Center(
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                crossAxisAlignment:
+                                CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    AppString.label.addMore,
+                                    style: AppTextStyle.body2GreyColor,
+                                  ),
+                                  10.width,
+                                  SvgPicture.asset(
+                                    AppIcons.svg.documentUpload,
+                                    width: 20,
+                                    colorFilter: AppColors.svg(
+                                      AppColors.greyIconColor,
                                     ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ).paddingOnly(right: 5, left: 5, top: 5);
@@ -182,7 +179,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                         children: [
                           15.width,
                           if (widget.multiFilesList[index]["extension"] ==
-                                  "docx" ||
+                              "docx" ||
                               widget.multiFilesList[index]["extension"] ==
                                   "doc")
                             iconsGridDesign(CupertinoIcons.doc_fill)
@@ -190,43 +187,43 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                               "pdf")
                             iconsGridDesign(Icons.picture_as_pdf_rounded)
                           else if (widget.multiFilesList[index]["extension"] ==
-                                  "jpeg" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "PNG" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "jpg" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "png" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "HEIC")
-                            iconsGridDesign(CupertinoIcons.photo_on_rectangle)
-                          else if (widget.multiFilesList[index]["extension"] ==
-                              "gif")
-                            iconsGridDesign(Icons.gif_box_rounded)
-                          else if (widget.multiFilesList[index]["extension"] ==
-                              "bmp")
-                            iconsGridDesign(Icons.photo_album_outlined)
-                          else if (widget.multiFilesList[index]["extension"] ==
-                                  "MOV" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "H.264" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "HEVC" ||
-                              widget.multiFilesList[index]["extension"] ==
-                                  "mp4")
-                            iconsGridDesign(CupertinoIcons.videocam_circle_fill)
-                          else if (widget.multiFilesList[index]["extension"] ==
-                              "mp3")
-                            iconsGridDesign(CupertinoIcons.music_note_2)
-                          else if (widget.multiFilesList[index]["extension"] ==
-                              "txt")
-                            iconsGridDesign(CupertinoIcons.doc_richtext)
-                          else
-                            const Icon(
-                              CupertinoIcons.doc_text_fill,
-                              size: 20,
-                              color: AppColors.primaryColor,
-                            ),
+                                "jpeg" ||
+                                widget.multiFilesList[index]["extension"] ==
+                                    "PNG" ||
+                                widget.multiFilesList[index]["extension"] ==
+                                    "jpg" ||
+                                widget.multiFilesList[index]["extension"] ==
+                                    "png" ||
+                                widget.multiFilesList[index]["extension"] ==
+                                    "HEIC")
+                              iconsGridDesign(CupertinoIcons.photo_on_rectangle)
+                            else if (widget.multiFilesList[index]["extension"] ==
+                                  "gif")
+                                iconsGridDesign(Icons.gif_box_rounded)
+                              else if (widget.multiFilesList[index]["extension"] ==
+                                    "bmp")
+                                  iconsGridDesign(Icons.photo_album_outlined)
+                                else if (widget.multiFilesList[index]["extension"] ==
+                                      "MOV" ||
+                                      widget.multiFilesList[index]["extension"] ==
+                                          "H.264" ||
+                                      widget.multiFilesList[index]["extension"] ==
+                                          "HEVC" ||
+                                      widget.multiFilesList[index]["extension"] ==
+                                          "mp4")
+                                    iconsGridDesign(CupertinoIcons.videocam_circle_fill)
+                                  else if (widget.multiFilesList[index]["extension"] ==
+                                        "mp3")
+                                      iconsGridDesign(CupertinoIcons.music_note_2)
+                                    else if (widget.multiFilesList[index]["extension"] ==
+                                          "txt")
+                                        iconsGridDesign(CupertinoIcons.doc_richtext)
+                                      else
+                                        const Icon(
+                                          CupertinoIcons.doc_text_fill,
+                                          size: 20,
+                                          color: AppColors.primaryColor,
+                                        ),
                           10.width,
                           Text(
                             widget.multiFilesList[index]["fileName"]
@@ -287,58 +284,98 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                 10.height,
               ],
 
-            GestureDetector(
-              onTap: !isFile ? () {
-                commonHideKeyboard(context);
-                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
-                  debugPrint("First Time : $value");
-                  isFile = true;
-                  if (value != null) {
-                    for (int i = 0; i < value.length;) {
-                      if (value.length <= 8) {
-                        isFile = false;
-                        widget.multiFilesList.add(value);
-                        widget.thenUploadFileToSever?.call();
-                      } else {
-                        isFile = false;
-                      }
-                      break;
-                    }
-                  } else {
-                    isFile = false;
-                  }
-                  if(!context.mounted) return;
+              GestureDetector(
+                onTap:
+                !isFile
+                    ? () {
                   commonHideKeyboard(context);
-                });
-                setState(() {});
-              } : () {},
-              child: DottedBorder(
-                color:  Colors.black26,
-                strokeWidth: 1,
-                radius:  const Radius.circular(commonTexFieldRadius),
-                borderType: BorderType.RRect,
-                child: Container(
-                  height: documentHeight,
-                  color: AppColors.textFieldFillColor,
-                  alignment: Alignment.center,
-                  child: isFile
-                      ? Text(AppString.label.loading, style: AppTextStyle.body2)
-                      :  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                          Text(context.appText.uploadDocument, style: AppTextStyle.textFiled),
-                          10.width,
-                          SvgPicture.asset(AppIcons.svg.documentUpload, width: 16, colorFilter: AppColors.svg(AppColors.iconColor)),
-                        ],
-                      ),
+                  commonBottomSheet(
+                    context: context,
+                    barrierDismissible: true,
+                    screen: const UploadFileAndImageBottomSheet(),
+                  ).then((value) {
+                    debugPrint("First Time : $value");
+                    isFile = true;
+                    if (value != null) {
+                      for (int i = 0; i < value.length;) {
+                        if (value.length <= 8) {
+                          isFile = false;
+                          widget.multiFilesList.add(value);
+                          widget.thenUploadFileToSever?.call();
+                        } else {
+                          isFile = false;
+                        }
+                        break;
+                      }
+                    } else {
+                      isFile = false;
+                    }
+                    if (!context.mounted) return;
+                    commonHideKeyboard(context);
+                  });
+                  setState(() {});
+                }
+                    : () {},
+                child: DottedBorder(
+                  color: Colors.black26,
+                  strokeWidth: 1,
+                  radius: const Radius.circular(commonTexFieldRadius),
+                  borderType: BorderType.RRect,
+                  child: Container(
+                    height: documentHeight,
+                    color: AppColors.textFieldFillColor,
+                    alignment: Alignment.center,
+                    child:
+                    isFile
+                        ? Text(
+                      AppString.label.loading,
+                      style: AppTextStyle.body2,
+                    )
+                        : widget.isSpaceBetwenUpload
+                        ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [ 10.width,
+                        Text(
+                          widget.hintText ??
+                              context.appText.uploadDocument,
+                          style: AppTextStyle.textFiled,
+                        ),
+                        Spacer(),
+                        SvgPicture.asset(
+                          AppIcons.svg.documentUpload,
+                          width: 16,
+                          colorFilter: AppColors.svg(
+                            AppColors.iconColor,
+                          ),
+                        ), 10.width,
+                      ],
+                    )
+                        : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          context.appText.uploadDocument,
+                          style: AppTextStyle.textFiled,
+                        ),
+                        10.width,
+                        SvgPicture.asset(
+                          AppIcons.svg.documentUpload,
+                          width: 16,
+                          colorFilter: AppColors.svg(
+                            AppColors.iconColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-
-      }
-    });
+            ],
+          );
+        }
+      },
+    );
   }
 }
