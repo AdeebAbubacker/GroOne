@@ -32,6 +32,7 @@ class ApiUrls {
   // Path
   static String get _path => "/api";
   static String get _load => "/load";
+  static String get _settlement => "/load-settlement";
   static String get _v1 => "/v1";
   static String get _auth => "/auth";
   static String get _vp => "/vp";
@@ -145,7 +146,7 @@ class ApiUrls {
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
 
-  // Load Form pick list
+  /// Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
@@ -153,26 +154,31 @@ class ApiUrls {
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
 
-  // Load
+  /// Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
   static final String  damage = "$_loadBaseUrl/damage";
 
+  /// Settlement
+  static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
+  static final String  submitSettlement = "$_settlementBaseUrl/settlement";
+
   //Kavach
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
   static String get kavachProductList => "$_baseUrl$_fleet$_path$_v1/product/list";
   static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle";
-  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/vas";
+  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/address";
   static String get kavachAvailableStock => "$_baseUrl$_fleet$_path$_v1/stocks/available-stock";
   static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
   static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
   static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vp-master/vehicle";
-  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodity";
+  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodities";
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
-  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
-  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
+  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-types/distinct/types";
+  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-types/sub-types";
+  static String  kavachVehicleVerification = "$verification/vehicle";
 
   /// En-Dhan
   //static final String enDhanKycUpload = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";

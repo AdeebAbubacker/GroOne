@@ -13,12 +13,14 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_acce
 
 class LoadDetailsState extends Equatable {
   final LoadStatus? loadStatus;
-
   final UIState<LoadDetailModel>? loadDetailsUIState;
   final UIState<VpLoadAcceptModel>? vpLoadStatus;
   final UIState<DirectionResponse>? directionApiResponse;
   final UIState<ScheduleTripResponse>? scheduleTripResponse;
+  final UIState<DamageModel>? settlementUIState;
   final UIState<DamageModel>? createDamageUIState;
+  final UIState<DamageModel>? editDamageUIState;
+  final UIState<DamageModel>? deleteDamageUIState;
   final String? possibleDeliveryDate;
   final String? locationDistance;
   final UIState<UploadDamageFileModel>? uploadDamageUIState;
@@ -35,6 +37,9 @@ class LoadDetailsState extends Equatable {
     this.loadStatus = LoadStatus.matching,
     this.loadDetailsUIState,
     this.createDamageUIState,
+    this.settlementUIState,
+    this.editDamageUIState,
+    this.deleteDamageUIState,
     this.vpLoadStatus,
     this.possibleDeliveryDate,
     this.loadStatusId,
@@ -51,7 +56,10 @@ class LoadDetailsState extends Equatable {
     UIState<DirectionResponse>? directionApiResponse,
     UIState<LoadDetailModel>? loadDetailsUIState,
     UIState<ScheduleTripResponse>? scheduleTripResponse,
+    UIState<DamageModel>? settlementUIState,
     UIState<DamageModel>? createDamageUIState,
+    UIState<DamageModel>? editDamageUIState,
+    UIState<DamageModel>? deleteDamageUIState,
     String? possibleDeliveryDate,
     String? locationDistance,
     int? loadStatusId,
@@ -69,7 +77,10 @@ class LoadDetailsState extends Equatable {
       scheduleTripResponse: scheduleTripResponse ?? this.scheduleTripResponse,
       vpLoadStatus: vpLoadStatus ?? this.vpLoadStatus,
       loadStatus: loadStatus ?? this.loadStatus,
+      settlementUIState : settlementUIState ?? this.settlementUIState,
       createDamageUIState: createDamageUIState ?? this.createDamageUIState,
+      editDamageUIState: editDamageUIState ?? this.editDamageUIState,
+      deleteDamageUIState: deleteDamageUIState ?? this.deleteDamageUIState,
       loadDetailsUIState: loadDetailsUIState ?? this.loadDetailsUIState,
       possibleDeliveryDate: possibleDeliveryDate ?? this.possibleDeliveryDate,
       uploadDamageUIState: uploadDamageUIState ?? this.uploadDamageUIState,
@@ -85,8 +96,11 @@ class LoadDetailsState extends Equatable {
     possibleDeliveryDate,
     scheduleTripResponse,
     directionApiResponse,
+    settlementUIState,
     loadStatusId,
     createDamageUIState,
+    editDamageUIState,
+    deleteDamageUIState,
     uploadDamageUIState,
     locationDistance,
     damageListUIState,

@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -37,7 +38,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch(e){
-
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
@@ -126,8 +126,68 @@ class VpDetailsService{
   }
 
 
+  /// Submit Settlement Service
+  Future<Result<DamageModel>> submitSettlement(SettlementApiRequest request) async {
+    try {
+      final url = ApiUrls.submitSettlement;
+      final result = await _apiService.put(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
   /// Submit Damage Service
   Future<Result<DamageModel>> submitDamage(DamageApiRequest request) async {
+    try {
+      final url = ApiUrls.damage;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Edit Damage Service
+  Future<Result<DamageModel>> editDamage(DamageApiRequest request) async {
+    try {
+      final url = ApiUrls.damage;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Delete Damage Service
+  Future<Result<DamageModel>> deleteDamage(DamageApiRequest request) async {
     try {
       final url = ApiUrls.damage;
       final result = await _apiService.post(url, body: request.toJson());

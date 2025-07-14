@@ -35,6 +35,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -52,6 +53,19 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
+
+  @override
+  void initState() {
+  initFunction();
+  super.initState();
+  }
+
+   @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
+
   final lpLoadLocator = locator<LpLoadCubit>();
 
    TextEditingController feedbackController = TextEditingController();
@@ -61,6 +75,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
    TextEditingController consigneePhoneController = TextEditingController();
 
    TextEditingController consigneeEmailController = TextEditingController();
+
+  void initFunction() => frameCallback(() {
+   final consignees = widget.loadItem.consignees;
+
+    final consigneeName = consignees.isNotEmpty ? consignees[0].name : '';
+    final consigneePhone = consignees.isNotEmpty ? consignees[0].mobileNumber : '';
+    final consigneeEmail = consignees.isNotEmpty ? consignees[0].email : '';
+
+    consigneeNameController = TextEditingController(text: consigneeName);
+    consigneePhoneController = TextEditingController(text: consigneePhone);
+    consigneeEmailController = TextEditingController(text: consigneeEmail);
+
+  });
+
+   void disposeFunction() => frameCallback(() {
+    consigneeNameController.dispose();
+    consigneePhoneController.dispose();
+    consigneeEmailController.dispose();
+  });
 
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();

@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.d
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
@@ -174,6 +175,22 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  // Submit Settlement Api Call
+  void _setSettlementUIState(UIState<DamageModel>? uiState){
+    emit(state.copyWith(settlementUIState: uiState));
+  }
+  Future<void> submitSettlement(SettlementApiRequest req) async {
+    _setSettlementUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
+    if (result is Success<DamageModel>) {
+      _setSettlementUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setSettlementUIState(UIState.error(result.type));
+    }
+  }
+
+
   // Create Damage Api Call
   void _setDamageUIState(UIState<DamageModel>? uiState) {
     emit(state.copyWith(createDamageUIState: uiState));
@@ -187,6 +204,38 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
     if (result is Error) {
       _setDamageUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Edit Damage Api Call
+  void _setEditDamageUIState(UIState<DamageModel>? uiState){
+    emit(state.copyWith(editDamageUIState: uiState));
+  }
+  Future<void> editDamage(DamageApiRequest req) async {
+    _setEditDamageUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getEditDamageData(req);
+    if (result is Success<DamageModel>) {
+      _setEditDamageUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setEditDamageUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Delete Damage Api Call
+  void _setDeleteDamageUIState(UIState<DamageModel>? uiState){
+    emit(state.copyWith(deleteDamageUIState: uiState));
+  }
+  Future<void> deleteDamage(DamageApiRequest req) async {
+    _setDeleteDamageUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getEditDamageData(req);
+    if (result is Success<DamageModel>) {
+      _setDeleteDamageUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDeleteDamageUIState(UIState.error(result.type));
     }
   }
 

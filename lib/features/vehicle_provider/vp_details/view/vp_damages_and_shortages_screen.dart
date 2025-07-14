@@ -52,9 +52,9 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   List<dynamic> multiFilesList = [];
   List<String> uploadedDamageFileList = [];
 
-  final TextEditingController itemNameTextController = TextEditingController();
-  final TextEditingController quantityTextController = TextEditingController();
-  final TextEditingController descriptionTextController = TextEditingController();
+ final TextEditingController itemNameTextController = TextEditingController();
+ final TextEditingController quantityTextController = TextEditingController();
+ final TextEditingController descriptionTextController = TextEditingController();
 
 
   @override
@@ -71,43 +71,37 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
     super.dispose();
   }
 
-  void initFunction() =>
-      frameCallback(() async {
-        cubit.fetchDamageList(widget.loadId ?? "");
-      });
+  void initFunction() => frameCallback(() async {
+    cubit.fetchDamageList(widget.loadId ?? "");
+  });
 
-  void disposeFunction() =>
-      frameCallback(() {
-        multiFilesList.clear();
-        uploadedDamageFileList.clear();
-        itemNameTextController.clear();
-        quantityTextController.clear();
-        descriptionTextController.clear();
-        cubit.resetState();
-        cubit.resetUploadDamageFileUIState();
-        cubit.resetSubmitDamageUIState();
-      });
+  void disposeFunction() => frameCallback(() {
+    multiFilesList.clear();
+    uploadedDamageFileList.clear();
+    itemNameTextController.clear();
+    quantityTextController.clear();
+    descriptionTextController.clear();
+    cubit.resetState();
+    cubit.resetUploadDamageFileUIState();
+    cubit.resetSubmitDamageUIState();
+  });
 
 
-  void clearValues() =>
-      frameCallback(() {
-        multiFilesList.clear();
-        uploadedDamageFileList.clear();
-        itemNameTextController.clear();
-        quantityTextController.clear();
-        descriptionTextController.clear();
-        cubit.resetUploadDamageFileUIState();
-        cubit.resetSubmitDamageUIState();
-      });
+  void clearValues()=> frameCallback((){
+    multiFilesList.clear();
+    uploadedDamageFileList.clear();
+    itemNameTextController.clear();
+    quantityTextController.clear();
+    descriptionTextController.clear();
+    cubit.resetUploadDamageFileUIState();
+    cubit.resetSubmitDamageUIState();
+  });
 
 
   // Vp Creation Api call
   void createDamageAndShortageApiCall() {
-    if (widget.vehicleId == null && widget.loadId == null &&
-        widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
-      ToastMessages.error(
-          message: "Something went wrong - ${widget.vehicleId} - ${widget
-              .loadId}");
+    if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
+      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
@@ -115,7 +109,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         ToastMessages.alert(message: "Please upload Product Photo");
         return;
       }
-      if (int.parse(quantityTextController.text) == 0) {
+      if(int.parse(quantityTextController.text) == 0){
         ToastMessages.alert(message: "You can't add 0 quantity");
         return;
       }
@@ -134,20 +128,19 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 
-  void showSuccessDialog(BuildContext context) =>
-      frameCallback(() {
-        AppDialog.show(
-          context,
-          child: SuccessDialogView(
-            heading: "Your damage has been recorded.",
-            message: "We have notified the concerned team.",
-            onContinue: () {
-              Navigator.of(context).pop(true);
-              cubit.fetchDamageList(widget.loadId ?? "");
-            },
-          ),
-        );
-      });
+  void showSuccessDialog(BuildContext context) => frameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        heading: "Your damage has been recorded.",
+        message: "We have notified the concerned team.",
+        onContinue: (){
+          Navigator.of(context).pop(true);
+          cubit.fetchDamageList(widget.loadId ?? "");
+        },
+      ),
+    );
+  });
 
 
   @override
@@ -159,8 +152,8 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
   /// Body
-  Widget _buildBodyWidget(BuildContext context) {
-    return SingleChildScrollView(
+  Widget _buildBodyWidget(BuildContext context){
+    return  SingleChildScrollView(
       padding: EdgeInsets.all(commonSafeAreaPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +174,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 
-  Widget _buildDamageAndShortagesFormWidget() {
+  Widget _buildDamageAndShortagesFormWidget(){
     return Form(
       key: formKey,
       child: Column(
@@ -189,7 +182,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
           // Item Name
           AppTextField(
-            validator: (value) => Validator.fieldRequired(value),
+            validator: (value)=> Validator.fieldRequired(value),
             controller: itemNameTextController,
             labelText: context.appText.itemName,
             hintText: "LED TV 42”",
@@ -198,7 +191,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
           // Quantity
           AppTextField(
-            validator: (value) => Validator.fieldRequired(value),
+            validator: (value)=> Validator.fieldRequired(value),
             controller: quantityTextController,
             labelText: context.appText.quantity,
             hintText: "2",
@@ -215,7 +208,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
           // Description
           AppTextField(
-            validator: (value) => Validator.fieldRequired(value),
+            validator: (value)=> Validator.fieldRequired(value),
             controller: descriptionTextController,
             labelText: context.appText.description,
             hintText: context.appText.tvCrackedScreenNote,
@@ -226,9 +219,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           // Submit Damage Button
           BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
             bloc: cubit,
-            listenWhen: (previous, current) =>
-            previous.createDamageUIState?.status !=
-                current.createDamageUIState?.status,
+            listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
             listener: (context, state) async {
               final status = state.createDamageUIState?.status;
               if (status == Status.SUCCESS) {
@@ -237,18 +228,15 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               }
               if (status == Status.ERROR) {
                 final error = state.createDamageUIState?.errorType;
-                ToastMessages.error(
-                    message: getErrorMsg(errorType: error ?? GenericError()));
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
               }
             },
             builder: (context, state) {
-              final isLoading = state.createDamageUIState?.status ==
-                  Status.LOADING;
+              final isLoading = state.createDamageUIState?.status == Status.LOADING;
               return AppButton(
                 title: context.appText.submit,
                 isLoading: isLoading,
-                onPressed: isLoading ? () {} : () =>
-                    createDamageAndShortageApiCall(),
+                onPressed: isLoading ? (){} : () => createDamageAndShortageApiCall(),
               );
             },
           )
@@ -258,113 +246,101 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
   /// Upload Product Photo
-  Widget _buildUploadProductPhotoWidget() {
-    return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+  Widget _buildUploadProductPhotoWidget(){
+    return  BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
       bloc: cubit,
-      listenWhen: (previous, current) =>
-      previous.uploadDamageUIState?.status !=
-          current.uploadDamageUIState?.status,
+      listenWhen: (previous, current) =>  previous.uploadDamageUIState?.status != current.uploadDamageUIState?.status,
       listener: (context, state) {
         final status = state.uploadDamageUIState?.status;
 
         if (status == Status.SUCCESS) {
-          if (state.uploadDamageUIState?.data != null &&
-              state.uploadDamageUIState!.data!.url.isNotEmpty) {
+          if (state.uploadDamageUIState?.data != null &&  state.uploadDamageUIState!.data!.url.isNotEmpty){
             uploadedDamageFileList.add(state.uploadDamageUIState!.data!.url);
-            CustomLog.debug(this, "File List : $uploadedDamageFileList");
+            CustomLog.debug(this, "File List : ${uploadedDamageFileList.length}");
             cubit.resetUploadDamageFileUIState();
-            ToastMessages.success(message: "File uploaded successfully");
           }
         }
 
         if (status == Status.ERROR) {
           final error = state.uploadDamageUIState?.errorType;
           multiFilesList.clear();
-          ToastMessages.error(
-              message: getErrorMsg(errorType: error ?? GenericError()));
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
+
       },
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
         debugPrint("Multi File List : ${multiFilesList.length}");
-        debugPrint(
-            "Upload Damage File List : ${uploadedDamageFileList.length}");
+        debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
-            title: "Product Photo",
-            multiFilesList: multiFilesList,
-            isMultipleSelectionFile: false,
-            isSingleFile: false,
-            isLoading: isLoading,
-            thenUploadFileToSever: () {
-              if (multiFilesList.isNotEmpty) {
-                cubit.uploadDamageFile(File(multiFilesList.length > 1
-                    ? multiFilesList.last['path']
-                    : multiFilesList.first['path']));
-              } else {
-                uploadedDamageFileList.clear();
-              }
-            },
-            onDelete: (index) {
-              uploadedDamageFileList.removeAt(index);
+          title: "Product Photo",
+          multiFilesList: multiFilesList,
+          isMultipleSelectionFile: false,
+          isSingleFile: false,
+          isLoading: isLoading,
+          thenUploadFileToSever: ()  {
+            if (multiFilesList.isNotEmpty) {
+              cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
+            } else {
+              uploadedDamageFileList.clear();
             }
+          },
+          onDelete: (index) {
+            uploadedDamageFileList.removeAt(index);
+          }
         );
       },
     );
   }
 
 
-  Widget _buildDamageRecordListWidget(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(context.appText.damagesRecorded,
-            style: AppTextStyle.body1BlackColor),
-        20.height,
+  Widget _buildDamageRecordListWidget(BuildContext context){
+    return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+      bloc: cubit,
+      listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status,
+      listener: (context, state) {
+        final status = state.damageListUIState?.status;
 
-        BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-          bloc: cubit,
-          listenWhen: (previous, current) =>
-          previous.damageListUIState?.status !=
-              current.damageListUIState?.status,
-          listener: (context, state) {
-            final status = state.damageListUIState?.status;
+        if (status == Status.ERROR) {
+          final error = state.damageListUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
 
-            if (status == Status.ERROR) {
-              final error = state.damageListUIState?.errorType;
-              ToastMessages.error(
-                  message: getErrorMsg(errorType: error ?? GenericError()));
-            }
-          },
-          builder: (context, state) {
-            if (state.damageListUIState?.data != null &&
-                state.damageListUIState!.data!.data.isNotEmpty) {
-              return ListView.separated(
+      },
+      builder: (context, state) {
+        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.appText.damagesRecorded, style: AppTextStyle.body1BlackColor),
+              20.height,
+              ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: state.damageListUIState!.data!.data.length,
                 itemBuilder: (context, index) {
                   final data = state.damageListUIState!.data!.data[index];
                   return damageRecordCard(
-                      context: context,
-                      imageUrl: data.image,
-                      itemName: data.itemName,
-                      quantity: data.quantity.toString(),
-                      description: data.description,
-                      onDelete: () {
-                        debugPrint("Deleted item at index $index");
-                      },
-                      onEdit: () {
+                    context: context,
+                    imageUrl: data.image,
+                    itemName: data.itemName,
+                    quantity:  data.quantity.toString(),
+                    description:  data.description,
+                    onDelete: () {
+                      debugPrint("Deleted item at index $index");
+                    },
+                    onEdit: () {
 
-                      }
+                    }
                   );
                 },
                 separatorBuilder: (context, index) => 15.height,
-              );
-            }
-            return Container();
-          },
-        ),
-      ],
+              ),
+            ],
+          );
+        }
+        return Container();
+      },
     );
   }
 
@@ -379,95 +355,87 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 // Damages record card
-
-
-}
-Widget damageRecordCard({
-  required BuildContext context,
-  required List<String> imageUrl,
-  required String itemName,
-  required String quantity,
-  required String description,
-  required VoidCallback onEdit,
-  required VoidCallback onDelete,
-  bool? showDeleteIcon,
-}) {
-  return Container(
-    decoration: BoxDecoration(
-      color: AppColors.extraLightBackgroundColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    height: 110,
-    child: Row(
-      children: [
-        // Left-side Image with only left corners rounded
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
-          ),
-          child: SizedBox(
-            width: 110,
-            height: double.infinity,
-            child: commonCacheNetworkImage(
-                path: imageUrl.first,
-                errorImage: Icons.image_not_supported,
-                radius: 0
+  Widget damageRecordCard({
+    required BuildContext context,
+    required List<String> imageUrl,
+    required String itemName,
+    required String quantity,
+    required String description,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.extraLightBackgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      height: 110,
+      child: Row(
+        children: [
+          // Left-side Image with only left corners rounded
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            ),
+            child: SizedBox(
+              width: 110,
+              height: double.infinity,
+              child: commonCacheNetworkImage(
+                  path: imageUrl.first,
+                  errorImage: Icons.image_not_supported,
+                  radius: 0
+              ),
             ),
           ),
-        ),
 
-        const SizedBox(width: 12),
+          const SizedBox(width: 12),
 
-        // Text content
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(itemName, style: AppTextStyle.body2),
-                5.height,
-                Text("${context.appText.quantity}: $quantity",
-                    style: AppTextStyle.body4GreyColor),
-                Text(description, style: AppTextStyle.body4GreyColor),
-                5.height,
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                        createRoute(ViewFileWidget(image: imageUrl)));
-                  },
-                  child: Text(
-                      "View Files", style: AppTextStyle.body3PrimaryColor),
-                ),
-              ],
+          // Text content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(itemName, style: AppTextStyle.body2),
+                  5.height,
+                  Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
+                  Text(description, style: AppTextStyle.body4GreyColor),
+                  5.height,
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
+                    },
+                    child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // Delete button
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            AppIconButton(
-              onPressed: onEdit,
-              icon: AppIcons.svg.edit,
-              iconColor: AppColors.primaryColor,
-            ),
+          // Delete button
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppIconButton(
+                onPressed: onEdit,
+                icon: AppIcons.svg.edit,
+                iconColor: AppColors.primaryColor,
+              ),
 
-            Visibility(
-              visible: showDeleteIcon ?? true,
-              child: AppIconButton(
+              AppIconButton(
                 onPressed: onDelete,
                 icon: AppIcons.svg.delete,
                 iconColor: AppColors.activeRedColor,
               ),
-            ),
-          ],
-        ),
-
-      ],
-    ),
-  );
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+

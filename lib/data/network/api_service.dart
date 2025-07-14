@@ -32,16 +32,15 @@ class ApiService {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
-    
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
+        CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
     }
-    
     return headers;
   }
 

@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_r
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -53,12 +54,45 @@ class LoadDetailsRepository {
   }
 
 
+  /// Submit Settlement Repo
+  Future<Result<DamageModel>> getSubmitSettlementData(SettlementApiRequest request) async {
+    try {
+      return await _vpDetailsService.submitSettlement(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request settlement submit data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
   /// Submit Damage Repo
   Future<Result<DamageModel>> getSubmitDamageData(DamageApiRequest request) async {
     try {
       return await _vpDetailsService.submitDamage(request);
     } catch (e) {
       CustomLog.error(this, "Failed to request damage submit data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Edit Damage Repo
+  Future<Result<DamageModel>> getEditDamageData(DamageApiRequest request) async {
+    try {
+      return await _vpDetailsService.editDamage(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request edit damage submit data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Delete Damage Repo
+  Future<Result<DamageModel>> deleteEditDamageData(DamageApiRequest request) async {
+    try {
+      return await _vpDetailsService.deleteDamage(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request delete damage submit data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -37,12 +37,13 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
   @override
   void initState() {
+    initFunction();
     super.initState();
   }
 
   void initFunction() => frameCallback(() async {
-    profileCubit.fetchUserRole();
     await profileCubit.fetchProfileDetail();
+    profileCubit.fetchUserRole();
     setState(() {});
   });
 
@@ -78,6 +79,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +119,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
             currentIndex: selectedIndex,
             onTap: onItemTapped,
             items: [
-
               BottomNavigationBarItem(
                 icon: const Padding(
                   padding: EdgeInsets.only(top: 10.0),
@@ -143,14 +144,14 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
               ),
 
               if (profileCubit.userRole != null && profileCubit.userRole == 3)
-              BottomNavigationBarItem(
-                icon:  Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(Icons.compare_arrows_rounded),
-                  //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                BottomNavigationBarItem(
+                  icon:  Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Icon(Icons.compare_arrows_rounded),
+                    //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                  ),
+                  label: "Switch Account",
                 ),
-                label: "Switch Account",
-              ),
             ],
           ),
         );
