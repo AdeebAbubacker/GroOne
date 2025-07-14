@@ -213,7 +213,9 @@ void initLocator() {
         locator<UserInformationRepository>(),
       ),
     );
-    locator.registerLazySingleton(() => GpsRepository(locator<GpsService>(),locator<GpsLoginRepository>(),));
+    locator.registerLazySingleton(
+      () => GpsRepository(locator<GpsService>(), locator<GpsLoginRepository>()),
+    );
     locator.registerLazySingleton(
       () => LanguageRepository(locator<LanguageService>()),
     );
@@ -403,13 +405,16 @@ void initLocator() {
       () => ProfileCubit(locator<ProfileRepository>()),
     );
     locator.registerLazySingleton(
-      () => GpsGeofenceCubit(locator<GpsRepository>()),
+      () => GpsGeofenceCubit(
+        locator<GpsRepository>(),
+        locator<GpsLoginRepository>(),
+      ),
     );
     locator.registerLazySingleton(
       () => GpsNotificationCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
-          () => GpsGeofenceMapCubit(locator<GpsRepository>()),
+      () => GpsGeofenceMapCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsLoginCubit(locator<GpsLoginRepository>()),

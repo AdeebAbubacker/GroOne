@@ -17,9 +17,13 @@ class GpsHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final GpsLoginCubit gpsLoginCubit = locator<GpsLoginCubit>();
 
-    // Auto-login on widget build
+    // Auto-login on widget build only if data hasn't been loaded yet
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      gpsLoginCubit.login();
+      if (!gpsLoginCubit.hasLoadedData) {
+        gpsLoginCubit.loginAndFetchAllData();
+      } else {
+        print("🚀 GpsHomeScreen - Data already loaded, skipping login call");
+      }
     });
 
     return BlocProvider.value(
@@ -29,9 +33,7 @@ class GpsHomeScreen extends StatelessWidget {
           if (state.loginState?.status == Status.SUCCESS) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  'GPS Login successful - Response stored in Realm',
-                ),
+                content: Text('GPS Login successful - Fetching data...'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -42,6 +44,24 @@ class GpsHomeScreen extends StatelessWidget {
                   'GPS Login failed: ${state.loginState?.errorType?.toString() ?? 'Unknown error'}',
                 ),
                 backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          if (state.dataFetchState?.status == Status.SUCCESS) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('All GPS data loaded successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state.dataFetchState?.status == Status.ERROR) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Data fetch failed: ${state.dataFetchState?.errorType?.toString() ?? 'Unknown error'}',
+                ),
+                backgroundColor: Colors.orange,
               ),
             );
           }
@@ -88,39 +108,82 @@ class GpsHomeScreen extends StatelessWidget {
           ),
           body: BlocBuilder<GpsLoginCubit, GpsLoginState>(
             builder: (context, state) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Alert Card (expiring soon)
-                    _buildAlertCard(context),
-                    // Main content
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(24),
-                          topRight: Radius.circular(24),
-                        ),
+              // Show loading overlay during data fetch
+              final isLoading =
+                  state.loginState?.status == Status.LOADING ||
+                  state.dataFetchState?.status == Status.LOADING;
+
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      print("🔄 GpsHomeScreen - Pull to refresh triggered");
+                      await gpsLoginCubit.refreshData();
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Alert Card (expiring soon)
+                          _buildAlertCard(context),
+                          // Main content
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(24),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(
+                                AppConstants.defaultPadding,
+                              ),
+                              child: Column(
+                                children: [
+                                  _buildMenuGrid(context),
+                                  const SizedBox(
+                                    height: AppConstants.defaultPadding,
+                                  ),
+                                  _buildTrackVehiclesCard(context),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Bottom banner
+                          _buildBottomBannerImageWidget(),
+                          // Buy New GPS button
+                          _buildBuyNewGpsButton(context),
+                        ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(
-                          AppConstants.defaultPadding,
-                        ),
+                    ),
+                  ),
+                  // Loading overlay
+                  if (isLoading)
+                    Container(
+                      color: Colors.black54,
+                      child: const Center(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildMenuGrid(context),
-                            const SizedBox(height: AppConstants.defaultPadding),
-                            _buildTrackVehiclesCard(context),
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Loading GPS data...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    // Bottom banner
-                    _buildBottomBannerImageWidget(),
-                    // Buy New GPS button
-                    _buildBuyNewGpsButton(context),
-                  ],
-                ),
+                ],
               );
             },
           ),

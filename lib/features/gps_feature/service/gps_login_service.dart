@@ -435,19 +435,6 @@ class GpsLoginService {
         CustomLog.info(this, "Device fuel data retrieved successfully");
       }
 
-      // Step 2.7: Get geofences
-      CustomLog.info(this, "Step 2.7: Getting geofences...");
-      final geofencesResult = await getGeofences(authToken);
-      if (geofencesResult is Error) {
-        CustomLog.error(this, "Failed to get geofences", null);
-        // Continue anyway as this is not critical
-      } else {
-        CustomLog.info(
-          this,
-          "Geofences retrieved successfully: ${(geofencesResult as Success<List<GpsGeofenceModel>>).value.length} geofences",
-        );
-      }
-
       // Step 3: Get devices with expiry
       CustomLog.info(this, "Step 3: Getting devices with expiry...");
       final devicesExpiryResult = await getDevicesWithExpiry(authToken);

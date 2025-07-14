@@ -25,8 +25,21 @@ class VehicleListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vehicleListCubit = locator<VehicleListCubit>();
+
+    // Only load data if not already loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!vehicleListCubit.hasLoadedData) {
+        vehicleListCubit.loadVehicleData();
+      } else {
+        print(
+          "📱 VehicleListScreen - Data already loaded, skipping loadVehicleData call",
+        );
+      }
+    });
+
     return BlocProvider.value(
-      value: locator<VehicleListCubit>()..loadVehicleData(),
+      value: vehicleListCubit,
       child: VehicleListView(),
     );
   }
@@ -210,6 +223,13 @@ class VehicleListView extends StatelessWidget {
               colorFilter: AppColors.svg(AppColors.primaryColor),
             ),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: AppConstants.primaryColor),
+            onPressed: () {
+              print("🔄 VehicleListScreen - Refresh button pressed");
+              context.read<VehicleListCubit>().refreshData();
+            },
           ),
           IconButton(
             onPressed: () {

@@ -13,6 +13,7 @@ part 'vehicle_list_state.dart';
 class VehicleListCubit extends BaseCubit<VehicleListState> {
   final GpsLoginRepository _repository;
   List<GpsCombinedVehicleData> _allVehicles = [];
+  bool _hasLoadedData = false; // Guard against repeated API calls
 
   VehicleListCubit({GpsLoginRepository? repository})
     : _repository = repository ?? locator<GpsLoginRepository>(),
@@ -107,7 +108,16 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   }
 
   /// Load vehicle data from APIs and combine them
+  /// Only calls APIs if data hasn't been loaded yet
   Future<void> loadVehicleData() async {
+    // Guard against repeated API calls
+    if (_hasLoadedData && state.vehicleDataState?.status == Status.SUCCESS) {
+      print(
+        "📱 VehicleListCubit.loadVehicleData() - Data already loaded, skipping API calls",
+      );
+      return;
+    }
+
     _setVehicleDataUIState(UIState.loading());
 
     try {
@@ -125,7 +135,25 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         return;
       }
 
-      // Call the repository method that handles both APIs and combines data
+      // First try to load from Realm (offline data)
+      if (await _repository.hasOfflineData()) {
+        print("📱 Loading vehicle data from Realm (offline)...");
+        final offlineData = await _repository.getOfflineVehicleData();
+        if (offlineData.isNotEmpty) {
+          _allVehicles = offlineData;
+          _setVehicleDataUIState(UIState.success(offlineData));
+          _updateStatusCounts();
+          _filterVehicles();
+          _hasLoadedData = true; // Mark as loaded to prevent future API calls
+          print(
+            "✅ Vehicle data loaded from Realm: ${offlineData.length} vehicles",
+          );
+          return;
+        }
+      }
+
+      // If no offline data, fetch from API
+      print("🌐 No offline data found, fetching from API...");
       final result = await _repository.getAllVehicleData(loginResponse!.token);
 
       if (result is Success<List<GpsCombinedVehicleData>>) {
@@ -133,17 +161,23 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         _setVehicleDataUIState(UIState.success(result.value));
         _updateStatusCounts();
         _filterVehicles();
+        _hasLoadedData = true; // Mark as loaded to prevent future API calls
 
         // Fetch addresses in background for vehicles that don't have them
         _fetchAddressesInBackground(result.value);
+        print(
+          "✅ Vehicle data fetched from API: ${result.value.length} vehicles",
+        );
       } else if (result is Error) {
         _setVehicleDataUIState(UIState.error((result as Error).type));
+        print("❌ Failed to fetch vehicle data from API");
 
         // Create sample data for testing when API fails
         await createSampleOfflineData();
       }
     } catch (e) {
       _setVehicleDataUIState(UIState.error(GenericError()));
+      print("❌ Error in loadVehicleData: $e");
     }
   }
 
@@ -174,10 +208,15 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     _filterVehicles();
   }
 
-  /// Refresh data
+  /// Refresh data - resets the guard flag and reloads
   Future<void> refreshData() async {
+    print("🔄 VehicleListCubit.refreshData() called");
+    _hasLoadedData = false; // Reset the guard flag
     await loadVehicleData();
   }
+
+  /// Check if data has been loaded
+  bool get hasLoadedData => _hasLoadedData;
 
   /// Toggle between map and list view
   void toggleMapView(bool showMap) {

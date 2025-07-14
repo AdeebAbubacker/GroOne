@@ -80,12 +80,11 @@ class AppRoutes {
         path: AppRouteName.gpsGeofence,
         builder: (BuildContext context, GoRouterState state) {
           return BlocProvider.value(
-            value: locator<VehicleListCubit>()..loadVehicleData(),
+            value: locator<VehicleListCubit>(),
             child: GpsGeofenceScreen(),
           );
         },
       ),
-
 
       GoRoute(
         path: AppRouteName.instantLoan,
