@@ -295,27 +295,26 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
 
   Widget _buildDamageRecordListWidget(BuildContext context){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(context.appText.damagesRecorded, style: AppTextStyle.body1BlackColor),
-        20.height,
+    return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+      bloc: cubit,
+      listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status,
+      listener: (context, state) {
+        final status = state.damageListUIState?.status;
 
-        BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-          bloc: cubit,
-          listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status,
-          listener: (context, state) {
-            final status = state.damageListUIState?.status;
+        if (status == Status.ERROR) {
+          final error = state.damageListUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
 
-            if (status == Status.ERROR) {
-              final error = state.damageListUIState?.errorType;
-              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-            }
-
-          },
-          builder: (context, state) {
-            if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
-              return ListView.separated(
+      },
+      builder: (context, state) {
+        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.appText.damagesRecorded, style: AppTextStyle.body1BlackColor),
+              20.height,
+              ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: state.damageListUIState!.data!.data.length,
@@ -336,12 +335,12 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                   );
                 },
                 separatorBuilder: (context, index) => 15.height,
-              );
-            }
-            return Container();
-          },
-        ),
-      ],
+              ),
+            ],
+          );
+        }
+        return Container();
+      },
     );
   }
 
