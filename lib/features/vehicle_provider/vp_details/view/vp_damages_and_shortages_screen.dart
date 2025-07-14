@@ -8,16 +8,21 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -123,6 +128,21 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   }
 
 
+  void showSuccessDialog(BuildContext context) => frameCallback(() {
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        heading: "Your damage has been recorded.",
+        message: "We have notified the concerned team.",
+        onContinue: (){
+          Navigator.of(context).pop(true);
+          cubit.fetchDamageList(widget.loadId ?? "");
+        },
+      ),
+    );
+  });
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,6 +224,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               final status = state.createDamageUIState?.status;
               if (status == Status.SUCCESS) {
                 clearValues();
+                showSuccessDialog(context);
               }
               if (status == Status.ERROR) {
                 final error = state.createDamageUIState?.errorType;
@@ -248,19 +269,26 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         }
 
       },
-      builder: (BuildContext context, LoadDetailsState state) {
+      builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
+        debugPrint("Multi File List : ${multiFilesList.length}");
+        debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
           title: "Product Photo",
           multiFilesList: multiFilesList,
-          // isMultipleSelectionFile: false,
+          isMultipleSelectionFile: false,
           isSingleFile: false,
           isLoading: isLoading,
           thenUploadFileToSever: ()  {
             if (multiFilesList.isNotEmpty) {
-              cubit.uploadDamageFile(File(multiFilesList.first['path']));
+              cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
+            } else {
+              uploadedDamageFileList.clear();
             }
           },
+          onDelete: (index) {
+            uploadedDamageFileList.removeAt(index);
+          }
         );
       },
     );
@@ -272,32 +300,47 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(context.appText.damagesRecorded, style: AppTextStyle.body1BlackColor),
-        10.height,
-        damageRecordCard(
-          context: context,
-          imageUrl: "https://via.placeholder.com/150",
-          itemName: "LED TV 42”",
-          quantity: "2",
-          description: "One TV has a cracked screen",
-          onDelete: () {},
-        ),
         20.height,
-        damageRecordCard(
-          context: context,
-          imageUrl: "https://via.placeholder.com/150",
-          itemName: "LED TV 42”",
-          quantity: "2",
-          description: "One TV has a cracked screen",
-          onDelete: () {},
-        ),
-        20.height,
-        damageRecordCard(
-          context: context,
-          imageUrl: "https://via.placeholder.com/150",
-          itemName: "LED TV 42”",
-          quantity: "2",
-          description: "One TV has a cracked screen",
-          onDelete: () {},
+
+        BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+          bloc: cubit,
+          listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status,
+          listener: (context, state) {
+            final status = state.damageListUIState?.status;
+
+            if (status == Status.ERROR) {
+              final error = state.damageListUIState?.errorType;
+              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+            }
+
+          },
+          builder: (context, state) {
+            if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: state.damageListUIState!.data!.data.length,
+                itemBuilder: (context, index) {
+                  final data = state.damageListUIState!.data!.data[index];
+                  return damageRecordCard(
+                    context: context,
+                    imageUrl: data.image,
+                    itemName: data.itemName,
+                    quantity:  data.quantity.toString(),
+                    description:  data.description,
+                    onDelete: () {
+                      debugPrint("Deleted item at index $index");
+                    },
+                    onEdit: () {
+
+                    }
+                  );
+                },
+                separatorBuilder: (context, index) => 15.height,
+              );
+            }
+            return Container();
+          },
         ),
       ],
     );
@@ -313,90 +356,87 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
     );
   }
 
-}
-
 // Damages record card
-Widget damageRecordCard({
-  required BuildContext context,
-  required String imageUrl,
-  required String itemName,
-  required String quantity,
-  required String description,
-  required VoidCallback onDelete,
-  bool? showDeleteIcon,
-}) {
-  return Container(
-    decoration: BoxDecoration(
-      color: AppColors.extraLightBackgroundColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    height: 100,
-    child: Row(
-      children: [
-        // Left-side Image with only left corners rounded
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
+  Widget damageRecordCard({
+    required BuildContext context,
+    required List<String> imageUrl,
+    required String itemName,
+    required String quantity,
+    required String description,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+    bool? showDeleteIcon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.extraLightBackgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      height: 110,
+      child: Row(
+        children: [
+          // Left-side Image with only left corners rounded
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            ),
+            child: SizedBox(
+              width: 110,
+              height: double.infinity,
+              child: commonCacheNetworkImage(
+                  path: imageUrl.first,
+                  errorImage: Icons.image_not_supported,
+                  radius: 0
+              ),
+            ),
           ),
-          child: Container(
-            width: 90,
-            height: double.infinity,
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: AppColors.lightGrey300,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.image_not_supported,
-                    size: 20,
-                    color: AppColors.shimmerBaseColor,
+
+          const SizedBox(width: 12),
+
+          // Text content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(itemName, style: AppTextStyle.body2),
+                  5.height,
+                  Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
+                  Text(description, style: AppTextStyle.body4GreyColor),
+                  5.height,
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
+                    },
+                    child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
                   ),
-                );
-              },
+                ],
+              ),
             ),
           ),
-        ),
 
-        const SizedBox(width: 12),
+          // Delete button
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppIconButton(
+                onPressed: onEdit,
+                icon: AppIcons.svg.edit,
+                iconColor: AppColors.primaryColor,
+              ),
 
-        // Text content
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  itemName,
-                  style: AppTextStyle.textBlackColor12w400.copyWith(
-                    color: const Color(0xFF2B2B2B),
-                  ),
+    Visibility(
+    visible: showDeleteIcon??true
+                child: AppIconButton(
+                  onPressed: onDelete,
+                  icon: AppIcons.svg.delete,
+                  iconColor: AppColors.activeRedColor,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  "${context.appText.quantity}: $quantity",
-                  style: AppTextStyle.textGreyColor10w400,
-                ),
-                Text(description, style: AppTextStyle.textGreyColor10w400),
-              ],
-            ),
-          ),
-        ),
-
-        // Delete button
-        Visibility(
-          visible: showDeleteIcon??true,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: AppIconButton(
-              onPressed: onDelete,
-              icon: AppIcons.svg.delete,
-              iconColor: AppColors.activeRedColor,
-            ),
+              ),
+            ],
           ),
         ),
       ],

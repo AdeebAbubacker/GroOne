@@ -49,6 +49,10 @@ class ApiUrls {
   static String get _notification => "/notification";
   static String get _loadDiscovery => "/load-discovery";
   static String get _loadExecution => "/load-execution";
+  static String get _loadTracking => "/load-tracking";
+  static String get _tracking => "/tracking";
+  static String get _paymentBroker => "/payment-broker";
+
 
 
   // Base URL
@@ -58,7 +62,7 @@ class ApiUrls {
 
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_rateDiscovery$_path$_v1$_map";
-
+  static String get _paymentBrokerBase => "$_fetchUrl$_paymentBroker$_path$_v1";
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
 
@@ -130,6 +134,12 @@ class ApiUrls {
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  lpLoadAgree="$_baseUrl$_loadExecution$_path$_v1$_load/lp-agree";
   static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
+  static final String  lpLoadFeedback="$_baseUrl$_loadExecution$_path$_v1$_load/";
+  static final String  lpLoadDocument ="$_baseUrl$_document$_path$_v1/documents/";
+  static final String lpLoadAddConsignee = "$_baseUrl$_load$_path$_v1/consignee";
+  static final String lppayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
+  static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
+
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
@@ -186,4 +196,8 @@ class ApiUrls {
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
+
+  /// Tracking
+  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
+  static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

@@ -62,14 +62,14 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
     if (status == LoadStatus.matching) {
       final matchingStartDate = widget.loadItem.matchingStartDate;
       if (matchingStartDate != null) {
-        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate.toIso8601String());
+        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate);
       } else {
         _countDown = "--:--:--";
       }
     } else if (status == LoadStatus.kycPending) {
-      final kycPendingDate = widget.loadItem.customer?.customer?.kycPendingDate;
+      final kycPendingDate = widget.loadItem.customer?.kycPendingDate;
       if (kycPendingDate != null) {
-        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
+        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toString());
       } else {
         _countDown = "--:--:--";
       }
@@ -251,7 +251,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             ),
             5.height,
             if(loadStatus == LoadStatus.kycPending)
-              if(widget.loadItem.customer?.customer?.kycPendingDate != null)
+              if(widget.loadItem.customer?.kycPendingDate != null)
               // Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadItem.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
              Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
             if(loadStatus == LoadStatus.matching)

@@ -1,22 +1,38 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_feedback_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_otp_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 part 'lp_load_state.dart';
 
@@ -88,7 +104,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.fetchLoadById(loadId: loadId);
 
     if (result is Success<LoadGetByIdResponse>) {
-      emit(state.copyWith(locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0")));
+      emit(state.copyWith(locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"), isFeedbackAdded: result.value.data?.notes.isNotEmpty));
       _setLoadByIdUIState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadByIdUIState(UIState.error(result.type));
@@ -307,6 +323,210 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     ));
   }
 
+  // Updates the UI state related to lp load update feedback.
+  void _setLoadFeedbackState(UIState<LpLoadFeedbackResponse>? uiState) {
+    emit(state.copyWith(lpLoadFeedback: uiState));
+  }
+
+  // Lp load update feedback
+  Future<void> updateFeedback({required String loadId, required String feedback}) async {
+    _setLoadFeedbackState(UIState.loading());
+
+    Result result = await _repository.updateFeedback(loadId: loadId, feedback: feedback);
+
+    if (result is Success<LpLoadFeedbackResponse>) {
+      emit(state.copyWith(isFeedbackAdded: true));
+      _setLoadFeedbackState(UIState.success(result.value));
+      ToastMessages.success(message: result.value.message);
+
+    } else if (result is Error) {
+      _setLoadFeedbackState(UIState.error(result.type));
+    }
+
+  }
+
+  // Updates the UI state related to Document by ID.
+  void _setDocumentByIdState(UIState<DocumentDetails>? uiState) {
+    emit(state.copyWith(lpDocumentById: uiState));
+  }
+
+  // Lp load Document by ID
+  Future<void> getDocumentById({required String docId}) async {
+    _setDocumentByIdState(UIState.loading());
+
+    Result result = await _repository.getDocumentById(docId: docId);
+
+
+    if (result is Success<DocumentDetails>) {
+      _setDocumentByIdState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setDocumentByIdState(UIState.error(result.type));
+    }
+
+  }
+
+
+  // Updates the UI state related to tracking consent.
+  void _setConsentStatusState(UIState<TrackingConsentStatusResponse>? uiState) {
+    emit(state.copyWith(trackingConsent: uiState));
+  }
+
+  // Lp load tracking consent
+  Future<void> getConsentStatus({required String mobileNumber}) async {
+    _setConsentStatusState(UIState.loading());
+
+    Result result = await _repository.getConsentStatus(mobileNumber: mobileNumber);
+
+    if (result is Success<TrackingConsentStatusResponse>) {
+      _setConsentStatusState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setConsentStatusState(UIState.error(result.type));
+    }
+
+  }
+
+  // Updates the UI state related to tracking distance.
+  void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
+    emit(state.copyWith(trackingDistance: uiState));
+  }
+
+  // Lp load tracking distance
+  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+    _setTrackingDistanceState(UIState.loading());
+
+    Result result = await _repository.getTrackingDistance(request: request);
+
+    if (result is Success<TrackingDistanceResponse>) {
+      _setTrackingDistanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setTrackingDistanceState(UIState.error(result.type));
+    }
+  }
+ 
+
+  
+  // Adds a consignee to the load.
+  void _setaddConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
+    emit(state.copyWith(lpAddConsignee: uiState));
+  }
+
+  // Create New consignee to a load
+  Future<void> addConsignee({required AddConsigneeApiRequest addConsigneeReq}) async {
+    _setaddConsigneeState(UIState.loading());
+
+    Result result = await _repository.addConsignee(addConsigneeReq: addConsigneeReq);
+
+    if (result is Success<ConsigneAddedSuccessModel>) {
+      _setaddConsigneeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setaddConsigneeState(UIState.error(result.type));
+    }    
+  }
+
+   // Updates consignee to the load.
+  void _updateConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
+    emit(state.copyWith(lpUpdateConsignee: uiState));
+  }
+
+  // Updates Excisting consignee to a load
+  Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {
+    _updateConsigneeState(UIState.loading());
+
+    Result result = await _repository.updateConsignee(updateConsigneeReq: updateConsigneeReq,consigneeId: consigneeId);
+
+    if (result is Success<ConsigneAddedSuccessModel>) {
+      _updateConsigneeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _updateConsigneeState(UIState.error(result.type));
+    }    
+  }
+
+     // Initiate payment
+  void setCustomerPaymentResult(UIState<OrderAddedSuccess>? uiState) {
+    emit(state.copyWith(lpAddCustomerPaymentOption: uiState));
+  }
+
+  // Initiate Payment for created Order
+  Future<void> initaitepayment({
+  required InitiatePaymentRequest initiatePaymentRequest,
+  }) async {
+    setCustomerPaymentResult(UIState.loading());
+
+    Result result = await _repository.initiatePayment(   
+    initiatePaymentRequest: initiatePaymentRequest,
+    );
+
+    if (result is Success<OrderAddedSuccess>) {
+      setCustomerPaymentResult(UIState.success(result.value));
+    } else if (result is Error) {
+      setCustomerPaymentResult(UIState.error(result.type));
+    }
+  }
+
+// Create Order
+void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
+  emit(state.copyWith(lpCreateOrder: uiState));
+}
+
+// Craete order for a particular load
+Future<void> createOrder({
+  required String loadId,
+  required CreateOrderIdRequest createOrderidReuest,
+}) async {
+  _setCreateOrderResult(UIState.loading());
+
+  Result result = await _repository.createOrder(
+    loadId: loadId,
+    createOrderIdRequest: createOrderidReuest,
+  );
+
+  if (result is Success<LpCreateOrderResponse>) {
+    _setCreateOrderResult(UIState.success(result.value));
+  } else if (result is Error) {
+    _setCreateOrderResult(UIState.error(result.type));
+  }
+}
+
+ 
+  void updateFeedbackText(String text) {
+    final currentLoadById = state.lpLoadById?.data?.data;
+    if (currentLoadById != null) {
+      final updatedLoadData = currentLoadById.copyWith(notes: text);
+      emit(state.copyWith(
+        lpLoadById: UIState.success(
+          LoadGetByIdResponse(data: updatedLoadData, message: ''),
+        ),
+      ));
+    }
+  }
+
+  void markDocumentAsDownloaded(String fileName) {
+    final updatedDownloads = Map<String, bool>.from(state.downloadedFiles);
+    updatedDownloads[fileName] = true;
+    emit(state.copyWith(downloadedFiles: updatedDownloads));
+  }
+
+  Future<void> downloadAndOpenDocument(String downloadKey, String docUrl) async {
+    final uri = Uri.parse(docUrl);
+    final fileName = path.basename(uri.path);
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = path.join(directory.path, fileName);
+    final file = File(filePath);
+
+    try {
+      if (await file.exists()) {
+        await OpenFilex.open(filePath);
+        markDocumentAsDownloaded(downloadKey);
+      } else {
+        final dio = Dio();
+        await dio.download(docUrl, filePath);
+        markDocumentAsDownloaded(downloadKey);
+        await OpenFilex.open(filePath);
+      }
+    } catch (e) {
+      ToastMessages.error(message: 'Failed to download the document ');
+    }
+  }
 
 }
 
