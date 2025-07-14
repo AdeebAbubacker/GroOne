@@ -143,7 +143,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [  
-                               
+                      
                   // Truck Type Row
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -505,6 +505,11 @@ Widget _buildAdvancePaymentCard({
   required String advancePaid,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
+final createOrderState = lpLoadCubit.state.lpCreateOrder;
+final addPaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+
+final isLoading = createOrderState?.status == Status.LOADING ||
+    addPaymentState?.status == Status.LOADING;
 
   return Container(
     padding: const EdgeInsets.all(10),
@@ -603,7 +608,7 @@ Widget _buildAdvancePaymentCard({
         // Action Button
         if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5)
           AppButton(
-            isLoading: false,
+            isLoading: isLoading,
             title: context.appText.payAdvance,
             onPressed: () async {
               final isPayingBalance = paymentState == 3 || paymentState == 5;
