@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -147,9 +148,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setSettlementUIState(UIState<DamageModel>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
-  Future<void> submitSettlement(DamageApiRequest req) async {
+  Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
-    Result result = await _loadDetailsRepository.getSubmitDamageData(req);
+    Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
     if (result is Success<DamageModel>) {
       _setSettlementUIState(UIState.success(result.value));
     }

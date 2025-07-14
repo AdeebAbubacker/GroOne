@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -56,10 +57,10 @@ class VpDetailsService{
 
 
   /// Submit Settlement Service
-  Future<Result<DamageModel>> submitSettlement(DamageApiRequest request) async {
+  Future<Result<DamageModel>> submitSettlement(SettlementApiRequest request) async {
     try {
-      final url = ApiUrls.damage;
-      final result = await _apiService.post(url, body: request.toJson());
+      final url = ApiUrls.submitSettlement;
+      final result = await _apiService.put(url, body: request.toJson());
       if (result is Success) {
         final data= DamageModel.fromJson(result.value);
         return Success(data);
