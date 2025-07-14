@@ -58,18 +58,18 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
     super.dispose();
   }
 
-  void _updateCountDown(String? status) {
-    if (status == 'Matching') {
+  void _updateCountDown(LoadStatus? status) {
+    if (status == LoadStatus.matching) {
       final matchingStartDate = widget.loadItem.matchingStartDate;
       if (matchingStartDate != null) {
-        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate.toIso8601String());
+        _countDown = LpHomeHelper.getMatchingTime(matchingStartDate);
       } else {
         _countDown = "--:--:--";
       }
-    } else if (status == 'KYC Pending') {
+    } else if (status == LoadStatus.kycPending) {
       final kycPendingDate = widget.loadItem.customer?.kycPendingDate;
       if (kycPendingDate != null) {
-        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toIso8601String());
+        _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toString());
       } else {
         _countDown = "--:--:--";
       }
@@ -84,9 +84,11 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
 
   void callTimer(){
-    if(widget.loadItem.createdAt != null && widget.loadItem.loadStatusDetails?.loadType != null){
-      final status = widget.loadItem.loadStatusDetails?.loadType;
-      if (status == 'Matching' || status == 'KYC Pending') {
+    if(widget.loadItem.createdAt != null && widget.loadItem.loadStatusDetails?.loadStatus != null){
+      // final status = widget.loadItem.loadStatusDetails?.loadStatus;
+      final statusString = widget.loadItem.loadStatusDetails?.loadStatus;
+      final status = LpHomeHelper.getLoadStatusFromString(statusString);
+      if (status == LoadStatus.matching || status == LoadStatus.kycPending) {
         _updateCountDown(status);                                   // first paint
         _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
           _updateCountDown(status);
@@ -112,9 +114,9 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
       }
 
       int availableCredit = double.parse(creditData.data?.availableCreditLimit ?? '0').toInt();
-      int rateValue = (widget.loadItem.maxRate == null || widget.loadItem.maxRate!.isEmpty || widget.loadItem.maxRate == "0")
-          ? double.parse(widget.loadItem.rate).toInt()
-          : double.parse(widget.loadItem.maxRate ?? '').toInt();
+      int rateValue = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
+          ? widget.loadItem.loadPrice?.rate ?? 0
+          : widget.loadItem.loadPrice?.maxRate ?? 0;
 
 
       if(availableCredit < rateValue) {
@@ -131,20 +133,20 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   }
 
-  void agreeLoadPopUp(context) {
+  void agreeLoadPopUp(BuildContext context) {
     return AppDialog.show(context, child: CommonDialogView(
       hideCloseButton: true,
       showYesNoButtonButtons: true,
-      noButtonText: "Cancel",
-      yesButtonText: "I Agree Load",
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.iAgreeLoad,
       child: Column(
         children: [
           Lottie.asset(AppJSON.shipment, repeat: true, frameRate: FrameRate(200)),
-          Text("Are you sure you agree to this Load?"),
+          Text(context.appText.areYouSureToAgreeLoad),
         ],
       ),
       onClickYesButton: () async {
-        await widget.lpLoadLocator.loadAgree(loadId: widget.loadItem.id.toString());
+        await widget.lpLoadLocator.loadAgree(loadId: widget.loadItem.loadId.toString());
 
         final uiState = widget.lpLoadLocator.state.lpLoadAgree;
 
@@ -152,9 +154,12 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
         if (uiState?.status == Status.LOADING) {}
         else if (uiState?.status == Status.SUCCESS) {
 
-          final lpLoadAgreeDetails = uiState?.data?.lpLoadAgreeData as LpLoadAgreeData;
-          Navigator.pop(context);
-          AppDialog.show(context, child: AdvancePaymentDialog(loadId: "${widget.loadItem.id}", creditLimit: '',lpLoadAgreeData: lpLoadAgreeDetails,), dismissible: true);        }
+          final lpLoadAgreeDetails = uiState?.data as LpLoadAgreeResponse;
+          if(context.mounted) {
+            Navigator.pop(context);
+            AppDialog.show(context, child: AdvancePaymentDialog(loadId: widget.loadItem.loadId, creditLimit: '',lpLoadAgreeData: lpLoadAgreeDetails,), dismissible: true);
+          }
+        }
         else if (uiState?.status == Status.ERROR) {
           final errorType = uiState?.errorType;
           ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
@@ -167,11 +172,13 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final loadStatus = LpHomeHelper.getLoadStatusFromString(widget.loadItem.loadStatusDetails?.loadStatus);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadItem.id)),
+          commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadItem.loadId)),
         );
       },
       child: Container(
@@ -183,13 +190,13 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildLoadIdDetailsWidget(),
+              buildLoadIdDetailsWidget(loadStatus),
               commonDivider(),
               buildPickupAndDropAddressWidget(),
               20.height,
               buildRateWidget(),
               10.height,
-              if(widget.loadItem.loadStatus == 4 && widget.loadItem.isAgreed == 0)
+              if(loadStatus == LoadStatus.assigned && widget.loadItem.isAgreed == 0)
               buildAgreeButtonWidget(context)
             ],
           )
@@ -198,7 +205,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   }
 
   /// Load ID Details
-  Widget buildLoadIdDetailsWidget() {
+  Widget buildLoadIdDetailsWidget(LoadStatus? loadStatus) {
     return Row(
       children: [
         Container(
@@ -215,7 +222,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             Wrap(
               children: [
                 Text(
-                  widget.loadItem.loadId,
+                  widget.loadItem.loadSeriesId,
                   style: AppTextStyle.h5,
                   maxLines: 2,
                 ),
@@ -234,20 +241,20 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           children: [
             Container(
               decoration: commonContainerDecoration(
-                color: LpHomeHelper.getLoadStatusColor(widget.loadItem.loadStatusDetails?.loadType ?? '')
+                color: LpHomeHelper.getLoadStatusColor(widget.loadItem.loadStatusDetails?.loadStatus ?? '')
               ),
               width: 100,
               child: Text(
-                LpHomeHelper.getLoadTypeDisplayText(widget.loadItem.loadStatusDetails?.loadType ?? ''),
-                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.loadItem.loadStatusDetails?.loadType ?? '')),
+                LpHomeHelper.getLoadTypeDisplayText(widget.loadItem.loadStatusDetails?.loadStatus ?? ''),
+                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.loadItem.loadStatusDetails?.loadStatus ?? '')),
               ).center().paddingAll(4),
             ),
             5.height,
-            if(widget.loadItem.loadStatus == 1)
+            if(loadStatus == LoadStatus.kycPending)
               if(widget.loadItem.customer?.kycPendingDate != null)
               // Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadItem.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
              Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-            if(widget.loadItem.loadStatus == 2)
+            if(loadStatus == LoadStatus.matching)
              // Text(LpHomeHelper.getMatchingTime(widget.loadItem.matchingStartDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
              Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
           ],
@@ -264,7 +271,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
         Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
         5.width,
         Text(
-          widget.loadItem.pickUpWholeAddr ?? "",
+          widget.loadItem.loadRoute?.pickUpWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -279,7 +286,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
         Text(
-          widget.loadItem.dropWholeAddr ?? "",
+          widget.loadItem.loadRoute?.dropWholeAddr ?? "",
           style: AppTextStyle.body4.copyWith(fontSize: 12),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -290,9 +297,9 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   /// Rate
   Widget buildRateWidget() {
-    final loadPrice = (widget.loadItem.maxRate == null || widget.loadItem.maxRate!.isEmpty || widget.loadItem.maxRate == "0")
-        ? PriceHelper.formatINR(widget.loadItem.rate)
-        : PriceHelper.formatINRRange('${widget.loadItem.rate} - ${widget.loadItem.maxRate}');
+    final loadPrice = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
+        ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
+        : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     return Container(
       decoration: commonContainerDecoration(
         color: AppColors.primaryLightColor,
@@ -301,7 +308,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text("Agreed Price", style: AppTextStyle.body2),
+          Text(context.appText.agreedPrice, style: AppTextStyle.body2),
           Text(loadPrice, style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor)),
         ],
       ).paddingAll(8),
@@ -318,7 +325,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           onPressed: () async {
             String? firstPostedLoadId = await widget.lpLoadLocator.getFirstPostedLoadId();
 
-            if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.id.toString()) {
+            if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
               if(context.mounted) creditCheck(context);
             } else {
               if(context.mounted) agreeLoadPopUp(context);

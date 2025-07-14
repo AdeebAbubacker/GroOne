@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-/// Constant Global variables
+// Constant Global variables
 const double commonButtonRadius = 8;
 const double commonOutlineButtonRadius = 15;
 const double commonPadding = 10;
@@ -27,19 +27,19 @@ const String FAILED = "failed";
 const String ERROR = "Error";
 const String MESSAGE = "message";
 const String MSG = "msg";
-const String FcmTOKEN = "fcmToken";
-const String OWNER = "Owner";
-const String TENANT = "Tenant";
-const String SECURITY = "Security";
-const String VISITINGHELP = "VISITINGHELP";
-const String HOUSEHELP = "HOUSEHELP";
-const String GUEST = "GUEST";
-const String CAB = "CAB";
-const String DELIVERY = "DELIVERY";
-const String PRE_APPROVAL = "Pre-approval";
-const String ON_ARRIVAL = "On-arrival";
-const String POST = "POST";
-const String POLL = "POLL";
+
+
+// Kyc Upload Doc file type
+const String PAN_FILE_TYPE = "pan_card";
+const String TDS_FILE_TYPE = "tds";
+const String GST_FILE_TYPE = "gst_document";
+const String TAN_FILE_TYPE = "tan_document";
+const String CHECKED_FILE_TYPE = "cancelled_cheque";
+const String VP_DOCUMENT = "vp_document";
+const String LP_DOCUMENT = "lp_document";
+const String CUSTOMER_DOCUMENT = "customer_document";
+const String DAMAGES_AND_SHORTAGES = "damages_and_shortages";
+
 
 const String indianCurrencySymbol = "₹";
 

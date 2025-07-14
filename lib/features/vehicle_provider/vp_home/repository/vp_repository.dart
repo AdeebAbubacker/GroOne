@@ -1,5 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
@@ -32,6 +34,7 @@ class VpHomeRepository {
     try {
       return await _vpService.getVehicleDetails(userId: userId);
     } catch (e) {
+
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -79,6 +82,9 @@ class VpHomeRepository {
     }
   }
 
+
+
+
   Future<DirectionResponse?> getGoogleDirectionResponse(String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong) async {
     try {
       return await _vpService.getDirectionRoute(
@@ -92,4 +98,7 @@ class VpHomeRepository {
       return null;
     }
   }
+
+
+
 }

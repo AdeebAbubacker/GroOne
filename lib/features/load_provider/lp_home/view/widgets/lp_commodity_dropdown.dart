@@ -13,7 +13,7 @@ class LPCommodityDropdown extends StatelessWidget {
   final String hintText;
   final String preFixIcon;
   final Function(int) onSelect;
-  final List<LoadCommodityList> dataList;
+  final List<LoadCommodityListModel> dataList;
   const LPCommodityDropdown({super.key, required this.onTab, required this.hintText, this.selectedText, required this.dataList, required this.onSelect, required this.preFixIcon});
 
   @override

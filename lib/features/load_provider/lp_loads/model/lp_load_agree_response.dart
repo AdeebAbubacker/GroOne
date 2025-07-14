@@ -1,59 +1,40 @@
 class LpLoadAgreeResponse {
   LpLoadAgreeResponse({
-    required this.success,
-    required this.message,
-    required this.lpLoadAgreeData,
+    required this.memoNumber,
+    required this.netFreight,
+    required this.loadId,
+    required this.customerId,
+    required this.advance,
   });
 
-  final bool success;
-  final String message;
-  final LpLoadAgreeData? lpLoadAgreeData;
+  final String memoNumber;
+  final int netFreight;
+  final String loadId;
+  final String customerId;
+  final List<Advance> advance;
 
   LpLoadAgreeResponse copyWith({
-    bool? success,
-    String? message,
-    LpLoadAgreeData? lpLoadAgreeData,
+    String? memoNumber,
+    int? netFreight,
+    String? loadId,
+    String? customerId,
+    List<Advance>? advance,
   }) {
     return LpLoadAgreeResponse(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      lpLoadAgreeData: lpLoadAgreeData ?? this.lpLoadAgreeData,
+      memoNumber: memoNumber ?? this.memoNumber,
+      netFreight: netFreight ?? this.netFreight,
+      loadId: loadId ?? this.loadId,
+      customerId: customerId ?? this.customerId,
+      advance: advance ?? this.advance,
     );
   }
 
   factory LpLoadAgreeResponse.fromJson(Map<String, dynamic> json){
     return LpLoadAgreeResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      lpLoadAgreeData: json["data"] == null ? null : LpLoadAgreeData.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class LpLoadAgreeData {
-  LpLoadAgreeData({
-    required this.netFreight,
-    required this.advance,
-  });
-
-  final int netFreight;
-  final List<Advance> advance;
-
-  LpLoadAgreeData copyWith({
-    String? memoNumber,
-    int? netFreight,
-    List<Advance>? advance,
-  }) {
-    return LpLoadAgreeData(
-      netFreight: netFreight ?? this.netFreight,
-      advance: advance ?? this.advance,
-    );
-  }
-
-  factory LpLoadAgreeData.fromJson(Map<String, dynamic> json){
-    return LpLoadAgreeData(
+      memoNumber: json["memoNumber"] ?? "",
       netFreight: json["netFreight"] ?? 0,
+      loadId: json["loadId"] ?? "",
+      customerId: json["customerId"] ?? "",
       advance: json["advance"] == null ? [] : List<Advance>.from(json["advance"]!.map((x) => Advance.fromJson(x))),
     );
   }
@@ -69,12 +50,12 @@ class Advance {
 
   final int percentageId;
   final String percentage;
-  final double amount;
+  final int amount;
 
   Advance copyWith({
     int? percentageId,
     String? percentage,
-    double? amount,
+    int? amount,
   }) {
     return Advance(
       percentageId: percentageId ?? this.percentageId,
@@ -87,8 +68,7 @@ class Advance {
     return Advance(
       percentageId: json["percentageId"] ?? 0,
       percentage: json["percentage"] ?? "",
-      amount: (json["amount"] ?? 0).toDouble(),
-
+      amount: json["amount"] ?? 0,
     );
   }
 

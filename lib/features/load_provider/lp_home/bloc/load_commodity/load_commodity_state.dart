@@ -8,7 +8,7 @@ final class LoadCommodityInitial extends LoadCommodityState {}
 class LoadCommodityLoading extends LoadCommodityState {}
 
 class LoadCommoditySuccess extends LoadCommodityState {
-  final LoadCommodityListModel commodityListModel;
+  final List<LoadCommodityListModel> commodityListModel;
   LoadCommoditySuccess(this.commodityListModel);
 }
 

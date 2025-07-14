@@ -5,15 +5,15 @@ class UploadRcTruckFileModel {
     required this.data,
   });
 
-  final bool success;
-  final String message;
+  final bool? success;
+  final String? message;
   final Data? data;
 
   factory UploadRcTruckFileModel.fromJson(Map<String, dynamic> json){
     return UploadRcTruckFileModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      data:  Data.fromJson(json),
     );
   }
 

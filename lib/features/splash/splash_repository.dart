@@ -13,7 +13,7 @@ class SplashRepository {
   }
 
   // Check user type
-  Future<Result<String>> getUserRole() async {
+  Future<Result<int>> getUserRole() async {
     return  await _splashService.checkUserRole();
   }
 

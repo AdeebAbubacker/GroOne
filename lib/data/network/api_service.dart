@@ -32,16 +32,24 @@ class ApiService {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
-    
     try {
+     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
+        print("🔐 Authorization header set: 'Bearer $refreshToken'");
+        CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
+      } else {
+        print("🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
+      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
-    
     return headers;
   }
 

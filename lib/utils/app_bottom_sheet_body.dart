@@ -26,7 +26,8 @@ class _AppBottomSheetBodyState extends State<AppBottomSheetBody> {
       padding: MediaQuery.of(context).viewInsets,
       child: Material(
         color: Colors.white,
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -53,6 +54,7 @@ class _AppBottomSheetBodyState extends State<AppBottomSheetBody> {
             50.height,
           ],
         ),
+        )
       ),
     );
   }

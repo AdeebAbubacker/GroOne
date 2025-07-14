@@ -82,7 +82,7 @@ class KavachRepository {
         return Error(ErrorWithMessage(message: "Customer ID not found"));
       }
       // Set the customer ID in the request
-      request.customerId = int.tryParse(customerId) ?? 0;
+      request.customerId = customerId;
 
       return await _service.addAddress(request);
     } catch (e) {

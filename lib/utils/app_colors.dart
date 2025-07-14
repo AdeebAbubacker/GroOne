@@ -18,6 +18,7 @@ class AppColors {
   static const Color searchFillColor = Colors.white;
   static const Color textFieldFocusedFillColor = Color(0xffF1F1FE);
   static const Color extraLightGreyTextColor = Colors.black38;
+  static const Color subtleTextGreyColor = Color(0xFF96979B);
 
   /// Body & Appbar color
   //static const Color scaffoldBackgroundColor = Color(0xfff5f8fa);
@@ -105,10 +106,19 @@ class AppColors {
   static final Color disableColor = Color(0xFFB8B8B8);
   static final Color grayColor = Color(0xFF8E8E93);
   static final Color thinLightGray = Color(0xff626262);
-
+  static const Color docViewCardBgColor = Color(0xFFF6F8FA);
   static final Color chevronGreyColor = Color(0xff999999);
-
-
+  static const Color mediumGreyColor = Color(0xFF626262);
+  static const Color lightGrey300 = Color(0xFFE0E0E0); 
+  static const Color lightGrey200 = Color(0xFFEEEEEE); 
+  static const Color extraLightBackgroundColor = Color(0xFFF8F9FB);
+  static const Color lightGreenBox = Color(0xccA7F0BA);
+  static const Color bottomSheetDividerColor = Color(0xFFE1E1E1);
+  static const Color brownColor = Color(0x1aFF9800);
+  static const Color lightRedColor = Color(0xffffded3);
+  static const Color lightBrownTextColor = Color(0xffB86E00);
+  static const Color redTextColor = Color(0xffff5723);
+  static const Color red = Colors.red;
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

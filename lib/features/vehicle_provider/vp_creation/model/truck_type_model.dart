@@ -1,38 +1,5 @@
 class TruckTypeModel {
   TruckTypeModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final List<TruckTypeData> data;
-
-  TruckTypeModel copyWith({
-    bool? success,
-    String? message,
-    List<TruckTypeData>? data,
-  }) {
-    return TruckTypeModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory TruckTypeModel.fromJson(Map<String, dynamic> json){
-    return TruckTypeModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<TruckTypeData>.from(json["data"]!.map((x) => TruckTypeData.fromJson(x))),
-    );
-  }
-
-}
-
-class TruckTypeData {
-  TruckTypeData({
     required this.id,
     required this.type,
     required this.subType,
@@ -46,20 +13,20 @@ class TruckTypeData {
   final String type;
   final String subType;
   final dynamic iconUrl;
-  final num status;
+  final int status;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
-  TruckTypeData copyWith({
+  TruckTypeModel copyWith({
     int? id,
     String? type,
     String? subType,
     dynamic? iconUrl,
-    num? status,
+    int? status,
     DateTime? createdAt,
     dynamic? deletedAt,
   }) {
-    return TruckTypeData(
+    return TruckTypeModel(
       id: id ?? this.id,
       type: type ?? this.type,
       subType: subType ?? this.subType,
@@ -70,8 +37,8 @@ class TruckTypeData {
     );
   }
 
-  factory TruckTypeData.fromJson(Map<String, dynamic> json){
-    return TruckTypeData(
+  factory TruckTypeModel.fromJson(Map<String, dynamic> json){
+    return TruckTypeModel(
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
       subType: json["subType"] ?? "",

@@ -1,38 +1,5 @@
 class VerifyLocationModel {
   VerifyLocationModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final Data? data;
-
-  VerifyLocationModel copyWith({
-    bool? success,
-    String? message,
-    Data? data,
-  }) {
-    return VerifyLocationModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory VerifyLocationModel.fromJson(Map<String, dynamic> json){
-    return VerifyLocationModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class Data {
-  Data({
     required this.locationdetails,
     required this.lane,
     required this.gMapResponse,
@@ -42,20 +9,20 @@ class Data {
   final Lane? lane;
   final GMapResponse? gMapResponse;
 
-  Data copyWith({
+  VerifyLocationModel copyWith({
     LocationDetails? locationdetails,
     Lane? lane,
     GMapResponse? gMapResponse,
   }) {
-    return Data(
+    return VerifyLocationModel(
       locationdetails: locationdetails ?? this.locationdetails,
       lane: lane ?? this.lane,
       gMapResponse: gMapResponse ?? this.gMapResponse,
     );
   }
 
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
+  factory VerifyLocationModel.fromJson(Map<String, dynamic> json){
+    return VerifyLocationModel(
       locationdetails: json["locationdetails"] == null ? null : LocationDetails.fromJson(json["locationdetails"]),
       lane: json["lane"] == null ? null : Lane.fromJson(json["lane"]),
       gMapResponse: json["gMapResponse"] == null ? null : GMapResponse.fromJson(json["gMapResponse"]),
@@ -353,6 +320,7 @@ class Photo {
 class Lane {
   Lane({
     required this.id,
+    required this.masterLaneId,
     required this.fromLocationId,
     required this.toLocationId,
     required this.fromLocation,
@@ -360,6 +328,7 @@ class Lane {
   });
 
   final int id;
+  final int masterLaneId;
   final num fromLocationId;
   final num toLocationId;
   final LocationDetails? fromLocation;
@@ -374,6 +343,7 @@ class Lane {
   }) {
     return Lane(
       id: id ?? this.id,
+      masterLaneId: masterLaneId ?? this.masterLaneId,
       fromLocationId: fromLocationId ?? this.fromLocationId,
       toLocationId: toLocationId ?? this.toLocationId,
       fromLocation: fromLocation ?? this.fromLocation,
@@ -384,6 +354,7 @@ class Lane {
   factory Lane.fromJson(Map<String, dynamic> json){
     return Lane(
       id: json["id"] ?? 0,
+      masterLaneId: json["masterLaneId"] ?? 0,
       fromLocationId: json["fromLocationId"] ?? 0,
       toLocationId: json["toLocationId"] ?? 0,
       fromLocation: json["fromLocation"] == null ? null : LocationDetails.fromJson(json["fromLocation"]),

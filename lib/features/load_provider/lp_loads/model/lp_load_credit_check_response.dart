@@ -1,32 +1,37 @@
 class CreditCheckApiResponse {
-  final bool success;
-  final String message;
-  final int statusCode;
-  final LpLoadCreditCheckResponse? data;
-
   CreditCheckApiResponse({
-    required this.success,
+    required this.data,
     required this.message,
-    required this.statusCode,
-    this.data,
   });
 
-  factory CreditCheckApiResponse.fromJson(Map<String, dynamic> json) {
+  final Data? data;
+  final String message;
+
+  CreditCheckApiResponse copyWith({
+    Data? data,
+    String? message,
+  }) {
     return CreditCheckApiResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      statusCode: json["statusCode"] ?? 0,
-      data: json["data"] == null ? null : LpLoadCreditCheckResponse.fromJson(json["data"]),
+      data: data ?? this.data,
+      message: message ?? this.message,
     );
   }
+
+  factory CreditCheckApiResponse.fromJson(Map<String, dynamic> json){
+    return CreditCheckApiResponse(
+      data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      message: json["message"] ?? "",
+    );
+  }
+
 }
 
-
-class LpLoadCreditCheckResponse {
-  LpLoadCreditCheckResponse({
-    required this.id,
+class Data {
+  Data({
+    required this.creditLimitId,
     required this.customerId,
     required this.creditLimit,
+    required this.remarks,
     required this.utilisedLimit,
     required this.availableCreditLimit,
     required this.insuranceLimit,
@@ -38,9 +43,10 @@ class LpLoadCreditCheckResponse {
     required this.updatedAt,
   });
 
-  final int id;
-  final num customerId;
+  final String creditLimitId;
+  final String customerId;
   final String creditLimit;
+  final String remarks;
   final String utilisedLimit;
   final String availableCreditLimit;
   final String insuranceLimit;
@@ -51,10 +57,11 @@ class LpLoadCreditCheckResponse {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  LpLoadCreditCheckResponse copyWith({
-    int? id,
-    num? customerId,
+  Data copyWith({
+    String? creditLimitId,
+    String? customerId,
     String? creditLimit,
+    String? remarks,
     String? utilisedLimit,
     String? availableCreditLimit,
     String? insuranceLimit,
@@ -65,10 +72,11 @@ class LpLoadCreditCheckResponse {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return LpLoadCreditCheckResponse(
-      id: id ?? this.id,
+    return Data(
+      creditLimitId: creditLimitId ?? this.creditLimitId,
       customerId: customerId ?? this.customerId,
       creditLimit: creditLimit ?? this.creditLimit,
+      remarks: remarks ?? this.remarks,
       utilisedLimit: utilisedLimit ?? this.utilisedLimit,
       availableCreditLimit: availableCreditLimit ?? this.availableCreditLimit,
       insuranceLimit: insuranceLimit ?? this.insuranceLimit,
@@ -81,11 +89,12 @@ class LpLoadCreditCheckResponse {
     );
   }
 
-  factory LpLoadCreditCheckResponse.fromJson(Map<String, dynamic> json){
-    return LpLoadCreditCheckResponse(
-      id: json["id"] ?? 0,
-      customerId: json["customerId"] ?? 0,
+  factory Data.fromJson(Map<String, dynamic> json){
+    return Data(
+      creditLimitId: json["creditLimitId"] ?? "",
+      customerId: json["customerId"] ?? "",
       creditLimit: json["creditLimit"] ?? "",
+      remarks: json["remarks"] ?? "",
       utilisedLimit: json["utilisedLimit"] ?? "",
       availableCreditLimit: json["availableCreditLimit"] ?? "",
       insuranceLimit: json["insuranceLimit"] ?? "",

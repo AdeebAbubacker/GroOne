@@ -1,44 +1,5 @@
 class LoadTruckTypeListModel {
   LoadTruckTypeListModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final List<TruckTypeData> data;
-
-  LoadTruckTypeListModel copyWith({
-    bool? success,
-    String? message,
-    List<TruckTypeData>? data,
-  }) {
-    return LoadTruckTypeListModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory LoadTruckTypeListModel.fromJson(Map<String, dynamic> json){
-    return LoadTruckTypeListModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<TruckTypeData>.from(json["data"]!.map((x) => TruckTypeData.fromJson(x))),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
-  };
-
-}
-
-class TruckTypeData {
-  TruckTypeData({
     required this.id,
     required this.type,
     required this.subType,
@@ -51,21 +12,21 @@ class TruckTypeData {
   final int id;
   final String type;
   final String subType;
-  final String iconUrl;
-  final num status;
+  final dynamic iconUrl;
+  final int status;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
-  TruckTypeData copyWith({
+  LoadTruckTypeListModel copyWith({
     int? id,
     String? type,
     String? subType,
-    String? iconUrl,
-    num? status,
+    dynamic? iconUrl,
+    int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    DateTime? deletedAt,
   }) {
-    return TruckTypeData(
+    return LoadTruckTypeListModel(
       id: id ?? this.id,
       type: type ?? this.type,
       subType: subType ?? this.subType,
@@ -76,26 +37,16 @@ class TruckTypeData {
     );
   }
 
-  factory TruckTypeData.fromJson(Map<String, dynamic> json){
-    return TruckTypeData(
+  factory LoadTruckTypeListModel.fromJson(Map<String, dynamic> json){
+    return LoadTruckTypeListModel(
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
       subType: json["subType"] ?? "",
-      iconUrl: json["iconUrl"] ?? "",
+      iconUrl: json["iconUrl"],
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      deletedAt: DateTime.tryParse(json["deletedAt"] ?? ""),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "type": type,
-    "subType": subType,
-    "iconUrl": iconUrl,
-    "status": status,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-  };
 
 }

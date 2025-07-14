@@ -1,35 +1,25 @@
 class DriverListResponse {
   DriverListResponse({
-    required this.success,
-    required this.message,
+
     required this.data,
   });
 
-  final bool success;
-  final String message;
+
   final List<DriverDetails> data;
 
   factory DriverListResponse.fromJson(Map<String, dynamic> json) {
 
 
     return DriverListResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"]['data'] == null
+      data: json["data"] == null
           ? []
           : List<DriverDetails>.from(
-          json["data"]['data'].map((x) {
-            print("x ${x}");
+          json["data"].map((x) {
             return DriverDetails.fromJson(x);
           })),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
-  };
 
 }
 
@@ -48,8 +38,8 @@ class DriverDetails {
     required this.licenseExpiryDate,
   });
 
-  final int id;
-  final num customerId;
+  final String? id;
+  final String? customerId;
   final String name;
   final String mobile;
   final String email;
@@ -61,10 +51,9 @@ class DriverDetails {
   final DateTime? licenseExpiryDate;
 
   factory DriverDetails.fromJson(Map<String, dynamic> json){
-    print("json is $json");
     return DriverDetails(
-      id: json["id"] ?? 0,
-      customerId: json["customerId"] ?? 0,
+      id: json["driverId"] ?? 0,
+      customerId: json["customerId"] ?? "",
       name: json["name"] ?? "",
       mobile: json["mobile"] ?? "",
       email: json["email"] ?? "",
