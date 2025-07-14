@@ -56,7 +56,7 @@ class KavachModelsListBody extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("$indianCurrencySymbol ${product.price.toStringAsFixed(2)}", style: AppTextStyle.h4PrimaryColor),
+                      Text("₹ ${NumberFormat("#,##,###").format(product.price)}", style: AppTextStyle.h4PrimaryColor),
                       Text(context.appText.excludingGST, style: AppTextStyle.body4GreyColor),
                     ],
                   ).expand(),
