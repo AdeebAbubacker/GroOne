@@ -73,7 +73,7 @@ class Validator {
     return null;
   }
   static String? pincode(String? value) {
-    String pattern = r'^\d{4,6}$'; // Matches 4 to 6 digit numbers (common for many countries)
+    String pattern = r'^(?!0+$)\d{4,6}$'; // Reject all 0s, allow 4-6 digits
     RegExp regExp = RegExp(pattern);
 
     if (value == null || value.isEmpty) {

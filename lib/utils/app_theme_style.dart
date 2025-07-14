@@ -17,6 +17,7 @@ class AppThemeStyle {
     splashColor: Colors.transparent,
     highlightColor: Colors.transparent,
     useMaterial3: true,
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: AppColors.primaryColor),
     appBarTheme:  const AppBarTheme(shadowColor: AppColors.shadowColor, backgroundColor: AppColors.appBarBackgroundColor, surfaceTintColor: Colors.white),
   );
 

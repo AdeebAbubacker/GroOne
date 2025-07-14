@@ -226,7 +226,7 @@ class VpRecentLoadData {
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,
-      loadStatus: json["loadStatus"] ?? 0,
+      loadStatus: json["loadStatusId"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",
       pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),

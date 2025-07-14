@@ -95,6 +95,10 @@ import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 
+import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
+import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+
 var locator = GetIt.instance;
 
 void initLocator() {
@@ -138,7 +142,7 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
-    
+
     // Register GpsOrderApiRequest for GPS features
     locator.registerLazySingleton(() => GpsOrderApiRequest(locator<ApiService>()));
     // Repository
@@ -160,7 +164,7 @@ void initLocator() {
     locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(), locator<UserInformationRepository>(), locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => LoadDetailsRepository(locator<VpDetailsService>(), locator<VpHomeService>()));
+    locator.registerLazySingleton(() => LoadDetailsRepository(locator<VpDetailsService>(), locator<VpHomeService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => EnDhanRepository(locator<EnDhanService>()));
     locator.registerLazySingleton(() => TAndCRepository(locator<TermsAndConditionsService>()));
     locator.registerLazySingleton(() => PrivacyRepository(locator<PrivacyPolicyService>()));
@@ -251,6 +255,7 @@ void initLocator() {
     } catch (e) {
       CustomLog.error(locator, "ERROR: GPS cubits not properly registered", e);
     }
+    locator.registerLazySingleton(() => KavachTransactionsCubit(locator<KavachRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

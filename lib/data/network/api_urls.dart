@@ -32,6 +32,7 @@ class ApiUrls {
   // Path
   static String get _path => "/api";
   static String get _load => "/load";
+  static String get _settlement => "/load-settlement";
   static String get _v1 => "/v1";
   static String get _auth => "/auth";
   static String get _vp => "/vp";
@@ -49,6 +50,10 @@ class ApiUrls {
   static String get _notification => "/notification";
   static String get _loadDiscovery => "/load-discovery";
   static String get _loadExecution => "/load-execution";
+  static String get _loadTracking => "/load-tracking";
+  static String get _tracking => "/tracking";
+  static String get _paymentBroker => "/payment-broker";
+
 
 
   // Base URL
@@ -58,7 +63,7 @@ class ApiUrls {
 
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_rateDiscovery$_path$_v1$_map";
-
+  static String get _paymentBrokerBase => "$_fetchUrl$_paymentBroker$_path$_v1";
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
 
@@ -117,40 +122,51 @@ class ApiUrls {
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
-  static final String  lpLoadList="$_baseUrl$_load$_path$_v1$_load/list";
-  static final String  lpLoadMemo="$_baseUrl$_load$_path$_v1$_load";
-  static final String  lpLoadById="$_baseUrl$_load$_path$_v1$_load";
-  static final String  lpLoadSendOtp="$_baseUrl$_load$_path$_v1$_load/Esignmemo";
-  static final String  lpLoadVerifyOtp="$_baseUrl$_load$_path$_v1$_load/verify-esign-otp";
+  static final String  lpLoadList="$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
+  static final String  lpLoadMemo="$_baseUrl$_loadExecution$_path$_v1$_load";
+  static final String  lpLoadById="$_baseUrl$_loadDiscovery$_path$_v1$_load";
+  static final String  lpLoadSendOtp="$_baseUrl$_loadExecution$_path$_v1$_load/Esignmemo";
+  static final String  lpLoadVerifyOtp="$_baseUrl$_loadExecution$_path$_v1$_load/verify-esign-otp";
   static final String  lpLoadRoute="$_baseUrl$_rateDiscovery$_path$_v1/lane";
   static final String  lpCreditCheck="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
-  static final String  lpLoadAgree="$_baseUrl$_load$_path$_v1$_load/lp-agree";
-  static final String  lpLoadVerifyAdvance="$_baseUrl$_load$_path$_v1$_load/verify-advance";
+  static final String  lpLoadAgree="$_baseUrl$_loadExecution$_path$_v1$_load/lp-agree";
+  static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
+  static final String  lpLoadFeedback="$_baseUrl$_loadExecution$_path$_v1$_load/";
+  static final String  lpLoadDocument ="$_baseUrl$_document$_path$_v1/documents/";
+  static final String lpLoadAddConsignee = "$_baseUrl$_load$_path$_v1/consignee";
+  static final String lppayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
+  static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
+
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
 
-  // Load Form pick list
+  /// Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
-  static final String  getRecentRoute = "$baseUrl$_path$_v1$_load/distinct-source-destination";
+  static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
 
-  // Load
-  static final String  createLoad = "$_baseUrl$_load$_path$_v1$_load";
-  static final String  getLoads = "$baseUrl$_path$_v1$_load$_customer/";
+  /// Load
+  static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
+  static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
+  static final String  damage = "$_loadBaseUrl/damage";
+
+  /// Settlement
+  static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
+  static final String  submitSettlement = "$_settlementBaseUrl/settlement";
 
   //Kavach
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
   static String get kavachProductList => "$_baseUrl$_fleet$_path$_v1/product/list";
   static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle";
-  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/vas";
+  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/address";
   static String get kavachAvailableStock => "$_baseUrl$_fleet$_path$_v1/stocks/available-stock";
   static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
   static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
@@ -192,4 +208,8 @@ class ApiUrls {
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
+
+  /// Tracking
+  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
+  static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

@@ -105,7 +105,7 @@ class VpLoadsList {
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
 
-      assignStatus: json["loadStatus"] ?? 0,
+      assignStatus: json["loadStatusId"] ?? 0,
 
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight:  json['weightage']!=null ?json['weightage']['value'] :0,

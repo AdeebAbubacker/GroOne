@@ -19,6 +19,7 @@ class PngIcons {
   final String lockAndKey = "${_pngBasePath}lock_and_key.png";
   final String moreVertical = "${_pngBasePath}more_vertical.png";
   final String deleteIcon = "${_pngBasePath}delete_icon.png";
+  final String driverIcon = "${_pngBasePath}driver_icon.png";
 
 
   //kavach payment icons
@@ -50,6 +51,7 @@ class SvgIcons {
   final String gallery = "${_svgBasePath}gallery.svg";
   final String clearOutline = "${_svgBasePath}clearOutline.svg";
   final String documentUpload = "${_svgBasePath}documentUpload.svg";
+  final String folder = "${_svgBasePath}folder.svg";
   final String addIcon = "${_svgBasePath}plus_icon.svg";
   final String alertWarning = "${_svgBasePath}alertWarning.svg";
   final String documentView = "${_svgBasePath}documentView.svg";
@@ -97,6 +99,8 @@ class SvgIcons {
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
   final String alertCircle = "${_svgBasePath}alert_circle.svg";
+  final String switchIcon = "${_svgBasePath}switch.svg";
+  final String download = "${_svgBasePath}download.svg";
   final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
   final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
 

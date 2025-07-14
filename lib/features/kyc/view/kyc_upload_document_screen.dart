@@ -415,7 +415,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         heading: "Will get back to you within 48 hours.",
         onContinue: (){
           Navigator.of(context).pop(true);
-          Navigator.of(context).pop(true);
           kycCubit.resetState();
         },
       ),

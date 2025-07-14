@@ -253,7 +253,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
         if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
-          final blueIdFromStorage = await profileCubit.getBlueId();
+          final blueIdFromStorage = await profileCubit.fetchBlueId();
           bool popupShownFlag = await profileCubit.getHasShowBluePopup();
 
           debugPrint("💡 BlueId from API: $blueIdFromApi");

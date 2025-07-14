@@ -69,6 +69,6 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
 
 
       ],
-    ).paddingAll(10);
+    );
   }
 }
