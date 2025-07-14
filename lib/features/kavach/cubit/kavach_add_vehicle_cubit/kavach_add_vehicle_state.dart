@@ -8,12 +8,14 @@ class KavachAddVehicleFormState {
   final UIState<KavachVehicleDocumentUploadModel> vehicleDocUpload;
   final UIState<List<String>> truckTypes;
   final UIState<List<TruckLengthModel>> truckLengths;
+  final UIState<bool> vehicleVerification;
 
   const KavachAddVehicleFormState({
     required this.truckTypes,
     required this.truckLengths,
     required this.commodities,
     required this.vehicleDocUpload,
+    required this.vehicleVerification,
   });
 
   factory KavachAddVehicleFormState.initial() => KavachAddVehicleFormState(
@@ -21,6 +23,7 @@ class KavachAddVehicleFormState {
     truckLengths: UIState.initial(),
     commodities: UIState.initial(),
     vehicleDocUpload: UIState.initial(),
+    vehicleVerification: UIState.initial(),
   );
 
   KavachAddVehicleFormState copyWith({
@@ -28,12 +31,14 @@ class KavachAddVehicleFormState {
     UIState<List<TruckLengthModel>>? truckLengths,
     UIState<List<CommodityModel>>? commodities,
     UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload,
+    UIState<bool>? vehicleVerification,
   }) {
     return KavachAddVehicleFormState(
       truckTypes: truckTypes ?? this.truckTypes,
       truckLengths: truckLengths ?? this.truckLengths,
       commodities: commodities ?? this.commodities,
       vehicleDocUpload: vehicleDocUpload ?? this.vehicleDocUpload,
+      vehicleVerification: vehicleVerification ?? this.vehicleVerification
     );
   }
 }

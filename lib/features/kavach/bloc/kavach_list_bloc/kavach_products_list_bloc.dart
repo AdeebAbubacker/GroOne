@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import '../../../../data/model/result.dart';
 import '../../../../utils/toast_messages.dart';
 import '../../model/kavach_product_model.dart';
-import '../../model/masters_model.dart';
-import '../../model/choose_preference_model.dart';
+import '../../model/kavach_masters_model.dart';
+import '../../model/kavach_choose_preference_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
 import 'kavach_products_list_state.dart';
@@ -75,12 +75,12 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
 
     final result = await repository.getMasters();
 
-    if (result is Success<MastersModel>) {
+    if (result is Success<KavachMastersModel>) {
       emit(state.copyWith(
         mastersData: result.value,
         mastersLoading: false,
       ));
-    } else if (result is Error<MastersModel>) {
+    } else if (result is Error<KavachMastersModel>) {
       emit(state.copyWith(
         mastersError: result.type,
         mastersLoading: false,
