@@ -1,4 +1,10 @@
 import 'dart:io';
+import '../../../data/model/result.dart';
+import '../../../data/network/api_service.dart';
+import '../../../data/network/api_urls.dart';
+import '../models/gps_vehicle_models.dart';
+import '../models/gps_truck_length_model.dart';
+import '../models/gps_commodity_model.dart';
 
 /// GPS Document Upload Request
 class GpsDocumentUploadApiRequest {
@@ -672,4 +678,319 @@ class GpsOrderSummaryRequestItem {
     'state': state,
     'gstId': gstId,
   };
+}
+
+class GpsOrderApiRequest {
+  final ApiService _apiService;
+
+  GpsOrderApiRequest(this._apiService);
+
+  /// Get list of vehicles for a customer
+  Future<Result<GpsVehicleListResponse>> getVehicles({
+    required String customerId,
+    int limit = 10,
+    int page = 1,
+  }) async {
+    try {
+      print('🔍 getVehicles called with customerId: $customerId, limit: $limit, page: $page');
+      final result = await _apiService.get(
+        '${ApiUrls.baseUrl}/customer/api/v1/vehicle/$customerId?limit=$limit&page=$page',
+      );
+
+      if (result is Success) {
+        print('🔍 getVehicles API Response: ${result.value}');
+        print('🔍 getVehicles API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct response format (no success/status wrapper)
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // Check if it has the expected fields for vehicle list response
+          if (response.containsKey('data') && response.containsKey('total')) {
+            print('🔍 getVehicles direct response format detected');
+            final vehicleResponse = GpsVehicleListResponse.fromJson(response);
+            print('🔍 getVehicles parsed response: ${vehicleResponse.data.length} vehicles');
+            return Success(vehicleResponse);
+          } else {
+            print('❌ getVehicles response missing required fields: data, total');
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing required fields'));
+          }
+        } else {
+          print('❌ getVehicles response is not a Map');
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        print('❌ getVehicles API Error: ${result.runtimeType}');
+        if (result is Error) {
+          print('❌ Error type: ${(result as Error).type}');
+        }
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('💥 getVehicles Exception: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Add a new vehicle
+  Future<Result<GpsAddVehicleResponse>> addVehicle({
+    required GpsAddVehicleRequest request,
+  }) async {
+    try {
+      final result = await _apiService.post(
+        '${ApiUrls.baseUrl}/customer/api/v1/vehicle/add',
+        body: request.toJson(),
+      );
+
+      if (result is Success) {
+        print('🔍 Add Vehicle API Response: ${result.value}');
+        print('🔍 Add Vehicle API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct response format (vehicle data directly)
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // Check if it has vehicle fields
+          if (response.containsKey('vehicleId') || response.containsKey('truckNo')) {
+            // Create a success response wrapper
+            final successResponse = GpsAddVehicleResponse(
+              success: true,
+              message: 'Vehicle added successfully',
+              data: GpsAddVehicleResponseData.fromJson(response),
+            );
+            return Success(successResponse);
+          } else {
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing vehicle data'));
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Add Vehicle API Error: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Upload document (RC book)
+  Future<Result<GpsDocumentUploadResponse>> uploadDocument({
+    required File file,
+    required String userId,
+  }) async {
+    try {
+      final result = await _apiService.multipart(
+        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        file,
+        fields: {
+          'userId': userId,
+          'fileType': 'license',
+          'documentType': 'rc_book',
+        },
+        pathName: 'file',
+      );
+
+      if (result is Success) {
+        print('🔍 Upload Document API Response: ${result.value}');
+        print('🔍 Upload Document API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct response format
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // Check if it has the expected fields
+          if (response.containsKey('url') && response.containsKey('filePath')) {
+            return Success(GpsDocumentUploadResponse.fromJson(response));
+          } else {
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing required fields'));
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Upload Document API Error: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Fetch truck types
+  Future<Result<List<String>>> fetchTruckTypes() async {
+    try {
+      final result = await _apiService.get(ApiUrls.kavachTruckType);
+
+      if (result is Success) {
+        print('🔍 Truck Types API Response: ${result.value}');
+        print('🔍 Truck Types API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct array response
+        if (result.value is List) {
+          final truckTypes = (result.value as List).cast<String>();
+          return Success(truckTypes);
+        }
+        // Handle JSON object response
+        else if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // If it has success field, use getResponseStatus
+          if (response.containsKey('success') || response.containsKey('status')) {
+            return await _apiService.getResponseStatus(
+              result.value,
+              (data) => (data['data'] as List).cast<String>(),
+            );
+          } else {
+            // Direct data access if no success/status field
+            final data = response['data'] as List?;
+            if (data != null) {
+              final truckTypes = data.cast<String>();
+              return Success(truckTypes);
+            } else {
+              return Error(ErrorWithMessage(message: 'No data found in response'));
+            }
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Truck Types API Error: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Fetch truck lengths for a specific type
+  Future<Result<List<GpsTruckLengthModel>>> fetchTruckLengths(String type) async {
+    try {
+      final result = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
+
+      if (result is Success) {
+        print('🔍 Truck Lengths API Response: ${result.value}');
+        print('🔍 Truck Lengths API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct array response
+        if (result.value is List) {
+          final truckLengths = (result.value as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList();
+          return Success(truckLengths);
+        }
+        // Handle JSON object response
+        else if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // If it has success field, use getResponseStatus
+          if (response.containsKey('success') || response.containsKey('status')) {
+            return await _apiService.getResponseStatus(
+              result.value,
+              (data) => (data['data'] as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList(),
+            );
+          } else {
+            // Direct data access if no success/status field
+            final data = response['data'] as List?;
+            if (data != null) {
+              final truckLengths = data.map((e) => GpsTruckLengthModel.fromJson(e)).toList();
+              return Success(truckLengths);
+            } else {
+              return Error(ErrorWithMessage(message: 'No data found in response'));
+            }
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Truck Lengths API Error: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Fetch commodities
+  Future<Result<List<GpsCommodityModel>>> fetchCommodities() async {
+    try {
+      final result = await _apiService.get(ApiUrls.kavachFetchCommodities);
+
+      if (result is Success) {
+        print('🔍 Commodities API Response: ${result.value}');
+        print('🔍 Commodities API Response Type: ${result.value.runtimeType}');
+        
+        // Handle direct array response
+        if (result.value is List) {
+          final commodities = (result.value as List).map((e) => GpsCommodityModel.fromJson(e)).toList();
+          return Success(commodities);
+        }
+        // Handle JSON object response
+        else if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // If it has success field, use getResponseStatus
+          if (response.containsKey('success') || response.containsKey('status')) {
+            return await _apiService.getResponseStatus(
+              result.value,
+              (data) => (data['data'] as List).map((e) => GpsCommodityModel.fromJson(e)).toList(),
+            );
+          } else {
+            // Direct data access if no success/status field
+            final data = response['data'] as List?;
+            if (data != null) {
+              final commodities = data.map((e) => GpsCommodityModel.fromJson(e)).toList();
+              return Success(commodities);
+            } else {
+              return Error(ErrorWithMessage(message: 'No data found in response'));
+            }
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Commodities API Error: $e');
+      return Error(GenericError());
+    }
+  }
+
+  /// Verify vehicle
+  Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
+    try {
+      final result = await _apiService.post(
+        'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle',
+        body: {
+          'vehicle_number': vehicleNumber,
+          'force': true,
+        },
+      );
+
+      if (result is Success) {
+        print('🔍 Vehicle Verification API Response: ${result.value}');
+        print('🔍 Vehicle Verification API Response Type: ${result.value.runtimeType}');
+        
+        // Handle response format with status field
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          
+          // Check if it has status field
+          if (response.containsKey('status')) {
+            final isVerified = response['status'] == true;
+            print('✅ Vehicle verification result: $isVerified');
+            return Success(isVerified);
+          } else {
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing status field'));
+          }
+        } else {
+          return Error(ErrorWithMessage(message: 'Invalid response format'));
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Vehicle Verification API Error: $e');
+      return Error(GenericError());
+    }
+  }
 }

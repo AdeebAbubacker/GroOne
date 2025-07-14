@@ -155,10 +155,10 @@ class ApiUrls {
   static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
   static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
   static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vp-master/vehicle";
-  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodity";
+  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodities";
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
-  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
-  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
+  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-types/distinct/types";
+  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-types/sub-types";
   static String  kavachVehicleVerification = "$verification/vehicle";
 
   /// En-Dhan

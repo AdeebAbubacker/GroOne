@@ -55,7 +55,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
       bloc: billingAddressCubit,
       builder: (context, state) {
         if (state is GpsBillingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (state is GpsBillingAddressLoaded || state is GpsBillingAddressSelected) {

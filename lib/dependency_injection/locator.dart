@@ -92,6 +92,8 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 
 var locator = GetIt.instance;
 
@@ -136,6 +138,9 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
+    
+    // Register GpsOrderApiRequest for GPS features
+    locator.registerLazySingleton(() => GpsOrderApiRequest(locator<ApiService>()));
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
     locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
@@ -227,6 +232,12 @@ void initLocator() {
     locator.registerLazySingleton(
       () => GpsOrderCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
     );
+
+    // Register GpsVehicleCubit
+    locator.registerLazySingleton(() => GpsVehicleCubit(
+      locator<GpsOrderApiRequest>(),
+      locator<UserInformationRepository>(),
+    ));
     locator.registerLazySingleton(
       () => KavachTransactionsCubit(locator<KavachRepository>()),
     );
@@ -235,6 +246,7 @@ void initLocator() {
     try {
       locator<GpsBillingAddressCubit>();
       locator<GpsShippingAddressCubit>();
+      locator<GpsVehicleCubit>();
       CustomLog.info(locator, "GPS cubits successfully registered and accessible.");
     } catch (e) {
       CustomLog.error(locator, "ERROR: GPS cubits not properly registered", e);

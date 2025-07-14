@@ -55,7 +55,7 @@ class GpsShippingAddressListScreen extends StatelessWidget {
       bloc: shippingAddressCubit,
       builder: (context, state) {
         if (state is GpsShippingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (state is GpsShippingAddressLoaded || state is GpsShippingAddressSelected) {
