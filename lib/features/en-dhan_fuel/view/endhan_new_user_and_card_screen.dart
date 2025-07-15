@@ -305,13 +305,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     onPressed: () {
                       // Check if there are already cards
                       final cards = state.cardsState?.data?.data?.document ?? [];
-                      // if (cards.isNotEmpty) {
-                      //   // Show popup if cards already exist
-                      //   _showAlreadyAddedCardDialog(context);
-                      // } else {
+                      if (cards.isNotEmpty) {
+                        // Show popup if cards already exist
+                        _showAlreadyAddedCardDialog(context);
+                      } else {
                         // Navigate to create card screen if no cards exist
                         Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
-                     // }
+                      }
                     },
                     icon: Icon(Icons.add, color: Colors.white),
                     style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
