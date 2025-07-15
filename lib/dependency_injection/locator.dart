@@ -183,7 +183,7 @@ void initLocator() {
     locator.registerLazySingleton(() => KycCubit(locator<KycRepository>()));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
-    locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>()));
+    locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>(),locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
     locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>()));

@@ -41,8 +41,8 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  static String get _verification => "https://verification-service-uat.letsgro.co/api/v1/verification";
-  static String get _kucDocUpload => "https://verification-service-uat.letsgro.co/api/v1/verification";
+  static String get _verification => "https://gro-devapi.letsgro.co/external/api/v1/verification";
+  static String get _kucDocUpload => "https://gro-devapi.letsgro.co/external/api/v1/verification";
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
   static String get _vendor => "/vendor";
@@ -74,6 +74,7 @@ class ApiUrls {
   static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
+  static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
 
   /// Onboarding
   static final String sendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/send";
@@ -94,6 +95,10 @@ class ApiUrls {
   static final String truckPrefLane="$_baseUrl$_rateDiscovery$_path$_v1/lane";
   static final String getLoadById="$_baseUrl$_loadDiscovery$_path$_v1/load/";
   static final String getAllVpLoads="$_baseUrl$_loadDiscovery$_path$_v1$_load";
+  static final String updateLoadStatus="$_baseUrl$_loadExecution$_path$_v1$_load/updateStatus";
+  static final String loadDocument = "$_fetchUrl$_load$_path$_v1/loads/load-document";
+  static final String viewDocument = "$_fetchUrl$_document$_path$_v1/documents/";
+  static final String deleteLoadDocument = "$_fetchUrl$_load$_path$_v1/loads/load-document/";
 
 
 

@@ -2,15 +2,19 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -19,6 +23,8 @@ import 'package:gro_one_app/utils/custom_log.dart';
 
 class VpDetailsService{
   final ApiService _apiService;
+
+
   const VpDetailsService(this._apiService);
 
 
@@ -30,6 +36,7 @@ class VpDetailsService{
         final loadDetailsResponse=LoadDetailModel.fromJson(result.value);
         return Success(loadDetailsResponse);
       } else if (result is Error) {
+
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -43,10 +50,93 @@ class VpDetailsService{
 
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String? userId,required String loadId,required int? loadStatus}) async {
     try {
-      final result = await _apiService.put(queryParams: {"loadStatus":loadStatus}, '${ApiUrls.vpAcceptLoad}$userId/$loadId');
+      final statusUpdateUrl=(loadStatus??0)>4?ApiUrls.updateLoadStatus:ApiUrls.vpAcceptLoad;
+      final result = await _apiService.put(
+        queryParams: {
+          "loadStatus":loadStatus
+        },
+          '$statusUpdateUrl/$userId/$loadId');
       if (result is Success) {
        final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
         return Success(changeLoadStatusResponse);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<CreateDocumentResponse>> createNewDocument({required CreateDocumentRequest createDocumentRequest,String? userId}) async {
+    try {
+      final statusUpdateUrl=ApiUrls.createDocument;
+      final result = await _apiService.post(statusUpdateUrl,body: createDocumentRequest.toJson(
+          userId
+      ));
+      if (result is Success) {
+       final createDocumentResponse= CreateDocumentResponse.fromJson(result.value);
+        return Success(createDocumentResponse);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<LoadDocument>> saveLoadDocument({required String? documentId,String? loadId}) async {
+    try {
+      final statusUpdateUrl=ApiUrls.loadDocument;
+      final result = await _apiService.post(statusUpdateUrl,body:{
+        "documentId":documentId,
+        "loadId":loadId
+      });
+      if (result is Success) {
+        final loadDocumentResponse= LoadDocument.fromJson(result.value['data']);
+        return Success(loadDocumentResponse);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+  /// VIEW TRIP DOCUMENT
+  Future<Result<ViewDocumentResponse>> viewDocument({required String? documentId,}) async {
+    try {
+      final viewDocument=ApiUrls.viewDocument;
+      final result = await _apiService.get("$viewDocument$documentId");
+      if (result is Success) {
+        final viewDocumentResponse= ViewDocumentResponse.fromJson(result.value);
+        return Success(viewDocumentResponse);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  Future<Result<DeleteLoadDocumentResponse>> deleteLoadDocument({required String? loadDocumentID}) async {
+    try {
+      final deleteDocument=ApiUrls.deleteLoadDocument;
+      final result = await _apiService.delete("$deleteDocument$loadDocumentID");
+      if (result is Success) {
+        final deleteDocumentResponse= DeleteLoadDocumentResponse.fromJson(result.value);
+        return Success(deleteDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {

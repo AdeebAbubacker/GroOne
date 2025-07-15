@@ -172,7 +172,7 @@ class TripDetails extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"${loadDetails?.truckType?.subType}"),
-                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.consignmentWeight} Ton"),
+                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.weight?.value} Ton"),
                     ],
                   ),
 

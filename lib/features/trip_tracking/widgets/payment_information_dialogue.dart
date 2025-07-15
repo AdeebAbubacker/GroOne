@@ -8,19 +8,14 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../utils/app_icons.dart';
 
-
-
-
-
-
 class PaymentInformationDialogView  extends StatelessWidget {
-  final int? tripCost;
-  final int? advanceAmount;
+  final String? tripCost;
+  final String? advanceAmount;
   final bool? isAdvanceCompleted;
   final String? transactionId;
   final String? paymentMode;
   final String? receivedOn;
-  final int? balancePayout;
+  final String? balancePayout;
   final bool? isBalancePending;
   final VoidCallback? onProceed;
 
@@ -84,16 +79,15 @@ class PaymentInformationDialogView  extends StatelessWidget {
               Container(
                 height: 24,
                 decoration: commonContainerDecoration(
-                    color: (isAdvanceCompleted??false) ? Colors.green.shade100 : Colors.orange.shade100,
+                    color: (isAdvanceCompleted??false) ? Colors.green.shade100 :  Color(0xffFFD7D9),
                     borderRadius: BorderRadius.circular(20),
-
                 ),
                 child: Text(
                   (isAdvanceCompleted??false) ? "Completed" : "Pending",
                   style: AppTextStyle.h3w500.copyWith(
                          fontSize: 12,
                          fontWeight: FontWeight.w100,
-                         color: AppColors.textGreen
+                         color: (isAdvanceCompleted??false) ?  AppColors.textGreen:AppColors.textRed
                   )).paddingSymmetric(horizontal: 5,vertical: 3),
                 ),
 
@@ -109,7 +103,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
             child: Column(
               children: [
                 _buildInfoRow("Advance Received (80%)", "₹${advanceAmount.toString()}"),
-                _buildInfoRow("Transaction ID", transactionId, isLink: true),
+                _buildInfoRow("Transaction ID", transactionId, ),
                 _buildInfoRow("Payment mode", paymentMode),
                 _buildInfoRow("Received on", receivedOn),
               ],
@@ -127,7 +121,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
               )),
               Container(
                 decoration: BoxDecoration(
-                  color: Color(0xffFFD7D9),
+                  color: !(isBalancePending??false) ? Colors.green.shade100 : Color(0xffFFD7D9),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -161,13 +155,17 @@ Widget _buildInfoRow(String? title, String? value, {bool isLink = false}) {
               )).expand(),
         ],
       ).expand(),
-      Text(
-        value??"",
-        style: TextStyle(
-          color: isLink ? Colors.blue : Colors.black87,
-          decoration: isLink ? TextDecoration.underline : TextDecoration.none,
-        ),
-      ).expand(),
+      Align(
+        alignment: Alignment.centerRight,
+        child: Text(
+          value??"",
+          style: TextStyle(
+            color: AppColors.primaryColor,
+            fontWeight: FontWeight.w400,
+            decoration: isLink ? TextDecoration.underline : TextDecoration.none,
+          ),
+        ).expand(),
+      ),
     ],
   ).paddingSymmetric(vertical: 5);
 }

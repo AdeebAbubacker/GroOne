@@ -25,6 +25,7 @@ class ProfileRepository {
     try {
       return await _profileService.getProfileDetails();
     } catch (e) {
+
       CustomLog.error(this, "Failed to request get user details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
