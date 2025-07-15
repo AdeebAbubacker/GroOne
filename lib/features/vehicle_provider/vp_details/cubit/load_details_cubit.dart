@@ -201,8 +201,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setSettlementUIState(UIState<DamageModel>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
-
-
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
@@ -280,7 +278,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  // // Upload TDS File
+  // // Upload File
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
@@ -459,12 +457,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void resetUploadDamageFileUIState() {
-    emit(state.copyWith(
-        uploadDamageUIState: resetUIState<UploadDamageFileModel>(
-            state.uploadDamageUIState)));
-
-
-
+    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
   }
 
 

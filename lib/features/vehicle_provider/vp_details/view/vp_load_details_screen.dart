@@ -42,11 +42,11 @@ class VpLoadDetailsScreen extends StatefulWidget {
 }
 
 class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
+
   final cubit = locator<LoadDetailsCubit>();
   final homeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
-
 
   /// Map Style
   getLoadDetails() {
