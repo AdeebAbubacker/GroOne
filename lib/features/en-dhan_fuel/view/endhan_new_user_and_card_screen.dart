@@ -298,7 +298,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             return Scaffold(
               backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
-                title: 'eN-Dhan Card',
+                title: Text("eN-Dhan Card",style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
                 centreTile: false,
                 actions: [
                   AppIconButton(
@@ -539,7 +539,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               onPressed: (){
                 if (showKycScreen) {
                   // Navigate to KYC screen if user doesn't have KYC documents
-                  Navigator.push(context,commonRoute(EndhanKycScreen()));
+                Navigator.push(context,commonRoute(EndhanKycScreen()));
                 } else {
                   // Navigate to create card screen if user has KYC documents but no cards
                   Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));

@@ -1088,6 +1088,28 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     );
   }
 
+  // Preserve customer data but clear card data when navigating back
+  void preserveCustomerDataAndClearCards() {
+    emit(
+      state.copyWith(
+        // Preserve customer data
+        // customerName, title, mobile, pan, email, address1, address2, cityName, pincode
+        // selectedStateId, selectedDistrictId, selectedZonalOfficeId, selectedRegionalOfficeId
+        // shippingAddress, saveAsShipping, regionalOffice, roAddress1, roAddress2, roState, roDistrict
+        
+        // Clear only card-related data
+        cards: [const CardFormData()], // Reset to single empty card
+        hasAttemptedSubmit: false,
+        
+        // Clear UI states that are not needed when going back
+        customerCreationState: null,
+        vehicleVerificationState: null,
+        documentUploadState: null,
+        verifiedVehicleNumbers: {},
+      ),
+    );
+  }
+
   // Set pincode
   void setPincode(String value) {
     print('🔍 Setting pincode: "$value"');

@@ -72,7 +72,6 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
         customerId: customerId,
         limit: 10,
         page: 1,
-        addrType: 1,
       );
       
       if (result is Success<GpsAddressListResponse>) {

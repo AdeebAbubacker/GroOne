@@ -581,7 +581,7 @@ class GpsAddress {
       country: 'India',
       gstin: gstin,
       pincode: '',
-      addrType: 1,
+      addrType: int.tryParse(addressType ?? '1') ?? 1,
       status: 1,
       createdAt: DateTime.now(),
     );

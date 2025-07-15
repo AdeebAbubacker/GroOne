@@ -31,6 +31,7 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_widgets.dart';
 import '../../kavach/view/kavach_support_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
@@ -125,46 +126,28 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     // Don't reset the entire cubit as it clears customer information
     // enDhanCubit.resetCubit();
 
-    // Show success message and navigate immediately
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text('Customer and cards created successfully!'),
-    //     backgroundColor: Colors.green,
-    //     duration: Duration(seconds: 2),
-    //   ),
-    // );
-        AppDialog.show(
-             context,
-            child : SuccessDialogView(
-              message: 'Customer and cards created successfully!',
-              onContinue: () {
-                    Navigator.of(context).pop();
-                   Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen(),
-                  ),
-                );
-              },
-            )
-          );
-    //  showDialog(
-    //         context: context,
-    //         barrierDismissible: false,
-    //         builder: (context) => SuccessDialogView(
-    //           message: 'Customer and cards created successfully!',
-    //           onContinue: () {
-    //             Navigator.of(context).pop();
-    //             Navigator.of(context).pushReplacement(
-    //               MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-    //             );
-    //           },
-    //         ),
-    //       );
-
-    // Navigate back to the card screen
-    // Navigator.of(context).pop();
-    // Navigator.of(context).pushReplacement(
-    //   MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-    // );
+    // Show success dialog with proper navigation
+    AppDialog.show(
+      context,
+      child: SuccessDialogView(
+        message: 'Customer and cards created successfully!',
+        onContinue: () async {
+          try {
+            Navigator.of(context).pop();
+            await Future.delayed(Duration(milliseconds: 300));
+            if (context.mounted) {
+              // Use GoRouter to navigate to the new user and card screen
+              context.go('/enDhanCard');
+            }
+          } catch (e) {
+            if (context.mounted) {
+              // Fallback navigation using GoRouter
+              context.go('/enDhanCard');
+            }
+          }
+        },
+      ),
+    );
   }
 }
 
@@ -235,9 +218,9 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
   @override
   void dispose() {
-    // Reset customer creation state when screen is disposed
+    // Preserve customer data but clear card data when screen is disposed
     final cubit = locator<EnDhanCubit>();
-    cubit.resetCustomerCreationState();
+    cubit.preserveCustomerDataAndClearCards();
     super.dispose();
   }
 
@@ -646,35 +629,9 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         );
       }
 
-      // 4. Show SuccessDialogView only once
+      // Success state is handled by the BlocListener in the parent widget
+      // No need to show dialog here as it's already handled in _showSuccessDialog
       if (cubit.state.customerCreationState?.status == Status.SUCCESS) {
-        if (mounted) {
-          // AppDialog.show(
-          //    context,
-          //   child : SuccessDialogView(
-          //     message: 'Customer and cards created successfully!',
-          //     onContinue: () {
-          //           Navigator.of(context).pop();
-          //          Navigator.of(context).pushReplacement(
-          //         MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-          //       );
-          //     },
-          //   )
-          // );
-          // showDialog(
-          //   context: context,
-          //   barrierDismissible: false,
-          //   builder: (context) => SuccessDialogView(
-          //     message: 'Customer and cards created successfully!',
-          //     onContinue: () {
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pushReplacement(
-          //         MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-          //       );
-          //     },
-          //   ),
-          // );
-        }
         cubit.resetCustomerCreationState();
         // Don't reset the entire cubit as it clears customer information
         // cubit.resetCubit();
@@ -1006,12 +963,12 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Vehicle Number *',
-                                      style: AppTextStyle.body3.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      children: [
+                                        Text(
+                                          'Vehicle Number *',
+                                          style: AppTextStyle.body3.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     6.height,
                                     AppTextField(
@@ -1033,10 +990,10 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                           
                                           // Sync with cubit state
                                           _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
-                                          
+                                        
                                           // Auto-verify the selected vehicle
-                                          if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
-                                            locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
+                                        if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
+                                          locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
                                           }
                                           locator<EnDhanCubit>().verifyVehicle(index, selectedVehicle);
                                         }
@@ -1057,17 +1014,17 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                               child: SvgPicture.asset(
                                                 AppIcons.svg.truck,
                                                 colorFilter: AppColors.svg(AppColors.primaryColor),
-                                              ),
+                                                          ),
                                             ),
                                             Padding(
                                               padding: EdgeInsets.symmetric(horizontal: 5),
                                               child: Icon(
                                                 CupertinoIcons.chevron_down,
                                                 color: AppColors.chevronGreyColor,
-                                              ),
-                                            ),
+                                                        ),
+                                                      ),
                                           ],
-                                        ),
+                                                  ),
                                       ),
                                     ),
                                     12.height,

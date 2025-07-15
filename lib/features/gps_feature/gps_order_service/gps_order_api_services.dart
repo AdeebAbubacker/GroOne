@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -340,14 +341,12 @@ class GpsOrderApiService {
   /// Fetch GPS Addresses
   Future<Result<GpsAddressListResponse>> fetchGpsAddresses(
     GpsAddressListRequest request,
-    {int? addrType}
   ) async {
     try {
       final url = '${ApiUrls.gpsAddressList}/${request.customerId}';
       final queryParams = {
         'limit': request.limit,
         'page': request.page,
-        if (addrType != null) 'addrType': addrType,
       };
       final result = await _apiService.get(url, queryParams: queryParams);
 
@@ -368,23 +367,18 @@ class GpsOrderApiService {
               return GpsAddress.fromJson(addressJson as Map<String, dynamic>);
             }).toList();
             
-            // Filter addresses by addrType if specified
-            final filteredAddresses = addrType != null 
-                ? gpsAddresses.where((address) => address.addressType == addrType.toString()).toList()
-                : gpsAddresses;
-            
-            CustomLog.debug(this, "GPS Fetch Addresses - Original: ${gpsAddresses.length}, Filtered by type $addrType: ${filteredAddresses.length}");
+            CustomLog.debug(this, "GPS Fetch Addresses - Total addresses: ${gpsAddresses.length}");
             
             // Create GpsAddressListData
             final meta = GpsAddressListMeta(
-              total: filteredAddresses.length,
+              total: gpsAddresses.length,
               page: pageMeta?['page'] as int? ?? 1,
               limit: pageMeta?['pageSize'] as int? ?? 10,
               totalPages: pageMeta?['pageCount'] as int? ?? 1,
             );
             
             final addressListData = GpsAddressListData(
-              rows: filteredAddresses,
+              rows: gpsAddresses,
               meta: meta,
             );
             
@@ -567,6 +561,47 @@ class GpsOrderApiService {
       }
     } catch (e) {
       CustomLog.error(this, "GPS Customer Orders List - Exception: $e", e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.isNotEmpty) 'Search': search,
+      };
+
+      // Construct URL with query parameters
+      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+          (data) {
+            try {
+              final userListResponse = KavachUserListResponse.fromJson(data);
+              return userListResponse.data;
+            } catch (e) {
+              CustomLog.error(this, "Failed to parse users data", e);
+              throw e;
+            }
+          },
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users", e);
       return Error(DeserializationError());
     }
   }

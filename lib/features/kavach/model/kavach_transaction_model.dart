@@ -37,13 +37,13 @@ class KavachTransactionModel {
         }
       }
 
-      return KavachTransactionModel(
+    return KavachTransactionModel(
         orderId: json['orderId']?.toString() ?? '',
         txnId: json['txnId']?.toString() ?? '',
         orderAmount: (json['orderAmount'] as num?)?.toDouble() ?? 0.0,
         status: json['status']?.toString() ?? '',
         date: parseDate(json['date']?.toString() ?? ''),
-      );
+    );
     } catch (e) {
       print('🔍 Error parsing KavachTransactionModel: $e');
       print('🔍 JSON data: $json');

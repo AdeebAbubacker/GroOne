@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class GpsOrderApiRepository {
@@ -91,7 +92,6 @@ class GpsOrderApiRepository {
     required String customerId,
     int limit = 10,
     int page = 1,
-    int? addrType,
   }) async {
     try {
       final request = GpsAddressListRequest(
@@ -99,7 +99,7 @@ class GpsOrderApiRepository {
         limit: limit,
         page: page,
       );
-      return await _gpsOrderApiService.fetchGpsAddresses(request, addrType: addrType);
+      return await _gpsOrderApiService.fetchGpsAddresses(request);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch GPS addresses", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -161,6 +161,24 @@ class GpsOrderApiRepository {
       );
     } catch (e) {
       CustomLog.error(this, "Failed to get GPS customer orders list", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await _gpsOrderApiService.fetchUsers(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

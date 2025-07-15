@@ -23,12 +23,10 @@ import '../../../../dependency_injection/locator.dart';
 import '../../../../features/login/repository/user_information_repository.dart';
 
 class GpsAddAddressBottomSheet extends StatefulWidget {
-  final int addrType;
   final String title;
 
   const GpsAddAddressBottomSheet({
     super.key,
-    required this.addrType,
     required this.title,
   });
 
@@ -197,7 +195,7 @@ class _GpsAddAddressBottomSheetState
                           state: stateController.text.trim(),
                           pincode: pinCodeController.text.trim(),
                           isDefault: true,
-                          addrType: widget.addrType.toString(),
+                          addrType: "1", // Default to general address type
                           country: "India",
                           gstIn: gstNoController.text.trim(),
                         );
@@ -209,7 +207,7 @@ class _GpsAddAddressBottomSheetState
                         print('  - City: ${cityController.text.trim()}');
                         print('  - State: ${stateController.text.trim()}');
                         print('  - Pincode: ${pinCodeController.text.trim()}');
-                        print('  - Address Type: ${widget.addrType}');
+                        print('  - Address Type: ${request.addrType}');
                         print('  - GST: ${gstNoController.text.trim()}');
 
                         final result = await _repository.addGpsAddress(request);
