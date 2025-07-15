@@ -115,7 +115,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   Future<void> _postLoad(BuildContext context) async {
     final req = widget.apiRequest.copyWith(
       note: noteTextController.text,
-      handlingCharges: int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price)),
+      handlingCharges: int.parse(handlingChargesTextController.text),
       expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
@@ -191,11 +191,12 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
             InkWell(
                 onTap: () async {
+                  final DateTime? pickupDate = DateTimeHelper.convertStringToDateTime(widget.date);
 
                   final String? date = await commonDatePicker(
                     context,
-                    firstDate: DateTime.now(),
-                    initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateAndTime ?? DateTime.now().toString()),
+                    firstDate: pickupDate,
+                    initialDate: pickupDate,
                   );
 
                   if(!context.mounted) return;
@@ -290,16 +291,19 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
           if (createdLoadId != null) {
             await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
           }
-          AppDialog.show(
-            context,
-            child: SuccessDialogView(
-              message: 'Load Created Successfully',
-              afterDismiss: () {
-                Navigator.of(context).pop(true);
-                Navigator.of(context).pop(true);
-              },
-            ),
-          );
+          if(context.mounted) {
+            AppDialog.show(
+              context,
+              child: SuccessDialogView(
+                heading: context.appText.loadPostedSuccess,
+                message: context.appText.weWillAssignVehicleAndDriver,
+                onContinue: () {
+                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            );
+          }
           lpHomeCubit.fetchGetLoadList();
           lpHomeCubit.clearPickUpAndDestination();
         }

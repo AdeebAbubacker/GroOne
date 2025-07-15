@@ -208,6 +208,5 @@ class ApiUrls {
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
 
   /// Tracking
-  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

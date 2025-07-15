@@ -41,7 +41,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? rate;
   final String? maxRate;
   final String? expectedDeliveryDateTime;
-  final num? handlingCharges;
+  final int? handlingCharges;
   final num? laneId;
   final int? rateId;
   final String? pickUpWholeAddr;
@@ -62,7 +62,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     String? rate,
     String? maxRate,
     String? expectedDeliveryDateTime,
-    num? handlingCharges,
+    int? handlingCharges,
     num? laneId,
     int? rateId,
     String? pickUpLocation,
@@ -111,7 +111,7 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "rate": rate ?? "",
     "maxRate": maxRate ?? "",
     "expectedDeliveryDateTime": expectedDeliveryDateTime ?? "",
-    "handlingCharges": handlingCharges ?? "",
+    "handlingCharges": handlingCharges ?? 0,
     "laneId": laneId ?? 0,
     "rateId": rateId ?? 0,
     "pickUpLocation": pickUpLocation ?? "",

@@ -410,5 +410,8 @@
   "advancePaid" : "Advance Paid",
   "paymentFailed" : "Payment failed",
   "orderIdNotFound" : "Order ID not found",
-  "orderCreationFailed" : "Order creation failed"
+  "orderCreationFailed" : "Order creation failed",
+  "loadPostedSuccess" : "Load Posted Successfully",
+  "weWillAssignVehicleAndDriver" : "We will assign the vehicle and driver soon.",
+  "yourShipmentIsHeld" : "Your Shipment is held from unloading due to non payment of advance"
 }
