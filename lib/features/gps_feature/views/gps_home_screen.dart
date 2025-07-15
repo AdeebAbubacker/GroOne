@@ -5,10 +5,15 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+
+import '../../../utils/app_route.dart';
+import '../cubit/vehicle_list_cubit.dart';
+import 'gps_notification_screen.dart';
 
 class GpsHomeScreen extends StatelessWidget {
   const GpsHomeScreen({super.key});
@@ -246,7 +251,13 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.dashboard,
         Icons.dashboard_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          // context.push(AppRouteName.gpsDashboard);
+          Navigator.push(context, commonRoute(BlocProvider.value(
+            value: locator<VehicleListCubit>()..loadVehicleData(),
+            child: GpsDashboardScreen(),
+          )));
+        },
       ),
       _MenuItem(
         context.appText.geofence,

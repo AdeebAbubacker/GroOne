@@ -230,17 +230,16 @@ class GpsService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-            return (data['data'] as List)
-                .map((e) => GpsNotificationModel.fromJson(e))
-                .toList();
-          },
-        );
-        // final data = response.value['data'] as List;
-        // return Success(data.map((e) => GpsNotificationModel.fromJson(e)).toList());
-
+        try {
+          final data = response.value;
+          final notifications = (data['data'] as List) // 👈 Access the inner list
+              .map((e) => GpsNotificationModel.fromJson(e))
+              .toList();
+          return Success(notifications);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing notifications", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(GenericError());
       }
@@ -249,6 +248,7 @@ class GpsService {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
 
 
 }
