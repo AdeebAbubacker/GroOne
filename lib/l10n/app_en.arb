@@ -410,5 +410,6 @@
   "advancePaid" : "Advance Paid",
   "paymentFailed" : "Payment failed",
   "orderIdNotFound" : "Order ID not found",
-  "orderCreationFailed" : "Order creation failed"
+  "orderCreationFailed" : "Order creation failed",
+  "otpHasBeenSentSuccessfully" : "OTP has been sent successfully"
 }

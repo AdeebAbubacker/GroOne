@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
+import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
@@ -128,10 +129,17 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
+        GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return ChooseRoleScreen();
+          final data = state.extra! as Map<String, dynamic>;
+          final String id = data["userId"];
+          final String mobileNumber = data["mobileNumber"];
+          return ChooseRoleScreen(
+            userId: id,
+            mobileNumber: mobileNumber,
+          
+          );
         },
       ),
 
@@ -163,11 +171,11 @@ class AppRoutes {
           final data = state.extra! as Map<String, dynamic>;
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
-          final String roleId = data["roleId"];
+          final bool isDriver = data["driver"];
           return MobileOtpVerificationScreen(
             otp: otp,
             mobileNumber: mobileNumber,
-            roleId: roleId,
+            isDriver: isDriver,
           );
         },
       ),
@@ -193,6 +201,12 @@ class AppRoutes {
         path: AppRouteName.tripScheduleScreen,
         builder: (BuildContext context, GoRouterState state) {
           return TripScheduleScreen();
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverHome,
+        builder: (BuildContext context, GoRouterState state) {
+          return DriverHomeScreen();
         },
       ),
     ],

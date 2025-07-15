@@ -42,22 +42,12 @@ class DriverLoadBottomWidget extends StatelessWidget {
             right: 0,
       child: Container(
         height: MediaQuery.of(context).size.height * 0.55,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 30,
-              offset: const Offset(0, -2),
-            ),
-          ],
+           decoration: commonContainerDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               40.height,
               _buildRequestWidget(),
@@ -70,8 +60,6 @@ class DriverLoadBottomWidget extends StatelessWidget {
                 eta: "31-09-2024, 09:30 PM",
               ).paddingSymmetric(horizontal: 15),
               20.height,
-              _buildAdvancePaymentCard(context: context, paymentState: 2),
-              20.height,
               _buildDivider(),
               20.height,
               _buildConsigneeDetail(
@@ -79,8 +67,8 @@ class DriverLoadBottomWidget extends StatelessWidget {
                 name: 'dd',
                 email: 'd',
                 phoneNo: '6587443',
-                isUpdatable: true,
-                isTextField: true,
+                isUpdatable: false,
+                isTextField: false,
               ),
               20.height,
               _buildDivider(),
@@ -91,6 +79,7 @@ class DriverLoadBottomWidget extends StatelessWidget {
               ).paddingSymmetric(horizontal: 15),
               20.height,
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Upload Lorrry Receipt
                   UploadAttachmentFiles(
@@ -133,24 +122,17 @@ class DriverLoadBottomWidget extends StatelessWidget {
               ).paddingSymmetric(horizontal: 15),
               20.height,
               _buildDivider(),
-              _buildLoadProviderAdvancePaymentCardViewOnly(
-                tripPrice: '₹ 3500',
-                advancePayment: '₹ 79000',
-                agreedAdvance: '₹ 8000',
-                agreedPrice: '₹ 5000',
-                balancePayment: '₹ 10000',
-                context: context,
-                paymentStatus: 3,
-              ),
+             
               20.height,
-              _buildFeedbackRemarksWidget(
-                context: context,
-                controller: TextEditingController(),
-              ),
+
+             _buildAdableSectionHeader(context: context,onAdd: () {
+               
+             }, title: 'Damages and Shortages',),
               20.height,
-              _buildHeading(text: 'a'),
-              20.height,
-                
+             _buildAdableSectionHeader(context: context, title: 'Settlements', onAdd: () {
+                       
+                        }),
+                        20.height,   
             //  _buildBottomButtonWidget(loadDetails, state, context),
             ],
           ),
@@ -476,104 +458,37 @@ Widget _buildDivider() {
 }
 
 
+// Addable Section Header
+Widget _buildAdableSectionHeader({
+  required BuildContext context,
+  required String title,
+  required VoidCallback onAdd,
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      _buildHeading(text: title),
+      Spacer(),
+      GestureDetector(
+        onTap: onAdd,
+        child: Text(
+          '+ ${context.appText.add}',
+          style: AppTextStyle.body2.copyWith(
+            fontWeight: FontWeight.w500,
+            color: AppColors.primaryColor,
+          ),
+        ),
+      ),
+      10.width,
+    ],
+  );
+}
+
 // Heading
 Widget _buildHeading({required String text}) {
   return Text(text, style: AppTextStyle.h4).paddingSymmetric(horizontal: 15);
 }
 
-
-//Payment View only
-Widget _buildLoadProviderAdvancePaymentCardViewOnly({
-  required BuildContext context,
-  String? tripPrice,
-  String? agreedPrice,
-  required String agreedAdvance,
-  String? advancePayment,
-  String? balancePayment,
-  required int paymentStatus,
-  VoidCallback? onViewTap,
-}) {
-  return Container(
-    margin: const EdgeInsets.all(16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF7F9FC),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (paymentStatus == 1 && tripPrice != null)
-          _buildPriceRow(
-            context.appText.tripPrice,
-            tripPrice,
-            context,
-            highlight: true,
-          ),
-        if (paymentStatus == 2 || paymentStatus == 3)
-          _buildPriceRow(
-            context.appText.agreedPrice,
-            agreedPrice ?? '',
-            context,
-            highlight: true,
-          ),
-        8.height,
-        _buildPriceRow(
-          context.appText.agreedAdvance,
-          agreedAdvance,
-          context,
-          highlight: true,
-        ),
-        12.height,
-
-        if (paymentStatus == 2 || paymentStatus == 3)
-          _buildStatusRow(
-            title: '${context.appText.advancePayment} (80%)',
-            amount: advancePayment ?? "",
-            statusText: context.appText.received,
-            statusColor: AppColors.lightGreenBox, // (125, 255, 159)
-          ),
-
-        if (paymentStatus == 3)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: _buildStatusRow(
-              title: context.appText.balancePayment,
-              amount: balancePayment ?? "",
-              statusText: context.appText.received,
-              statusColor: AppColors.lightGreenBox, // (125, 255, 159)
-            ),
-          ),
-
-        12.height,
-        Align(
-          alignment: Alignment.center,
-          child: GestureDetector(
-            onTap: onViewTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.appText.view,
-                  style: AppTextStyle.body.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 25,
-                  color: AppColors.black,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 // Status Details
 Widget _buildStatusRow({
@@ -621,152 +536,6 @@ Widget _buildStatusRow({
         ],
       ),
     ],
-  );
-}
-
-
-
-
-
-// Advance Payment Card
-Widget _buildAdvancePaymentCard({
-  required BuildContext context,
-  required int paymentState,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      color: const Color(0xFFEAF5FF),
-    borderRadius: BorderRadius.circular(commonPadding),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Agreed Price
-        _buildPriceRow(context.appText.agreedPrice, "₹ 79,000", context),
-        const SizedBox(height: 8),
-
-        // Payable Advance Row with Status
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  context.appText.payableAdvance,
-                  style: AppTextStyle.body2.copyWith(
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textBlackColor,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (paymentState == 2)
-                  Row(
-                    children: [
-                      const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                      const SizedBox(width: 4),
-                     Text(
-                     context.appText.pending,
-                     style: AppTextStyle.body.copyWith(
-                     fontSize: 10,
-                     color: AppColors.iconRed,
-                        ),
-                       ),
-                    ],
-                  )
-                else if (paymentState == 3)
-                 Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.boxGreen,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text( 
-                      context.appText.paid,
-                      style: AppTextStyle.body.copyWith(
-                      fontSize: 12,
-                      color: AppColors.greenColor, 
-                     fontWeight: FontWeight.w500,
-)
-
-                    ),
-                  ),
-              ],
-            ),
-            Flexible(
-              child: Text(
-                "₹ 70,000",
-                style: AppTextStyle.body1GreyColor.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textGreyDetailColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 8),
-
-        // Payable Balance (only if paymentState is 2 or 3)
-        if (paymentState == 3)
-          _buildPriceRow(
-            context.appText.payableBalance,
-            "₹ 9,000",
-            context,
-            highlight: true,
-          ),
-
-        const SizedBox(height: 12),
-
-        // Action Button
-        if (paymentState == 1)
-          AppButton(
-            isLoading: false,
-            title: context.appText.payAdvance,
-            onPressed: () {},
-          )
-        else if (paymentState == 2)
-          AppButton(
-            isLoading: false,
-            title: context.appText.payAdvance,
-            onPressed: () {},
-            richTextWidget: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
-                  AppIcons.svg.alertWarning,
-                  height: 18,
-                  width: 18,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  context.appText.payAdvance,
-                  style: AppTextStyle.buttonWhiteTextColor,
-                ),
-              ],
-            ),
-          )
-        else if (paymentState == 3)
-          AppButton(
-            isLoading: false,
-            title: context.appText.payAdvance,
-            onPressed: () {},
-            richTextWidget: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.appText.payBalance,
-                  style: AppTextStyle.buttonWhiteTextColor,
-                ),
-              ],
-            ),
-          ),
-      ],
-    ),
   );
 }
 
@@ -881,7 +650,7 @@ Widget _buildConsigneeDetail({
           ],
         ),
     ],
-  );
+  ).paddingSymmetric(horizontal: 15);
 }
 
 // Detail Widget

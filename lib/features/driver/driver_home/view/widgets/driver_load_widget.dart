@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -16,7 +17,7 @@ import '../../../../../utils/constant_variables.dart';
 class DriverLoadWidget extends StatelessWidget {  
   final void Function()? onClickAssignDriver;
   const DriverLoadWidget({super.key, required this.onClickAssignDriver,});
-
+final bool isloadingordUnloading = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -77,6 +78,25 @@ class DriverLoadWidget extends StatelessWidget {
 
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+         
+    
+
+       isloadingordUnloading
+        ? Column(
+            children: [
+              progressBarWidget(progressValue: 0.5,),
+              commonDivider(),
+              Text(
+                "No SIM tracking consent from driver",
+                style: AppTextStyle.textBlackColor16w400.copyWith(
+                  color: AppColors.iconRed,
+                ),
+              ),
+              commonDivider(),
+            ],
+          )
+        : const SizedBox.shrink(),
+
           Row(
             children: [
               detailWidget(
@@ -155,6 +175,7 @@ class DriverLoadWidget extends StatelessWidget {
                 title: "Start Trip",
                 style: AppButtonStyle.primary,
               ).expand(),
+             
             ],
           ),
         ],
@@ -176,4 +197,46 @@ class DriverLoadWidget extends StatelessWidget {
       ],
     ).expand();
   }
+}
+
+
+Widget progressBarWidget({required double progressValue}) {
+  final percent = (progressValue * 100).round();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Progress',
+            style: AppTextStyle.body3.copyWith(
+              fontSize: 12,
+              color: AppColors.textBlackColor,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          Text(
+            '$percent%',
+            style: AppTextStyle.body3.copyWith(
+              color: AppColors.textBlackColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: LinearProgressIndicator(
+          value: progressValue,
+          minHeight: 6,
+          backgroundColor: Colors.grey[300],
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+        ),
+      ),
+    ],
+  );
 }

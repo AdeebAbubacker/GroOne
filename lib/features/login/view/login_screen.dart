@@ -72,9 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
             context.push(
               AppRouteName.otpVerificationScreen,
               extra: {
-                "mobileNumber": state.loginApiResponseModel.user?.mobileNumber,
-                "otp": state.loginApiResponseModel.user?.otp.toString(),
-                "roleId": widget.roleId.toString(),
+                "mobileNumber": state.loginApiResponseModel.mobile.toString(),
+                "otp": state.loginApiResponseModel.otp.toString(),
+                "driver" : state.loginApiResponseModel.driver,
               },
             );
           }
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               LoginInRequested(
                                 apiRequest: LoginApiRequest(
                                   mobile: int.parse(phoneNumber.text.toInt),
-                                  role: widget.roleId,
+                                  type: 1,
                                 ),
                               ),
                             );
@@ -259,3 +259,4 @@ class _LoginScreenState extends State<LoginScreen> {
     ).expand();
   }
 }
+   

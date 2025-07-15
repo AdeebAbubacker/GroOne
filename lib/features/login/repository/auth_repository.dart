@@ -18,9 +18,9 @@ class AuthRepository {
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
       final userData = user;
-      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.user!.id.toString());
-      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.user!.role);
-      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.token);
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
+      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.kongToken?.refreshToken.toString() ?? '',);
       CustomLog.debug(this, "Save user from login saved successfully");
       return const Success(true);
     } catch (e) {
