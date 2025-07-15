@@ -51,7 +51,7 @@ class LoadDetailsState extends Equatable {
     this.uploadDamageUIState,
     this.damageListUIState,
     this.isUpdateDamage,
-    this.damageId
+    this.damageId,
     this.tripDocumentList
   });
 
@@ -73,7 +73,7 @@ class LoadDetailsState extends Equatable {
     UIState<UploadDamageFileModel>? uploadDamageUIState,
     UIState<GetDamageListModel>? damageListUIState,
     bool? isUpdateDamage,
-    String? damageId
+    String? damageId,
     List<DocumentEntity>? tripDocumentList
 
   }) {
@@ -116,7 +116,7 @@ class LoadDetailsState extends Equatable {
     locationDistance,
     damageListUIState,
     isUpdateDamage,
-    damageId
+    damageId,
     tripDocumentList,
     trackingDistance
   ];
