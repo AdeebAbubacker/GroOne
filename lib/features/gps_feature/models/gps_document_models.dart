@@ -572,7 +572,7 @@ class GpsAddress {
       id: int.tryParse(id) ?? 0,
       customerName: addressName,
       mobileNumber: '',
-      customerId: "851",
+      customerId: 851,
       addressName: addressName,
       addr1: fullAddress,
       addr2: '',
