@@ -67,20 +67,21 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
         listener: (context, state) async {
-          if (state is LogInSuccess) {
-            ToastMessages.success(message: state.loginApiResponseModel.message);
+           if (state is LogInSuccess) {
+            ToastMessages.success(message: "Otp Sent successfully");
             await Future.delayed(Duration(seconds: 1));
             if(context.mounted) {
               context.push(
                 AppRouteName.otpVerificationScreen,
                 extra: {
-                  "mobileNumber": state.loginApiResponseModel.mobile.toString(),
-                  "otp": state.loginApiResponseModel.otp.toString(),
-                  "driver" : state.loginApiResponseModel.driver,
+                "mobileNumber": state.loginApiResponseModel.mobile.toString(),
+                "otp": state.loginApiResponseModel.otp.toString(),
+                "driver" : state.loginApiResponseModel.driver,
                 },
               );
             }
           }
+
           if (state is LogInError) {
             ToastMessages.error(
               message: getErrorMsg(errorType: state.errorType),
