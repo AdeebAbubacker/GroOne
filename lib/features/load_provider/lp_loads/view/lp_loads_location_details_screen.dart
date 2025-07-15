@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_bottom_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
@@ -19,6 +21,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../model/lp_load_get_by_id_response.dart';
 
@@ -39,6 +42,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   final lpLoadLocator = locator<LpLoadCubit>();
   Timer? _ticker;
   String _countDown = "00:00:00";
+  bool _consentStatusCalled = false;
+
 
   @override
   void initState() {
@@ -88,6 +93,25 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     }
   }
 
+  callApi(LoadData loadItem) async {
+    await lpLoadLocator.getConsentStatus(mobileNumber: loadItem.scheduleTripDetails?.driver?.mobile ?? '');
+    await lpLoadLocator.getTrackingDistance(request: TrackingDistanceApiRequest(
+        originLat: loadItem.trackingDetails?.originLat ?? 0.0,
+        originLong: loadItem.trackingDetails?.originLong ?? 0.0,
+        currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
+        currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
+        destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
+        destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
+    ));
+
+    final uiState = lpLoadLocator.state.trackingConsent;
+
+    if(uiState == null || uiState.status == Status.ERROR) {
+      final error = lpLoadLocator.state.trackingConsent?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,15 +124,29 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 return const Center(child: CircularProgressIndicator());
               }
 
+              if(uiState.status == Status.ERROR) {
+                return Stack(
+                  children: [
+                    Positioned(top: 20,left: 0,child: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context))),
+                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId)).paddingTop(50),
+                  ],
+                );
+              }
+
               final loadItem = uiState.data?.data as LoadData;
 
-              if (loadItem.isNull) {
-                return Center(child: Text(context.appText.noLoadFound));
-              }
+              final status = LpHomeHelper.getLoadStatusFromString(loadItem.loadStatusDetails?.loadStatus);
+
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 callTimer(loadItem);
               });
-              final status = LpHomeHelper.getLoadStatusFromString(loadItem.loadStatusDetails?.loadStatus);
+
+
+
+              if (!_consentStatusCalled && status!.index >= LoadStatus.loading.index) {
+                _consentStatusCalled = true;
+                callApi(loadItem);
+              }
 
               return Stack(
                 children: [
@@ -117,10 +155,14 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     dropLocation: loadItem.loadRoute?.dropLocation,
                     pickUpLatLong: loadItem.loadRoute?.pickUpLatlon,
                     dropLatLong: loadItem.loadRoute?.dropLatlon,
+                    driverLat: loadItem.trackingDetails?.currentLat,
+                    driverLong: loadItem.trackingDetails?.currentLong,
                   ),
                   buildTopLocationWidget(loadItem, status),
                   LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers, loadStatus: status!),
-                  buildSupportWidget(),
+                  buildFloatingWidget(status),
+                  if(status.index > LoadStatus.assigned.index)
+                    buildSimConsentWidget(),
                 ],
               );
             }
@@ -241,7 +283,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                         style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5)
+                      ).paddingRight(5) ,
+                    if (status == LoadStatus.inTransit)
+                      Row(
+                        children: [
+                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                          4.width,
+                          Text(
+                            context.appText.advanceUnpaid,
+                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                          ),
+                        ],
+                      )
                   ],
                 ),
               ],
@@ -254,23 +307,62 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
 
   /// Support
-  Widget buildSupportWidget() {
+  Widget buildFloatingWidget(status) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
 
     return Positioned(
-        right: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
+        right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
+          children: [
+            if(status.index > LoadStatus.assigned.index)
+            IconButton(
+                onPressed: () {
+                  commonSupportDialog(context);
+                },
+                icon: Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+                  child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+                )
+            ),
+            IconButton(
+            onPressed: () {
+              commonSupportDialog(context);
+            },
+            icon: Container(
+              padding: EdgeInsets.all(4),
+              decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+              child: SvgPicture.asset(
+                AppIcons.svg.support,
+                width: 25,
+                colorFilter: AppColors.svg(AppColors.primaryColor),
+              ),
+            )
+                ),
+
+          ],
+        ));
+  }
+
+  Widget buildSimConsentWidget() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+    final isTrackingAllowed = lpLoadLocator.state.trackingConsent?.data?.response?.consent == 'ALLOWED';
+
+    return Positioned(
+        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
         onPressed: () {
           commonSupportDialog(context);
         },
         icon: Container(
-          padding: EdgeInsets.all(4),
-          decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
-          child: SvgPicture.asset(
-            AppIcons.svg.support,
-            width: 25,
-            colorFilter: AppColors.svg(AppColors.primaryColor),
-          ),
+          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+          child: Row(
+            children: [
+              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+              10.width,
+              Text(context.appText.sim, style: AppTextStyle.h5 )
+            ],
+          ).paddingAll(8),
         )
     ));
 

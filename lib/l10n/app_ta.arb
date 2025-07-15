@@ -275,6 +275,18 @@
   "deviceType": "சாதன வகை",
   "getYourTankLockNow": "இப்போது உங்கள் டாங் லாக் பெறுங்கள்",
   "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
+  "gpsBenefitGps": "எரிபொருள் அட்டையின் நன்மைகள்",
+  "benefitsOfGpsCardHeading1": "பணமில்லா எரிபொருள் மற்றும் சுங்கக் கட்டணங்கள்",
+  "benefitsOfGpsCardHeading2": "உண்மையாசிரிய செலவின கண்காணிப்பு",
+  "benefitsOfGpsCardHeading3": "எளிய பொருந்துமுறை",
+  "benefitsOfGpsCardSubHeading1": "பணமில்லா எரிபொருள் மற்றும் சுங்கக் கட்டணங்களை அனுமதித்து, ஆபத்தையும் சிரமத்தையும் குறைக்கிறது.",
+  "benefitsOfGpsCardSubHeading2": "ஒவ்வொரு டிரைவர் அல்லது வாகனத்தால் பயன்படுத்தப்படும் நிதியின் உடனடி காட்சியை வழங்குகிறது.",
+  "benefitsOfGpsCardSubHeading3": "தானியங்கி டிஜிட்டல் பதிவுகள் ஆவணப்பணியை குறைத்து, GST உள்ளீட்டு கிரெடிட் மற்றும் கணக்கீட்டில் உதவுகின்றன.",
+  "buyNewGps": "புதிய ஜிபிஎஸ் வாங்கவும்",
+  "gpsModels": "ஜிபிஎஸ் மாதிரிகள்",
+  "aadharCard": "ஆதார் அட்டை*",
+  "panCardOptional": "பான் அட்டை (விருப்பமானது)",
+  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
   "success": "Success",
   "failed": "Failed"
 

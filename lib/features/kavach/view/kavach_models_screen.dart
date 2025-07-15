@@ -310,13 +310,41 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
             ),
           );
         }
+        // Separate in-stock and out-of-stock products
+        final inStockProducts = state.products.where((p) => (state.availableStocks[p.id] ?? 0) > 0).toList();
+        final outOfStockProducts = state.products.where((p) => (state.availableStocks[p.id] ?? 0) == 0).toList();
+
+// Combine them with in-stock first
+        final sortedProducts = [...inStockProducts, ...outOfStockProducts];
+
 
         return ListView.separated(
           controller: _scrollController,
-          itemCount: state.products.length + (state.loading ? 1 : 0),
+          // itemCount: state.products.length + (state.loading ? 1 : 0),
+          // separatorBuilder: (_, __) => 20.height,
+          // itemBuilder: (context, index) {
+          //   if (index == state.products.length) {
+          //     return const Center(
+          //       child: Padding(
+          //         padding: EdgeInsets.all(8.0),
+          //         child: CircularProgressIndicator(),
+          //       ),
+          //     );
+          //   }
+          //   final product = state.products[index];
+          //   final qty = state.quantities[product.id] ?? 0;
+          //   final availableStock = state.availableStocks[product.id] ?? 0;
+          //
+          //   return KavachModelsListBody(
+          //     product: product,
+          //     quantity: qty,
+          //     availableStock: availableStock,
+          //   );
+          // },
           separatorBuilder: (_, __) => 20.height,
+          itemCount: sortedProducts.length + (state.loading ? 1 : 0),
           itemBuilder: (context, index) {
-            if (index == state.products.length) {
+            if (index == sortedProducts.length) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(8.0),
@@ -324,7 +352,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                 ),
               );
             }
-            final product = state.products[index];
+            final product = sortedProducts[index];
             final qty = state.quantities[product.id] ?? 0;
             final availableStock = state.availableStocks[product.id] ?? 0;
 
@@ -334,6 +362,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
               availableStock: availableStock,
             );
           },
+
         );
       },
     );
@@ -371,7 +400,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       style: AppTextStyle.h4,
                     ),
                     Text(
-                      "$totalQuantity ${context.appText.items}",
+                      "$totalQuantity ${totalQuantity == 1 ? context.appText.item : context.appText.items}",
                       style: AppTextStyle.bodyPrimaryColor,
                     ),
                   ],

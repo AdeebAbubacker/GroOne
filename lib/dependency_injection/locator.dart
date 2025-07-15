@@ -13,6 +13,13 @@ import 'package:gro_one_app/features/email_verification/service/email_verificati
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -84,6 +91,16 @@ import 'package:gro_one_app/utils/custom_log.dart';
 
 import 'package:gro_one_app/features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 
+import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
+import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
+
+import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
+import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+
 var locator = GetIt.instance;
 
 void initLocator() {
@@ -121,7 +138,15 @@ void initLocator() {
     locator.registerLazySingleton(() => EnDhanService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => TermsAndConditionsService(locator<ApiService>()));
     locator.registerLazySingleton(() => PrivacyPolicyService(locator<ApiService>()));
+locator.registerLazySingleton(
+      () => GpsOrderApiService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
 
+    // Register GpsOrderApiRequest for GPS features
+    locator.registerLazySingleton(() => GpsOrderApiRequest(locator<ApiService>()));
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
     locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
@@ -149,6 +174,9 @@ void initLocator() {
 
     // ViewModels
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(
+      () => GpsOrderApiRepository(locator<GpsOrderApiService>()),
+    );
 
     // BLoCs
     locator.registerLazySingleton(() => LanguageBloc(locator<LanguageRepository>()));
@@ -178,7 +206,10 @@ void initLocator() {
 
     // Cubits
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
-    locator.registerLazySingleton(() => KycCubit(locator<KycRepository>()));
+    locator.registerLazySingleton(() => KycCubit(
+      locator<KycRepository>(),
+      locator<UserInformationRepository>(),
+    ));
     locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
     locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
     locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>()));
@@ -188,9 +219,46 @@ void initLocator() {
     locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
     locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(() => VpHomeRepository(
+      locator<VpHomeService>(),
+      locator<UserInformationRepository>(),
+    ));
+    locator.registerLazySingleton(
+      () => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsProductsCubit(locator<GpsOrderApiRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsBillingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => GpsOrderCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+    );
     locator.registerLazySingleton(() => KavachTransactionsCubit(locator<KavachRepository>()));
 
+    // Register GpsVehicleCubit
+    locator.registerLazySingleton(() => GpsVehicleCubit(
+      locator<GpsOrderApiRequest>(),
+      locator<UserInformationRepository>(),
+    ));
+    locator.registerLazySingleton(
+      () => KavachTransactionsCubit(locator<KavachRepository>()),
+    );
 
+    // Verify GPS cubits are registered
+    try {
+      locator<GpsBillingAddressCubit>();
+      locator<GpsShippingAddressCubit>();
+      locator<GpsVehicleCubit>();
+      CustomLog.info(locator, "GPS cubits successfully registered and accessible.");
+    } catch (e) {
+      CustomLog.error(locator, "ERROR: GPS cubits not properly registered", e);
+    }
+    locator.registerLazySingleton(() => KavachTransactionsCubit(locator<KavachRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

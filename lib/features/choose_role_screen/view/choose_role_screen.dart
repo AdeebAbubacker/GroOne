@@ -82,7 +82,10 @@ class ChooseRoleScreen extends StatelessWidget {
                   title: context.appText.next,
                   onPressed: () {
                     CustomLog.debug(this, "Role Id : ${state.index + 1}");
-                    context.push(AppRouteName.login, extra: "${state.index + 1}");
+                    context.push(
+                      AppRouteName.login,
+                      //AppRouteName.vpBottomNavigationBar,
+                     extra: "${state.index + 1}");
                   },
                 ),
                  50.height,

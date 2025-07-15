@@ -82,8 +82,10 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   bool shippingSameAsBilling = false;
   late Map<String, int> _availableStocks;
   TextEditingController referralCodeController = TextEditingController();
-  TextEditingController shippingPersonInChargeController = TextEditingController();
-  TextEditingController shippingPersonContactNoController = TextEditingController();
+  TextEditingController shippingPersonInChargeController =
+      TextEditingController();
+  TextEditingController shippingPersonContactNoController =
+      TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
 
   // Store selected addresses for restoration
@@ -91,7 +93,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   KavachAddressModel? selectedShippingAddress;
   List<KavachAddressModel>? billingAddresses;
   List<KavachAddressModel>? shippingAddresses;
-
 
   void loadVehicleSelection() {
     for (var product in _products) {
@@ -113,7 +114,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
   void syncVehicleControllersWithProducts() {
     vehicleControllersPerProduct.removeWhere(
-          (productId, _) => !_products.any((p) => p.id == productId),
+      (productId, _) => !_products.any((p) => p.id == productId),
     );
   }
 
@@ -145,9 +146,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     }
     return false;
   }
-
-
-
 
   @override
   void initState() {
@@ -198,7 +196,8 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
     for (var product in _products) {
       final qty = _quantities[product.id] ?? 0;
-      final previousControllers = widget.previousVehicleSelection?[product.id] ?? [];
+      final previousControllers =
+          widget.previousVehicleSelection?[product.id] ?? [];
       final controllers = List<TextEditingController>.generate(qty, (index) {
         if (index < previousControllers.length) {
           return TextEditingController(text: previousControllers[index]);
@@ -258,10 +257,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 'selectedShippingAddress': selectedShippingAddress,
                 'billingAddresses': billingAddresses,
                 'shippingAddresses': shippingAddresses,
-              });
-            },
-            icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
+            });
+          },
+          icon: SvgPicture.asset(
+            AppIcons.svg.goBack,
+            colorFilter: AppColors.svg(Colors.black),
           ),
+        ),
 
         actions: [
           AppIconButton(
@@ -371,7 +373,10 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //Billing Address
-                      BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
+                      BlocBuilder<
+                        KavachCheckoutBillingAddressBloc,
+                        KavachCheckoutBillingAddressState
+                      >(
                         builder: (context, state) {
                           if (state is KavachCheckoutBillingAddressLoading) {
                             return AppTextField(
@@ -395,13 +400,17 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onChangeTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen: const KavachBillingAddressListScreen(),
+                                  screen:
+                                      const KavachBillingAddressListScreen(),
                                 );
                               },
                               title: context.appText.billingAddress,
                             );
                           }
-                          if (state is KavachCheckoutBillingAddressEmpty) {
+                          // if (state is KavachCheckoutBillingAddressEmpty ||
+                          //     state is KavachCheckoutBillingAddressLoading ||
+                          //     state is KavachCheckoutBillingAddressError) {
+                          if(state is! KavachCheckoutBillingAddressSelected){
                             return AppTextField(
                               readOnly: true,
                               autofocus: false,
@@ -416,7 +425,8 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onTextFieldTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen: const KavachBillingAddressListScreen(),
+                                  screen:
+                                      const KavachBillingAddressListScreen(),
                                 );
                               },
                             );
@@ -466,7 +476,10 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       ),
                       15.height,
                       //Shipping Address
-                      BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
+                      BlocBuilder<
+                        KavachCheckoutShippingAddressBloc,
+                        KavachCheckoutShippingAddressState
+                      >(
                         builder: (context, state) {
                           if (state is KavachCheckoutShippingAddressLoading) {
                             return Column(
@@ -534,7 +547,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
-                                        const KavachShippingAddressListScreen(),
+                                            const KavachShippingAddressListScreen(),
                                       );
                                     },
                                     title: context.appText.shippingAddress,
@@ -546,7 +559,10 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                             );
                           }
 
-                          if (state is KavachCheckoutShippingAddressEmpty) {
+                          // if (state is KavachCheckoutShippingAddressEmpty ||
+                          //     state is KavachCheckoutShippingAddressLoading ||
+                          //     state is KavachCheckoutShippingAddressError) {
+                          if(state is! KavachCheckoutShippingAddressSelected){
                             return Column(
                               children: [
                                 Row(
@@ -579,7 +595,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
-                                        const KavachShippingAddressListScreen(),
+                                            const KavachShippingAddressListScreen(),
                                       );
                                     },
                                     // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
@@ -679,16 +695,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       10.height,
                       AppTextField(
                         controller: shippingPersonInChargeController,
-                        decoration: kavachInputDecoration(hintText: context.appText.personInCharge,isMandatoryMark: true),
-                        validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.personInCharge),
+                        decoration: kavachInputDecoration(
+                          hintText: context.appText.personInCharge,
+                          isMandatoryMark: true,
+                        ),
+                        validator:
+                            (value) => Validator.fieldRequired(
+                              value,
+                              fieldName: context.appText.personInCharge,
+                            ),
                       ),
                       10.height,
                       AppTextField(
                         controller: shippingPersonContactNoController,
-                        decoration: kavachInputDecoration(hintText: context.appText.contactNo,isMandatoryMark: true),
+                        decoration: kavachInputDecoration(
+                          hintText: context.appText.contactNo,
+                          isMandatoryMark: true,
+                        ),
                         maxLength: 10,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         validator: (value) => Validator.phone(value),
                       ),
                     ],
@@ -727,7 +755,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                         loadVehicleSelection();
                       });
                     } else {
-                      ToastMessages.alert(message: context.appText.unableToAddMoreItems);
+                      ToastMessages.alert(
+                        message: context.appText.unableToAddMoreItems,
+                      );
                     }
                   },
 
@@ -766,21 +796,23 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 return AppTextField(
                   controller: vehicleControllers[index],
                   onTextFieldTap: () async {
-                    final selectedVehicle =
-                        await commonBottomSheet<String?>(
-                          context: context,
-                          screen: const KavachAddedVehiclesScreen(),
-                          barrierDismissible: true
-                        );
+                    final selectedVehicle = await commonBottomSheet<String?>(
+                      context: context,
+                      screen: const KavachAddedVehiclesScreen(),
+                      barrierDismissible: true,
+                    );
                     // if (selectedVehicle != null) {
                     //   setState(() {
                     //     vehicleControllers[index].text = selectedVehicle;
                     //   });
                     // }
                     if (selectedVehicle != null) {
-                      final isAlreadySelected = isVehicleAlreadySelected(selectedVehicle);
+                      final isAlreadySelected = isVehicleAlreadySelected(
+                        selectedVehicle,
+                      );
                       if (isAlreadySelected &&
-                          vehicleControllers[index].text.trim() != selectedVehicle) {
+                          vehicleControllers[index].text.trim() !=
+                              selectedVehicle) {
                         ToastMessages.alert(
                           message: 'Vehicle already selected',
                         );
@@ -844,27 +876,23 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
         // Validate products in cart
         if (_products.isEmpty || _quantities.isEmpty) {
-          ToastMessages.alert(
-            message: context.appText.pleaseAddProducts,
-          );
+          ToastMessages.alert(message: context.appText.pleaseAddProducts);
           return; // Stop further execution
         }
 
         // Validate shipping address
         if (shippingState is KavachCheckoutShippingAddressEmpty) {
-          ToastMessages.alert(message: context.appText.pleaseAddShippingAddress);
+          ToastMessages.alert(
+            message: context.appText.pleaseAddShippingAddress,
+          );
           return;
         }
         if (shippingState is KavachCheckoutShippingAddressLoading) {
-          ToastMessages.alert(
-            message: context.appText.shippingLoading,
-          );
+          ToastMessages.alert(message: context.appText.shippingLoading);
           return;
         }
         if (shippingState is KavachCheckoutShippingAddressError) {
-          ToastMessages.alert(
-            message: context.appText.shippingLoadFailed,
-          );
+          ToastMessages.alert(message: context.appText.shippingLoadFailed);
           return;
         }
 
@@ -874,15 +902,11 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           return;
         }
         if (billingState is KavachCheckoutBillingAddressLoading) {
-          ToastMessages.alert(
-            message: context.appText.billingLoading,
-          );
+          ToastMessages.alert(message: context.appText.billingLoading);
           return;
         }
         if (billingState is KavachCheckoutBillingAddressError) {
-          ToastMessages.alert(
-            message: context.appText.billingLoadFailed,
-          );
+          ToastMessages.alert(message: context.appText.billingLoadFailed);
           return;
         }
 
@@ -890,9 +914,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           (controllers) => controllers.every((c) => c.text.trim().isNotEmpty),
         );
         if (!allVehiclesFilled) {
-          ToastMessages.alert(
-            message: context.appText.pleaseSelectAllVehicles,
-          );
+          ToastMessages.alert(message: context.appText.pleaseSelectAllVehicles);
           return;
         }
 
@@ -908,11 +930,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 shippingAddress: shippingState.selectedAddress,
                 billingAddress: billingState.selectedAddress,
                 selectedVehicleNumbers: selectedVehicles,
-                shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
-                shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                shippingPersonContactNo:
+                    shippingPersonContactNoController.text.trim(),
+                shippingPersonInCharge:
+                    shippingPersonInChargeController.text.trim(),
                 orderReferencedBy: referralCodeController.text.trim(),
                 selectedVehiclePerProduct: vehicleControllersPerProduct.map(
-                      (key, value) => MapEntry(
+                  (key, value) => MapEntry(
                     key,
                     value.map((controller) => controller.text.trim()).toList(),
                   ),
@@ -958,44 +982,40 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     );
   }
 
-  InputDecoration kavachInputDecoration({Widget? suffixIcon, String? hintText,bool? isMandatoryMark}){
+  InputDecoration kavachInputDecoration({
+    Widget? suffixIcon,
+    String? hintText,
+    bool? isMandatoryMark,
+  }) {
     return InputDecoration(
       hint: Row(
         children: [
-          Text(hintText??'', style: AppTextStyle.textFieldHint),
-          if(isMandatoryMark??false)Text(" *", style:AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          Text(hintText ?? '', style: AppTextStyle.textFieldHint),
+          if (isMandatoryMark ?? false)
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
         ],
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: AppColors.borderColor,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: AppColors.borderColor,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: Colors.red,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: Colors.red,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       suffixIcon: suffixIcon,
-      counterText: ''
+      counterText: '',
     );
   }
 
@@ -1056,5 +1076,4 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       ],
     );
   }
-
 }

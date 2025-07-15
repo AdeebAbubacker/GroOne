@@ -273,6 +273,18 @@
   "benefitsOfFuelCardSubHeading1" : "कैशलेस फ्यूल और टोल भुगतान की सुविधा देता है, जिससे जोखिम और झंझट कम होता है।",
   "benefitsOfFuelCardSubHeading2" : "प्रत्येक ड्राइवर या वाहन द्वारा फंड उपयोग की रीयल-टाइम जानकारी देता है।",
   "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
+  "gpsBenefitGps": "फ्यूल कार्ड के लाभ",
+  "benefitsOfGpsCardHeading1": "कैशलेस फ्यूल और टोल भुगतान",
+  "benefitsOfGpsCardHeading2": "रीयल-टाइम खर्च ट्रैकिंग",
+  "benefitsOfGpsCardHeading3": "आसान मेल-मिलाप",
+  "benefitsOfGpsCardSubHeading1": "कैशलेस फ्यूल और टोल भुगतान की सुविधा देता है, जिससे जोखिम और झंझट कम होता है।",
+  "benefitsOfGpsCardSubHeading2": "प्रत्येक ड्राइवर या वाहन द्वारा फंड उपयोग की रीयल-टाइम जानकारी देता है।",
+  "benefitsOfGpsCardSubHeading3": "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य को कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
+  "buyNewGps": "नया जीपीएस खरीदें",
+  "gpsModels": "जीपीएस मॉडल्स",
+  "aadharCard": "आधार कार्ड*",
+  "panCardOptional": "पैन कार्ड (वैकल्पिक)",
+  "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
   "success": "Success",
   "failed": "Failed"
 }

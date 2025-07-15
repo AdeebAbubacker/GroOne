@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -31,7 +32,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch(e){
-
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
@@ -40,11 +40,7 @@ class VpDetailsService{
 
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String? userId,required String loadId,required int? loadStatus}) async {
     try {
-      final result = await _apiService.put(
-        queryParams: {
-          "loadStatus":loadStatus
-        },
-          '${ApiUrls.vpAcceptLoad}$userId/$loadId');
+      final result = await _apiService.put(queryParams: {"loadStatus":loadStatus}, '${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
        final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
         return Success(changeLoadStatusResponse);
@@ -60,8 +56,68 @@ class VpDetailsService{
   }
 
 
+  /// Submit Settlement Service
+  Future<Result<DamageModel>> submitSettlement(SettlementApiRequest request) async {
+    try {
+      final url = ApiUrls.submitSettlement;
+      final result = await _apiService.put(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
   /// Submit Damage Service
   Future<Result<DamageModel>> submitDamage(DamageApiRequest request) async {
+    try {
+      final url = ApiUrls.damage;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Edit Damage Service
+  Future<Result<DamageModel>> editDamage(DamageApiRequest request) async {
+    try {
+      final url = ApiUrls.damage;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data= DamageModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Delete Damage Service
+  Future<Result<DamageModel>> deleteDamage(DamageApiRequest request) async {
     try {
       final url = ApiUrls.damage;
       final result = await _apiService.post(url, body: request.toJson());

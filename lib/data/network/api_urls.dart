@@ -32,6 +32,7 @@ class ApiUrls {
   // Path
   static String get _path => "/api";
   static String get _load => "/load";
+  static String get _settlement => "/load-settlement";
   static String get _v1 => "/v1";
   static String get _auth => "/auth";
   static String get _vp => "/vp";
@@ -49,6 +50,10 @@ class ApiUrls {
   static String get _notification => "/notification";
   static String get _loadDiscovery => "/load-discovery";
   static String get _loadExecution => "/load-execution";
+  static String get _loadTracking => "/load-tracking";
+  static String get _tracking => "/tracking";
+  static String get _paymentBroker => "/payment-broker";
+
 
 
   // Base URL
@@ -58,7 +63,7 @@ class ApiUrls {
 
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_rateDiscovery$_path$_v1$_map";
-
+  static String get _paymentBrokerBase => "$_fetchUrl$_paymentBroker$_path$_v1";
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
 
@@ -95,9 +100,9 @@ class ApiUrls {
 
   /// Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
-  static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "$verification/aadhaar/verify-otp";
-  static final String  panVerification = "$verification/pan";
+  static final String  aadhaarSendOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/send-otp";
+  static final String  aadhaarVerifyOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/verify-otp";
+  static final String  panVerification = "https://gro-devapi.letsgro.co/external/api/v1/verification/pan";
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
@@ -127,12 +132,18 @@ class ApiUrls {
   static final String  getMyLoad="$_baseUrl$_credit$_path$_v1/credit-limit/export";
   static final String  lpLoadAgree="$_baseUrl$_loadExecution$_path$_v1$_load/lp-agree";
   static final String  lpLoadVerifyAdvance="$_baseUrl$_loadExecution$_path$_v1$_load/verify-advance";
+  static final String  lpLoadFeedback="$_baseUrl$_loadExecution$_path$_v1$_load/";
+  static final String  lpLoadDocument ="$_baseUrl$_document$_path$_v1/documents/";
+  static final String lpLoadAddConsignee = "$_baseUrl$_load$_path$_v1/consignee";
+  static final String lppayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
+  static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
+
   // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
 
   /// Load Creation
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
 
-  // Load Form pick list
+  /// Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
@@ -140,12 +151,16 @@ class ApiUrls {
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
 
-  // Load
+  /// Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
   static final String  damage = "$_loadBaseUrl/damage";
+
+  /// Settlement
+  static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
+  static final String  submitSettlement = "$_settlementBaseUrl/settlement";
 
   //Kavach
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
@@ -180,6 +195,15 @@ class ApiUrls {
   static final String enDhanRegional = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/regional/";
   static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
 
+  /// GPS
+  static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;
+  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
+  static final String gpsProductList = "https://gro-devapi.letsgro.co$_fleet$_path$_v1/product/list";
+  static final String gpsAddressList = "https://gro-devapi.letsgro.co$_customer$_path$_v1/address";
+  static final String gpsCreateOrder = "$_baseUrl$_fleet$_path$_v1/orders/create";
+  static final String gpsOrderSummary = "$_baseUrl$_fleet$_path$_v1/orders/order-summary";
+  static final String gpsCustomerOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
+
   // Document Upload API
   static final String documentUpload = "https://gro-devapi.letsgro.co/document/api/v1/upload";
 
@@ -188,4 +212,8 @@ class ApiUrls {
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
+
+  /// Tracking
+  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
+  static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

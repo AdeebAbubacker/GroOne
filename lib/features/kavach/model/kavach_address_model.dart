@@ -4,7 +4,7 @@ class KavachAddressModel extends Equatable {
   final int id;
   final String customerName;
   final String mobileNumber;
-  final int customerId;
+  final String customerId;
   final String addressName;
   final String addr1;
   final String addr2;
@@ -37,6 +37,26 @@ class KavachAddressModel extends Equatable {
     this.deletedAt,
   });
 
+  // factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
+  //   return KavachAddressModel(
+  //     id: json['id'],
+  //     customerName: json['customerName']??'',
+  //     mobileNumber: json['mobileNumber']??'',
+  //     customerId: json['customerId'],
+  //     addressName: json['addressName']??'',
+  //     addr1: json['addr1'],
+  //     addr2: json['addr2'],
+  //     city: json['city'],
+  //     state: json['state'],
+  //     country: json['country'],
+  //     gstin: json['gstin'],
+  //     pincode: json['pincode'],
+  //     addrType: json['addrType'],
+  //     status: json['status'],
+  //     createdAt: DateTime.parse(json['createdAt']),
+  //     deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+  //   );
+  // }
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
       id: int.tryParse(json['preferedAddressId']?.toString() ?? '0') ?? 0,
@@ -57,6 +77,7 @@ class KavachAddressModel extends Equatable {
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
     );
   }
+
 
   String get fullAddress => '$addr1, $city, $state, $country - $pincode';
 

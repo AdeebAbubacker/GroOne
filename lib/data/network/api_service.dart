@@ -34,15 +34,24 @@ class ApiService {
     };
 
     try {
+     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       CustomLog.debug(this, "Token for request: ${refreshToken != null ? '${refreshToken.substring(0, 10)}...' : 'null'}");
+
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
+        print("🔐 Authorization header set: 'Bearer $refreshToken'");
+        CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
+      } else {
+        print("🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
+      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
-    
     return headers;
   }
 
@@ -368,10 +377,10 @@ class ApiService {
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
     print('🔍 getResponseStatus called with result: $result');
     print('🔍 getResponseStatus result type: ${result.runtimeType}');
-    
+
     if (result is Map<String, dynamic>) {
       print('🔍 getResponseStatus - success: ${result[SUCCESS]}, status: ${result[STATUS]}');
-      
+
       if (result[SUCCESS] == true || result[STATUS] == true) {
         final data = fromJson(result);
         print('🔍 getResponseStatus - parsed data: $data');

@@ -77,7 +77,7 @@ class KavachService {
               (data) {
                 try {
                   final vehicleList = data['data'] as List;
-                  
+
                   return vehicleList.map((e) {
                     return KavachVehicleModel.fromJson(e);
                   }).toList();
@@ -113,7 +113,7 @@ class KavachService {
               (data) {
                 try {
                   final allAddresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
-                  
+
                   // Return all addresses without filtering by addrType
                   return allAddresses;
                 } catch (e) {
@@ -131,12 +131,46 @@ class KavachService {
     }
   }
 
+
+
+  /// Adds a new address for a customer
+  // Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
+  //   try {
+  //     final response = await _apiService.post(
+  //       ApiUrls.kavachAddressList,
+  //       body: request.toJson(),
+  //     );
+  //
+  //     if (response is Success) {
+  //       return await _apiService.getResponseStatus(
+  //         response.value,
+  //             (data) => KavachAddressModel.fromJson(data['data']),
+  //       );
+  //     } else {
+  //       return Error(response is Error ? response.type : GenericError());
+  //     }
+  //   } catch (e) {
+  //     CustomLog.error(this, "Failed to add address", e);
+  //     return Error(DeserializationError());
+  //   }
+  // }
   /// Adds a new address for a customer
   Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
     try {
       final response = await _apiService.post(
         ApiUrls.kavachAddressList,
-        body: request.toJson(),
+        body: {
+          "customerId": request.customerId,
+          "addrName": request.addressName,
+          "addr": request.addr1,
+          "city": request.city,
+          "state": request.state,
+          "pincode": request.pincode,
+          "isDefault": true, // Always true for now
+          "addrType": request.addrType.toString(),
+          "country": request.country,
+          "gstIn": request.gstIn
+        },
       );
 
       if (response is Success) {
@@ -160,6 +194,7 @@ class KavachService {
       return Error(DeserializationError());
     }
   }
+
 
   /// Fetches available stock for a specific product
   Future<Result<int>> fetchAvailableStock({
@@ -234,11 +269,28 @@ class KavachService {
     }
   }
 
+  // Future<Result<List<CommodityModel>>> fetchCommodities() async {
+  //   try {
+  //     final response = await _apiService.get(
+  //       ApiUrls.kavachFetchCommodities,
+  //     );
+  //     if (response is Success) {
+  //       return await _apiService.getResponseStatus(
+  //         response.value,
+  //             (data) => (data['data'] as List).map((e) => CommodityModel.fromJson(e)).toList(),
+  //       );
+  //     } else {
+  //       return Error(response is Error ? response.type : GenericError());
+  //     }
+  //   } catch (_) {
+  //     return Error(DeserializationError());
+  //   }
+  // }
+
   Future<Result<List<CommodityModel>>> fetchCommodities() async {
     try {
-      final response = await _apiService.get(
-        ApiUrls.kavachFetchCommodities,
-      );
+      final response = await _apiService.get(ApiUrls.kavachFetchCommodities);
+
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
@@ -272,6 +324,8 @@ class KavachService {
     }
   }
 
+
+
   Future<Result<KavachVehicleDocumentUploadModel>> fetchUploadGstData(File file) async {
     try {
       // Get user ID from secure storage
@@ -282,7 +336,7 @@ class KavachService {
       }
 
       final url = ApiUrls.documentUpload;
-      
+
       // Prepare form fields with required parameters
       final fields = {
         'userId': userId,
@@ -291,12 +345,12 @@ class KavachService {
       };
 
       final result = await _apiService.multipart(
-        url, 
-        file, 
+        url,
+        file,
         pathName: "file",
         fields: fields,
       );
-      
+
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
@@ -334,6 +388,7 @@ class KavachService {
   Future<Result<List<String>>> fetchTruckTypeList() async {
     try {
       final response = await _apiService.get(ApiUrls.kavachTruckType);
+
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
@@ -370,18 +425,59 @@ class KavachService {
   Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) async {
     try {
       final response = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
+
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) => (data['data'] as List).map((e) => TruckLengthModel.fromJson(e)).toList(),
-        );
+        try {
+          final data = response.value;
+          final truckLengths = (data as List) // 👈 direct list
+              .map((e) => TruckLengthModel.fromJson(e))
+              .toList();
+
+          return Success(truckLengths);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing truck lengths", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (_) {
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch truck lengths", e);
       return Error(DeserializationError());
     }
   }
+
+
+  // Future<Result<List<String>>> fetchTruckTypeList() async {
+  //   try {
+  //     final response = await _apiService.get(ApiUrls.kavachTruckType);
+  //     if (response is Success) {
+  //       return await _apiService.getResponseStatus(
+  //         response.value,
+  //             (data) => (data['data'] as List).cast<String>(),
+  //       );
+  //     } else {
+  //       return Error(response is Error ? response.type : GenericError());
+  //     }
+  //   } catch (_) {
+  //     return Error(DeserializationError());
+  //   }
+  // }
+  // Future<Result<List<TruckLengthModel>>> fetchTruckLengths(String type) async {
+  //   try {
+  //     final response = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
+  //     if (response is Success) {
+  //       return await _apiService.getResponseStatus(
+  //         response.value,
+  //             (data) => (data['data'] as List).map((e) => TruckLengthModel.fromJson(e)).toList(),
+  //       );
+  //     } else {
+  //       return Error(response is Error ? response.type : GenericError());
+  //     }
+  //   } catch (_) {
+  //     return Error(DeserializationError());
+  //   }
+  // }
 
   /// Fetches masters data from the API
   Future<Result<KavachMastersModel>> getMasters() async {
@@ -440,10 +536,10 @@ class KavachService {
           result.value,
               (response) {
             CustomLog.debug(this, "Transaction response: $response");
-            
+
             // Try different response structures
             List<dynamic> txnList = [];
-            
+
             // Check if Transactions is directly in response
             if (response.containsKey('Transactions')) {
               txnList = response['Transactions'] ?? [];
@@ -460,9 +556,9 @@ class KavachService {
               txnList = response;
               CustomLog.debug(this, "Response is directly a list: ${txnList.length}");
             }
-            
+
             CustomLog.debug(this, "Final transaction list: $txnList");
-            
+
             if (txnList.isNotEmpty) {
               try {
                 final transactions = txnList
