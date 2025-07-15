@@ -8,8 +8,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
 class WeightSelectionScreen extends StatefulWidget {
-  final List<LoadWeightData> dataList;
-  final Function(LoadWeightData) onSelect;
+  final List<LoadWeightModel> dataList;
+  final Function(LoadWeightModel) onSelect;
   final LPHomeCubit cubit;
 
   const WeightSelectionScreen({

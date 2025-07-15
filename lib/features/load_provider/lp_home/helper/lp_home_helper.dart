@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 
 class LpHomeHelper {
 
@@ -91,6 +92,16 @@ class LpHomeHelper {
        return 'Agreed';
      case 'Assigned':
        return 'Assigned';
+     case 'Loading':
+       return 'Loading';
+     case 'In Transit':
+       return 'In Transit';
+     case 'Unloading':
+       return 'Unloading';
+     case 'Unloading Held':
+       return 'Unloading Held';
+     case 'Completed':
+       return 'Completed';
      default:
        return 'Unknown';
    }
@@ -111,10 +122,40 @@ class LpHomeHelper {
        return const Color(0xFFFFF9C4); // Light yellow
      case "assigned":
        return const Color(0xFFD5F4E6); // Light yellow
+     case "loading":
+       return AppColors.brownColor; // Light yellow
+     case "in transit":
+       return AppColors.lightRedColor; // Light yellow
+     case "unloading":
+       return AppColors.lightGreenBox; // Light yellow
+     case "unloading held":
+       return AppColors.red; // Light yellow
+     case "completed":
+       return AppColors.greenColor; // Light yellow
      default:
        return Colors.grey.shade200;
    }
  }
+
+ // Get Load Status State
+ static int getPaymentState(LoadStatus loadStatus) {
+  switch (loadStatus) {
+    case LoadStatus.loading:
+      return 1;
+    case LoadStatus.inTransit:
+      return 2;
+    case LoadStatus.unloading:
+      return 3;
+    case LoadStatus.unloadingHeld:
+      return 4;
+     case LoadStatus.completed:
+      return 5;  
+    default:
+      return 0; // Not eligible or unknown
+  }
+}
+
+
 
 
  // Get Load Status Text Color
@@ -130,6 +171,16 @@ static Color getLoadStatusTextColor(String loadType) {
        return const Color(0xFF9A7B00); // Dark yellow
      case "assigned":
        return const Color(0xFF2E7D32); // Dark green
+     case "loading":
+       return AppColors.lightBrownTextColor; // Dark green
+     case "in transit":
+       return AppColors.redTextColor; // Dark green
+     case "unloading":
+       return AppColors.greenColor; // Dark green
+     case "unloading held":
+       return AppColors.white; // Dark green
+     case "completed":
+       return AppColors.white; // Dark green
      default:
        return Colors.black;
    }
@@ -182,7 +233,45 @@ static Color getLoadStatusTextColor(String loadType) {
    return "$cleanedAddress, $cleanedLocation";
  }
 
+ static LoadStatus? getLoadStatusFromString(String? loadType) {
+   switch (loadType) {
+     case 'KYC Pending':
+       return LoadStatus.kycPending;
+     case 'Matching':
+       return LoadStatus.matching;
+     case 'Confirmed':
+       return LoadStatus.confirmed;
+     case 'Assigned':
+       return LoadStatus.assigned;
+     case 'Loading':
+       return LoadStatus.loading;
+     case 'In Transit':
+       return LoadStatus.inTransit;
+     case 'Unloading':
+       return LoadStatus.unloading;
+     case 'Unloading Held':
+       return LoadStatus.unloadingHeld;
+     case 'Completed':
+       return LoadStatus.completed;
+     default:
+       return null;
+   }
+ }
 
 
 
+
+
+}
+
+enum LoadStatus {
+  kycPending,
+  matching,
+  confirmed,
+  assigned,
+  loading,
+  inTransit,
+  unloading,
+  unloadingHeld,
+  completed
 }

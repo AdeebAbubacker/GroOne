@@ -1,59 +1,56 @@
 class CityModel {
   CityModel({
-    required this.success,
-    required this.message,
-    required this.data,
+    required this.id,
+    required this.country,
+    required this.countryCode,
+    required this.state,
+    required this.stateCode,
+    required this.city,
+    required this.createdAt,
+    required this.deletedAt,
   });
 
-  final bool success;
-  final String message;
-  final CityData? data;
+  final int id;
+  final String country;
+  final String countryCode;
+  final String state;
+  final String stateCode;
+  final String city;
+  final DateTime? createdAt;
+  final dynamic deletedAt;
 
   CityModel copyWith({
-    bool? success,
-    String? message,
-    CityData? data,
+    int? id,
+    String? country,
+    String? countryCode,
+    String? state,
+    String? stateCode,
+    String? city,
+    DateTime? createdAt,
+    dynamic? deletedAt,
   }) {
     return CityModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
+      id: id ?? this.id,
+      country: country ?? this.country,
+      countryCode: countryCode ?? this.countryCode,
+      state: state ?? this.state,
+      stateCode: stateCode ?? this.stateCode,
+      city: city ?? this.city,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
   factory CityModel.fromJson(Map<String, dynamic> json){
     return CityModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : CityData.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class CityData {
-  CityData({
-    required this.success,
-    required this.response,
-  });
-
-  final bool success;
-  final List<String> response;
-
-  CityData copyWith({
-    bool? success,
-    List<String>? response,
-  }) {
-    return CityData(
-      success: success ?? this.success,
-      response: response ?? this.response,
-    );
-  }
-
-  factory CityData.fromJson(Map<String, dynamic> json){
-    return CityData(
-      success: json["success"] ?? false,
-      response: json["response"] == null ? [] : List<String>.from(json["response"]!.map((x) => x)),
+      id: json["id"] ?? 0,
+      country: json["country"] ?? "",
+      countryCode: json["countryCode"] ?? "",
+      state: json["state"] ?? "",
+      stateCode: json["stateCode"] ?? "",
+      city: json["city"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      deletedAt: json["deletedAt"],
     );
   }
 

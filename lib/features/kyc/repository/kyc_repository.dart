@@ -13,6 +13,8 @@ import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
@@ -27,9 +29,11 @@ import '../service/kyc_service.dart';
 
 class KycRepository {
   final KycService _kycService;
+  final UserInformationRepository _userInformationRepository;
+  KycRepository(this._kycService, this._userInformationRepository);
 
-  KycRepository(this._kycService);
 
+  /// Send Kyc otp repo
   Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
     try {
       return await _kycService.kycSendOtp(request);
@@ -39,9 +43,9 @@ class KycRepository {
     }
   }
 
-  Future<Result<AadhaarVerifyOtpModel>> verifyAddharOtp(
-    AddharVerifyOtpApiRequest request,
-  ) async {
+
+  /// Verify Aadhaar Repo
+  Future<Result<AadhaarVerifyOtpModel>> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
     try {
       return await _kycService.kycVerifyOtp(request);
     } catch (e) {
@@ -50,6 +54,8 @@ class KycRepository {
     }
   }
 
+
+  /// Verify Gst Repo
   Future<Result<bool>> verifyGST(VerifyGstApiRequest request) async {
     try {
       return await _kycService.verifyGst(request);
@@ -59,6 +65,8 @@ class KycRepository {
     }
   }
 
+
+  /// Verify Tan Repo
   Future<Result<bool>> verifyTan(VerifyTanApiRequest request) async {
     try {
       return await _kycService.verifyTan(request);
@@ -68,6 +76,8 @@ class KycRepository {
     }
   }
 
+
+  /// Verify Pan Repo
   Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
     try {
       return await _kycService.verifyPan(request);
@@ -77,6 +87,8 @@ class KycRepository {
     }
   }
 
+
+  /// Submit Kyc Repo
   Future<Result<SubmitKycModel>> submitKyc(SubmitKycApiRequest request,{required String userId}) async {
     try {
       return await _kycService.submitKyc(request,userID:userId );
@@ -90,9 +102,14 @@ class KycRepository {
   /// Upload GST Repo
   Future<Result<UploadGSTDocumentModel>> getUploadGstData(File file) async {
     try {
-      return await _kycService.fetchUploadGstData(file);
+      return await _kycService.fetchUploadGstData(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: GST_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload document data", e);
+      CustomLog.error(this, "Failed to get upload gst document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -101,9 +118,14 @@ class KycRepository {
   /// Upload TAN Repo
   Future<Result<UploadTANDocumentModel>> getUploadTanData(File file) async {
     try {
-      return await _kycService.fetchUploadTanData(file);
+      return await _kycService.uploadTanDoc(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: TAN_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload document data", e);
+      CustomLog.error(this, "Failed to get upload tan document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -112,9 +134,14 @@ class KycRepository {
   /// Upload PAN Repo
   Future<Result<UploadPANDocumentModel>> getUploadPanData(File file) async {
     try {
-      return await _kycService.fetchUploadPanData(file);
+      return await _kycService.uploadPanDoc(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: PAN_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload document data", e);
+      CustomLog.error(this, "Failed to get upload pan document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -123,9 +150,14 @@ class KycRepository {
   /// Upload TDS Repo
   Future<Result<UploadTDSDocumentModel>> getUploadTdsData(File file) async {
     try {
-      return await _kycService.fetchUploadTdsData(file);
+      return await _kycService.uploadTDSDoc(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: TDS_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload document data", e);
+      CustomLog.error(this, "Failed to get upload tds document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -134,16 +166,21 @@ class KycRepository {
   /// Upload Cancelled Repo
   Future<Result<UploadCancelledCheckedDocumentModel>> getUploadCancelledCheckedData(File file) async {
     try {
-      return await _kycService.fetchUploadCancelledCheckedData(file);
+      return await _kycService.uploadCancelledCheckedDoc(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: CHECKED_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload document data", e);
+      CustomLog.error(this, "Failed to get upload cancelled checked document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
 
   /// Get State Repo
-  Future<Result<StateModel>> getStateData() async {
+  Future<Result<List<StateModel>>> getStateData() async {
     try {
       return await _kycService.fetchStateData();
     } catch (e) {
@@ -154,13 +191,29 @@ class KycRepository {
 
 
   /// Get City Repo
-  Future<Result<CityModel>> getCityData(String stateName) async {
+  Future<Result<List<CityModel>>> getCityData(String stateName) async {
     try {
       return await _kycService.fetchCityData(stateName);
     } catch (e) {
       CustomLog.error(this, "Failed to get city data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
+  }
+
+
+  /// fetch user role
+  Future<int?> getUserRole() async {
+    return await _userInformationRepository.getUserRole();
+  }
+
+  /// fetch user id
+  Future<String?> getUserId() async {
+    return await _userInformationRepository.getUserID();
+  }
+
+  /// fetch company Type Id
+  Future<String?> getCompanyTypeId() async {
+    return await _userInformationRepository.getCustomerTypeID();
   }
 
 

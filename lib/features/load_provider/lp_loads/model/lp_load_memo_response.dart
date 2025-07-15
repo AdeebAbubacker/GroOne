@@ -1,47 +1,13 @@
 class LpLoadMemoResponse {
   LpLoadMemoResponse({
-    required this.success,
-    required this.message,
-    required this.loadMemoData,
-  });
-
-  final bool success;
-  final String message;
-  final LoadMemoData? loadMemoData;
-
-  LpLoadMemoResponse copyWith({
-    bool? success,
-    String? message,
-    LoadMemoData? loadMemoData,
-  }) {
-    return LpLoadMemoResponse(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      loadMemoData: loadMemoData ?? this.loadMemoData,
-    );
-  }
-
-  factory LpLoadMemoResponse.fromJson(Map<String, dynamic> json){
-    return LpLoadMemoResponse(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      loadMemoData: json["data"] == null ? null : LoadMemoData.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class LoadMemoData {
-  LoadMemoData({
-    required this.id,
     required this.loadId,
     required this.transporter,
-    required this.trip,
+    required this.vehicleNumber,
     required this.memoNumber,
     required this.lane,
     required this.totalFreight,
-    required this.netFreight,
     required this.handlingCharges,
+    required this.netFreight,
     required this.advanceAmount,
     required this.balanceAmount,
     required this.advancePercentage,
@@ -50,10 +16,9 @@ class LoadMemoData {
     required this.truckSupplier,
   });
 
-  final int id;
   final String loadId;
   final String transporter;
-  final Trip? trip;
+  final String vehicleNumber;
   final String memoNumber;
   final String lane;
   final String totalFreight;
@@ -66,11 +31,10 @@ class LoadMemoData {
   final BankDetails? bankDetails;
   final TruckSupplier? truckSupplier;
 
-  LoadMemoData copyWith({
-    int? id,
+  LpLoadMemoResponse copyWith({
     String? loadId,
     String? transporter,
-    Trip? trip,
+    String? vehicleNumber,
     String? memoNumber,
     String? lane,
     String? totalFreight,
@@ -81,12 +45,12 @@ class LoadMemoData {
     String? advancePercentage,
     String? balancePercentage,
     BankDetails? bankDetails,
+    TruckSupplier? truckSupplier,
   }) {
-    return LoadMemoData(
-      id: id ?? this.id,
+    return LpLoadMemoResponse(
       loadId: loadId ?? this.loadId,
       transporter: transporter ?? this.transporter,
-      trip: trip ?? this.trip,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
       memoNumber: memoNumber ?? this.memoNumber,
       lane: lane ?? this.lane,
       totalFreight: totalFreight ?? this.totalFreight,
@@ -101,12 +65,11 @@ class LoadMemoData {
     );
   }
 
-  factory LoadMemoData.fromJson(Map<String, dynamic> json){
-    return LoadMemoData(
-      id: json["id"] ?? 0,
+  factory LpLoadMemoResponse.fromJson(Map<String, dynamic> json){
+    return LpLoadMemoResponse(
       loadId: json["loadId"] ?? "",
       transporter: json["transporter"] ?? "",
-      trip: json["trip"] == null ? null : Trip.fromJson(json["trip"]),
+      vehicleNumber: json["vehicleNumber"] ?? "",
       memoNumber: json["memoNumber"] ?? "",
       lane: json["lane"] ?? "",
       totalFreight: json["totalFreight"] ?? "",
@@ -114,7 +77,7 @@ class LoadMemoData {
       netFreight: json["netFreight"] ?? "",
       advanceAmount: json["advanceAmount"] ?? "",
       balanceAmount: json["balanceAmount"] ?? "",
-      advancePercentage: json["advencePercentage"] ?? "",
+      advancePercentage: json["advancePercentage"] ?? "",
       balancePercentage: json["balancePercentage"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
@@ -170,198 +133,30 @@ class TruckSupplier {
   TruckSupplier({
     required this.partnerName,
     required this.panNumber,
+    required this.vehicleNumber,
   });
 
-  final String partnerName;
+  final dynamic partnerName;
   final String panNumber;
+  final String vehicleNumber;
 
   TruckSupplier copyWith({
-    String? partnerName,
+    dynamic? partnerName,
     String? panNumber,
+    String? vehicleNumber,
   }) {
     return TruckSupplier(
       partnerName: partnerName ?? this.partnerName,
       panNumber: panNumber ?? this.panNumber,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
     );
   }
 
   factory TruckSupplier.fromJson(Map<String, dynamic> json){
     return TruckSupplier(
-      partnerName: json["partnerName"] ?? "",
+      partnerName: json["partnerName"],
       panNumber: json["panNumber"] ?? "",
-    );
-  }
-
-}
-
-
-class Trip {
-  Trip({
-    required this.id,
-    required this.vehicleId,
-    required this.driverId,
-    required this.acceptedBy,
-    required this.etaForPickUp,
-    required this.expectedDeliveryDate,
-    required this.status,
-    required this.createdAt,
-    required this.deletedAt,
-    required this.loadId,
-    required this.driver,
-    required this.vehicle,
-  });
-
-  final int id;
-  final num vehicleId;
-  final num driverId;
-  final num acceptedBy;
-  final DateTime? etaForPickUp;
-  final DateTime? expectedDeliveryDate;
-  final num status;
-  final DateTime? createdAt;
-  final dynamic deletedAt;
-  final num loadId;
-  final Driver? driver;
-  final Vehicle? vehicle;
-
-  Trip copyWith({
-    int? id,
-    num? vehicleId,
-    num? driverId,
-    num? acceptedBy,
-    DateTime? etaForPickUp,
-    DateTime? expectedDeliveryDate,
-    num? status,
-    DateTime? createdAt,
-    dynamic? deletedAt,
-    num? loadId,
-    Driver? driver,
-    Vehicle? vehicle,
-  }) {
-    return Trip(
-      id: id ?? this.id,
-      vehicleId: vehicleId ?? this.vehicleId,
-      driverId: driverId ?? this.driverId,
-      acceptedBy: acceptedBy ?? this.acceptedBy,
-      etaForPickUp: etaForPickUp ?? this.etaForPickUp,
-      expectedDeliveryDate: expectedDeliveryDate ?? this.expectedDeliveryDate,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      loadId: loadId ?? this.loadId,
-      driver: driver ?? this.driver,
-      vehicle: vehicle ?? this.vehicle,
-    );
-  }
-
-  factory Trip.fromJson(Map<String, dynamic> json){
-    return Trip(
-      id: json["id"] ?? 0,
-      vehicleId: json["vehicleId"] ?? 0,
-      driverId: json["driverId"] ?? 0,
-      acceptedBy: json["acceptedBy"] ?? 0,
-      etaForPickUp: DateTime.tryParse(json["etaForPickUp"] ?? ""),
-      expectedDeliveryDate: DateTime.tryParse(json["expectedDeliveryDate"] ?? ""),
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
-      loadId: json["loadId"] ?? 0,
-      driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
-      vehicle: json["vehicle"] == null ? null : Vehicle.fromJson(json["vehicle"]),
-    );
-  }
-
-}
-
-class Driver {
-  Driver({
-    required this.id,
-    required this.name,
-    required this.mobile,
-  });
-
-  final int id;
-  final String name;
-  final String mobile;
-
-  Driver copyWith({
-    int? id,
-    String? name,
-    String? mobile,
-  }) {
-    return Driver(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      mobile: mobile ?? this.mobile,
-    );
-  }
-
-  factory Driver.fromJson(Map<String, dynamic> json){
-    return Driver(
-      id: json["id"] ?? 0,
-      name: json["name"] ?? "",
-      mobile: json["mobile"] ?? "",
-    );
-  }
-
-}
-
-class Vehicle {
-  Vehicle({
-    required this.id,
-    required this.vehicleNumber,
-    required this.truckType,
-  });
-
-  final int id;
-  final String vehicleNumber;
-  final TruckType? truckType;
-
-  Vehicle copyWith({
-    int? id,
-    String? vehicleNumber,
-    TruckType? truckType,
-  }) {
-    return Vehicle(
-      id: id ?? this.id,
-      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
-      truckType: truckType ?? this.truckType,
-    );
-  }
-
-  factory Vehicle.fromJson(Map<String, dynamic> json){
-    return Vehicle(
-      id: json["id"] ?? 0,
       vehicleNumber: json["vehicleNumber"] ?? "",
-      truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-    );
-  }
-
-}
-
-class TruckType {
-  TruckType({
-    required this.type,
-    required this.subType,
-  });
-
-  final String type;
-  final String subType;
-
-  TruckType copyWith({
-    String? type,
-    String? subType,
-  }) {
-    return TruckType(
-      type: type ?? this.type,
-      subType: subType ?? this.subType,
-    );
-  }
-
-  factory TruckType.fromJson(Map<String, dynamic> json){
-    return TruckType(
-      type: json["type"] ?? "",
-      subType: json["subType"] ?? "",
     );
   }
 

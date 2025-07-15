@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -23,12 +24,15 @@ class GoogleMapWidget extends StatefulWidget {
   final String? pickUpLatLong;
   final String? dropLatLong;
 
+  final double? driverLat;
+  final double? driverLong;
+
 
 
 
 
   // Drop co-ordinate
-  const GoogleMapWidget({super.key,this.pickupLocation,this.dropLocation,this.pickUpLatLong,this.dropLatLong});
+  const GoogleMapWidget({super.key,this.pickupLocation,this.dropLocation,this.pickUpLatLong,this.dropLatLong, this.driverLat, this.driverLong});
 
   @override
   State<GoogleMapWidget> createState() => _GoogleMapWidgetState();
@@ -58,6 +62,11 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong??"0,0");
     final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong??"0,0");
 
+    BitmapDescriptor driverIcon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(64, 64)),
+      AppIcons.png.driverIcon,
+    );
+
 
     frameCallback(() async {
      if(addMarker){
@@ -83,6 +92,18 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          dropLatLng.latitude,
          dropLatLng.longitude,
        );
+       // 🚛 Driver marker (if valid)
+       if (widget.driverLat != null && widget.driverLong != null) {
+         final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
+         _markers.value.add(
+           Marker(
+             markerId: MarkerId('driver'),
+             position: driverLatLng,
+             icon: driverIcon,
+             infoWindow: const InfoWindow(title: 'Driver Location'),
+           ),
+         );
+       }
        await vpDetailsCubit.getMapRouting(
            dropLong: dropLatLng.longitude.toString(),
            dropLat: dropLatLng.latitude.toString(),

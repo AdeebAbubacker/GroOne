@@ -4,7 +4,7 @@ class KavachAddressModel extends Equatable {
   final int id;
   final String customerName;
   final String mobileNumber;
-  final int customerId;
+  final String customerId;
   final String addressName;
   final String addr1;
   final String addr2;
@@ -37,26 +37,47 @@ class KavachAddressModel extends Equatable {
     this.deletedAt,
   });
 
+  // factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
+  //   return KavachAddressModel(
+  //     id: json['id'],
+  //     customerName: json['customerName']??'',
+  //     mobileNumber: json['mobileNumber']??'',
+  //     customerId: json['customerId'],
+  //     addressName: json['addressName']??'',
+  //     addr1: json['addr1'],
+  //     addr2: json['addr2'],
+  //     city: json['city'],
+  //     state: json['state'],
+  //     country: json['country'],
+  //     gstin: json['gstin'],
+  //     pincode: json['pincode'],
+  //     addrType: json['addrType'],
+  //     status: json['status'],
+  //     createdAt: DateTime.parse(json['createdAt']),
+  //     deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+  //   );
+  // }
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
-      id: json['id'],
-      customerName: json['customerName']??'',
-      mobileNumber: json['mobileNumber']??'',
+      id: 0, // No ID in response? Or assign a default
+      customerName: '', // Not provided in new API
+      mobileNumber: '', // Not provided in new API
       customerId: json['customerId'],
-      addressName: json['addressName']??'',
-      addr1: json['addr1'],
-      addr2: json['addr2'],
+      addressName: json['addrName'] ?? '',
+      addr1: json['addr'] ?? '',
+      addr2: '', // No addr2 in new API
       city: json['city'],
       state: json['state'],
       country: json['country'],
-      gstin: json['gstin'],
+      gstin: json['gstIn'],
       pincode: json['pincode'],
-      addrType: json['addrType'],
-      status: json['status'],
+      addrType: int.tryParse(json['addrType'].toString()) ?? 0,
+      status: json['status'] ?? 1,
       createdAt: DateTime.parse(json['createdAt']),
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
     );
   }
+
 
   String get fullAddress => '$addr1, $city, $state, $country - $pincode';
 

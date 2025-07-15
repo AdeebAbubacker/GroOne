@@ -238,9 +238,7 @@ class ImagePickerFrom {
     } else {
       final File fileImage = File(pickedFromCamera.path);
       final File fileName = File(pickedFromCamera.name);
-      final String fileExtension = path
-          .extension(pickedFromCamera.path)
-          .replaceFirst('.', '');
+      final String fileExtension = path.extension(pickedFromCamera.path).replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
@@ -266,9 +264,7 @@ class ImagePickerFrom {
     } else {
       final File fileImage = File(pickedFromGallery.path);
       final File fileName = File(pickedFromGallery.name);
-      final String fileExtension = path
-          .extension(pickedFromGallery.path)
-          .replaceFirst('.', '');
+      final String fileExtension = path.extension(pickedFromGallery.path).replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
@@ -365,7 +361,7 @@ Future<Map?> pickMultipleFiles<T>() async {
         "dateTime": DateTime.now().toString(),
       };
 
-      if (file.size > 8000000) {
+      if (file.size > 5000000) {
         ToastMessages.alert(message: AppString.label.imageSize);
         return null;
       } else {
@@ -550,22 +546,7 @@ String formatDateTimeKavach(String dateTimeString) {
   return formatted;
 }
 
-Color getKavachOrderStatusColor(String status) {
-  switch (status) {
-    case 'Order Placed':
-      return AppColors.primaryColor;
-    case 'Dispatched':
-      return Colors.orange;
-    case 'Delivered':
-      return AppColors.greenColor;
-    case 'Failed':
-      return AppColors.activeRedColor;
-    case 'Installed':
-      return Colors.teal;
-    default:
-      return AppColors.primaryColor;
-  }
-}
+
 
 /// Common Support Dialog
 void commonSupportDialog(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/model/login_model.dart';
+import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
@@ -14,11 +15,14 @@ class MobileOtpVerificationService {
   MobileOtpVerificationService(this._apiService);
 
   //
-  Future<Result<MobileOtpVerificationModel>> fetchSendOtpData(OtpRequest request) async {
+  Future<Result<MobileOtpVerificationModel>> fetchSendOtpData(
+    OtpRequest request,
+  ) async {
     try {
       final result = await _apiService.post(ApiUrls.login, body: request);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => MobileOtpVerificationModel.fromJson(data));
+        final data = MobileOtpVerificationModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -30,13 +34,14 @@ class MobileOtpVerificationService {
     }
   }
 
-
-  Future<Result<LoginApiResponseModel>> resendOtp(LoginApiRequest request,
+  Future<Result<MobileOtpResendModel>> resendOtp(
+    LoginApiRequest request,
   ) async {
     try {
       final result = await _apiService.post(ApiUrls.resendOtp, body: request);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => LoginApiResponseModel.fromJson(data));
+        final data = MobileOtpResendModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -44,7 +49,7 @@ class MobileOtpVerificationService {
       }
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
+      return Error(DeserializationError()); 
     }
   }
 }

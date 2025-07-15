@@ -15,8 +15,8 @@ import 'package:gro_one_app/utils/app_route.dart';
 class LPWeightDropdown extends StatelessWidget {
   final String preFixIcon;
   final String hintText;
-  final Function(LoadWeightData) onSelect;
-  final List<LoadWeightData> dataList;
+  final Function(LoadWeightModel) onSelect;
+  final List<LoadWeightModel> dataList;
   final String? selectedText;
   final VoidCallback onTab;
   final LPHomeCubit cubit;

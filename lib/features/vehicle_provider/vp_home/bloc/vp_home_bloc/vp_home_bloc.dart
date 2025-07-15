@@ -22,6 +22,8 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
 
   VpHomeBloc(this._vHomeRepository, this._userInformationRepository)
     : super(VpHomeInitial()) {
+
+
     on<VpMyLoadListRequested>((event, emit) async {
       emit(VpMyLoadListLoading());
 

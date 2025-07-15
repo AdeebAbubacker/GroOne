@@ -143,6 +143,28 @@ class DateTimeHelper {
 
   }
 
+  /// Converts ISO8601 string to "dd-MM-yyyy | hh:mm a" format in IST
+  static String formatToDateTimeWithTime(String isoDateString) {
+    try {
+      final dateTime = DateTime.parse(isoDateString).toUtc().add(const Duration(hours: 5, minutes: 30));
+      return DateFormat("dd-MM-yyyy | hh:mm a").format(dateTime);
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
+  /// Returns current date and time plus given duration (in seconds) formatted as "dd-MM-yyyy, hh:mm a"
+  static String getCurrentDateTimeWithAddedDuration(int durationInSeconds) {
+    try {
+      final dateTime = DateTime.now().add(Duration(seconds: durationInSeconds));
+      return DateFormat("dd-MM-yyyy, hh:mm a").format(dateTime);
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
+
+
 
 
 }

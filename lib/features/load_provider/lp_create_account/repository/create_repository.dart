@@ -1,6 +1,6 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -14,9 +14,10 @@ class LpCreateRepository {
   LpCreateRepository(this._lpCreateService, this._authRepository);
 
 
-  Future<Result<UserModel?>> lpCreateRegistration(CreateRequest request,{required String id}) async {
+  /// Create Account Repo
+  Future<Result<UserModel?>> getCreateAccountData(LpCreateApiRequest request) async {
     try {
-      Result<dynamic> result =  await _lpCreateService.lpRegister(request,id: id);
+      Result<dynamic> result =  await _lpCreateService.createAccount(request);
       if (result is Success<UserModel?>) {
         if(result.value != null){
           Result saveUserResult = await _authRepository.saveUserInfoFromCreateAccount(result.value!);
@@ -31,26 +32,23 @@ class LpCreateRepository {
       if(result is Error){
         return Error(result.type);
       }
-
       return Error(GenericError());
     } catch (e) {
-      CustomLog.error(this, "Failed to request vp creation", e);
+      CustomLog.error(this, "Failed to request lp creation", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
 
-
-
-
-
-  Future<Result<LpCompanyTypeResponse>> getCompanyType(
-   ) async {
+  /// Get Company Type
+  Future<Result<List<LpCompanyTypeModel>>> getCompanyTypeData() async {
     try {
-      return await _lpCreateService.getCompanyType();
+      return await _lpCreateService.fetchGetCompanyTypeData();
     } catch (e) {
-      CustomLog.error(this, "Failed to request Login In", e);
+      CustomLog.error(this, "Failed to request company type data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+
 }

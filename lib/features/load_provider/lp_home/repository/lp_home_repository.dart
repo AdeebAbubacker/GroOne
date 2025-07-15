@@ -43,7 +43,7 @@ class LpHomeRepository{
 
 
   /// Get Load Commodity data Repo
-  Future<Result<LoadCommodityListModel>> getLoadCommodityData() async {
+  Future<Result<List<LoadCommodityListModel>>> getLoadCommodityData() async {
     try {
       return await _lpHomeService.fetchLoadCommodityData();
     } catch (e) {
@@ -54,7 +54,7 @@ class LpHomeRepository{
 
 
   /// Get Truck Type data Repo
-  Future<Result<LoadTruckTypeListModel>> getTruckTypeData() async {
+  Future<Result<List<LoadTruckTypeListModel>>> getTruckTypeData() async {
     try {
       return await _lpHomeService.fetchTruckTypeData();
     } catch (e) {
@@ -68,7 +68,7 @@ class LpHomeRepository{
   Future<Result<CreateLoadModel>> getCreateLoadData(CreateLoadApiRequest request) async {
     try {
       String? userId = await _userInformationRepository.getUserID();
-      return await _lpHomeService.fetchCreateLoadData(request.copyWith(customerId: int.parse(userId ?? "0")));
+      return await _lpHomeService.fetchCreateLoadData(request.copyWith(customerId: userId));
     } catch (e) {
       CustomLog.error(this, "Failed to request create load data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -121,7 +121,7 @@ class LpHomeRepository{
 
 
   /// Get Load Weight Repo
-  Future<Result<LoadWeightModel>> getLoadWeightData() async {
+  Future<Result<List<LoadWeightModel>>> getLoadWeightData() async {
     try {
       return await _lpHomeService.fetchLoadWeightData();
     } catch (e) {

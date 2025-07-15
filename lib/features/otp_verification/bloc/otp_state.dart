@@ -19,7 +19,7 @@ class OtpSuccess extends OtpState {
 }
 
 class OtpResendSuccess extends OtpState {
-  final LoginApiResponseModel loginApiResponseModel;
+  final MobileOtpResendModel loginApiResponseModel;
 
   OtpResendSuccess(this.loginApiResponseModel);
 }
