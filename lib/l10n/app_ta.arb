@@ -320,14 +320,7 @@
   "callCustomerSupportSubtitle": "உடனடி ஆதரவுக்கு, இப்போது எங்கள் குழுவுடன் பேசுங்கள்.",
   "callNow": "இப்போது அழைக்கவும்",
   "retry": "மீண்டும் முயற்சிக்கவும்",
-  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
-  "geofence" : "Geofence",
-  "vehicles" : "Vehicles",
-  "addNewGeofence" : "Add New Geofence",
-  "confirmLocation" : "Confirm Location",
-  "geofenceName" : "Geofence Name",
-  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
-  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
+  "buyNewTankLock": "புதிய டாங் லாக் வாங்கவும்",
   "gpsBenefitGps": "எரிபொருள் அட்டையின் நன்மைகள்",
   "benefitsOfGpsCardHeading1": "பணமில்லா எரிபொருள் மற்றும் சுங்கக் கட்டணங்கள்",
   "benefitsOfGpsCardHeading2": "உண்மையாசிரிய செலவின கண்காணிப்பு",
@@ -339,7 +332,6 @@
   "gpsModels": "ஜிபிஎஸ் மாதிரிகள்",
   "aadharCard": "ஆதார் அட்டை*",
   "panCardOptional": "பான் அட்டை (விருப்பமானது)",
-  "buyNewTankLock" : "புதிய டாங் லாக் வாங்கவும்",
   "success": "Success",
   "failed": "Failed"
 

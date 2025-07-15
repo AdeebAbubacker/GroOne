@@ -8,11 +8,11 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
+
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
-import '../../../utils/common_functions.dart';
 import '../cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../model/gps_combined_vehicle_model.dart';
@@ -25,7 +25,6 @@ class GpsNotificationScreen extends StatefulWidget {
 }
 
 class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
-
   Map<String, bool> filterOptions = {
     "Ignition OFF": true,
     "Ignition ON": true,
@@ -50,7 +49,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(title: 'Notifications',centreTile: false,),
+      appBar: CommonAppBar(title: 'Notifications', centreTile: false),
       body: Column(
         children: [
           // _buildDropdown(),
@@ -111,6 +110,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                           selectedVehicle = newValue!;
                         });
                       },
+
                       // onChanged: (String? newValue) {
                       //   setState(() {
                       //     selectedVehicle = newValue!;
@@ -129,41 +129,48 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                       //     context.read<GpsNotificationCubit>().loadNotifications(selectedDeviceId.toString());
                       //   }
                       // },
-
                     );
                   }
                 },
               ).expand(),
               10.width,
               AppIconButton(
-                icon:  SvgPicture.asset(AppIcons.svg.newFilter, width: 20),
+                icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20),
                 style: AppButtonStyle.primaryIconButtonStyle,
                 onPressed: () {
                   _showFilterDialog();
                 },
               ),
             ],
-          ).paddingSymmetric(horizontal: 15,vertical: 10),
+          ).paddingSymmetric(horizontal: 15, vertical: 10),
           BlocBuilder<GpsNotificationCubit, GpsNotificationState>(
             builder: (context, state) {
               if (state is GpsNotificationLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else if (state is GpsNotificationLoaded) {
-                final selectedVehicleData = context.read<VehicleListCubit>().state.filteredVehicles.firstWhere(
+                final selectedVehicleData = context
+                    .read<VehicleListCubit>()
+                    .state
+                    .filteredVehicles
+                    .firstWhere(
                       (v) => v.vehicleNumber == selectedVehicle,
-                  orElse: () => GpsCombinedVehicleData(),
-                );
+                      orElse: () => GpsCombinedVehicleData(),
+                    );
 
                 final selectedDeviceId = selectedVehicleData.deviceId;
 
-                final filteredNotifications = state.notifications.where((notif) {
-                  final matchesVehicle = notif.deviceId == selectedDeviceId;
-                  final matchesFilter = filterOptions[notif.filterKey] ?? false;
-                  return matchesVehicle && matchesFilter;
-                }).toList();
+                final filteredNotifications =
+                    state.notifications.where((notif) {
+                      final matchesVehicle = notif.deviceId == selectedDeviceId;
+                      final matchesFilter =
+                          filterOptions[notif.filterKey] ?? false;
+                      return matchesVehicle && matchesFilter;
+                    }).toList();
 
                 if (filteredNotifications.isEmpty) {
-                  return const Center(child: Text("No notifications available"));
+                  return const Center(
+                    child: Text("No notifications available"),
+                  );
                 }
 
                 return ListView.separated(
@@ -187,12 +194,17 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                                 "${item.filterKey} alert",
                                 style: AppTextStyle.h5,
                               ),
-                              Text("Device ID: ${item.deviceId}",style: AppTextStyle.h6GreyColor,)
+                              Text(
+                                "Device ID: ${item.deviceId}",
+                                style: AppTextStyle.h6GreyColor,
+                              ),
                             ],
                           ),
                         ),
                         Text(
-                          DateFormat('dd MMMM yyyy,\n h:mm a').format(item.fixTime),
+                          DateFormat(
+                            'dd MMMM yyyy,\n h:mm a',
+                          ).format(item.fixTime),
                           style: AppTextStyle.h6GreyColor,
                         ),
                       ],
@@ -206,7 +218,6 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
               }
             },
           ).expand(),
-
         ],
       ),
     );

@@ -57,7 +57,7 @@ class ApiService {
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
-    await _cacheManager.clearAll();
+    // await _cacheManager.clearAll();
   }
 
   /// Get

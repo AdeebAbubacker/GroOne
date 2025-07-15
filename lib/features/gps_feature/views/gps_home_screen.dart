@@ -13,7 +13,6 @@ import 'package:gro_one_app/utils/app_image.dart';
 
 import '../../../utils/app_route.dart';
 import '../cubit/vehicle_list_cubit.dart';
-import 'gps_notification_screen.dart';
 
 class GpsHomeScreen extends StatelessWidget {
   const GpsHomeScreen({super.key});
@@ -35,14 +34,8 @@ class GpsHomeScreen extends StatelessWidget {
       value: gpsLoginCubit,
       child: BlocListener<GpsLoginCubit, GpsLoginState>(
         listener: (context, state) {
-          if (state.loginState?.status == Status.SUCCESS) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('GPS Login successful - Fetching data...'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state.loginState?.status == Status.ERROR) {
+          // Only show snackbars for errors during initial load, not success messages
+          if (state.loginState?.status == Status.ERROR) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -53,14 +46,7 @@ class GpsHomeScreen extends StatelessWidget {
             );
           }
 
-          if (state.dataFetchState?.status == Status.SUCCESS) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('All GPS data loaded successfully!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state.dataFetchState?.status == Status.ERROR) {
+          if (state.dataFetchState?.status == Status.ERROR) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -113,10 +99,9 @@ class GpsHomeScreen extends StatelessWidget {
           ),
           body: BlocBuilder<GpsLoginCubit, GpsLoginState>(
             builder: (context, state) {
-              // Show loading overlay during data fetch
+              // Only show loading overlay during manual refresh, not initial silent load
               final isLoading =
-                  state.loginState?.status == Status.LOADING ||
-                  state.dataFetchState?.status == Status.LOADING;
+                  false; // Disable loading overlay for initial load
 
               return Stack(
                 children: [
@@ -124,6 +109,14 @@ class GpsHomeScreen extends StatelessWidget {
                     onRefresh: () async {
                       print("🔄 GpsHomeScreen - Pull to refresh triggered");
                       await gpsLoginCubit.refreshData();
+                      // Show success message for manual refresh
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('GPS data refreshed successfully!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -253,10 +246,15 @@ class GpsHomeScreen extends StatelessWidget {
         AppConstants.primaryColor,
         () {
           // context.push(AppRouteName.gpsDashboard);
-          Navigator.push(context, commonRoute(BlocProvider.value(
-            value: locator<VehicleListCubit>()..loadVehicleData(),
-            child: GpsDashboardScreen(),
-          )));
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsDashboardScreen(),
+              ),
+            ),
+          );
         },
       ),
       _MenuItem(

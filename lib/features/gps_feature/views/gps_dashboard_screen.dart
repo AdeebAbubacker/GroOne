@@ -1,13 +1,14 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:realm/realm.dart';
+
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
 import '../constants/app_constants.dart';
@@ -29,8 +30,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
   int insideFence = 0, outsideFence = 0;
   double totalDistance = 0.0;
   late Realm _realm;
-
-
 
   @override
   void initState() {
@@ -76,19 +75,20 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
         inactive++;
       }
 
-      if (vehicle.odoReading != null &&
-          vehicle.odoReading!.contains('km')) {
-        totalDistance += double.tryParse(
-          vehicle.odoReading!.replaceAll('km', '').replaceAll(',', '').trim(),
-        ) ??
+      if (vehicle.odoReading != null && vehicle.odoReading!.contains('km')) {
+        totalDistance +=
+            double.tryParse(
+              vehicle.odoReading!
+                  .replaceAll('km', '')
+                  .replaceAll(',', '')
+                  .trim(),
+            ) ??
             0;
       }
     }
 
     setState(() => isLoading = false);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
           //   orElse: () => vehicles.first,
           // );
           final selectedVehicle = vehicles.firstWhere(
-                (v) => v.vehicleNumber == selectedVehicleNumber,
+            (v) => v.vehicleNumber == selectedVehicleNumber,
             orElse: () {
               final fallback = vehicles.first;
               selectedVehicleNumber = fallback.vehicleNumber;
@@ -129,12 +129,14 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
           );
 
           // Calculate inside/outside fence counts
-          final insideFenceCount = vehicles
-              .where((v) => v.location!.contains('Inside Fence'))
-              .length;
-          final outsideFenceCount = vehicles
-              .where((v) => v.location!.contains('Outside Fence'))
-              .length;
+          final insideFenceCount =
+              vehicles
+                  .where((v) => v.location!.contains('Inside Fence'))
+                  .length;
+          final outsideFenceCount =
+              vehicles
+                  .where((v) => v.location!.contains('Outside Fence'))
+                  .length;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -158,10 +160,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
   }
 
   Widget _buildTopGrid(
-      VehicleListState state,
-      int insideFenceCount,
-      int outsideFenceCount,
-      ) {
+    VehicleListState state,
+    int insideFenceCount,
+    int outsideFenceCount,
+  ) {
     return Column(
       children: [
         Row(
@@ -250,10 +252,11 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     );
   }
 
-
-
   Widget _buildStatusCircles(VehicleListState state) {
-    final total = state.statusCount.total == 0 ? 1 : state.statusCount.total; // avoid divide by zero
+    final total =
+        state.statusCount.total == 0
+            ? 1
+            : state.statusCount.total; // avoid divide by zero
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -320,7 +323,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     );
   }
 
-
   Widget _buildTotalDistance(GpsCombinedVehicleData vehicle) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -343,21 +345,24 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
   }
 
   Widget _buildGraphSection(List<GpsCombinedVehicleData> vehicles) {
-    final vehicleNumbers = vehicles
-        .map((v) => v.vehicleNumber)
-        .whereType<String>()
-        .toSet()
-        .toList();
+    final vehicleNumbers =
+        vehicles
+            .map((v) => v.vehicleNumber)
+            .whereType<String>()
+            .toSet()
+            .toList();
 
     // if (selectedVehicleNumber == null || !vehicleNumbers.contains(selectedVehicleNumber)) {
     //   selectedVehicleNumber = vehicleNumbers.isNotEmpty ? vehicleNumbers.first : null;
     // }
 
     // Filter and prepare data for the graph
-    final selectedVehicleData = vehicles
-        .where((v) => v.vehicleNumber == selectedVehicleNumber)
-        .toList()
-      ..sort((a, b) => a.lastUpdate?.compareTo(b.lastUpdate ?? DateTime.now()) ?? 0);
+    final selectedVehicleData =
+        vehicles.where((v) => v.vehicleNumber == selectedVehicleNumber).toList()
+          ..sort(
+            (a, b) =>
+                a.lastUpdate?.compareTo(b.lastUpdate ?? DateTime.now()) ?? 0,
+          );
 
     final List<FlSpot> graphPoints = [];
     int index = 1;
@@ -366,9 +371,8 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
       // Convert todayDistance to double
       double distanceValue = 0;
       if (data.todayDistance != null && data.todayDistance!.contains("km")) {
-        distanceValue = double.tryParse(
-          data.todayDistance!.replaceAll("km", "").trim(),
-        ) ??
+        distanceValue =
+            double.tryParse(data.todayDistance!.replaceAll("km", "").trim()) ??
             0;
       }
       graphPoints.add(FlSpot(index.toDouble(), distanceValue));
@@ -393,18 +397,19 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
         children: [
           AppDropdown(
             dropdownValue: selectedVehicleNumber,
-            dropDownList: vehicleNumbers.map((number) {
-              return DropdownMenuItem<String>(
-                value: number,
-                child: Row(
-                  children: [
-                    const Icon(Icons.directions_car, size: 18),
-                    const SizedBox(width: 10),
-                    Text(number),
-                  ],
-                ),
-              );
-            }).toList(),
+            dropDownList:
+                vehicleNumbers.map((number) {
+                  return DropdownMenuItem<String>(
+                    value: number,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.directions_car, size: 18),
+                        const SizedBox(width: 10),
+                        Text(number),
+                      ],
+                    ),
+                  );
+                }).toList(),
             onChanged: (String? newValue) {
               setState(() {
                 selectedVehicleNumber = newValue!;
@@ -437,9 +442,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                         if (index >= 0 && index < selectedVehicleData.length) {
                           final date = selectedVehicleData[index].lastUpdate;
                           return Text(
-                            date != null
-                                ? "${date.day}/${date.month}"
-                                : "",
+                            date != null ? "${date.day}/${date.month}" : "",
                             style: const TextStyle(fontSize: 10),
                           );
                         }
@@ -452,8 +455,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                       showTitles: true,
                       reservedSize: 40,
                       getTitlesWidget: (value, meta) {
-                        return Text('${value.toInt()} Kms',
-                            style: const TextStyle(fontSize: 10));
+                        return Text(
+                          '${value.toInt()} Kms',
+                          style: const TextStyle(fontSize: 10),
+                        );
                       },
                     ),
                   ),
@@ -469,9 +474,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                     isCurved: true,
                     color: Colors.blue,
                     barWidth: 3,
-                    dotData: FlDotData(
-                      show: true,
-                    ),
+                    dotData: FlDotData(show: true),
                     belowBarData: BarAreaData(show: false),
                   ),
                 ],
@@ -483,17 +486,17 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     );
   }
 
-
-// Helper to calculate dynamic maxY
-//   double _getMaxY(List<FlSpot> points) {
-//     final maxY = points.map((e) => e.y).fold(0.0, (prev, y) => y > prev ? y : prev);
-//     return maxY + 10; // Add a little padding
-//   }
+  // Helper to calculate dynamic maxY
+  //   double _getMaxY(List<FlSpot> points) {
+  //     final maxY = points.map((e) => e.y).fold(0.0, (prev, y) => y > prev ? y : prev);
+  //     return maxY + 10; // Add a little padding
+  //   }
   double _getMaxY(List<FlSpot> points) {
-    final maxY = points.map((e) => e.y).fold(0.0, (prev, y) => y > prev ? y : prev);
+    final maxY = points
+        .map((e) => e.y)
+        .fold(0.0, (prev, y) => y > prev ? y : prev);
     return (maxY + 5).ceilToDouble(); // Add padding and round up
   }
-
 
   Widget _buildBottomDistanceSummary(GpsCombinedVehicleData vehicle) {
     return Row(
@@ -507,8 +510,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
             ),
             child: Column(
               children: [
-                const Text('This Month',
-                    style: TextStyle(fontSize: 13, color: Colors.grey)),
+                const Text(
+                  'This Month',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                ),
                 const SizedBox(height: 5),
                 Text(vehicle.odoReading ?? '0 Kms', style: AppTextStyle.h5),
               ],
@@ -525,8 +530,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
             ),
             child: Column(
               children: [
-                const Text('Last 7 Days',
-                    style: TextStyle(fontSize: 13, color: Colors.grey)),
+                const Text(
+                  'Last 7 Days',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                ),
                 const SizedBox(height: 5),
                 Text(vehicle.todayDistance ?? '0 Kms', style: AppTextStyle.h5),
               ],
@@ -537,8 +544,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     );
   }
 }
-
-
 
 // class GpsDashboardScreen extends StatefulWidget {
 //   const GpsDashboardScreen({super.key});

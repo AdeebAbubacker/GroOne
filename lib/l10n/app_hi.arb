@@ -284,10 +284,9 @@
   "gpsModels": "जीपीएस मॉडल्स",
   "aadharCard": "आधार कार्ड*",
   "panCardOptional": "पैन कार्ड (वैकल्पिक)",
-  "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
+  "benefitsOfFuelCardSubHeading3": "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
   "success": "Success",
-  "failed": "Failed"
-  "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
+  "failed": "Failed",
 
   "gpsHome": "GPS",
   "notification": "सूचना",
@@ -333,11 +332,10 @@
   "callCustomerSupportSubtitle": "तत्काल सहायता के लिए, अभी हमारी टीम से बात करें।",
   "callNow": "अभी कॉल करें",
   "retry": "पुनः प्रयास करें",
-  "benefitsOfFuelCardSubHeading3" : "स्वचालित डिजिटल रिकॉर्ड्स कागज़ी कार्य कम करते हैं और GST इनपुट क्रेडिट व अकाउंटिंग में मदद करते हैं।",
-  "geofence" : "Geofence",
-  "vehicles" : "Vehicles",
-  "addNewGeofence" : "Add New Geofence",
-  "confirmLocation" : "Confirm Location",
-  "geofenceName" : "Geofence Name",
-  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
+  "geofence": "Geofence",
+  "vehicles": "Vehicles",
+  "addNewGeofence": "Add New Geofence",
+  "confirmLocation": "Confirm Location",
+  "geofenceName": "Geofence Name",
+  "geofenceLocationSetSuccessfully": "Geofence location has been set successfully."
 }

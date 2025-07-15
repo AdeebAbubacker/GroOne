@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
 import '../../../helpers/map_helper.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_text_field.dart';
@@ -49,10 +48,10 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   void _toggleMapType() {
     setState(() {
-      _mapType = _mapType == MapType.normal ? MapType.satellite : MapType.normal;
+      _mapType =
+          _mapType == MapType.normal ? MapType.satellite : MapType.normal;
     });
   }
-
 
   final TextEditingController _geofenceNameController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
@@ -75,27 +74,43 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       // Scenario 1: Viewing/Editing an existing geofence
       _activeGeofence = widget.geofence!;
       _geofenceNameController.text = _activeGeofence!.name;
-      _mode = _getInitialModeForExistingGeofence(_activeGeofence!); // Start in edit mode
+      _mode = _getInitialModeForExistingGeofence(
+        _activeGeofence!,
+      ); // Start in edit mode
 
       if (_activeGeofence!.shapeType == "circle") {
-        _currentCenter = _activeGeofence!.center ?? const LatLng(28.6139, 77.2090);
+        _currentCenter =
+            _activeGeofence!.center ?? const LatLng(28.6139, 77.2090);
         // _currentRadius = _activeGeofence!.radius ?? 500;
         _currentRadius = (_activeGeofence!.radius ?? 500).clamp(40.0, 20040.0);
         _setCircle(_currentCenter!, _currentRadius);
-        _setMarker(_currentCenter!, isDraggable: _mode == GeofenceMode.editCircle);
+        _setMarker(
+          _currentCenter!,
+          isDraggable: _mode == GeofenceMode.editCircle,
+        );
       } else if (_activeGeofence!.shapeType == "polygon") {
         _currentPolygonPoints = _activeGeofence!.polygonPoints ?? [];
         if (_currentPolygonPoints.isNotEmpty) {
-          _currentCenter = _getPolygonCenter(_currentPolygonPoints); // Calculate center for camera
+          _currentCenter = _getPolygonCenter(
+            _currentPolygonPoints,
+          ); // Calculate center for camera
           _setPolygon(_currentPolygonPoints);
-          _setPolygonMarkers(_currentPolygonPoints, isDraggable: _mode == GeofenceMode.editPolygon);
+          _setPolygonMarkers(
+            _currentPolygonPoints,
+            isDraggable: _mode == GeofenceMode.editPolygon,
+          );
         }
       } else if (_activeGeofence!.shapeType == "polyline") {
         _currentPolylinePoints = _activeGeofence!.polygonPoints ?? [];
         if (_currentPolylinePoints.isNotEmpty) {
-          _currentCenter = _getPolylineCenter(_currentPolylinePoints); // Calculate center for camera
+          _currentCenter = _getPolylineCenter(
+            _currentPolylinePoints,
+          ); // Calculate center for camera
           _setPolyline(_currentPolylinePoints);
-          _setPolylineMarkers(_currentPolylinePoints, isDraggable: _mode == GeofenceMode.editPolyline);
+          _setPolylineMarkers(
+            _currentPolylinePoints,
+            isDraggable: _mode == GeofenceMode.editPolyline,
+          );
         }
       }
     }
@@ -128,7 +143,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       }
     }
   }
-
 
   void _setCircle(LatLng center, double radius) {
     setState(() {
@@ -265,7 +279,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
               _setCircle(_currentCenter!, _currentRadius);
             });
           },
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueAzure,
+          ),
         ),
       };
     });
@@ -286,7 +302,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolygon(_currentPolygonPoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueGreen,
+            ),
           ),
         );
       }
@@ -308,7 +326,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolyline(_currentPolylinePoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueRed,
+            ),
           ),
         );
       }
@@ -319,14 +339,24 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     _mapController = controller;
     // Move camera to initial position after map is created
     if (_activeGeofence!.shapeType == "circle" && _currentCenter != null) {
-      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(_currentCenter!, 12));
-    } else if ((_activeGeofence!.shapeType == "polygon" || _activeGeofence!.shapeType == "polyline") &&
-        (_currentPolygonPoints.isNotEmpty || _currentPolylinePoints.isNotEmpty)) {
-      _mapController?.animateCamera(CameraUpdate.newLatLngBounds(
-          _getLatLngBounds(_activeGeofence!.polygonPoints ?? []), 50));
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(_currentCenter!, 12),
+      );
+    } else if ((_activeGeofence!.shapeType == "polygon" ||
+            _activeGeofence!.shapeType == "polyline") &&
+        (_currentPolygonPoints.isNotEmpty ||
+            _currentPolylinePoints.isNotEmpty)) {
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          _getLatLngBounds(_activeGeofence!.polygonPoints ?? []),
+          50,
+        ),
+      );
     } else {
       // If no geofence or points, animate to a default location (e.g., Delhi)
-      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(const LatLng(28.6139, 77.2090), 5));
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(const LatLng(28.6139, 77.2090), 5),
+      );
     }
   }
 
@@ -354,7 +384,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   // Resets the map and sets up for drawing a new geofence of the specified type
   void _resetMapForNewGeofence(String shapeType) {
-
     setState(() {
       _circles.clear();
       _polygons.clear();
@@ -382,7 +411,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       }
 
       _geofenceNameController.text = _activeGeofence!.name; // Update name input
-
     });
   }
 
@@ -409,11 +437,13 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   // Function to remove the last point for polygon/polyline drawing
   void _removeLastPoint() {
     setState(() {
-      if (_mode == GeofenceMode.addPolygon && _currentPolygonPoints.isNotEmpty) {
+      if (_mode == GeofenceMode.addPolygon &&
+          _currentPolygonPoints.isNotEmpty) {
         _currentPolygonPoints.removeLast();
         _setPolygon(_currentPolygonPoints);
         _setPolygonMarkers(_currentPolygonPoints, isDraggable: true);
-      } else if (_mode == GeofenceMode.addPolyline && _currentPolylinePoints.isNotEmpty) {
+      } else if (_mode == GeofenceMode.addPolyline &&
+          _currentPolylinePoints.isNotEmpty) {
         _currentPolylinePoints.removeLast();
         _setPolyline(_currentPolylinePoints);
         _setPolylineMarkers(_currentPolylinePoints, isDraggable: true);
@@ -445,8 +475,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   Widget buildSuggestionListWidget(BuildContext context) {
     return BlocConsumer<GpsGeofenceMapCubit, GpsGeofenceMapState>(
-      listenWhen: (prev, curr) =>
-      prev is! GpsGeofenceMapError && curr is GpsGeofenceMapError,
+      listenWhen:
+          (prev, curr) =>
+              prev is! GpsGeofenceMapError && curr is GpsGeofenceMapError,
       listener: (context, state) {
         if (state is GpsGeofenceMapError) {
           ToastMessages.error(message: state.message);
@@ -454,8 +485,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       },
       builder: (context, state) {
         if (state is GpsGeofenceMapAutoCompleteLoaded) {
-          final suggestions = state.autoCompleteData.data?.predictions;
-          if (suggestions!.isEmpty) return Container();
+          final suggestions = state.autoCompleteData.predictions;
+          if (suggestions.isEmpty) return Container();
           return ConstrainedBox(
             constraints: BoxConstraints(maxHeight: 200),
             child: ListView.builder(
@@ -469,12 +500,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                     // Call verify location API
                     final request = VerifyLocationApiRequest(
                       placeId: item.placeId ?? "",
-                      locationdetails: LocationDetails(
-                        id: 0,
-                        name: item.description ?? "",
-                        slug: item.description?.toLowerCase() ?? "",
-
-                      ),
                       type: 1,
                     );
                     context.read<GpsGeofenceMapCubit>().verifyLocation(request);
@@ -492,36 +517,43 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     // Determine if we are in an "add" mode
-    bool isAddMode = _mode == GeofenceMode.addCircle ||
+    bool isAddMode =
+        _mode == GeofenceMode.addCircle ||
         _mode == GeofenceMode.addPolygon ||
         _mode == GeofenceMode.addPolyline;
 
     // Determine if we are in an "edit" mode
-    bool isEditMode = _mode == GeofenceMode.editCircle ||
+    bool isEditMode =
+        _mode == GeofenceMode.editCircle ||
         _mode == GeofenceMode.editPolygon ||
         _mode == GeofenceMode.editPolyline;
 
     // Determine if the current shape is a circle
-    bool isCircleShape = _activeGeofence?.shapeType == "circle" && (_mode == GeofenceMode.addCircle || _mode == GeofenceMode.editCircle);
+    bool isCircleShape =
+        _activeGeofence?.shapeType == "circle" &&
+        (_mode == GeofenceMode.addCircle || _mode == GeofenceMode.editCircle);
     // Determine if the current shape is a polygon
-    bool isPolygonShape = _activeGeofence?.shapeType == "polygon" && (_mode == GeofenceMode.addPolygon || _mode == GeofenceMode.editPolygon);
+    bool isPolygonShape =
+        _activeGeofence?.shapeType == "polygon" &&
+        (_mode == GeofenceMode.addPolygon || _mode == GeofenceMode.editPolygon);
     // Determine if the current shape is a polyline
-    bool isPolylineShape = _activeGeofence?.shapeType == "polyline" && (_mode == GeofenceMode.addPolyline || _mode == GeofenceMode.editPolyline);
-
+    bool isPolylineShape =
+        _activeGeofence?.shapeType == "polyline" &&
+        (_mode == GeofenceMode.addPolyline ||
+            _mode == GeofenceMode.editPolyline);
 
     return BlocListener<GpsGeofenceCubit, GpsGeofenceState>(
       listener: (context, state) {
         if (state is GpsGeofenceLoaded) {
           showSuccessDialog(
             context,
-            text: widget.geofence == null
-                ? 'Geofence added successfully'
-                : 'Geofence updated successfully',
+            text:
+                widget.geofence == null
+                    ? 'Geofence added successfully'
+                    : 'Geofence updated successfully',
             subheading: '',
           );
 
@@ -534,204 +566,224 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
           ToastMessages.error(message: state.message);
         }
       },
-  child: Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _currentCenter ?? const LatLng(28.6139, 77.2090),
-                zoom: _currentCenter != null ? 12 : 5,
-              ),
-              mapType: _mapType,
-              markers: _markers,
-              circles: _circles,
-              polygons: _polygons,
-              polylines: _polylines,
-              myLocationEnabled: true,
-              zoomControlsEnabled: false,
-              onTap: _onMapTap, // Handles tap for drawing new shapes
-            ),
-
-            // AppBar with back & search (simplified for this example)
-            Positioned(
-              top: 40,
-              left: 16,
-              right: 16,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 5,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: _currentCenter ?? const LatLng(28.6139, 77.2090),
+                  zoom: _currentCenter != null ? 12 : 5,
                 ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          border: InputBorder.none,
+                mapType: _mapType,
+                markers: _markers,
+                circles: _circles,
+                polygons: _polygons,
+                polylines: _polylines,
+                myLocationEnabled: true,
+                zoomControlsEnabled: false,
+                onTap: _onMapTap, // Handles tap for drawing new shapes
+              ),
+
+              // AppBar with back & search (simplified for this example)
+              Positioned(
+                top: 40,
+                left: 16,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 5,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            border: InputBorder.none,
+                          ),
                         ),
                       ),
-                    ),
-                    // buildLocationSearchField(context).expand(),
-                    AppIconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        // Implement search functionality
-                      },
-                    ),
-                  ],
+                      // buildLocationSearchField(context).expand(),
+                      AppIconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          // Implement search functionality
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // Floating buttons for drawing/editing modes
-            Positioned(
-              right: 16,
-              top: 150,
-              child: Column(
-                children: [
-                  // Button to add a new circle geofence
-                  _buildFloatingButton(
-                    Icons.circle_outlined,
-                        () {
-                      _resetMapForNewGeofence("circle");
-                    },
-                    isActive: _mode == GeofenceMode.addCircle || _mode == GeofenceMode.editCircle,
-                  ),
-                  10.height,
-                  // Button to add a new polygon geofence
-                  _buildFloatingButton(
-                    Icons.square_outlined,
-                        () {
-                      _resetMapForNewGeofence("polygon");
-                    },
-                    isActive: _mode == GeofenceMode.addPolygon || _mode == GeofenceMode.editPolygon,
-                  ),
-                  10.height,
-                  // Button to add a new polyline geofence
-                  _buildFloatingButton(
-                    Icons.timeline, // Using a timeline icon for polyline
-                        () {
-                      _resetMapForNewGeofence("polyline");
-                    },
-                    isActive: _mode == GeofenceMode.addPolyline || _mode == GeofenceMode.editPolyline,
-                  ),
-                  10.height,
-                  // Button to remove last point (only for polygon/polyline drawing)
-                  if ((_mode == GeofenceMode.addPolygon && _currentPolygonPoints.isNotEmpty) ||
-                      (_mode == GeofenceMode.addPolyline && _currentPolylinePoints.isNotEmpty))
-                    _buildFloatingButton(Icons.backspace, _removeLastPoint, color: Colors.white),
-                  10.height,
-                  // Edit button - only show if an existing geofence is being viewed, to switch to edit mode
-                  if (widget.geofence != null && !isEditMode && !isAddMode)
+              // Floating buttons for drawing/editing modes
+              Positioned(
+                right: 16,
+                top: 150,
+                child: Column(
+                  children: [
+                    // Button to add a new circle geofence
                     _buildFloatingButton(
-                      Icons.edit_outlined,
-                          () {
+                      Icons.circle_outlined,
+                      () {
+                        _resetMapForNewGeofence("circle");
+                      },
+                      isActive:
+                          _mode == GeofenceMode.addCircle ||
+                          _mode == GeofenceMode.editCircle,
+                    ),
+                    10.height,
+                    // Button to add a new polygon geofence
+                    _buildFloatingButton(
+                      Icons.square_outlined,
+                      () {
+                        _resetMapForNewGeofence("polygon");
+                      },
+                      isActive:
+                          _mode == GeofenceMode.addPolygon ||
+                          _mode == GeofenceMode.editPolygon,
+                    ),
+                    10.height,
+                    // Button to add a new polyline geofence
+                    _buildFloatingButton(
+                      Icons.timeline, // Using a timeline icon for polyline
+                      () {
+                        _resetMapForNewGeofence("polyline");
+                      },
+                      isActive:
+                          _mode == GeofenceMode.addPolyline ||
+                          _mode == GeofenceMode.editPolyline,
+                    ),
+                    10.height,
+                    // Button to remove last point (only for polygon/polyline drawing)
+                    if ((_mode == GeofenceMode.addPolygon &&
+                            _currentPolygonPoints.isNotEmpty) ||
+                        (_mode == GeofenceMode.addPolyline &&
+                            _currentPolylinePoints.isNotEmpty))
+                      _buildFloatingButton(
+                        Icons.backspace,
+                        _removeLastPoint,
+                        color: Colors.white,
+                      ),
+                    10.height,
+                    // Edit button - only show if an existing geofence is being viewed, to switch to edit mode
+                    if (widget.geofence != null && !isEditMode && !isAddMode)
+                      _buildFloatingButton(Icons.edit_outlined, () {
                         setState(() {
                           if (widget.geofence!.shapeType == "circle") {
                             _mode = GeofenceMode.editCircle;
-                            _setMarker(_currentCenter!, isDraggable: true); // Make marker draggable
+                            _setMarker(
+                              _currentCenter!,
+                              isDraggable: true,
+                            ); // Make marker draggable
                           } else if (widget.geofence!.shapeType == "polygon") {
                             _mode = GeofenceMode.editPolygon;
-                            _setPolygonMarkers(_currentPolygonPoints, isDraggable: true);
+                            _setPolygonMarkers(
+                              _currentPolygonPoints,
+                              isDraggable: true,
+                            );
                           } else if (widget.geofence!.shapeType == "polyline") {
                             _mode = GeofenceMode.editPolyline;
-                            _setPolylineMarkers(_currentPolylinePoints, isDraggable: true);
+                            _setPolylineMarkers(
+                              _currentPolylinePoints,
+                              isDraggable: true,
+                            );
                           }
                         });
-                      },
-                      color: Colors.blue,
-                    ),
-                  10.height,
-                  _buildFloatingButton(
-                    _mapType == MapType.normal ? Icons.satellite : Icons.map,
-                    _toggleMapType,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
-
-            // Bottom Sheet for Geofence Details and Actions
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 10,
-                      offset: Offset(0, -2),
+                      }, color: Colors.blue),
+                    10.height,
+                    _buildFloatingButton(
+                      _mapType == MapType.normal ? Icons.satellite : Icons.map,
+                      _toggleMapType,
+                      color: Colors.white,
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Display radius for circles or shape type for polygons/polylines
-                    if (isCircleShape && _currentCenter != null)
-                      Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Text('Geofence Radius:'),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${_currentRadius.toInt()} Mts',
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
+              ),
+
+              // Bottom Sheet for Geofence Details and Actions
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 10,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Display radius for circles or shape type for polygons/polylines
+                      if (isCircleShape && _currentCenter != null)
+                        Column(
+                          children: [
+                            Row(
+                              children: [
+                                const Text('Geofence Radius:'),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_currentRadius.toInt()} Mts',
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            // Slider for adjusting circle radius
+                            Slider(
+                              value: _currentRadius.clamp(
+                                40.0,
+                                20040.0,
+                              ), // Clamp for safety
+                              min: 40.0,
+                              max: 20040.0,
+                              divisions: 100, // Adjust divisions as needed
+                              label: '${_currentRadius.toStringAsFixed(1)} m',
+                              onChanged: (value) {
+                                setState(() {
+                                  _currentRadius = value;
+                                  if (_currentCenter != null) {
+                                    _setCircle(_currentCenter!, _currentRadius);
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                      else if (isPolygonShape)
+                        Text(
+                          'Polygon Geofence (${_currentPolygonPoints.length} points)',
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
                           ),
-                          // Slider for adjusting circle radius
-                          Slider(
-                            value: _currentRadius.clamp(40.0, 20040.0), // Clamp for safety
-                            min: 40.0,
-                            max: 20040.0,
-                            divisions: 100, // Adjust divisions as needed
-                            label: '${_currentRadius.toStringAsFixed(1)} m',
-                            onChanged: (value) {
-                              setState(() {
-                                _currentRadius = value;
-                                if (_currentCenter != null) {
-                                  _setCircle(_currentCenter!, _currentRadius);
-                                }
-                              });
-                            },
-                          )
-                        ],
-                      )
-                    else if (isPolygonShape)
-                      Text(
-                        'Polygon Geofence (${_currentPolygonPoints.length} points)',
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    else if (isPolylineShape)
+                        )
+                      else if (isPolylineShape)
                         Text(
                           'Polyline Geofence (${_currentPolylinePoints.length} points)',
                           style: const TextStyle(
@@ -744,52 +796,60 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           'Select a geofence type to start',
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
-                    12.height,
-                    // Geofence Name Input
-                    AppTextField(
-                      labelText: context.appText.geofenceName,
-                      controller: _geofenceNameController,
-                      onChanged: (text) {
-                        if (_activeGeofence != null) {
-                          _activeGeofence!.name = text; // Update model's name
-                        }
-                      },
-                    ),
-                    16.height,
-                    // Confirm Button (Enable only if a valid shape is drawn)
-                    ElevatedButton(
-                      onPressed: (_currentCenter != null && isCircleShape) ||
-                          (_currentPolygonPoints.length >= 3 && isPolygonShape) ||
-                          (_currentPolylinePoints.length >= 2 && isPolylineShape)
-                          ? _saveGeofence
-                          : null, // Disable button if no valid shape
-                      style: AppButtonStyle.primary,
-                      child: Center(
-                        child: Text(
-                          widget.geofence == null ? context.appText.confirmLocation : 'Update Geofence',
-                          style: _currentCenter == null
-                              ? AppTextStyle.h5.copyWith(color: Colors.grey)
-                              : AppTextStyle.h5WhiteColor
+                      12.height,
+                      // Geofence Name Input
+                      AppTextField(
+                        labelText: context.appText.geofenceName,
+                        controller: _geofenceNameController,
+                        onChanged: (text) {
+                          if (_activeGeofence != null) {
+                            _activeGeofence!.name = text; // Update model's name
+                          }
+                        },
+                      ),
+                      16.height,
+                      // Confirm Button (Enable only if a valid shape is drawn)
+                      ElevatedButton(
+                        onPressed:
+                            (_currentCenter != null && isCircleShape) ||
+                                    (_currentPolygonPoints.length >= 3 &&
+                                        isPolygonShape) ||
+                                    (_currentPolylinePoints.length >= 2 &&
+                                        isPolylineShape)
+                                ? _saveGeofence
+                                : null, // Disable button if no valid shape
+                        style: AppButtonStyle.primary,
+                        child: Center(
+                          child: Text(
+                            widget.geofence == null
+                                ? context.appText.confirmLocation
+                                : 'Update Geofence',
+                            style:
+                                _currentCenter == null
+                                    ? AppTextStyle.h5.copyWith(
+                                      color: Colors.grey,
+                                    )
+                                    : AppTextStyle.h5WhiteColor,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-);
+    );
   }
 
   Widget _buildFloatingButton(
-      IconData icon,
-      VoidCallback onPressed, {
-        Color color = Colors.white,
-        bool isActive = false, // New parameter to indicate active state
-      }) {
+    IconData icon,
+    VoidCallback onPressed, {
+    Color color = Colors.white,
+    bool isActive = false, // New parameter to indicate active state
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: isActive ? Colors.blue.withOpacity(0.8) : color,
@@ -805,6 +865,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     );
   }
 }
+
 enum GeofenceMode {
   view, // For initial display of existing geofence, no active editing
   addCircle,
