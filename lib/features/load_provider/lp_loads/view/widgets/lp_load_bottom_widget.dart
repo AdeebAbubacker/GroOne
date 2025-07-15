@@ -160,7 +160,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final loadPrice = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
-     print('----------------------${LpHomeHelper.getPaymentState(widget.loadStatus)}');
+    final paymentState = LpHomeHelper.getPaymentState(widget.loadStatus);
+
+      final useMemo = widget.loadStatus == LoadStatus.loading ||
+                      widget.loadStatus == LoadStatus.inTransit ||
+                      widget.loadStatus == LoadStatus.unloadingHeld;
+
+      final memo = widget.loadItem.loadMemoDetails;
+      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+
+      // Parse memo values safely
+      final String memoAdvance = memo?.advance.toString() ?? '';
+      final String memoAgreedPrice = memo?.netFreight.toString() ?? '';
+      final String memoPayableAdvance = memo?.advance.toString() ?? '';
+      final String memoPayableBalance = memo?.balance.toString() ?? '';
+
+      final String paymentAdvance = payments?.last.advancePaid ?? '';
+      final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
+      final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
+      final String paymentPayableBalance = payments?.last.payableBalance ?? '';   
     return Positioned(
       bottom: 0,
       left: 0,
@@ -349,11 +367,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       customerEmail: widget.loadItem.customer?.emailId ?? '',
                       customerMobile: widget.loadItem.customer?.mobileNumber ?? '',
                       customerName: widget.loadItem.customer?.customerName ?? '',
-                      advancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.advancePaid ?? '',
-                      agreedPrice: widget.loadItem.lpPaymentsData?.data.payments.last.agreedPrice ?? '',
-                      payableAdvance: widget.loadItem.lpPaymentsData?.data.payments.last.payableAdvance ?? '',
-                      payableBalance: widget.loadItem.lpPaymentsData?.data.payments.last.payableBalance ?? '',
-                    ),
+                      advancePaid: useMemo ? memoAdvance : paymentAdvance,
+                    agreedPrice: useMemo ? memoAgreedPrice : paymentAgreedPrice,
+                    payableAdvance: useMemo ? memoPayableAdvance : paymentPayableAdvance,
+                    payableBalance: useMemo ? memoPayableBalance : paymentPayableBalance,
+                  ),
                       16.height,
                     ],
 
@@ -555,11 +573,11 @@ final isLoading = createOrderState?.status == Status.LOADING ||
       children: [
          8.height,
         // Agreed Price
-        _buildPriceRow(context.appText.agreedPrice, "₹ $agreedPrice", context),
+        _buildPriceRow(context.appText.agreedPrice, agreedPrice, context),
         8.height,
         if (paymentState == 5)
         // Advance paid 
-        _buildPriceRow(context.appText.advancePaid, "₹ $advancePaid", context),
+        _buildPriceRow(context.appText.advancePaid, advancePaid, context),
         8.height,
 
         if (paymentState != 5)
@@ -614,7 +632,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
             ),
             Flexible(
               child: Text(
-                "₹ $payableAdvance",
+                PriceHelper.formatINR(payableAdvance),
                 style: AppTextStyle.body1GreyColor.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -631,7 +649,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
         if (paymentState == 3 || paymentState == 5)
           _buildPriceRow(
             context.appText.payableBalance,
-            "₹ $payableBalance",
+            payableBalance,
             context,
             highlight: true,
           ),
@@ -644,12 +662,16 @@ final isLoading = createOrderState?.status == Status.LOADING ||
             isLoading: isLoading,
             title: context.appText.payAdvance,
             onPressed: () async {
-              final isPayingBalance = paymentState == 3 || paymentState == 5;
+              
+             final isPayingBalance = paymentState == 3 || paymentState == 5;
+             final selectedAmountString = isPayingBalance ? payableBalance : payableAdvance;
+            final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
+
               // Create Order
               await lpLoadCubit.createOrder(
                 loadId: loadId,
                 createOrderidReuest: CreateOrderIdRequest(
-                      amount: int.parse(isPayingBalance ? payableBalance : payableAdvance),
+                      amount: paymentAmount,
                 type: 'online',
                 action: isPayingBalance ? 'pay_balance' : 'pay_advance',
                       )
@@ -665,7 +687,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                     initiatePaymentRequest: 
                     InitiatePaymentRequest(
                       orderId: orderId, 
-                      amount: int.parse(isPayingBalance ? payableBalance : payableAdvance),
+                      amount: paymentAmount,
                       customerName: customerName, 
                       customerEmail: customerEmail, 
                       customerMobile: customerMobile, 
@@ -739,7 +761,7 @@ Widget _buildPriceRow(
       ),
       Flexible(
         child: Text(
-          amount,
+          PriceHelper.formatINR(amount),
           style: AppTextStyle.body1GreyColor.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,

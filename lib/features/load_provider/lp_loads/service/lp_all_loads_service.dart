@@ -20,7 +20,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 
 class LpLoadService {
@@ -287,29 +286,10 @@ class LpLoadService {
   }
 
 
-  Future<Result<TrackingConsentStatusResponse>> getConsentStatus({required String mobileNumber}) async {
-    try {
-      final url = ApiUrls.trackingConsentStatus;
-      final response = await _apiService.post(url, body: {"mobileNumber": mobileNumber});
-
-      if (response is Success) {
-        final loads = TrackingConsentStatusResponse.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
   Future<Result<TrackingDistanceResponse>> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
     try {
       final url = ApiUrls.trackingDistance;
       final response = await _apiService.post(url, body: request.toJson());
-
       if (response is Success) {
         final loads = TrackingDistanceResponse.fromJson(response.value);
         return Success(loads);

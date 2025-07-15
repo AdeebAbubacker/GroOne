@@ -60,6 +60,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       backgroundColor: Colors.transparent,
+      scrolledUnderElevation: 0,
       actions: [
         translateWiget(
           onTap: () {

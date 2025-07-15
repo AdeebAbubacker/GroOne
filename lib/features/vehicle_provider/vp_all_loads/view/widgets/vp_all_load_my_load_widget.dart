@@ -176,14 +176,17 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 ),
               ),
               10.width,
-              AppButton(
-                buttonHeight: 40,
-                onPressed: widget.onClickAssignDriver ?? () {
+              Visibility(
 
-                },
-                title:"Assign Driver",
-                style: AppButtonStyle.primary,
-              ).expand(),
+                child: AppButton(
+                  buttonHeight: 40,
+                  onPressed: widget.onClickAssignDriver ?? () {
+
+                  },
+                  title:"Assign Driver",
+                  style: AppButtonStyle.primary,
+                ).expand(),
+              ),
             ],
           ),
         ],

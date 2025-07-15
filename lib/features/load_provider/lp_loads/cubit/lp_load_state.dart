@@ -14,7 +14,6 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance;
   final UIState<LpLoadFeedbackResponse>? lpLoadFeedback;
   final UIState<DocumentDetails>? lpDocumentById;
-  final UIState<TrackingConsentStatusResponse>? trackingConsent;
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final UIState<ConsigneAddedSuccessModel>? lpAddConsignee;
   final UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee;
@@ -45,7 +44,6 @@ class LpLoadState extends Equatable {
     this.lpLoadVerifyAdvance,
     this.lpLoadFeedback,
     this.lpDocumentById,
-    this.trackingConsent,
     this.trackingDistance,
     this.lpAddCustomerPaymentOption,
     this.lpCreateOrder,
@@ -74,7 +72,6 @@ class LpLoadState extends Equatable {
     UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance,
     UIState<LpLoadFeedbackResponse>? lpLoadFeedback,
     UIState<DocumentDetails>? lpDocumentById,
-    UIState<TrackingConsentStatusResponse>? trackingConsent,
     UIState<TrackingDistanceResponse>? trackingDistance,
     UIState<ConsigneAddedSuccessModel>? lpAddConsignee,
     UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee,
@@ -103,7 +100,6 @@ class LpLoadState extends Equatable {
       lpLoadVerifyAdvance: lpLoadVerifyAdvance ?? this.lpLoadVerifyAdvance,
       lpLoadFeedback: lpLoadFeedback ?? this.lpLoadFeedback,
       lpDocumentById: lpDocumentById ?? this.lpDocumentById,
-      trackingConsent: trackingConsent ?? this.trackingConsent,
       trackingDistance: trackingDistance ?? this.trackingDistance,
       lpAddConsignee: lpAddConsignee ?? this.lpAddConsignee,
       lpUpdateConsignee: lpUpdateConsignee ?? this.lpUpdateConsignee,
@@ -134,7 +130,6 @@ class LpLoadState extends Equatable {
     lpLoadVerifyAdvance,
     lpLoadFeedback,
     lpDocumentById,
-    trackingConsent,
     trackingDistance,
     lpAddConsignee,
     lpUpdateConsignee,

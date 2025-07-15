@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -183,17 +182,8 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<TrackingConsentStatusResponse>> getConsentStatus({required String mobileNumber}) async {
-    try {
-      return service.getConsentStatus(mobileNumber: mobileNumber);
-    } catch (e) {
-      CustomLog.error(this, "Failed to get DocumentById data", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
   Future<Result<TrackingDistanceResponse>> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
-    print('api call');
+
     try {
       return service.getTrackingDistance(request: request);
     } catch (e) {

@@ -97,21 +97,21 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload E-way bill
                   UploadAttachmentFiles(
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                 
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Material Invoice
                   UploadAttachmentFiles(
                     multiFilesList: [],
@@ -119,9 +119,9 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     isLoading: false,
                     hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Other documents
                   UploadAttachmentFiles(
                     multiFilesList: [],
@@ -150,7 +150,7 @@ class DriverLoadBottomWidget extends StatelessWidget {
               20.height,
               _buildHeading(text: 'a'),
               20.height,
-                
+
             //  _buildBottomButtonWidget(loadDetails, state, context),
             ],
           ),
@@ -684,11 +684,11 @@ Widget _buildAdvancePaymentCard({
                       color: AppColors.boxGreen,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text( 
+                    child: Text(
                       context.appText.paid,
                       style: AppTextStyle.body.copyWith(
                       fontSize: 12,
-                      color: AppColors.greenColor, 
+                      color: AppColors.greenColor,
                      fontWeight: FontWeight.w500,
 )
 
