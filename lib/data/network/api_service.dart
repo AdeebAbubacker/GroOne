@@ -36,7 +36,6 @@ class ApiService {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-        CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -53,10 +52,10 @@ class ApiService {
 
 
 
-
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if(HasInternetConnection.isInternet != true){
         return Error(InternetNetworkError());
@@ -91,7 +90,9 @@ class ApiService {
     }else{
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
-    CustomLog.debug(this, "\nMethod: Post \nURL: $url \nRequest: $prettyBodyString");
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
+    CustomLog.debug(this, "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -187,7 +188,6 @@ class ApiService {
       // Handling file upload (single or multiple)
       if (files != null) {
         if (files is List<File>) {
-
           for (var file in files) {
             if (await file.exists()) {
               formData.files.add(MapEntry(

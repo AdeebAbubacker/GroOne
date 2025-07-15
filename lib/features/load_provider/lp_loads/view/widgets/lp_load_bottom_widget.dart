@@ -573,11 +573,11 @@ final isLoading = createOrderState?.status == Status.LOADING ||
       children: [
          8.height,
         // Agreed Price
-        _buildPriceRow(context.appText.agreedPrice, "₹ $agreedPrice", context),
+        _buildPriceRow(context.appText.agreedPrice, agreedPrice, context),
         8.height,
         if (paymentState == 5)
         // Advance paid 
-        _buildPriceRow(context.appText.advancePaid, "₹ $advancePaid", context),
+        _buildPriceRow(context.appText.advancePaid, advancePaid, context),
         8.height,
 
         if (paymentState != 5)
@@ -632,7 +632,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
             ),
             Flexible(
               child: Text(
-                "₹ $payableAdvance",
+                PriceHelper.formatINR(payableAdvance),
                 style: AppTextStyle.body1GreyColor.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -649,7 +649,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
         if (paymentState == 3 || paymentState == 5)
           _buildPriceRow(
             context.appText.payableBalance,
-            "₹ $payableBalance",
+            payableBalance,
             context,
             highlight: true,
           ),
@@ -761,7 +761,7 @@ Widget _buildPriceRow(
       ),
       Flexible(
         child: Text(
-          amount,
+          PriceHelper.formatINR(amount),
           style: AppTextStyle.body1GreyColor.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,

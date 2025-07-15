@@ -69,17 +69,15 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
   ];
 
   void onItemTapped(int index) {
-    selectedIndex = index;
     int? role = profileCubit.userRole;
 
     debugPrint("Role : $role");
 
-    if(index == 3 && (role != null && role == 3)) {
+    if (index == 3 && (role != null && role == 3)) {
       context.go(AppRouteName.vpBottomNavigationBar);
+    } else {
+      LpBottomNavigation.selectedIndexNotifier.value = index;
     }
-
-    pages[selectedIndex];
-    setState(() {});
   }
 
 
@@ -112,53 +110,58 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
           pages.add(HomeScreenLoadProvider());
         }
 
-        return Scaffold(
-          body: pages[selectedIndex],
-          //bottomNavigationBar: _buildBottomNavigationBarWidget(),
-          bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: AppColors.primaryColor,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white54,
-            currentIndex: selectedIndex,
-            onTap: onItemTapped,
-            items: [
+        return ValueListenableBuilder<int>(
+            valueListenable: LpBottomNavigation.selectedIndexNotifier,
+            builder: (context, selectedIndex, _) {
+            return Scaffold(
+              body: pages[selectedIndex],
+              //bottomNavigationBar: _buildBottomNavigationBarWidget(),
+              bottomNavigationBar: BottomNavigationBar(
+                backgroundColor: AppColors.primaryColor,
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: Colors.white,
+                unselectedItemColor: Colors.white54,
+                currentIndex: selectedIndex,
+                onTap: onItemTapped,
+                items: [
 
-              BottomNavigationBarItem(
-                icon: const Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(CupertinoIcons.home),
-                ),
-                label: context.appText.home,
-              ),
-
-              BottomNavigationBarItem(
-                icon: const Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(CupertinoIcons.cube),
-                ),
-                label: context.appText.myLoads,
-              ),
-
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(Icons.headset_mic_rounded),
-                ),
-                label: context.appText.support,
-              ),
-
-              if (profileCubit.userRole != null && profileCubit.userRole == 3)
-                BottomNavigationBarItem(
-                  icon:  Padding(
-                    padding: EdgeInsets.only(top: 10.0),
-                    child: Icon(Icons.compare_arrows_rounded),
-                    //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                  BottomNavigationBarItem(
+                    icon: const Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Icon(CupertinoIcons.home),
+                    ),
+                    label: context.appText.home,
                   ),
-                  label: "Switch Account",
-                ),
-            ],
-          ),
+
+                  BottomNavigationBarItem(
+                    icon: const Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Icon(CupertinoIcons.cube),
+                    ),
+                    label: context.appText.myLoads,
+                  ),
+
+                  BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Icon(Icons.headset_mic_rounded),
+                    ),
+                    label: context.appText.support,
+                  ),
+
+                  if (profileCubit.userRole != null && profileCubit.userRole == 3)
+                    BottomNavigationBarItem(
+                      icon:  Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(Icons.compare_arrows_rounded),
+                        //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                      ),
+                      label: "Switch Account",
+                    ),
+                ],
+              ),
+            );
+          }
         );
       },
     );

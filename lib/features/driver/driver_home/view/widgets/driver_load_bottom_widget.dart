@@ -86,21 +86,21 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload E-way bill
                   UploadAttachmentFiles(
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                 
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Material Invoice
                   UploadAttachmentFiles(
                     multiFilesList: [],
@@ -108,9 +108,9 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     isLoading: false,
                     hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Other documents
                   UploadAttachmentFiles(
                     multiFilesList: [],
@@ -536,6 +536,152 @@ Widget _buildStatusRow({
         ],
       ),
     ],
+  );
+}
+
+
+
+
+
+// Advance Payment Card
+Widget _buildAdvancePaymentCard({
+  required BuildContext context,
+  required int paymentState,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFEAF5FF),
+    borderRadius: BorderRadius.circular(commonPadding),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Agreed Price
+        _buildPriceRow(context.appText.agreedPrice, "₹ 79,000", context),
+        const SizedBox(height: 8),
+
+        // Payable Advance Row with Status
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  context.appText.payableAdvance,
+                  style: AppTextStyle.body2.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textBlackColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (paymentState == 2)
+                  Row(
+                    children: [
+                      const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                      const SizedBox(width: 4),
+                     Text(
+                     context.appText.pending,
+                     style: AppTextStyle.body.copyWith(
+                     fontSize: 10,
+                     color: AppColors.iconRed,
+                        ),
+                       ),
+                    ],
+                  )
+                else if (paymentState == 3)
+                 Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.boxGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text( 
+                      context.appText.paid,
+                      style: AppTextStyle.body.copyWith(
+                      fontSize: 12,
+                      color: AppColors.greenColor, 
+                     fontWeight: FontWeight.w500,
+)
+
+                    ),
+                  ),
+              ],
+            ),
+            Flexible(
+              child: Text(
+                "₹ 70,000",
+                style: AppTextStyle.body1GreyColor.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textGreyDetailColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 8),
+
+        // Payable Balance (only if paymentState is 2 or 3)
+        if (paymentState == 3)
+          _buildPriceRow(
+            context.appText.payableBalance,
+            "₹ 9,000",
+            context,
+            highlight: true,
+          ),
+
+        const SizedBox(height: 12),
+
+        // Action Button
+        if (paymentState == 1)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+          )
+        else if (paymentState == 2)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+            richTextWidget: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  AppIcons.svg.alertWarning,
+                  height: 18,
+                  width: 18,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  context.appText.payAdvance,
+                  style: AppTextStyle.buttonWhiteTextColor,
+                ),
+              ],
+            ),
+          )
+        else if (paymentState == 3)
+          AppButton(
+            isLoading: false,
+            title: context.appText.payAdvance,
+            onPressed: () {},
+            richTextWidget: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.appText.payBalance,
+                  style: AppTextStyle.buttonWhiteTextColor,
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
   );
 }
 

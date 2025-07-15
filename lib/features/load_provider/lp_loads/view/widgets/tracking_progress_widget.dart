@@ -139,7 +139,7 @@ class TrackingProgress extends StatelessWidget {
             ),
           ],
         ),
-        20.width,
+        15.width,
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -168,14 +168,13 @@ class TrackingProgress extends StatelessWidget {
                 ),
               ],
             ),
-            6.width,
             Container(
               width: 1,
               height: 35,
               color: Colors.grey.shade300,
               margin: const EdgeInsets.symmetric(horizontal: 12),
             ),
-             6.width,
+             // 6.width,
             // ETA
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

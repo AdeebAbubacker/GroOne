@@ -4,17 +4,25 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
@@ -31,7 +39,12 @@ import 'load_details_state.dart';
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  LoadDetailsCubit(this._loadDetailsRepository,this._vHomeRepository) : super(LoadDetailsState());
+  final LpLoadRepository _lpLoadRepository;
+
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository)
+      : super(LoadDetailsState(
+      tripDocumentList: documentTypeList
+  ));
 
 
   void setIsUpdateDamage(bool value){
@@ -45,37 +58,53 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
-    switch(status){
-      case 3 :
-        loadStatus=LoadStatus.accepted;
-        break;
-      case 4:
-        loadStatus=LoadStatus.assigned;
-        break;
-      default:
-        loadStatus=LoadStatus.matching;
+    loadStatus = switch(status){
+      3 => LoadStatus.accepted,
+      4 => LoadStatus.assigned,
+      5 => LoadStatus.loading,
+      6 => LoadStatus.inTransit,
+      7 => LoadStatus.unloading,
+      8 => LoadStatus.completed,
+      null || int() => LoadStatus.matching
+    };
+    emit(state.copyWith(
+        loadStatusId: status,
+        loadStatus: loadStatus));
+
+    if(status==7){
+      final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+
+      final updatedDocument = currentList[podDocumentIndex].copyWith(
+        visible: true
+      );
+      currentList[podDocumentIndex] = updatedDocument;
+      emit(state.copyWith(tripDocumentList: currentList));
     }
-    emit(state.copyWith(loadStatus:loadStatus));
   }
-
-
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
-    Result result = await _loadDetailsRepository.fetchLoadDetails(loadId.toString());
+    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
+    Result result = await _loadDetailsRepository.fetchLoadDetails(
+        loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
-          locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"),
+          locationDistance: getDistance(
+              result.value.data?.loadRoute?.pickUpLatlon ?? "0",
+              result.value.data?.loadRoute?.dropLatlon ?? "0"),
           loadDetailsUIState: UIState.success(result.value)));
 
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
+
+      /// SET TRIP DOCUMENT
+      setTripDocuments(
+          state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
     }
     if (result is Error) {
       emit(state.copyWith(loadDetailsUIState: UIState.error(result.type)));
     }
   }
 
-  Future<void> changedLoadStatus(
-    String load, {
+  Future<void> changedLoadStatus(String load, {
     String? customerId,
     int? loadStatus,
   }) async {
@@ -91,15 +120,18 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         const Duration(milliseconds: 100),
       ); // slight delay to ensure UI handles it
       acceptLoad(result.value.data?.loadStatus);
+      /// Temp solution
+      // acceptLoad(result.value.data?.loadStatus);
     }
 
     if (result is Error) {
       emit(state.copyWith(vpLoadStatus: UIState.error(result.type)));
-      ToastMessages.error(message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
+      ToastMessages.error(
+          message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
     }
   }
 
-   String getDistance(String pickUpLatLong,dropLatLong){
+  String getDistance(String pickUpLatLong, dropLatLong) {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -118,24 +150,31 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future scheduleTripApi(ScheduleTripRequest scheduleTripRequest) async {
     emit(state.copyWith(scheduleTripResponse: UIState.loading()));
-    try{
-    Result result = await _vHomeRepository.scheduleTripResponse(
-      apiRequest: scheduleTripRequest,
-    );
-    if (result is Success<ScheduleTripResponse>) {
-      emit(state.copyWith(scheduleTripResponse: UIState.success(result.value)));
-      Navigator.pop(navigatorKey.currentState!.context);
-    } else if (result is Error) {
-      emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
-      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
-    } else {
-      emit(state.copyWith(scheduleTripResponse: UIState.error(GenericError())));
-      ToastMessages.error(message: getErrorMsg(errorType: state.scheduleTripResponse?.errorType??GenericError()));
-    }
-  }catch(e){
-      ToastMessages.error(message:e.toString(),);
-      emit(state.copyWith(scheduleTripResponse: UIState.error(DeserializationError())));
+    try {
+      Result result = await _vHomeRepository.scheduleTripResponse(
+        apiRequest: scheduleTripRequest,
+      );
+      if (result is Success<ScheduleTripResponse>) {
+        emit(state.copyWith(
+            scheduleTripResponse: UIState.success(result.value)));
+        Navigator.pop(navigatorKey.currentState!.context);
+      } else if (result is Error) {
+        emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+        ToastMessages.error(message: getErrorMsg(
+            errorType: state.scheduleTripResponse?.errorType ??
+                GenericError()));
+      } else {
+        emit(state.copyWith(
+            scheduleTripResponse: UIState.error(GenericError())));
+        ToastMessages.error(message: getErrorMsg(
+            errorType: state.scheduleTripResponse?.errorType ??
+                GenericError()));
       }
+    } catch (e) {
+      ToastMessages.error(message: e.toString(),);
+      emit(state.copyWith(
+          scheduleTripResponse: UIState.error(DeserializationError())));
+    }
   }
 
 
@@ -175,9 +214,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // Create Damage Api Call
-  void _setDamageUIState(UIState<DamageModel>? uiState){
+  void _setDamageUIState(UIState<DamageModel>? uiState) {
     emit(state.copyWith(createDamageUIState: uiState));
   }
+
   Future<void> createDamage(DamageApiRequest req) async {
     _setDamageUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitDamageData(req);
@@ -253,19 +293,181 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
+  /// DELETE LOAD DOCUMENT
+  Future<void> deleteLoadDocument(String loadDocumentID,int index) async {
+    uploadDeleteLoaderStatus(index);
+    Result result = await _loadDetailsRepository.deleteLoadDocument(loadDocumentID);
+    if (result is Success<DeleteLoadDocumentResponse>) {
+      /// delete from local
+      uploadDeleteLoaderStatus(index,isDelete: true);
+    }
+    if (result is Error) {
+      uploadDeleteLoaderStatus(index);
+    }
+  }
+
+  Future<void> uploadDocument(File file, String fileType, String? title,
+      int? documentTypeId, String loadId, int index) async {
+    /// upload document = > Create Document = > Map Document with load
+    try {
+      uploadLoadingStatus(index, null);
+      Result result = await _loadDetailsRepository.uploadDocument(
+          file, fileType);
+      if (result is Success<UploadDamageFileModel>) {
+        ///Create Document
+        await createDocument(title ?? "", documentTypeId ?? 1, result.value)
+            .then((value) async {
+          if (value != null) {
+            /// Map document with load
+            await saveDocument(value, loadId).then((value) {
+              uploadLoadingStatus(index, value);
+            },);
+          } else{
+            uploadLoadingStatus(index, null);
+          }
+        },);
+      }
+      if (result is Error) {
+        uploadLoadingStatus(index, null);
+      }
+    } catch (e) {
+      uploadLoadingStatus(index, null);
+      return;
+    }
+  }
+
+  // Updates the UI state related to tracking distance.
+  void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
+    emit(state.copyWith(trackingDistance: uiState));
+  }
+
+
+  // Lp load tracking distance
+  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+    _setTrackingDistanceState(UIState.loading());
+
+    Result result = await _lpLoadRepository.getTrackingDistance(request: request);
+
+    if (result is Success<TrackingDistanceResponse>) {
+      _setTrackingDistanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setTrackingDistanceState(UIState.error(result.type));
+    }
+  }
+
+
+
+  void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    final currentDocument = currentList[index];
+
+    final updatedDocument = currentDocument.copyWith(
+      loadDocument: currentDocument.loadDocument ?? loadDocument,
+      isLoading: !(currentDocument.isLoading ?? false),
+    );
+    currentList[index] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
+  void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    final currentDocument = currentList[index];
+
+
+
+    final updatedDocument = currentDocument.copyWith(
+      clearLoadData: isDelete,
+      loadDocument: isDelete ? null: currentDocument.loadDocument,
+      deleteLoading: !(currentDocument.deleteLoading ?? false),
+    );
+    currentList[index] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
+
+  Future<CreateDocumentResponse?> createDocument(String title,
+      int documentTypeId, UploadDamageFileModel uploadImage) async {
+    try {
+      return await _loadDetailsRepository.createNewDocument(
+          CreateDocumentRequest(
+              title: title,
+              description: title,
+              documentTypeId: documentTypeId,
+              filePath: uploadImage.filePath,
+              fileSize: uploadImage.size,
+              mimeType: "image/jpeg",
+              originalFilename: uploadImage.originalName,
+              fileExtension: uploadImage.originalName
+                  .split(".")
+                  .last)
+      ).then((value) {
+        if (value is Success<CreateDocumentResponse>) {
+          return value.value;
+        }
+        return null;
+      },);
+    } catch (e) {
+
+      return null;
+    }
+  }
+
+  Future<LoadDocument?> saveDocument(
+      CreateDocumentResponse createDocumentResponse, String loadId) async {
+    try {
+      return await _loadDetailsRepository.saveLoadDocument(
+          documentId: createDocumentResponse.documentId ?? "",
+          loadId: loadId
+      ).then((value) {
+        if (value is Success<LoadDocument>) {
+          return value.value;
+        }
+        return null;
+      },);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future viewDocument(String documentId, int index) async {
+    try {
+      uploadLoadingStatus(index, null);
+      return await _loadDetailsRepository.viewDocument(
+        documentId: documentId,
+      ).then((result) {
+        if (result is Success<ViewDocumentResponse>) {
+          downloadAndOpenFile(result.value.filePath ?? "",
+              originalFileName: result.value.originalFilename);
+          uploadLoadingStatus(index, null);
+        }
+        if (result is Error) {
+          uploadLoadingStatus(index, null);
+        }
+      },);
+    } catch (e) {
+      uploadLoadingStatus(index, null);
+      return null;
+    }
+  }
+
 
   void resetDeleteDamageUIState(){
     emit(state.copyWith(deleteDamageUIState: resetUIState<DeleteDamageModel>(state.deleteDamageUIState)));
   }
 
 
-  void resetUploadDamageFileUIState(){
+  void resetUploadDamageFileUIState() {
     emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
   }
 
 
-  void resetSubmitDamageUIState(){
-    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(state.createDamageUIState)));
+  void resetSubmitDamageUIState() {
+    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(
+        state.createDamageUIState)));
+  }
+  void resetSettlementUIState() {
+    emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
+        state.settlementUIState)));
   }
 
   void resetUpdateDamageUIState(){
@@ -284,5 +486,49 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       isUpdateDamage : false,
       damageId: null
     ));
+  }
+
+
+    setTripDocuments(List<LoadDocument>? loadDocument) {
+      List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+      for (DocumentEntity item in documentList) {
+        /// find load item for api response set into local document entity
+        try {
+          item.loadDocument = loadDocument!.firstWhere(
+                (element) =>
+            element.documentDetails?.documentType == item.documentType,
+          );
+        } catch (e) {
+          item.loadDocument = null;
+        }
+      }
+      emit(state.copyWith(
+          tripDocumentList: documentList
+      ));
+    }
+
+
+  bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
+    try {
+      DocumentEntity? document = documentEntity.firstWhere((element) =>
+      element.loadDocument == null && element.visible==true);
+      return document == null;
+    } catch (e) {
+      return true;
+    }
+  }
+
+ bool isNextProcessButtonEnabled({required List<
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+      case LoadStatus.assigned:
+        return memo!=null;
+        case LoadStatus.loading:
+      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+      case LoadStatus.unloading:
+        return checkIsDocumentUploaded(documentEntity);
+      default:
+        return true;
+    }
   }
 }

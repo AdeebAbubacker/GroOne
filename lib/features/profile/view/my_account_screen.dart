@@ -12,7 +12,8 @@ class LpMyAccount extends StatelessWidget {
   final Customer? customerDetail;
   final BankDetails? bankDetails;
   final Address? address;
-  const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails, required this.address});
+  final KycDoc? kycDoc;
+  const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails, required this.address, required this.kycDoc});
 
   String checkUserDetails(dynamic value){
     if(value != null && value.toString().isNotEmpty){
@@ -111,12 +112,12 @@ class LpMyAccount extends StatelessWidget {
                 text1: context.appText.companyName,
                 text2: checkUserDetails(customerDetail?.companyName),
               ),
-              //
-              // if (customerDetailData.companyTypeId != 2)
-              //   buildDetailWidget(
-              //     text1: context.appText.gst,
-              //     text2: checkUserDetails(customerDetailData.gstin),
-              //   ),
+
+              if (customerDetail?.companyType?.id != 2)
+                buildDetailWidget(
+                  text1: context.appText.gst,
+                  text2: checkUserDetails(kycDoc?.gstin ?? ''),
+                ),
 
               20.height,
             ],

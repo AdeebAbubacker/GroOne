@@ -411,5 +411,8 @@
   "paymentFailed" : "Payment failed",
   "orderIdNotFound" : "Order ID not found",
   "orderCreationFailed" : "Order creation failed",
-  "otpHasBeenSentSuccessfully" : "OTP has been sent successfully"
+  "otpHasBeenSentSuccessfully" : "OTP has been sent successfully",
+  "loadPostedSuccess" : "Load Posted Successfully",
+  "weWillAssignVehicleAndDriver" : "We will assign the vehicle and driver soon.",
+  "yourShipmentIsHeld" : "Your Shipment is held from unloading due to non payment of advance"
 }
