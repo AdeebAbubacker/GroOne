@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/dam
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
@@ -94,7 +95,7 @@ class VpDetailsService{
         "loadId":loadId
       });
       if (result is Success) {
-        final loadDocumentResponse= LoadDocument.fromJson(result.value);
+        final loadDocumentResponse= LoadDocument.fromJson(result.value['data']);
         return Success(loadDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
@@ -114,6 +115,25 @@ class VpDetailsService{
       if (result is Success) {
         final viewDocumentResponse= ViewDocumentResponse.fromJson(result.value);
         return Success(viewDocumentResponse);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+
+  Future<Result<DeleteLoadDocumentResponse>> deleteLoadDocument({required String? loadDocumentID}) async {
+    try {
+      final deleteDocument=ApiUrls.deleteLoadDocument;
+      final result = await _apiService.delete("$deleteDocument$loadDocumentID");
+      if (result is Success) {
+        final deleteDocumentResponse= DeleteLoadDocumentResponse.fromJson(result.value);
+        return Success(deleteDocumentResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {

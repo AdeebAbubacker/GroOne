@@ -21,11 +21,20 @@ class PreviewDocumentWidget extends StatelessWidget {
   final DocumentEntity documentEntity;
   final bool? isLoading;
   final Function() onClickDownload;
-  const PreviewDocumentWidget({super.key,required this.loadDocument,required this.documentEntity,this.isLoading,required this.onClickDownload});
+  final Function() onClickDeleteIcon;
+  final bool? showDeleteLoader;
+  final bool? showDeleteIcon;
+  const PreviewDocumentWidget({super.key,
+    this.showDeleteLoader=false,
+    this.showDeleteIcon,
+    required this.onClickDeleteIcon,
+    required this.loadDocument,required this.documentEntity,this.isLoading,required this.onClickDownload});
 
   @override
   Widget build(BuildContext context) {
     return  buildUploadedDocPreviewItem(
+      showDeleteIcon: showDeleteIcon,
+      onClickDeleteIcon: onClickDeleteIcon,
        isLoading: isLoading??false,
         onClickDownload:onClickDownload ,
         fileTitle:documentEntity.documentType??"",
@@ -33,7 +42,9 @@ class PreviewDocumentWidget extends StatelessWidget {
       dateTime:formatDateTimeKavach(loadDocument.createdAt?.toString()??DateTime.now().toString()),
       fileUrl: "",
       isDownloadable: true,
-      isFileAvailable: true
+      isFileAvailable: true,
+
+      showDeleteLoader: showDeleteLoader??false
     );
   }
 }
@@ -46,8 +57,12 @@ Widget buildUploadedDocPreviewItem({
   required String fileUrl,
   required BuildContext context,
    bool isLoading=false,
-  required Function() onClickDownload
+   bool showDeleteLoader=false,
+  bool? showDeleteIcon,
+  required Function() onClickDownload,
+  required Function() onClickDeleteIcon
 }) {
+
 
   return Container(
     height: 55,
@@ -96,6 +111,26 @@ Widget buildUploadedDocPreviewItem({
           ],
         ).expand(),
 
+
+       Visibility(
+         visible: showDeleteIcon??false,
+         child:  showDeleteLoader ?  SizedBox(
+         height: 15,
+         width: 15,
+         child: CircularProgressIndicator(
+           strokeWidth: 1,
+         ),
+       ):  IconButton(
+           icon: Icon(
+             Icons.delete_outline,
+             size: 20,
+             color: AppColors.primaryColor,
+           ),
+           onPressed: () {
+             onClickDeleteIcon();
+           }
+       ),),
+
         if (isFileAvailable && isDownloadable)
           isLoading ?  Center(child: SizedBox(
             height: 15,
@@ -103,7 +138,8 @@ Widget buildUploadedDocPreviewItem({
             child: CircularProgressIndicator(
               strokeWidth: 1,
             ),
-          ),):  IconButton(
+          ),):
+          IconButton(
             icon: Icon(
               Icons.file_download_outlined,
               size: 20,

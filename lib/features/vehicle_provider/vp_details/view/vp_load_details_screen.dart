@@ -63,7 +63,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     if(loadItem.trackingDetails==null){
       return;
     }
-
     await cubit.getTrackingDistance(request: TrackingDistanceApiRequest(
       originLat: loadItem.trackingDetails?.originLat ?? 0.0,
       originLong: loadItem.trackingDetails?.originLong ?? 0.0,
@@ -217,7 +216,10 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   ),
                   if ((state.loadStatusId??1)>=3)
                    ...[
-                     LoadStatusLabel(loadStatus: state.loadStatus!),
+                     LoadStatusLabel(
+                       loadOnHold: loadDetails?.loadOnHold??false,
+                         loadStatusTitle:loadDetails?.loadStatusDetails?.loadStatus??"" ,
+                         loadStatus: state.loadStatus!),
                    ]
                 ],
               ).paddingSymmetric(horizontal: 5),
@@ -242,7 +244,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           style: TextStyle(color: AppColors.black, fontSize: 16),
           maxLines: 1,
         ),
-        Text(date ?? "", style: TextStyle(color: AppColors.grayColor)),
+        FittedBox(child: Text(date ?? "", style: TextStyle(color: AppColors.grayColor))),
       ],
     ).expand();
   }

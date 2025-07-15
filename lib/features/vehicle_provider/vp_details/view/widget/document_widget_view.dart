@@ -15,6 +15,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 
 import '../../../../../utils/app_icons.dart';
+import '../../../vp-helper/vp_helper.dart';
 
 class DocumentWidgetView extends StatelessWidget {
   final String? hintText;
@@ -33,60 +34,69 @@ class DocumentWidgetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return documentEntity?.loadDocument != null
         ? PreviewDocumentWidget(
-        onClickDownload: () {
-        loadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
+      showDeleteIcon:loadDetailsCubit?.state.loadStatus==LoadStatus.loading ,
+      showDeleteLoader: documentEntity?.deleteLoading,
+      onClickDeleteIcon: () {
+        loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.loadDocumentId??"",index);
+      },
+         onClickDownload: () {
+         loadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
       },
        isLoading: documentEntity?.isLoading??false,
         documentEntity: documentEntity!,
         loadDocument: documentEntity!.loadDocument!)
-        : GestureDetector(
-          onTap: () {
-            commonHideKeyboard(context);
-            commonBottomSheet(
-              context: context,
-              barrierDismissible: true,
-              screen: const UploadFileAndImageBottomSheet(
-                isMultipleSelectionFile: true,
-              ),
-            ).then((value) {
-              if (!context.mounted) return;
+        : Visibility(
+      visible: documentEntity?.visible??true,
+          child: GestureDetector(
+            onTap: () {
               commonHideKeyboard(context);
-              onGetFile!(value['path']);
-            });
-          },
+              commonBottomSheet(
+                context: context,
+                barrierDismissible: true,
+                screen: const UploadFileAndImageBottomSheet(
+                  isMultipleSelectionFile: true,
+                ),
+              ).then((value) {
+                if (!context.mounted) return;
+                commonHideKeyboard(context);
+                onGetFile!(value['path']);
+              });
+            },
 
-          child: DottedBorder(
-            color: Colors.black26,
-            strokeWidth: 1,
-            radius: const Radius.circular(commonTexFieldRadius),
-            borderType: BorderType.RRect,
-            child: Container(
-              height: 50,
-              color: AppColors.textFieldFillColor,
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  10.width,
-                  Text(
-                    hintText ?? context.appText.uploadDocument,
-                    style: AppTextStyle.textFiled,
-                  ),
-                  Spacer(),
-                  if(documentEntity?.isLoading??false)
-                    CircularProgressIndicator()
-                  else
-                  SvgPicture.asset(
-                    AppIcons.svg.documentUpload,
-                    width: 16,
-                    colorFilter: AppColors.svg(AppColors.iconColor),
-                  ),
-                  10.width,
-                ],
+            child: DottedBorder(
+              color: Colors.black26,
+              strokeWidth: 1,
+              radius: const Radius.circular(commonTexFieldRadius),
+              borderType: BorderType.RRect,
+              child: Container(
+                height: 50,
+                color: AppColors.textFieldFillColor,
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    10.width,
+                    Text(
+                      hintText ?? context.appText.uploadDocument,
+                      style: AppTextStyle.textFiled.copyWith(
+                        fontStyle: FontStyle.italic
+                      ),
+                    ),
+                    Spacer(),
+                    if(documentEntity?.isLoading??false)
+                      CircularProgressIndicator()
+                    else
+                    SvgPicture.asset(
+                      AppIcons.svg.documentUpload,
+                      width: 16,
+                      colorFilter: AppColors.svg(AppColors.iconColor),
+                    ),
+                    10.width,
+                  ],
+                ),
               ),
             ),
           ),

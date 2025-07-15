@@ -38,7 +38,7 @@ class TripDocuments extends StatelessWidget {
         final isDownloaded = state.downloadedFiles[downloadKey] ?? false;
         return InkWell(
           onTap: () async {
-            print('id $docId');
+
             await context.read<LpLoadCubit>().getDocumentById(docId: '');
 
             final uiState = context.read<LpLoadCubit>().state.lpDocumentById;

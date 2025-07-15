@@ -9,6 +9,7 @@ class DocumentEntity {
   String? documentType;
   LoadDocument? loadDocument;
   bool? isLoading;
+  bool? deleteLoading;
 
   DocumentEntity({
     this.title,
@@ -18,6 +19,7 @@ class DocumentEntity {
     this.documentType,
     this.loadDocument,
     this.isLoading,
+    this.deleteLoading,
   });
 
   DocumentEntity copyWith({
@@ -28,15 +30,19 @@ class DocumentEntity {
     String? documentType,
     LoadDocument? loadDocument,
     bool? isLoading,
+    bool? deleteLoading,
+    bool clearLoadData=false,
   }) {
     return DocumentEntity(
+      deleteLoading: deleteLoading ?? this.deleteLoading,
       title: title ?? this.title,
       fileType: fileType ?? this.fileType,
       documentTypeId: documentTypeId ?? this.documentTypeId,
       visible: visible ?? this.visible,
       documentType: documentType ?? this.documentType,
-      loadDocument: loadDocument ?? this.loadDocument,
+      loadDocument: clearLoadData? null: loadDocument ?? this.loadDocument,
       isLoading: isLoading ?? this.isLoading,
+
     );
   }
 }
@@ -66,12 +72,11 @@ List<DocumentEntity> documentTypeList=[
     documentType: "Material Invoice",
 
   ),
-
   DocumentEntity(
     documentTypeId: 8,
     fileType: "Proof_of_document",
     title: "Upload POD",
-    visible: true,
+    visible: false,
     documentType: "Proof of Document",
   ),
 

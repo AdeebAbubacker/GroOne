@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/dam
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
@@ -123,6 +124,18 @@ class LoadDetailsRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  Future<Result<DeleteLoadDocumentResponse>> deleteLoadDocument(String loadDocumentId) async {
+    try {
+      return await _vpDetailsService.deleteLoadDocument(
+       loadDocumentID: loadDocumentId
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
   Future<Result<UploadDamageFileModel>> uploadDocument(File file,String fileType) async {
     try {

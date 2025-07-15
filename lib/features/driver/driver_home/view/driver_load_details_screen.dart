@@ -191,12 +191,14 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          (location ?? "").split(",")[0],
-          style: TextStyle(color: AppColors.black, fontSize: 16),
-          maxLines: 1,
+        FittedBox(
+          child: Text(
+            (location ?? "").split(",")[0],
+            style: TextStyle(color: AppColors.black, fontSize: 16),
+            maxLines: 1,
+          ),
         ),
-        Text(date ?? "", style: TextStyle(color: AppColors.grayColor)),
+        FittedBox(child: Text(date ?? "", style: TextStyle(color: AppColors.grayColor))),
       ],
     ).expand();
   }

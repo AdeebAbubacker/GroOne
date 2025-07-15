@@ -70,6 +70,7 @@ class LoadDetailModelData {
     required this.driverConsent,
     required this.loadMemo,
     required this.trackingDetails,
+    required this.loadOnHold,
 
   });
 
@@ -113,12 +114,14 @@ class LoadDetailModelData {
   final int? driverConsent;
   final dynamic loadMemo;
   final TrackingDetails? trackingDetails;
+  final bool? loadOnHold;
 
 
   LoadDetailModelData copyWith({
     String? loadId,
     String? loadSeriesId,
     int? laneId,
+    bool? loadOnHold,
     int? rateId,
     String? customerId,
     int? commodityId,
@@ -156,8 +159,11 @@ class LoadDetailModelData {
     int? driverConsent,
     dynamic loadMemo,
     TrackingDetails? trackingDetails,
+
   }) {
     return LoadDetailModelData(
+
+      loadOnHold: loadOnHold??this.loadOnHold,
       trackingDetails: trackingDetails?? this.trackingDetails,
       loadMemo: loadMemo?? this.loadMemo,
       driverConsent: driverConsent??this.driverConsent,
@@ -203,7 +209,13 @@ class LoadDetailModelData {
   }
 
   factory LoadDetailModelData.fromJson(Map<String, dynamic> json){
+
+    List? consigneeDetails;
+    if(json["consignees"] != null && (json["consignees"] as List).isNotEmpty){
+      consigneeDetails=json["consignees"];
+    }
     return LoadDetailModelData(
+      loadOnHold:  json['loadOnhold'],
       loadMemo:json['loadMemo'],
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
       driverConsent: json['driverConsent'],
@@ -236,7 +248,7 @@ class LoadDetailModelData {
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
-      consignee: json["consignee"] == null ? null : Consignee.fromJson(json["consignee"]),
+      consignee: (consigneeDetails??[]).isEmpty ? null : Consignee.fromJson(consigneeDetails?[0]),
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
@@ -310,13 +322,13 @@ class Consignee {
     required this.mobileNumber,
   });
 
-  final int id;
+  final String id;
   final String name;
   final String email;
   final String mobileNumber;
 
   Consignee copyWith({
-    int? id,
+    String? id,
     String? name,
     String? email,
     String? mobileNumber,
@@ -330,6 +342,7 @@ class Consignee {
   }
 
   factory Consignee.fromJson(Map<String, dynamic> json){
+    print("Consignee is ${json}");
     return Consignee(
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
@@ -1272,6 +1285,7 @@ class LoadDocument {
   });
 
   factory LoadDocument.fromJson(Map<String, dynamic> json) {
+
     return LoadDocument(
       loadDocumentId: json['loadDocumentId'],
       loadId: json['loadId'],
