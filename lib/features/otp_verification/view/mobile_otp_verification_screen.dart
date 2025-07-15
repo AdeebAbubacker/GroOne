@@ -288,7 +288,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                             apiRequest: OtpRequest(
                               mobile: widget.mobileNumber,
                                type: 2,
-                             otp: 1234,
+                              otp: int.parse(otpString),
                              driver: widget.isDriver
                             ),
                           ),
