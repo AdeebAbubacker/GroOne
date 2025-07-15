@@ -15,11 +15,9 @@ class VpHelper{
         return "Accept Load";
     }
 
-
-  }
+ }
 
  static String getLoadStatus(LoadStatus loadStatus){
-   print("loadStatus is on label ${loadStatus}");
    return switch(loadStatus){
      LoadStatus.matching => "",
      LoadStatus.accepted => "Confirmed",
@@ -57,9 +55,9 @@ String getBottomButtonTitle(LoadStatus status){
     case LoadStatus.loading:
       return "Swipe to complete Loading";
       case LoadStatus.inTransit:
-      return "Swipe to complete unloading";
+      return "Swipe To start unloading";
       case LoadStatus.unloading:
-      return "Swipe to complete Trip";
+      return "Swipe to complete Unloading";
     default:
       return "Swipe to Start Trip";
   }
@@ -68,7 +66,6 @@ String getBottomButtonTitle(LoadStatus status){
 Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
   try {
     final fileName = path.basename(url);
-    print("fileName is ${fileName}");
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, originalFileName);
 

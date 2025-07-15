@@ -458,12 +458,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  void resetUploadDamageFileUIState(){
-    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
   void resetUploadDamageFileUIState() {
     emit(state.copyWith(
         uploadDamageUIState: resetUIState<UploadDamageFileModel>(
             state.uploadDamageUIState)));
+
+
+
   }
 
 
@@ -495,23 +496,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  setTripDocuments(List<LoadDocument>? loadDocument) {
-    List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
-    for (DocumentEntity item in documentList) {
-      /// find load item for api response set into local document entity
-      try {
-        item.loadDocument = loadDocument!.firstWhere(
-              (element) =>
-          element.documentDetails?.documentType == item.documentType,
-        );
-      } catch (e) {
-        item.loadDocument = null;
+    setTripDocuments(List<LoadDocument>? loadDocument) {
+      List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+      for (DocumentEntity item in documentList) {
+        /// find load item for api response set into local document entity
+        try {
+          item.loadDocument = loadDocument!.firstWhere(
+                (element) =>
+            element.documentDetails?.documentType == item.documentType,
+          );
+        } catch (e) {
+          item.loadDocument = null;
+        }
       }
+      emit(state.copyWith(
+          tripDocumentList: documentList
+      ));
     }
-    emit(state.copyWith(
-        tripDocumentList: documentList
-    ));
-  }
 
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
