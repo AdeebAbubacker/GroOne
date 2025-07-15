@@ -11,6 +11,7 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
   KavachCheckoutShippingAddressBloc(this.repository) : super(KavachCheckoutShippingAddressLoading()) {
     on<FetchKavachShippingAddresses>(_onFetchAddresses);
     on<SelectKavachShippingAddress>(_onSelectAddress);
+    on<RestoreKavachShippingAddress>(_onRestoreShippingAddress);
     on<ClearKavachShippingAddress>((event, emit) {
       emit(KavachCheckoutShippingAddressEmpty());
     });
@@ -18,7 +19,7 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
 
   Future<void> _onFetchAddresses(FetchKavachShippingAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
     emit(KavachCheckoutShippingAddressLoading());
-    final result = await repository.fetchAddresses(addrType: 1);
+    final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
       if (result.value.isEmpty) {
@@ -40,8 +41,12 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
         selectedAddress: event.address,
         addresses: currentState.addresses,
       ));
-    } else {
-      // When there was no prior selected state (e.g., after Clear)
+    } else if (currentState is KavachCheckoutShippingAddressAvailable) {
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else if (currentState is KavachCheckoutShippingAddressEmpty) {
       emit(KavachCheckoutShippingAddressSelected(
         selectedAddress: event.address,
         addresses: [event.address],
@@ -49,4 +54,10 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     }
   }
 
+  void _onRestoreShippingAddress(RestoreKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
+    emit(KavachCheckoutShippingAddressSelected(
+      selectedAddress: event.address,
+      addresses: event.addresses,
+    ));
+  }
 }

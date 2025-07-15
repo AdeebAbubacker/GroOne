@@ -11,6 +11,7 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   KavachCheckoutBillingAddressBloc(this.repository) : super(KavachCheckoutBillingAddressLoading()) {
     on<FetchKavachBillingAddresses>(_onFetchBillingAddresses);
     on<SelectKavachBillingAddress>(_onSelectBillingAddress);
+    on<RestoreKavachBillingAddress>(_onRestoreBillingAddress);
     on<ClearKavachBillingAddress>((event, emit) {
       emit(KavachCheckoutBillingAddressEmpty());
     });
@@ -19,7 +20,7 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
 
   Future<void> _onFetchBillingAddresses(FetchKavachBillingAddresses event, Emitter<KavachCheckoutBillingAddressState> emit) async {
     emit(KavachCheckoutBillingAddressLoading());
-    final result = await repository.fetchAddresses(addrType: 2);
+    final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
       if (result.value.isEmpty) {
@@ -61,6 +62,13 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
         addresses: [event.address],
       ));
     }
+  }
+
+  void _onRestoreBillingAddress(RestoreKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
+    emit(KavachCheckoutBillingAddressSelected(
+      selectedAddress: event.address,
+      addresses: event.addresses,
+    ));
   }
 
 }

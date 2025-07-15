@@ -89,7 +89,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
           return Tab(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primaryColor
@@ -108,9 +108,12 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
       body: BlocBuilder<KavachTransactionsCubit, KavachTransactionsState>(
         bloc: _transactionsCubit,
         builder: (context, state) {
+          print('🔍 KavachTransactionsScreen: Current state - ${state.runtimeType}');
           if (state is KavachTransactionsLoading) {
+            print('🔍 KavachTransactionsScreen: Loading state');
             return const Center(child: CircularProgressIndicator());
           } else if (state is KavachTransactionsLoaded) {
+            print('🔍 KavachTransactionsScreen: Loaded state with ${state.transactions.length} transactions');
             return TabBarView(
               controller: _tabController,
               children: [
@@ -129,8 +132,10 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
               ],
             );
           } else if (state is KavachTransactionsError) {
+            print('🔍 KavachTransactionsScreen: Error state - ${state.message}');
             return Center(child: Text(state.message.getText(context)));
           }
+          print('🔍 KavachTransactionsScreen: Unknown state');
           return const SizedBox();
         },
       ),
@@ -138,7 +143,9 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
   }
 
   Widget _buildTransactionList(List<KavachTransactionModel> txnList) {
+    print('🔍 _buildTransactionList: Called with ${txnList.length} transactions');
     if (txnList.isEmpty) {
+      print('🔍 _buildTransactionList: Empty list, showing "No transactions found"');
       return const Center(child: Text('No transactions found.'));
     }
 
@@ -151,7 +158,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 15),
               child: SvgPicture.asset(
                 txn.status.toLowerCase() == 'success'
                     ? AppIcons.svg.kavachTransactionSuccess
@@ -187,7 +194,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: getStatusColor(txn.status).withValues(alpha: 0.2),
+                    color: getStatusColor(txn.status).withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

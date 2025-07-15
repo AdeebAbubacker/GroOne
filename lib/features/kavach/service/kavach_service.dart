@@ -96,10 +96,10 @@ class KavachService {
     }
   }
 
-  /// Fetches addresses for a customer with specified address type
+  /// Fetches addresses for a customer
   Future<Result<List<KavachAddressModel>>> fetchAddresses(
       String customerId, {
-        required int addrType,
+        int? addrType,
       }) async {
     try {
       final response = await _apiService.get(
@@ -114,10 +114,8 @@ class KavachService {
                 try {
                   final allAddresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
                   
-                  // Filter addresses based on addrType
-                  final filteredAddresses = allAddresses.where((address) => address.addrType == addrType).toList();
-                  
-                  return filteredAddresses;
+                  // Return all addresses without filtering by addrType
+                  return allAddresses;
                 } catch (e) {
                   CustomLog.error(this, "Failed to parse addresses data", e);
                   throw e;
@@ -441,13 +439,43 @@ class KavachService {
         return await _apiService.getResponseStatus(
           result.value,
               (response) {
-            final data = response['data'];
-            final txnList = data?['Transactions'] ?? [];
-            if (txnList is List && txnList.isNotEmpty) {
-              return txnList
-                  .map((json) => KavachTransactionModel.fromJson(json))
-                  .toList();
+            CustomLog.debug(this, "Transaction response: $response");
+            
+            // Try different response structures
+            List<dynamic> txnList = [];
+            
+            // Check if Transactions is directly in response
+            if (response.containsKey('Transactions')) {
+              txnList = response['Transactions'] ?? [];
+              CustomLog.debug(this, "Found Transactions directly in response: ${txnList.length}");
+            }
+            // Check if Transactions is nested under data
+            else if (response.containsKey('data') && response['data'] is Map) {
+              final data = response['data'];
+              txnList = data['Transactions'] ?? [];
+              CustomLog.debug(this, "Found Transactions under data: ${txnList.length}");
+            }
+            // Check if the response itself is the Transactions list
+            else if (response is List) {
+              txnList = response;
+              CustomLog.debug(this, "Response is directly a list: ${txnList.length}");
+            }
+            
+            CustomLog.debug(this, "Final transaction list: $txnList");
+            
+            if (txnList.isNotEmpty) {
+              try {
+                final transactions = txnList
+                    .map((json) => KavachTransactionModel.fromJson(json))
+                    .toList();
+                CustomLog.debug(this, "Parsed transactions: ${transactions.length}");
+                return transactions;
+              } catch (e) {
+                CustomLog.error(this, "Failed to parse transaction data", e);
+                return <KavachTransactionModel>[];
+              }
             } else {
+              CustomLog.debug(this, "No transactions found or empty list");
               return <KavachTransactionModel>[]; // Empty list
             }
           },

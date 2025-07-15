@@ -83,8 +83,6 @@ import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 import 'package:gro_one_app/features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_details_service.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
 var locator = GetIt.instance;
 
@@ -190,48 +188,8 @@ void initLocator() {
     locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
     locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
     locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(() => KavachTransactionsCubit(locator<KavachRepository>()));
 
-    // Cubit
-    locator.registerLazySingleton(
-      () => LPHomeCubit(locator<LpHomeRepository>()),
-    );
-    // locator.registerLazySingleton(
-    //   () => KycCubit(
-    //     locator<KycRepository>(),
-    //     locator<UserInformationRepository>(),
-    //   ),
-    // );
-    locator.registerLazySingleton(
-      () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => LpLoadCubit(locator<LpLoadRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => VpHomeRepository(
-        locator<VpHomeService>(),
-        locator<UserInformationRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => LoadDetailsCubit(
-        locator<LoadDetailsRepository>(),
-        locator<VpHomeRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => ChoosePreferenceCubit(locator<KavachRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => KavachAddVehicleFormCubit(locator<KavachRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => EnDhanCubit(locator<EnDhanRepository>(), locator<UserInformationRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => KavachTransactionsCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()),
-    );
 
 
     CustomLog.info(locator, "All instances registered.");

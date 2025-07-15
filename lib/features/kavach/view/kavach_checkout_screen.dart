@@ -33,6 +33,7 @@ import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_a
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
 import '../model/kavach_product_model.dart';
+import '../model/kavach_address_model.dart';
 import '../repository/kavach_repository.dart';
 import 'kavach_support_screen.dart';
 import 'widgets/product_counter.dart';
@@ -41,12 +42,28 @@ class KavachCheckoutScreen extends StatefulWidget {
   final List<KavachProduct> products;
   final Map<String, int> quantities;
   final Map<String, List<String>>? previousVehicleSelection;
+  final String? previousReferralCode;
+  final String? previousShippingPersonInCharge;
+  final String? previousShippingPersonContactNo;
+  final bool? previousShippingSameAsBilling;
+  final KavachAddressModel? selectedBillingAddress;
+  final KavachAddressModel? selectedShippingAddress;
+  final List<KavachAddressModel>? billingAddresses;
+  final List<KavachAddressModel>? shippingAddresses;
 
   const KavachCheckoutScreen({
     super.key,
     required this.products,
     required this.quantities,
-    this.previousVehicleSelection
+    this.previousVehicleSelection,
+    this.previousReferralCode,
+    this.previousShippingPersonInCharge,
+    this.previousShippingPersonContactNo,
+    this.previousShippingSameAsBilling,
+    this.selectedBillingAddress,
+    this.selectedShippingAddress,
+    this.billingAddresses,
+    this.shippingAddresses,
   });
 
   @override
@@ -69,9 +86,11 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   TextEditingController shippingPersonContactNoController = TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
 
-
-
-
+  // Store selected addresses for restoration
+  KavachAddressModel? selectedBillingAddress;
+  KavachAddressModel? selectedShippingAddress;
+  List<KavachAddressModel>? billingAddresses;
+  List<KavachAddressModel>? shippingAddresses;
 
 
   void loadVehicleSelection() {
@@ -98,6 +117,22 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     );
   }
 
+  void restoreSelectedAddresses() {
+    // Restore billing address if previously selected
+    if (selectedBillingAddress != null && billingAddresses != null) {
+      kavachCheckoutBillingAddressBloc.add(
+        RestoreKavachBillingAddress(selectedBillingAddress!, billingAddresses!),
+      );
+    }
+
+    // Restore shipping address if previously selected
+    if (selectedShippingAddress != null && shippingAddresses != null) {
+      kavachCheckoutShippingAddressBloc.add(
+        RestoreKavachShippingAddress(selectedShippingAddress!, shippingAddresses!),
+      );
+    }
+  }
+
 
   bool isVehicleAlreadySelected(String vehicleNumber) {
     for (var product in _products) {
@@ -120,6 +155,34 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<KavachProduct>.from(widget.products);
     _availableStocks = {};
+
+    // Restore previous form data
+    if (widget.previousReferralCode != null) {
+      referralCodeController.text = widget.previousReferralCode!;
+    }
+    if (widget.previousShippingPersonInCharge != null) {
+      shippingPersonInChargeController.text = widget.previousShippingPersonInCharge!;
+    }
+    if (widget.previousShippingPersonContactNo != null) {
+      shippingPersonContactNoController.text = widget.previousShippingPersonContactNo!;
+    }
+    if (widget.previousShippingSameAsBilling != null) {
+      shippingSameAsBilling = widget.previousShippingSameAsBilling!;
+    }
+
+    // Restore selected addresses if passed
+    if (widget.selectedBillingAddress != null) {
+      selectedBillingAddress = widget.selectedBillingAddress;
+    }
+    if (widget.selectedShippingAddress != null) {
+      selectedShippingAddress = widget.selectedShippingAddress;
+    }
+    if (widget.billingAddresses != null) {
+      billingAddresses = widget.billingAddresses;
+    }
+    if (widget.shippingAddresses != null) {
+      shippingAddresses = widget.shippingAddresses;
+    }
 
     for (var product in _products) {
       locator<KavachRepository>()
@@ -149,6 +212,26 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     // loadVehicleSelection();
     kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
     kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
+
+    // Listen to address states to store selected addresses
+    kavachCheckoutBillingAddressBloc.stream.listen((state) {
+      if (state is KavachCheckoutBillingAddressSelected) {
+        selectedBillingAddress = state.selectedAddress;
+        billingAddresses = state.addresses;
+      }
+    });
+
+    kavachCheckoutShippingAddressBloc.stream.listen((state) {
+      if (state is KavachCheckoutShippingAddressSelected) {
+        selectedShippingAddress = state.selectedAddress;
+        shippingAddresses = state.addresses;
+      }
+    });
+
+    // Restore selected addresses after a delay to allow fetching
+    Future.delayed(Duration(milliseconds: 500), () {
+      restoreSelectedAddresses();
+    });
   }
 
   @override
@@ -159,7 +242,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         title: context.appText.checkout,
         leading : IconButton(
             onPressed: () {
-              // Navigator.of(context).pop(_quantities);
               Navigator.of(context).pop({
                 'quantities': _quantities,
                 'vehicles': vehicleControllersPerProduct.map(
@@ -168,6 +250,14 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     value.map((controller) => controller.text.trim()).toList(),
                   ),
                 ),
+                'referralCode': referralCodeController.text.trim(),
+                'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+                'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
+                'shippingSameAsBilling': shippingSameAsBilling,
+                'selectedBillingAddress': selectedBillingAddress,
+                'selectedShippingAddress': selectedShippingAddress,
+                'billingAddresses': billingAddresses,
+                'shippingAddresses': shippingAddresses,
               });
             },
             icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
@@ -238,7 +328,23 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     ),
                     TextButton.icon(
                       onPressed: () {
-                        Navigator.of(context).pop(_quantities);
+                        Navigator.of(context).pop({
+                          'quantities': _quantities,
+                          'vehicles': vehicleControllersPerProduct.map(
+                                (key, value) => MapEntry(
+                              key,
+                              value.map((controller) => controller.text.trim()).toList(),
+                            ),
+                          ),
+                          'referralCode': referralCodeController.text.trim(),
+                          'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+                          'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
+                          'shippingSameAsBilling': shippingSameAsBilling,
+                          'selectedBillingAddress': selectedBillingAddress,
+                          'selectedShippingAddress': selectedShippingAddress,
+                          'billingAddresses': billingAddresses,
+                          'shippingAddresses': shippingAddresses,
+                        });
                         syncVehicleControllersWithProducts();
                         loadVehicleSelection();
                       },

@@ -33,6 +33,7 @@ import 'package:intl/intl.dart';
 import '../../../utils/common_functions.dart';
 import 'kavach_support_screen.dart';
 import 'kavach_transaction_screen.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 
 class KavachModelsScreen extends StatelessWidget {
   final KavachChoosePreferenceModel? initialPreferences;
@@ -62,6 +63,14 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   Map<String, List<String>> selectedVehicles = {};
+  String? previousReferralCode;
+  String? previousShippingPersonInCharge;
+  String? previousShippingPersonContactNo;
+  bool? previousShippingSameAsBilling;
+  KavachAddressModel? selectedBillingAddress;
+  KavachAddressModel? selectedShippingAddress;
+  List<KavachAddressModel>? billingAddresses;
+  List<KavachAddressModel>? shippingAddresses;
 
   Timer? _debounce;
 
@@ -383,6 +392,14 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                                   .toList(),
                           quantities: Map.from(bloc.state.quantities),
                           previousVehicleSelection: selectedVehicles,
+                          previousReferralCode: previousReferralCode,
+                          previousShippingPersonInCharge: previousShippingPersonInCharge,
+                          previousShippingPersonContactNo: previousShippingPersonContactNo,
+                          previousShippingSameAsBilling: previousShippingSameAsBilling,
+                          selectedBillingAddress: selectedBillingAddress,
+                          selectedShippingAddress: selectedShippingAddress,
+                          billingAddresses: billingAddresses,
+                          shippingAddresses: shippingAddresses,
                         ),
                       ),
                     );
@@ -403,12 +420,40 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                             ),
                           ),
                         );
+                        
+                        // Store form data
+                        previousReferralCode = result['referralCode'] as String?;
+                        previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
+                        previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
+                        previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
+                      
+                      // Store address data if available
+                      if (result.containsKey('selectedBillingAddress')) {
+                        selectedBillingAddress = result['selectedBillingAddress'] as KavachAddressModel?;
+                      }
+                      if (result.containsKey('selectedShippingAddress')) {
+                        selectedShippingAddress = result['selectedShippingAddress'] as KavachAddressModel?;
+                      }
+                      if (result.containsKey('billingAddresses')) {
+                        billingAddresses = (result['billingAddresses'] as List?)?.cast<KavachAddressModel>();
+                      }
+                      if (result.containsKey('shippingAddresses')) {
+                        shippingAddresses = (result['shippingAddresses'] as List?)?.cast<KavachAddressModel>();
+                      }
                       });
                     } else {
                       // Clear quantities and vehicle selections if back without any selection
                       bloc.add(events.ClearKavachQuantities());
                       setState(() {
                         selectedVehicles = {};
+                        previousReferralCode = null;
+                        previousShippingPersonInCharge = null;
+                        previousShippingPersonContactNo = null;
+                        previousShippingSameAsBilling = null;
+                        selectedBillingAddress = null;
+                        selectedShippingAddress = null;
+                        billingAddresses = null;
+                        shippingAddresses = null;
                       });
                     }
                   },

@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_error_dialog.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sheet.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -19,6 +22,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 
 import '../../../utils/app_dialog.dart';
@@ -586,13 +590,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
           break;
         }
         
-        // Validate vehicle verification
-        if (!widget.state.verifiedVehicleNumbers.containsKey(i) || 
-            !widget.state.verifiedVehicleNumbers[i]!) {
-          isValid = false;
-          errorMessage = 'Please verify the vehicle number for card ${i + 1}';
-          break;
-        }
+        // Vehicle verification is handled automatically when selecting from list
       }
 
       if (!isValid) {
@@ -1010,110 +1008,67 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'Vehicle Number *',
-                                          style: AppTextStyle.body3.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        if (widget.state.verifiedVehicleNumbers[index] == true)
-                                          Padding(
-                                            padding: EdgeInsets.only(left: 8),
-                                            child: Icon(
-                                              Icons.verified,
-                                              color: Colors.green,
-                                              size: 20,
-                                            ),
-                                          ),
-                                      ],
+                                    Text(
+                                      'Vehicle Number *',
+                                      style: AppTextStyle.body3.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     6.height,
                                     AppTextField(
-                                      hintText: 'Enter vehicle number',
+                                      hintText: 'Select vehicle number',
                                       controller: controllers['vehicleNumber'],
-                                     // readOnly: widget.state.verifiedVehicleNumbers[index] == true,
-                                      onChanged: (val) {
-                                        final upperVal = val.toUpperCase();
-                                        card['vehicleNumber'] = upperVal;
-                                        controllers['vehicleNumber']?.text = upperVal;
-                                        controllers['vehicleNumber']?.selection = TextSelection.fromPosition(TextPosition(offset: upperVal.length));
-                                        _syncCardFieldWithCubit(index, 'vehicleNumber', upperVal);
+                                      readOnly: true,
+                                      onTextFieldTap: () async {
+                                        final selectedVehicle = await commonBottomSheet<String?>(
+                                          context: context,
+                                          screen: const KavachAddedVehiclesScreen(),
+                                          barrierDismissible: true,
+                                        );
                                         
-                                        // Clear verification status when vehicle number changes
-                                        if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
-                                          locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
+                                        if (selectedVehicle != null) {
+                                          setState(() {
+                                            controllers['vehicleNumber']?.text = selectedVehicle;
+                                            card['vehicleNumber'] = selectedVehicle;
+                                          });
+                                          
+                                          // Sync with cubit state
+                                          _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
+                                          
+                                          // Auto-verify the selected vehicle
+                                          if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
+                                            locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
+                                          }
+                                          locator<EnDhanCubit>().verifyVehicle(index, selectedVehicle);
                                         }
                                       },
                                       validator: (value) {
                                         if ((widget.state.hasAttemptedSubmit ?? false) && (value == null || value.trim().isEmpty)) {
                                           return 'Vehicle number is required';
                                         }
-                                        // Check if vehicle verification is required
-                                        if ((widget.state.hasAttemptedSubmit ?? false) && 
-                                            value != null && 
-                                            value.trim().isNotEmpty &&
-                                            (!widget.state.verifiedVehicleNumbers.containsKey(index) || 
-                                             !widget.state.verifiedVehicleNumbers[index]!)) {
-                                          return 'Please verify the vehicle number';
-                                        }
                                         return null;
                                       },
                                       decoration: commonInputDecoration(
-                                        hintText: 'Enter vehicle number',
-                                        suffixIcon: widget.state.verifiedVehicleNumbers[index] == true
-                                            ? null
-                                            : widget.state.vehicleVerificationState?.status == Status.LOADING
-                                                ? Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                                    child: SizedBox(
-                                                      width: 16,
-                                                      height: 16,
-                                                      child: CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
-                                                      ),
-                                                    ),
-                                                  )
-                                                : GestureDetector(
-                                                    onTap: () {
-                                                      final vehicleNumber = controllers['vehicleNumber']?.text?.trim() ?? '';
-                                                      if (vehicleNumber.isNotEmpty) {
-                                                        final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
-                                                        if (vehicleRegex.hasMatch(vehicleNumber)) {
-                                                          locator<EnDhanCubit>().verifyVehicle(index, vehicleNumber);
-                                                        } else {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text('Please enter a valid vehicle number format'),
-                                                              backgroundColor: Colors.orange,
-                                                            ),
-                                                          );
-                                                        }
-                                                      } else {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            content: Text('Please enter vehicle number first'),
-                                                            backgroundColor: Colors.orange,
-                                                          ),
-                                                        );
-                                                      }
-                                                    },
-                                                    child: Padding(
-                                                      padding: EdgeInsets.symmetric(horizontal: 12),
-                                                      child: Text(
-                                                        'Verify',
-                                                        style: AppTextStyle.body3.copyWith(
-                                                          color: AppColors.primaryColor,
-                                                          decoration: TextDecoration.underline,
-                                                          fontWeight: FontWeight.w500,
-                                                          decorationColor: AppColors.primaryColor,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                        hintText: 'Select vehicle number',
+                                        suffixIcon: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: AppColors.lightBlueIconBackgroundColor2,
+                                              child: SvgPicture.asset(
+                                                AppIcons.svg.truck,
+                                                colorFilter: AppColors.svg(AppColors.primaryColor),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 5),
+                                              child: Icon(
+                                                CupertinoIcons.chevron_down,
+                                                color: AppColors.chevronGreyColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     12.height,

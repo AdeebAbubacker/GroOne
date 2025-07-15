@@ -57,16 +57,14 @@ class KavachRepository {
     }
   }
 
-  /// Fetches addresses for the current user with specified address type
-  Future<Result<List<KavachAddressModel>>> fetchAddresses({
-    required int addrType
-  }) async {
+  /// Fetches addresses for the current user
+  Future<Result<List<KavachAddressModel>>> fetchAddresses() async {
     try {
       final customerId = await userInfoRepo.getUserID() ?? '';
       if (customerId.isEmpty) {
         return Error(ErrorWithMessage(message: "Customer ID not found"));
       }
-      return await _service.fetchAddresses(customerId, addrType: addrType);
+      return await _service.fetchAddresses(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch addresses in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
