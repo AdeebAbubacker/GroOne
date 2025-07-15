@@ -10,27 +10,18 @@ class EndhanErrorDialog {
   static void show(BuildContext context, dynamic errorType) {
     String errorMessage = 'An error occurred. Please try again.';
 
-    // Debug logging for API response
-    print('🔍 === ENDHAN ERROR DIALOG DEBUG ===');
-    print('🔍 Error Type: ${errorType.runtimeType}');
-    print('🔍 Error Type String: ${errorType.toString()}');
-    
     if (errorType != null) {
       // Check if it's an ErrorType and use the getText method
       if (errorType is ErrorType) {
         errorMessage = errorType.getText(context);
-        print('🔍 ErrorType.getText(): $errorMessage');
         
         // Additional logging for ErrorWithMessage
         if (errorType is ErrorWithMessage) {
-          print('🔍 ErrorWithMessage Details:');
-          print('  - Message: ${errorType.message}');
-          print('  - Code: ${errorType.code}');
+          // ErrorWithMessage details available
         }
       } else {
         // Fallback for non-ErrorType objects
         final errorString = errorType.toString();
-        print('🔍 Non-ErrorType object: $errorString');
         
         // Try to extract message from ErrorWithMessage string representation
         if (errorString.contains('ErrorWithMessage')) {
@@ -39,7 +30,6 @@ class EndhanErrorDialog {
             final messageEnd = errorString.lastIndexOf(')');
             if (messageEnd != -1) {
               errorMessage = errorString.substring(messageStart + 9, messageEnd);
-              print('🔍 Extracted message from string: $errorMessage');
             }
           }
         } else {
@@ -48,13 +38,9 @@ class EndhanErrorDialog {
               .replaceAll('Instance of \'', '')
               .replaceAll('\'', '')
               .replaceAll('Error', ' error');
-          print('🔍 Cleaned error message: $errorMessage');
         }
       }
     }
-    
-    print('🔍 Final Error Message: $errorMessage');
-    print('🔍 === END ERROR DIALOG DEBUG ===');
 
     showDialog(
       context: context,

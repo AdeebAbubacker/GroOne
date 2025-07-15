@@ -366,13 +366,31 @@ class ApiService {
 
   /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
-    if (result[SUCCESS] == true || result[STATUS] == true) {
-      final data = fromJson(result);
-      return Success(data);
-    } else if (result[SUCCESS] == false || result[STATUS] == false) {
-      return Error(ErrorWithMessage(message: result[MESSAGE]));
+    print('🔍 getResponseStatus called with result: $result');
+    print('🔍 getResponseStatus result type: ${result.runtimeType}');
+    
+    if (result is Map<String, dynamic>) {
+      print('🔍 getResponseStatus - success: ${result[SUCCESS]}, status: ${result[STATUS]}');
+      
+      if (result[SUCCESS] == true || result[STATUS] == true) {
+        final data = fromJson(result);
+        print('🔍 getResponseStatus - parsed data: $data');
+        return Success(data);
+      } else if (result[SUCCESS] == false || result[STATUS] == false) {
+        print('🔍 getResponseStatus - failed with message: ${result[MESSAGE]}');
+        return Error(ErrorWithMessage(message: result[MESSAGE]));
+      } else {
+        print('🔍 getResponseStatus - no success/status flag found, treating as success');
+        // If no success/status flag is found, treat as success (for APIs that don't use these flags)
+        final data = fromJson(result);
+        print('🔍 getResponseStatus - parsed data (no flag): $data');
+        return Success(data);
+      }
     } else {
-      return Error(ResponseStatusFailed());
+      print('🔍 getResponseStatus - result is not a map, treating as success');
+      final data = fromJson(result);
+      print('🔍 getResponseStatus - parsed data (non-map): $data');
+      return Success(data);
     }
   }
 

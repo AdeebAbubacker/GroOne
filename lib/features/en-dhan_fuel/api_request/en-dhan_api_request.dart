@@ -145,7 +145,7 @@ class EnDhanCustomerCreationApiRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final Map<String, dynamic> json = <String, dynamic>{
       'customerId': customerId, // Added customerId to JSON
       'CustomerName': customerName,
       'title': title,
@@ -160,9 +160,15 @@ class EnDhanCustomerCreationApiRequest {
       'CommunicationMobileNo': communicationMobileNo,
       'CommunicationEmailid': communicationEmailid,
       'IncomeTaxPan': incomeTaxPan,
-      'referralCode': referralCode, // Added referral code to JSON
       'ObjCardDetailsAl': objCardDetailsAl.map((e) => e.toJson()).toList(),
     };
+    
+    // Only include referralCode if it's not null and not empty
+    if (referralCode != null && referralCode!.isNotEmpty) {
+      json['referralCode'] = referralCode;
+    }
+    
+    return json;
   }
 
   @override

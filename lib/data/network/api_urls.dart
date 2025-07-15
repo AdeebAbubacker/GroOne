@@ -40,7 +40,7 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  static String get _verification => "https://verification-service-dev.letsgro.co/api/v1/verification";
+  static String get _verification => "https://gro-devapi.letsgro.co/external/api/v1/verification";
   static String get _kucDocUpload => "https://verification-service-dev.letsgro.co/api/v1/verification";
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
@@ -150,16 +150,16 @@ class ApiUrls {
   //Kavach
   static String  kavachOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
   static String get kavachProductList => "$_baseUrl$_fleet$_path$_v1/product/list";
-  static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1$_vpMaster/vehicle";
-  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/vas";
+  static String get kavachVehicleDetails => "$_baseUrl$_customer$_path$_v1/vehicle";
+  static String get kavachAddressList => "$_baseUrl$_customer$_path$_v1/address";
   static String get kavachAvailableStock => "$_baseUrl$_fleet$_path$_v1/stocks/available-stock";
   static String get kavachCreateOrder => "$_baseUrl$_fleet$_path$_v1/orders/create";
   static String get choosePreference => '$_baseUrl$_fleet$_path$_v1/masters';
-  static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vp-master/vehicle";
-  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodity";
-  static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/vas";
-  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-type/distinct/types";
-  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-type/sub-types";
+  static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/add";
+  static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodities";
+  static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/address";
+  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-types/distinct/types";
+  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-types/sub-types";
   static String  kavachVehicleVerification = "$verification/vehicle";
 
   /// En-Dhan
@@ -181,7 +181,10 @@ class ApiUrls {
   static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
 
   // Document Upload API
-  static final String documentUpload = "https://gro-uatapi.letsgro.co/customer/api/v1/upload";
+  static final String documentUpload = "https://gro-devapi.letsgro.co/document/api/v1/upload";
+
+  // User Management API
+  static final String getAllUsers = "https://gro-devapi.letsgro.co/user/api/v1/users/allUsers";
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";

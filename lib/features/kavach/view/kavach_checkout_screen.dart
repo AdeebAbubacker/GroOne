@@ -69,12 +69,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   TextEditingController shippingPersonContactNoController = TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
 
-  List<String> referralSuggestions = [
-    'John Doe GDP67543',
-    'David GDP67544',
-    'Michael GDP67545',
-    'Sarah GDP67546',
-  ];
+
 
 
 
@@ -209,10 +204,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 ),
                 child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  suggestions: referralSuggestions,
                   labelText: 'Referral Code (Optional)',
                   onSelected: (value) {
-                    print('Selected: $value');
+                    // Referral code selected
                   },
                 ),
               ),
@@ -273,6 +267,21 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       //Billing Address
                       BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
                         builder: (context, state) {
+                          if (state is KavachCheckoutBillingAddressLoading) {
+                            return AppTextField(
+                              readOnly: true,
+                              autofocus: false,
+                              labelText: context.appText.billingAddress,
+                              mandatoryStar: true,
+                              decoration: kavachInputDecoration(
+                                suffixIcon: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              ),
+                            );
+                          }
                           if (state is KavachCheckoutBillingAddressSelected) {
                             final address = state.selectedAddress;
                             return addressWidget(
@@ -306,6 +315,46 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               },
                             );
                           }
+                          if (state is KavachCheckoutBillingAddressAvailable) {
+                            return AppTextField(
+                              readOnly: true,
+                              autofocus: false,
+                              labelText: context.appText.billingAddress,
+                              mandatoryStar: true,
+                              decoration: kavachInputDecoration(
+                                suffixIcon: Icon(
+                                  Icons.chevron_right,
+                                  color: AppColors.chevronGreyColor,
+                                ),
+                              ),
+                              onTextFieldTap: () {
+                                commonBottomSheetWithBGBlur(
+                                  context: context,
+                                  screen: const KavachBillingAddressListScreen(),
+                                );
+                              },
+                            );
+                          }
+                          if (state is KavachCheckoutBillingAddressError) {
+                            return AppTextField(
+                              readOnly: true,
+                              autofocus: false,
+                              labelText: context.appText.billingAddress,
+                              mandatoryStar: true,
+                              decoration: kavachInputDecoration(
+                                suffixIcon: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              onTextFieldTap: () {
+                                commonBottomSheetWithBGBlur(
+                                  context: context,
+                                  screen: const KavachBillingAddressListScreen(),
+                                );
+                              },
+                            );
+                          }
                           return const SizedBox.shrink();
                         },
                       ),
@@ -313,6 +362,42 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       //Shipping Address
                       BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
                         builder: (context, state) {
+                          if (state is KavachCheckoutShippingAddressLoading) {
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      context.appText.shippingAddress,
+                                      style: AppTextStyle.textFiled,
+                                    ).paddingLeft(3),
+                                    Text(
+                                      " *",
+                                      style: AppTextStyle.textFiled.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          }
                           if (state is KavachCheckoutShippingAddressSelected) {
                             final address = state.selectedAddress;
                             return Column(
@@ -392,6 +477,90 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       );
                                     },
                                     // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
+                                  ),
+                                ),
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          }
+                          if (state is KavachCheckoutShippingAddressAvailable) {
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      context.appText.shippingAddress,
+                                      style: AppTextStyle.textFiled,
+                                    ).paddingLeft(3),
+                                    Text(
+                                      " *",
+                                      style: AppTextStyle.textFiled.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.chevronGreyColor,
+                                      ),
+                                    ),
+                                    onTextFieldTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen:
+                                        const KavachShippingAddressListScreen(),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          }
+                          if (state is KavachCheckoutShippingAddressError) {
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      context.appText.shippingAddress,
+                                      style: AppTextStyle.textFiled,
+                                    ).paddingLeft(3),
+                                    Text(
+                                      " *",
+                                      style: AppTextStyle.textFiled.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: Icon(
+                                        Icons.error,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    onTextFieldTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen:
+                                        const KavachShippingAddressListScreen(),
+                                      );
+                                    },
                                   ),
                                 ),
                                 checkBoxSameAsShipping(),

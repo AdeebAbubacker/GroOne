@@ -1,5 +1,5 @@
 class KavachAddVehicleRequest {
-  final int customerId;
+  final String customerId;
   final String vehicleNumber;
   final int vehicleTypeId;
   final String rcNumber;
@@ -28,15 +28,14 @@ class KavachAddVehicleRequest {
   Map<String, dynamic> toJson() {
     return {
       "customerId": customerId,
-      "vehicleNumber": vehicleNumber,
-      "vehicleTypeId": vehicleTypeId,
+      "truckNo": vehicleNumber,
       "rcNumber": rcNumber,
       "rcDocLink": rcDocLink,
+      "tonnage": "${capacity}T",
+      "truckTypeId": truckType,
       "truckMakeAndModel": truckMakeAndModel,
-      "truckType": truckType,
-      "truckLength": truckLength,
-      "capacity": capacity,
       "acceptableCommodities": acceptableCommodities,
+      "truckLength": truckLength,
       "vehicleStatus": vehicleStatus,
     };
   }

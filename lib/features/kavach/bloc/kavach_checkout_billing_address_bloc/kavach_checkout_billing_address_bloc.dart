@@ -25,8 +25,8 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
       if (result.value.isEmpty) {
         emit(KavachCheckoutBillingAddressEmpty());
       } else {
-        final firstAddress = result.value.first;
-        emit(KavachCheckoutBillingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        // Don't auto-select the first address, let user choose
+        emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
       emit(KavachCheckoutBillingAddressError(result.type));
@@ -44,8 +44,13 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   // }
   void _onSelectBillingAddress(SelectKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
     final currentState = state;
+
     if (currentState is KavachCheckoutBillingAddressSelected) {
-      emit(KavachCheckoutBillingAddressLoading()); // <--- Force refresh by emitting Loading first
+      emit(KavachCheckoutBillingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else if (currentState is KavachCheckoutBillingAddressAvailable) {
       emit(KavachCheckoutBillingAddressSelected(
         selectedAddress: event.address,
         addresses: currentState.addresses,

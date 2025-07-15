@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
+import '../../../data/storage/secured_shared_preferences.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
@@ -14,13 +15,16 @@ import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
+import '../model/kavach_user_model.dart';
 import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 
 class KavachService {
   final ApiService _apiService;
-  KavachService(this._apiService);
+  final SecuredSharedPreferences _secureSharedPrefs;
+  KavachService(this._apiService, this._secureSharedPrefs);
 
   /// Fetches Kavach products with optional search and preference filters
   Future<Result<List<KavachProduct>>> fetchProducts({
@@ -65,12 +69,23 @@ class KavachService {
   Future<Result<List<KavachVehicleModel>>> fetchVehicles(String customerId) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.kavachVehicleDetails}/$customerId',
+        '${ApiUrls.kavachVehicleDetails}/$customerId?limit=10&page=1',
       );
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => (data['data'] as List).map((e) => KavachVehicleModel.fromJson(e)).toList(),
+              (data) {
+                try {
+                  final vehicleList = data['data'] as List;
+                  
+                  return vehicleList.map((e) {
+                    return KavachVehicleModel.fromJson(e);
+                  }).toList();
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse vehicle data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -88,14 +103,26 @@ class KavachService {
       }) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.kavachAddressList}?customerId=$customerId&addrType=$addrType',
+        '${ApiUrls.kavachAddressList}/$customerId?limit=10&page=1',
         forceRefresh: true,
       );
 
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList(),
+              (data) {
+                try {
+                  final allAddresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
+                  
+                  // Filter addresses based on addrType
+                  final filteredAddresses = allAddresses.where((address) => address.addrType == addrType).toList();
+                  
+                  return filteredAddresses;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse addresses data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -117,7 +144,15 @@ class KavachService {
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => KavachAddressModel.fromJson(data['data']),
+              (data) {
+                try {
+                  // The API response seems to be the direct data object
+                  return KavachAddressModel.fromJson(data);
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse add address data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -209,21 +244,62 @@ class KavachService {
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => (data['data'] as List).map((e) => CommodityModel.fromJson(e)).toList(),
+              (data) {
+                try {
+                  // Handle the case where data might be directly a list
+                  if (data is List) {
+                    return data.map((e) => CommodityModel.fromJson(e)).toList();
+                  }
+                  // Handle the case where data is nested in a 'data' field
+                  if (data is Map<String, dynamic> && data.containsKey('data')) {
+                    final dataList = data['data'];
+                    if (dataList is List) {
+                      return dataList.map((e) => CommodityModel.fromJson(e)).toList();
+                    }
+                  }
+                  // If neither format works, return empty list
+                  return <CommodityModel>[];
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse commodities data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (_) {
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch commodities", e);
       return Error(DeserializationError());
     }
   }
 
   Future<Result<KavachVehicleDocumentUploadModel>> fetchUploadGstData(File file) async {
     try {
-      final result = await _apiService.multipart(ApiUrls.upload, file, pathName: "file");
+      // Get user ID from secure storage
+      final userId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (userId == null || userId.isEmpty) {
+        CustomLog.error(this, "User ID not found in secure storage", null);
+        return Error(ErrorWithMessage(message: 'User ID not found'));
+      }
+
+      final url = ApiUrls.documentUpload;
+      
+      // Prepare form fields with required parameters
+      final fields = {
+        'userId': userId,
+        'fileType': 'rc_book',
+        'documentType': 'rc_document',
+      };
+
+      final result = await _apiService.multipart(
+        url, 
+        file, 
+        pathName: "file",
+        fields: fields,
+      );
+      
       if (result is Success) {
-        // This function already uses getResponseStatus as requested
         return await _apiService.getResponseStatus(
           result.value,
               (data) => KavachVehicleDocumentUploadModel.fromJson(data),
@@ -263,12 +339,32 @@ class KavachService {
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => (data['data'] as List).cast<String>(),
+              (data) {
+                try {
+                  // Handle the case where data might be directly a list
+                  if (data is List) {
+                    return data.cast<String>();
+                  }
+                  // Handle the case where data is nested in a 'data' field
+                  if (data is Map<String, dynamic> && data.containsKey('data')) {
+                    final dataList = data['data'];
+                    if (dataList is List) {
+                      return dataList.cast<String>();
+                    }
+                  }
+                  // If neither format works, return empty list
+                  return <String>[];
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse truck types data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (_) {
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch truck types", e);
       return Error(DeserializationError());
     }
   }
@@ -366,6 +462,45 @@ class KavachService {
     }
   }
 
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.isNotEmpty) 'Search': search,
+      };
 
+      // Construct URL with query parameters
+      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  final userListResponse = KavachUserListResponse.fromJson(data);
+                  return userListResponse.data;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse users data", e);
+                  throw e;
+                }
+              },
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users", e);
+      return Error(DeserializationError());
+    }
+  }
 }
 

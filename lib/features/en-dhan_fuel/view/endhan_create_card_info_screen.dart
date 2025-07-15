@@ -113,12 +113,13 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     );
   }
 
+// after afetr uplaod the card
   void _showSuccessDialog(BuildContext context) {
     // Reset the customer creation state immediately
     final enDhanCubit = locator<EnDhanCubit>();
     enDhanCubit.resetCustomerCreationState();
-    // Reset the cubit to clear the closed state
-    enDhanCubit.resetCubit();
+    // Don't reset the entire cubit as it clears customer information
+    // enDhanCubit.resetCubit();
 
     // Show success message and navigate immediately
     // ScaffoldMessenger.of(context).showSnackBar(
@@ -128,19 +129,33 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     //     duration: Duration(seconds: 2),
     //   ),
     // );
-     showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => SuccessDialogView(
+        AppDialog.show(
+             context,
+            child : SuccessDialogView(
               message: 'Customer and cards created successfully!',
               onContinue: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+                    Navigator.of(context).pop();
+                   Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen(),
+                  ),
+                
                 );
               },
-            ),
+            )
           );
+    //  showDialog(
+    //         context: context,
+    //         barrierDismissible: false,
+    //         builder: (context) => SuccessDialogView(
+    //           message: 'Customer and cards created successfully!',
+    //           onContinue: () {
+    //             Navigator.of(context).pop();
+    //             Navigator.of(context).pushReplacement(
+    //               MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+    //             );
+    //           },
+    //         ),
+    //       );
 
     // Navigate back to the card screen
     // Navigator.of(context).pop();
@@ -181,18 +196,37 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
   @override
   void initState() {
     super.initState();
+    
+    // Debug: Log cubit state when card info screen loads
+    final cubit = locator<EnDhanCubit>();
+    print('🔍 === CARD INFO SCREEN INIT ===');
+    print('🔍 Cubit hash: ${cubit.hashCode}');
+    print('🔍 Customer Name: "${cubit.state.customerName}"');
+    print('🔍 Mobile: "${cubit.state.mobile}"');
+    print('🔍 Address1: "${cubit.state.address1}"');
+    print('🔍 City: "${cubit.state.cityName}"');
+    print('🔍 Pincode: "${cubit.state.pincode}"');
+    print('🔍 Email: "${cubit.state.email}"');
+    print('🔍 PAN: "${cubit.state.pan}"');
+    print('🔍 Current vehicle types: ${cubit.state.vehicleTypes}');
+    
     // Reset local form data to ensure clean state
     _resetLocalFormData();
 
     // Fetch vehicle types when screen loads
-    final cubit = locator<EnDhanCubit>();
-    print('🔍 initState - Cubit hash: ${cubit.hashCode}');
-    print('🔍 initState - Current vehicle types: ${cubit.state.vehicleTypes}');
     cubit.fetchVehicleTypes();
     
     // Sync existing cubit data with local form data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _syncCubitDataWithLocalForm();
+      
+      // Debug: Log cubit state after sync
+      print('🔍 === AFTER SYNC ===');
+      print('🔍 Customer Name: "${cubit.state.customerName}"');
+      print('🔍 Mobile: "${cubit.state.mobile}"');
+      print('🔍 Address1: "${cubit.state.address1}"');
+      print('🔍 City: "${cubit.state.cityName}"');
+      print('🔍 Pincode: "${cubit.state.pincode}"');
     });
   }
 
@@ -543,9 +577,20 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         }
 
         // Validate RC file upload
+        print('🔍 Validation - Card $i rcFile: ${card['rcFile']}');
+        print('🔍 Validation - Card $i rcDocuments: ${card['rcDocuments']}');
         if (card['rcFile'] == null) {
+          print('🔍 Validation failed - rcFile is null for card $i');
           isValid = false;
           errorMessage = 'RC document upload is required for card ${i + 1}';
+          break;
+        }
+        
+        // Validate vehicle verification
+        if (!widget.state.verifiedVehicleNumbers.containsKey(i) || 
+            !widget.state.verifiedVehicleNumbers[i]!) {
+          isValid = false;
+          errorMessage = 'Please verify the vehicle number for card ${i + 1}';
           break;
         }
       }
@@ -607,18 +652,18 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
       // 4. Show SuccessDialogView only once
       if (cubit.state.customerCreationState?.status == Status.SUCCESS) {
         if (mounted) {
-          AppDialog.show(
-             context,
-            child : SuccessDialogView(
-              message: 'Customer and cards created successfully!',
-              onContinue: () {
-                    Navigator.of(context).pop();
-                   Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
-                );
-              },
-            )
-          );
+          // AppDialog.show(
+          //    context,
+          //   child : SuccessDialogView(
+          //     message: 'Customer and cards created successfully!',
+          //     onContinue: () {
+          //           Navigator.of(context).pop();
+          //          Navigator.of(context).pushReplacement(
+          //         MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen()),
+          //       );
+          //     },
+          //   )
+          // );
           // showDialog(
           //   context: context,
           //   barrierDismissible: false,
@@ -634,7 +679,8 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
           // );
         }
         cubit.resetCustomerCreationState();
-        cubit.resetCubit();
+        // Don't reset the entire cubit as it clears customer information
+        // cubit.resetCubit();
       }
     }
   }
@@ -751,18 +797,32 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
     final card = cardData[cardIndex];
     final controllers = card['controllers'] as Map<String, TextEditingController>;
     
+    print('🔍 _syncCardDocumentsWithCubit called for card $cardIndex');
+    print('🔍 New list: $newList');
+    
     // Convert document list to the format expected by cubit
     List<Map<String, dynamic>> rcDocuments = [];
     if (newList.isNotEmpty) {
       final document = newList.first;
       if (document['fileName'] != null) {
         // Use the uploaded URL if available, otherwise use the file name
-        final fileName = document['fileName'].toString().startsWith('http') 
-            ? document['fileName'] 
-            : document['fileName'];
-        rcDocuments = [{'fileName': fileName}];
+        final fileName = document['fileName'].toString();
+        print('🔍 Document fileName: $fileName');
+        
+        // Check if it's an uploaded URL or local file path
+        if (fileName.startsWith('http')) {
+          // It's an uploaded URL, use it directly
+          rcDocuments = [{'fileName': fileName}];
+          print('🔍 Using uploaded URL: $fileName');
+        } else {
+          // It's a local file path, use the file name
+          rcDocuments = [{'fileName': fileName}];
+          print('🔍 Using local file name: $fileName');
+        }
       }
     }
+    
+    print('🔍 Final rcDocuments for cubit: $rcDocuments');
     
     cubit.updateCardField(
       cardIndex,
@@ -952,18 +1012,21 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                   children: [
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Vehicle Number *',
-                                      style: AppTextStyle.body3.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      children: [
+                                        Text(
+                                          'Vehicle Number *',
+                                          style: AppTextStyle.body3.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                         if (widget.state.verifiedVehicleNumbers[index] == true)
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                            size: 20,
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 8),
+                                            child: Icon(
+                                              Icons.verified,
+                                              color: Colors.green,
+                                              size: 20,
+                                            ),
                                           ),
                                       ],
                                     ),
@@ -971,31 +1034,87 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     AppTextField(
                                       hintText: 'Enter vehicle number',
                                       controller: controllers['vehicleNumber'],
+                                     // readOnly: widget.state.verifiedVehicleNumbers[index] == true,
                                       onChanged: (val) {
                                         final upperVal = val.toUpperCase();
                                         card['vehicleNumber'] = upperVal;
                                         controllers['vehicleNumber']?.text = upperVal;
                                         controllers['vehicleNumber']?.selection = TextSelection.fromPosition(TextPosition(offset: upperVal.length));
                                         _syncCardFieldWithCubit(index, 'vehicleNumber', upperVal);
-                                        if (upperVal.trim().isNotEmpty) {
-                                          final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
-                                          if (vehicleRegex.hasMatch(upperVal)) {
-                                            if ((!widget.state.verifiedVehicleNumbers.containsKey(index) || !widget.state.verifiedVehicleNumbers[index]!) && widget.state.vehicleVerificationState?.status != Status.LOADING) {
-                                              Future.delayed(Duration(milliseconds: 500), () {
-                                                if (mounted) {
-                                                  locator<EnDhanCubit>().verifyVehicle(index, upperVal);
-                                                }
-                                              });
-                                            }
-                                          }
+                                        
+                                        // Clear verification status when vehicle number changes
+                                        if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
+                                          locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
                                         }
                                       },
                                       validator: (value) {
                                         if ((widget.state.hasAttemptedSubmit ?? false) && (value == null || value.trim().isEmpty)) {
                                           return 'Vehicle number is required';
                                         }
+                                        // Check if vehicle verification is required
+                                        if ((widget.state.hasAttemptedSubmit ?? false) && 
+                                            value != null && 
+                                            value.trim().isNotEmpty &&
+                                            (!widget.state.verifiedVehicleNumbers.containsKey(index) || 
+                                             !widget.state.verifiedVehicleNumbers[index]!)) {
+                                          return 'Please verify the vehicle number';
+                                        }
                                         return null;
                                       },
+                                      decoration: commonInputDecoration(
+                                        hintText: 'Enter vehicle number',
+                                        suffixIcon: widget.state.verifiedVehicleNumbers[index] == true
+                                            ? null
+                                            : widget.state.vehicleVerificationState?.status == Status.LOADING
+                                                ? Padding(
+                                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                                    child: SizedBox(
+                                                      width: 16,
+                                                      height: 16,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : GestureDetector(
+                                                    onTap: () {
+                                                      final vehicleNumber = controllers['vehicleNumber']?.text?.trim() ?? '';
+                                                      if (vehicleNumber.isNotEmpty) {
+                                                        final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
+                                                        if (vehicleRegex.hasMatch(vehicleNumber)) {
+                                                          locator<EnDhanCubit>().verifyVehicle(index, vehicleNumber);
+                                                        } else {
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(
+                                                              content: Text('Please enter a valid vehicle number format'),
+                                                              backgroundColor: Colors.orange,
+                                                            ),
+                                                          );
+                                                        }
+                                                      } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          SnackBar(
+                                                            content: Text('Please enter vehicle number first'),
+                                                            backgroundColor: Colors.orange,
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Padding(
+                                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                                      child: Text(
+                                                        'Verify',
+                                                        style: AppTextStyle.body3.copyWith(
+                                                          color: AppColors.primaryColor,
+                                                          decoration: TextDecoration.underline,
+                                                          fontWeight: FontWeight.w500,
+                                                          decorationColor: AppColors.primaryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                      ),
                                     ),
                                     12.height,
                                     Column(
@@ -1153,14 +1272,56 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       },
                                     ),
 
+                                    // 12.height,
+                                    
+                                    // // Debug info
+                                    // if (card['rcFile'] != null) ...[
+                                    //   Container(
+                                    //     padding: EdgeInsets.all(8),
+                                    //     margin: EdgeInsets.only(bottom: 8),
+                                    //     decoration: BoxDecoration(
+                                    //       color: Colors.green.withOpacity(0.1),
+                                    //       borderRadius: BorderRadius.circular(4),
+                                    //       border: Border.all(color: Colors.green),
+                                    //     ),
+                                    //     child: Column(
+                                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                                    //       children: [
+                                    //         Text(
+                                    //           '✅ Document Uploaded Successfully',
+                                    //           style: TextStyle(
+                                    //             color: Colors.green,
+                                    //             fontWeight: FontWeight.bold,
+                                    //           ),
+                                    //         ),
+                                    //         SizedBox(height: 4),
+                                    //         Text(
+                                    //           'File: ${card['rcFileName'] ?? 'Unknown'}',
+                                    //           style: TextStyle(fontSize: 12),
+                                    //         ),
+                                    //         Text(
+                                    //           'URL: ${card['rcFile']}',
+                                    //           style: TextStyle(fontSize: 10),
+                                    //           overflow: TextOverflow.ellipsis,
+                                    //         ),
+                                    //       ],
+                                    //     ),
+                                    //   ),
+                                    // ],
+
                                     12.height,
 
                                     // Document upload widget
                                     EndhanDocumentUploadWidget(
+                                      key: ValueKey('card_${index}_documents_${card['rcDocuments']?.length ?? 0}_${card['rcFile'] ?? 'null'}'),
                                       feildTitle: "Upload RC document *",
                                       multiFilesList: card['rcDocuments'] ?? [],
                                       isSingleFile: true,
                                       onFilesChanged: (newList) {
+                                        print('🔍 onFilesChanged called for card $index');
+                                        print('🔍 New list: $newList');
+                                        print('🔍 Current rcFile: ${card['rcFile']}');
+                                        
                                         setState(() {
                                           card['rcDocuments'] = newList;
                                           // Reset file data if document is removed
@@ -1169,6 +1330,10 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                             card['rcFileName'] = null;
                                           }
                                         });
+                                        
+                                        print('🔍 After setState - rcDocuments: ${card['rcDocuments']}');
+                                        print('🔍 After setState - rcFile: ${card['rcFile']}');
+                                        
                                         // Sync with cubit state immediately
                                         _syncCardDocumentsWithCubit(index, newList);
                                       },
@@ -1180,11 +1345,20 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
                                           if (filePath != null) {
                                             try {
+                                              print('🔍 Starting document upload for card $index');
+                                              print('🔍 File path: $filePath');
+                                              print('🔍 Current rcDocuments: ${card['rcDocuments']}');
+                                              print('🔍 Current rcFile: ${card['rcFile']}');
+                                              
                                               final uploadResponse =
                                                   await locator<EnDhanCubit>()
                                                       .uploadDocument(
                                                         File(filePath),
                                                       );
+
+                                              print('🔍 Upload response: $uploadResponse');
+                                              print('🔍 Upload response data: ${uploadResponse?.data}');
+                                              print('🔍 Upload response URL: ${uploadResponse?.data?.url}');
 
                                               if (uploadResponse != null &&
                                                   uploadResponse.data?.url !=
@@ -1192,22 +1366,32 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 final uploadedUrl =
                                                     uploadResponse.data!.url!;
 
+                                                print('🔍 Upload successful with URL: $uploadedUrl');
+
+                                                // Update both rcFile and rcDocuments with the uploaded URL
                                                 setState(() {
                                                   card['rcFile'] = uploadedUrl;
-                                                  card['rcFileName'] =
-                                                      document['fileName'];
+                                                  card['rcFileName'] = document['fileName'];
+                                                  // Update the documents list with the uploaded URL
+                                                  card['rcDocuments'] = [
+                                                    {
+                                                      'fileName': uploadedUrl,
+                                                      'path': uploadedUrl, // Use URL as path for uploaded files
+                                                    }
+                                                  ];
                                                 });
 
+                                                print('🔍 Updated card $index with uploaded URL');
+                                                print('🔍 rcFile: ${card['rcFile']}');
+                                                print('🔍 rcDocuments: ${card['rcDocuments']}');
+
                                                 // Sync with cubit state after successful upload
-                                                _syncCardDocumentsWithCubit(index, [
-                                                  {
-                                                    'fileName': uploadedUrl,
-                                                    'path': filePath,
-                                                  }
-                                                ]);
-                                                
-                                                // Also update the rcFile in the card data
-                                                card['rcFile'] = uploadedUrl;
+                                                _syncCardDocumentsWithCubit(index, card['rcDocuments']);
+
+                                                // Force a rebuild of the entire widget tree
+                                                if (mounted) {
+                                                  setState(() {});
+                                                }
 
                                                 ScaffoldMessenger.of(
                                                   context,
@@ -1219,9 +1403,11 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                   ),
                                                 );
                                               } else {
+                                                print('🔍 Upload failed: No URL received');
                                                 setState(() {
                                                   card['rcFile'] = null;
                                                   card['rcFileName'] = null;
+                                                  card['rcDocuments'] = [];
                                                 });
                                                 ScaffoldMessenger.of(
                                                   context,
@@ -1234,9 +1420,11 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 );
                                               }
                                             } catch (e) {
+                                              print('🔍 Upload error: $e');
                                               setState(() {
                                                 card['rcFile'] = null;
                                                 card['rcFileName'] = null;
+                                                card['rcDocuments'] = [];
                                               });
                                               ScaffoldMessenger.of(
                                                 context,
@@ -1248,7 +1436,21 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 ),
                                               );
                                             }
+                                          } else {
+                                            print('🔍 No file path found in document');
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('No file path found'),
+                                              ),
+                                            );
                                           }
+                                        } else {
+                                          print('🔍 No documents to upload');
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('No documents selected'),
+                                            ),
+                                          );
                                         }
                                       },
                                     ),

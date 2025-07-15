@@ -358,7 +358,7 @@ class _KavachAddVehicleBottomSheetState
                         controller: acceptableCommoditiesController,
                         items: items,
                         onSelectionChange: (selected) {
-                          print('Selected Commodities: $selected');
+                          // Selected commodities handled
                         },
                         validator:
                             (value) =>
@@ -419,9 +419,6 @@ class _KavachAddVehicleBottomSheetState
                           return;
                         }
 
-                        final userId =
-                            int.tryParse(
-                              await context.read<KavachAddVehicleFormCubit>().repository.userInfoRepo.getUserID() ?? '',) ?? 0;
                         final selectedCommoditiesIds =
                             acceptableCommoditiesController.selectedItems
                                 .map((idStr) => int.tryParse(idStr.value))
@@ -430,7 +427,7 @@ class _KavachAddVehicleBottomSheetState
                         final rcDocLink = vehicleDocList.first['path'];
 
                         final request = KavachAddVehicleRequest(
-                          customerId: userId,
+                          customerId: '', // Will be set by repository
                           vehicleNumber: truckNumberController.text.trim(),
                           vehicleTypeId: 1,
                           rcNumber: licenseNumberController.text.trim(),
@@ -445,7 +442,6 @@ class _KavachAddVehicleBottomSheetState
                           vehicleStatus: isActive ? 1 : 0,
                         );
 
-                        print(jsonEncode(request));
                         final result = await kavachAddNewVehicleCubit
                             .addVehicle(request);
 
@@ -474,3 +470,4 @@ class _KavachAddVehicleBottomSheetState
     );
   }
 }
+

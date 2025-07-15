@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -34,6 +35,9 @@ class EnDhanService {
             this,
             "KYC Check Response: success=${response.success}, message=${response.message}, data=${response.data}",
           );
+          
+
+          
           return Success(response);
         } catch (e) {
           CustomLog.error(this, "Error parsing KYC check response", e);
@@ -314,11 +318,38 @@ class EnDhanService {
   /// Upload Document
   Future<Result<DocumentUploadResponse>> uploadDocument(File file) async {
     try {
+      // Get user ID from secure storage
+      final userId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (userId == null || userId.isEmpty) {
+        CustomLog.error(this, "User ID not found in secure storage", null);
+        return Error(ErrorWithMessage(message: 'User ID not found'));
+      }
+
       final url = ApiUrls.documentUpload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      
+      // Prepare form fields with required parameters
+      final fields = {
+        'userId': userId,
+        'fileType': 'rc_book',
+        'documentType': 'rc_document',
+      };
+
+      final result = await _apiService.multipart(
+        url, 
+        file, 
+        pathName: "file",
+        fields: fields,
+      );
 
       if (result is Success) {
-        return Success(DocumentUploadResponse.fromJson(result.value));
+        print('🔍 Upload API Response: ${result.value}');
+        print('🔍 Upload API Response Type: ${result.value.runtimeType}');
+        
+        // Use the standard getResponseStatus method like other services
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => DocumentUploadResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -814,6 +845,47 @@ class EnDhanService {
       }
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.isNotEmpty) 'Search': search,
+      };
+
+      // Construct URL with query parameters
+      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  final userListResponse = KavachUserListResponse.fromJson(data);
+                  return userListResponse.data;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse users data", e);
+                  throw e;
+                }
+              },
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users", e);
       return Error(DeserializationError());
     }
   }

@@ -265,9 +265,26 @@ class EnDhanKycCheckModel {
   /// Check if KYC documents exist
   bool get hasKycDocuments {
     if (data is String) {
-      return data != "Document not found";
+      final dataString = data as String;
+      print('🔍 KYC Check Debug: data is String: "$dataString"');
+      print('🔍 KYC Check Debug: data.isEmpty: ${dataString.isEmpty}');
+      print('🔍 KYC Check Debug: data == "Document not found": ${dataString == "Document not found"}');
+      print('🔍 KYC Check Debug: data.toLowerCase() == "document not found": ${dataString.toLowerCase() == "document not found"}');
+      
+      // If data is empty string, it means no documents found
+      if (dataString.isEmpty) {
+        print('🔍 KYC Check Debug: Empty data string - no documents found');
+        return false;
+      }
+      
+      return dataString != "Document not found";
     }
-    return data is Map<String, dynamic> && data['document'] != null;
+    if (data is Map<String, dynamic>) {
+      print('🔍 KYC Check Debug: data is Map: $data');
+      return data['document'] != null;
+    }
+    print('🔍 KYC Check Debug: data type: ${data.runtimeType}, value: $data');
+    return false;
   }
 
   /// Get KYC data if exists
@@ -362,23 +379,46 @@ class PanVerificationResponse {
   final bool success;
   final String message;
   final bool? isVerified;
+  final Map<String, dynamic>? data;
 
   const PanVerificationResponse({
     required this.success,
     required this.message,
     this.isVerified,
+    this.data,
   });
 
   factory PanVerificationResponse.fromJson(Map<String, dynamic> json) {
+    // Handle both old and new API response formats
+    bool success = false;
+    bool? isVerified;
+    
+    // Check for new format: {status: true, message: "PAN verified successfully", data: {message: "Verified Successfully"}}
+    if (json.containsKey('status')) {
+      success = json['status'] as bool? ?? false;
+      // Check if verification was successful based on data.message
+      final data = json['data'] as Map<String, dynamic>?;
+      if (data != null && data['message'] != null) {
+        final dataMessage = data['message'] as String;
+        isVerified = dataMessage.toLowerCase().contains('verified successfully') ||
+                     dataMessage.toLowerCase().contains('verification successful');
+      }
+    } else {
+      // Old format: {success: true, is_verified: true}
+      success = json['success'] as bool? ?? false;
+      isVerified = json['is_verified'] as bool?;
+    }
+    
     return PanVerificationResponse(
-      success: json['success'] as bool? ?? false,
+      success: success,
       message: json['message'] as String? ?? '',
-      isVerified: json['is_verified'] as bool?,
+      isVerified: isVerified,
+      data: json['data'] as Map<String, dynamic>?,
     );
   }
 
   @override
   String toString() {
-    return 'PanVerificationResponse{success: $success, message: $message, isVerified: $isVerified}';
+    return 'PanVerificationResponse{success: $success, message: $message, isVerified: $isVerified, data: $data}';
   }
 } 

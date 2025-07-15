@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_transaction_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
@@ -26,6 +27,8 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
+import '../../../utils/app_dialog.dart';
+import '../../../utils/common_dialog_view/common_dialog_view.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
 
@@ -65,49 +68,60 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   }
 
   void _showAlreadyAddedCardDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                color: AppColors.primaryColor,
-                size: 24,
+    AppDialog.show(
+      context,
+      dismissible: true,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        child: Column(
+          children: [
+            // Orange circular icon with warning triangle
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE67E22), // Orange color
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE67E22).withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
               ),
-              8.width,
-              Text(
-                'Card Already Added',
-                style: AppTextStyle.h5.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'You have already added a fuel card.',
-            style: AppTextStyle.h5,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'OK',
-                style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.white,
+                size: 40,
               ),
             ),
+            20.height,
+            // Main heading
+            Text(
+              'Card Already Added',
+              style: AppTextStyle.h4.copyWith(
+                color: const Color(0xFFE67E22),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            12.height,
+            // Supporting message
+            Text(
+              'You have already added a fuel card.',
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.greyTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
-        );
-      },
+        ),
+        onTapSingleButton: () {
+          Navigator.of(context).pop();
+        },
+        onSingleButtonText: 'OK',
+      ),
     );
   }
 
@@ -198,7 +212,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             );
           }
 
-          // Show cards screen if KYC documents exist
+           // Show cards screen if KYC documents exist
           if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments) {
             return Scaffold(
               backgroundColor: AppColors.blackishWhite,
@@ -238,7 +252,11 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     16.height,
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                        
+                          Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -273,6 +291,24 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                             ),
                         ],
                       ),
+                        
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context,commonRoute(KavachTransactionsScreen()));
+                          },
+                          child: 
+                        Row(children: [
+                           Text("Transactions",
+                           style: TextStyle(
+                            color: AppColors.primaryColor,
+                           ),),
+                           Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 15,),
+                        ],),
+                        )
+                         
+                        ],
+                      )
+                    
                     ),
                     12.height,
                     AppSearchBar(
@@ -487,3 +523,4 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return Image.asset(AppImage.png.groBanner);
   }
 }
+

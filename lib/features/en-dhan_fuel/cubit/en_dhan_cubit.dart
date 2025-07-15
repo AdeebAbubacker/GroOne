@@ -24,22 +24,18 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   @override
   Future<void> close() {
-    print('🔒 EnDhanCubit.close() called');
-    print('🔒 Stack trace: ${StackTrace.current}');
     _isClosed = true;
     return super.close();
   }
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
-    print('🔄 Resetting EnDhanCubit state');
     _isClosed = false;
     emit(EnDhanState.initial());
   }
 
   /// Comprehensive reset for KYC screen - ensures all states are cleared
   void resetKycScreenCompletely() {
-    print('🔄 Comprehensive KYC screen reset');
     if (!_isClosed) {
       emit(EnDhanState.initial());
     }
@@ -47,60 +43,47 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Debug method to check cubit status
   void debugCubitStatus() {
-    print('🔍 Cubit Status:');
-    print('  Is Closed: $_isClosed');
-    print('  State: ${state.runtimeType}');
-    print('  KYC Check State: ${state.kycCheckState?.status}');
-    print('  Cards State: ${state.cardsState?.status}');
-    print('  Vehicle Types Count: ${state.vehicleTypes.length}');
-    print('  Vehicle Types: ${state.vehicleTypes}');
-    print('  Vehicle Types State: ${state.vehicleTypesState?.status}');
+    // Debug method - status checking available
   }
 
   // ==================== KYC Check ====================
 
   /// Check if KYC documents exist for the customer
   Future<void> checkKycDocuments() async {
-    print('🔍 EnDhanCubit.checkKycDocuments called');
-    print('🔍 Cubit closed status: $_isClosed');
-
     if (_isClosed) return;
 
-    print('🔍 Starting KYC documents check...');
     _setKycCheckUIState(UIState.loading());
 
     try {
       // Get customer ID dynamically
       final customerId = await _userInformationRepository.getUserID();
       if (customerId == null || customerId.isEmpty) {
-        print('❌ Customer ID not found');
         _setKycCheckUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
         return;
       }
-      
-      print('🔍 Customer ID: $customerId');
       
       final result = await _repository.checkKycDocuments(customerId);
       
       if (_isClosed) return;
 
       if (result is Success<EnDhanKycCheckModel>) {
-        print('✅ KYC check successful: ${result.value.message}');
-        print('🔍 Has KYC Documents: ${result.value.hasKycDocuments}');
-        print('🔍 KYC Data: ${result.value.kycData}');
+        final response = result.value;
+        
+        // Handle "Document not found" as a valid response
+        if (response.data == "Document not found") {
+          // Document not found - this is expected for new users
+        }
         
         // Update the state with KYC check results
         emit(state.copyWith(
-          kycCheckState: UIState.success(result.value),
-          hasKycDocuments: result.value.hasKycDocuments,
-          kycData: result.value.kycData,
+          kycCheckState: UIState.success(response),
+          hasKycDocuments: response.hasKycDocuments,
+          kycData: response.kycData,
         ));
       } else if (result is Error) {
-        print('❌ KYC check failed: ${(result as Error).type}');
         _setKycCheckUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('❌ Exception in checkKycDocuments: $e');
       if (!_isClosed) {
         _setKycCheckUIState(UIState.error(GenericError()));
       }
@@ -160,14 +143,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       if (_isClosed) return;
 
       if (result is Success<EnDhanKycModel>) {
-        print('✅ KYC upload successful: ${result.value.message}');
         _setUploadKycUIState(UIState.success(result.value));
       } else if (result is Error) {
-        print('❌ KYC upload failed: ${(result as Error).type}');
         _setUploadKycUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('❌ Exception in uploadKycDocuments: $e');
       if (!_isClosed) {
         _setUploadKycUIState(UIState.error(GenericError()));
       }
@@ -249,14 +229,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       if (_isClosed) return;
 
       if (result is Success<EnDhanKycModel>) {
-        print('✅ KYC multipart upload successful: ${result.value.message}');
         _setUploadKycUIState(UIState.success(result.value));
       } else if (result is Error) {
-        print('❌ KYC multipart upload failed: ${(result as Error).type}');
         _setUploadKycUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('❌ Exception in uploadKycDocumentsMultipart: $e');
       if (!_isClosed) {
         _setUploadKycUIState(UIState.error(GenericError()));
       }
@@ -265,12 +242,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Fetch Card Balance
   Future<void> fetchCardBalance() async {
-    print('🔍 EnDhanCubit.fetchCardBalance called');
-    print('🔍 Cubit closed status: $_isClosed');
-
     if (_isClosed) return;
 
-    print('🔍 Starting card balance fetch...');
     _setCardBalanceUIState(UIState.loading());
 
     try {
@@ -279,16 +252,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       if (_isClosed) return;
 
       if (result is Success<api_models.EnDhanCardBalanceResponse>) {
-        print('✅ Card balance fetch successful: ${result.value.message}');
-        print('🔍 Balance data: ${result.value.data?.balance}');
-        
         _setCardBalanceUIState(UIState.success(result.value));
       } else if (result is Error) {
-        print('❌ Card balance fetch failed: ${(result as Error).type}');
         _setCardBalanceUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('❌ Exception in fetchCardBalance: $e');
       if (!_isClosed) {
         _setCardBalanceUIState(UIState.error(GenericError()));
       }
@@ -297,31 +265,21 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Fetch Cards List
   Future<void> fetchCards({String? searchTerm}) async {
-    print('🔄 EnDhanCubit.fetchCards called with searchTerm: $searchTerm');
-    print('🔍 Cubit closed status: $_isClosed');
-
     if (_isClosed) {
-      print('❌ Cubit is closed, returning early');
       return;
     }
 
-    print('📊 Setting cards UI state to loading...');
     _setCardsUIState(UIState.loading());
 
-    print('🌐 Calling repository.fetchCards...');
     final result = await _repository.fetchCards(searchTerm: searchTerm);
 
     if (_isClosed) {
-      print('❌ Cubit is closed after async operation, returning early');
       return; // Check again after async operation
     }
-
-    print('📥 Repository result type: ${result.runtimeType}');
 
     if (result is Success<api_models.EnDhanCardListModel>) {
       _setCardsUIState(UIState.success(result.value));
     } else if (result is Error<api_models.EnDhanCardListModel>) {
-      print('❌ Cards fetch failed: ${result.type}');
       _setCardsUIState(UIState.error(result.type));
     }
   }
@@ -330,7 +288,9 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Send Aadhaar OTP
   Future<void> sendAadhaarOtp() async {
-    if (_isClosed) return;
+    if (_isClosed) {
+      return;
+    }
 
     if (state.aadhaar.isEmpty) {
       return;
@@ -338,61 +298,87 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     _setAadhaarSendOtpUIState(UIState.loading());
 
-    // For now, use static OTP "123456" instead of calling API
-    // TODO: Replace with actual API call later
-    await Future.delayed(Duration(milliseconds: 500)); // Simulate API delay
+    try {
+      final request = AadhaarSendOtpRequest(
+        aadhaar: state.aadhaar,
+        force: true,
+      );
 
-    if (_isClosed) return;
+      final result = await _repository.sendAadhaarOtp(request);
 
-    // Create a mock success response
-    final mockResponse = AadhaarSendOtpResponse(
-      success: true,
-      message: 'OTP sent successfully',
-      requestId: 'static_request_id_123',
-    );
+      if (_isClosed) {
+        return;
+      }
 
-    emit(state.copyWith(aadhaarRequestId: mockResponse.requestId));
-    _setAadhaarSendOtpUIState(UIState.success(mockResponse));
+      if (result is Success<AadhaarSendOtpResponse>) {
+        final response = result.value;
+        
+        // Store the request ID, with fallback if it's null or empty
+        String requestId = response.requestId ?? '';
+        if (requestId.isEmpty) {
+          requestId = '123456'; // Fallback to static request ID
+        }
+        
+        emit(state.copyWith(aadhaarRequestId: requestId));
+        _setAadhaarSendOtpUIState(UIState.success(response));
+      } else if (result is Error) {
+        _setAadhaarSendOtpUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      if (!_isClosed) {
+        _setAadhaarSendOtpUIState(UIState.error(GenericError()));
+      }
+    }
   }
 
   /// Verify Aadhaar OTP
   Future<void> verifyAadhaarOtp(String otp) async {
-    if (_isClosed) return;
-
-    if (state.aadhaarRequestId == null || state.aadhaar.isEmpty) {
+    if (_isClosed) {
       return;
+    }
+
+    if (state.aadhaar.isEmpty) {
+      return;
+    }
+
+    // Use fallback request ID if the stored one is null or empty
+    String requestId = state.aadhaarRequestId ?? '';
+    if (requestId.isEmpty) {
+      requestId = '123456'; // Fallback to static request ID
     }
 
     _setAadhaarVerifyOtpUIState(UIState.loading());
 
-    // For now, use static OTP "123456" instead of calling API
-    // TODO: Replace with actual API call later
-    await Future.delayed(Duration(milliseconds: 500)); // Simulate API delay
-
-    if (_isClosed) return;
-
-    // Check if OTP matches static value "123456"
-    if (otp == '123456') {
-      final mockResponse = AadhaarVerifyOtpResponse(
-        success: true,
-        message: 'Aadhaar verified successfully',
-        isVerified: true,
+    try {
+      final request = AadhaarVerifyOtpRequest(
+        requestId: requestId,
+        otp: otp,
+        aadhaar: state.aadhaar,
       );
 
-      emit(state.copyWith(isAadhaarVerified: true));
-      _setAadhaarVerifyOtpUIState(UIState.success(mockResponse));
-    } else {
-      final mockResponse = AadhaarVerifyOtpResponse(
-        success: false,
-        message: 'Invalid OTP. Please use 123456',
-        isVerified: false,
-      );
+      final result = await _repository.verifyAadhaarOtp(request);
 
-      _setAadhaarVerifyOtpUIState(
-        UIState.error(
-          ErrorWithMessage(message: 'Invalid OTP. Please use 123456'),
-        ),
-      );
+      if (_isClosed) {
+        return;
+      }
+
+      if (result is Success<AadhaarVerifyOtpResponse>) {
+        final response = result.value;
+        // Check if verification was successful based on success flag and message
+        if (response.success == true || 
+            (response.message.toLowerCase().contains('verified successfully') || 
+             response.message.toLowerCase().contains('verification successful'))) {
+          final newState = state.copyWith(isAadhaarVerified: true);
+          emit(newState);
+        }
+        _setAadhaarVerifyOtpUIState(UIState.success(response));
+      } else if (result is Error) {
+        _setAadhaarVerifyOtpUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      if (!_isClosed) {
+        _setAadhaarVerifyOtpUIState(UIState.error(GenericError()));
+      }
     }
   }
 
@@ -414,41 +400,47 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Verify PAN
   Future<void> verifyPan() async {
-    print('🔍 PAN Verification Debug: Starting verification...');
     if (_isClosed) {
-      print('🔍 PAN Verification Debug: Cubit is closed, returning');
       return;
     }
 
     if (state.pan.isEmpty) {
-      print('🔍 PAN Verification Debug: PAN is empty, returning');
       return;
     }
 
-    print('🔍 PAN Verification Debug: PAN to verify: "${state.pan}"');
     _setPanVerificationUIState(UIState.loading());
 
-    // For now, use mock response that always returns success
-    // TODO: Replace with actual API call later
-    await Future.delayed(Duration(milliseconds: 500)); // Simulate API delay
+    try {
+      final request = PanVerificationRequest(
+        pan: state.pan,
+        force: true,
+      );
 
-    if (_isClosed) {
-      print('🔍 PAN Verification Debug: Cubit closed after API call');
-      return;
+      final result = await _repository.verifyPan(request);
+
+      if (_isClosed) {
+        return;
+      }
+
+      if (result is Success<PanVerificationResponse>) {
+        final response = result.value;
+        
+        // Check if verification was successful based on success flag, isVerified, or message
+        if (response.isVerified == true || 
+            response.success == true ||
+            (response.message.toLowerCase().contains('verified successfully') || 
+             response.message.toLowerCase().contains('verification successful'))) {
+          emit(state.copyWith(isPanVerified: true));
+        }
+        _setPanVerificationUIState(UIState.success(response));
+      } else if (result is Error) {
+        _setPanVerificationUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      if (!_isClosed) {
+        _setPanVerificationUIState(UIState.error(GenericError()));
+      }
     }
-
-    // Create a mock success response with isVerified: true
-    final mockResponse = PanVerificationResponse(
-      success: true,
-      message: 'PAN verified successfully',
-      isVerified: true,
-    );
-
-    print('🔍 PAN Verification Debug: Mock success response: $mockResponse');
-    print('🔍 PAN Verification Debug: Setting isPanVerified to true');
-
-    emit(state.copyWith(isPanVerified: true));
-    _setPanVerificationUIState(UIState.success(mockResponse));
   }
 
   /// Set PAN Verification UI State
@@ -462,26 +454,21 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Verify vehicle number for a specific card
   Future<void> verifyVehicle(int cardIndex, String vehicleNumber) async {
-    print('🔍 Vehicle Verification Debug: Starting verification for card $cardIndex...');
     if (_isClosed) {
-      print('🔍 Vehicle Verification Debug: Cubit is closed, returning');
       return;
     }
 
     if (vehicleNumber.isEmpty) {
-      print('🔍 Vehicle Verification Debug: Vehicle number is empty, returning');
       return;
     }
 
     // Validate vehicle number format (more flexible Indian format)
     final vehicleRegex = RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$');
     if (!vehicleRegex.hasMatch(vehicleNumber.toUpperCase())) {
-      print('🔍 Vehicle Verification Debug: Invalid vehicle number format: $vehicleNumber');
       _setVehicleVerificationUIState(UIState.error(InvalidInputError()));
       return;
     }
 
-    print('🔍 Vehicle Verification Debug: Vehicle number to verify: "$vehicleNumber"');
     _setVehicleVerificationUIState(UIState.loading());
 
     try {
@@ -493,13 +480,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       final result = await _repository.verifyVehicle(request);
 
       if (_isClosed) {
-        print('🔍 Vehicle Verification Debug: Cubit closed after API call');
         return;
       }
 
       if (result is Success<VehicleVerificationResponse>) {
         final response = result.value;
-        print('🔍 Vehicle Verification Debug: Success response: $response');
         
         if (response.status) {
           // Mark this vehicle number as verified
@@ -508,17 +493,13 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           
           emit(state.copyWith(verifiedVehicleNumbers: updatedVerifiedVehicles));
           _setVehicleVerificationUIState(UIState.success(response));
-          print('🔍 Vehicle Verification Debug: Vehicle number verified successfully');
         } else {
           _setVehicleVerificationUIState(UIState.error(InvalidInputError()));
-          print('🔍 Vehicle Verification Debug: Vehicle verification failed: ${response.message}');
         }
       } else if (result is Error) {
-        print('🔍 Vehicle Verification Debug: Error response: ${(result as Error).type}');
         _setVehicleVerificationUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('🔍 Vehicle Verification Debug: Exception: $e');
       if (!_isClosed) {
         _setVehicleVerificationUIState(UIState.error(GenericError()));
       }
@@ -536,11 +517,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Create customer with card details
   Future<void> createCustomer() async {
-    print('=== DEBUG: Starting createCustomer ===');
-    print('Form validation result: ${isCardCreationFormValid()}');
-    
     if (!isCardCreationFormValid()) {
-      print('❌ Form validation failed, returning InvalidInputError');
       _setCustomerCreationUIState(UIState.error(InvalidInputError()));
       return;
     }
@@ -550,25 +527,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     // Get customer ID dynamically
     final customerId = await _userInformationRepository.getUserID();
     if (customerId == null || customerId.isEmpty) {
-      print('❌ Customer ID not found');
       _setCustomerCreationUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
       return;
-    }
-    
-    print('🔍 Customer ID: $customerId');
-
-    // Debug: Log the current state of cards
-    print('=== DEBUG: Creating customer with cards ===');
-    print('Number of cards in state: ${state.cards.length}');
-    for (int i = 0; i < state.cards.length; i++) {
-      final card = state.cards[i];
-      print('Card $i:');
-      print('  Vehicle Number: ${card.vehicleNumber}');
-      print('  Vehicle Type: ${card.vehicleType}');
-      print('  VIN Number: ${card.vinNumber}');
-      print('  Mobile: ${card.mobile}');
-      print('  RC Number: ${card.rcNumber}');
-      print('  RC Documents: ${card.rcDocuments}');
     }
 
     // Convert cards to API request format
@@ -589,18 +549,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
             )
             .toList();
 
-    print('=== DEBUG: API Request card details ===');
-    print('Number of cards in API request: ${cardDetails.length}');
-    for (int i = 0; i < cardDetails.length; i++) {
-      final card = cardDetails[i];
-      print('API Card $i:');
-      print('  Vehicle No: ${card.vechileNo}');
-      print('  Mobile No: ${card.mobileNo ?? "NOT INCLUDED (empty/null)"}');
-      print('  Vehicle Type: ${card.vehicleType}');
-      print('  VIN Number: ${card.vinNumber}');
-      print('  RC Document: ${card.rcDocument}');
-      print('  RC Number: ${card.rcNumber}');
-    }
+
 
     final request = EnDhanCustomerCreationApiRequest(
       customerId: customerId, // Added customerId parameter
@@ -894,27 +843,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     if (!_isClosed) {
       emit(state.copyWith(isPanValid: isValid));
-
-      // Auto-verify PAN when input is valid and complete (10 characters)
-      if (isValid && value.length == 10 && !state.isPanVerified) {
-        print('🔍 PAN Auto-verification triggered!');
-        // Add a small delay to avoid too many API calls
-        Future.delayed(Duration(milliseconds: 500), () {
-          if (!_isClosed && state.pan == value) {
-            print('🔍 PAN Auto-verification executing...');
-            verifyPan();
-          } else {
-            print(
-              '🔍 PAN Auto-verification skipped - cubit closed or PAN changed',
-            );
-          }
-        });
-      } else {
-        print('🔍 PAN Auto-verification conditions not met:');
-        print('  - isValid: $isValid');
-        print('  - length == 10: ${value.length == 10}');
-        print('  - !isPanVerified: ${!state.isPanVerified}');
-      }
     }
   }
 
@@ -967,27 +895,39 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Update PAN documents list
   void updatePanDocuments(List documents) {
-    emit(state.copyWith(panDocuments: List.from(documents)));
+    print('🔍 updatePanDocuments called with ${documents.length} documents');
+    print('🔍 Documents: $documents');
+    final newState = state.copyWith(panDocuments: List.from(documents));
+    emit(newState);
+    print('🔍 State updated with ${newState.panDocuments.length} PAN documents');
   }
 
   // Update identity front documents list
   void updateIdentityFrontDocuments(List documents) {
-    emit(state.copyWith(identityFrontDocuments: List.from(documents)));
+    print('🔍 updateIdentityFrontDocuments called with ${documents.length} documents');
+    final newState = state.copyWith(identityFrontDocuments: List.from(documents));
+    emit(newState);
   }
 
   // Update identity back documents list
   void updateIdentityBackDocuments(List documents) {
-    emit(state.copyWith(identityBackDocuments: List.from(documents)));
+    print('🔍 updateIdentityBackDocuments called with ${documents.length} documents');
+    final newState = state.copyWith(identityBackDocuments: List.from(documents));
+    emit(newState);
   }
 
   // Update address front documents list
   void updateAddressFrontDocuments(List documents) {
-    emit(state.copyWith(addressFrontDocuments: List.from(documents)));
+    print('🔍 updateAddressFrontDocuments called with ${documents.length} documents');
+    final newState = state.copyWith(addressFrontDocuments: List.from(documents));
+    emit(newState);
   }
 
   // Update address back documents list
   void updateAddressBackDocuments(List documents) {
-    emit(state.copyWith(addressBackDocuments: List.from(documents)));
+    print('🔍 updateAddressBackDocuments called with ${documents.length} documents');
+    final newState = state.copyWith(addressBackDocuments: List.from(documents));
+    emit(newState);
   }
 
   // ==================== Private Validation Methods ====================
@@ -1045,6 +985,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set customer name
   void setCustomerName(String value) {
+    print('🔍 Setting customer name: "$value"');
     emit(state.copyWith(customerName: value));
   }
 
@@ -1055,6 +996,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set mobile number
   void setMobile(String value) {
+    print('🔍 Setting mobile: "$value"');
     emit(state.copyWith(mobile: value));
   }
 
@@ -1065,6 +1007,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set address line 1
   void setAddress1(String value) {
+    print('🔍 Setting address1: "$value"');
     emit(state.copyWith(address1: value));
   }
 
@@ -1075,6 +1018,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set city name
   void setCityName(String value) {
+    print('🔍 Setting cityName: "$value"');
     emit(state.copyWith(cityName: value));
   }
 
@@ -1146,6 +1090,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set pincode
   void setPincode(String value) {
+    print('🔍 Setting pincode: "$value"');
     emit(state.copyWith(pincode: value));
   }
 
@@ -1291,12 +1236,40 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Check if card creation form is valid
   bool isCardCreationFormValid() {
+    print('🔍 === CARD CREATION FORM VALIDATION ===');
+    print('🔍 Customer Name: "${state.customerName}"');
+    print('🔍 Mobile: "${state.mobile}"');
+    print('🔍 Address1: "${state.address1}"');
+    print('🔍 City: "${state.cityName}"');
+    print('🔍 Pincode: "${state.pincode}"');
+    print('🔍 Email: "${state.email}"');
+    print('🔍 PAN: "${state.pan}"');
+    print('🔍 Number of cards: ${state.cards.length}');
+    
     // Check billing address fields
     if (state.customerName.isEmpty ||
         state.mobile.isEmpty ||
         state.address1.isEmpty ||
+        state.cityName.isEmpty ||
         state.pincode.isEmpty) {
       print('❌ Form validation failed: Missing customer info');
+      print('❌ customerName.isEmpty: ${state.customerName.isEmpty}');
+      print('❌ mobile.isEmpty: ${state.mobile.isEmpty}');
+      print('❌ address1.isEmpty: ${state.address1.isEmpty}');
+      print('❌ cityName.isEmpty: ${state.cityName.isEmpty}');
+      print('❌ pincode.isEmpty: ${state.pincode.isEmpty}');
+      return false;
+    }
+    
+    // Validate city name format
+    final cityRegex = RegExp(r'^[a-zA-Z\s]+$');
+    if (!cityRegex.hasMatch(state.cityName.trim())) {
+      print('❌ Form validation failed: Invalid city name format');
+      return false;
+    }
+    
+    if (state.cityName.trim().length < 2 || state.cityName.trim().length > 50) {
+      print('❌ Form validation failed: City name length invalid (2-50 characters)');
       return false;
     }
 
@@ -1418,19 +1391,26 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Upload document
   Future<DocumentUploadResponse?> uploadDocument(File file) async {
+    print('🔍 EnDhanCubit.uploadDocument called');
     _setDocumentUploadUIState(UIState.loading());
 
     try {
       final result = await _repository.uploadDocument(file);
+      print('🔍 Upload result type: ${result.runtimeType}');
 
       if (result is Success<DocumentUploadResponse>) {
+        print('🔍 Upload successful: ${result.value}');
+        print('🔍 Upload response data: ${result.value.data}');
+        print('🔍 Upload response URL: ${result.value.data?.url}');
         _setDocumentUploadUIState(UIState.success(result.value));
         return result.value;
       } else if (result is Error) {
+        print('🔍 Upload failed: ${(result as Error).type}');
         _setDocumentUploadUIState(UIState.error((result as Error).type));
         return null;
       }
     } catch (e) {
+      print('🔍 Upload exception: $e');
       _setDocumentUploadUIState(UIState.error(GenericError()));
       return null;
     }
@@ -1496,6 +1476,15 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   void resetVehicleVerificationState() {
     if (!_isClosed) {
       emit(state.copyWith(vehicleVerificationState: null));
+    }
+  }
+
+  /// Clear verification status for a specific vehicle number
+  void clearVehicleVerificationStatus(int cardIndex) {
+    if (!_isClosed) {
+      final updatedVerifiedVehicles = Map<int, bool>.from(state.verifiedVehicleNumbers);
+      updatedVerifiedVehicles.remove(cardIndex);
+      emit(state.copyWith(verifiedVehicleNumbers: updatedVerifiedVehicles));
     }
   }
 

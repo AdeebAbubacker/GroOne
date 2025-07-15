@@ -24,8 +24,8 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
       if (result.value.isEmpty) {
         emit(KavachCheckoutShippingAddressEmpty());
       } else {
-        final firstAddress = result.value.first;
-        emit(KavachCheckoutShippingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        // Don't auto-select the first address, let user choose
+        emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
       emit(KavachCheckoutShippingAddressError(result.type));

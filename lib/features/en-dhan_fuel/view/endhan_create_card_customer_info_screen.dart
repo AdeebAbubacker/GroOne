@@ -18,14 +18,28 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 
-class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
+class EndhanCreateCardCustomerInfoScreen extends StatefulWidget {
   const EndhanCreateCardCustomerInfoScreen({super.key});
+
+  @override
+  State<EndhanCreateCardCustomerInfoScreen> createState() => _EndhanCreateCardCustomerInfoScreenState();
+}
+
+class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCustomerInfoScreen> {
+  final referralCodeController = TextEditingController();
+
+  @override
+  void dispose() {
+    referralCodeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +47,23 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
     final profileCubit = locator<ProfileCubit>();
     final userInfoRepo = locator<UserInformationRepository>();
     final formKey = GlobalKey<FormState>();
-    final referralCodeController = TextEditingController();
 
-    // Referral code suggestions
-    final List<String> referralSuggestions = [
-      'John Doe GDP67543',
-      'David GDP67544',
-      'Michael GDP67545',
-      'Sarah GDP67546',
-    ];
+
 
     // Initialize data when widget is first built
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Reset form data to ensure clean state
-      cubit.resetFormData();
+      // Only reset form data if it's empty (first time loading)
+      if (cubit.state.customerName.isEmpty && 
+          cubit.state.mobile.isEmpty && 
+          cubit.state.address1.isEmpty) {
+        print('🔍 Resetting form data for first time load');
+        cubit.resetFormData();
+      } else {
+        print('🔍 Form data already exists, skipping reset');
+        print('🔍 Existing customer name: ${cubit.state.customerName}');
+        print('🔍 Existing mobile: ${cubit.state.mobile}');
+        print('🔍 Existing address1: ${cubit.state.address1}');
+      }
 
       // Fetch master data when screen loads
       cubit.fetchStates();
@@ -54,7 +71,6 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
 
       // Get username from session first
       String? username = await userInfoRepo.getUsername();
-
       String? mobileNumber = await userInfoRepo.getUserMobileNumber();
       
       // If username is not in session, fetch from profile
@@ -81,6 +97,11 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
       if (mobileNumber != null && mobileNumber.isNotEmpty) {
         cubit.setMobile(mobileNumber);
       }
+      
+      // Add listener to referral code controller to sync with cubit state
+      referralCodeController.addListener(() {
+        cubit.setReferralCode(referralCodeController.text);
+      });
     });
 
     return BlocBuilder<EnDhanCubit, EnDhanState>(
@@ -459,14 +480,31 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'City Name *',
                             hintText: 'Enter city name',
-                            onChanged:
-                                (val) => cubit.setCommunicationCityName(val),
+                            maxLength: 50,
+                            textCapitalization: TextCapitalization.words,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                              LengthLimitingTextInputFormatter(50),
+                            ],
+                            onChanged: (val) {
+                              // Remove any extra spaces and ensure proper formatting
+                              final cleanedValue = val.trim().replaceAll(RegExp(r'\s+'), ' ');
+                              cubit.setCommunicationCityName(cleanedValue);
+                            },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'City name is required';
                               }
                               if (value.trim().length < 2) {
                                 return 'City name must be at least 2 characters';
+                              }
+                              if (value.trim().length > 50) {
+                                return 'City name cannot exceed 50 characters';
+                              }
+                              // Check if contains only alphabets and spaces
+                              final cityRegex = RegExp(r'^[a-zA-Z\s]+$');
+                              if (!cityRegex.hasMatch(value.trim())) {
+                                return 'City name can only contain alphabets and spaces';
                               }
                               return null;
                             },
@@ -497,13 +535,12 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           16.height,
                           ReferralAutoCompleteTextField(
                             controller: referralCodeController,
-                            suggestions: referralSuggestions,
                             labelText: 'Referral Code (Optional)',
                             onSelected: (value) {
                               cubit.setReferralCode(value);
                             },
                           ),
-                          40.height,
+                          50.height,
                           AppButton(
                             title: 'Next',
                             style: AppButtonStyle.primary,
@@ -547,6 +584,16 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                                   return;
                                 }
 
+                                // Debug: Log customer info before navigation
+                                print('🔍 === NAVIGATION DEBUG ===');
+                                print('🔍 Customer Name: "${state.customerName}"');
+                                print('🔍 Mobile: "${state.mobile}"');
+                                print('🔍 Address1: "${state.address1}"');
+                                print('🔍 City: "${state.cityName}"');
+                                print('🔍 Pincode: "${state.pincode}"');
+                                print('🔍 Email: "${state.email}"');
+                                print('🔍 PAN: "${state.pan}"');
+                                
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -560,7 +607,7 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(horizontal: 20),
                     ),
-                    24.height,
+                    100.height,
                   ],
                 ),
               ],

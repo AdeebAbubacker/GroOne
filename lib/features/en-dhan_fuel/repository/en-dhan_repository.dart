@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class EnDhanRepository {
@@ -204,6 +205,24 @@ class EnDhanRepository {
       return await _enDhanService.verifyVehicle(request);
     } catch (e) {
       CustomLog.error(this, "Failed to verify vehicle", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await _enDhanService.fetchUsers(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

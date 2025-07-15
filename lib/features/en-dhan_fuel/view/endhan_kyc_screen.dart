@@ -105,8 +105,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
       builder: (BuildContext context) {
         return BlocListener<EnDhanCubit, EnDhanState>(
           bloc: cubit,
-          listenWhen: (previous, current) =>
-              previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState,
+          listenWhen: (previous, current) {
+            final changed = previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState;
+            return changed;
+          },
           listener: (context, state) {
             if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
               Navigator.of(context).pop();
@@ -204,9 +206,11 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       return AppButton(
                         onPressed: (!isLoading && canVerify)
                             ? () {
-                                cubit.verifyAadhaarOtp(getOtp());
-                              }
-                            : () {},
+                              cubit.verifyAadhaarOtp(getOtp());
+                            }
+                            : () {
+                              // Button disabled
+                            },
                         title: 'Verify OTP',
                         isLoading: isLoading,
                         style: canVerify ? AppButtonStyle.primary : AppButtonStyle.disableButton,
@@ -246,17 +250,51 @@ class _EndhanKycScreenContent extends StatelessWidget {
       body: SafeArea(
           child: Form(
             key: _formKey,
-            child: BlocBuilder<EnDhanCubit, EnDhanState>(
+            child: BlocListener<EnDhanCubit, EnDhanState>(
+              bloc: cubit,
+              listenWhen: (previous, current) {
+                // Listen for verification state changes
+                return previous.isAadhaarVerified != current.isAadhaarVerified ||
+                       previous.isPanVerified != current.isPanVerified;
+              },
+              listener: (context, state) {
+                // Verification state changed
+              },
+              child: BlocBuilder<EnDhanCubit, EnDhanState>(
+              buildWhen: (previous, current) {
+                // Rebuild when verification states change or document lists change
+                return previous.isAadhaarVerified != current.isAadhaarVerified ||
+                       previous.isPanVerified != current.isPanVerified ||
+                       previous.isAadhaarValid != current.isAadhaarValid ||
+                       previous.isPanValid != current.isPanValid ||
+                       previous.panDocuments != current.panDocuments ||
+                       previous.identityFrontDocuments != current.identityFrontDocuments ||
+                       previous.identityBackDocuments != current.identityBackDocuments ||
+                       previous.addressFrontDocuments != current.addressFrontDocuments ||
+                       previous.addressBackDocuments != current.addressBackDocuments;
+              },
               builder: (context, state) {
                 return SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Aadhaar Card
+                      // Debug info for Aadhaar verification
+                      // Text(
+                      //   'Debug: isAadhaarVerified=${state.isAadhaarVerified}, aadhaarVerifyOtpState=${state.aadhaarVerifyOtpState?.status}',
+                      //   style: TextStyle(fontSize: 10, color: Colors.grey),
+                      // ),
+                      // // Debug info for documents
+                      // Text(
+                      //   'Debug: PAN docs=${state.panDocuments.length}, Identity Front=${state.identityFrontDocuments.length}, Identity Back=${state.identityBackDocuments.length}, Address Front=${state.addressFrontDocuments.length}, Address Back=${state.addressBackDocuments.length}',
+                      //   style: TextStyle(fontSize: 10, color: Colors.grey),
+                      // ),
+                      // 5.height,
                       _buildLabelWithInfoIcon(context, 'Aadhaar Card', isMandatory: true, isVerified: state.isAadhaarVerified),
                       10.height,
 
                       AppTextField(
+                        readOnly: state.isAadhaarVerified,
                         hintText: 'Enter 12-digit Aadhaar number',
                         onChanged: (value) {
                           cubit.setAadhaar(value);
@@ -287,16 +325,14 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         },
                         child: Column(
                           children: [
-                            // Debug info
-                            // Text(
-                            //   'Debug: isAadhaarValid=${state.isAadhaarValid}, isAadhaarVerified=${state.isAadhaarVerified}',
-                            //   style: TextStyle(fontSize: 10, color: Colors.grey),
-                            // ),
+                           
                             AppButton(
                               onPressed: state.isAadhaarValid && !state.isAadhaarVerified ? () {
                                 cubit.sendAadhaarOtp();
-                              } : () {},
-                              title: state.isAadhaarVerified ? 'Verified' : context.appText.getOtp,
+                              } : () {
+                                // Button disabled
+                              },
+                              title: state.isAadhaarVerified ? 'Verified' : 'Get OTP',
                               textStyle: TextStyle(
                                   color: AppColors.primaryColor
                               ),
@@ -308,30 +344,65 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         ),
                       ),
 
+                      // Listen for Aadhaar verification state changes
+                      BlocListener<EnDhanCubit, EnDhanState>(
+                        bloc: cubit,
+                        listenWhen: (previous, current) => 
+                          previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState,
+                        listener: (context, state) {
+                          if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
+                            // The verification icon will be updated automatically through BlocBuilder
+                          }
+                          if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
+                            final error = state.aadhaarVerifyOtpState?.errorType;
+                            ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                          }
+                        },
+                        child: SizedBox.shrink(),
+                      ),
+
                       15.height,
 
                       // PAN Card
+                    
                       _buildLabelWithInfoIcon(context, 'PAN', isMandatory: true, isVerified: state.isPanVerified),
                       10.height,
 
-                      // Debug info for PAN
-                      // Text(
-                      //   'Debug: PAN="${state.pan}", isValid=${state.isPanValid}, isVerified=${state.isPanVerified}, verificationStatus=${state.panVerificationState?.status}',
-                      //   style: TextStyle(fontSize: 10, color: Colors.grey),
-                      // ),
-                      // 5.height,
 
                       AppTextField(
                         hintText: 'Enter PAN number (e.g., ABCDE1234F)',
-                        onChanged: (value) {
+                        onChanged: state.isPanVerified ? null : (value) {
                           cubit.setPan(value);
                           cubit.validatePan(value);
                         },
                         validator: (value) => cubit.getPanValidationError(value ?? ''),
                         maxLength: 10,
+                        readOnly: state.isPanVerified,
+                        decoration: commonInputDecoration(
+                          hintText: 'Enter PAN number (e.g., ABCDE1234F)',
+                          suffixIcon: state.isPanVerified
+                              ? null
+                              : GestureDetector(
+                                  onTap: state.isPanValid ? () {
+                                    cubit.verifyPan();
+                                  } : null,
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: Text(
+                                      'Verify',
+                                      style: AppTextStyle.body3.copyWith(
+                                        color: state.isPanValid ? AppColors.primaryColor : Colors.grey,
+                                        decoration: state.isPanValid ? TextDecoration.underline : TextDecoration.none,
+                                        fontWeight: state.isPanValid ? FontWeight.w500 : FontWeight.normal,
+                                        decorationColor: state.isPanValid ? AppColors.primaryColor : Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
                       ),
 
-                      // Auto-verify PAN when input is complete
+                      // Listen for manual PAN verification responses
                       BlocListener<EnDhanCubit, EnDhanState>(
                         bloc: cubit,
                         listenWhen: (previous, current) => 
@@ -518,6 +589,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                   ).paddingAll(20),
                 );
               },
+            ),
             ),
           )),
       bottomNavigationBar: BlocConsumer<EnDhanCubit, EnDhanState>(
