@@ -142,7 +142,6 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
                    Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => EndhanNewUserAndCardScreen(),
                   ),
-                
                 );
               },
             )

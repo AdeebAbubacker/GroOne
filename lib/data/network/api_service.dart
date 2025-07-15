@@ -41,15 +41,12 @@ class ApiService {
 
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-        print("🔐 Authorization header set: 'Bearer $refreshToken'");
         CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
       } else {
-        print("🔐 No valid token found - proceeding without authorization");
         CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
         CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
-      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
     return headers;
@@ -294,19 +291,9 @@ class ApiService {
       case 498:
         return Error(InvalidTokenError());
       case 500:
-        // For 500 errors, check if it's actually an authentication error
-        if (response?.data != null && response?.data is Map<String, dynamic>) {
-          final responseData = response?.data as Map<String, dynamic>;
-          final message = responseData['message']?.toString().toLowerCase() ?? '';
-
-          if (message.contains('unauthorized') || message.contains('authentication') || message.contains('token')) {
-            await _handleUnauthorizedError();
-            return Error(UnauthenticatedError.fromApiResponse(response?.data));
-          }
-        }
-        return Error(InternalServerError());
+        return Error(InternalServerError.fromApiResponse(response?.data));
       default:
-        log("Unexpected status code: ${response?.statusCode}");
+        CustomLog.error(this, "Unexpected status code: ${response?.statusCode}", null);
         return Error(GenericError());
     }
   }
@@ -375,30 +362,30 @@ class ApiService {
 
   /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
-    print('🔍 getResponseStatus called with result: $result');
-    print('🔍 getResponseStatus result type: ${result.runtimeType}');
+    CustomLog.debug(this, 'getResponseStatus called with result: $result');
+    CustomLog.debug(this, 'getResponseStatus result type: ${result.runtimeType}');
 
     if (result is Map<String, dynamic>) {
-      print('🔍 getResponseStatus - success: ${result[SUCCESS]}, status: ${result[STATUS]}');
+      CustomLog.debug(this, 'getResponseStatus - success: ${result[SUCCESS]}, status: ${result[STATUS]}');
 
       if (result[SUCCESS] == true || result[STATUS] == true) {
         final data = fromJson(result);
-        print('🔍 getResponseStatus - parsed data: $data');
+        CustomLog.debug(this, 'getResponseStatus - parsed data: $data');
         return Success(data);
       } else if (result[SUCCESS] == false || result[STATUS] == false) {
-        print('🔍 getResponseStatus - failed with message: ${result[MESSAGE]}');
+        CustomLog.debug(this, 'getResponseStatus - failed with message: ${result[MESSAGE]}');
         return Error(ErrorWithMessage(message: result[MESSAGE]));
       } else {
-        print('🔍 getResponseStatus - no success/status flag found, treating as success');
+        CustomLog.debug(this, 'getResponseStatus - no success/status flag found, treating as success');
         // If no success/status flag is found, treat as success (for APIs that don't use these flags)
         final data = fromJson(result);
-        print('🔍 getResponseStatus - parsed data (no flag): $data');
+        CustomLog.debug(this, 'getResponseStatus - parsed data (no flag): $data');
         return Success(data);
       }
     } else {
-      print('🔍 getResponseStatus - result is not a map, treating as success');
+      CustomLog.debug(this, 'getResponseStatus - result is not a map, treating as success');
       final data = fromJson(result);
-      print('🔍 getResponseStatus - parsed data (non-map): $data');
+      CustomLog.debug(this, 'getResponseStatus - parsed data (non-map): $data');
       return Success(data);
     }
   }
