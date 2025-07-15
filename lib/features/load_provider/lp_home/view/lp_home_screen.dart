@@ -645,7 +645,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                             if (uiState != null) {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
-                                  if (uiState.data != null && uiState.data!.data.isNotEmpty) {
+                                  if (uiState.data != null && uiState.data!.data.isNotEmpty && pickupLocation == null) {
                                     CustomLog.debug(this, "Recent Route List : ${uiState.data?.data}");
                                     Navigator.of(context).push(createRoute(RecentRouteScreen()));
                                   } else {

@@ -195,12 +195,12 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
             Container(
               decoration: commonContainerDecoration(color: AppColors.lightBlueColor, borderRadius: BorderRadius.circular(5)),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(context.appText.agreedPrice, style: AppTextStyle.body1Normal),
                   Text(
                       loadPrice,
-                      style: AppTextStyle.h3.copyWith(color: AppColors.primaryColor, fontSize: 20)
+                      style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor),
                   ),
                 ],
               ).paddingSymmetric(horizontal: 15, vertical: 10),

@@ -12,9 +12,12 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -22,6 +25,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:lottie/lottie.dart';
 
 import '../model/lp_load_get_by_id_response.dart';
 
@@ -93,8 +97,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     }
   }
 
-  callApi(LoadData loadItem) async {
-    await lpLoadLocator.getConsentStatus(mobileNumber: loadItem.scheduleTripDetails?.driver?.mobile ?? '');
+  getTrackingDistance(LoadData loadItem) async {
     await lpLoadLocator.getTrackingDistance(request: TrackingDistanceApiRequest(
         originLat: loadItem.trackingDetails?.originLat ?? 0.0,
         originLong: loadItem.trackingDetails?.originLong ?? 0.0,
@@ -103,13 +106,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
         destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
         destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
     ));
-
-    final uiState = lpLoadLocator.state.trackingConsent;
-
-    if(uiState == null || uiState.status == Status.ERROR) {
-      final error = lpLoadLocator.state.trackingConsent?.errorType;
-      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-    }
   }
 
   @override
@@ -145,7 +141,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
               if (!_consentStatusCalled && status!.index >= LoadStatus.loading.index) {
                 _consentStatusCalled = true;
-                callApi(loadItem);
+                getTrackingDistance(loadItem);
               }
 
               return Stack(
@@ -161,8 +157,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                   buildTopLocationWidget(loadItem, status),
                   LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers, loadStatus: status!),
                   buildFloatingWidget(status),
-                  if(status.index > LoadStatus.assigned.index)
-                    buildSimConsentWidget(),
+                  if(status.index >= LoadStatus.loading.index)
+                    buildSimConsentWidget(loadItem),
                 ],
               );
             }
@@ -174,6 +170,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   /// Location Details
   Widget buildTopLocationWidget(LoadData loadItem, LoadStatus? status) {
+    var statusData = loadItem.loadOnhold ? 'Unloading Held' :loadItem.loadStatusDetails?.loadStatus ?? '';
     return Positioned(
       top: 15,
       left: 16,
@@ -254,17 +251,35 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      decoration: commonContainerDecoration(
-                        color: LpHomeHelper.getLoadStatusColor(loadItem.loadStatusDetails?.loadStatus ?? ''),
-                      ),
-                      // width: 80,
-                      child: Text(
-                        LpHomeHelper.getLoadTypeDisplayText(loadItem.loadStatusDetails?.loadStatus ?? ''),
-                        style: AppTextStyle.body3.copyWith(
-                          color: LpHomeHelper.getLoadStatusTextColor(loadItem.loadStatusDetails?.loadStatus ?? ''),
+                    GestureDetector(
+                      onTap: () {
+                        if(loadItem.loadOnhold) {
+                          AppDialog.show(context, dismissible: true, child: CommonDialogView(
+                          hideCloseButton: true,
+                          child: Column(
+                            children: [
+                              Lottie.asset(AppJSON.alertRed, repeat: true, frameRate: FrameRate(200)),
+                              Text(context.appText.unloadingHeld, style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
+                              10.height,
+                              Text(context.appText.yourShipmentIsHeld, textAlign: TextAlign.center, style: AppTextStyle.body3),
+                              10.height,
+                            ],
+                          ),
+                        ));
+                        }
+                      },
+                      child: Container(
+                        decoration: commonContainerDecoration(
+                          color: LpHomeHelper.getLoadStatusColor(statusData),
                         ),
-                      ).center().paddingSymmetric(vertical: 4,horizontal: 10),
+                        // width: 80,
+                        child: Text(
+                          LpHomeHelper.getLoadTypeDisplayText(statusData),
+                          style: AppTextStyle.body3.copyWith(
+                            color: LpHomeHelper.getLoadStatusTextColor(statusData),
+                          ),
+                        ).center().paddingSymmetric(vertical: 4,horizontal: 10),
+                      ),
                     ),
                     4.height,
                     if (status == LoadStatus.kycPending)
@@ -284,7 +299,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ).paddingRight(5) ,
-                    if (status == LoadStatus.inTransit)
+                    if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
                       Row(
                         children: [
                           const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -314,17 +329,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     return Positioned(
         right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
           children: [
-            if(status.index > LoadStatus.assigned.index)
-            IconButton(
-                onPressed: () {
-                  commonSupportDialog(context);
-                },
-                icon: Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
-                  child: Icon(Icons.location_searching, color: AppColors.primaryColor),
-                )
-            ),
+            // if(status.index > LoadStatus.assigned.index)
+            // IconButton(
+            //     onPressed: () {
+            //
+            //     },
+            //     icon: Container(
+            //       padding: EdgeInsets.all(4),
+            //       decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+            //       child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+            //     )
+            // ),
             IconButton(
             onPressed: () {
               commonSupportDialog(context);
@@ -344,10 +359,10 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
         ));
   }
 
-  Widget buildSimConsentWidget() {
+  Widget buildSimConsentWidget(LoadData loadItem) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
-    final isTrackingAllowed = lpLoadLocator.state.trackingConsent?.data?.response?.consent == 'ALLOWED';
+    final isTrackingAllowed = loadItem.driverConsent == 1;
 
     return Positioned(
         left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(

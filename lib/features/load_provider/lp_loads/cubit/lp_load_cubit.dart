@@ -25,7 +25,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_respon
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_consent_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
@@ -361,26 +360,6 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setDocumentByIdState(UIState.success(result.value));
     } else if (result is Error) {
       _setDocumentByIdState(UIState.error(result.type));
-    }
-
-  }
-
-
-  // Updates the UI state related to tracking consent.
-  void _setConsentStatusState(UIState<TrackingConsentStatusResponse>? uiState) {
-    emit(state.copyWith(trackingConsent: uiState));
-  }
-
-  // Lp load tracking consent
-  Future<void> getConsentStatus({required String mobileNumber}) async {
-    _setConsentStatusState(UIState.loading());
-
-    Result result = await _repository.getConsentStatus(mobileNumber: mobileNumber);
-
-    if (result is Success<TrackingConsentStatusResponse>) {
-      _setConsentStatusState(UIState.success(result.value));
-    } else if (result is Error) {
-      _setConsentStatusState(UIState.error(result.type));
     }
 
   }
