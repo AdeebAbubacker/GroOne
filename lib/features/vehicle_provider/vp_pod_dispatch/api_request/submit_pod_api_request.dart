@@ -5,7 +5,6 @@ class SubmitPodApiRequest extends Serializable<SubmitPodApiRequest>{
     required this.loadId,
     required this.courierCompany,
     required this.awbNumber,
-    required this.podTrackingLink,
     required this.podCenterId,
     required this.podCenterName,
   });
@@ -13,7 +12,6 @@ class SubmitPodApiRequest extends Serializable<SubmitPodApiRequest>{
   final String loadId;
   final String courierCompany;
   final String awbNumber;
-  final String podTrackingLink;
   final String podCenterId;
   final String podCenterName;
 
@@ -21,7 +19,6 @@ class SubmitPodApiRequest extends Serializable<SubmitPodApiRequest>{
     String? loadId,
     String? courierCompany,
     String? awbNumber,
-    String? podTrackingLink,
     String? podCenterId,
     String? podCenterName,
   }) {
@@ -29,7 +26,6 @@ class SubmitPodApiRequest extends Serializable<SubmitPodApiRequest>{
       loadId: loadId ?? this.loadId,
       courierCompany: courierCompany ?? this.courierCompany,
       awbNumber: awbNumber ?? this.awbNumber,
-      podTrackingLink: podTrackingLink ?? this.podTrackingLink,
       podCenterId: podCenterId ?? this.podCenterId,
       podCenterName: podCenterName ?? this.podCenterName,
     );
@@ -40,7 +36,6 @@ class SubmitPodApiRequest extends Serializable<SubmitPodApiRequest>{
     "loadId": loadId,
     "courierCompany": courierCompany,
     "awbNumber": awbNumber,
-    "podTrackingLink": podTrackingLink,
     "podCenterId": podCenterId,
     "podCenterName": podCenterName,
   };

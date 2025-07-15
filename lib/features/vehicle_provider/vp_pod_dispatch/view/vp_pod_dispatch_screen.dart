@@ -80,7 +80,6 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
           loadId: widget.loadId!,
           courierCompany: courierCompanyTextController.text,
           awbNumber: awbNumberTextController.text,
-          podTrackingLink: '',
           podCenterId: podCenterIdDropDownValue!,
           podCenterName: podCenterNameDropDownValue!
       );
