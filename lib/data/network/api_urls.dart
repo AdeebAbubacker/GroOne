@@ -162,6 +162,8 @@ class ApiUrls {
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
   static final String  damage = "$_loadBaseUrl/damage";
+  static final String  updateDamage = "$_loadBaseUrl/damage/";
+  static final String  deleteDamage = "$_loadBaseUrl/damage/";
 
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";

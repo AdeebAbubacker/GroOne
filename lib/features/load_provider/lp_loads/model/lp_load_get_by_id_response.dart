@@ -55,6 +55,7 @@ class LoadData {
     required this.loadStatusDetails,
     required this.loadPrice,
     required this.scheduleTripDetails,
+    this.loadMemoDetails,
     required this.consigneeDetails,
     required this.loadDocument,
     required this.trackingDetails,
@@ -93,6 +94,7 @@ class LoadData {
   final LoadStatusDetails? loadStatusDetails;
   final LoadPrice? loadPrice;
   final ScheduleTripDetails? scheduleTripDetails;
+  final LoadMemoDetails? loadMemoDetails;
   final ConsigneeDetails? consigneeDetails;
   final List<LoadDocumentData> loadDocument;
   final TrackingDetails? trackingDetails;
@@ -168,6 +170,7 @@ class LoadData {
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
       scheduleTripDetails: scheduleTripDetails ?? this.scheduleTripDetails,
+      loadMemoDetails: loadMemoDetails ?? this.loadMemoDetails,
       consigneeDetails: consigneeDetails ?? this.consigneeDetails,
       loadDocument: loadDocument ?? this.loadDocument,
       trackingDetails: trackingDetails ?? this.trackingDetails,
@@ -209,6 +212,7 @@ class LoadData {
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
+      loadMemoDetails: json["loadMemo"] == null ? null : LoadMemoDetails.fromJson(json["loadMemo"]),
       consigneeDetails: json["consigneeDetails"] == null ? null : ConsigneeDetails.fromJson(json["consigneeDetails"]),
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocumentData>.from(json["loadDocument"]!.map((x) => LoadDocumentData.fromJson(x))),
       trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
@@ -2167,4 +2171,76 @@ class CustomerAddress {
         );
     }
 
+}
+
+class LoadMemoDetails {
+    LoadMemoDetails({
+        required this.id,
+        required this.loadId,
+        required this.memoNumber,
+        required this.netFreight,
+        required this.advance,
+        required this.advancePercentage,
+        required this.balance,
+        required this.balancePercentage,
+        required this.status,
+        required this.createAt,
+        required this.deletedAt,
+    });
+
+    final String id;
+    final String loadId;
+    final String memoNumber;
+    final String netFreight;
+    final String advance;
+    final String advancePercentage;
+    final String balance;
+    final String balancePercentage;
+    final int status;
+    final DateTime? createAt;
+    final dynamic deletedAt;
+
+    LoadMemoDetails copyWith({
+        String? id,
+        String? loadId,
+        String? memoNumber,
+        String? netFreight,
+        String? advance,
+        String? advancePercentage,
+        String? balance,
+        String? balancePercentage,
+        int? status,
+        DateTime? createAt,
+        dynamic? deletedAt,
+    }) {
+        return LoadMemoDetails(
+            id: id ?? this.id,
+            loadId: loadId ?? this.loadId,
+            memoNumber: memoNumber ?? this.memoNumber,
+            netFreight: netFreight ?? this.netFreight,
+            advance: advance ?? this.advance,
+            advancePercentage: advancePercentage ?? this.advancePercentage,
+            balance: balance ?? this.balance,
+            balancePercentage: balancePercentage ?? this.balancePercentage,
+            status: status ?? this.status,
+            createAt: createAt ?? this.createAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory LoadMemoDetails.fromJson(Map<String, dynamic> json){ 
+        return LoadMemoDetails(
+            id: json["id"] ?? "",
+            loadId: json["loadId"] ?? "",
+            memoNumber: json["memoNumber"] ?? "",
+            netFreight: json["netFreight"] ?? "",
+            advance: json["advance"] ?? "",
+            advancePercentage: json["advancePercentage"] ?? "",
+            balance: json["balance"] ?? "",
+            balancePercentage: json["balancePercentage"] ?? "",
+            status: json["status"] ?? 0,
+            createAt: DateTime.tryParse(json["createAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
 }

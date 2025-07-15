@@ -12,12 +12,15 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
@@ -28,6 +31,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_acce
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import 'load_details_state.dart';
@@ -41,6 +45,16 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       : super(LoadDetailsState(
       tripDocumentList: documentTypeList
   ));
+
+
+  void setIsUpdateDamage(bool value){
+    emit(state.copyWith(isUpdateDamage: value));
+  }
+
+  void setDamageId(String value){
+    emit(state.copyWith(damageId: value));
+    CustomLog.debug(this, "Damage Id Set : ${state.damageId}");
+  }
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
@@ -164,25 +178,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  Future getMapRouting(
-      {String? pickUpLat, String? pickUpLong, String? dropLat, String? dropLong}) async {
+  Future getMapRouting({String? pickUpLat,String? pickUpLong,String? dropLat,String? dropLong}) async {
     emit(state.copyWith(directionApiResponse: UIState.loading()));
-    try {
-      DirectionResponse? directionResponse = await _vHomeRepository
-          .getGoogleDirectionResponse(
+    try{
+      DirectionResponse? directionResponse = await _vHomeRepository.getGoogleDirectionResponse(
           pickUpLat,
           pickUpLong,
           dropLat,
           dropLong
       );
-      if (directionResponse != null) {
-        emit(state.copyWith(
-            directionApiResponse: UIState.success(directionResponse)));
+      if (directionResponse!=null) {
+        emit(state.copyWith(directionApiResponse: UIState.success(directionResponse)));
       }
-    } catch (e) {
-      ToastMessages.error(message: e.toString(),);
-      emit(state.copyWith(
-          directionApiResponse: UIState.error(DeserializationError())));
+    }catch(e){
+      ToastMessages.error(message:e.toString(),);
+      emit(state.copyWith(directionApiResponse: UIState.error(DeserializationError())));
     }
   }
 
@@ -223,29 +233,29 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // Edit Damage Api Call
-  void _setEditDamageUIState(UIState<DamageModel>? uiState){
-    emit(state.copyWith(editDamageUIState: uiState));
+  void _setUpdateDamageUIState(UIState<UpdateDamageModel>? uiState){
+    emit(state.copyWith(updateDamageUIState: uiState));
   }
-  Future<void> editDamage(DamageApiRequest req) async {
-    _setEditDamageUIState(UIState.loading());
-    Result result = await _loadDetailsRepository.getEditDamageData(req);
-    if (result is Success<DamageModel>) {
-      _setEditDamageUIState(UIState.success(result.value));
+  Future<void> updateDamage(UpdateDamageApiRequest req, String damageId) async {
+    _setUpdateDamageUIState(UIState.loading());
+    Result result = await _loadDetailsRepository.getUpdateDamageData(req, damageId);
+    if (result is Success<UpdateDamageModel>) {
+      _setUpdateDamageUIState(UIState.success(result.value));
     }
     if (result is Error) {
-      _setEditDamageUIState(UIState.error(result.type));
+      _setUpdateDamageUIState(UIState.error(result.type));
     }
   }
 
 
   // Delete Damage Api Call
-  void _setDeleteDamageUIState(UIState<DamageModel>? uiState){
+  void _setDeleteDamageUIState(UIState<DeleteDamageModel>? uiState){
     emit(state.copyWith(deleteDamageUIState: uiState));
   }
-  Future<void> deleteDamage(DamageApiRequest req) async {
+  Future<void> deleteDamage(String damageId) async {
     _setDeleteDamageUIState(UIState.loading());
-    Result result = await _loadDetailsRepository.getEditDamageData(req);
-    if (result is Success<DamageModel>) {
+    Result result = await _loadDetailsRepository.getDeleteDamageData(damageId);
+    if (result is Success<DeleteDamageModel>) {
       _setDeleteDamageUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -255,10 +265,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   //  Damage list Api Call
-  void _setDamageListUIState(UIState<GetDamageListModel>? uiState) {
+  void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
     emit(state.copyWith(damageListUIState: uiState));
   }
-
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getDamageListData(loadId);
@@ -272,11 +281,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // // Upload TDS File
-  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState) {
+  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
-
-
   Future<void> uploadDamageFile(File file) async {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
@@ -446,6 +453,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  void resetDeleteDamageUIState(){
+    emit(state.copyWith(deleteDamageUIState: resetUIState<DeleteDamageModel>(state.deleteDamageUIState)));
+  }
+
+
+  void resetUploadDamageFileUIState(){
+    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
   void resetUploadDamageFileUIState() {
     emit(state.copyWith(
         uploadDamageUIState: resetUIState<UploadDamageFileModel>(
@@ -462,15 +476,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         state.settlementUIState)));
   }
 
+  void resetUpdateDamageUIState(){
+    emit(state.copyWith(updateDamageUIState: resetUIState<UpdateDamageModel>(state.updateDamageUIState)));
+  }
 
-  void resetState() {
+
+  void resetState(){
     emit(state.copyWith(
       possibleDeliveryDate: "",
-      scheduleTripResponse: resetUIState<ScheduleTripResponse>(
-          state.scheduleTripResponse),
-      uploadDamageUIState: resetUIState<UploadDamageFileModel>(
-          state.uploadDamageUIState),
-      createDamageUIState: resetUIState<DamageModel>(state.createDamageUIState),
+      scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse),
+      uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState),
+      createDamageUIState : resetUIState<DamageModel>(state.createDamageUIState),
+      deleteDamageUIState : resetUIState<DeleteDamageModel>(state.deleteDamageUIState),
+      updateDamageUIState : resetUIState<UpdateDamageModel>(state.updateDamageUIState),
+      isUpdateDamage : false,
+      damageId: null
     ));
   }
 

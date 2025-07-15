@@ -21,6 +21,8 @@ class CommonDialogView extends StatefulWidget {
   final String? yesButtonText;
   final String? noButtonText;
   final String? onSingleButtonText;
+  final TextStyle? headingTextStyle;
+  final TextStyle? messageTextStyle;
   final Widget? child;
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
@@ -41,7 +43,9 @@ class CommonDialogView extends StatefulWidget {
     this.headingColor,
     this.hideCloseButton = false,
     this.yesButtonLoading = false,
-    this.crossAxisAlignment
+    this.crossAxisAlignment,
+    this.headingTextStyle,
+    this.messageTextStyle,
   });
 
   @override
@@ -97,7 +101,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
         ],
 
         if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
+          Text(widget.message!, textAlign: TextAlign.center, style:  widget.messageTextStyle ??  AppTextStyle.bodyGreyColor),
           20.height,
         ],
 
