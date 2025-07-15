@@ -15,11 +15,9 @@ class VpHelper{
         return "Accept Load";
     }
 
-
-  }
+ }
 
  static String getLoadStatus(LoadStatus loadStatus){
-   print("loadStatus is on label ${loadStatus}");
    return switch(loadStatus){
      LoadStatus.matching => "",
      LoadStatus.accepted => "Confirmed",
