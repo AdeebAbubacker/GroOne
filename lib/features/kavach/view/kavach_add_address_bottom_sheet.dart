@@ -121,7 +121,7 @@ class _KavachAddAddressBottomSheetState
               10.height,
               AppTextField(
                 controller: cityController,
-                labelText: "{context.appText.city} *",
+                labelText: "${context.appText.city} *",
                 maxLength: 20,
                 validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.city),
                 inputFormatters: [
