@@ -179,9 +179,7 @@ final useMemo = payments == null || payments.isEmpty;
       final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
       final String paymentPayableBalance = payments?.last.payableBalance ?? '';   
-      final action = (payments != null && payments.isNotEmpty && payments.last.action == 'pay_advance')
-    ? 'pay_balance'
-    : 'pay_advance';
+      final action = (payments != null && payments.isNotEmpty && payments.last.action == 'pay_advance') ? 'pay_balance' : 'pay_advance';
     return Positioned(
       bottom: 0,
       left: 0,
