@@ -17,7 +17,10 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
@@ -533,7 +536,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                           ),
                           16.height,
-                          ReferralAutoCompleteTextField(
+                          EnDhanReferralAutoCompleteTextField(
                             controller: referralCodeController,
                             labelText: 'Referral Code (Optional)',
                             onSelected: (value) {
@@ -643,5 +646,231 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
 
     // Return the value only if exactly one match is found
     return validDistricts.length == 1 ? selectedId : null;
+  }
+}
+
+/// EnDhan-specific referral autocomplete text field widget
+class EnDhanReferralAutoCompleteTextField extends StatefulWidget {
+  final TextEditingController controller;
+  final String labelText;
+  final void Function(String) onSelected;
+  final String? Function(String?)? validator;
+
+  const EnDhanReferralAutoCompleteTextField({
+    super.key,
+    required this.controller,
+    required this.labelText,
+    required this.onSelected,
+    this.validator,
+  });
+
+  @override
+  State<EnDhanReferralAutoCompleteTextField> createState() => _EnDhanReferralAutoCompleteTextFieldState();
+}
+
+class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAutoCompleteTextField> {
+  final List<KavachUserModel> allUsers = [];
+  final List<KavachUserModel> filteredUsers = [];
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+  bool isLoading = false;
+  bool hasError = false;
+  String errorMessage = '';
+  final EnDhanRepository _repository = locator<EnDhanRepository>();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onChanged);
+    _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onChanged);
+    _removeOverlay();
+    super.dispose();
+  }
+
+  Future<void> _loadUsers() async {
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+        hasError = false;
+      });
+    }
+
+    try {
+      CustomLog.debug(this, "EnDhan Referral - Starting to fetch users...");
+      final result = await _repository.fetchUsers();
+      CustomLog.debug(this, "EnDhan Referral - Fetch result type: ${result.runtimeType}");
+      
+      if (result is Success<List<KavachUserModel>>) {
+        CustomLog.debug(this, "EnDhan Referral - Successfully fetched ${result.value.length} users");
+        if (mounted) {
+          setState(() {
+            allUsers.clear();
+            allUsers.addAll(result.value);
+            isLoading = false;
+            hasError = false;
+          });
+        }
+      } else if (result is Error<List<KavachUserModel>>) {
+        CustomLog.error(this, "EnDhan Referral - Failed to fetch users: ${result.type}", null);
+        if (mounted) {
+          setState(() {
+            hasError = true;
+            errorMessage = result.type.getText(context);
+            isLoading = false;
+          });
+        }
+      } else {
+        CustomLog.error(this, "EnDhan Referral - Unknown result type: ${result.runtimeType}", null);
+        if (mounted) {
+          setState(() {
+            hasError = true;
+            errorMessage = 'Failed to load users';
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      CustomLog.error(this, "EnDhan Referral - Exception while fetching users", e);
+      if (mounted) {
+        setState(() {
+          hasError = true;
+          errorMessage = 'Failed to load users: $e';
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _onChanged() {
+    final query = widget.controller.text.toLowerCase();
+    
+    if (query.isNotEmpty) {
+      filteredUsers.clear();
+      filteredUsers.addAll(allUsers
+          .where((user) => 
+              user.userName.toLowerCase().contains(query) ||
+              user.empCode.toLowerCase().contains(query) ||
+              '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
+          .toList());
+
+      if (filteredUsers.isNotEmpty) {
+        _showOverlay();
+      } else {
+        _removeOverlay();
+      }
+    } else {
+      filteredUsers.clear();
+      _removeOverlay();
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _showOverlay() {
+    _removeOverlay();
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: MediaQuery.of(context).size.width - 40, // Account for padding
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, 60),
+          child: Material(
+            elevation: 4,
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: filteredUsers.length,
+                itemBuilder: (context, index) {
+                  final user = filteredUsers[index];
+                  return ListTile(
+                    dense: true,
+                    title: Text(
+                      user.userName,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    subtitle: Text(
+                      user.empCode,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    onTap: () {
+                      widget.controller.text = user.empCode;
+                      widget.onSelected(user.empCode);
+                      _removeOverlay();
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppTextField(
+            labelText: widget.labelText,
+            controller: widget.controller,
+            validator: widget.validator,
+            decoration: commonInputDecoration(
+              hintText: 'Enter referral code',
+              suffixIcon: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : hasError
+                      ? IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.red),
+                          onPressed: _loadUsers,
+                          tooltip: 'Retry loading users',
+                        )
+                      : null,
+            ),
+          ),
+          if (hasError && errorMessage.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                errorMessage,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

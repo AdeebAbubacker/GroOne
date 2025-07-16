@@ -866,26 +866,50 @@ class EnDhanService {
       // Construct URL with query parameters
       final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
 
+      CustomLog.debug(this, "EnDhan Fetch Users - URL: $uri");
+
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  final userListResponse = KavachUserListResponse.fromJson(data);
-                  return userListResponse.data;
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse users data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "EnDhan Fetch Users - Raw Response: ${response.value}");
+        
+        try {
+          // Parse the response directly without relying on getResponseStatus
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Check if response has the expected structure
+            if (responseData.containsKey('data') && responseData['data'] is List) {
+              final userListResponse = KavachUserListResponse.fromJson(responseData);
+              CustomLog.debug(this, "EnDhan Fetch Users - Parsed successfully: ${userListResponse.data.length} users");
+              return Success(userListResponse.data);
+            } else {
+              // Try to parse as direct user list
+              try {
+                final users = (responseData['data'] as List)
+                    .map((userData) => KavachUserModel.fromJson(userData))
+                    .toList();
+                CustomLog.debug(this, "EnDhan Fetch Users - Parsed as direct list: ${users.length} users");
+                return Success(users);
+              } catch (e) {
+                CustomLog.error(this, "Failed to parse users as direct list", e);
+                return Error(DeserializationError());
+              }
+            }
+          } else {
+            CustomLog.error(this, "EnDhan Fetch Users - Invalid response format", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "EnDhan Fetch Users - Failed to parse response", e);
+          return Error(DeserializationError());
+        }
       } else {
+        CustomLog.error(this, "EnDhan Fetch Users - API call failed: ${response.runtimeType}", null);
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch users", e);
+      CustomLog.error(this, "EnDhan Fetch Users - Exception: $e", e);
       return Error(DeserializationError());
     }
   }

@@ -40,6 +40,7 @@ class _ReferralAutoCompleteTextFieldState
   void initState() {
     super.initState();
     widget.controller.addListener(_onChanged);
+    CustomLog.debug(this, "Initializing Kavach ReferralAutoCompleteTextField");
     _loadUsers();
   }
 
@@ -49,27 +50,34 @@ class _ReferralAutoCompleteTextFieldState
     setState(() {
       isLoading = true;
       hasError = false;
+      errorMessage = '';
     });
 
     try {
       final result = await _repository.fetchUsers();
+      CustomLog.debug(this, "Kavach Users API result type: ${result.runtimeType}");
+      
       if (result is Success<List<KavachUserModel>>) {
         setState(() {
           allUsers = result.value;
           isLoading = false;
+          hasError = false;
         });
+        CustomLog.debug(this, "Successfully loaded ${allUsers.length} users for Kavach referral code");
       } else {
+        final apiErrorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
+        CustomLog.error(this, "Kavach API returned error: $apiErrorMessage", null);
         setState(() {
           hasError = true;
-          errorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
+          errorMessage = apiErrorMessage;
           isLoading = false;
         });
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to load users", e);
+      CustomLog.error(this, "Exception while loading Kavach users", e);
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load users';
+        errorMessage = 'Failed to load users. Please try again.';
         isLoading = false;
       });
     }
@@ -77,6 +85,8 @@ class _ReferralAutoCompleteTextFieldState
 
   void _onChanged() {
     final query = widget.controller.text.toLowerCase();
+    CustomLog.debug(this, "Kavach text changed: '$query', Total users: ${allUsers.length}");
+    
     if (query.isNotEmpty) {
       filteredUsers = allUsers
           .where((user) => 
@@ -84,6 +94,8 @@ class _ReferralAutoCompleteTextFieldState
               user.empCode.toLowerCase().contains(query) ||
               '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
           .toList();
+
+      CustomLog.debug(this, "Kavach filtered users: ${filteredUsers.length}");
 
       if (filteredUsers.isNotEmpty) {
         _showOverlay();
@@ -102,13 +114,17 @@ class _ReferralAutoCompleteTextFieldState
       _overlayEntry!.markNeedsBuild();
       return;
     }
+    CustomLog.debug(this, "Creating Kavach overlay with ${filteredUsers.length} users");
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    if (_overlayEntry != null) {
+      CustomLog.debug(this, "Removing Kavach overlay");
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -146,6 +162,7 @@ class _ReferralAutoCompleteTextFieldState
                     ),
                     onTap: () {
                       final displayText = '${user.empCode} ${user.userName}';
+                      CustomLog.debug(this, "Kavach user selected: $displayText");
                       widget.controller.text = displayText;
                       widget.controller.selection = TextSelection.fromPosition(
                         TextPosition(offset: displayText.length),
@@ -210,6 +227,11 @@ class _ReferralAutoCompleteTextFieldState
             TextButton(
               onPressed: _loadUsers,
               child: Text('Retry'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ],
         ],

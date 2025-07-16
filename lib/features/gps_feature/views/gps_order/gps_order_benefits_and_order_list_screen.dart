@@ -81,41 +81,27 @@ class _GpsOrderBenefitsAndOrderListScreenState
   }
 
   void _handleBackNavigation() {
-    print('🔙 Back button tapped - starting navigation');
-    // Use the same logic as WillPopScope but handle async properly
-    _getUserRoleAndNavigate();
-  }
-
-  Future<void> _getUserRoleAndNavigate() async {
-    print('🔙 Getting user role for navigation');
-    final userRepository = locator<UserInformationRepository>();
-    final userRole = await userRepository.getUserRole();
-    print('🔙 User role: $userRole');
-    String targetRoute;
-    if (userRole == 1 || userRole == 3) {
-      targetRoute = AppRouteName.lpBottomNavigationBar;
-    } else if (userRole == 2) {
-      targetRoute = AppRouteName.vpBottomNavigationBar;
-    } else {
-      targetRoute = AppRouteName.lpBottomNavigationBar;
-    }
-    print('🔙 Navigating to: $targetRoute');
-    if (context.mounted) {
-      context.go(targetRoute);
-    } else {
-      print('🔙 Context not mounted, cannot navigate');
+    print('🔙 Back button tapped - simple navigation back');
+    // Simply navigate back to previous screen
+    if (mounted && context.mounted) {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      } else {
+        // Fallback to dashboard if no previous screen
+        _getUserRoleAndNavigateSync();
+      }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        print('🔙 WillPopScope triggered');
-        // Defensive: Always go to the correct dashboard on back
-        final userRepository = locator<UserInformationRepository>();
-        final userRole = await userRepository.getUserRole();
-        print('🔙 WillPopScope - User role: $userRole');
+  void _getUserRoleAndNavigateSync() {
+    print('🔙 Getting user role for navigation (sync)');
+    try {
+      // Use a synchronous approach with proper error handling
+      final userRepository = locator<UserInformationRepository>();
+      
+      // Get user role synchronously if possible, otherwise use default
+      userRepository.getUserRole().then((userRole) {
+        print('🔙 User role: $userRole');
         String targetRoute;
         if (userRole == 1 || userRole == 3) {
           targetRoute = AppRouteName.lpBottomNavigationBar;
@@ -124,13 +110,105 @@ class _GpsOrderBenefitsAndOrderListScreenState
         } else {
           targetRoute = AppRouteName.lpBottomNavigationBar;
         }
-        print('🔙 WillPopScope - Navigating to: $targetRoute');
-        if (context.mounted) {
-          context.go(targetRoute);
+        print('🔙 Navigating to: $targetRoute');
+        
+        if (mounted && context.mounted) {
+          try {
+            context.go(targetRoute);
+          } catch (e) {
+            print('🔙 Navigation error: $e');
+            // Fallback to pop if GoRouter fails
+            if (Navigator.canPop(context)) {
+              Navigator.of(context).pop();
+            }
+          }
         } else {
-          print('🔙 WillPopScope - Context not mounted');
+          print('🔙 Context not mounted, cannot navigate');
         }
-        return false;
+      }).catchError((error) {
+        print('🔙 Error getting user role: $error');
+        // Fallback navigation
+        if (mounted && context.mounted) {
+          try {
+            context.go(AppRouteName.lpBottomNavigationBar);
+          } catch (e) {
+            print('🔙 Fallback navigation error: $e');
+            if (Navigator.canPop(context)) {
+              Navigator.of(context).pop();
+            }
+          }
+        }
+      });
+    } catch (e) {
+      print('🔙 Exception in back navigation: $e');
+      // Final fallback
+      if (mounted && context.mounted) {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pop();
+        }
+      }
+    }
+  }
+
+  Future<void> _getUserRoleAndNavigate() async {
+    print('🔙 Getting user role for navigation');
+    try {
+      final userRepository = locator<UserInformationRepository>();
+      final userRole = await userRepository.getUserRole();
+      print('🔙 User role: $userRole');
+      String targetRoute;
+      if (userRole == 1 || userRole == 3) {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      } else if (userRole == 2) {
+        targetRoute = AppRouteName.vpBottomNavigationBar;
+      } else {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      }
+      print('🔙 Navigating to: $targetRoute');
+      if (mounted && context.mounted) {
+        try {
+          context.go(targetRoute);
+        } catch (e) {
+          print('🔙 Navigation error: $e');
+          // Fallback to pop if GoRouter fails
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+        }
+      } else {
+        print('🔙 Context not mounted, cannot navigate');
+      }
+    } catch (e) {
+      print('🔙 Error during back navigation: $e');
+      // Fallback navigation
+      if (mounted && context.mounted) {
+        try {
+          context.go(AppRouteName.lpBottomNavigationBar);
+        } catch (e) {
+          print('🔙 Fallback navigation error: $e');
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        print('🔙 WillPopScope triggered - simple navigation back');
+        // Simply navigate back to previous screen
+        if (mounted && context.mounted) {
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          } else {
+            // Fallback to dashboard if no previous screen
+            _getUserRoleAndNavigateSync();
+          }
+        }
+        return false; // Prevent default pop behavior
       },
       child: BlocProvider.value(
         value: GpsKycCheckCubit(locator<GpsOrderApiRepository>())..resetCubit(),

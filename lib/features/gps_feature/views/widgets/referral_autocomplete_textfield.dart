@@ -49,27 +49,41 @@ class _ReferralAutoCompleteTextFieldState
     setState(() {
       isLoading = true;
       hasError = false;
+      errorMessage = '';
     });
 
     try {
+      CustomLog.debug(this, "GPS Referral - Starting to fetch users...");
       final result = await _repository.fetchUsers();
+      CustomLog.debug(this, "GPS Referral - Fetch result type: ${result.runtimeType}");
+      
       if (result is Success<List<KavachUserModel>>) {
+        CustomLog.debug(this, "GPS Referral - Successfully fetched ${result.value.length} users");
         setState(() {
           allUsers = result.value;
           isLoading = false;
+          hasError = false;
         });
-      } else {
+      } else if (result is Error<List<KavachUserModel>>) {
+        CustomLog.error(this, "GPS Referral - Failed to fetch users: ${result.type}", null);
         setState(() {
           hasError = true;
-          errorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
+          errorMessage = result.type.getText(context);
+          isLoading = false;
+        });
+      } else {
+        CustomLog.error(this, "GPS Referral - Unknown result type: ${result.runtimeType}", null);
+        setState(() {
+          hasError = true;
+          errorMessage = 'Failed to load users';
           isLoading = false;
         });
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to load users", e);
+      CustomLog.error(this, "GPS Referral - Exception while fetching users", e);
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load users';
+        errorMessage = 'Failed to load users: $e';
         isLoading = false;
       });
     }
@@ -210,6 +224,16 @@ class _ReferralAutoCompleteTextFieldState
             TextButton(
               onPressed: _loadUsers,
               child: Text('Retry'),
+            ),
+          ],
+          if (!isLoading && !hasError && allUsers.isEmpty) ...[
+            SizedBox(height: 4),
+            Text(
+              'No users available',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
             ),
           ],
         ],
