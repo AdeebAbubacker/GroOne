@@ -43,12 +43,12 @@ enum LoadStatus {
   accepted,
   assigned,
   loading,
-  unloading,
   inTransit,
+  unloading,
   completed
-
-
 }
+
+
 
 String getBottomButtonTitle(LoadStatus status){
   switch(status){
@@ -76,5 +76,17 @@ Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");
   }
+}
+
+LoadStatus getLoadStatus(int? status){
+  return switch(status){
+    3 => LoadStatus.accepted,
+    4 => LoadStatus.assigned,
+    5 => LoadStatus.loading,
+    6 => LoadStatus.inTransit,
+    7 => LoadStatus.unloading,
+    8 => LoadStatus.completed,
+    null || int() => LoadStatus.matching
+  };
 }
 

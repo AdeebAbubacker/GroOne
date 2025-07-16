@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -40,9 +41,9 @@ class MyLoadsListBody extends StatefulWidget {
 class _MyLoadsListBodyState extends State<MyLoadsListBody> {
   @override
   Widget build(BuildContext context) {
-    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
-    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
 
     return Container(
@@ -197,7 +198,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
             ],
           ),
 
-
           15.height,
           Container(
             padding: EdgeInsets.symmetric(vertical: 5),
@@ -206,17 +206,22 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               color: AppColors.primaryLightColor,
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  "Accepted Price",
-                  style: AppTextStyle.textBlackColor18w400,
-                  textAlign: TextAlign.center,
-                ).expand(),
-                Text(
-                  amount,
-                  style: AppTextStyle.h4PrimaryColor,
-                  textAlign: TextAlign.center,
-                ).expand()
+                FittedBox(
+                  child: Text(
+                    "Accepted Price",
+                    style: AppTextStyle.textBlackColor18w400,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                FittedBox(
+                  child: Text(
+                    amount,
+                    style: AppTextStyle.h4PrimaryColor,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
                 // Text(
                 //   "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
                 //   style: AppTextStyle.h4PrimaryColor,

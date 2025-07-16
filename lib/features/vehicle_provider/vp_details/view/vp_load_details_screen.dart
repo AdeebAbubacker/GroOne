@@ -48,7 +48,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
 
-  /// Map Style
+  /// Get Load Details
+
   getLoadDetails() {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? ""));
   }
@@ -78,8 +79,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     return Scaffold(
       body: BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
         bloc: cubit,
-
-        builder: (context, state) {
+          builder: (context, state) {
           if (state.loadDetailsUIState?.status == Status.LOADING) {
             return CircularProgressIndicator().center();
           }
@@ -114,6 +114,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   vpHomeBloc: vpHomeBloc,
                   cubit: cubit,lpHomeCubit: homeCubit,
                 ),
+                buildFloatingWidget(),
                 if((state.loadStatusId??0)>4)
                 buildSimConsentWidget(loads?.data?.driverConsent??0)
               ],
@@ -133,10 +134,48 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             }
           }
         }
-
-
-      ),
+        ),
     );
+  }
+
+
+
+  /// Support
+  Widget buildFloatingWidget() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+
+    return Positioned(
+        right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
+      children: [
+
+        IconButton(
+              onPressed: () {
+                commonSupportDialog(context);
+              },
+              icon: Container(
+                padding: EdgeInsets.all(4),
+                decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+                child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+              )
+          ),
+        IconButton(
+            onPressed: () {
+              commonSupportDialog(context);
+            },
+            icon: Container(
+              padding: EdgeInsets.all(4),
+              decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+              child: SvgPicture.asset(
+                AppIcons.svg.support,
+                width: 25,
+                colorFilter: AppColors.svg(AppColors.primaryColor),
+              ),
+            )
+        ),
+
+      ],
+    ));
   }
 
   Widget buildSimConsentWidget(int driverConsent) {
@@ -207,7 +246,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
-                  Icon(Icons.arrow_forward).expand(),
+                  Icon(Icons.arrow_forward),
+                  20.width,
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.dropLocation,
                     DateTimeHelper.getFormattedDate(
@@ -217,7 +257,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   if ((state.loadStatusId??1)>=3)
                    ...[
                      LoadStatusLabel(
-                       loadOnHold: loadDetails?.loadOnHold??false,
+                         loadOnHold: loadDetails?.loadOnHold??false,
                          loadStatusTitle:loadDetails?.loadStatusDetails?.loadStatus??"" ,
                          loadStatus: state.loadStatus!),
                    ]

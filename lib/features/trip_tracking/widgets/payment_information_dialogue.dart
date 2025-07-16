@@ -56,7 +56,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
                   fontWeight: FontWeight.w100,
                   color: AppColors.textBlackColor
                 )),
-                Text("₹ ${tripCost.toString()}", style: AppTextStyle.h3PrimaryColor),
+                Text(tripCost.toString(), style: AppTextStyle.h3PrimaryColor),
               ],
             ).paddingAll(12),
           ),
@@ -70,7 +70,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("₹${advanceAmount.toString()}", style: AppTextStyle.h3w500.copyWith(
+              Text(advanceAmount.toString(), style: AppTextStyle.h3w500.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w700
               )
@@ -102,7 +102,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow("Advance Received (80%)", "₹${advanceAmount.toString()}"),
+                _buildInfoRow("Advance Received (80%)", advanceAmount.toString()),
                 _buildInfoRow("Transaction ID", transactionId, ),
                 _buildInfoRow("Payment mode", paymentMode),
                 _buildInfoRow("Received on", receivedOn),
@@ -136,8 +136,6 @@ class PaymentInformationDialogView  extends StatelessWidget {
     );
   }
 }
-
-
 
 Widget _buildInfoRow(String? title, String? value, {bool isLink = false}) {
   return Row(

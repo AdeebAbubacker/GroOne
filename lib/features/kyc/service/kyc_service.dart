@@ -282,18 +282,22 @@ class KycService {
 
 
   /// Get State Service
-  Future<Result<List<StateModel>>> fetchStateData() async {
+  Future<Result<StateModel>> fetchStateData() async {
     try {
       final url = ApiUrls.getState;
       final result = await _apiService.get(url);
       if (result is Success) {
-        final data = result.value;
-        if (data is List) {
-          final stateList = data.map((e) => StateModel.fromJson(e)).toList();
-          return Success(stateList);
-        } else {
-          return Error(GenericError());
-        }
+        // final data = result.value;
+        // if (data is List) {
+        //   final data = StateModel.fromJson(result.value);
+        //   return Success(data);
+        //   // final stateList = data.map((e) => StateModel.fromJson(e)).toList();
+        //   // return Success(stateList);
+        // } else {
+        //   return Error(GenericError());
+        // }
+        final data = StateModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -307,18 +311,20 @@ class KycService {
 
 
   /// Get City Service
-  Future<Result<List<CityModel>>> fetchCityData(String stateName) async {
+  Future<Result<CityModel>> fetchCityData(String stateName) async {
     try {
       final url = ApiUrls.getCity;
       final result = await _apiService.get(url, queryParams: {"state" : stateName});
       if (result is Success) {
-        final data = result.value;
-        if (data is List) {
-          final stateList = data.map((e) => CityModel.fromJson(e)).toList();
-          return Success(stateList);
-        } else {
-          return Error(GenericError());
-        }
+        // final data = result.value;
+        // if (data is List) {
+        //   final stateList = data.map((e) => CityModel.fromJson(e)).toList();
+        //   return Success(stateList);
+        // } else {
+        //   return Error(GenericError());
+        // }
+        final data = CityModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {

@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -30,15 +31,12 @@ class TripDetails extends StatelessWidget {
   }
 
   Widget _tripDetailsWidget(BuildContext context) {
-
-
     return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
       builder: (context, state)  {
         LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
-
         String amount=(loadDetails?.loadPrice?.vpMaxRate??"").isNotEmpty && (loadDetails?.loadPrice?.vpMaxRate??"").trim()!="0" ?
-        "$indianCurrencySymbol${loadDetails?.loadPrice?.vpRate} - $indianCurrencySymbol${loadDetails?.loadPrice?.vpMaxRate}":
-        "$indianCurrencySymbol${(loadDetails?.loadPrice?.vpRate??"").isNotEmpty ? loadDetails?.loadPrice?.vpRate : "0000 - 0000"}";
+        "${PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate)} - ${PriceHelper.formatINR(loadDetails?.loadPrice?.vpMaxRate)}":
+        (loadDetails?.loadPrice?.vpRate??"").isNotEmpty ? PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate) : "0000 - 0000";
 
         return Container(
           decoration: BoxDecoration(

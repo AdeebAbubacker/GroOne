@@ -137,8 +137,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 callTimer(loadItem);
               });
 
-
-
               if (!_consentStatusCalled && status!.index >= LoadStatus.loading.index) {
                 _consentStatusCalled = true;
                 getTrackingDistance(loadItem);

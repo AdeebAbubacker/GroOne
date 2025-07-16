@@ -56,14 +56,14 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Fetch State Api Call
-  void _setStateUIState(UIState<List<StateModel>>? uiState){
+  void _setStateUIState(UIState<List<StateModelList>>? uiState){
     emit(state.copyWith(stateUIState: uiState));
   }
   Future<void> fetchStateList() async {
     _setStateUIState(UIState.loading());
     Result result = await _repo.getStateData();
-    if (result is Success<List<StateModel>>) {
-      _setStateUIState(UIState.success(result.value));
+    if (result is Success<StateModel>) {
+      _setStateUIState(UIState.success(result.value.data));
     }
     if (result is Error) {
       _setStateUIState(UIState.error(result.type));
@@ -72,14 +72,14 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Fetch City Api Call
-  void _setCityUIState(UIState<List<CityModel>>? uiState){
+  void _setCityUIState(UIState<List<CityModelList>>? uiState){
     emit(state.copyWith(cityUIState: uiState));
   }
   Future<void> fetchCityList(String stateName) async {
     _setCityUIState(UIState.loading());
     Result result = await _repo.getCityData(stateName);
-    if (result is Success<List<CityModel>>) {
-      _setCityUIState(UIState.success(result.value));
+    if (result is Success<CityModel>) {
+      _setCityUIState(UIState.success(result.value.data));
     }
     if (result is Error) {
       _setCityUIState(UIState.error(result.type));
@@ -254,8 +254,8 @@ class KycCubit extends BaseCubit<KycState> {
       uploadTanDocUIState: resetUIState<UploadTANDocumentModel>(state.uploadTanDocUIState),
       uploadGSTDocUIState: resetUIState<UploadGSTDocumentModel>(state.uploadGSTDocUIState),
       aadhaarVerifyOtpState: resetUIState<AadhaarVerifyOtpModel>(state.aadhaarVerifyOtpState),
-      stateUIState: resetUIState<List<StateModel>>(state.stateUIState),
-      cityUIState: resetUIState<List<CityModel>>(state.cityUIState),
+      // stateUIState: resetUIState<List<StateModelList>>(state.stateUIState?.data ?? []),
+      // cityUIState: resetUIState<List<CityModel>>(state.cityUIState),
       aadhaarOtpState: resetUIState<AadhaarOtpModel>(state.aadhaarOtpState),
       verifiedPan: false,
       verifiedTan: false,
