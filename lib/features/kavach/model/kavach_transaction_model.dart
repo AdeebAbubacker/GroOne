@@ -31,23 +31,28 @@ class KavachTransactionModel {
             // Fallback to current date
             return DateTime.now();
           } catch (e) {
-            print('🔍 Failed to parse date: $dateString, error: $e');
+            // Return current date if parsing fails
             return DateTime.now();
           }
         }
       }
 
-    return KavachTransactionModel(
+      return KavachTransactionModel(
         orderId: json['orderId']?.toString() ?? '',
         txnId: json['txnId']?.toString() ?? '',
         orderAmount: (json['orderAmount'] as num?)?.toDouble() ?? 0.0,
         status: json['status']?.toString() ?? '',
         date: parseDate(json['date']?.toString() ?? ''),
-    );
+      );
     } catch (e) {
-      print('🔍 Error parsing KavachTransactionModel: $e');
-      print('🔍 JSON data: $json');
-      rethrow;
+      // Return a default model if parsing fails
+      return KavachTransactionModel(
+        orderId: json['orderId']?.toString() ?? '',
+        txnId: json['txnId']?.toString() ?? '',
+        orderAmount: (json['orderAmount'] as num?)?.toDouble() ?? 0.0,
+        status: json['status']?.toString() ?? '',
+        date: DateTime.now(),
+      );
     }
   }
 }

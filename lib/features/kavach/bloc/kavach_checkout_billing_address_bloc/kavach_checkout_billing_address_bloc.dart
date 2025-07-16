@@ -23,13 +23,17 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
     final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
+      print('KavachCheckoutBillingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
+        print('KavachCheckoutBillingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutBillingAddressEmpty());
       } else {
         // Don't auto-select the first address, let user choose
+        print('KavachCheckoutBillingAddressBloc: Emitting available state with ${result.value.length} addresses');
         emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
+      print('KavachCheckoutBillingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutBillingAddressError(result.type));
     }
   }

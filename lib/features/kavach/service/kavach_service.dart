@@ -72,21 +72,35 @@ class KavachService {
         '${ApiUrls.kavachVehicleDetails}/$customerId?limit=10&page=1',
       );
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  final vehicleList = data['data'] as List;
-
-                  return vehicleList.map((e) {
-                    return KavachVehicleModel.fromJson(e);
-                  }).toList();
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse vehicle data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Vehicles API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Check if the response has the expected structure
+            if (responseData.containsKey('data') && responseData['data'] is List) {
+              final vehicleList = responseData['data'] as List;
+              CustomLog.debug(this, "Found ${vehicleList.length} vehicles in response");
+              
+              final vehicles = vehicleList.map((e) {
+                return KavachVehicleModel.fromJson(e);
+              }).toList();
+              
+              CustomLog.debug(this, "Successfully parsed ${vehicles.length} vehicles");
+              return Success(vehicles);
+            } else {
+              CustomLog.error(this, "Invalid vehicles response format - missing data array", null);
+              return Success(<KavachVehicleModel>[]);
+            }
+          } else {
+            CustomLog.error(this, "Invalid vehicles response format - expected Map, got ${responseData.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse vehicle data", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -108,20 +122,49 @@ class KavachService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  final allAddresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
-
-                  // Return all addresses without filtering by addrType
-                  return allAddresses;
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse addresses data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Fetch addresses API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Check if it's a standard success response with nested data
+            if (responseData.containsKey('success') && responseData['success'] == true) {
+              if (responseData.containsKey('data') && responseData['data'] is List) {
+                final allAddresses = (responseData['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
+                CustomLog.debug(this, "Successfully parsed ${allAddresses.length} addresses from nested data");
+                return Success(allAddresses);
+              }
+            }
+            
+            // Check if the response is directly a list of addresses
+            if (responseData.containsKey('data') && responseData['data'] is List) {
+              final allAddresses = (responseData['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
+              CustomLog.debug(this, "Successfully parsed ${allAddresses.length} addresses from direct data");
+              return Success(allAddresses);
+            }
+            
+            // Check if it's an error response
+            if (responseData.containsKey('success') && responseData['success'] == false) {
+              final errorMessage = responseData['message'] ?? 'Failed to fetch addresses';
+              CustomLog.error(this, "Fetch addresses failed: $errorMessage", null);
+              return Error(ErrorWithMessage(message: errorMessage));
+            }
+          }
+          
+          // If responseData is directly a list, try to parse it
+          if (responseData is List) {
+            final allAddresses = responseData.map((e) => KavachAddressModel.fromJson(e)).toList();
+            CustomLog.debug(this, "Successfully parsed ${allAddresses.length} addresses from direct list");
+            return Success(allAddresses);
+          }
+          
+          CustomLog.error(this, "Unexpected response format for addresses", null);
+          return Error(DeserializationError());
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse addresses data", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -174,18 +217,49 @@ class KavachService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  // The API response seems to be the direct data object
-                  return KavachAddressModel.fromJson(data);
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse add address data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Add address API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Check if the response contains address data (success case)
+            if (responseData.containsKey('preferedAddressId') || 
+                responseData.containsKey('customerId') ||
+                responseData.containsKey('addrName')) {
+              CustomLog.debug(this, "Successfully added address with ID: ${responseData['preferedAddressId']}");
+              
+              // The API response is directly the address data
+              final addressModel = KavachAddressModel.fromJson(responseData);
+              CustomLog.debug(this, "Successfully parsed address model");
+              return Success(addressModel);
+            }
+            
+            // Check if it's a standard success response with nested data
+            if (responseData.containsKey('success') && responseData['success'] == true) {
+              if (responseData.containsKey('data')) {
+                final addressModel = KavachAddressModel.fromJson(responseData['data']);
+                CustomLog.debug(this, "Successfully parsed address model from nested data");
+                return Success(addressModel);
+              }
+            }
+            
+            // Check if it's an error response
+            if (responseData.containsKey('success') && responseData['success'] == false) {
+              final errorMessage = responseData['message'] ?? 'Failed to add address';
+              CustomLog.error(this, "Add address failed: $errorMessage", null);
+              return Error(ErrorWithMessage(message: errorMessage));
+            }
+          }
+          
+          // If we reach here, assume success and try to parse as address
+          CustomLog.debug(this, "Attempting to parse response as address data");
+          final addressModel = KavachAddressModel.fromJson(responseData);
+          return Success(addressModel);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse add address response", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -292,30 +366,49 @@ class KavachService {
       final response = await _apiService.get(ApiUrls.kavachFetchCommodities);
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  // Handle the case where data might be directly a list
-                  if (data is List) {
-                    return data.map((e) => CommodityModel.fromJson(e)).toList();
-                  }
-                  // Handle the case where data is nested in a 'data' field
-                  if (data is Map<String, dynamic> && data.containsKey('data')) {
-                    final dataList = data['data'];
-                    if (dataList is List) {
-                      return dataList.map((e) => CommodityModel.fromJson(e)).toList();
-                    }
-                  }
-                  // If neither format works, return empty list
-                  return <CommodityModel>[];
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse commodities data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Commodities API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Handle the case where data is nested in a 'data' field
+            if (responseData.containsKey('data')) {
+              final dataList = responseData['data'];
+              if (dataList is List) {
+                final commodities = dataList
+                    .map((e) => CommodityModel.fromJson(e))
+                    .toList();
+                CustomLog.debug(this, "Successfully parsed ${commodities.length} commodities");
+                return Success(commodities);
+              }
+            }
+            // If no 'data' field, check if the response itself is a list
+            if (responseData.containsKey('commodities') && responseData['commodities'] is List) {
+              final dataList = responseData['commodities'] as List;
+              final commodities = dataList
+                  .map((e) => CommodityModel.fromJson(e))
+                  .toList();
+              CustomLog.debug(this, "Successfully parsed ${commodities.length} commodities from commodities field");
+              return Success(commodities);
+            }
+          } else if (responseData is List) {
+            // Handle the case where data is directly a list
+            final commodities = responseData
+                .map((e) => CommodityModel.fromJson(e))
+                .toList();
+            CustomLog.debug(this, "Successfully parsed ${commodities.length} commodities from direct list");
+            return Success(commodities);
+          }
+          
+          CustomLog.error(this, "Invalid commodities response format", null);
+          return Success(<CommodityModel>[]);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse commodities data", e);
+          return Error(DeserializationError());
+        }
       } else {
+        CustomLog.error(this, "Commodities API call failed: ${response.runtimeType}", null);
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
@@ -352,10 +445,27 @@ class KavachService {
       );
 
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-              (data) => KavachVehicleDocumentUploadModel.fromJson(data),
-        );
+        CustomLog.debug(this, "Upload API raw response: ${result.value}");
+        
+        try {
+          final responseData = result.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            CustomLog.debug(this, "Response URL: ${responseData['url']}");
+            
+            // The API response is directly the document upload data
+            final documentResponse = KavachVehicleDocumentUploadModel.fromJson(responseData);
+            CustomLog.debug(this, "Successfully parsed document upload response");
+            return Success(documentResponse);
+          } else {
+            CustomLog.error(this, "Invalid upload response format - expected Map, got ${responseData.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse upload response", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(result is Error ? result.type : GenericError());
       }
@@ -373,14 +483,46 @@ class KavachService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) => null, // For void return
-        );
+        CustomLog.debug(this, "Add vehicle API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Check if the response contains vehicle data (success case)
+            if (responseData.containsKey('vehicleId') || 
+                responseData.containsKey('truckNo') ||
+                responseData.containsKey('customerId')) {
+              CustomLog.debug(this, "Successfully added vehicle with ID: ${responseData['vehicleId']}");
+              return Success(null); // Success case
+            }
+            
+            // Check if it's a standard success response
+            if (responseData.containsKey('success') && responseData['success'] == true) {
+              CustomLog.debug(this, "Vehicle added successfully");
+              return Success(null);
+            }
+            
+            // Check if it's an error response
+            if (responseData.containsKey('success') && responseData['success'] == false) {
+              final errorMessage = responseData['message'] ?? 'Failed to add vehicle';
+              CustomLog.error(this, "Add vehicle failed: $errorMessage", null);
+              return Error(ErrorWithMessage(message: errorMessage));
+            }
+          }
+          
+          // If we reach here, assume success
+          CustomLog.debug(this, "Vehicle added successfully (default case)");
+          return Success(null);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse add vehicle response", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
+      CustomLog.error(this, "Add vehicle error", e);
       return Error(DeserializationError());
     }
   }
@@ -390,30 +532,52 @@ class KavachService {
       final response = await _apiService.get(ApiUrls.kavachTruckType);
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  // Handle the case where data might be directly a list
-                  if (data is List) {
-                    return data.cast<String>();
-                  }
-                  // Handle the case where data is nested in a 'data' field
-                  if (data is Map<String, dynamic> && data.containsKey('data')) {
-                    final dataList = data['data'];
-                    if (dataList is List) {
-                      return dataList.cast<String>();
-                    }
-                  }
-                  // If neither format works, return empty list
-                  return <String>[];
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse truck types data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Truck types API raw response: ${response.value}");
+        
+        try {
+          final responseData = response.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            // Handle the case where data is nested in a 'data' field
+            if (responseData.containsKey('data')) {
+              final dataList = responseData['data'];
+              if (dataList is List) {
+                final truckTypes = dataList
+                    .map((item) => item.toString())
+                    .where((item) => item.isNotEmpty)
+                    .toList();
+                CustomLog.debug(this, "Successfully parsed ${truckTypes.length} truck types");
+                return Success(truckTypes);
+              }
+            }
+            // If no 'data' field, check if the response itself is a list
+            if (responseData.containsKey('truckTypes') && responseData['truckTypes'] is List) {
+              final dataList = responseData['truckTypes'] as List;
+              final truckTypes = dataList
+                  .map((item) => item.toString())
+                  .where((item) => item.isNotEmpty)
+                  .toList();
+              CustomLog.debug(this, "Successfully parsed ${truckTypes.length} truck types from truckTypes field");
+              return Success(truckTypes);
+            }
+          } else if (responseData is List) {
+            // Handle the case where data is directly a list
+            final truckTypes = responseData
+                .map((item) => item.toString())
+                .where((item) => item.isNotEmpty)
+                .toList();
+            CustomLog.debug(this, "Successfully parsed ${truckTypes.length} truck types from direct list");
+            return Success(truckTypes);
+          }
+          
+          CustomLog.error(this, "Invalid truck types response format", null);
+          return Success(<String>[]);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse truck types data", e);
+          return Error(DeserializationError());
+        }
       } else {
+        CustomLog.error(this, "Truck types API call failed: ${response.runtimeType}", null);
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
@@ -526,58 +690,60 @@ class KavachService {
   /// Fetches transaction data from the API
   Future<Result<List<KavachTransactionModel>>> getTransactions(String customerId) async {
     try {
+      CustomLog.debug(this, "Fetching transactions for customer: $customerId");
+      
       final result = await _apiService.get(
         ///todo: currently using mock API so it is hardcoded will change it when receive the API for this.
         'https://gro-devapi.letsgro.co/vendor/api/v1/payment/getTransaction',
       );
 
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-              (response) {
-            CustomLog.debug(this, "Transaction response: $response");
-
-            // Try different response structures
-            List<dynamic> txnList = [];
-
+        CustomLog.debug(this, "Transaction API raw response: ${result.value}");
+        CustomLog.debug(this, "Transaction API response type: ${result.value.runtimeType}");
+        
+        try {
+          final responseData = result.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            
             // Check if Transactions is directly in response
-            if (response.containsKey('Transactions')) {
-              txnList = response['Transactions'] ?? [];
+            if (responseData.containsKey('Transactions') && responseData['Transactions'] is List) {
+              final txnList = responseData['Transactions'] as List;
               CustomLog.debug(this, "Found Transactions directly in response: ${txnList.length}");
-            }
-            // Check if Transactions is nested under data
-            else if (response.containsKey('data') && response['data'] is Map) {
-              final data = response['data'];
-              txnList = data['Transactions'] ?? [];
-              CustomLog.debug(this, "Found Transactions under data: ${txnList.length}");
-            }
-            // Check if the response itself is the Transactions list
-            else if (response is List) {
-              txnList = response;
-              CustomLog.debug(this, "Response is directly a list: ${txnList.length}");
-            }
-
-            CustomLog.debug(this, "Final transaction list: $txnList");
-
-            if (txnList.isNotEmpty) {
-              try {
-                final transactions = txnList
-                    .map((json) => KavachTransactionModel.fromJson(json))
-                    .toList();
-                CustomLog.debug(this, "Parsed transactions: ${transactions.length}");
-                return transactions;
-              } catch (e) {
-                CustomLog.error(this, "Failed to parse transaction data", e);
-                return <KavachTransactionModel>[];
+              
+              if (txnList.isNotEmpty) {
+                try {
+                  final transactions = txnList
+                      .map((json) {
+                        CustomLog.debug(this, "Parsing transaction: $json");
+                        return KavachTransactionModel.fromJson(json);
+                      })
+                      .toList();
+                  CustomLog.debug(this, "Successfully parsed ${transactions.length} transactions");
+                  return Success(transactions);
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse transaction data", e);
+                  return Error(DeserializationError());
+                }
+              } else {
+                CustomLog.debug(this, "No transactions found in response");
+                return Success(<KavachTransactionModel>[]);
               }
             } else {
-              CustomLog.debug(this, "No transactions found or empty list");
-              return <KavachTransactionModel>[]; // Empty list
+              CustomLog.error(this, "Transactions key not found or not a list in response. Available keys: ${responseData.keys.toList()}", null);
+              return Error(DeserializationError());
             }
-          },
-        );
-
+          } else {
+            CustomLog.error(this, "Invalid response format - expected Map, got ${responseData.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse transaction response", e);
+          return Error(DeserializationError());
+        }
       } else {
+        CustomLog.error(this, "Transaction API call failed: ${result.runtimeType}", null);
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {

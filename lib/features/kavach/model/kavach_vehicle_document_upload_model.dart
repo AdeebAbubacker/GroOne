@@ -52,13 +52,24 @@ class Data {
   final String? mimeType;
 
   factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
-      url: json["url"] ?? "",
-      filePath: json["filePath"],
-      originalName: json["originalName"],
-      size: json["size"],
-      mimeType: json["mimeType"],
-    );
+    try {
+      return Data(
+        url: json["url"]?.toString() ?? "",
+        filePath: json["filePath"]?.toString(),
+        originalName: json["originalName"]?.toString(),
+        size: json["size"] is int ? json["size"] : int.tryParse(json["size"]?.toString() ?? '0'),
+        mimeType: json["mimeType"]?.toString(),
+      );
+    } catch (e) {
+      // Return a default data object if parsing fails
+      return Data(
+        url: json["url"]?.toString() ?? "",
+        filePath: json["filePath"]?.toString(),
+        originalName: json["originalName"]?.toString(),
+        size: 0,
+        mimeType: 'application/octet-stream',
+      );
+    }
   }
 
   Map<String, dynamic> toJson() => {

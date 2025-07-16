@@ -20,6 +20,10 @@ import '../api_request/kavach_add_address_api_request.dart';
 import '../bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import '../bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_event.dart';
 import '../bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_state.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 
 class KavachAddAddressBottomSheet extends StatefulWidget {
   final int addrType;
@@ -80,6 +84,16 @@ class _KavachAddAddressBottomSheetState
           if (state is KavachCheckoutAddressAdded) {
             Navigator.of(context).pop();
             ToastMessages.success(message: context.appText.addressAddedSuccess);
+            
+            // Refresh both billing and shipping address lists after successful addition
+            Future.delayed(Duration(milliseconds: 300), () {
+              if (context.mounted) {
+                // Refresh billing addresses
+                context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+                // Refresh shipping addresses
+                context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+              }
+            });
           } else if (state is KavachCheckoutAddressError) {
             ToastMessages.error(message: state.error);
           }
