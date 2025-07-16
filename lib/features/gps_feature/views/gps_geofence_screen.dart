@@ -147,6 +147,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         title: context.appText.geofence,
+        isLeading: true,
         actions: [
           AppIconButton(
             onPressed: () {

@@ -3,18 +3,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:intl/intl.dart';
+
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_icon_button.dart';
@@ -73,10 +74,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Track quantities for each product
   final Map<String, int> _quantities = {};
-  
+
   // Track previous vehicle selections
   Map<String, List<String>>? _previousVehicleSelection;
-  
+
   // Track previous form data
   String? _previousReferralCode;
   bool? _previousShippingSameAsBilling;
@@ -85,14 +86,21 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Filtered products based on search
   List<KavachProduct> get _filteredProducts {
-    final products = _gpsProductsCubit.filteredProducts.map((gpsProduct) => gpsProduct.toKavachProduct()).toList();
-    
+    final products =
+        _gpsProductsCubit.filteredProducts
+            .map((gpsProduct) => gpsProduct.toKavachProduct())
+            .toList();
+
     if (searchController.text.isEmpty) {
       return products;
     }
     return products.where((product) {
-      return product.name.toLowerCase().contains(searchController.text.toLowerCase()) ||
-             product.part.toLowerCase().contains(searchController.text.toLowerCase());
+      return product.name.toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          ) ||
+          product.part.toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          );
     }).toList();
   }
 
@@ -111,7 +119,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Get products that have quantities > 0
   List<KavachProduct> get _selectedProducts {
-    return _filteredProducts.where((product) => (_quantities[product.id] ?? 0) > 0).toList();
+    return _filteredProducts
+        .where((product) => (_quantities[product.id] ?? 0) > 0)
+        .toList();
   }
 
   // Get quantities map for selected products only
@@ -135,7 +145,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         if (newQuantity <= availableStock) {
           _quantities[productId] = newQuantity;
         } else {
-          ToastMessages.alert(message: 'Cannot add more items. Stock limit reached.');
+          ToastMessages.alert(
+            message: 'Cannot add more items. Stock limit reached.',
+          );
         }
       }
     });
@@ -143,10 +155,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   Widget _buildProductsList(GpsProductsState state) {
     // Show loading state
-    if (state.productsState?.status == Status.LOADING && state.products.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+    if (state.productsState?.status == Status.LOADING &&
+        state.products.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     // Show error state
@@ -155,17 +166,11 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.greyTextColor,
-            ),
+            Icon(Icons.error_outline, size: 64, color: AppColors.greyTextColor),
             16.height,
             Text(
               'Failed to load GPS devices',
-              style: AppTextStyle.h5.copyWith(
-                color: AppColors.greyTextColor,
-              ),
+              style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
             ),
             8.height,
             TextButton(
@@ -183,17 +188,11 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: AppColors.greyTextColor,
-            ),
+            Icon(Icons.search_off, size: 64, color: AppColors.greyTextColor),
             16.height,
             Text(
               'No GPS devices found',
-              style: AppTextStyle.h5.copyWith(
-                color: AppColors.greyTextColor,
-              ),
+              style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
             ),
           ],
         ),
@@ -231,16 +230,19 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     final result = await Navigator.of(context).push(
       commonRoute(
         GpsOrderCheckoutScreen(
-          products: _selectedProducts.map((kavachProduct) => 
-            GpsProduct(
-              id: kavachProduct.id,
-              fleetProductId: '1',
-              name: kavachProduct.name,
-              part: kavachProduct.part,
-              price: kavachProduct.price.toString(),
-              gstPerc: kavachProduct.gstPerc.toString(),
-            )
-          ).toList(),
+          products:
+              _selectedProducts
+                  .map(
+                    (kavachProduct) => GpsProduct(
+                      id: kavachProduct.id,
+                      fleetProductId: '1',
+                      name: kavachProduct.name,
+                      part: kavachProduct.part,
+                      price: kavachProduct.price.toString(),
+                      gstPerc: kavachProduct.gstPerc.toString(),
+                    ),
+                  )
+                  .toList(),
           quantities: _selectedQuantities,
           previousVehicleSelection: _previousVehicleSelection,
           previousReferralCode: _previousReferralCode,
@@ -268,7 +270,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
             _quantities.addAll(result);
             print('GPS Models: Updated quantities (old format): $_quantities');
           }
-          
+
           // Store vehicle selections for next navigation
           if (result.containsKey('vehicles')) {
             try {
@@ -276,35 +278,48 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
               _previousVehicleSelection = vehiclesData.map(
                 (key, value) => MapEntry(
                   key,
-                  (value as List<dynamic>).map((item) => item.toString()).toList(),
+                  (value as List<dynamic>)
+                      .map((item) => item.toString())
+                      .toList(),
                 ),
               );
-              print('GPS Models: Stored vehicle selections: $_previousVehicleSelection');
+              print(
+                'GPS Models: Stored vehicle selections: $_previousVehicleSelection',
+              );
             } catch (e) {
               print('Error parsing vehicle selections: $e');
               _previousVehicleSelection = null;
             }
           }
-          
+
           // Store form data for next navigation
           if (result.containsKey('referralCode')) {
             _previousReferralCode = result['referralCode'] as String?;
             print('GPS Models: Stored referral code: $_previousReferralCode');
           }
-          
+
           if (result.containsKey('shippingSameAsBilling')) {
-            _previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
-            print('GPS Models: Stored shipping same as billing: $_previousShippingSameAsBilling');
+            _previousShippingSameAsBilling =
+                result['shippingSameAsBilling'] as bool?;
+            print(
+              'GPS Models: Stored shipping same as billing: $_previousShippingSameAsBilling',
+            );
           }
-          
+
           if (result.containsKey('shippingPersonInCharge')) {
-            _previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
-            print('GPS Models: Stored shipping person in charge: $_previousShippingPersonInCharge');
+            _previousShippingPersonInCharge =
+                result['shippingPersonInCharge'] as String?;
+            print(
+              'GPS Models: Stored shipping person in charge: $_previousShippingPersonInCharge',
+            );
           }
-          
+
           if (result.containsKey('shippingPersonContactNo')) {
-            _previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
-            print('GPS Models: Stored shipping person contact no: $_previousShippingPersonContactNo');
+            _previousShippingPersonContactNo =
+                result['shippingPersonContactNo'] as String?;
+            print(
+              'GPS Models: Stored shipping person contact no: $_previousShippingPersonContactNo',
+            );
           }
         }
       });
@@ -327,6 +342,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       appBar: CommonAppBar(
         title: Text(context.appText.gpsModels, style: AppTextStyle.appBar),
         centreTile: false,
+        isLeading: true,
         actions: [
           AppIconButton(
             onPressed: () {
@@ -358,57 +374,58 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 ),
                 20.height,
                 // Products list
-                Expanded(
-                  child: _buildProductsList(state),
-                ),
+                Expanded(child: _buildProductsList(state)),
               ],
             ).paddingAll(commonSafeAreaPadding);
           },
         ),
       ),
       // Bottom navigation with checkout button
-      bottomNavigationBar: _totalQuantity > 0
-          ? Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: Colors.grey.shade300, width: 1.0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.transparent,
-                    spreadRadius: 2,
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
+      bottomNavigationBar:
+          _totalQuantity > 0
+              ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade300, width: 1.0),
                   ),
-                ],
-              ),
-              child: SafeArea(
-                top: false,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "₹ ${NumberFormat("#,##,###").format(_totalPrice.toInt())}",
-                          style: AppTextStyle.h4,
-                        ),
-                        Text(
-                          "$_totalQuantity ${context.appText.items}",
-                          style: AppTextStyle.bodyPrimaryColor,
-                        ),
-                      ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.transparent,
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
                     ),
-                    AppButton(
-                      title: context.appText.checkout.capitalize,
-                      onPressed: _onCheckoutPressed,
-                    ).withWidth(180),
                   ],
-                ).paddingSymmetric(horizontal: 20, vertical: 20),
-              ),
-            )
-          : const SizedBox.shrink(),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "₹ ${NumberFormat("#,##,###").format(_totalPrice.toInt())}",
+                            style: AppTextStyle.h4,
+                          ),
+                          Text(
+                            "$_totalQuantity ${context.appText.items}",
+                            style: AppTextStyle.bodyPrimaryColor,
+                          ),
+                        ],
+                      ),
+                      AppButton(
+                        title: context.appText.checkout.capitalize,
+                        onPressed: _onCheckoutPressed,
+                      ).withWidth(180),
+                    ],
+                  ).paddingSymmetric(horizontal: 20, vertical: 20),
+                ),
+              )
+              : const SizedBox.shrink(),
     );
   }
 }

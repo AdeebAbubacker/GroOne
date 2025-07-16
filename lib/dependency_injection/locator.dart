@@ -15,16 +15,18 @@ import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_detail_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
-import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -98,19 +100,13 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
-import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
-
-import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import '../features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
 import '../features/gps_feature/service/gps_login_service.dart';
 import '../features/gps_feature/service/gps_realm_service.dart';
-import '../features/vehicle_provider/vp_details/services/vp_details_service.dart';
-import '../features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
-import 'package:gro_one_app/features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 
 var locator = GetIt.instance;
 
@@ -120,38 +116,74 @@ void initLocator() {
 
     // Shared Manager
     locator.registerLazySingleton(() => const FlutterSecureStorage());
-    locator.registerLazySingleton(() => SecuredSharedPreferences(locator<FlutterSecureStorage>()));
+    locator.registerLazySingleton(
+      () => SecuredSharedPreferences(locator<FlutterSecureStorage>()),
+    );
 
     // Firebase
     locator.registerLazySingleton(() => AnalyticsService());
 
     // Auth Services
     locator.registerLazySingleton<Dio>(() => Dio());
-    locator.registerLazySingleton(() => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(
+      () => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()),
+    );
 
     // Service
-    locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(
+      () => SplashService(locator<SecuredSharedPreferences>()),
+    );
     locator.registerLazySingleton(() => LocationService());
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
-    locator.registerLazySingleton(() => MobileOtpVerificationService(locator<ApiService>()));
-    locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => MobileOtpVerificationService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => VpCreationService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
-    locator.registerLazySingleton(() => ProfileService(locator<ApiService>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(
+      () => ProfileService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+        locator<UserInformationRepository>(),
+        locator<AuthRepository>(),
+      ),
+    );
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
-    locator.registerLazySingleton(() => KavachService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => KavachService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => KavachService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
     locator.registerLazySingleton(() => GpsService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
-    locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => EmailVerificationService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
-    locator.registerLazySingleton(() => VpDetailsService(locator<ApiService>()));
-    locator.registerLazySingleton(() => EnDhanService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => TermsAndConditionsService(locator<ApiService>()));
-    locator.registerLazySingleton(() => PrivacyPolicyService(locator<ApiService>()));
-    locator.registerLazySingleton(() => PodDispatchService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => VpDetailsService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => EnDhanService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => TermsAndConditionsService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => PrivacyPolicyService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => PodDispatchService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(
       () => GpsOrderApiService(
         locator<ApiService>(),
@@ -160,37 +192,131 @@ void initLocator() {
     );
 
     // Register GpsOrderApiRequest for GPS features
-    locator.registerLazySingleton(() => GpsOrderApiRequest(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => GpsOrderApiRequest(locator<ApiService>()),
+    );
     // Repository
-    locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
-    locator.registerLazySingleton(() => AuthRepository(locator<SecuredSharedPreferences>(), locator<ApiService>()));
-    locator.registerLazySingleton(() => UserInformationRepository(locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => LoginInRepository(locator<LoginInService>()));
-    locator.registerLazySingleton(() => MobileOtpVerificationRepository(locator<MobileOtpVerificationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => VpCreationRepository(locator<VpCreationService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => LPMapSelectAddressRepository(locator<LocationService>()));
-    locator.registerLazySingleton(() => KycRepository(locator<KycService>(),   locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>(), locator<AuthRepository>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
-    locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
-    locator.registerLazySingleton(() => VpLoadRepository(locator<VpLoadService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => EmailVerificationRepository(locator<EmailVerificationService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => LpLoadRepository(locator<LpLoadService>(), locator<UserInformationRepository>(), locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => LoadDetailsRepository(locator<VpDetailsService>(), locator<VpHomeService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => EnDhanRepository(locator<EnDhanService>()));
-    locator.registerLazySingleton(() => TAndCRepository(locator<TermsAndConditionsService>()));
-    locator.registerLazySingleton(() => PrivacyRepository(locator<PrivacyPolicyService>()));
-    locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => PodDispatchRepository(locator<PodDispatchService>()));
+    locator.registerLazySingleton(
+      () => SplashRepository(locator<SplashService>()),
+    );
+    locator.registerLazySingleton(
+      () => AuthRepository(
+        locator<SecuredSharedPreferences>(),
+        locator<ApiService>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => UserInformationRepository(locator<SecuredSharedPreferences>()),
+    );
+    locator.registerLazySingleton(
+      () => LoginInRepository(locator<LoginInService>()),
+    );
+    locator.registerLazySingleton(
+      () => MobileOtpVerificationRepository(
+        locator<MobileOtpVerificationService>(),
+        locator<AuthRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => VpCreationRepository(
+        locator<VpCreationService>(),
+        locator<AuthRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LPMapSelectAddressRepository(locator<LocationService>()),
+    );
+    locator.registerLazySingleton(
+      () => KycRepository(
+        locator<KycService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LpHomeRepository(
+        locator<LpHomeService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => ProfileRepository(
+        locator<ProfileService>(),
+        locator<AuthRepository>(),
+        locator<SecuredSharedPreferences>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LpCreateRepository(
+        locator<LpCreateService>(),
+        locator<AuthRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => KavachRepository(
+        locator<KavachService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LanguageRepository(locator<LanguageService>()),
+    );
+    locator.registerLazySingleton(
+      () => VpLoadRepository(
+        locator<VpLoadService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => EmailVerificationRepository(
+        locator<EmailVerificationService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LpLoadRepository(
+        locator<LpLoadService>(),
+        locator<UserInformationRepository>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LoadDetailsRepository(
+        locator<VpDetailsService>(),
+        locator<VpHomeService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => EnDhanRepository(locator<EnDhanService>()),
+    );
+    locator.registerLazySingleton(
+      () => TAndCRepository(locator<TermsAndConditionsService>()),
+    );
+    locator.registerLazySingleton(
+      () => PrivacyRepository(locator<PrivacyPolicyService>()),
+    );
+    locator.registerLazySingleton(
+      () => VpHomeRepository(
+        locator<VpHomeService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => PodDispatchRepository(locator<PodDispatchService>()),
+    );
 
     locator.registerLazySingleton(
       () => GpsRepository(locator<GpsService>(), locator<GpsLoginRepository>()),
     );
 
     // ViewModels
-    locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(
+      () => SplashViewModel(
+        locator<SplashRepository>(),
+        locator<AuthRepository>(),
+      ),
+    );
 
     // GPS Services
     locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
@@ -239,40 +365,110 @@ void initLocator() {
     locator.registerLazySingleton(
       () => LoadCommodityBloc(locator<LpHomeRepository>()),
     );
-    locator.registerLazySingleton(() => GpsOrderApiRepository(locator<GpsOrderApiService>()));
+    locator.registerLazySingleton(
+      () => GpsOrderApiRepository(locator<GpsOrderApiService>()),
+    );
 
     // Additional BLoCs (not duplicates)
-    locator.registerLazySingleton(() => LoadTruckTypeBloc(locator<LpHomeRepository>()));
-    locator.registerLazySingleton(() => RateDiscoveryBloc(locator<LpHomeRepository>()));
-    locator.registerLazySingleton(() => VpHomeBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => VpRecentLoadListBloc(locator<VpHomeRepository>()));
-    locator.registerLazySingleton(() => VpAcceptLoadBloc(locator<VpHomeRepository>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => KavachProductsListBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachCheckoutShippingAddressBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachCheckoutBillingAddressBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachCheckoutVehicleBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachCheckoutAddAddressBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachOrderBloc(locator<KavachRepository>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => KavachOrderListBloc(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => VpLoadBloc(locator<VpLoadRepository>()));
-    locator.registerLazySingleton(() => TermsAndConditionsBloc(locator<TAndCRepository>()));
-    locator.registerLazySingleton(() => PrivacyPolicyBloc(locator<PrivacyRepository>()));
+    locator.registerLazySingleton(
+      () => LoadTruckTypeBloc(locator<LpHomeRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => RateDiscoveryBloc(locator<LpHomeRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => VpHomeBloc(
+        locator<VpHomeRepository>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => VpRecentLoadListBloc(locator<VpHomeRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => VpAcceptLoadBloc(
+        locator<VpHomeRepository>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => KavachProductsListBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachCheckoutShippingAddressBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachCheckoutBillingAddressBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachCheckoutVehicleBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachCheckoutAddAddressBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachOrderBloc(
+        locator<KavachRepository>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => KavachOrderListBloc(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => VpLoadBloc(locator<VpLoadRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => TermsAndConditionsBloc(locator<TAndCRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => PrivacyPolicyBloc(locator<PrivacyRepository>()),
+    );
 
     // Cubits
-    locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));
-    locator.registerLazySingleton(() => KycCubit(
-      locator<KycRepository>(),
-      locator<UserInformationRepository>(),
-    ));
-    locator.registerLazySingleton(() => EmailVerificationCubit(locator<EmailVerificationRepository>()));
-    locator.registerLazySingleton(() => LpLoadCubit(locator<LpLoadRepository>()));
-    locator.registerLazySingleton(() => LoadDetailsCubit(locator<LoadDetailsRepository>(), locator<VpHomeRepository>(),locator<LpLoadRepository>()));
-    locator.registerLazySingleton(() => ChoosePreferenceCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => KavachAddVehicleFormCubit(locator<KavachRepository>()));
-    locator.registerLazySingleton(() => EnDhanCubit(locator<EnDhanRepository>(), locator<UserInformationRepository>()));
-    locator.registerLazySingleton(() => ProfileCubit(locator<ProfileRepository>()));
-    locator.registerLazySingleton(() => LpCreateAccountCubit(locator<LpCreateRepository>()));
-    locator.registerLazySingleton(() => VpCreateAccountCubit(locator<VpCreationRepository>()));
+    locator.registerLazySingleton(
+      () => LPHomeCubit(locator<LpHomeRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KycCubit(
+        locator<KycRepository>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => LpLoadCubit(locator<LpLoadRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => LoadDetailsCubit(
+        locator<LoadDetailsRepository>(),
+        locator<VpHomeRepository>(),
+        locator<LpLoadRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => ChoosePreferenceCubit(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => KavachAddVehicleFormCubit(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => EnDhanCubit(
+        locator<EnDhanRepository>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => ProfileCubit(locator<ProfileRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => LpCreateAccountCubit(locator<LpCreateRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => VpCreateAccountCubit(locator<VpCreationRepository>()),
+    );
 
     locator.registerLazySingleton(
       () => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
@@ -281,27 +477,43 @@ void initLocator() {
       () => GpsProductsCubit(locator<GpsOrderApiRepository>()),
     );
     locator.registerLazySingleton(
-      () => GpsBillingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+      () => GpsBillingAddressCubit(
+        locator<GpsOrderApiRepository>(),
+        locator<UserInformationRepository>(),
+      ),
     );
     locator.registerLazySingleton(
-      () => GpsShippingAddressCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+      () => GpsShippingAddressCubit(
+        locator<GpsOrderApiRepository>(),
+        locator<UserInformationRepository>(),
+      ),
     );
     locator.registerLazySingleton(
-      () => GpsOrderCubit(locator<GpsOrderApiRepository>(), locator<UserInformationRepository>()),
+      () => GpsOrderCubit(
+        locator<GpsOrderApiRepository>(),
+        locator<UserInformationRepository>(),
+      ),
     );
-    locator.registerLazySingleton(() => KavachTransactionsCubit(locator<KavachRepository>()));
+    locator.registerLazySingleton(
+      () => KavachTransactionsCubit(locator<KavachRepository>()),
+    );
     // Register GpsVehicleCubit
-    locator.registerLazySingleton(() => GpsVehicleCubit(
-      locator<GpsOrderApiRequest>(),
-      locator<UserInformationRepository>(),
-    ));
+    locator.registerLazySingleton(
+      () => GpsVehicleCubit(
+        locator<GpsOrderApiRequest>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
 
     // Verify GPS cubits are registered
     try {
       locator<GpsBillingAddressCubit>();
       locator<GpsShippingAddressCubit>();
       locator<GpsVehicleCubit>();
-      CustomLog.info(locator, "GPS cubits successfully registered and accessible.");
+      CustomLog.info(
+        locator,
+        "GPS cubits successfully registered and accessible.",
+      );
     } catch (e) {
       CustomLog.error(locator, "ERROR: GPS cubits not properly registered", e);
     }
@@ -325,7 +537,9 @@ void initLocator() {
       () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
     );
     locator.registerLazySingleton(() => VehicleDetailCubit());
-    locator.registerLazySingleton(() => PodDispatchCubit(locator<PodDispatchRepository>()));
+    locator.registerLazySingleton(
+      () => PodDispatchCubit(locator<PodDispatchRepository>()),
+    );
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

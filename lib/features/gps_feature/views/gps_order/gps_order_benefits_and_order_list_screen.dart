@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_models_screen.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
@@ -24,24 +26,23 @@ import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_image.dart';
 import '../../../../utils/app_route.dart';
 import '../../../../utils/app_text_style.dart';
+import '../../../../utils/common_functions.dart';
 import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
-import '../../../../utils/common_functions.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
-import 'gps_upload_document_screen.dart';
 import 'gps_transaction_screen.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:go_router/go_router.dart';
+import 'gps_upload_document_screen.dart';
 
 class GpsOrderBenefitsAndOrderListScreen extends StatefulWidget {
-
   GpsOrderBenefitsAndOrderListScreen({super.key});
- 
+
   @override
-  State<GpsOrderBenefitsAndOrderListScreen> createState() => _GpsOrderBenefitsAndOrderListScreenState();
+  State<GpsOrderBenefitsAndOrderListScreen> createState() =>
+      _GpsOrderBenefitsAndOrderListScreenState();
 }
- 
-class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAndOrderListScreen> {
+
+class _GpsOrderBenefitsAndOrderListScreenState
+    extends State<GpsOrderBenefitsAndOrderListScreen> {
   final GlobalKey menuKey = GlobalKey();
   String? customerId;
 
@@ -79,13 +80,42 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
     });
   }
 
+  void _handleBackNavigation() {
+    print('🔙 Back button tapped - starting navigation');
+    // Use the same logic as WillPopScope but handle async properly
+    _getUserRoleAndNavigate();
+  }
+
+  Future<void> _getUserRoleAndNavigate() async {
+    print('🔙 Getting user role for navigation');
+    final userRepository = locator<UserInformationRepository>();
+    final userRole = await userRepository.getUserRole();
+    print('🔙 User role: $userRole');
+    String targetRoute;
+    if (userRole == 1 || userRole == 3) {
+      targetRoute = AppRouteName.lpBottomNavigationBar;
+    } else if (userRole == 2) {
+      targetRoute = AppRouteName.vpBottomNavigationBar;
+    } else {
+      targetRoute = AppRouteName.lpBottomNavigationBar;
+    }
+    print('🔙 Navigating to: $targetRoute');
+    if (context.mounted) {
+      context.go(targetRoute);
+    } else {
+      print('🔙 Context not mounted, cannot navigate');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        print('🔙 WillPopScope triggered');
         // Defensive: Always go to the correct dashboard on back
         final userRepository = locator<UserInformationRepository>();
         final userRole = await userRepository.getUserRole();
+        print('🔙 WillPopScope - User role: $userRole');
         String targetRoute;
         if (userRole == 1 || userRole == 3) {
           targetRoute = AppRouteName.lpBottomNavigationBar;
@@ -94,16 +124,20 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
         } else {
           targetRoute = AppRouteName.lpBottomNavigationBar;
         }
+        print('🔙 WillPopScope - Navigating to: $targetRoute');
         if (context.mounted) {
           context.go(targetRoute);
+        } else {
+          print('🔙 WillPopScope - Context not mounted');
         }
         return false;
       },
       child: BlocProvider.value(
         value: GpsKycCheckCubit(locator<GpsOrderApiRepository>())..resetCubit(),
         child: BlocConsumer<GpsKycCheckCubit, GpsKycCheckState>(
-          listenWhen: (previous, current) => 
-            previous.kycCheckState != current.kycCheckState,
+          listenWhen:
+              (previous, current) =>
+                  previous.kycCheckState != current.kycCheckState,
           listener: (context, state) {
             // Check if widget is still mounted
             if (!context.mounted) return;
@@ -114,7 +148,9 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
               Future.microtask(() {
                 if (mounted) {
                   if (customerId != null) {
-                    context.read<GpsKycCheckCubit>().checkKycDocuments(customerId!);
+                    context.read<GpsKycCheckCubit>().checkKycDocuments(
+                      customerId!,
+                    );
                   }
                 }
               });
@@ -127,6 +163,8 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
                 appBar: CommonAppBar(
                   title: Text(context.appText.gps, style: AppTextStyle.appBar),
                   centreTile: false,
+                  isLeading: true,
+                  onLeadingTap: _handleBackNavigation,
                 ),
                 body: const Center(child: AppLoadingWidget()),
               );
@@ -139,13 +177,17 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
                 appBar: CommonAppBar(
                   title: Text(context.appText.gps, style: AppTextStyle.appBar),
                   centreTile: false,
+                  isLeading: true,
+                  onLeadingTap: _handleBackNavigation,
                 ),
                 body: Center(
                   child: AppErrorWidget(
                     error: GenericError(),
                     onRetry: () {
                       if (customerId != null) {
-                        context.read<GpsKycCheckCubit>().checkKycDocuments(customerId!);
+                        context.read<GpsKycCheckCubit>().checkKycDocuments(
+                          customerId!,
+                        );
                       }
                     },
                   ),
@@ -154,7 +196,7 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
             }
 
             // Show benefits screen if no KYC documents found
-            if (state.kycCheckState?.status == Status.SUCCESS && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
                 (state.hasKycDocuments == false || state.kycData == null)) {
               print('🔍 GPS KYC Check: Showing benefits screen');
               print('  - hasKycDocuments: ${state.hasKycDocuments}');
@@ -163,20 +205,23 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
             }
 
             // Show order list if KYC documents exist
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments == true && state.kycData != null) {
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments == true &&
+                state.kycData != null) {
               print('🔍 GPS KYC Check: Showing order list');
               print('  - hasKycDocuments: ${state.hasKycDocuments}');
               print('  - kycData: ${state.kycData}');
               return _buildOrderListScreen(context);
             }
-            
+
             // Show loading while waiting for KYC check
             return Scaffold(
               backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
                 title: Text(context.appText.gps, style: AppTextStyle.appBar),
                 centreTile: false,
+                isLeading: true,
+                onLeadingTap: _handleBackNavigation,
               ),
               body: const Center(child: AppLoadingWidget()),
             );
@@ -193,30 +238,16 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
       appBar: CommonAppBar(
         title: Text(context.appText.gps, style: AppTextStyle.appBar),
         centreTile: false,
-        onLeadingTap: () async {
-          // Use the same logic as WillPopScope
-          final userRepository = locator<UserInformationRepository>();
-          final userRole = await userRepository.getUserRole();
-          String targetRoute;
-          if (userRole == 1 || userRole == 3) {
-            targetRoute = AppRouteName.lpBottomNavigationBar;
-          } else if (userRole == 2) {
-            targetRoute = AppRouteName.vpBottomNavigationBar;
-          } else {
-            targetRoute = AppRouteName.lpBottomNavigationBar;
-          }
-          if (context.mounted) {
-            context.go(targetRoute);
-          }
-        },
+        isLeading: true,
+        onLeadingTap: _handleBackNavigation,
         actions: [
-           AppIconButton(
-                  onPressed: () {
-                    Navigator.push(context, commonRoute(KavachSupportScreen()));
-                  },
-                  icon: AppIcons.svg.filledSupport,
-                  iconColor: AppColors.primaryButtonColor,
-                ),
+          AppIconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
+          ),
           4.width,
         ],
       ),
@@ -231,22 +262,8 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
       appBar: CommonAppBar(
         title: Text("GPS Model", style: AppTextStyle.appBar),
         centreTile: false,
-        onLeadingTap: () async {
-          // Use the same logic as WillPopScope
-          final userRepository = locator<UserInformationRepository>();
-          final userRole = await userRepository.getUserRole();
-          String targetRoute;
-          if (userRole == 1 || userRole == 3) {
-            targetRoute = AppRouteName.lpBottomNavigationBar;
-          } else if (userRole == 2) {
-            targetRoute = AppRouteName.vpBottomNavigationBar;
-          } else {
-            targetRoute = AppRouteName.lpBottomNavigationBar;
-          }
-          if (context.mounted) {
-            context.go(targetRoute);
-          }
-        },
+        isLeading: true,
+        onLeadingTap: _handleBackNavigation,
         actions: [
           AppIconButton(
             onPressed: () {
@@ -257,19 +274,24 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
           ),
           4.width,
           AppIconButton(
-                  onPressed: () {
-                    Navigator.push(context, commonRoute(KavachSupportScreen()));
-                  },
-                  icon: AppIcons.svg.filledSupport,
-                  iconColor: AppColors.primaryButtonColor,
-                ),
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
+          ),
           4.width,
           AppIconButton(
             key: menuKey,
             onPressed: () async {
-              final RenderBox button = menuKey.currentContext!.findRenderObject() as RenderBox;
-              final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-              final Offset position = button.localToGlobal(Offset.zero, ancestor: overlay);
+              final RenderBox button =
+                  menuKey.currentContext!.findRenderObject() as RenderBox;
+              final RenderBox overlay =
+                  Overlay.of(context).context.findRenderObject() as RenderBox;
+              final Offset position = button.localToGlobal(
+                Offset.zero,
+                ancestor: overlay,
+              );
 
               final selected = await showMenu(
                 context: context,
@@ -291,14 +313,17 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
                     ),
                   ),
                 ],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 color: Colors.white,
               );
 
               if (selected == 'transaction') {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => GpsTransactionScreen(),
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => GpsTransactionScreen()),
+                );
               }
             },
             icon: Icons.more_vert,
@@ -341,9 +366,8 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
         AppButton(
           title: context.appText.buyNewGps,
           onPressed: () {
-            Navigator.push(context,commonRoute(GpsUploadDocumentScreen()));
-           // Navigator.push(context,commonRoute(GpsModelsScreen()));
-
+            Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
+            // Navigator.push(context,commonRoute(GpsModelsScreen()));
           },
         ).paddingOnly(bottom: 30, left: 15, right: 15, top: 10),
       ],
@@ -409,9 +433,9 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
         ),
         20.height,
         innerUIWidget(
-            icon: AppIcons.png.tracking,
-            title: context.appText.benefitsOfGpsCardHeading2,
-            subTitle: context.appText.benefitsOfGpsCardSubHeading2
+          icon: AppIcons.png.tracking,
+          title: context.appText.benefitsOfGpsCardHeading2,
+          subTitle: context.appText.benefitsOfGpsCardSubHeading2,
         ),
         20.height,
         innerUIWidget(
@@ -424,15 +448,21 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
   }
 
   Widget buildGroBannerImageWidget() {
-    return Image.asset(AppImage.png.groBanner,width: double.infinity,fit: BoxFit.cover);
+    return Image.asset(
+      AppImage.png.groBanner,
+      width: double.infinity,
+      fit: BoxFit.cover,
+    );
   }
 
-    // --- Order List Section (using real API data) ---
+  // --- Order List Section (using real API data) ---
   Widget gpsOrderListWidget(BuildContext context) {
     return BlocProvider.value(
       value: GpsOrderListCubit(locator<GpsOrderApiRepository>())..resetCubit(),
       child: BlocConsumer<GpsOrderListCubit, GpsOrderListState>(
-        key: ValueKey('gps_order_list_${DateTime.now().millisecondsSinceEpoch}'),
+        key: ValueKey(
+          'gps_order_list_${DateTime.now().millisecondsSinceEpoch}',
+        ),
         listener: (context, state) {
           if (state is GpsOrderListError) {
             // Handle error if needed
@@ -444,7 +474,9 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
           if (state is GpsOrderListInitial && customerId != null) {
             Future.microtask(() {
               if (mounted) {
-                context.read<GpsOrderListCubit>().getOrderList(customerId: customerId!);
+                context.read<GpsOrderListCubit>().getOrderList(
+                  customerId: customerId!,
+                );
               }
             });
           }
@@ -467,7 +499,9 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
                     title: 'Retry',
                     onPressed: () {
                       if (customerId != null) {
-                        context.read<GpsOrderListCubit>().getOrderList(customerId: customerId!);
+                        context.read<GpsOrderListCubit>().getOrderList(
+                          customerId: customerId!,
+                        );
                       }
                     },
                     style: AppButtonStyle.primary,
@@ -493,7 +527,7 @@ class _GpsOrderBenefitsAndOrderListScreenState extends State<GpsOrderBenefitsAnd
 // Separate widget for order list with tabs to avoid full screen refresh
 class GpsOrderListWithTabs extends StatefulWidget {
   final List<GpsOrderItem> orders;
-  
+
   const GpsOrderListWithTabs({super.key, required this.orders});
 
   @override
@@ -514,9 +548,12 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
     ];
 
     // Filter orders based on selected tab
-    List<GpsOrderItem> filteredOrders = selectedTab == 0
-        ? widget.orders
-        : widget.orders.where((order) => order.currentStatus == tabLabels[selectedTab]).toList();
+    List<GpsOrderItem> filteredOrders =
+        selectedTab == 0
+            ? widget.orders
+            : widget.orders
+                .where((order) => order.currentStatus == tabLabels[selectedTab])
+                .toList();
 
     return Column(
       children: [
@@ -527,13 +564,22 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
             children: List.generate(tabLabels.length, (index) {
               final isSelected = selectedTab == index;
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 12,
+                ),
                 child: GestureDetector(
                   onTap: () => setState(() => selectedTab = index),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 8,
+                    ),
                     decoration: commonContainerDecoration(
-                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      color:
+                          isSelected
+                              ? AppColors.primaryColor
+                              : const Color(0xFFEFEFEF),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
@@ -550,83 +596,98 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
           ),
         ),
         Expanded(
-          child: filteredOrders.isEmpty
-              ? Center(child: Text('No orders found', style: AppTextStyle.h5))
-              : ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            itemCount: filteredOrders.length,
-            separatorBuilder: (_, __) => 8.height,
-            itemBuilder: (context, index) {
-              final order = filteredOrders[index];
-              final statusColor = AppColors.greenColor;
-              
-              return Container(
-                decoration: commonContainerDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  shadow: true,
-                  borderColor: AppColors.borderColor,
-                ),
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Order ID: ${order.orderUniqueId}',
-                          style: AppTextStyle.h4PrimaryColor.copyWith(fontWeight: FontWeight.w600, fontSize: 15),
-                        ).expand(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: commonContainerDecoration(
-                            color: statusColor.withOpacity(0.09),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            order.currentStatus,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
+          child:
+              filteredOrders.isEmpty
+                  ? Center(
+                    child: Text('No orders found', style: AppTextStyle.h5),
+                  )
+                  : ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 10,
+                    ),
+                    itemCount: filteredOrders.length,
+                    separatorBuilder: (_, __) => 8.height,
+                    itemBuilder: (context, index) {
+                      final order = filteredOrders[index];
+                      final statusColor = AppColors.greenColor;
+
+                      return Container(
+                        decoration: commonContainerDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          shadow: true,
+                          borderColor: AppColors.borderColor,
+                        ),
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Order ID: ${order.orderUniqueId}',
+                                  style: AppTextStyle.h4PrimaryColor.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                  ),
+                                ).expand(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: commonContainerDecoration(
+                                    color: statusColor.withOpacity(0.09),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    order.currentStatus,
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                            6.height,
+                            Row(
+                              children: [
+                                Text(
+                                  order.productNames,
+                                  style: AppTextStyle.textGreyColor14w300,
+                                ).expand(),
+                                Text(
+                                  '₹${order.totalPrice.toStringAsFixed(0)}',
+                                  style: AppTextStyle.h4,
+                                ),
+                              ],
+                            ),
+                            8.height,
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {}, // TODO: Add details navigation
+                                  child: Text(
+                                    'View Details',
+                                    style: AppTextStyle.primaryColor16w400,
+                                  ),
+                                ),
+                                15.width,
+                                Text(
+                                  'Purchased on ${formatDateTimeKavach(order.orderDate)}',
+                                  style: AppTextStyle.textGreyColor14w300,
+                                  maxLines: 1,
+                                ).expand(),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    6.height,
-                    Row(
-                      children: [
-                        Text(
-                          order.productNames,
-                          style: AppTextStyle.textGreyColor14w300,
-                        ).expand(),
-                        Text(
-                          '₹${order.totalPrice.toStringAsFixed(0)}',
-                          style: AppTextStyle.h4,
-                        ),
-                      ],
-                    ),
-                    8.height,
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {}, // TODO: Add details navigation
-                          child: Text('View Details', style: AppTextStyle.primaryColor16w400),
-                        ),
-                        15.width,
-                        Text(
-                          'Purchased on ${formatDateTimeKavach(order.orderDate)}',
-                          style: AppTextStyle.textGreyColor14w300,
-                          maxLines: 1,
-                        ).expand()
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      );
+                    },
+                  ),
         ),
       ],
     );

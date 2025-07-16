@@ -49,7 +49,11 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(title: 'Notifications', centreTile: false),
+      appBar: CommonAppBar(
+        title: 'Notifications',
+        centreTile: false,
+        isLeading: true,
+      ),
       body: Column(
         children: [
           // _buildDropdown(),

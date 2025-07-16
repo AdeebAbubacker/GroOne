@@ -6,12 +6,13 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 
-import '../../../utils/app_route.dart';
 import '../cubit/vehicle_list_cubit.dart';
 
 class GpsHomeScreen extends StatelessWidget {
@@ -311,7 +312,12 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.orders,
         Icons.shopping_cart_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          Navigator.push(
+            context,
+            commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+          );
+        },
       ),
     ];
     return GridView.builder(
