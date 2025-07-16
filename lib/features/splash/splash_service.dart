@@ -29,7 +29,7 @@ class SplashService {
     try {
       int? userType = await _securedSharedPref.getInt(AppString.sessionKey.userRole);
       CustomLog.debug(this, "User Type : $userType");
-      if((userType != null && userType != 0)){
+      if((userType != null)){
         return Success(userType);
       }else{
         return Error(UnauthenticatedError());

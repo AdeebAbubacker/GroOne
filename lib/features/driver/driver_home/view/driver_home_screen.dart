@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gro_one_app/features/driver/driver_home/view/driver_load_details_screen.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -39,23 +41,22 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final searchController = TextEditingController();
   final loadPostedDateController = TextEditingController();
   Timer? _debounce;
-
+  final driverLoadLocator = locator<DriverLoadsBloc>();
+  late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
   String? selectedDropDownValueId;
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
+  final ScrollController _tabScrollController = ScrollController();
+  final ScrollController _listController = ScrollController();
   int selectedTabIndex = 1;
   TabController? _tabController;
   final tabLabels = [
-    'All Loads',
-    'Matching',
-    'Confirmed',
-    'Assigned',
-    'Loading',
-    'In Transit',
-    'Unloading',
-    'Completed',
+     'Available Loads',
+     'My Loads',
+     'Confirmed',
+     'Assigned',
   ];
 
   @override
@@ -71,33 +72,36 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   void initFunction() => frameCallback(() {
-    _tabController = TabController(
-      length: 8,
-      vsync: this,
-      initialIndex: widget.initialTabIndex,
-    );
+  driverLoadBloc = locator<DriverLoadsBloc>();
+  _tabController = TabController(
+    length: 4,
+    vsync: this,
+    initialIndex: widget.initialTabIndex,
+  );
 
-    _tabController!.addListener(() {
-      if (_tabController!.indexIsChanging) {
-        final selectedType = _tabController!.index;
-
-        if (selectedType == 0) {
-        } else if (selectedType == 3) {
-        } else {}
-      }
-    });
-
-    setState(() {});
+  _tabController!.addListener(() {
+    if (_tabController!.indexIsChanging) {
+      _loadDataByTab(index: _tabController!.index);
+    }
   });
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _tabScrollController.jumpTo(50);
+  });
+
+  _loadDataByTab(index: widget.initialTabIndex);
+});
+
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final type = _tabController!.index + 1;
-    });
+   // _loadDataByTab(index: _tabController!.index);
+  });
   }
 
   void disposeFunction() => frameCallback(() {
+    _tabController!.dispose();
     searchController.dispose();
     _debounce?.cancel();
     _tabController?.dispose();
@@ -231,6 +235,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
+   void _loadDataByTab({required int index,bool forceRefresh = false}) {
+    final type = index + 1;
+    final search = searchController.text;
+    driverLoadBloc.add(FetchDriverLoads(type: type, search: search, forceRefresh: forceRefresh));
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -252,7 +263,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
-//Appbar
+  //Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
@@ -277,18 +288,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           children: [
             10.width,
             Container(
-                  height: 40,
-                  width: 40,
-                  alignment: Alignment.center,
-                  decoration: commonContainerDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: AppColors.greyIconBackgroundColor,
-                  ),
-                  child: Text(getInitialsFromName(this, name: 'dummy')),
-                )
-                .onClick(() {              
-                })
-                .paddingRight(commonSafeAreaPadding),
+              height: 40,
+              width: 40,
+              alignment: Alignment.center,
+              decoration: commonContainerDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: AppColors.greyIconBackgroundColor,
+              ),
+              child: Text(getInitialsFromName(this, name: 'dummy')),
+            ).onClick(() {}).paddingRight(commonSafeAreaPadding),
           ],
         ),
       ],
@@ -310,27 +318,25 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         physics: const ClampingScrollPhysics(),
         indicator: const BoxDecoration(),
         dividerHeight: 0,
-        tabs: List.generate(tabLabels.length, (index) {
-          final isSelected = selectedTabIndex == index;
-          return Tab(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: commonContainerDecoration(
-                color:
-                    isSelected
-                        ? AppColors.primaryColor
-                        : const Color(0xFFEFEFEF),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                tabLabels[index],
-                style: AppTextStyle.body3.copyWith(
-                  color: isSelected ? AppColors.white : AppColors.black,
-                ),
-              ),
-            ),
-          );
-        }),
+       tabs: List.generate(tabLabels.length, (index) {
+  final isSelected = _tabController!.index == index;
+  return Tab(
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: commonContainerDecoration(
+        color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        tabLabels[index],
+        style: AppTextStyle.body3.copyWith(
+          color: isSelected ? AppColors.white : AppColors.black,
+        ),
+      ),
+    ),
+  );
+}),
+
       ),
     ).paddingOnly(top: 15, right: 15, left: 15);
   }
@@ -363,29 +369,103 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       return const SizedBox();
     }
 
-    return ListView.builder(
-      padding: EdgeInsets.all(commonSafeAreaPadding),
-      shrinkWrap: true,
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return DriverLoadWidget(
-          onClickAssignDriver: () {
-          try {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DriverLoadDetailsScreen(),
-                ),
-              );
-            } catch (e) {
-              print('Navigation error: $e');
-            }
+    return  Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: List.generate(tabLabels.length, (index) {
+                return BlocListener<DriverLoadsBloc, DriverLoadsState>(
+                  bloc: driverLoadBloc,
+                  listener: (context, state) {
+                    if (state is DriverLoadsLoaded) {
+                      if (_tabController!.index == index) {
+                      
+                      }
+                    }
+                  },
+                  child: buildDriverLoadTab(index),
+                );
+              }),
+            ),
+          );
+         }
 
+Widget buildDriverLoadTab(int tabIndex) {
+  return BlocBuilder<DriverLoadsBloc, DriverLoadsState>(
+    bloc: driverLoadBloc,
+    builder: (context, state) {
+      if (state is DriverLoadsLoading) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (state is DriverLoadsLoaded) {
+        if (state.loads.isEmpty) {
+          return const Center(child: Text("No loads found."));
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.all(commonSafeAreaPadding),
+          shrinkWrap: true,
+          itemCount: state.loads.length,
+          itemBuilder: (context, index) {
+            final load = state.loads[index];
+
+            // Return widgets dynamically based on tabIndex
+            switch (tabIndex) {
+              case 0: 
+             return   DriverLoadWidget(
+          onClickAssignDriver: () {
+            // try {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => DriverLoadDetailsScreen(),
+            //       ),
+            //     );
+            //   } catch (e) {
+            //     print('Navigation error: $e');
+            //   }
           },
         ).paddingSymmetric(vertical: 7);
-      },
-    ).expand();
-  }
+      
+    
+              case 1:
+              return   DriverLoadWidget(
+          onClickAssignDriver: () {
+            // try {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => DriverLoadDetailsScreen(),
+            //       ),
+            //     );
+            //   } catch (e) {
+            //     print('Navigation error: $e');
+            //   }
+          },
+        ).paddingSymmetric(vertical: 7);
+              default:
+                   return   DriverLoadWidget(
+          onClickAssignDriver: () {
+            // try {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => DriverLoadDetailsScreen(),
+            //       ),
+            //     );
+            //   } catch (e) {
+            //     print('Navigation error: $e');
+            //   }
+          },
+        ).paddingSymmetric(vertical: 7);
+            }
+          },
+        );
+      } else if (state is DriverLoadsError) {
+        return Center(child: Text(state.message));
+      } else {
+        return const SizedBox.shrink();
+      }
+    },
+  );
 }
 
-
+}

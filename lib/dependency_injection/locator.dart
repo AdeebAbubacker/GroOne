@@ -7,6 +7,9 @@ import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.d
 import 'package:gro_one_app/features/choose_language_screen/repository/language_repository.dart';
 import 'package:gro_one_app/features/choose_language_screen/service/language_service.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
+import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/repository/email_verification_repository.dart';
 import 'package:gro_one_app/features/email_verification/service/email_verification_service.dart';
@@ -127,6 +130,7 @@ void initLocator() {
     locator.registerLazySingleton(() => TermsAndConditionsService(locator<ApiService>()));
     locator.registerLazySingleton(() => PrivacyPolicyService(locator<ApiService>()));
     locator.registerLazySingleton(() => PodDispatchService(locator<ApiService>()));
+    locator.registerLazySingleton(() => DriverLoadService(locator<ApiService>()));
 
     // Repository
     locator.registerLazySingleton(() => SplashRepository(locator<SplashService>()));
@@ -151,6 +155,7 @@ void initLocator() {
     locator.registerLazySingleton(() => PrivacyRepository(locator<PrivacyPolicyService>()));
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => PodDispatchRepository(locator<PodDispatchService>()));
+    locator.registerLazySingleton(() => DriverLoadRepository(locator<DriverLoadService>(),locator<UserInformationRepository>()));
 
     // ViewModels
     locator.registerLazySingleton(() => SplashViewModel(locator<SplashRepository>(), locator<AuthRepository>()));
@@ -180,6 +185,7 @@ void initLocator() {
     locator.registerLazySingleton(() => VpLoadBloc(locator<VpLoadRepository>()));
     locator.registerLazySingleton(() => TermsAndConditionsBloc(locator<TAndCRepository>()));
     locator.registerLazySingleton(() => PrivacyPolicyBloc(locator<PrivacyRepository>()));
+    locator.registerLazySingleton(() => DriverLoadsBloc(locator<DriverLoadRepository>()));
 
     // Cubits
     locator.registerLazySingleton(() => LPHomeCubit(locator<LpHomeRepository>()));

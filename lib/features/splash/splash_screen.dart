@@ -88,7 +88,10 @@ class _SplashScreenState extends State<SplashScreen> {
   //Navigate Home Screen
   void navigateHomeScreen(int userRole, BuildContext context){
     CustomLog.debug(this, "User Role data type : ${userRole.runtimeType}");
-    if (userRole == 1) {
+    if (userRole == 0) {
+      context.go(AppRouteName.driverHome);
+    } 
+    else if (userRole == 1) {
       context.go(AppRouteName.lpBottomNavigationBar);
     } else if (userRole == 2) {
       context.go(AppRouteName.vpBottomNavigationBar);
