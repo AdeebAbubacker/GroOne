@@ -31,14 +31,9 @@ class TripDetails extends StatelessWidget {
   }
 
   Widget _tripDetailsWidget(BuildContext context) {
-
-
     return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
       builder: (context, state)  {
         LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
-
-
-
         String amount=(loadDetails?.loadPrice?.vpMaxRate??"").isNotEmpty && (loadDetails?.loadPrice?.vpMaxRate??"").trim()!="0" ?
         "${PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate)} - ${PriceHelper.formatINR(loadDetails?.loadPrice?.vpMaxRate)}":
         (loadDetails?.loadPrice?.vpRate??"").isNotEmpty ? PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate) : "0000 - 0000";

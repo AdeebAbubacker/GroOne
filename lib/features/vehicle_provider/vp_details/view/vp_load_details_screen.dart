@@ -246,7 +246,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
-                  Icon(Icons.arrow_forward).expand(),
+                  Icon(Icons.arrow_forward),
+                  20.width,
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.dropLocation,
                     DateTimeHelper.getFormattedDate(

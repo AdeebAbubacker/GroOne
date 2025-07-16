@@ -12,11 +12,16 @@ class VpLoadService {
     required String customerId,
     required int type,
     String search = "",
-    bool forceRefresh = false
+    bool forceRefresh = false,
+    int? limit
+
   }) async {
     try {
       final response = await _apiService.get(
         '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&type=$type&search=$search',
+        queryParams: {
+          "limit":limit??10
+        },
         forceRefresh: forceRefresh,
       );
 
