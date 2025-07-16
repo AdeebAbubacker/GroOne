@@ -1,3 +1,6 @@
+import '../../vp-helper/vp_helper.dart';
+import '../../vp_details/model/load_details_response_model.dart';
+
 class VpRecentLoadResponse {
   VpRecentLoadResponse({
     required this.success,
@@ -25,7 +28,7 @@ class VpRecentLoadResponse {
     return VpRecentLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VpRecentLoadData>.from(json["data"]!.map((x) => VpRecentLoadData.fromJson(x))),
+      data: json["data"]['data'] == null ? [] : List<VpRecentLoadData>.from(json["data"]['data']!.map((x) => VpRecentLoadData.fromJson(x))),
     );
   }
 
@@ -71,6 +74,8 @@ class VpRecentLoadData {
     required this.pickUpWholeAddr,
     required this.vpRate,
     required this.vpMaxRate,
+    required this.loadStatusDetails,
+    required this.loadStatusValues,
 
   });
 
@@ -79,6 +84,8 @@ class VpRecentLoadData {
   final String? dropWholeAddr;
   final String? vpRate;
   final String? vpMaxRate;
+
+
 
 
 
@@ -102,6 +109,7 @@ class VpRecentLoadData {
   final String rate;
   final num status;
   final num loadStatus;
+  final LoadStatus? loadStatusValues;
   final String vehicleLength;
   final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
@@ -117,6 +125,8 @@ class VpRecentLoadData {
   final Customer? customer;
   final CustomerDetail? customerDetail;
 
+  final LoadStatusDetails? loadStatusDetails;
+
   VpRecentLoadData copyWith({
     String? id,
     String? loadId,
@@ -130,6 +140,7 @@ class VpRecentLoadData {
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    LoadStatusDetails? loadStatusDetails,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
@@ -155,10 +166,14 @@ class VpRecentLoadData {
      String? pickUpWholeAddr,
      String? dropWholeAddr,
      String? vpRate,
-    String? vpMaxRate,
+     String? vpMaxRate,
+    LoadStatus? loadStatusValues,
+
+
   }) {
     return VpRecentLoadData(
-
+      loadStatusValues: loadStatusValues??this.loadStatusValues,
+      loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
       id: id ?? this.id,
       vpMaxRate: vpMaxRate ?? this.vpMaxRate,
       pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
@@ -201,8 +216,12 @@ class VpRecentLoadData {
   }
 
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
-
+    /// TODO:
+    /// change get loadStatusValues dynamically once ui work has been done
+    ///
     return VpRecentLoadData(
+      loadStatusValues: getLoadStatus(json['loadStatusId']),
+      loadStatusDetails:LoadStatusDetails.fromJson(json['loadStatusDetails']) ,
       vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
       vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
@@ -222,7 +241,7 @@ class VpRecentLoadData {
       dropLocation: json['loadRoute']!=null ? json['loadRoute']["dropLocation"] ?? "":"",
       dropLatlon: json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
+      consignmentWeight: json['weight']!=null ?json['weight']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,

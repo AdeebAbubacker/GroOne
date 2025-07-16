@@ -71,6 +71,7 @@ dependencies:
   timeline_tile: ^2.0.0
   slide_to_act: ^2.0.2
   dropdown_search: ^6.0.2
+  mime: ^2.0.0
 
 
   # Routing

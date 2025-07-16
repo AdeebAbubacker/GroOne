@@ -13,7 +13,7 @@ class VpMyLoadResponse {
     return VpMyLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VpLoadsList>.from(json["data"]!.map((x) => VpLoadsList.fromJson(x))),
+      data: json["data"] == null ? [] : List<VpLoadsList>.from(json["data"]['data']!.map((x) => VpLoadsList.fromJson(x))),
     );
   }
 

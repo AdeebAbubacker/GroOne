@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -41,6 +42,11 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
   @override
   Widget build(BuildContext context) {
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+
+
 
     return GestureDetector(
       onTap: (){
@@ -143,19 +149,22 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 color: AppColors.primaryLightColor,
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(
-                    "Quoted Price",
-                    style: AppTextStyle.textBlackColor18w400,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                  Text(
-                    (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"")!="0"?
-                    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-                    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
-                    style: AppTextStyle.h4PrimaryColor,
-                    textAlign: TextAlign.center,
-                  ).expand(),
+                  FittedBox(
+                    child: Text(
+                      "Quoted Price",
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  FittedBox( 
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
             ),

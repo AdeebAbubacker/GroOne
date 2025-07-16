@@ -29,7 +29,8 @@ import 'package:gro_one_app/utils/validator.dart';
 import '../../../../utils/app_dropdown.dart' show AppDropdown;
 
 class TripScheduleScreen extends StatefulWidget {
-  const TripScheduleScreen({super.key});
+  final String? loadId;
+  const TripScheduleScreen({super.key,this.loadId});
 
   @override
   State<TripScheduleScreen> createState() => _TripScheduleScreenState();
@@ -57,8 +58,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   }
 
 
-  void initFunction() => frameCallback(() async {
+  void clearValues()=> frameCallback((){
+    cubit.resetTripScheduleUIState();
+  });
 
+
+  void initFunction() => frameCallback(() async {
     cubit.resetState();
     String? userId= await vpHomeScreenBloc.getUserId()??"0";
 
@@ -85,7 +90,6 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       child: BlocListener(
         bloc: vpHomeScreenBloc,
         listener: (context, state) {
-
           if (state is VpVehicleListSuccess) {
             if(vehicleDetail.isEmpty){
               setState(() {
@@ -168,9 +172,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
                   BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                     listener: (context, state) {
-
                       if(state.scheduleTripResponse?.status==Status.SUCCESS){
                         cubit.acceptLoad(4);
+                        // clearValues();
+
+                        // cubit.getLoadDetails(widget.loadId??"");
+                        // Navigator.pop(context);
                       }
 
                     },
