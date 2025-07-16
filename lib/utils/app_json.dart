@@ -15,4 +15,5 @@ class AppJSON{
   static const String success = "${_jsonBasePath}success_animation.json";
   static const String shipment = "${_jsonBasePath}shipment.json";
   static const String alert = "${_jsonBasePath}alert.json";
+  static const String alertRed = "${_jsonBasePath}alert_red.json";
 }

@@ -40,7 +40,7 @@ import 'package:gro_one_app/utils/validator.dart';
 class VpDamagesAndShortagesScreen extends StatefulWidget {
   final String? vehicleId;
   final String? loadId;
-   const VpDamagesAndShortagesScreen({super.key, required this.vehicleId, required this.loadId});
+  const VpDamagesAndShortagesScreen({super.key, required this.vehicleId, required this.loadId});
 
   @override
   State<VpDamagesAndShortagesScreen> createState() => _VpDamagesAndShortagesScreenState();
@@ -232,7 +232,10 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                 builder: (context, state) {
                   if(state.isUpdateDamage != null  && state.isUpdateDamage!){
                     return TextButton(
-                      onPressed: ()=> cubit.setIsUpdateDamage(false),
+                      onPressed: (){
+                        cubit.setIsUpdateDamage(false);
+                        clearValues();
+                        },
                       child: Text("Cancel Edit"),
                     );
                   } else {

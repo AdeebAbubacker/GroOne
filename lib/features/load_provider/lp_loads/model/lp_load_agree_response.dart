@@ -50,12 +50,12 @@ class Advance {
 
   final int percentageId;
   final String percentage;
-  final int amount;
+  final double amount;
 
   Advance copyWith({
     int? percentageId,
     String? percentage,
-    int? amount,
+    double? amount,
   }) {
     return Advance(
       percentageId: percentageId ?? this.percentageId,
@@ -68,7 +68,7 @@ class Advance {
     return Advance(
       percentageId: json["percentageId"] ?? 0,
       percentage: json["percentage"] ?? "",
-      amount: json["amount"] ?? 0,
+      amount: (json["amount"] as num?)?.toDouble() ?? 0.0,
     );
   }
 

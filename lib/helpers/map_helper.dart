@@ -56,6 +56,19 @@ class MapHelper {
     }
   }
 
+  static Future<LatLng?> getLatLngFromAddress(String address) async {
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        return LatLng(locations.first.latitude, locations.first.longitude);
+      }
+    } catch (e) {
+      // debugPrint("Error fetching LatLng from address: $e");
+    }
+    return null;
+  }
+
+
   // Haptic feedback
   static void _commonHapticFeedback() {
     HapticFeedback.mediumImpact();

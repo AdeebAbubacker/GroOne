@@ -3,33 +3,10 @@ import 'package:gro_one_app/data/network/env/environment_variable.dart';
 class ApiUrls {
   ApiUrls._();
 
-  /// <<< -- backend urls -- >>>
-
-  /// Fleet service:
-  // https://gro-devapi.letsgro.co/fleet
-
-  /// load service:
-  // https://gro-devapi.letsgro.co/load
-
-  /// customer service:
-  // https://gro-devapi.letsgro.co/customer
-
-  /// thirdparty service:
-  // https://gro-devapi.letsgro.co/thirdparty
-
-  /// freight service:
-  // https://gro-devapi.letsgro.co/freight
-
-  /// rate-discovery service:
-  // https://gro-devapi.letsgro.co/ratediscovery/
-
-  /// Frontend admin service:
-  // https://gro-devadmin.letsgro.co/
-
-  // Env
+  /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
-  // Path
+  /// Path
   static String get _path => "/api";
   static String get _load => "/load";
   static String get _settlement => "/load-settlement";
@@ -54,22 +31,16 @@ class ApiUrls {
   static String get _tracking => "/tracking";
   static String get _paymentBroker => "/payment-broker";
 
-
-
-  // Base URL
+  /// Base URL
   static String get _baseUrl => _fetchUrl;
-
   static String get _baseUrlWithAuth => "$_baseUrl$_customer$_path$_v1$_auth";
-
   static String get _customerBaseUrl => "$_baseUrl$_customer$_path$_v1$_customer";
   static String get _mapBaseUrl => "$_baseUrl$_rateDiscovery$_path$_v1$_map";
   static String get _paymentBrokerBase => "$_fetchUrl$_paymentBroker$_path$_v1";
   static final String  baseUrl = _baseUrl;
   static final String  verification = _verification;
 
-  // http://34.54.198.251/customer/api/v1/customer/profile-image/2
-
-  // Common Api
+  /// Common Api
   static final String  upload = "$_fetchUrl$_document$_path$_v1/upload";
   static final String  language = "$_fetchUrl$_customer$_path$_v1/metadata/languages";
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
@@ -100,9 +71,6 @@ class ApiUrls {
   static final String viewDocument = "$_fetchUrl$_document$_path$_v1/documents/";
   static final String deleteLoadDocument = "$_fetchUrl$_load$_path$_v1/loads/load-document/";
 
-
-
-
   /// Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String  aadhaarSendOtp = "$verification/aadhaar/send-otp";
@@ -118,8 +86,6 @@ class ApiUrls {
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
   static final String verifyLocation = "$_mapBaseUrl/verify-location";
 
-
-
   /// LP Endpoints
   static final String  createLpAccount = _customerBaseUrl;
   static final String  login = "$_baseUrlWithAuth/login";
@@ -127,7 +93,7 @@ class ApiUrls {
   static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
-  static final String  lpLoadList="$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
+  static final String  lpLoadList= "$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
   static final String  lpLoadMemo="$_baseUrl$_loadExecution$_path$_v1$_load";
   static final String  lpLoadById="$_baseUrl$_loadDiscovery$_path$_v1$_load";
   static final String  lpLoadSendOtp="$_baseUrl$_loadExecution$_path$_v1$_load/Esignmemo";
@@ -142,21 +108,16 @@ class ApiUrls {
   static final String lpLoadAddConsignee = "$_baseUrl$_load$_path$_v1/consignee";
   static final String lppayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
+  static final String  podCenter = "$_baseUrl$_loadDiscovery$_path$_v1$_load/podCenterList";
 
-  // https://gro-devapi.letsgro.co/load/api/v1/load/vp/load
-
-  /// Load Creation
+  /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
-
-  /// Load Form pick list
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
   static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
-
-  /// Load
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
@@ -164,6 +125,7 @@ class ApiUrls {
   static final String  damage = "$_loadBaseUrl/damage";
   static final String  updateDamage = "$_loadBaseUrl/damage/";
   static final String  deleteDamage = "$_loadBaseUrl/damage/";
+  static final String  submitPod = "$_loadBaseUrl/pod";
 
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
@@ -208,6 +170,5 @@ class ApiUrls {
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
 
   /// Tracking
-  static String  trackingConsentStatus = "$_baseUrl$_loadTracking$_path$_v1$_tracking/consent-status";
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 }

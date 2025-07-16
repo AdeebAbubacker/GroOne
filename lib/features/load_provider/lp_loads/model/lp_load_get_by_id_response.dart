@@ -45,10 +45,12 @@ class LoadData {
     required this.createdPlatform,
     required this.updatedPlatform,
     required this.status,
+    required this.driverConsent,
     required this.matchingStartDate,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.loadOnhold,
     required this.commodity,
     required this.truckType,
     required this.loadRoute,
@@ -84,10 +86,12 @@ class LoadData {
   final int createdPlatform;
   final int updatedPlatform;
   final int status;
+  final int driverConsent;
   final DateTime? matchingStartDate;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final bool loadOnhold;
   final DataCommodity? commodity;
   final DataTruckType? truckType;
   final LoadRoute? loadRoute;
@@ -123,10 +127,12 @@ class LoadData {
     int? createdPlatform,
     int? updatedPlatform,
     int? status,
+    int? driverConsent,
     DateTime? matchingStartDate,
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
+    bool? loadOnhold,
     DataCommodity? commodity,
     DataTruckType? truckType,
     LoadRoute? loadRoute,
@@ -160,10 +166,12 @@ class LoadData {
       createdPlatform: createdPlatform ?? this.createdPlatform,
       updatedPlatform: updatedPlatform ?? this.updatedPlatform,
       status: status ?? this.status,
+      driverConsent: driverConsent ?? this.driverConsent,
       matchingStartDate: matchingStartDate ?? this.matchingStartDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      loadOnhold: loadOnhold ?? this.loadOnhold,
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
       loadRoute: loadRoute ?? this.loadRoute,
@@ -202,10 +210,12 @@ class LoadData {
       createdPlatform: json["createdPlatform"] ?? 0,
       updatedPlatform: json["updatedPlatform"] ?? 0,
       status: json["status"] ?? 0,
+      driverConsent: json["driverConsent"] ?? 0,
       matchingStartDate: DateTime.tryParse(json["matchingStartDate"] ?? ""),
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      loadOnhold: json["loadOnhold"],
       commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : DataTruckType.fromJson(json["truckType"]),
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),

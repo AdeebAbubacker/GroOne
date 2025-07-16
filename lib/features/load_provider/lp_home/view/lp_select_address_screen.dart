@@ -407,13 +407,13 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
         debugPrint("title ${widget.title}");
 
-        if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
-          _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
+        if (searchTextController.text.isEmpty){
+          _showError(widget.title == "Pickup Point" ? "Please select pickup location" : "Please select drop location");
           return;
         }
 
-        if (searchTextController.text.isEmpty){
-          _showError("Please select location address.");
+        if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
+          _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
           return;
         }
 

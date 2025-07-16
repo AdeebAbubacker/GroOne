@@ -181,7 +181,6 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
         children: [
           buildHeadingText(context.appText.truckSupplier),
           buildDMemoDetailWidget(label: context.appText.partnerName, value: memoDetails.truckSupplier?.partnerName ?? ''),
-          buildDMemoDetailWidget(label: context.appText.panNumber, value: memoDetails.truckSupplier?.panNumber ?? ''),
           buildDMemoDetailWidget(label: context.appText.vehicleNumber, value: memoDetails.truckSupplier?.vehicleNumber ?? ''),
         ],
       ),
