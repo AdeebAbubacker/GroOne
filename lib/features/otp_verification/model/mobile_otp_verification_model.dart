@@ -1,83 +1,85 @@
 class MobileOtpVerificationModel {
     MobileOtpVerificationModel({
-        required this.message,
-        required this.token,
-        required this.user,
+        required this.mobile,
+        required this.customerId,
+        required this.roleId,
+        required this.driver,
+        required this.tempFlg,
+        required this.kongToken,
     });
 
-    final String message;
-    final String token;
-    final UserOtpModel? user;
+    final String mobile;
+    final String customerId;
+    final int roleId;
+    final bool driver;
+    final bool tempFlg;
+    final KongToken? kongToken;
 
     MobileOtpVerificationModel copyWith({
-        String? message,
-        String? token,
-        UserOtpModel? user,
+        String? mobile,
+        String? customerId,
+        int? roleId,
+        bool? driver,
+        bool? tempFlg,
+        KongToken? kongToken,
     }) {
         return MobileOtpVerificationModel(
-            message: message ?? this.message,
-            token: token ?? this.token,
-            user: user ?? this.user,
+            mobile: mobile ?? this.mobile,
+            customerId: customerId ?? this.customerId,
+            roleId: roleId ?? this.roleId,
+            driver: driver ?? this.driver,
+            tempFlg: tempFlg ?? this.tempFlg,
+            kongToken: kongToken ?? this.kongToken,
         );
     }
 
     factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){ 
         return MobileOtpVerificationModel(
-            message: json["message"] ?? "",
-            token: json["token"] ?? "",
-            user: json["user"] == null ? null : UserOtpModel.fromJson(json["user"]),
+            mobile: json["mobile"] ?? "",
+            customerId: json["customerId"] ?? "",
+            roleId: json["roleId"] ?? 0,
+            driver: json["driver"] ?? false,
+            tempFlg: json["tempFlg"] ?? false,
+            kongToken: json["kongToken"] == null ? null : KongToken.fromJson(json["kongToken"]),
         );
     }
-
-    Map<String, dynamic> toJson() => {
-        "message": message,
-        "token": token,
-        "user": user?.toJson(),
-    };
 
 }
 
-class UserOtpModel {
-    UserOtpModel({
-        required this.id,
-        required this.mobile,
-        required this.role,
-        required this.tempflg,
+class KongToken {
+    KongToken({
+        required this.expiresIn,
+        required this.tokenType,
+        required this.refreshToken,
+        required this.accessToken,
     });
 
-    final String id;
-    final String mobile;
-    final int role;
-    final bool tempflg;
+    final int expiresIn;
+    final String tokenType;
+    final String refreshToken;
+    final String accessToken;
 
-    UserOtpModel copyWith({
-        String? id,
-        String? mobile,
-        int? role,
-        bool? tempflg,
+    KongToken copyWith({
+        int? expiresIn,
+        String? tokenType,
+        String? refreshToken,
+        String? accessToken,
     }) {
-        return UserOtpModel(
-            id: id ?? this.id,
-            mobile: mobile ?? this.mobile,
-            role: role ?? this.role,
-            tempflg: tempflg ?? this.tempflg,
+        return KongToken(
+            expiresIn: expiresIn ?? this.expiresIn,
+            tokenType: tokenType ?? this.tokenType,
+            refreshToken: refreshToken ?? this.refreshToken,
+            accessToken: accessToken ?? this.accessToken,
         );
     }
 
-    factory UserOtpModel.fromJson(Map<String, dynamic> json){ 
-        return UserOtpModel(
-            id: json["id"] ?? "",
-            mobile: json["mobile"] ?? "",
-            role: json["role"] ?? 0,
-            tempflg: json["tempflg"] ?? false,
+    factory KongToken.fromJson(Map<String, dynamic> json){ 
+        return KongToken(
+            expiresIn: json["expiresIn"] ?? 0,
+            tokenType: json["tokenType"] ?? "",
+            refreshToken: json["refreshToken"] ?? "",
+            accessToken: json["accessToken"] ?? "",
         );
     }
-
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "mobile": mobile,
-        "role": role,
-        "tempflg": tempflg,
-    };
 
 }

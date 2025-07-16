@@ -2,24 +2,28 @@
 
 class OtpRequest {
   String mobile;
-  int role;
+  int type;
   int otp;
+  bool driver;
 
   OtpRequest({
     required this.mobile,
-    required this.role,
+    required this.type,
     required this.otp,
+    required this.driver,
   });
 
   factory OtpRequest.fromJson(Map<String, dynamic> json) => OtpRequest(
     mobile: json["mobile"],
-    role: json["role"],
+    type: json["type"],
     otp: json["otp"],
+    driver: json["driver"],
   );
 
   Map<String, dynamic> toJson() => {
     "mobile": mobile,
-    "role": role,
+    "type": type,
     "otp": otp,
+    "driver": driver,
   };
 }

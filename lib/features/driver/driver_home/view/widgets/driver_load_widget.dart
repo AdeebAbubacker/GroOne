@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -13,9 +15,17 @@ import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
 import '../../../../../utils/constant_variables.dart';
 
-class DriverLoadWidget extends StatelessWidget {  
+class DriverLoadWidget extends StatefulWidget {  
   final void Function()? onClickAssignDriver;
-  const DriverLoadWidget({super.key, required this.onClickAssignDriver,});
+  final DriverLoadDetails driverLoadDetails;
+  const DriverLoadWidget({super.key, required this.onClickAssignDriver,required this.driverLoadDetails});
+
+  @override
+  State<DriverLoadWidget> createState() => _DriverLoadWidgetState();
+}
+
+class _DriverLoadWidgetState extends State<DriverLoadWidget> {
+final bool isConsentGiven = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +49,9 @@ class DriverLoadWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('GD 34567', style: AppTextStyle.h5),
+                  Text(widget.driverLoadDetails.loadSeriesId, style: AppTextStyle.h5),
                   Text(
-                  formatDateTimeKavach("2024-08-15T14:30:00Z"),
+                  formatDateTimeKavach(widget.driverLoadDetails.createdAt?.toString()??DateTime.now().toString()),
                   style: AppTextStyle.primaryColor12w400,
                   ),
                 ],
@@ -54,7 +64,7 @@ class DriverLoadWidget extends StatelessWidget {
                   Wrap(
                     children: [
                       Text(
-                       "Address",
+                       widget.driverLoadDetails.loadRoute?.pickUpAddr ?? "",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
@@ -63,12 +73,13 @@ class DriverLoadWidget extends StatelessWidget {
                         color: AppColors.primaryColor,
                       ).paddingSymmetric(horizontal: 2),
                       Text(
-                        "Drop adress",
+                        widget.driverLoadDetails.loadRoute?.dropAddr ?? "",
                         style: AppTextStyle.blackColor15w500,
                         maxLines: 2,
                       ),
                     ],
                   ),
+                  if(widget.driverLoadDetails.loadStatusId == 3)
                   Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
                 ],
               ).expand(),
@@ -77,14 +88,46 @@ class DriverLoadWidget extends StatelessWidget {
 
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+         
+    
+         progressBarWidget(progressValue: 0.5,),
+         commonDivider(),
+
+       widget.driverLoadDetails.driverConsent == 0  
+        ? Column(
+            children: [
+             
+           
+              Text(
+                "No SIM tracking consent from driver",
+                style: AppTextStyle.textBlackColor16w400.copyWith(
+                  color: AppColors.iconRed,
+                ),
+              ),
+              commonDivider(),
+            ],
+          )
+        : Column(
+            children: [
+          
+              Text(
+                "Driver consent given",
+                style: AppTextStyle.textBlackColor16w400.copyWith(
+                  color: AppColors.iconRed,
+                ),
+              ),
+              commonDivider(),
+            ],
+          ),
+
           Row(
             children: [
               detailWidget(
-                text: "Truck Type",
+                 text: widget.driverLoadDetails.truckType?.type ?? "__",
                 iconSvg: AppIcons.svg.deliveryTruckSpeed,
               ),
               detailWidget(
-                text: "Sub Type",
+                 text: widget.driverLoadDetails.truckType?.subType ?? "__",
                 iconSvg: AppIcons.svg.deliveryTruckSpeed,
               ),
             ],
@@ -93,11 +136,11 @@ class DriverLoadWidget extends StatelessWidget {
           Row(
             children: [
               detailWidget(
-                text: "name",
+                text: widget.driverLoadDetails.commodity?.name ?? "__",
                 iconSvg: AppIcons.svg.package,
               ),
               detailWidget(
-                text: "10 Ton",
+                text: "${widget.driverLoadDetails.weightage?.value} Tonn",
                 iconSvg: AppIcons.svg.weight,
               ),
             ],
@@ -151,10 +194,11 @@ class DriverLoadWidget extends StatelessWidget {
               10.width,
               AppButton(
                 buttonHeight: 40,
-                onPressed: onClickAssignDriver ?? () {},
+                onPressed: widget.onClickAssignDriver ?? () {},
                 title: "Start Trip",
                 style: AppButtonStyle.primary,
               ).expand(),
+             
             ],
           ),
         ],
@@ -176,4 +220,46 @@ class DriverLoadWidget extends StatelessWidget {
       ],
     ).expand();
   }
+}
+
+
+Widget progressBarWidget({required double progressValue}) {
+  final percent = (progressValue * 100).round();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Progress',
+            style: AppTextStyle.body3.copyWith(
+              fontSize: 12,
+              color: AppColors.textBlackColor,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          Text(
+            '$percent%',
+            style: AppTextStyle.body3.copyWith(
+              color: AppColors.textBlackColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: LinearProgressIndicator(
+          value: progressValue,
+          minHeight: 6,
+          backgroundColor: Colors.grey[300],
+          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+        ),
+      ),
+    ],
+  );
 }

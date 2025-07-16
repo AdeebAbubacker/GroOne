@@ -34,9 +34,9 @@ import '../../../utils/toast_messages.dart';
 
 class MobileOtpVerificationScreen extends StatefulWidget {
   final String mobileNumber;
-  final String roleId;
   final String otp;
-  const MobileOtpVerificationScreen({super.key, required this.mobileNumber, required this.otp, required this.roleId});
+  final bool isDriver;
+  const MobileOtpVerificationScreen({super.key, required this.mobileNumber, required this.otp, required this.isDriver,});
 
   @override
   State<MobileOtpVerificationScreen> createState() => _MobileOtpVerificationScreenState();
@@ -91,31 +91,42 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
   // Home Redirection
   void homeRedirection(MobileOtpVerificationModel data, BuildContext context, {required tempFlag}) => frameCallback(() {
     // LP Redirection
-    if (data.user?.role == 1) {
+    if (data?.roleId == 1) {
       if (tempFlag) {
         context.push(
-          AppRouteName.lpCreateAccount,
+          AppRouteName.chooseRoleScreen,
           extra: {
-            "userId": data.user!.id.toString(),
-            "mobileNumber": widget.mobileNumber,
-            "roleId": widget.roleId,
+            "userId": data.roleId.toString(),
+            "mobileNumber": widget.mobileNumber.toString(),
           },
         );
       } else {
         loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
-    } else if (data.user?.role == 2) {
+    } else if (data.roleId == 2) {
       // VP Redirection
       if (tempFlag) {
-        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber, roleId: 2), isForward: true));
-      } else {
+         context.push(
+          AppRouteName.chooseRoleScreen,
+          extra: {
+            "userId": data.roleId.toString(),
+            "mobileNumber": widget.mobileNumber,
+          },
+        );
+         } else {
         loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
       }
-    } else if (data.user?.role == 3) {
+    } else if (data.roleId == 3) {
       // Both VP & LP Redirection
       if (tempFlag) {
-        Navigator.push(context, commonRoute(VpCreationFormScreen(id: data.user?.id.toString() ?? '', mobileNumber: widget.mobileNumber, roleId: 3), isForward: true));
-      } else {
+         context.push(
+          AppRouteName.chooseRoleScreen,
+          extra: {
+            "userId": data.roleId.toString(),
+            "mobileNumber": widget.mobileNumber,
+          },
+        );
+         } else {
         loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
       }
     }
@@ -143,21 +154,51 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
         listener: (context, state) async {
           if (state is OtpResendSuccess) {
             otpString = "";
-            ToastMessages.success(message: state.loginApiResponseModel.message);
+          ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
           }
           if (state is OtpSuccess) {
-            if (state.otpResponse!.user!.tempflg) {
+            final data = state.otpResponse;
+            final tempFlag = data.tempFlg ?? false;
+
+            //  1. Check if it's a driver
+
+            if (data.driver == true) {
+            loginSuccessDialog(context, AppRouteName.driverHome);
+            return;
+            }
+          
+            if (tempFlag) {
+              context.push(
+                AppRouteName.chooseRoleScreen,
+                extra: {
+                  "userId": data.customerId,
+                  "mobileNumber": widget.mobileNumber,
+                },
+              );
+            } else {
+              // Navigate to respective home based on role
+              final role = data.roleId;
+              if (role == 1) {
+                loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+              } else if (role == 2) {
+                loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
+              } else if (role == 3) {
+                // both VP + LP, handle as per your app logic
+                loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+              }
+            }
+            if (state.otpResponse!.tempFlg) {
               homeRedirection(
                 state.otpResponse,
                 context,
-                tempFlag: state.otpResponse!.user!.tempflg,
+                tempFlag: state.otpResponse!.tempFlg,
               );
             } else {
               if (!context.mounted) return;
               homeRedirection(
                 state.otpResponse,
                 context,
-                tempFlag: state.otpResponse!.user!.tempflg,
+                tempFlag: state.otpResponse!.tempFlg,
               );
             }
           }
@@ -195,22 +236,22 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                       ),
                     ],
                   ),
-                  // Builder(
-                  //   builder: (context) {
-                  //     if (state is OtpResendSuccess) {
-                  //       if (state.loginApiResponseModel.user?.otp != 0) {
-                  //         return Text(
-                  //           textAlign: TextAlign.center,
-                  //           "otp: ${state.loginApiResponseModel.user?.otp}",
-                  //         );
-                  //       }
-                  //     }
-                  //     return Text(
-                  //       textAlign: TextAlign.center,
-                  //       "otp: ${widget.otp}",
-                  //     );
-                  //   },
-                  // ),
+                  Builder(
+                    builder: (context) {
+                      if (state is OtpResendSuccess) {
+                        if (state.loginApiResponseModel.otp != 0) {
+                          return Text(
+                            textAlign: TextAlign.center,
+                            "otp: ${state.loginApiResponseModel.otp}",
+                          );
+                        }
+                      }
+                      return Text(
+                        textAlign: TextAlign.center,
+                        "otp: ${widget.otp}",
+                      );
+                    },
+                  ),
                   20.height,
 
                   // Otp Text Field
@@ -246,8 +287,9 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                           OtpRequested(
                             apiRequest: OtpRequest(
                               mobile: widget.mobileNumber,
-                              role: int.parse(widget.roleId),
+                               type: 2,
                               otp: int.parse(otpString),
+                             driver: widget.isDriver
                             ),
                           ),
                         );
@@ -302,7 +344,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                       if (_isButtonEnabled) {
                         final apiRequest = LoginApiRequest(
                           mobile: int.parse(widget.mobileNumber),
-                          role: int.parse(widget.roleId),
+                          type: 1,
                         );
                         otpBloc.add(OtpResendRequested(apiRequest: apiRequest));
                         startTimer();
