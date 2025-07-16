@@ -179,6 +179,9 @@ final useMemo = payments == null || payments.isEmpty;
       final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
       final String paymentPayableBalance = payments?.last.payableBalance ?? '';   
+      final action = (payments != null && payments.isNotEmpty && payments.last.action == 'pay_advance')
+    ? 'pay_balance'
+    : 'pay_advance';
     return Positioned(
       bottom: 0,
       left: 0,
@@ -374,6 +377,7 @@ final useMemo = payments == null || payments.isEmpty;
                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.action == "pay_advance"
                      ? true: false,
                      lpLoadCubit: lpLoadLocator,
+                     action: action,
                   ),
                       16.height,
                     ],
@@ -557,15 +561,19 @@ Widget _buildAdvancePaymentCard({
   required String payableAdvance,
   required String payableBalance,
   required String advancePaid,
+  required String action,
   required bool isAdancePaid,
   required LpLoadCubit lpLoadCubit,
 }) {
-  final lpLoadCubit = context.read<LpLoadCubit>();
-final createOrderState = lpLoadCubit.state.lpCreateOrder;
-final addPaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+  final createOrderState = lpLoadCubit.state.lpCreateOrder;
+  final addPaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
-final isLoading = createOrderState?.status == Status.LOADING ||
-    addPaymentState?.status == Status.LOADING;
+  final isLoading = createOrderState?.status == Status.LOADING ||
+      addPaymentState?.status == Status.LOADING;
+
+
+  final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
+  final paymentAmount = double.tryParse(selectedAmountString)?.toInt() ?? 0;
 
   return Container(
     padding: const EdgeInsets.all(10),
@@ -668,7 +676,6 @@ final isLoading = createOrderState?.status == Status.LOADING ||
             title: context.appText.payAdvance,
             onPressed: () async {
               
-             final isPayingBalance = paymentState == 3 || paymentState == 5;
              final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
             final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
 
@@ -678,7 +685,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                 createOrderidReuest: CreateOrderIdRequest(
                       amount: paymentAmount,
                 type: 'online',
-                action: isPayingBalance ? 'pay_balance' : 'pay_advance',
+                action: action,
                       )
                   );
 
@@ -709,6 +716,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                     builder: (_) => PaymentsScreen(
                       url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
                       loadId: loadId,
+
                     ),
                   ),
                 );

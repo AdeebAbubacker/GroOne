@@ -62,7 +62,9 @@ class PaymentsScreenState extends State<PaymentsScreen> {
   // appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
-      
+      leading: IconButton(onPressed: () {
+         Navigator.pop(context, true); // return true on back
+      }, icon: Icon(Icons.arrow_back)),
       centreTile: true,
       title: 'Make payment',
       backgroundColor: Colors.transparent,
