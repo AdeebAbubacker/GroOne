@@ -51,7 +51,6 @@ class VpMyLoadHelper {
 
   // Showing Status Button
   static Widget loadStatusButtonWidget({required String status, bool isLoading = false, required void Function() onPressed}) {
-    debugPrint("Status : $status");
     switch (status) {
       case "accepted":
         return AppButton(

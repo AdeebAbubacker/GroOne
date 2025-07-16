@@ -154,6 +154,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
                     bloc: locator<VpAcceptLoadBloc>(),
