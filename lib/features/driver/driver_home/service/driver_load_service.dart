@@ -11,12 +11,13 @@ class DriverLoadService {
   DriverLoadService(this._apiService);
 
   Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
+    required int loadStatus,
     required String driverId,
     String search = "",
     bool forceRefresh = false
   }) async {
     try {
-      final url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
+      final url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId&loadStatus=$loadStatus";
       final response = await _apiService.get(
         url,
         forceRefresh: forceRefresh,

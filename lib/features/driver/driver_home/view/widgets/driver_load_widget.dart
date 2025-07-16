@@ -90,14 +90,12 @@ final bool isConsentGiven = false;
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
          
     
-         progressBarWidget(progressValue: 0.5,),
-         commonDivider(),
+        //  progressBarWidget(progressValue: 0.5,),
+        //  commonDivider(),
 
        widget.driverLoadDetails.driverConsent == 0  
         ? Column(
             children: [
-             
-           
               Text(
                 "No SIM tracking consent from driver",
                 style: AppTextStyle.textBlackColor16w400.copyWith(
@@ -108,8 +106,7 @@ final bool isConsentGiven = false;
             ],
           )
         : Column(
-            children: [
-          
+            children: [       
               Text(
                 "Driver consent given",
                 style: AppTextStyle.textBlackColor16w400.copyWith(
@@ -119,7 +116,6 @@ final bool isConsentGiven = false;
               commonDivider(),
             ],
           ),
-
           Row(
             children: [
               detailWidget(

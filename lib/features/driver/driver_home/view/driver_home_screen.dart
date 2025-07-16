@@ -53,8 +53,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 1;
   TabController? _tabController;
   final tabLabels = [
-     'Available Loads',
-     'My Loads',
+     'KYC Pending',
+     'Matching',
      'Confirmed',
      'Assigned',
   ];
@@ -111,7 +111,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
    void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final type = index + 1;
     final search = searchController.text;
-    driverLoadBloc.add(FetchDriverLoads(type: type, search: search, forceRefresh: forceRefresh));
+    driverLoadBloc.add(FetchDriverLoads(loadStatus: type, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
 
@@ -180,24 +180,23 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         indicator: const BoxDecoration(),
         dividerHeight: 0,
        tabs: List.generate(tabLabels.length, (index) {
-  final isSelected = _tabController!.index == index;
-  return Tab(
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: commonContainerDecoration(
-        color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        tabLabels[index],
-        style: AppTextStyle.body3.copyWith(
-          color: isSelected ? AppColors.white : AppColors.black,
-        ),
-      ),
-    ),
-  );
-}),
-
+        final isSelected = _tabController!.index == index;
+        return Tab(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: commonContainerDecoration(
+              color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              tabLabels[index],
+              style: AppTextStyle.body3.copyWith(
+                color: isSelected ? AppColors.white : AppColors.black,
+              ),
+            ),
+          ),
+        );
+      }),
       ),
     ).paddingOnly(top: 15, right: 15, left: 15);
   }
@@ -250,7 +249,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-        Widget buildDriverLoadTab(int tabIndex) {
+    Widget buildDriverLoadTab(int tabIndex) {
         return BlocBuilder<DriverLoadsBloc, DriverLoadsState>(
           bloc: driverLoadBloc,
           builder: (context, state) {
@@ -271,7 +270,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   // Return widgets dynamically based on tabIndex
                   switch (tabIndex) {
                     case 0: 
-                  return   DriverLoadWidget(
+                  return DriverLoadWidget(
                       driverLoadDetails: state.loads[index],
                 onClickAssignDriver: () {
                 },
