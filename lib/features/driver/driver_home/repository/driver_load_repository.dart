@@ -11,7 +11,7 @@ class DriverLoadRepository {
   DriverLoadRepository(this.service, this.userRepo);
 
   Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
-    required int loadStatus,
+    int?loadStatus,
     String search = "",
     bool forceRefresh = false
   }) async {

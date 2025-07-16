@@ -96,7 +96,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-   _loadDataByTab(index: _tabController!.index);
+      final type = _tabController!.index + 1;
+   driverLoadBloc.add(FetchDriverLoads(loadStatus: type));
   });
   }
 
