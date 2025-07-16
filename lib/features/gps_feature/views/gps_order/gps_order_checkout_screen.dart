@@ -83,37 +83,34 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
       // For now, set default stock. Later we can fetch from API
       _availableStocks[product.id] = 10;
     }
-    
+
     // Restore previous form data if available
     if (widget.previousReferralCode != null && widget.previousReferralCode!.isNotEmpty) {
       referralCodeController.text = widget.previousReferralCode!;
     }
-    
+
     if (widget.previousShippingSameAsBilling != null) {
       shippingSameAsBilling = widget.previousShippingSameAsBilling!;
     }
-    
+
     if (widget.previousShippingPersonInCharge != null && widget.previousShippingPersonInCharge!.isNotEmpty) {
       shippingPersonInChargeController.text = widget.previousShippingPersonInCharge!;
     }
-    
+
     if (widget.previousShippingPersonContactNo != null && widget.previousShippingPersonContactNo!.isNotEmpty) {
       shippingPersonContactNoController.text = widget.previousShippingPersonContactNo!;
     }
-    
+
     // Initialize cubits
     try {
       gpsShippingAddressCubit = locator<GpsShippingAddressCubit>();
       gpsBillingAddressCubit = locator<GpsBillingAddressCubit>();
-      print('GPS cubits successfully retrieved from locator');
     } catch (e) {
-      print('Error getting GPS address cubits: $e');
       // Fallback: create new instances directly
       final repository = locator<GpsOrderApiRepository>();
       final userRepository = locator<UserInformationRepository>();
       gpsShippingAddressCubit = GpsShippingAddressCubit(repository, userRepository);
       gpsBillingAddressCubit = GpsBillingAddressCubit(repository, userRepository);
-      print('GPS cubits created manually');
     }
 
     // Initialize vehicle controllers with previous selection if available
@@ -131,32 +128,21 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     }
 
     // Initialize address cubits with state preservation
-    print('Checking GPS address states...');
-    print('Billing address state: ${gpsBillingAddressCubit.state.runtimeType}');
-    print('Shipping address state: ${gpsShippingAddressCubit.state.runtimeType}');
-    
+
     // Only fetch billing addresses if not already loaded or selected
-    if (gpsBillingAddressCubit.state is! GpsBillingAddressLoaded && 
+    if (gpsBillingAddressCubit.state is! GpsBillingAddressLoaded &&
         gpsBillingAddressCubit.state is! GpsBillingAddressSelected &&
         gpsBillingAddressCubit.state is! GpsBillingAddressLoading) {
-      print('Fetching GPS billing addresses...');
       gpsBillingAddressCubit.fetchGpsBillingAddresses();
-    } else {
-      print('GPS billing addresses already loaded/selected/loading');
     }
-    
+
     // Only fetch shipping addresses if not already loaded or selected
-    if (gpsShippingAddressCubit.state is! GpsShippingAddressLoaded && 
+    if (gpsShippingAddressCubit.state is! GpsShippingAddressLoaded &&
         gpsShippingAddressCubit.state is! GpsShippingAddressSelected &&
         gpsShippingAddressCubit.state is! GpsShippingAddressLoading) {
-      print('Fetching GPS shipping addresses...');
       gpsShippingAddressCubit.fetchGpsShippingAddresses();
-    } else {
-      print('GPS shipping addresses already loaded/selected/loading');
     }
-    
-    print('GPS address initialization completed');
-    
+
     // Add a small delay to ensure cubits are properly initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndRestoreAddressStates();
@@ -172,7 +158,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
 
   /// Handle navigation back from address screens
   void _handleAddressScreenReturn() {
-    print('Returned from address screen, refreshing addresses...');
     // Add a small delay to ensure the address was added
     Future.delayed(Duration(milliseconds: 300), () {
       if (mounted) {
@@ -201,46 +186,35 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       // App became visible again, refresh addresses if needed
-      print('App resumed, checking address states...');
       _refreshAddressesIfNeeded();
     }
   }
 
   /// Check and restore address states if needed
   void _checkAndRestoreAddressStates() {
-    print('Checking address states after frame callback...');
-    print('Billing address state: ${gpsBillingAddressCubit.state.runtimeType}');
-    print('Shipping address state: ${gpsShippingAddressCubit.state.runtimeType}');
-    
     // If states are initial or empty, try to fetch addresses
-    if (gpsBillingAddressCubit.state is GpsBillingAddressInitial || 
+    if (gpsBillingAddressCubit.state is GpsBillingAddressInitial ||
         gpsBillingAddressCubit.state is GpsBillingAddressEmpty) {
-      print('Billing address state is initial/empty, fetching addresses...');
       gpsBillingAddressCubit.fetchGpsBillingAddresses();
     }
-    
-    if (gpsShippingAddressCubit.state is GpsShippingAddressInitial || 
+
+    if (gpsShippingAddressCubit.state is GpsShippingAddressInitial ||
         gpsShippingAddressCubit.state is GpsShippingAddressEmpty) {
-      print('Shipping address state is initial/empty, fetching addresses...');
       gpsShippingAddressCubit.fetchGpsShippingAddresses();
     }
   }
 
   /// Refresh addresses if they are in error state or empty
   void _refreshAddressesIfNeeded() {
-    print('Checking if addresses need refresh...');
-    
     // Refresh billing addresses if in error state or empty
-    if (gpsBillingAddressCubit.state is GpsBillingAddressError || 
+    if (gpsBillingAddressCubit.state is GpsBillingAddressError ||
         gpsBillingAddressCubit.state is GpsBillingAddressEmpty) {
-      print('Refreshing billing addresses due to error/empty state...');
       gpsBillingAddressCubit.fetchGpsBillingAddresses();
     }
-    
+
     // Refresh shipping addresses if in error state or empty
-    if (gpsShippingAddressCubit.state is GpsShippingAddressError || 
+    if (gpsShippingAddressCubit.state is GpsShippingAddressError ||
         gpsShippingAddressCubit.state is GpsShippingAddressEmpty) {
-      print('Refreshing shipping addresses due to error/empty state...');
       gpsShippingAddressCubit.fetchGpsShippingAddresses();
     }
   }
@@ -288,7 +262,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
         centreTile: false,
         title: context.appText.checkout,
         leading: IconButton(
-            onPressed: () {
+          onPressed: () {
             final result = {
               'quantities': _quantities,
               'vehicles': vehicleControllersPerProduct.map(
@@ -302,11 +276,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
               'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
               'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
             };
-            print('GPS Checkout: Returning result for back button: $result');
             Navigator.of(context).pop(result);
-            },
-            icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
-          ),
+          },
+          icon: SvgPicture.asset(AppIcons.svg.goBack, colorFilter: AppColors.svg(Colors.black),),
+        ),
         actions: [
           AppIconButton(
             onPressed: () {
@@ -341,7 +314,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                   controller: referralCodeController,
                   labelText: 'Referral Code (Optional)',
                   onSelected: (value) {
-                    print('Selected: $value');
                   },
                 ),
               ),
@@ -371,25 +343,25 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                         return productWidget(product, quantity);
                       },
                     ),
-                   
+
                   ],
                 ),
               ),
               10.height,
 
               Container(
-                width: double.infinity,
-                decoration: commonContainerDecoration(
-                  color: AppColors.white
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
+                  width: double.infinity,
+                  decoration: commonContainerDecoration(
+                      color: AppColors.white
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
                       onPressed: () {
                         final result = {
                           'quantities': _quantities,
                           'vehicles': vehicleControllersPerProduct.map(
-                            (key, value) => MapEntry(
+                                (key, value) => MapEntry(
                               key,
                               value.map((controller) => controller.text.trim()).toList(),
                             ),
@@ -399,7 +371,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                           'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
                           'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
                         };
-                        print('GPS Checkout: Returning result for Add More: $result');
                         Navigator.of(context).pop(result);
                       },
                       label: Text(
@@ -408,9 +379,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                       ),
                       icon: Icon(Icons.add, color: AppColors.primaryColor),
                     ),
-                )
+                  )
               ),
-              
+
               15.height,
               //address
               Container(
@@ -428,85 +399,112 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                       BlocProvider.value(
                         value: gpsBillingAddressCubit,
                         child: BlocBuilder<GpsBillingAddressCubit, GpsBillingAddressState>(
-                        builder: (context, state) {
-                          print('Billing address state: $state');
-                          
-                          if (state is GpsBillingAddressSelected) {
-                            final address = state.selectedAddress;
-                            return addressWidget(
-                              address: address,
-                              onChangeTap: () {
-                                commonBottomSheetWithBGBlur(
-                                  context: context,
-                                  screen: GpsBillingAddressListScreen(
-                                    billingAddressCubit: gpsBillingAddressCubit,
+                          builder: (context, state) {
+                            if (state is GpsBillingAddressSelected) {
+                              final address = state.selectedAddress;
+                              return addressWidget(
+                                address: address,
+                                onChangeTap: () {
+                                  commonBottomSheetWithBGBlur(
+                                    context: context,
+                                    screen: GpsBillingAddressListScreen(
+                                      billingAddressCubit: gpsBillingAddressCubit,
+                                    ),
+                                  );
+                                },
+                                title: context.appText.billingAddress,
+                              );
+                            }
+                            if (state is GpsBillingAddressEmpty) {
+                              return AppTextField(
+                                readOnly: true,
+                                autofocus: false,
+                                labelText: context.appText.billingAddress,
+                                mandatoryStar: true,
+                                decoration: kavachInputDecoration(
+                                  suffixIcon: Icon(
+                                    Icons.chevron_right,
+                                    color: AppColors.chevronGreyColor,
                                   ),
-                                );
-                              },
-                              title: context.appText.billingAddress,
-                            );
-                          }
-                          if (state is GpsBillingAddressEmpty) {
-                            return AppTextField(
-                              readOnly: true,
-                              autofocus: false,
-                              labelText: context.appText.billingAddress,
-                              mandatoryStar: true,
-                              decoration: kavachInputDecoration(
-                                suffixIcon: Icon(
-                                  Icons.chevron_right,
-                                  color: AppColors.chevronGreyColor,
                                 ),
-                              ),
-                                                                  onTextFieldTap: () async {
-                                      await commonBottomSheetWithBGBlur(
-                                        context: context,
-                                  screen: GpsBillingAddressListScreen(
-                                    billingAddressCubit: gpsBillingAddressCubit,
-                                  ),
-                                      );
-                                    // Refresh addresses after returning from billing address screen
-                                    _handleAddressScreenReturn();
-                              },
-                            );
-                          }
-                          if (state is GpsBillingAddressLoading) {
-                            return Column(
-                              children: [
-                                Text(context.appText.billingAddress, style: AppTextStyle.textFiled),
-                                Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                5.height,
-                                AppTextField(
-                                  readOnly: true,
-                                  autofocus: false,
-                                  //labelText: 'Loading addresses...',
-                                  decoration: kavachInputDecoration(
-                                    suffixIcon: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                onTextFieldTap: () async {
+                                  await commonBottomSheetWithBGBlur(
+                                    context: context,
+                                    screen: GpsBillingAddressListScreen(
+                                      billingAddressCubit: gpsBillingAddressCubit,
+                                    ),
+                                  );
+                                  // Refresh addresses after returning from billing address screen
+                                  _handleAddressScreenReturn();
+                                },
+                              );
+                            }
+                            if (state is GpsBillingAddressLoading) {
+                              return Column(
+                                children: [
+                                  Text(context.appText.billingAddress, style: AppTextStyle.textFiled),
+                                  Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                  5.height,
+                                  AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    //labelText: 'Loading addresses...',
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }
-                          if (state is GpsBillingAddressError) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
+                                ],
+                              );
+                            }
+                            if (state is GpsBillingAddressError) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
                                       Text(context.appText.billingAddress, style: AppTextStyle.textFiled),
-                                Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                  ],
-                                ),
-                              
+                                      Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                    ],
+                                  ),
+
+                                  5.height,
+                                  AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    //labelText: 'Error loading addresses',
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.chevronGreyColor,
+                                      ),
+                                    ),
+                                    onTextFieldTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen: GpsBillingAddressListScreen(
+                                          billingAddressCubit: gpsBillingAddressCubit,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+                            // Fallback for any other state
+                            return Column(
+                              children: [
+                                // Text(context.appText.billingAddress, style: AppTextStyle.textFiled),
+                                // Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
                                 5.height,
                                 AppTextField(
                                   readOnly: true,
                                   autofocus: false,
-                                  //labelText: 'Error loading addresses',
+                                  labelText: context.appText.billingAddress,
+                                  mandatoryStar: true,
                                   decoration: kavachInputDecoration(
                                     suffixIcon: Icon(
                                       Icons.chevron_right,
@@ -524,53 +522,62 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                 ),
                               ],
                             );
-                          }
-                          // Fallback for any other state
-                          return Column(
-                            children: [
-                              // Text(context.appText.billingAddress, style: AppTextStyle.textFiled),
-                              // Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                              5.height,
-                              AppTextField(
-                                readOnly: true,
-                                autofocus: false,
-                                labelText: context.appText.billingAddress,
-                                mandatoryStar: true,
-                                decoration: kavachInputDecoration(
-                                  suffixIcon: Icon(
-                                    Icons.chevron_right,
-                                    color: AppColors.chevronGreyColor,
-                                  ),
-                                ),
-                                onTextFieldTap: () {
-                                  commonBottomSheetWithBGBlur(
-                                    context: context,
-                                    screen: GpsBillingAddressListScreen(
-                                      billingAddressCubit: gpsBillingAddressCubit,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                          },
+                        ),
                       ),
                       15.height,
                       //Shipping Address
                       BlocProvider.value(
                         value: gpsShippingAddressCubit,
                         child: BlocBuilder<GpsShippingAddressCubit, GpsShippingAddressState>(
-                        builder: (context, state) {
-                          print('Shipping address state: $state');
-                          
-                          if (state is GpsShippingAddressSelected) {
-                            final address = state.selectedAddress;
-                            return Column(
-                              children: [
-                                Visibility(
-                                  visible: shippingSameAsBilling,
-                                  child: Row(
+                          builder: (context, state) {
+                            if (state is GpsShippingAddressSelected) {
+                              final address = state.selectedAddress;
+                              return Column(
+                                children: [
+                                  Visibility(
+                                    visible: shippingSameAsBilling,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          context.appText.shippingAddress,
+                                          style: AppTextStyle.textFiled,
+                                        ).paddingLeft(3),
+                                        Text(
+                                          " *",
+                                          style: AppTextStyle.textFiled.copyWith(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  5.height,
+                                  Visibility(
+                                    visible: shippingSameAsBilling == false,
+                                    child: addressWidget(
+                                      address: address,
+                                      onChangeTap: () {
+                                        commonBottomSheetWithBGBlur(
+                                          context: context,
+                                          screen: GpsShippingAddressListScreen(
+                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          ),
+                                        );
+                                      },
+                                      title: context.appText.shippingAddress,
+                                    ),
+                                  ),
+                                  5.height,
+                                  checkBoxSameAsShipping(),
+                                ],
+                              );
+                            }
+
+                            if (state is GpsShippingAddressEmpty) {
+                              return Column(
+                                children: [
+                                  Row(
                                     children: [
                                       Text(
                                         context.appText.shippingAddress,
@@ -584,201 +591,161 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       ),
                                     ],
                                   ),
-                                ),
-                                5.height,
-                                Visibility(
-                                  visible: shippingSameAsBilling == false,
-                                  child: addressWidget(
-                                    address: address,
-                                    onChangeTap: () {
-                                      commonBottomSheetWithBGBlur(
-                                        context: context,
-                                        screen: GpsShippingAddressListScreen(
-                                          shippingAddressCubit: gpsShippingAddressCubit,
+                                  5.height,
+                                  Visibility(
+                                    visible: shippingSameAsBilling == false,
+                                    child: AppTextField(
+                                      readOnly: true,
+                                      autofocus: false,
+                                      decoration: kavachInputDecoration(
+                                        suffixIcon: Icon(
+                                          Icons.chevron_right,
+                                          color: AppColors.chevronGreyColor,
                                         ),
-                                      );
-                                    },
-                                    title: context.appText.shippingAddress,
-                                  ),
-                                ),
-                                5.height,
-                                checkBoxSameAsShipping(),
-                              ],
-                            );
-                          }
-
-                          if (state is GpsShippingAddressEmpty) {
-                            return Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      context.appText.shippingAddress,
-                                      style: AppTextStyle.textFiled,
-                                    ).paddingLeft(3),
-                                    Text(
-                                      " *",
-                                      style: AppTextStyle.textFiled.copyWith(
-                                        color: Colors.red,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                5.height,
-                                Visibility(
-                                  visible: shippingSameAsBilling == false,
-                                  child: AppTextField(
-                                    readOnly: true,
-                                    autofocus: false,
-                                    decoration: kavachInputDecoration(
-                                      suffixIcon: Icon(
-                                        Icons.chevron_right,
-                                        color: AppColors.chevronGreyColor,
-                                      ),
-                                    ),
-                                    onTextFieldTap: () {
-                                      commonBottomSheetWithBGBlur(
-                                        context: context,
-                                        screen: GpsShippingAddressListScreen(
-                                          shippingAddressCubit: gpsShippingAddressCubit,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                checkBoxSameAsShipping(),
-                              ],
-                            );
-                          }
-                          
-                          if (state is GpsShippingAddressLoading) {
-                            return Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      context.appText.shippingAddress,
-                                      style: AppTextStyle.textFiled,
-                                    ).paddingLeft(3),
-                                    Text(
-                                      " *",
-                                      style: AppTextStyle.textFiled.copyWith(
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                5.height,
-                                Visibility(
-                                  visible: shippingSameAsBilling == false,
-                                  child: AppTextField(
-                                    readOnly: true,
-                                    autofocus: false,
-                                    //labelText: 'Loading addresses...',
-                                    decoration: kavachInputDecoration(
-                                      suffixIcon: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
-                                      ),
+                                      onTextFieldTap: () {
+                                        commonBottomSheetWithBGBlur(
+                                          context: context,
+                                          screen: GpsShippingAddressListScreen(
+                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
-                                ),
-                                checkBoxSameAsShipping(),
-                              ],
-                            );
-                          }
-                          
-                          if (state is GpsShippingAddressError) {
-                            return Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      context.appText.shippingAddress,
-                                      style: AppTextStyle.textFiled,
-                                    ).paddingLeft(3),
-                                    Text(
-                                      " *",
-                                      style: AppTextStyle.textFiled.copyWith(
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                5.height,
-                                Visibility(
-                                  visible: shippingSameAsBilling == false,
-                                  child: AppTextField(
-                                    readOnly: true,
-                                    autofocus: false,
-                                    //labelText: 'Error loading addresses',
-                                    decoration: kavachInputDecoration(
-                                      suffixIcon: Icon(
-                                        Icons.chevron_right,
-                                        color: AppColors.chevronGreyColor,
-                                      ),
-                                    ),
-                                    onTextFieldTap: () {
-                                      commonBottomSheetWithBGBlur(
-                                        context: context,
-                                        screen: GpsShippingAddressListScreen(
-                                          shippingAddressCubit: gpsShippingAddressCubit,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                checkBoxSameAsShipping(),
-                              ],
-                            );
-                          }
-                          
-                          // Fallback for any other state
-                          return Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    context.appText.shippingAddress,
-                                    style: AppTextStyle.textFiled,
-                                  ).paddingLeft(3),
-                                  Text(
-                                    " *",
-                                    style: AppTextStyle.textFiled.copyWith(
-                                      color: Colors.red,
-                                    ),
-                                  ),
+                                  checkBoxSameAsShipping(),
                                 ],
-                              ),
-                              5.height,
-                              Visibility(
-                                visible: shippingSameAsBilling == false,
-                                child: AppTextField(
-                                  readOnly: true,
-                                  autofocus: false,
-                                  //labelText: context.appText.shippingAddress,
-                                  decoration: kavachInputDecoration(
-                                    suffixIcon: Icon(
-                                      Icons.chevron_right,
-                                      color: AppColors.chevronGreyColor,
+                              );
+                            }
+
+                            if (state is GpsShippingAddressLoading) {
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        context.appText.shippingAddress,
+                                        style: AppTextStyle.textFiled,
+                                      ).paddingLeft(3),
+                                      Text(
+                                        " *",
+                                        style: AppTextStyle.textFiled.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  5.height,
+                                  Visibility(
+                                    visible: shippingSameAsBilling == false,
+                                    child: AppTextField(
+                                      readOnly: true,
+                                      autofocus: false,
+                                      //labelText: 'Loading addresses...',
+                                      decoration: kavachInputDecoration(
+                                        suffixIcon: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  onTextFieldTap: () {
-                                    commonBottomSheetWithBGBlur(
-                                      context: context,
-                                      screen: GpsShippingAddressListScreen(
-                                        shippingAddressCubit: gpsShippingAddressCubit,
+                                  checkBoxSameAsShipping(),
+                                ],
+                              );
+                            }
+
+                            if (state is GpsShippingAddressError) {
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        context.appText.shippingAddress,
+                                        style: AppTextStyle.textFiled,
+                                      ).paddingLeft(3),
+                                      Text(
+                                        " *",
+                                        style: AppTextStyle.textFiled.copyWith(
+                                          color: Colors.red,
+                                        ),
                                       ),
-                                    );
-                                  },
+                                    ],
+                                  ),
+                                  5.height,
+                                  Visibility(
+                                    visible: shippingSameAsBilling == false,
+                                    child: AppTextField(
+                                      readOnly: true,
+                                      autofocus: false,
+                                      //labelText: 'Error loading addresses',
+                                      decoration: kavachInputDecoration(
+                                        suffixIcon: Icon(
+                                          Icons.chevron_right,
+                                          color: AppColors.chevronGreyColor,
+                                        ),
+                                      ),
+                                      onTextFieldTap: () {
+                                        commonBottomSheetWithBGBlur(
+                                          context: context,
+                                          screen: GpsShippingAddressListScreen(
+                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  checkBoxSameAsShipping(),
+                                ],
+                              );
+                            }
+
+                            // Fallback for any other state
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      context.appText.shippingAddress,
+                                      style: AppTextStyle.textFiled,
+                                    ).paddingLeft(3),
+                                    Text(
+                                      " *",
+                                      style: AppTextStyle.textFiled.copyWith(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              checkBoxSameAsShipping(),
-                            ],
-                          );
-                        },
-                      ),
+                                5.height,
+                                Visibility(
+                                  visible: shippingSameAsBilling == false,
+                                  child: AppTextField(
+                                    readOnly: true,
+                                    autofocus: false,
+                                    //labelText: context.appText.shippingAddress,
+                                    decoration: kavachInputDecoration(
+                                      suffixIcon: Icon(
+                                        Icons.chevron_right,
+                                        color: AppColors.chevronGreyColor,
+                                      ),
+                                    ),
+                                    onTextFieldTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen: GpsShippingAddressListScreen(
+                                          shippingAddressCubit: gpsShippingAddressCubit,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                checkBoxSameAsShipping(),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                       10.height,
                       AppTextField(
@@ -871,13 +838,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                   controller: vehicleControllers[index],
                   onTextFieldTap: () async {
                     final selectedVehicle =
-                        await commonBottomSheet<String?>(
-                          context: context,
-                          screen: GpsVehicleSelectionScreen(
-                            currentlySelectedVehicle: vehicleControllers[index].text.trim(),
-                          ),
-                          barrierDismissible: true
-                        );
+                    await commonBottomSheet<String?>(
+                        context: context,
+                        screen: GpsVehicleSelectionScreen(
+                          currentlySelectedVehicle: vehicleControllers[index].text.trim(),
+                        ),
+                        barrierDismissible: true
+                    );
                     if (selectedVehicle != null) {
                       final isAlreadySelected = isVehicleAlreadySelected(selectedVehicle);
                       if (isAlreadySelected &&
@@ -897,17 +864,17 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                   decoration: kavachInputDecoration(
                     hintText: context.appText.selectVehicleRegNum,
                     preffixIcon:  CircleAvatar(
-                          backgroundColor:
-                              AppColors.lightBlueIconBackgroundColor2,
-                          child: SvgPicture.asset(
-                            AppIcons.svg.truck,
-                            colorFilter: AppColors.svg(AppColors.primaryColor),
-                          ),
-                        ).paddingAll(7),
+                      backgroundColor:
+                      AppColors.lightBlueIconBackgroundColor2,
+                      child: SvgPicture.asset(
+                        AppIcons.svg.truck,
+                        colorFilter: AppColors.svg(AppColors.primaryColor),
+                      ),
+                    ).paddingAll(7),
                     suffixIcon: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                       
+
                         Icon(
                           CupertinoIcons.chevron_down,
                           color: AppColors.chevronGreyColor,
@@ -987,7 +954,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
         }
 
         final allVehiclesFilled = vehicleControllersPerProduct.values.every(
-          (controllers) => controllers.every((c) => c.text.trim().isNotEmpty),
+              (controllers) => controllers.every((c) => c.text.trim().isNotEmpty),
         );
         if (!allVehiclesFilled) {
           ToastMessages.alert(

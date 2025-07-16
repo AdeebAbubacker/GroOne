@@ -15,8 +15,8 @@ class GpsOrderApiRepository {
 
   /// Upload GPS Documents Repository
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocuments(
-    GpsDocumentUploadApiRequest request,
-  ) async {
+      GpsDocumentUploadApiRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.uploadGpsDocuments(request);
     } catch (e) {
@@ -27,8 +27,8 @@ class GpsOrderApiRepository {
 
   /// Upload GPS Documents Multipart Repository
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocumentsMultipart(
-    GpsDocumentUploadMultipartApiRequest request,
-  ) async {
+      GpsDocumentUploadMultipartApiRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.uploadGpsDocumentsMultipart(request);
     } catch (e) {
@@ -41,8 +41,8 @@ class GpsOrderApiRepository {
 
   /// Send Aadhaar OTP Repository
   Future<Result<GpsAadhaarSendOtpResponse>> sendAadhaarOtp(
-    GpsAadhaarSendOtpRequest request,
-  ) async {
+      GpsAadhaarSendOtpRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.sendAadhaarOtp(request);
     } catch (e) {
@@ -53,8 +53,8 @@ class GpsOrderApiRepository {
 
   /// Verify Aadhaar OTP Repository
   Future<Result<GpsAadhaarVerifyOtpResponse>> verifyAadhaarOtp(
-    GpsAadhaarVerifyOtpRequest request,
-  ) async {
+      GpsAadhaarVerifyOtpRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.verifyAadhaarOtp(request);
     } catch (e) {
@@ -65,8 +65,8 @@ class GpsOrderApiRepository {
 
   /// Verify PAN Repository
   Future<Result<GpsPanVerificationResponse>> verifyPan(
-    GpsPanVerificationRequest request,
-  ) async {
+      GpsPanVerificationRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.verifyPan(request);
     } catch (e) {
@@ -77,8 +77,8 @@ class GpsOrderApiRepository {
 
   /// Fetch GPS Products Repository
   Future<Result<GpsProductListResponse>> fetchGpsProducts(
-    GpsProductListRequest request,
-  ) async {
+      GpsProductListRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.fetchGpsProducts(request);
     } catch (e) {
@@ -108,8 +108,8 @@ class GpsOrderApiRepository {
 
   /// Add GPS Address Repository
   Future<Result<GpsAddAddressResponse>> addGpsAddress(
-    GpsAddAddressRequest request,
-  ) async {
+      GpsAddAddressRequest request,
+      ) async {
     try {
       return await _gpsOrderApiService.addGpsAddress(request);
     } catch (e) {

@@ -20,8 +20,8 @@ class GpsOrderApiService {
 
   /// Upload GPS Documents
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocuments(
-    GpsDocumentUploadApiRequest request,
-  ) async {
+      GpsDocumentUploadApiRequest request,
+      ) async {
     try {
       final url = ApiUrls.gpsDocumentUpload;
       CustomLog.debug(this, "GPS Document Upload URL: $url");
@@ -31,7 +31,7 @@ class GpsOrderApiService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsDocumentUploadResponse.fromJson(data),
+              (data) => GpsDocumentUploadResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -95,8 +95,8 @@ class GpsOrderApiService {
 
   /// Upload GPS Documents Multipart
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocumentsMultipart(
-    GpsDocumentUploadMultipartApiRequest request,
-  ) async {
+      GpsDocumentUploadMultipartApiRequest request,
+      ) async {
     try {
       final url = ApiUrls.gpsDocumentUpload;
       CustomLog.debug(this, "GPS Document Upload Multipart URL: $url");
@@ -168,7 +168,7 @@ class GpsOrderApiService {
         CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
         CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
         CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
-        
+
         if (refreshToken != null && refreshToken.isNotEmpty) {
           final authHeader = 'Bearer $refreshToken';
           headers['Authorization'] = authHeader;
@@ -192,8 +192,8 @@ class GpsOrderApiService {
         data: formData,
         options: Options(
           headers: headers,
-          sendTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(milliseconds: 30 ),
+          receiveTimeout: const Duration(milliseconds: 30),
         ),
       );
 
@@ -203,7 +203,7 @@ class GpsOrderApiService {
       // Handle the response
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = response.data;
-        
+
         if (responseData is Map<String, dynamic>) {
           // If response is a Map, parse it directly
           return Success(GpsDocumentUploadResponse.fromJson(responseData));
@@ -228,20 +228,20 @@ class GpsOrderApiService {
 
   /// Send Aadhaar OTP
   Future<Result<GpsAadhaarSendOtpResponse>> sendAadhaarOtp(
-    GpsAadhaarSendOtpRequest request,
-  ) async {
+      GpsAadhaarSendOtpRequest request,
+      ) async {
     try {
       // Aadhaar OTP doesn't require authentication token
       final url = ApiUrls.aadhaarSendOtp;
       CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - URL: $url");
       CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsAadhaarSendOtpResponse.fromJson(data),
+              (data) => GpsAadhaarSendOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "🔐 GPS Aadhaar Send OTP failed: ${result.type}", null);
@@ -257,20 +257,20 @@ class GpsOrderApiService {
 
   /// Verify Aadhaar OTP
   Future<Result<GpsAadhaarVerifyOtpResponse>> verifyAadhaarOtp(
-    GpsAadhaarVerifyOtpRequest request,
-  ) async {
+      GpsAadhaarVerifyOtpRequest request,
+      ) async {
     try {
       // Aadhaar OTP verification doesn't require authentication token
       final url = ApiUrls.aadhaarVerifyOtp;
       CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - URL: $url");
       CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsAadhaarVerifyOtpResponse.fromJson(data),
+              (data) => GpsAadhaarVerifyOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "🔐 GPS Aadhaar Verify OTP failed: ${result.type}", null);
@@ -286,20 +286,20 @@ class GpsOrderApiService {
 
   /// Verify PAN
   Future<Result<GpsPanVerificationResponse>> verifyPan(
-    GpsPanVerificationRequest request,
-  ) async {
+      GpsPanVerificationRequest request,
+      ) async {
     try {
       // PAN verification doesn't require authentication token
       final url = ApiUrls.panVerification;
       CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
       CustomLog.debug(this, "🔐 GPS PAN Verification - Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsPanVerificationResponse.fromJson(data),
+              (data) => GpsPanVerificationResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "🔐 GPS PAN Verification failed: ${result.type}", null);
@@ -315,8 +315,8 @@ class GpsOrderApiService {
 
   /// Fetch GPS Product List
   Future<Result<GpsProductListResponse>> fetchGpsProducts(
-    GpsProductListRequest request,
-  ) async {
+      GpsProductListRequest request,
+      ) async {
     try {
       final url = ApiUrls.gpsProductList;
       final queryParams = request.toJson();
@@ -325,7 +325,7 @@ class GpsOrderApiService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsProductListResponse.fromJson(data),
+              (data) => GpsProductListResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -340,8 +340,8 @@ class GpsOrderApiService {
 
   /// Fetch GPS Addresses
   Future<Result<GpsAddressListResponse>> fetchGpsAddresses(
-    GpsAddressListRequest request,
-  ) async {
+      GpsAddressListRequest request,
+      ) async {
     try {
       final url = '${ApiUrls.gpsAddressList}/${request.customerId}';
       final queryParams = {
@@ -354,21 +354,21 @@ class GpsOrderApiService {
         // Handle the actual API response format
         final responseData = result.value;
         CustomLog.debug(this, "GPS Fetch Addresses Response: $responseData");
-        
+
         if (responseData is Map<String, dynamic>) {
           // Check if response has data array (actual API format)
           if (responseData.containsKey('data') && responseData['data'] is List) {
             final addresses = responseData['data'] as List;
             final total = responseData['total'] as int? ?? 0;
             final pageMeta = responseData['pageMeta'] as Map<String, dynamic>?;
-            
+
             // Convert addresses to GpsAddress objects
             final gpsAddresses = addresses.map((addressJson) {
               return GpsAddress.fromJson(addressJson as Map<String, dynamic>);
             }).toList();
-            
+
             CustomLog.debug(this, "GPS Fetch Addresses - Total addresses: ${gpsAddresses.length}");
-            
+
             // Create GpsAddressListData
             final meta = GpsAddressListMeta(
               total: gpsAddresses.length,
@@ -376,26 +376,26 @@ class GpsOrderApiService {
               limit: pageMeta?['pageSize'] as int? ?? 10,
               totalPages: pageMeta?['pageCount'] as int? ?? 1,
             );
-            
+
             final addressListData = GpsAddressListData(
               rows: gpsAddresses,
               meta: meta,
             );
-            
+
             final response = GpsAddressListResponse(
               success: true,
               message: 'Addresses fetched successfully',
               data: addressListData,
               statusCode: 200,
             );
-            
+
             CustomLog.debug(this, "GPS Fetch Addresses Success: $response");
             return Success(response);
           } else if (responseData.containsKey('success') || responseData.containsKey('status')) {
             // Handle wrapped response format
             return await _apiService.getResponseStatus(
               result.value,
-              (data) => GpsAddressListResponse.fromJson(data),
+                  (data) => GpsAddressListResponse.fromJson(data),
             );
           } else {
             // Unknown response format, return empty list
@@ -421,8 +421,8 @@ class GpsOrderApiService {
 
   /// Add GPS Address
   Future<Result<GpsAddAddressResponse>> addGpsAddress(
-    GpsAddAddressRequest request,
-  ) async {
+      GpsAddAddressRequest request,
+      ) async {
     try {
       final url = ApiUrls.gpsAddressList;
       final result = await _apiService.post(url, body: request.toJson());
@@ -431,7 +431,7 @@ class GpsOrderApiService {
         // Handle direct response format (address data returned directly)
         final responseData = result.value;
         CustomLog.debug(this, "GPS Add Address Response: $responseData");
-        
+
         if (responseData is Map<String, dynamic>) {
           // Check if response contains address data directly
           if (responseData.containsKey('preferedAddressId') || responseData.containsKey('customerId')) {
@@ -443,7 +443,7 @@ class GpsOrderApiService {
             // This is a wrapped response with success/status fields
             return await _apiService.getResponseStatus(
               result.value,
-              (data) => GpsAddAddressResponse.fromJson(data),
+                  (data) => GpsAddAddressResponse.fromJson(data),
             );
           } else {
             // Unknown response format, treat as success with direct data
@@ -472,17 +472,17 @@ class GpsOrderApiService {
   Future<Result<void>> createGpsOrder(GpsOrderRequest request) async {
     try {
       CustomLog.debug(this, "GPS Create Order - Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(
         ApiUrls.gpsCreateOrder,
         body: request.toJson(),
       );
-      
+
       if (result is Success) {
         CustomLog.debug(this, "GPS Create Order - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => null, // For void return
+              (data) => null, // For void return
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Create Order failed: ${result.type}", null);
@@ -501,17 +501,17 @@ class GpsOrderApiService {
   Future<Result<GpsOrderSummaryResponse>> getGpsOrderSummary(GpsOrderSummaryRequest request) async {
     try {
       CustomLog.debug(this, "GPS Order Summary - Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(
         ApiUrls.gpsOrderSummary,
         body: request.toJson(),
       );
-      
+
       if (result is Success) {
         CustomLog.debug(this, "GPS Order Summary - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsOrderSummaryResponse.fromJson(data),
+              (data) => GpsOrderSummaryResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Order Summary failed: ${result.type}", null);
@@ -534,7 +534,7 @@ class GpsOrderApiService {
   }) async {
     try {
       CustomLog.debug(this, "GPS Customer Orders List - Request: customerId=$customerId, page=$page, limit=$limit");
-      
+
       final queryParameters = {
         'customerId': customerId,
         'page': page.toString(),
@@ -545,12 +545,12 @@ class GpsOrderApiService {
         ApiUrls.gpsCustomerOrdersList,
         queryParams: queryParameters,
       );
-      
+
       if (result is Success) {
         CustomLog.debug(this, "GPS Customer Orders List - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-          (data) => GpsOrderListResponse.fromJson(data),
+              (data) => GpsOrderListResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Customer Orders List failed: ${result.type}", null);
@@ -585,18 +585,18 @@ class GpsOrderApiService {
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-          (data) {
-            try {
-              final userListResponse = KavachUserListResponse.fromJson(data);
-              return userListResponse.data;
-            } catch (e) {
-              CustomLog.error(this, "Failed to parse users data", e);
-              throw e;
-            }
-          },
-        );
+        CustomLog.debug(this, "Users API raw response: ${response.value}");
+        CustomLog.debug(this, "Users API response type: ${response.value.runtimeType}");
+        
+        try {
+          // The API response is directly the data structure, not wrapped in success/status
+          final userListResponse = KavachUserListResponse.fromJson(response.value);
+          CustomLog.debug(this, "Successfully parsed user list response with ${userListResponse.data.length} users");
+          return Success(userListResponse.data);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse users data", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
