@@ -60,8 +60,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       } else {
         vpAllLoadsInitialTabIndex = 0;
       }
-      debugPrint("Selective Index : $selectedIndex");
-
       int? role = profileCubit.userRole;
 
       if(selectedIndex == 3 && (role != null && role == 3)) {

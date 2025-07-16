@@ -492,8 +492,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
                       final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-                      return
-                        RecentAddedLoadListBody(
+                      return RecentAddedLoadListBody(
                         data: loads[index],
                         isKycDone: VpVariables.isKycVerified,
                         companyTypeId: companyId,
