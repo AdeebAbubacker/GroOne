@@ -48,7 +48,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
 
-  /// Map Style
+  /// Get Load Details
+
   getLoadDetails() {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? ""));
   }
@@ -245,7 +246,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
-                  Icon(Icons.arrow_forward).expand(),
+                  Icon(Icons.arrow_forward),
+                  20.width,
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.dropLocation,
                     DateTimeHelper.getFormattedDate(
