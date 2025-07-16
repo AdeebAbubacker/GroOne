@@ -21,7 +21,6 @@ class PngIcons {
   final String deleteIcon = "${_pngBasePath}delete_icon.png";
   final String driverIcon = "${_pngBasePath}driver_icon.png";
 
-
   //kavach payment icons
   final String kavachPaymentCard = "${_pngBasePath}payment_card.png";
   final String kavachPaymentUpi = "${_pngBasePath}payment_upi.png";
@@ -103,10 +102,10 @@ class SvgIcons {
   final String translation = "${_svgBasePath}translation.svg";
   final String alertCircle = "${_svgBasePath}alert_circle.svg";
   final String switchIcon = "${_svgBasePath}switch.svg";
+  final String download = "${_svgBasePath}download.svg";
   final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
   final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
-  final String download = "${_svgBasePath}download.svg";
-
+  final String swipeButtonIcon = "${_svgBasePath}swipe_button_icon.svg";
   final String gpsDashboardInactive = "${_svgBasePath}gps_dashboard_inactive.svg";
   final String gpsDashboardInsideFence = "${_svgBasePath}gps_dashboard_inside_fence.svg";
   final String gpsDashboardOutsideFence = "${_svgBasePath}gps_dashboard_out_fence.svg";

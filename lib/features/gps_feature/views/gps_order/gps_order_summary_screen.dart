@@ -101,8 +101,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             return GpsOrderSummaryRequestItem(
               productId: int.parse(product.id),
               quantity: widget.quantities[product.id] ?? 0,
-              discount:
-                  0.0, // Default discount, can be updated based on business logic
+              discount:   0.0, // Default discount, can be updated based on business logic
               state: state,
               gstId: gstId,
             );

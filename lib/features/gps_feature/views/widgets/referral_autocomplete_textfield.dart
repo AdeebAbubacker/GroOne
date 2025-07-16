@@ -40,12 +40,13 @@ class _ReferralAutoCompleteTextFieldState
   void initState() {
     super.initState();
     widget.controller.addListener(_onChanged);
+    CustomLog.debug(this, "Initializing ReferralAutoCompleteTextField");
     _loadUsers();
   }
 
   Future<void> _loadUsers() async {
     if (isLoading) return;
-    
+
     setState(() {
       isLoading = true;
       hasError = false;
@@ -55,7 +56,7 @@ class _ReferralAutoCompleteTextFieldState
     try {
       CustomLog.debug(this, "GPS Referral - Starting to fetch users...");
       final result = await _repository.fetchUsers();
-      CustomLog.debug(this, "GPS Referral - Fetch result type: ${result.runtimeType}");
+      CustomLog.debug(this, "API result type: ${result.runtimeType}");
       
       if (result is Success<List<KavachUserModel>>) {
         CustomLog.debug(this, "GPS Referral - Successfully fetched ${result.value.length} users");
@@ -64,26 +65,21 @@ class _ReferralAutoCompleteTextFieldState
           isLoading = false;
           hasError = false;
         });
-      } else if (result is Error<List<KavachUserModel>>) {
-        CustomLog.error(this, "GPS Referral - Failed to fetch users: ${result.type}", null);
-        setState(() {
-          hasError = true;
-          errorMessage = result.type.getText(context);
-          isLoading = false;
-        });
+        CustomLog.debug(this, "Successfully loaded ${allUsers.length} users for referral code");
       } else {
-        CustomLog.error(this, "GPS Referral - Unknown result type: ${result.runtimeType}", null);
+        final apiErrorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
+        CustomLog.error(this, "API returned error: $apiErrorMessage", null);
         setState(() {
           hasError = true;
-          errorMessage = 'Failed to load users';
+          errorMessage = apiErrorMessage;
           isLoading = false;
         });
       }
     } catch (e) {
-      CustomLog.error(this, "GPS Referral - Exception while fetching users", e);
+      CustomLog.error(this, "Exception while loading users", e);
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load users: $e';
+        errorMessage = 'Failed to load users. Please try again.';
         isLoading = false;
       });
     }
@@ -91,13 +87,17 @@ class _ReferralAutoCompleteTextFieldState
 
   void _onChanged() {
     final query = widget.controller.text.toLowerCase();
+    CustomLog.debug(this, "Text changed: '$query', Total users: ${allUsers.length}");
+    
     if (query.isNotEmpty) {
       filteredUsers = allUsers
-          .where((user) => 
-              user.userName.toLowerCase().contains(query) ||
-              user.empCode.toLowerCase().contains(query) ||
-              '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
+          .where((user) =>
+      user.userName.toLowerCase().contains(query) ||
+          user.empCode.toLowerCase().contains(query) ||
+          '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
           .toList();
+
+      CustomLog.debug(this, "Filtered users: ${filteredUsers.length}");
 
       if (filteredUsers.isNotEmpty) {
         _showOverlay();
@@ -116,13 +116,17 @@ class _ReferralAutoCompleteTextFieldState
       _overlayEntry!.markNeedsBuild();
       return;
     }
+    CustomLog.debug(this, "Creating overlay with ${filteredUsers.length} users");
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
   }
 
   void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    if (_overlayEntry != null) {
+      CustomLog.debug(this, "Removing overlay");
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -160,6 +164,7 @@ class _ReferralAutoCompleteTextFieldState
                     ),
                     onTap: () {
                       final displayText = '${user.empCode} ${user.userName}';
+                      CustomLog.debug(this, "User selected: $displayText");
                       widget.controller.text = displayText;
                       widget.controller.selection = TextSelection.fromPosition(
                         TextPosition(offset: displayText.length),
@@ -196,19 +201,19 @@ class _ReferralAutoCompleteTextFieldState
             labelText: widget.labelText,
             decoration: commonInputDecoration(
               hintText: widget.labelText,
-              suffixIcon: isLoading 
+              suffixIcon: isLoading
                   ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
                   : hasError
-                      ? Icon(
-                          Icons.error,
-                          color: Colors.red,
-                          size: 20,
-                        )
-                      : null,
+                  ? Icon(
+                Icons.error,
+                color: Colors.red,
+                size: 20,
+              )
+                  : null,
             ),
           ),
           if (hasError) ...[
@@ -224,15 +229,10 @@ class _ReferralAutoCompleteTextFieldState
             TextButton(
               onPressed: _loadUsers,
               child: Text('Retry'),
-            ),
-          ],
-          if (!isLoading && !hasError && allUsers.isEmpty) ...[
-            SizedBox(height: 4),
-            Text(
-              'No users available',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
           ],

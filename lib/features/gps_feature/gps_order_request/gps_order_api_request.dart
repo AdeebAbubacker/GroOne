@@ -94,18 +94,18 @@ class GpsDocumentUploadMultipartApiRequest {
       'aadhar': aadhar,
       'customerId': customerId,
     };
-    
+
     if (pan != null && pan!.isNotEmpty) {
       fields['pan'] = pan!;
     }
-    
+
     return fields;
   }
 
   /// Get files for multipart upload
   Map<String, File> getFiles() {
     final Map<String, File> files = {};
-    
+
     if (panImage != null) {
       files['panImage'] = panImage!;
     }
@@ -121,7 +121,7 @@ class GpsDocumentUploadMultipartApiRequest {
     if (identityProofBack != null) {
       files['identityProofBack'] = identityProofBack!;
     }
-    
+
     return files;
   }
 
@@ -322,15 +322,15 @@ class GpsKycCheckModel {
 
     if (data != null && data is Map<String, dynamic>) {
       // Check if document exists in the response (singular 'document', not 'documents')
-      hasDocuments = data.containsKey('document') && 
-                    data['document'] != null;
-      
+      hasDocuments = data.containsKey('document') &&
+          data['document'] != null;
+
       print('🔍 GpsKycCheckModel.fromJson:');
       print('  - data keys: ${data.keys}');
       print('  - has document key: ${data.containsKey('document')}');
       print('  - document value: ${data['document']}');
       print('  - hasDocuments: $hasDocuments');
-      
+
       kycData = data;
     }
 
@@ -362,10 +362,10 @@ class GpsKycCheckModel {
   @override
   int get hashCode {
     return success.hashCode ^
-        message.hashCode ^
-        data.hashCode ^
-        hasKycDocuments.hashCode ^
-        kycData.hashCode;
+    message.hashCode ^
+    data.hashCode ^
+    hasKycDocuments.hashCode ^
+    kycData.hashCode;
   }
 }
 
@@ -598,7 +598,7 @@ class GpsOrderSummaryData {
     final summaryList = (json['summary'] as List<dynamic>?)
         ?.map((item) => GpsOrderSummaryItem.fromJson(item as Map<String, dynamic>))
         .toList() ?? [];
-    
+
     return GpsOrderSummaryData(
       summary: summaryList,
       grandTotal: (json['grandTotal'] ?? 0.0).toDouble(),
@@ -700,11 +700,11 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 getVehicles API Response: ${result.value}');
         print('🔍 getVehicles API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct response format (no success/status wrapper)
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // Check if it has the expected fields for vehicle list response
           if (response.containsKey('data') && response.containsKey('total')) {
             print('🔍 getVehicles direct response format detected');
@@ -745,11 +745,11 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Add Vehicle API Response: ${result.value}');
         print('🔍 Add Vehicle API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct response format (vehicle data directly)
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // Check if it has vehicle fields
           if (response.containsKey('vehicleId') || response.containsKey('truckNo')) {
             // Create a success response wrapper
@@ -794,11 +794,11 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Upload Document API Response: ${result.value}');
         print('🔍 Upload Document API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct response format
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // Check if it has the expected fields
           if (response.containsKey('url') && response.containsKey('filePath')) {
             return Success(GpsDocumentUploadResponse.fromJson(response));
@@ -825,7 +825,7 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Truck Types API Response: ${result.value}');
         print('🔍 Truck Types API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct array response
         if (result.value is List) {
           final truckTypes = (result.value as List).cast<String>();
@@ -834,12 +834,12 @@ class GpsOrderApiRequest {
         // Handle JSON object response
         else if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // If it has success field, use getResponseStatus
           if (response.containsKey('success') || response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-              (data) => (data['data'] as List).cast<String>(),
+                  (data) => (data['data'] as List).cast<String>(),
             );
           } else {
             // Direct data access if no success/status field
@@ -871,7 +871,7 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Truck Lengths API Response: ${result.value}');
         print('🔍 Truck Lengths API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct array response
         if (result.value is List) {
           final truckLengths = (result.value as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList();
@@ -880,12 +880,12 @@ class GpsOrderApiRequest {
         // Handle JSON object response
         else if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // If it has success field, use getResponseStatus
           if (response.containsKey('success') || response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-              (data) => (data['data'] as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList(),
+                  (data) => (data['data'] as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList(),
             );
           } else {
             // Direct data access if no success/status field
@@ -917,7 +917,7 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Commodities API Response: ${result.value}');
         print('🔍 Commodities API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle direct array response
         if (result.value is List) {
           final commodities = (result.value as List).map((e) => GpsCommodityModel.fromJson(e)).toList();
@@ -926,12 +926,12 @@ class GpsOrderApiRequest {
         // Handle JSON object response
         else if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // If it has success field, use getResponseStatus
           if (response.containsKey('success') || response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-              (data) => (data['data'] as List).map((e) => GpsCommodityModel.fromJson(e)).toList(),
+                  (data) => (data['data'] as List).map((e) => GpsCommodityModel.fromJson(e)).toList(),
             );
           } else {
             // Direct data access if no success/status field
@@ -969,11 +969,11 @@ class GpsOrderApiRequest {
       if (result is Success) {
         print('🔍 Vehicle Verification API Response: ${result.value}');
         print('🔍 Vehicle Verification API Response Type: ${result.value.runtimeType}');
-        
+
         // Handle response format with status field
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
-          
+
           // Check if it has status field
           if (response.containsKey('status')) {
             final isVerified = response['status'] == true;

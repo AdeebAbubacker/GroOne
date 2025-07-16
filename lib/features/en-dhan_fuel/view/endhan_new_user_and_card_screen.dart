@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_transaction_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -32,6 +33,7 @@ import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/common_dialog_view/common_dialog_view.dart';
+import 'package:go_router/go_router.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
 
@@ -45,6 +47,7 @@ class EndhanNewUserAndCardScreen extends StatefulWidget {
 class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _hasAttemptedCardsFetch = false;
+  bool _isNavigating = false; // Flag to prevent multiple navigation attempts
 
   String _searchText = '';
 
@@ -54,7 +57,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     // Reset the cubit to ensure it's in a clean state
     final cubit = locator<EnDhanCubit>();
     cubit.resetCubit();
-    
+
     // Initialize API calls with a small delay to ensure cubit is ready
     Future.microtask(() {
       if (!cubit.isClosed && mounted) {
@@ -70,46 +73,64 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     super.dispose();
   }
 
-  void _handleBackNavigation() {
-    print('🔙 EnDhan Back button tapped - simple navigation back');
-    // Simply navigate back to previous screen
-    if (mounted && context.mounted) {
-      if (Navigator.canPop(context)) {
+  // Safe navigation method to prevent crashes
+  void _safeNavigateBack(BuildContext context) {
+    if (_isNavigating || !context.mounted) return;
+
+    _isNavigating = true;
+
+    try {
+      // Check if we can pop back to previous screen
+      if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       } else {
-        // Fallback to dashboard if no previous screen
-        _getUserRoleAndNavigate();
+        // If no previous screen, go to dashboard based on user role
+        _navigateToDashboard(context);
       }
+    } catch (e) {
+      // Fallback: try to go to dashboard
+      _navigateToDashboard(context);
+    } finally {
+      // Reset the flag after a delay to allow for future navigation
+      Future.delayed(Duration(seconds: 2), () {
+        _isNavigating = false;
+      });
     }
   }
 
-  Future<void> _getUserRoleAndNavigate() async {
+  // Navigate to appropriate dashboard based on user role
+  void _navigateToDashboard(BuildContext context) {
     try {
-      print('🔙 EnDhan Getting user role for back navigation');
       final userRepository = locator<UserInformationRepository>();
-      final userRole = await userRepository.getUserRole();
-      print('🔙 EnDhan User role: $userRole');
-      
-      String targetRoute;
-      if (userRole == 1 || userRole == 3) {
-        targetRoute = AppRouteName.lpBottomNavigationBar;
-      } else if (userRole == 2) {
-        targetRoute = AppRouteName.vpBottomNavigationBar;
-      } else {
-        targetRoute = AppRouteName.lpBottomNavigationBar;
-      }
-      
-      print('🔙 EnDhan Navigating to: $targetRoute');
-      if (mounted && context.mounted) {
-        context.go(targetRoute);
-      } else {
-        print('🔙 EnDhan Context not mounted, cannot navigate');
-      }
+      userRepository.getUserRole().then((userRole) {
+        if (!context.mounted) return;
+
+        String targetRoute;
+        if (userRole == 1 || userRole == 3) {
+          targetRoute = '/lpBottomNavigation';
+        } else if (userRole == 2) {
+          targetRoute = '/vpBottomNavigationBar';
+        } else {
+          targetRoute = '/lpBottomNavigation';
+        }
+
+        if (context.mounted) {
+          context.go(targetRoute);
+        }
+      }).catchError((e) {
+        // Fallback to default route
+        if (context.mounted) {
+          context.go('/lpBottomNavigation');
+        }
+      });
     } catch (e) {
-      print('🔙 EnDhan Error during back navigation: $e');
-      // Fallback to default navigation
-      if (mounted && context.mounted) {
-        context.go(AppRouteName.lpBottomNavigationBar);
+      // Last resort fallback
+      if (context.mounted) {
+        try {
+          context.go('/lpBottomNavigation');
+        } catch (finalError) {
+          // Silent fallback
+        }
       }
     }
   }
@@ -172,37 +193,28 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     );
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        print('🔙 EnDhan WillPopScope triggered - simple navigation back');
-        // Simply navigate back to previous screen
-        if (mounted && context.mounted) {
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          } else {
-            // Fallback to dashboard if no previous screen
-            _getUserRoleAndNavigate();
-          }
-        }
-        return false; // Prevent default pop behavior
+        _safeNavigateBack(context);
+        return false;
       },
       child: BlocProvider.value(
         value: locator<EnDhanCubit>(),
         child: BlocConsumer<EnDhanCubit, EnDhanState>(
-          listenWhen: (previous, current) => 
-            previous.kycCheckState != current.kycCheckState ||
-            previous.cardsState != current.cardsState,
+          listenWhen: (previous, current) =>
+          previous.kycCheckState != current.kycCheckState ||
+              previous.cardsState != current.cardsState,
           listener: (context, state) {
             // Check if widget is still mounted
             if (!mounted) return;
-            
+
             // If KYC documents exist, fetch cards and balance
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 !_hasAttemptedCardsFetch &&
-                state.cardsState?.status != Status.LOADING && 
+                state.cardsState?.status != Status.LOADING &&
                 state.cardsState?.status != Status.SUCCESS) {
               _hasAttemptedCardsFetch = true;
               final cubit = context.read<EnDhanCubit>();
@@ -211,10 +223,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 cubit.fetchCardBalance();
               }
             }
-            
+
             // If KYC documents exist and cards haven't been fetched yet, fetch them
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 state.cardsState?.status == Status.INITIAL) {
               final cubit = context.read<EnDhanCubit>();
               if (!cubit.isClosed && mounted) {
@@ -230,23 +242,21 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                 ),
                 body: const Center(child: AppLoadingWidget()),
               );
             }
 
             // Show loading while fetching cards after KYC check
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 state.cardsState?.status == Status.LOADING) {
               return Scaffold(
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                 ),
                 body: const Center(child: AppLoadingWidget()),
               );
@@ -258,8 +268,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
@@ -283,15 +292,14 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             }
 
             // Show error state for cards fetching
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 state.cardsState?.status == Status.ERROR) {
               return Scaffold(
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
@@ -320,8 +328,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
@@ -338,16 +345,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             }
 
             // Show benefits screen if KYC documents exist but no cards found
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 state.cardsState?.status == Status.SUCCESS &&
                 (state.cardsState?.data?.data?.document ?? []).isEmpty) {
               return Scaffold(
                 appBar: CommonAppBar(
                   title: context.appText.fuelCard,
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
@@ -363,9 +369,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               );
             }
 
-             // Show cards screen if KYC documents exist and cards are available
-            if (state.kycCheckState?.status == Status.SUCCESS && 
-                state.hasKycDocuments && 
+            // Show cards screen if KYC documents exist and cards are available
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 state.cardsState?.status == Status.SUCCESS &&
                 (state.cardsState?.data?.data?.document ?? []).isNotEmpty) {
               return Scaffold(
@@ -373,15 +379,14 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 appBar: CommonAppBar(
                   title: Text("eN-Dhan Card",style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
                   centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
+                  onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
                         // Check if there are already cards
                         final cards = state.cardsState?.data?.data?.document ?? [];
-                       if (cards.isNotEmpty) {
-                         //Show popup if cards already exist
+                        if (cards.isNotEmpty) {
+                          // Show popup if cards already exist
                           _showAlreadyAddedCardDialog(context);
                         } else {
                           // Navigate to create card screen if no cards exist
@@ -407,64 +412,64 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     children: [
                       16.height,
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                          
-                            Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
-                              style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            // Show balance if available
-                            if (state.cardBalanceState?.status == Status.SUCCESS)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Balance: ',
-                                      style: AppTextStyle.body3.copyWith(
-                                        color: AppColors.greyTextColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                                    style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  // Show balance if available
+                                  if (state.cardBalanceState?.status == Status.SUCCESS)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            'Balance: ',
+                                            style: AppTextStyle.body3.copyWith(
+                                              color: AppColors.greyTextColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                                ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
+                                                : '₹0.00',
+                                            style: AppTextStyle.body3.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              color: state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                                  ? AppColors.primaryColor
+                                                  : AppColors.greyTextColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      state.cardBalanceState?.data?.data?.balance?.hasBalance == true
-                                          ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
-                                          : '₹0.00',
-                                      style: AppTextStyle.body3.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: state.cardBalanceState?.data?.data?.balance?.hasBalance == true
-                                            ? AppColors.primaryColor
-                                            : AppColors.greyTextColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                ],
                               ),
-                          ],
-                        ),
-                          
-                          InkWell(
-                            onTap: (){
-                              Navigator.push(context,commonRoute(KavachTransactionsScreen()));
-                            },
-                            child: 
-                          Row(children: [
-                             Text("Transactions",
-                             style: TextStyle(
-                              color: AppColors.primaryColor,
-                             ),),
-                             Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 15,),
-                          ],),
+
+                              InkWell(
+                                onTap: (){
+                                  Navigator.push(context,commonRoute(KavachTransactionsScreen()));
+                                },
+                                child:
+                                Row(children: [
+                                  Text("Transactions",
+                                    style: TextStyle(
+                                      color: AppColors.primaryColor,
+                                    ),),
+                                  Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 15,),
+                                ],),
+                              )
+
+                            ],
                           )
-                           
-                          ],
-                        )
-                      
+
                       ),
                       12.height,
                       AppSearchBar(
@@ -490,14 +495,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 ),
               );
             }
-            
+
             // Show loading while waiting for KYC check
             return Scaffold(
               appBar: CommonAppBar(
                 title: context.appText.fuelCard,
                 centreTile: false,
-                isLeading: true,
-                onLeadingTap: _handleBackNavigation,
+                onLeadingTap: () => _safeNavigateBack(context),
               ),
               body: const Center(child: AppLoadingWidget()),
             );
@@ -547,7 +551,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           ),
         );
       }
-      
+
       // Filter cards based on search
       final filteredCards = cards.where((card) {
         if (_searchText.isEmpty) return true;
@@ -559,7 +563,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             vehicleNumber.contains(searchLower) ||
             mobile.contains(searchLower);
       }).toList();
-      
+
       return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         itemCount: filteredCards.length,
@@ -568,7 +572,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           // Convert EnDhanCardModel to Map for EndhanCardItem
           final cardMap = {
             'cardNumber':card.cardNumber ?? '',
-           // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
+            // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
             'vehicleNumber': card.vehicleNumber ?? '',
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it
@@ -587,7 +591,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     // Mask all but the first 2 and last 4 digits
     final visibleStart = cardNumber.substring(0, 2);
     final visibleEnd = cardNumber.substring(cardNumber.length - 4);
-    return ' XXX XXXXX X$visibleEnd';
+    return 'XXX XXXXX X$visibleEnd';
   }
 
   Widget enDhanBenifitsWidget(BuildContext context, {bool showKycScreen = false}){
@@ -613,17 +617,17 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
             child: AppButton(
-              title: "Buy New Fuel Card",
-              onPressed: (){
-                if (showKycScreen) {
-                  // Navigate to KYC screen if user doesn't have KYC documents
-                Navigator.push(context,commonRoute(EndhanKycScreen()));
-                } else {
-                  // Navigate to create card screen if user has KYC documents but no cards
-                  Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                title: "Buy New Fuel Card",
+                onPressed: (){
+                  if (showKycScreen) {
+                    // Navigate to KYC screen if user doesn't have KYC documents
+                    Navigator.push(context,commonRoute(EndhanKycScreen()));
+                  } else {
+                    // Navigate to create card screen if user has KYC documents but no cards
+                    Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                  }
                 }
-              }
-           ),
+            ),
           ),
         ),
       ],
@@ -638,7 +642,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       width: double.infinity,
       height: screenHeight * 0.2,
       color: AppColors.lightPrimaryColor,
-     child: Image.asset(AppImage.png.endhanCard, width: 150),
+      child: Image.asset(AppImage.png.endhanCard, width: 150),
     );
   }
 
