@@ -449,6 +449,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(
         state.createDamageUIState)));
   }
+
   void resetSettlementUIState() {
     emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
         state.settlementUIState)));

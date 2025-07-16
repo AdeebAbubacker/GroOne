@@ -172,12 +172,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
                   BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                     listener: (context, state) {
-                      // if(state.scheduleTripResponse?.status==Status.SUCCESS){
-                      //   clearValues();
-                      //   cubit.acceptLoad(4);
-                      //   cubit.getLoadDetails(widget.loadId??"");
-                      //   Navigator.pop(context);
-                      // }
+                      if(state.scheduleTripResponse?.status==Status.SUCCESS){
+                        cubit.acceptLoad(4);
+                        // clearValues();
+
+                        // cubit.getLoadDetails(widget.loadId??"");
+                        // Navigator.pop(context);
+                      }
 
                     },
                     builder: (context, state) {
