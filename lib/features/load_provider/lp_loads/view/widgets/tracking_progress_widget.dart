@@ -156,7 +156,7 @@ class TrackingProgress extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: remainingDistance,
+                        text: "${calculateDistanceCovered(totalDistance,remainingDistance)} km",
                         style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.w600, fontSize: 14),
                       ),
                       TextSpan(
@@ -192,5 +192,14 @@ class TrackingProgress extends StatelessWidget {
       ],
     );
   }
+
+  int calculateDistanceCovered(String totalDistance, String remainingDistance) {
+    int total = int.tryParse(totalDistance.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    int remaining = int.tryParse(remainingDistance.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    return total - remaining;
+  }
+
+
+
 }
 

@@ -7,6 +7,7 @@ class TrackingDistanceResponse {
     required this.duration,
     required this.durationValue,
     required this.percentage,
+    required this.coverPercentage,
   });
 
   final String currentdistance;
@@ -16,6 +17,8 @@ class TrackingDistanceResponse {
   final String duration;
   final int durationValue;
   final int percentage;
+  final int? coverPercentage;
+
 
   TrackingDistanceResponse copyWith({
     String? currentdistance,
@@ -25,8 +28,10 @@ class TrackingDistanceResponse {
     String? duration,
     int? durationValue,
     int? percentage,
+    int? coverPercentage
   }) {
     return TrackingDistanceResponse(
+      coverPercentage: coverPercentage ?? this.coverPercentage,
       currentdistance: currentdistance ?? this.currentdistance,
       currentdistanceValue: currentdistanceValue ?? this.currentdistanceValue,
       overalldistance: overalldistance ?? this.overalldistance,
@@ -46,6 +51,7 @@ class TrackingDistanceResponse {
       duration: json["duration"] ?? "",
       durationValue: json["durationValue"] ?? 0,
       percentage: json["percentage"] ?? 0,
+      coverPercentage: json["coveredPercentage"] ??  0,
     );
   }
 
