@@ -1,49 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/data/model/result.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
-class ReferralAutoCompleteTextField extends StatefulWidget {
+class StateAutoCompleteTextField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final void Function(String)? onSelected;
+  final void Function(int)? onStateSelected;
+  final String? Function(String?)? validator;
 
-  const ReferralAutoCompleteTextField({
+  const StateAutoCompleteTextField({
     super.key,
     required this.controller,
     required this.labelText,
     this.onSelected,
+    this.onStateSelected,
+    this.validator,
   });
 
   @override
-  State<ReferralAutoCompleteTextField> createState() =>
-      _ReferralAutoCompleteTextFieldState();
+  State<StateAutoCompleteTextField> createState() =>
+      _StateAutoCompleteTextFieldState();
 }
 
-class _ReferralAutoCompleteTextFieldState
-    extends State<ReferralAutoCompleteTextField> {
+class _StateAutoCompleteTextFieldState
+    extends State<StateAutoCompleteTextField> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
-  List<KavachUserModel> allUsers = [];
-  List<KavachUserModel> filteredUsers = [];
+  List<Map<String, dynamic>> allStates = [];
+  List<Map<String, dynamic>> filteredStates = [];
   bool isLoading = false;
   bool hasError = false;
   String errorMessage = '';
-  final GpsOrderApiRepository _repository = locator<GpsOrderApiRepository>();
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onChanged);
-    _loadUsers();
+    _loadStates();
   }
 
-  Future<void> _loadUsers() async {
+  Future<void> _loadStates() async {
     if (isLoading) return;
     
     setState(() {
@@ -52,24 +53,17 @@ class _ReferralAutoCompleteTextFieldState
     });
 
     try {
-      final result = await _repository.fetchUsers();
-      if (result is Success<List<KavachUserModel>>) {
-        setState(() {
-          allUsers = result.value;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          hasError = true;
-          errorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
-          isLoading = false;
-        });
-      }
+      final cubit = locator<EnDhanCubit>();
+      await cubit.fetchStates();
+      
+      setState(() {
+        allStates = List.from(cubit.state.states);
+        isLoading = false;
+      });
     } catch (e) {
-      CustomLog.error(this, "Failed to load users", e);
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load users';
+        errorMessage = 'Failed to load states';
         isLoading = false;
       });
     }
@@ -78,20 +72,18 @@ class _ReferralAutoCompleteTextFieldState
   void _onChanged() {
     final query = widget.controller.text.toLowerCase();
     if (query.isNotEmpty) {
-      filteredUsers = allUsers
-          .where((user) => 
-              user.userName.toLowerCase().contains(query) ||
-              user.empCode.toLowerCase().contains(query) ||
-              '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
+      filteredStates = allStates
+          .where((state) => 
+              (state['name'] ?? '').toString().toLowerCase().contains(query))
           .toList();
 
-      if (filteredUsers.isNotEmpty) {
+      if (filteredStates.isNotEmpty) {
         _showOverlay();
       } else {
         _removeOverlay();
       }
     } else {
-      filteredUsers = [];
+      filteredStates = [];
       _removeOverlay();
     }
     setState(() {});
@@ -131,26 +123,31 @@ class _ReferralAutoCompleteTextFieldState
             borderRadius: BorderRadius.circular(8),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: (filteredUsers.length * 56.0).clamp(0, 200),
+                maxHeight: (filteredStates.length * 56.0).clamp(0, 200),
               ),
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
-                itemCount: filteredUsers.length,
+                itemCount: filteredStates.length,
                 itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
+                  final state = filteredStates[index];
+                  final stateName = state['name'] ?? '';
+                  final stateId = state['id'];
+                  
                   return ListTile(
                     title: Text(
-                      '${user.empCode} ${user.userName}',
+                      stateName,
                       style: AppTextStyle.body,
                     ),
                     onTap: () {
-                      final displayText = '${user.empCode} ${user.userName}';
-                      widget.controller.text = displayText;
+                      widget.controller.text = stateName;
                       widget.controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: displayText.length),
+                        TextPosition(offset: stateName.length),
                       );
-                      widget.onSelected?.call(displayText);
+                      widget.onSelected?.call(stateName);
+                      if (stateId != null) {
+                        widget.onStateSelected?.call(stateId);
+                      }
                       _removeOverlay();
                     },
                   );
@@ -180,6 +177,7 @@ class _ReferralAutoCompleteTextFieldState
           AppTextField(
             controller: widget.controller,
             labelText: widget.labelText,
+            validator: widget.validator,
             decoration: commonInputDecoration(
               hintText: widget.labelText,
               suffixIcon: isLoading 
@@ -194,7 +192,11 @@ class _ReferralAutoCompleteTextFieldState
                           color: Colors.red,
                           size: 20,
                         )
-                      : null,
+                      : Icon(
+                          CupertinoIcons.chevron_down,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
             ),
           ),
           if (hasError) ...[
@@ -208,7 +210,7 @@ class _ReferralAutoCompleteTextFieldState
             ),
             SizedBox(height: 4),
             TextButton(
-              onPressed: _loadUsers,
+              onPressed: _loadStates,
               child: Text('Retry'),
             ),
           ],

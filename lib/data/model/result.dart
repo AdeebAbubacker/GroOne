@@ -85,9 +85,21 @@ class BadRequestError extends ErrorType {
 
 
 class InternalServerError extends ErrorType {
+  final String? message;
+  InternalServerError({this.message});
+  
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.badRequestError.capitalize;
+    if(message != null){
+      return message!;
+    }
+    return AppString.errorType.internalServerError.capitalize;
+  }
+
+  factory InternalServerError.fromApiResponse(Map<String, dynamic> response) {
+    return InternalServerError(
+      message: response['message'] ?? "",
+    );
   }
 }
 

@@ -37,7 +37,6 @@ class GpsBillingAddressListScreen extends StatelessWidget {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: GpsAddAddressBottomSheet(
-            addrType: 2, // Billing address type
             title: context.appText.billingAddress,
           ),
         );

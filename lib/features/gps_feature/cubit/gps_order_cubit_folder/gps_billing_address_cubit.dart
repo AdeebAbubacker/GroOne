@@ -73,7 +73,6 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
         customerId: customerId,
         limit: 10,
         page: 1,
-        addrType: 2,
       );
       
       if (result is Success<GpsAddressListResponse>) {

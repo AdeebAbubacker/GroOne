@@ -162,13 +162,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               message: 'Order placed successfully',
               onContinue: () async {
                 try {
-                  print('🔄 GPS Order Success: Continue button tapped');
-                  // Close the dialog first
                   Navigator.of(context).pop();
-                  print('🔄 GPS Order Success: Dialog closed, navigating to ${AppRouteName.gpsOrderBenefits}');
-                  // Add a longer delay to ensure dialog is fully closed and context is ready
                   await Future.delayed(Duration(milliseconds: 300));
-                  // Navigate to GPS benefits and clear the navigation stack
                   if (context.mounted) {
                     // Debug current route
                     print('🔄 GPS Order Success: Current route: ${GoRouterState.of(context).uri}');
@@ -180,16 +175,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                     print('❌ GPS Order Success: Context is not mounted after delay');
                   }
                 } catch (e) {
-                  print('❌ GPS Order Success: Navigation error: $e');
-                  // Fallback navigation
                   if (context.mounted) {
+                    // Use GoRouter to navigate and clear stack
                     context.go(AppRouteName.gpsOrderBenefits);
-                    // Navigator.of(context).pushAndRemoveUntil(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => GpsOrderBenefitsAndOrderListScreen(),
-                    //   ),
-                    //   (route) => false,
-                    // );
                     print('🔄 GPS Order Success: Fallback navigation used');
                   }
                 }

@@ -47,8 +47,44 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
   bool isFile = false;
   final double documentHeight = 50;
 
+  /// Get display filename from document data
+  String _getDisplayFileName(dynamic fileName) {
+    if (fileName == null) return 'Unknown file';
+    
+    final fileNameStr = fileName.toString();
+    
+    // If it's an uploaded URL, extract the filename from the URL
+    if (fileNameStr.startsWith('http')) {
+      try {
+        final uri = Uri.parse(fileNameStr);
+        final pathSegments = uri.pathSegments;
+        if (pathSegments.isNotEmpty) {
+          final lastSegment = pathSegments.last;
+          // Remove query parameters if present
+          final cleanFileName = lastSegment.split('?').first;
+          return cleanFileName.capitalizeFirst;
+        }
+      } catch (e) {
+        // Error parsing URL
+      }
+      // Fallback: show a generic name for uploaded files
+      return 'Uploaded Document';
+    }
+    
+    // For local files, use the filename as is
+    return fileNameStr.capitalizeFirst;
+  }
+
   @override
   Widget build(BuildContext context) {
+    
+    // Update isFile state based on whether there are documents
+    if (widget.multiFilesList.isNotEmpty && !isFile) {
+      isFile = true;
+    } else if (widget.multiFilesList.isEmpty && isFile) {
+      isFile = false;
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -63,23 +99,17 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
           onTap: !isFile ? () {
             commonHideKeyboard(context);
             commonBottomSheet(context: context, barrierDismissible: true, screen: const UploadFileAndImageBottomSheet()).then((value) {
-              debugPrint("Document Upload: $value");
-              isFile = true;
-                                if (value != null) {
-                    for (int i = 0; i < value.length;) {
-                      if (value.length <= 8) {
-                        isFile = false;
-                        // For single file upload, replace the existing document instead of adding
-                        final newList = widget.isSingleFile == true ? [value] : List.from(widget.multiFilesList)..add(value);
-                        widget.onFilesChanged?.call(newList);
-                        widget.thenUploadFileToSever?.call();
-                      } else {
-                        isFile = false;
-                      }
-                      break;
-                    }
-                  } else {
+              if (value != null) {
+                isFile = true;
+                // For single file upload, replace the existing document instead of adding
+                final newList = widget.isSingleFile == true ? [value] : List.from(widget.multiFilesList)..add(value);
+                widget.onFilesChanged?.call(newList);
+                widget.thenUploadFileToSever?.call();
+                // Force immediate state update
+                setState(() {});
+              } else {
                 isFile = false;
+                setState(() {});
               }
               if(!context.mounted) return;
               commonHideKeyboard(context);
@@ -97,17 +127,15 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
               height: documentHeight,
               color: AppColors.textFieldFillColor,
               alignment: Alignment.center,
-              child: isFile
-                  ? Text(AppString.label.loading, style: AppTextStyle.body2)
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(widget.feildTitle??context.appText.uploadDocument, style: AppTextStyle.textFiled),
-                        10.width,
-                        SvgPicture.asset(AppIcons.svg.documentUpload, width: 16, colorFilter: AppColors.svg(AppColors.iconColor)),
-                      ],
-                    ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(widget.feildTitle??context.appText.uploadDocument, style: AppTextStyle.textFiled),
+                  10.width,
+                  SvgPicture.asset(AppIcons.svg.documentUpload, width: 16, colorFilter: AppColors.svg(AppColors.iconColor)),
+                ],
+              ),
             ),
           ),
         ),
@@ -134,7 +162,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
                 children: [
                   Expanded(
                     child: Text(
-                      document["fileName"].toString().capitalizeFirst,
+                      _getDisplayFileName(document["fileName"]),
                       style: AppTextStyle.h6,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -150,7 +178,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
                           commonHideKeyboard(context);
                           setState(() {});
                         } catch (e) {
-                          debugPrint('Error deleting document: $e');
+                          // Error deleting document
                           // Fallback: clear the entire list
                           widget.onFilesChanged?.call([]);
                           setState(() {});

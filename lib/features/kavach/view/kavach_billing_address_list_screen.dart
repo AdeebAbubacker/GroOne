@@ -35,7 +35,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: KavachAddAddressBottomSheet(
-            addrType: 2, // Shipping address type
+            addrType: 2, // Billing address type
             title: context.appText.billingAddress,
           ),
         );
@@ -50,7 +50,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     return BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
       builder: (context, state) {
         if (state is KavachCheckoutBillingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator(),);
         }
 
         if (state is KavachCheckoutBillingAddressSelected) {
@@ -76,10 +76,47 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                 onPressed: () {
                   final selectedAddress = context.read<KavachCheckoutBillingAddressBloc>().state;
                   if (selectedAddress is KavachCheckoutBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
+                    Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
                     // Handle if nothing is selected (optional)
                   }
+                },
+                title: context.appText.deliverHere,
+                style: AppButtonStyle.primary,
+              ),
+              20.height,
+            ],
+          );
+        }
+
+        if (state is KavachCheckoutBillingAddressAvailable) {
+          final addresses = state.addresses;
+
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  separatorBuilder: (context, index) => 10.height,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return AddressListItem(address: address);
+                  },
+                ),
+              ),
+              20.height,
+              AppButton(
+                onPressed: () {
+                  // Show message that user must select an address first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select an address first'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
                 },
                 title: context.appText.deliverHere,
                 style: AppButtonStyle.primary,

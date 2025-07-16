@@ -289,7 +289,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
          selectedEngine!.toUpperCase().contains('BS 4'));
     
     // Debug print to see what engine is selected
-    print('Selected engine: "$selectedEngine", isBS4Selected: $isBS4Selected');
+            // Engine selection updated
     
     return Row(
       children: [
