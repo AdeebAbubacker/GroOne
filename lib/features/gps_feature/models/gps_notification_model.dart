@@ -46,6 +46,7 @@ extension NotificationTypeMapper on GpsNotificationModel {
   String get filterKey {
     if (type == "ignitionOn") return "Ignition ON";
     if (type == "ignitionOff") return "Ignition OFF";
+    if (type == "deviceOverspeed") return "Device Over-speed";
     if (type == "alarm") {
       final alarm = attributes['alarm'];
       if (alarm == "powerCut") return "Power-Cut";
@@ -55,9 +56,9 @@ extension NotificationTypeMapper on GpsNotificationModel {
       if (alarm == "geofenceEnter") return "Geo-fence Enter";
       if (alarm == "geofenceExit") return "Geo-fence Exit";
       if (alarm == "overSpeed") return "Device Over-speed";
-      if (alarm == "hardBraking") return "Hard Braking";
+      if (alarm == "hardBraking") return "Other";
     }
-    return "Unknown";
+    return "Other";
   }
 }
 

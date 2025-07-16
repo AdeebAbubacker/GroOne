@@ -3,9 +3,11 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 
+import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../repository/gps_login_repository.dart';
+import '../service/gps_realm_service.dart';
 
 part 'gps_login_state.dart';
 
@@ -117,6 +119,33 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
           "❌ Failed to fetch vehicle data: ${vehicleDataResult.runtimeType}",
         );
         _setDataFetchUIState(UIState.error(GenericError()));
+      }
+      if (vehicleDataResult is Success<List<GpsCombinedVehicleData>>) {
+        final vehicles = vehicleDataResult.value;
+
+        // Save distance for today
+        for (var vehicle in vehicles) {
+          if (vehicle.deviceId != null &&
+              vehicle.vehicleNumber != null &&
+              vehicle.todayDistance != null &&
+              vehicle.todayDistance!.contains("km")) {
+            final parsed = double.tryParse(
+              vehicle.todayDistance!.replaceAll("km", "").trim(),
+            );
+
+            if (parsed != null) {
+              await GpsRealmService().saveDistanceForToday(
+                vehicle.deviceId!,
+                vehicle.vehicleNumber!,
+                parsed,
+              );
+            }
+          }
+        }
+
+        print("✅ All data fetched and stored successfully!");
+        _setDataFetchUIState(UIState.success("All data loaded successfully"));
+        _hasLoadedData = true; // Mark as loaded to prevent future API calls
       }
     } catch (e) {
       print("❌ Error in sequential data fetch: $e");
