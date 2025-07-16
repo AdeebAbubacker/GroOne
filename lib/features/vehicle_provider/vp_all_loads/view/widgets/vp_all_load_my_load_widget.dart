@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -88,9 +89,11 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                     ],
                   ),
                   if(widget.data.loadStatus>2)
-                  LoadStatusLabel(
-                      loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
-                      loadStatus: widget.data.loadStatusValues)
+                    VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusValues!.name)
+                  // LoadStatusLabel(
+                  //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
+                  //     loadStatus: widget.data.loadStatusValues,
+                  // )
                 ],
               ).expand(),
             ],
@@ -187,17 +190,23 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               //
               //     ? "Assign Driver"
               //     : "Accept Load",
-              Visibility(
-                visible:true,
 
-                // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
-                child: AppButton(
-                  buttonHeight: 40,
-                  onPressed: widget.onClickAssignDriver ?? () {},
-                  title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
-                  style: AppButtonStyle.primary,
-                ).expand(),
-              ),
+              VpMyLoadHelper.loadStatusButtonWidget(
+                  status: widget.data.loadStatusValues!.name,
+                  onPressed: () {  }
+              ).expand(),
+
+              // Visibility(
+              //   visible:true,
+              //
+              //   // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
+              //   child: AppButton(
+              //     buttonHeight: 40,
+              //     onPressed: widget.onClickAssignDriver ?? () {},
+              //     title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
+              //     style: AppButtonStyle.primary,
+              //   ).expand(),
+              // ),
             ],
           ),
         ],
