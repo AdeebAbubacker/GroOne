@@ -9,8 +9,8 @@ class KycState extends Equatable {
   final UIState<UploadPANDocumentModel>? uploadPanDocUIState;
   final UIState<UploadTANDocumentModel>? uploadTanDocUIState;
   final UIState<UploadTDSDocumentModel>? uploadTDSDocUIState;
-  final UIState<List<CityModel>>? cityUIState;
-  final UIState<List<StateModel>>? stateUIState;
+  final UIState<List<CityModelList>>? cityUIState;
+  final UIState<List<StateModelList>>? stateUIState;
   final UIState<bool>? gstState;
   final UIState<bool>? tanState;
   final UIState<bool>? panState;
@@ -50,8 +50,8 @@ class KycState extends Equatable {
     UIState<UploadPANDocumentModel>? uploadPanDocUIState,
     UIState<UploadTANDocumentModel>? uploadTanDocUIState,
     UIState<UploadTDSDocumentModel>? uploadTDSDocUIState,
-    UIState<List<CityModel>>? cityUIState,
-    UIState<List<StateModel>>? stateUIState,
+    UIState<List<CityModelList>>? cityUIState,
+    UIState<List<StateModelList>>? stateUIState,
     UIState<bool>? gstState,
     UIState<bool>? tanState,
     UIState<bool>? panState,

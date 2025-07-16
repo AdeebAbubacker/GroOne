@@ -270,7 +270,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            return SizedBox();
                          }
                          return TrackingProgress(
-                           progressPercentage: trackingData.percentage,
+                           progressPercentage: trackingData.coveredPercentage,
                            remainingDistance: trackingData.currentdistance ?? '--',
                            totalDistance: trackingData.overalldistance ?? '--',
                            eta: trackingData.durationValue,

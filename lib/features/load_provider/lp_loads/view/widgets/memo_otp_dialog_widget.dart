@@ -135,9 +135,9 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             ),
           ),
           10.height,
-          Text(
-            'OTP: ${lpLoadLocator.state.lpLoadMemoSendOtp?.data?.otp ?? ''}',
-          ),
+          // Text(
+          //   'OTP: ${lpLoadLocator.state.lpLoadMemoSendOtp?.data?.otp ?? ''}',
+          // ),
           10.height,
           Center(
             child: OtpTextField(

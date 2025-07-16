@@ -27,7 +27,7 @@ class AppLabelText {
   final String documents = "Documents";
   final String docSupport = "*Only support .jpg, .png & .heic & pdf files not more than 5 mb.";
   final String imageSupport = "*Only support .jpg, .png & .heic";
-  final String imageSize = "Image size should be less than 8MB";
+  final String imageSize = "Image size should be less than 5MB";
   final String fileSize = "File size should be less than 8MB";
   final String chooseFile = "Choose File";
   final String selectDate = "Select Date";
