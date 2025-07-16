@@ -16,8 +16,9 @@ class DriverLoadService {
     bool forceRefresh = false
   }) async {
     try {
+      final url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
       final response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/list?isDriver=true&driverId=$driverId',
+        url,
         forceRefresh: forceRefresh,
       );
 

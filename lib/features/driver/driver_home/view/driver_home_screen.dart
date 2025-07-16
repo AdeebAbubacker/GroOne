@@ -107,133 +107,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     _tabController?.dispose();
   });
 
-  void filterPopUp() {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: 'Cancel',
-        yesButtonText: 'Apply',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Filter", style: AppTextStyle.body1.copyWith(fontSize: 20)),
-            10.height,
-            Text("Truck Type", style: AppTextStyle.body3),
-            5.height,
-            AppDropdown(
-              validator: (value) => Validator.fieldRequired(value),
-              dropdownValue: truckTypeDropDownValue,
-              mandatoryStar: true,
-              decoration: commonInputDecoration(fillColor: Colors.white),
-              dropDownList: const [
-                DropdownMenuItem(value: '1', child: Text('Mini Truck')),
-                DropdownMenuItem(value: '2', child: Text('Pickup')),
-                DropdownMenuItem(value: '3', child: Text('Container')),
-                DropdownMenuItem(value: '4', child: Text('Flatbed')),
-              ],
-              onChanged: (onChangeValue) {
-                truckTypeDropDownValue = onChangeValue;
-                selectedDropDownValueId = onChangeValue;
-                setState(() {});
-              },
-            ),
-
-            15.height,
-            Text("Route", style: AppTextStyle.body3),
-            5.height,
-            AppDropdown(
-              validator: (value) => Validator.fieldRequired(value),
-              dropdownValue: routeDropDownValue,
-              mandatoryStar: true,
-              decoration: commonInputDecoration(fillColor: Colors.white),
-              dropDownList: [
-                DropdownMenuItem(
-                  value: '1',
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Text(
-                      "Chennai → Bangalore",
-                      style: AppTextStyle.body,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: '2',
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Text(
-                      "Mumbai → Pune",
-                      style: AppTextStyle.body,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: '3',
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: Text(
-                      "Delhi → Jaipur",
-                      style: AppTextStyle.body,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-              ],
-              onChanged: (onChangeValue) {
-                routeDropDownValue = onChangeValue;
-              },
-            ),
-
-            15.height,
-            Text("Load Posted Date", style: AppTextStyle.body3),
-            5.height,
-            AppTextField(
-              controller: loadPostedDateController,
-              decoration: commonInputDecoration(
-                suffixIcon: Icon(Icons.calendar_today_outlined),
-                suffixOnTap: () async {
-                  final String? date = await commonDatePicker(
-                    context,
-                    firstDate: DateTime.now(),
-                    initialDate:
-                        DateTimeHelper.convertToDateTimeWithCurrentTime(
-                          loadPostedDateController.text,
-                        ),
-                  );
-
-                  if (date != null) {
-                    DateTime parsedDate = DateFormat("dd/MM/yyyy").parse(date);
-                    String formattedDate = DateFormat(
-                      "yyyy-MM-dd",
-                    ).format(parsedDate);
-                    loadPostedDateController.text = formattedDate;
-                    setState(() {});
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-        onClickYesButton: () {
-          Navigator.pop(context);
-          // lpLoadLocator.applyFilter(
-          //     fromRoute: selectedFromLocation ?? 0,
-          //     toRoute: selectedToLocation ?? 0,
-          //     truckType: truckTypeDropDownValue ?? '',
-          //     loadPostedDate: loadPostedDateController.text
-          // );
-        },
-      ),
-    );
-  }
 
    void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final type = index + 1;
@@ -351,7 +224,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         ).expand(),
         8.width,
         AppIconButton(
-          onPressed: filterPopUp,
+          onPressed: (){},
           style: AppButtonStyle.primaryIconButtonStyle,
           icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
         ),
@@ -369,7 +242,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       return const SizedBox();
     }
 
-    return  Expanded(
+    return Expanded(
             child: TabBarView(
               controller: _tabController,
               children: List.generate(tabLabels.length, (index) {
@@ -389,83 +262,54 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-Widget buildDriverLoadTab(int tabIndex) {
-  return BlocBuilder<DriverLoadsBloc, DriverLoadsState>(
-    bloc: driverLoadBloc,
-    builder: (context, state) {
-      if (state is DriverLoadsLoading) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (state is DriverLoadsLoaded) {
-        if (state.loads.isEmpty) {
-          return const Center(child: Text("No loads found."));
-        }
+        Widget buildDriverLoadTab(int tabIndex) {
+        return BlocBuilder<DriverLoadsBloc, DriverLoadsState>(
+          bloc: driverLoadBloc,
+          builder: (context, state) {
+            if (state is DriverLoadsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is DriverLoadsLoaded) {
+              if (state.loads.isEmpty) {
+                return const Center(child: Text("No loads found."));
+              }
 
-        return ListView.builder(
-          padding: EdgeInsets.all(commonSafeAreaPadding),
-          shrinkWrap: true,
-          itemCount: state.loads.length,
-          itemBuilder: (context, index) {
-            final load = state.loads[index];
+              return ListView.builder(
+                padding: EdgeInsets.all(commonSafeAreaPadding),
+                shrinkWrap: true,
+                itemCount: state.loads.length,
+                itemBuilder: (context, index) {
+                  final load = state.loads[index];
 
-            // Return widgets dynamically based on tabIndex
-            switch (tabIndex) {
-              case 0: 
-             return   DriverLoadWidget(
-          onClickAssignDriver: () {
-            // try {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => DriverLoadDetailsScreen(),
-            //       ),
-            //     );
-            //   } catch (e) {
-            //     print('Navigation error: $e');
-            //   }
-          },
-        ).paddingSymmetric(vertical: 7);
-      
-    
-              case 1:
-              return   DriverLoadWidget(
-          onClickAssignDriver: () {
-            // try {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => DriverLoadDetailsScreen(),
-            //       ),
-            //     );
-            //   } catch (e) {
-            //     print('Navigation error: $e');
-            //   }
-          },
-        ).paddingSymmetric(vertical: 7);
-              default:
-                   return   DriverLoadWidget(
-          onClickAssignDriver: () {
-            // try {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => DriverLoadDetailsScreen(),
-            //       ),
-            //     );
-            //   } catch (e) {
-            //     print('Navigation error: $e');
-            //   }
-          },
-        ).paddingSymmetric(vertical: 7);
+                  // Return widgets dynamically based on tabIndex
+                  switch (tabIndex) {
+                    case 0: 
+                  return   DriverLoadWidget(
+                      driverLoadDetails: state.loads[index],
+                onClickAssignDriver: () {
+                },
+              ).paddingSymmetric(vertical: 7);
+            
+          
+                    case 1:
+                    return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                onClickAssignDriver: () {
+
+                },
+              ).paddingSymmetric(vertical: 7);
+                    default:
+                        return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                onClickAssignDriver: () {
+                },
+              ).paddingSymmetric(vertical: 7);
+                  }
+                },
+              );
+            } else if (state is DriverLoadsError) {
+              return Center(child: Text(state.message));
+            } else {
+              return const SizedBox.shrink();
             }
           },
         );
-      } else if (state is DriverLoadsError) {
-        return Center(child: Text(state.message));
-      } else {
-        return const SizedBox.shrink();
       }
-    },
-  );
-}
-
 }
