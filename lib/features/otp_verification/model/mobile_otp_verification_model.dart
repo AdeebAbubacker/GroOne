@@ -1,95 +1,53 @@
 class MobileOtpVerificationModel {
     MobileOtpVerificationModel({
-        required this.message,
-        required this.token,
-        required this.user,
-        this.kongToken,
+        required this.mobile,
+        required this.customerId,
+        required this.roleId,
+        required this.driver,
+        required this.tempFlg,
+        required this.kongToken,
     });
 
-    final String message;
-    final String token;
-    final UserOtpModel? user;
-    final KongTokenModel? kongToken;
+    final String mobile;
+    final String customerId;
+    final int roleId;
+    final bool driver;
+    final bool tempFlg;
+    final KongToken? kongToken;
 
     MobileOtpVerificationModel copyWith({
-        String? message,
-        String? token,
-        UserOtpModel? user,
-        KongTokenModel? kongToken,
+        String? mobile,
+        String? customerId,
+        int? roleId,
+        bool? driver,
+        bool? tempFlg,
+        KongToken? kongToken,
     }) {
         return MobileOtpVerificationModel(
-            message: message ?? this.message,
-            token: token ?? this.token,
-            user: user ?? this.user,
+            mobile: mobile ?? this.mobile,
+            customerId: customerId ?? this.customerId,
+            roleId: roleId ?? this.roleId,
+            driver: driver ?? this.driver,
+            tempFlg: tempFlg ?? this.tempFlg,
             kongToken: kongToken ?? this.kongToken,
         );
     }
 
     factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){ 
         return MobileOtpVerificationModel(
-            message: json["message"] ?? "",
-            token: json["token"] ?? "",
-            user: json["user"] == null ? null : UserOtpModel.fromJson(json["user"]),
-            kongToken: json["kongToken"] == null ? null : KongTokenModel.fromJson(json["kongToken"]),
-        );
-    }
-
-    Map<String, dynamic> toJson() => {
-        "message": message,
-        "token": token,
-        "user": user?.toJson(),
-        "kongToken": kongToken?.toJson(),
-    };
-
-}
-
-class UserOtpModel {
-    UserOtpModel({
-        required this.id,
-        required this.mobile,
-        required this.role,
-        required this.tempflg,
-    });
-
-    final String id;
-    final String mobile;
-    final int role;
-    final bool tempflg;
-
-    UserOtpModel copyWith({
-        String? id,
-        String? mobile,
-        int? role,
-        bool? tempflg,
-    }) {
-        return UserOtpModel(
-            id: id ?? this.id,
-            mobile: mobile ?? this.mobile,
-            role: role ?? this.role,
-            tempflg: tempflg ?? this.tempflg,
-        );
-    }
-
-    factory UserOtpModel.fromJson(Map<String, dynamic> json){ 
-        return UserOtpModel(
-            id: json["id"] ?? "",
             mobile: json["mobile"] ?? "",
-            role: json["role"] ?? 0,
-            tempflg: json["tempflg"] ?? false,
+            customerId: json["customerId"] ?? "",
+            roleId: json["roleId"] ?? 0,
+            driver: json["driver"] ?? false,
+            tempFlg: json["tempFlg"] ?? false,
+            kongToken: json["kongToken"] == null ? null : KongToken.fromJson(json["kongToken"]),
         );
     }
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "mobile": mobile,
-        "role": role,
-        "tempflg": tempflg,
-    };
-
 }
 
-class KongTokenModel {
-    KongTokenModel({
+class KongToken {
+    KongToken({
         required this.expiresIn,
         required this.tokenType,
         required this.refreshToken,
@@ -101,13 +59,13 @@ class KongTokenModel {
     final String refreshToken;
     final String accessToken;
 
-    KongTokenModel copyWith({
+    KongToken copyWith({
         int? expiresIn,
         String? tokenType,
         String? refreshToken,
         String? accessToken,
     }) {
-        return KongTokenModel(
+        return KongToken(
             expiresIn: expiresIn ?? this.expiresIn,
             tokenType: tokenType ?? this.tokenType,
             refreshToken: refreshToken ?? this.refreshToken,
@@ -115,19 +73,13 @@ class KongTokenModel {
         );
     }
 
-    factory KongTokenModel.fromJson(Map<String, dynamic> json){ 
-        return KongTokenModel(
-            expiresIn: json["expires_in"] ?? 0,
-            tokenType: json["token_type"] ?? "",
-            refreshToken: json["refresh_token"] ?? "",
-            accessToken: json["access_token"] ?? "",
+    factory KongToken.fromJson(Map<String, dynamic> json){ 
+        return KongToken(
+            expiresIn: json["expiresIn"] ?? 0,
+            tokenType: json["tokenType"] ?? "",
+            refreshToken: json["refreshToken"] ?? "",
+            accessToken: json["accessToken"] ?? "",
         );
     }
 
-    Map<String, dynamic> toJson() => {
-        "expires_in": expiresIn,
-        "token_type": tokenType,
-        "refresh_token": refreshToken,
-        "access_token": accessToken,
-    };
 }

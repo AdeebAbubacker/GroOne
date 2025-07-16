@@ -20,42 +20,44 @@ class DriverLoadDetailsScreen extends StatefulWidget {
 }
 
 class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
-  final LoadDetails mockLoadDetails = LoadDetails(
-  loadSeriesID: '1',
-  loadId: "LOAD123",
-  laneId: "LANE001",
+  final DriverLoadDetails mockLoadDetails = DriverLoadDetails(
+    loadId: "LOAD123",
+  loadSeriesId: "1",
+  laneId: 1,
   rateId: 1,
   customerId: '1',
   commodityId: 1,
+  pickUpDateTime: DateTime.parse("2024-08-10T10:00:00Z"),
   truckTypeId: 1,
-  pickUpAddr: "Guindy, Chennai",
-  pickUpLocation: "Guindy, Chennai",
-  assignStatus: 1,
-  pickUpLatlon: "13.0067,80.2206",
-  dropAddr: "Majestic, Bangalore",
-  dropLocation: "Majestic, Bangalore",
-  dropLatlon: "12.9763,77.5712",
-  dueDate: DateTime.parse("2024-08-12T12:00:00Z"),
   consignmentWeight: 10,
   notes: "Handle with care",
-  rate: "40",
-  vpRate: "30",
-  vpMaxRate: "40",
-  status: 1,
-  loadStatus: 4,
-  vehicleLength: "20 ft",
-  pickUpDateTime: "2024-08-10T10:00:00Z",
+  loadStatusId: 4,
   expectedDeliveryDateTime: DateTime.parse("2024-08-11T18:30:00Z"),
-  handlingCharges: 300,
+  isAgreed: 1,
   acceptedBy: '2',
+  createdPlatform: 1,
+  updatedPlatform: 1,
+  status: 1,
+  driverConsent: 1,
+  driverConsentDate: null,
+  matchingStartDate: DateTime.parse("2024-08-09T12:00:00Z"),
   createdAt: DateTime.parse("2024-08-09T15:30:00Z"),
   updatedAt: null,
   deletedAt: null,
+  loadOnhold: false,
   commodity: null,
   truckType: null,
+  loadRoute: null,
+  loadStatusDetails: null,
+  scheduleTripDetails: null,
+  loadDocument: const [],
+  loadSettlement: null,
   customer: null,
-  timeline: [],
-  trip: null,
+  vpCustomer: null,
+  consignees: const [],
+  weightage: null,
+  loadApproval: null,
+  podDispatch: null,
 );
 
   @override
@@ -67,10 +69,10 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
             // Google Map
             Positioned.fill(
               child: GoogleMapWidget(
-             pickupLocation: mockLoadDetails.pickUpLocation,
-              dropLocation: mockLoadDetails.dropLocation,
-              pickUpLatLong: mockLoadDetails.pickUpLatlon,
-              dropLatLong: mockLoadDetails.dropLatlon,
+             pickupLocation: "Chennai",
+              dropLocation: "banglore",
+              pickUpLatLong: "120",
+              dropLatLong: "120",
               ),
             ),
 
@@ -89,7 +91,7 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
   }
 
   /// Build Source And Destination
-  Widget buildSourceAndDestinationWidget(LoadDetails loadDetails) {
+  Widget buildSourceAndDestinationWidget(DriverLoadDetails loadDetails) {
         return Container(
           height: 110,
           width: MediaQuery.of(context).size.width * 0.80,
@@ -120,7 +122,7 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
                     ),
                   ),
 
-                  if ((loadDetails.loadStatus ?? 0) > 3) Spacer(),
+                  if ((loadDetails.loadStatusId ?? 0) > 3) Spacer(),
 
                   Padding(
                     padding: const EdgeInsets.only(
@@ -163,14 +165,14 @@ class _DriverLoadDetailsScreenState extends State<DriverLoadDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildLocationDetailsTileWidget(
-                    loadDetails.pickUpLocation,
+                    "Chennai",
                     DateTimeHelper.getFormattedDate(
                      DateTime.now(),
                     ),
                   ),
                   Icon(Icons.arrow_forward).expand(),
                   _buildLocationDetailsTileWidget(
-                    loadDetails.dropLocation,
+                    "Banglore",
                     DateTimeHelper.getFormattedDate(
                       loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
                     ),

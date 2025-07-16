@@ -52,6 +52,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
+  int? selectedRoute;
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int page = 1;
@@ -241,8 +242,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
                 onChanged: (value) {
                   routeDropDownValue = value?.status.toString();
-                  selectedFromLocation = value?.fromLocationId;
-                  selectedToLocation = value?.toLocationId;
+                  // selectedFromLocation = value?.fromLocationId;
+                  // selectedToLocation = value?.toLocationId;
+                  selectedRoute = value?.masterLaneId;
                   setState(() {});
                 },
               );
@@ -280,8 +282,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             loadListApiRequest: LoadListApiRequest(
             // final loadStatus = selectedType == 0 ? null : selectedType + 1;
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-              fromLocationId: selectedFromLocation,
-              toLocationId: selectedToLocation,
+              // fromLocationId: selectedFromLocation,
+              // toLocationId: selectedToLocation,
+              laneId:selectedRoute,
               truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
             ));
@@ -293,7 +296,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   void clearAllFilterValues() {
     selectedFromLocation = null;
     selectedToLocation = null;
+    selectedRoute = null;
     routeDropDownValue = null;
+    selectedTruckTypeId = null;
     truckTypeDropDownValue = null;
     loadPostedDateController.clear();
   }

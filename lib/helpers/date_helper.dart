@@ -11,8 +11,9 @@ class DateTimeHelper {
 
   /// Get Date Time Format
   static String getDateTimeFormat(DateTime date) {
+    final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
     var formatter = DateFormat('dd/MM/yyyy - hh:mm a');
-    return formatter.format(date);
+    return formatter.format(istDate);
   }
 
   /// Get Time Format With Am or Pm

@@ -88,9 +88,9 @@ class ApiUrls {
 
   /// LP Endpoints
   static final String  createLpAccount = _customerBaseUrl;
-  static final String  login = "$_baseUrlWithAuth/login";
+  static final String  login = "$_baseUrlWithAuth/customer-login";
   static final String  companyType = "$_baseUrl$_customer$_path$_v1/company-type";
-  static final String  resendOtp = "$_baseUrlWithAuth/resend-otp";
+  static final String  resendOtp = "$_baseUrlWithAuth/customer-login";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
   static final String  lpLoadList= "$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
@@ -184,4 +184,7 @@ class ApiUrls {
 
   /// Tracking
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
+
+ /// Driver
+ static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true"; 
 }

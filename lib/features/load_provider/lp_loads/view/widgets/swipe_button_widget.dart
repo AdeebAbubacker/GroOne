@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
@@ -19,7 +20,7 @@ class CustomSwipeButton extends StatelessWidget {
     return SlideAction(
       borderRadius: 16,
       elevation: 0,
-      height: 55,
+      height: commonButtonHeight,
       innerColor: Colors.transparent,
       outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withOpacity(0.5),
       enabled: enable,

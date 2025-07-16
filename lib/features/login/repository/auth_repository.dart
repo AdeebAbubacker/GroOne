@@ -18,6 +18,10 @@ class AuthRepository {
   Future<Result<bool>> saveUserInfoFromLogin(MobileOtpVerificationModel user) async {
     try {
       final userData = user;
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
+      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.kongToken?.refreshToken.toString() ?? '',);
+      CustomLog.debug(this, "Save user from login saved successfully");
 
       // Log token information for debugging
       CustomLog.debug(this, "Saving token from login API - Token: ${userData?.token.isNotEmpty == true ? '${userData!.token.substring(0, 10)}...' : 'empty'}, User ID: ${userData?.user?.id}, Role: ${userData?.user?.role}, TempFlag: ${userData?.user?.tempflg}");

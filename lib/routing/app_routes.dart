@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
+import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
@@ -159,10 +160,17 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
+        GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return ChooseRoleScreen();
+          final data = state.extra! as Map<String, dynamic>;
+          final String id = data["userId"];
+          final String mobileNumber = data["mobileNumber"];
+          return ChooseRoleScreen(
+            userId: id,
+            mobileNumber: mobileNumber,
+
+          );
         },
       ),
 
@@ -194,11 +202,11 @@ class AppRoutes {
           final data = state.extra! as Map<String, dynamic>;
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
-          final String roleId = data["roleId"];
+          final bool isDriver = data["driver"];
           return MobileOtpVerificationScreen(
             otp: otp,
             mobileNumber: mobileNumber,
-            roleId: roleId,
+            isDriver: isDriver,
           );
         },
       ),
@@ -241,6 +249,12 @@ class AppRoutes {
             vehicles: vehicles,
             initialSelectedVehicle: initialSelectedVehicle,
           );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverHome,
+        builder: (BuildContext context, GoRouterState state) {
+          return DriverHomeScreen();
         },
       ),
     ],

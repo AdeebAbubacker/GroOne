@@ -39,5 +39,9 @@ class AppRouteName {
   /// assign Driver
   static const String loadDetailsScreen = "/loadDetailsScreen";
   static const String tripScheduleScreen = "/tripScheduleScreen";
+
+  /// Driver
+  static const String driverHome = "/driverHome";
+
   static const String vehicleMap = '/vehicle-map';
 }
