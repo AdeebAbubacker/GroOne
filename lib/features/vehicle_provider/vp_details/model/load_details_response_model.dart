@@ -218,7 +218,8 @@ class LoadDetailModelData {
       loadOnHold:  json['loadOnhold'],
       loadMemo:json['loadMemo'],
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
-      driverConsent: json['driverConsent'],
+      driverConsent: 1,
+      // json['driverConsent'],
       //
       paymentEntry: json['paymentDetails']!=null && json['paymentDetails']['data']['payments']!=null ? PaymentEntry.fromJson(json['paymentDetails']['data']['payments'][0]):null,
       loadId: json["loadId"] ?? "",

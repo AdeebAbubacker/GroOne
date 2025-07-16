@@ -48,7 +48,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
 
-  /// Map Style
+  /// Get Load Details
+
   getLoadDetails() {
     frameCallback(() => cubit.getLoadDetails(widget.loadId ?? ""));
   }

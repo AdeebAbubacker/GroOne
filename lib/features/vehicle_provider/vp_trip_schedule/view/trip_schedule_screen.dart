@@ -174,10 +174,6 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     listener: (context, state) {
                       if(state.scheduleTripResponse?.status==Status.SUCCESS){
                         cubit.acceptLoad(4);
-                        // clearValues();
-
-                        // cubit.getLoadDetails(widget.loadId??"");
-                        // Navigator.pop(context);
                       }
 
                     },
