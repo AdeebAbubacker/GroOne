@@ -30,19 +30,19 @@ class VpMyLoadHelper {
     }
 
     switch (status) {
-      case "accepted":
+      case "Confirmed":
         return ui(text : "Confirmed", textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
-      case "assigned":
+      case "Assigned":
         return ui(text: "Assigned",textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
-      case "loading":
+      case "Loading":
         return ui(text: "Loading", textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
-      case "unloading":
+      case "Unloading":
         return ui(text: "Unloading",textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
-      case "inTransit":
+      case "In Transit":
         return ui(text: "In Transit" ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
       case "POD Dispatch":
         return ui(text: "POD Dispatch",textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
-      case "completed":
+      case "Completed":
         return ui(text: "Completed", textColor: Colors.white, backgroundColor: Color(0xff018800));
       default:
         return Container();
@@ -52,28 +52,28 @@ class VpMyLoadHelper {
   // Showing Status Button
   static Widget loadStatusButtonWidget({required String status, bool isLoading = false, required void Function() onPressed}) {
     switch (status) {
-      case "accepted":
+      case "Confirmed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
           title: "Assign Driver",
         );
-      case "assigned":
+      case "Assigned":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
           title: "Start Trip",
         );
-      case "loading":
+      case "Loading":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
           title: status.capitalize,
         );
-      case "unloading":
+      case "Unloading":
         return SlideAction(
           borderRadius: commonButtonRadius,
           elevation: 0,
@@ -90,7 +90,7 @@ class VpMyLoadHelper {
             return;
           },
         );
-      case "inTransit":
+      case "In Transit":
         return SlideAction(
           borderRadius: commonButtonRadius,
           elevation: 0,
@@ -113,7 +113,7 @@ class VpMyLoadHelper {
           isLoading: isLoading,
           title: "POD Dispatch Detail",
         );
-      case "completed":
+      case "Completed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
