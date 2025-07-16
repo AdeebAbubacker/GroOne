@@ -108,6 +108,11 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       return;
     }
 
+    if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
+      ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
+      return;
+    }
+
     if (widget.isKycValid == 3) {
       await onSubmit(context);
     } else {
