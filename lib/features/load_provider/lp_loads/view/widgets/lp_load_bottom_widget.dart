@@ -162,12 +162,12 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     final paymentState = LpHomeHelper.getPaymentState(widget.loadStatus);
 
-      final useMemo = widget.loadStatus == LoadStatus.loading ||
-                      widget.loadStatus == LoadStatus.inTransit ||
-                      widget.loadStatus == LoadStatus.unloadingHeld;
+
+                      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+final useMemo = payments == null || payments.isEmpty;
 
       final memo = widget.loadItem.loadMemoDetails;
-      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+     
 
       // Parse memo values safely
       final String memoAdvance = memo?.advance.toString() ?? '';
@@ -270,7 +270,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            return SizedBox();
                          }
                          return TrackingProgress(
-                           progressPercentage: trackingData.coverPercentage??0,
+                           progressPercentage: trackingData.percentage,
                            remainingDistance: trackingData.currentdistance ?? '--',
                            totalDistance: trackingData.overalldistance ?? '--',
                            eta: trackingData.durationValue,
@@ -371,6 +371,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     agreedPrice: useMemo ? memoAgreedPrice : paymentAgreedPrice,
                     payableAdvance: useMemo ? memoPayableAdvance : paymentPayableAdvance,
                     payableBalance: useMemo ? memoPayableBalance : paymentPayableBalance,
+                    isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.action == "pay_advance"
+                     ? true: false,
+                     lpLoadCubit: lpLoadLocator,
                   ),
                       16.height,
                     ],
@@ -554,6 +557,8 @@ Widget _buildAdvancePaymentCard({
   required String payableAdvance,
   required String payableBalance,
   required String advancePaid,
+  required bool isAdancePaid,
+  required LpLoadCubit lpLoadCubit,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
 final createOrderState = lpLoadCubit.state.lpCreateOrder;
@@ -595,7 +600,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                   ),
                 ),
                8.width,
-                if (paymentState == 2 ||paymentState == 4 )
+                if (!isAdancePaid)
                   Row(
                     children: [
                       const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -609,7 +614,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                       ),
                     ],
                   )
-                else if (paymentState == 3)
+                else if (isAdancePaid)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -643,10 +648,10 @@ final isLoading = createOrderState?.status == Status.LOADING ||
           ],
         ),
 
-         8.height,
+         12.height,
 
         // Payable Balance (only if paymentState is 2 or 3)
-        if (paymentState == 3 || paymentState == 5)
+        if (isAdancePaid)
           _buildPriceRow(
             context.appText.payableBalance,
             payableBalance,
@@ -664,7 +669,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
             onPressed: () async {
               
              final isPayingBalance = paymentState == 3 || paymentState == 5;
-             final selectedAmountString = isPayingBalance ? payableBalance : payableAdvance;
+             final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
             final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
 
               // Create Order
@@ -697,7 +702,22 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                   final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
                   if (addpaymentState?.status == Status.SUCCESS) {
-                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: addpaymentState?.data?.data?.data?.tinyUrl ?? "")));
+  
+                  final shouldRefresh = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentsScreen(
+                      url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                      loadId: loadId,
+                    ),
+                  ),
+                );
+
+                if (shouldRefresh == true) {
+
+                  lpLoadCubit.getLpLoadsById(loadId: loadId); 
+                }
+
                   } else {
                     ToastMessages.error(message: context.appText.paymentFailed);
                   }
@@ -708,7 +728,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                 ToastMessages.error(message: context.appText.orderCreationFailed);
               }
             },
-            richTextWidget: paymentState == 2 || paymentState == 4 || paymentState == 5
+            richTextWidget: !isAdancePaid
                 ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -719,13 +739,13 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                       ),
                       8.width,
                       Text(
-                        paymentState == 5 ? context.appText.payBalance : context.appText.payAdvance,  
+                        context.appText.payAdvance,  
                         style: AppTextStyle.buttonWhiteTextColor,
                       ),
                     ],
                   )
-                : paymentState == 3
-                    ? Row(
+                : 
+                     Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
@@ -734,12 +754,14 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                           ),
                         ],
                       )
-                    : null,
+                   
           ),
+          12.height,
       ],
     ),
   );
 }
+
 
 
 // Price Row
