@@ -11,11 +11,12 @@ class DriverLoadRepository {
   DriverLoadRepository(this.service, this.userRepo);
 
   Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
-    int?loadStatus,
+    int? loadStatus,
+    int? laneId,
     String search = "",
     bool forceRefresh = false
   }) async {
     final customerId = await userRepo.getUserID() ?? '';
-    return service.fetchDriverLoads(driverId: customerId,loadStatus: loadStatus , search: search,forceRefresh: forceRefresh);
+    return service.fetchDriverLoads(driverId: customerId,status: loadStatus ?? 3, search: search,laneId: laneId, forceRefresh: forceRefresh);
   }
 }

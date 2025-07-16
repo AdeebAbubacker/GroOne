@@ -2,9 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -13,6 +17,7 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -20,10 +25,12 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/constant_variables.dart' as Status;
 import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 
@@ -42,12 +49,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final loadPostedDateController = TextEditingController();
   Timer? _debounce;
   final driverLoadLocator = locator<DriverLoadsBloc>();
+  final profileCubit = locator<ProfileCubit>();
+  final lpHomeBloc = locator<LpHomeBloc>();
   late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
   String? selectedDropDownValueId;
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
+  
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int selectedTabIndex = 1;
@@ -71,7 +81,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() {
+  void initFunction() => frameCallback(() async{
+     profileCubit.fetchUserRole();
+      setState(() {});
+     await lpHomeBloc.getUserId();
+    await profileCubit.fetchProfileDetail();
+    setState(() {});
   driverLoadBloc = locator<DriverLoadsBloc>();
   _tabController = TabController(
     length: 4,
@@ -97,7 +112,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final type = _tabController!.index + 1;
-   driverLoadBloc.add(FetchDriverLoads(loadStatus: type));
+      final parsedNumber = int.tryParse(query);
+      driverLoadBloc.add(FetchDriverLoads(loadStatus: type,  search: parsedNumber == null ? query : "", laneId: parsedNumber,
+    ));
   });
   }
 
@@ -146,21 +163,71 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       ).paddingLeft(commonSafeAreaPadding),
       actions: [
         // Profile
-        Row(
-          children: [
-            10.width,
-            Container(
+        // Row(
+        //   children: [
+        //     10.width,
+        //     Container(
+        //       height: 40,
+        //       width: 40,
+        //       alignment: Alignment.center,
+        //       decoration: commonContainerDecoration(
+        //         borderRadius: BorderRadius.circular(100),
+        //         color: AppColors.greyIconBackgroundColor,
+        //       ),
+        //       child: Text(getInitialsFromName(this, name: 'dummy')),
+        //     ).onClick(() {}).paddingRight(commonSafeAreaPadding),
+        //   ],
+        // ),
+
+
+            // Profile
+        BlocConsumer<ProfileCubit, ProfileState>(
+          bloc: profileCubit,
+          listener: (context, state) {
+            final status = state.profileDetailUIState?.status;
+
+            if (status == Status.ERROR) {
+              final error = state.profileDetailUIState?.errorType;
+              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+            }
+          },
+          builder: (context, state) {
+            if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
+              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
+                final blueId = state.profileDetailUIState!.data!.customer?.blueId;
+                return Row(
+                  children: [
+                    10.width,
+
+                    // Profile
+                    Container(
+                      height: 40,
+                      width: 40,
+                      alignment: Alignment.center,
+                      decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                    ).onClick((){
+                      Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
+                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                      });
+                    }).paddingRight(commonSafeAreaPadding),
+                  ],
+                );
+              }
+            }
+            return Container(
               height: 40,
               width: 40,
               alignment: Alignment.center,
-              decoration: commonContainerDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: AppColors.greyIconBackgroundColor,
-              ),
-              child: Text(getInitialsFromName(this, name: 'dummy')),
-            ).onClick(() {}).paddingRight(commonSafeAreaPadding),
-          ],
+              decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
+              child: Text(getInitialsFromName(this, name : "")),
+            ).onClick((){
+              Navigator.push(context, commonRoute(ProfileScreen(), isForward: true));
+            }).paddingRight(commonSafeAreaPadding);
+          },
         ),
+
+     
       ],
     );
   }
@@ -277,7 +344,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 },
               ).paddingSymmetric(vertical: 7);
             
-          
                     case 1:
                     return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                 onClickAssignDriver: () {
