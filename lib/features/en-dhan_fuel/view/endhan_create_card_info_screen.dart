@@ -41,8 +41,6 @@ class EndhanCreateCardInfoScreen extends StatefulWidget {
 }
 
 class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen> {
-  bool _hasShownVerificationSuccess = false; // Flag to track if success message was shown
-  Status? _previousVerificationStatus; // Track previous verification status
   bool _isNavigating = false; // Flag to prevent multiple navigation attempts
 
   @override
@@ -59,51 +57,6 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
               if (state.customerCreationState?.status == Status.SUCCESS) {
                 _showSuccessDialog(context);
               }
-            },
-          ),
-          BlocListener<EnDhanCubit, EnDhanState>(
-            listener: (context, state) {
-              // Handle vehicle verification state - only show success when status changes to SUCCESS
-              final currentStatus = state.vehicleVerificationState?.status;
-
-              // Only show success if status changed from something else to SUCCESS
-              if (currentStatus == Status.SUCCESS &&
-                  _previousVerificationStatus != Status.SUCCESS &&
-                  !_hasShownVerificationSuccess) {
-
-                // Check if we have verification data
-                final cubit = locator<EnDhanCubit>();
-                if (cubit.state.vehicleVerificationState?.data != null) {
-                  // Set flag to prevent multiple messages
-                  _hasShownVerificationSuccess = true;
-
-                  // Reset the verification state immediately to prevent duplicate messages
-                  cubit.resetVehicleVerificationState();
-
-                  // Show success message after resetting state
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Vehicle number verified successfully!'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-
-                  // Reset flag after a delay to allow for future verifications
-                  Future.delayed(Duration(seconds: 3), () {
-                    if (mounted) {
-                      setState(() {
-                        _hasShownVerificationSuccess = false;
-                      });
-                    }
-                  });
-                }
-              }
-
-              // Update previous status
-              _previousVerificationStatus = currentStatus;
-
-
             },
           ),
         ],
@@ -971,12 +924,6 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
                                           // Sync with cubit state
                                           _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
-
-                                          // Auto-verify the selected vehicle
-                                          if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
-                                            locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
-                                          }
-                                          locator<EnDhanCubit>().verifyVehicle(index, selectedVehicle);
                                         }
                                       },
                                       validator: (value) {
