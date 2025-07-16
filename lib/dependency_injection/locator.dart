@@ -90,6 +90,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/repository/pod_dispatch_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/service/pod_dispatch_service.dart';
 import 'package:gro_one_app/service/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -149,6 +152,7 @@ void initLocator() {
     locator.registerLazySingleton(() => EnDhanService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
     locator.registerLazySingleton(() => TermsAndConditionsService(locator<ApiService>()));
     locator.registerLazySingleton(() => PrivacyPolicyService(locator<ApiService>()));
+    locator.registerLazySingleton(() => PodDispatchService(locator<ApiService>()));
     locator.registerLazySingleton(
       () => GpsOrderApiService(
         locator<ApiService>(),
@@ -169,8 +173,6 @@ void initLocator() {
     locator.registerLazySingleton(() => KycRepository(locator<KycService>(),   locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LpHomeRepository(locator<LpHomeService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => ProfileRepository(locator<ProfileService>(), locator<AuthRepository>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>()));
-
-    // Repositories
     locator.registerLazySingleton(() => LpCreateRepository(locator<LpCreateService>(), locator<AuthRepository>()));
     locator.registerLazySingleton(() => KavachRepository(locator<KavachService>(), locator<UserInformationRepository>()));
     locator.registerLazySingleton(() => LanguageRepository(locator<LanguageService>()));
@@ -182,6 +184,7 @@ void initLocator() {
     locator.registerLazySingleton(() => TAndCRepository(locator<TermsAndConditionsService>()));
     locator.registerLazySingleton(() => PrivacyRepository(locator<PrivacyPolicyService>()));
     locator.registerLazySingleton(() => VpHomeRepository(locator<VpHomeService>(), locator<UserInformationRepository>()));
+    locator.registerLazySingleton(() => PodDispatchRepository(locator<PodDispatchService>()));
 
     locator.registerLazySingleton(
       () => GpsRepository(locator<GpsService>(), locator<GpsLoginRepository>()),
@@ -326,6 +329,7 @@ void initLocator() {
       () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
     );
     locator.registerLazySingleton(() => VehicleDetailCubit());
+    locator.registerLazySingleton(() => PodDispatchCubit(locator<PodDispatchRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

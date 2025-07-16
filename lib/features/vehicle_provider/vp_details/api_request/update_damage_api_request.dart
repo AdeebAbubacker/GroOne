@@ -1,4 +1,6 @@
-class UpdateDamageApiRequest {
+import 'package:gro_one_app/data/model/serializable.dart';
+
+class UpdateDamageApiRequest extends Serializable<UpdateDamageApiRequest>{
   UpdateDamageApiRequest({
     required this.itemName,
     required this.quantity,
@@ -25,15 +27,8 @@ class UpdateDamageApiRequest {
     );
   }
 
-  factory UpdateDamageApiRequest.fromJson(Map<String, dynamic> json){
-    return UpdateDamageApiRequest(
-      itemName: json["itemName"] ?? "",
-      quantity: json["quantity"] ?? 0,
-      description: json["description"] ?? "",
-      image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
-    );
-  }
 
+  @override
   Map<String, dynamic> toJson() => {
     "itemName": itemName,
     "quantity": quantity,

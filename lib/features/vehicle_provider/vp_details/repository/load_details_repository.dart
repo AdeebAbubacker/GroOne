@@ -128,6 +128,7 @@ class LoadDetailsRepository {
     }
   }
 
+
   Future<Result<DeleteLoadDocumentResponse>> deleteLoadDocument(String loadDocumentId) async {
     try {
       return await _vpDetailsService.deleteLoadDocument(

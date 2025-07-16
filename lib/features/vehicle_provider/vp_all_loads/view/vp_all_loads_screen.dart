@@ -38,6 +38,7 @@ class VpAllLoadsScreen extends StatefulWidget {
 
 class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     with TickerProviderStateMixin {
+
   late TabController _tabController;
   final ScrollController _tabScrollController = ScrollController();
 
@@ -232,12 +233,10 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
             itemBuilder: (context, index) {
               if (_tabController.index == 0) {
                 return VpAllLoadAvailableLoadWidget(
-
-                  data: state.loads[index]
+                    data: state.loads[index]
                 ).paddingSymmetric(vertical: 7);
               } else if (_tabController.index == 1) {
                 return VpAllLoadMyLoadWidget(
-
                   data: state.loads[index],
                   onClickAssignDriver: () {
                     context.push(AppRouteName.loadDetailsScreen,extra: {
@@ -273,4 +272,6 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
       },
     );
   }
+
+
 }

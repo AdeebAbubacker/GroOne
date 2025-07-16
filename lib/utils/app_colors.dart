@@ -59,6 +59,8 @@ class AppColors {
   static const Color activeBlueColor = CupertinoColors.activeBlue;
   static const Color activeRedColor = CupertinoColors.systemRed;
 
+
+
   // Others Colors
   static const Color lightGreyColor = Color(0xffF8FAFC);
   static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
@@ -119,6 +121,7 @@ class AppColors {
   static const Color lightBrownTextColor = Color(0xffB86E00);
   static const Color redTextColor = Color(0xffff5723);
   static const Color red = Colors.red;
+  static const Color teal = Color(0xff009688);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

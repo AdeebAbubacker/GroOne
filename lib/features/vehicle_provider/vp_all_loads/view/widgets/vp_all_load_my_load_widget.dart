@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_progress_bar.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -36,10 +41,10 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   @override
   Widget build(BuildContext context) {
 
-    print("load status ${widget.data.loadStatus}");
-    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
-    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
       decoration: commonContainerDecoration(
@@ -61,10 +66,6 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.data.loadId, style: AppTextStyle.h5),
-                  // Text(
-                  //   'TN 04 Y 2344',
-                  //   style: AppTextStyle.textDarkGreyColor14w500,
-                  // ),
                   Text(
                     formatDateTimeKavach(widget.data.createdAt?.toString()??DateTime.now().toString()),
                     style: AppTextStyle.primaryColor12w400,
@@ -74,28 +75,22 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               5.width,
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Wrap(
                     children: [
-                      Text(
-                        widget.data.pickUpLocation??"",
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
+                      _buildLocationInfoWidget(widget.data.pickUpLocation),
                       Icon(
                         Icons.arrow_right_alt_outlined,
                         color: AppColors.primaryColor,
                       ).paddingSymmetric(horizontal: 2),
-                      Text(
-                        widget.data.dropLocation??"",
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
+                      _buildLocationInfoWidget(widget.data.dropLocation),
                     ],
                   ),
-                  if(widget.data.loadStatus==3)
-                  Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                  if(widget.data.loadStatus>2)
+                  LoadStatusLabel(
+                      loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
+                      loadStatus: widget.data.loadStatusValues)
                 ],
               ).expand(),
             ],
@@ -128,29 +123,39 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               ),
             ],
           ),
-          15.height,
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColors.primaryLightColor,
-            ),
-            child: Row(
-              children: [
-                Text(
-                  "Accepted Price",
-                  style: AppTextStyle.textBlackColor18w400,
-                  textAlign: TextAlign.center,
-                ).expand(),
-                Text(
-                  amount,
-                  style: AppTextStyle.h4PrimaryColor,
-                  textAlign: TextAlign.center,
-                ).expand(),
-              ],
+
+          Visibility(
+            visible:(widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 5),
+              margin:  EdgeInsets.only(top: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryLightColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  FittedBox(
+                    child: Text(
+                      widget.data.loadStatusValues==LoadStatus.assigned ? "Trip Price": "Accepted Price",
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
+                    )
+                  ),
+                  FittedBox(
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           10.height,
+          _buildTrackingProgress(0.5,widget.data.loadStatusValues),
           if(widget.showButton??true)
           Row(
             children: [
@@ -176,14 +181,20 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 ),
               ),
               10.width,
-              Visibility(
 
+              // title:state.loadStatus==LoadStatus.completed ? "View Trip Settlement":
+              //
+              //
+              //     ? "Assign Driver"
+              //     : "Accept Load",
+              Visibility(
+                visible:true,
+
+                // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
                 child: AppButton(
                   buttonHeight: 40,
-                  onPressed: widget.onClickAssignDriver ?? () {
-
-                  },
-                  title:"Assign Driver",
+                  onPressed: widget.onClickAssignDriver ?? () {},
+                  title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
                   style: AppButtonStyle.primary,
                 ).expand(),
               ),
@@ -207,5 +218,32 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
         Text(text, style: AppTextStyle.body),
       ],
     ).expand();
+  }
+
+  Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 2,
+    );
+  }
+
+
+
+  Widget _buildTrackingProgress(double progress,LoadStatus? loadStatus){
+    return Visibility(
+
+      visible:false,
+      // (loadStatus?.index??0)>LoadStatus.assigned.index && (loadStatus?.index??0) <=LoadStatus.inTransit.index ,
+      child: Column(
+        children: [
+          commonDivider(),
+          AppProgressBar(progress: progress),
+          8.height,
+          commonDivider(),
+        ],
+      ),
+    );
   }
 }

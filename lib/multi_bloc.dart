@@ -24,6 +24,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_l
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
@@ -86,6 +87,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LpCreateAccountCubit>(create: (_) => locator<LpCreateAccountCubit>()),
         BlocProvider<VpCreateAccountCubit>(create: (_) => locator<VpCreateAccountCubit>()),
         BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
+        BlocProvider<PodDispatchCubit>(create: (_) => locator<PodDispatchCubit>()),
         BlocProvider<GpsGeofenceCubit>(create: (_) => locator<GpsGeofenceCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),

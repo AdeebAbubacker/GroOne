@@ -33,6 +33,7 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:mime/mime.dart';
 
 import 'load_details_state.dart';
 
@@ -58,15 +59,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
-    loadStatus = switch(status){
-      3 => LoadStatus.accepted,
-      4 => LoadStatus.assigned,
-      5 => LoadStatus.loading,
-      6 => LoadStatus.inTransit,
-      7 => LoadStatus.unloading,
-      8 => LoadStatus.completed,
-      null || int() => LoadStatus.matching
-    };
+    loadStatus = getLoadStatus(status);
     emit(state.copyWith(
         loadStatusId: status,
         loadStatus: loadStatus));
@@ -82,6 +75,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       emit(state.copyWith(tripDocumentList: currentList));
     }
   }
+
+
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
@@ -120,8 +115,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         const Duration(milliseconds: 100),
       ); // slight delay to ensure UI handles it
       acceptLoad(result.value.data?.loadStatus);
-      /// Temp solution
-      // acceptLoad(result.value.data?.loadStatus);
     }
 
     if (result is Error) {
@@ -150,30 +143,18 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future scheduleTripApi(ScheduleTripRequest scheduleTripRequest) async {
     emit(state.copyWith(scheduleTripResponse: UIState.loading()));
-    try {
-      Result result = await _vHomeRepository.scheduleTripResponse(
-        apiRequest: scheduleTripRequest,
-      );
-      if (result is Success<ScheduleTripResponse>) {
-        emit(state.copyWith(
-            scheduleTripResponse: UIState.success(result.value)));
-        Navigator.pop(navigatorKey.currentState!.context);
-      } else if (result is Error) {
-        emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
-        ToastMessages.error(message: getErrorMsg(
-            errorType: state.scheduleTripResponse?.errorType ??
-                GenericError()));
-      } else {
-        emit(state.copyWith(
-            scheduleTripResponse: UIState.error(GenericError())));
-        ToastMessages.error(message: getErrorMsg(
-            errorType: state.scheduleTripResponse?.errorType ??
-                GenericError()));
-      }
-    } catch (e) {
-      ToastMessages.error(message: e.toString(),);
+    Result result = await _vHomeRepository.scheduleTripResponse(
+      apiRequest: scheduleTripRequest,
+    );
+    if (result is Success<ScheduleTripResponse>) {
       emit(state.copyWith(
-          scheduleTripResponse: UIState.error(DeserializationError())));
+          scheduleTripResponse: UIState.success(result.value)));
+      Navigator.pop(navigatorKey.currentState!.context);
+    } else if (result is Error) {
+      emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
+      ToastMessages.error(message: getErrorMsg(
+          errorType: state.scheduleTripResponse?.errorType ??
+              GenericError()));
     }
   }
 
@@ -201,8 +182,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setSettlementUIState(UIState<DamageModel>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
-
-
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
@@ -280,7 +259,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  // // Upload TDS File
+  // // Upload File
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
@@ -374,9 +353,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
-
-
-
     final updatedDocument = currentDocument.copyWith(
       clearLoadData: isDelete,
       loadDocument: isDelete ? null: currentDocument.loadDocument,
@@ -390,6 +366,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future<CreateDocumentResponse?> createDocument(String title,
       int documentTypeId, UploadDamageFileModel uploadImage) async {
     try {
+      final mimeType = lookupMimeType(uploadImage.filePath);
       return await _loadDetailsRepository.createNewDocument(
           CreateDocumentRequest(
               title: title,
@@ -397,7 +374,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               documentTypeId: documentTypeId,
               filePath: uploadImage.filePath,
               fileSize: uploadImage.size,
-              mimeType: "image/jpeg",
+              mimeType: mimeType,
               originalFilename: uploadImage.originalName,
               fileExtension: uploadImage.originalName
                   .split(".")
@@ -459,12 +436,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void resetUploadDamageFileUIState() {
-    emit(state.copyWith(
-        uploadDamageUIState: resetUIState<UploadDamageFileModel>(
-            state.uploadDamageUIState)));
-
-
-
+    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
   }
 
 
@@ -472,6 +444,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(
         state.createDamageUIState)));
   }
+
   void resetSettlementUIState() {
     emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
         state.settlementUIState)));
@@ -493,6 +466,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       isUpdateDamage : false,
       damageId: null
     ));
+  }
+
+  void resetTripScheduleUIState(){
+    emit(state.copyWith(scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse)));
   }
 
 

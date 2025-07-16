@@ -39,11 +39,13 @@ class LoadStatusLabel extends StatelessWidget {
 
   Color _getBackgroundColor() {
     if(loadOnHold??false){
-    return AppColors.iconRed;
+     return AppColors.iconRed;
     }
     switch (loadStatus) {
       case LoadStatus.inTransit:
         return const Color(0xffFF5722).withOpacity(0.3);
+      case LoadStatus.unloading:
+        return AppColors.teal.withOpacity(0.3);
       case LoadStatus.completed:
         return AppColors.activeDarkGreenColor;
       default:
@@ -60,8 +62,12 @@ class LoadStatusLabel extends StatelessWidget {
         return const Color(0xffFF5722);
       case LoadStatus.completed:
         return Colors.white;
+      case LoadStatus.unloading:
+        return Colors.teal;
       default:
         return AppColors.activeDarkGreenColor;
     }
   }
+
+
 }

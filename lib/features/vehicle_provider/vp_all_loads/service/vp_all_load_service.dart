@@ -21,7 +21,7 @@ class VpLoadService {
       );
 
       if (response is Success) {
-        final data = response.value['data'] as List;
+        final data = response.value['data']['data'] as List;
         final loads = data.map((e) => VpRecentLoadData.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {

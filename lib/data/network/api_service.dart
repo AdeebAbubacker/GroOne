@@ -59,10 +59,10 @@ class ApiService {
     CustomLog.info(this, "Cache cleared successfully");
     // await _cacheManager.clearAll();
   }
-
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if (HasInternetConnection.isInternet != true) {
         return Error(InternetNetworkError());
@@ -107,9 +107,11 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
     CustomLog.debug(
       this,
-      "\nMethod: Post \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
     );
     final headers = customHeaders ?? await _getHeaders();
     try {

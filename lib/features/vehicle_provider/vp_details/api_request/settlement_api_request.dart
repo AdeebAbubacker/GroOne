@@ -1,4 +1,6 @@
-class SettlementApiRequest {
+import 'package:gro_one_app/data/model/serializable.dart';
+
+class SettlementApiRequest  extends Serializable<SettlementApiRequest>{
   SettlementApiRequest({
     required this.vehicleId,
     required this.loadId,
@@ -33,17 +35,7 @@ class SettlementApiRequest {
     );
   }
 
-  factory SettlementApiRequest.fromJson(Map<String, dynamic> json){
-    return SettlementApiRequest(
-      vehicleId: json["vehicleId"] ?? "",
-      loadId: json["loadId"] ?? "",
-      noOfDays: json["noOfDays"] ?? 0,
-      amountPerDay: json["amountPerDay"] ?? 0,
-      loadingCharge: json["loadingCharge"] ?? 0,
-      unloadingCharge: json["unloadingCharge"] ?? 0,
-    );
-  }
-
+  @override
   Map<String, dynamic> toJson() => {
     "vehicleId": vehicleId,
     "loadId": loadId,
