@@ -467,7 +467,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                        // frameCallback(() =>  profileCubit.fetchProfileDetail());
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],

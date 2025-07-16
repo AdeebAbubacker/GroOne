@@ -21,8 +21,10 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -30,6 +32,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:lottie/lottie.dart';
 
 class LoadSummaryScreen extends StatefulWidget {
   final CreateLoadApiRequest apiRequest;
@@ -102,6 +105,11 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
     }
     if(handlingChargesTextController.text.isEmpty){
       ToastMessages.alert(message: "Handling Charges is required");
+      return;
+    }
+
+    if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
+      ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
       return;
     }
 
@@ -187,7 +195,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
             buildReadOnlyField("Vehicle Length", widget.vehicleLength),
             buildReadOnlyField("Consignment weight", "${widget.approxWeight} MT"),
             buildReadOnlyField("Commodity", widget.category),
-            buildReadOnlyField("Pickup date & time", widget.date),
+            buildReadOnlyField("Pickup date & time", DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
 
             InkWell(
                 onTap: () async {
@@ -294,13 +302,24 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
           if(context.mounted) {
             AppDialog.show(
               context,
-              child: SuccessDialogView(
-                heading: context.appText.loadPostedSuccess,
-                message: context.appText.weWillAssignVehicleAndDriver,
-                onContinue: () {
+              dismissible: true,
+              child: CommonDialogView(
+                hideCloseButton: true,
+                onSingleButtonText: context.appText.continueText,
+                onTapSingleButton: () {
                   Navigator.of(context).pop(true);
                   Navigator.of(context).pop(true);
                 },
+                child: Column(
+                  children: [
+                    Lottie.asset(AppJSON.success, width: 150, repeat: false, frameRate: FrameRate(120)),
+                    Text('${context.appText.loadId} : ${state.createLoadModel.data?.loadSeriesId}', style: AppTextStyle.h4),
+                    20.height,
+                    Text(context.appText.loadPostedSuccess, style: AppTextStyle.greenColor20w700),
+                    20.height,
+                    Text(context.appText.weWillAssignVehicleAndDriver, style: AppTextStyle.bodyGreyColor),
+                  ],
+                ),
               ),
             );
           }

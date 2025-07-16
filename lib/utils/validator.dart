@@ -50,6 +50,11 @@ class Validator {
       return 'Please enter a valid 10-digit mobile number';
     }
 
+    // Starts with 0
+    if (value.startsWith('0')) {
+      return 'Mobile number cannot start with 0';
+    }
+
     // Disallow repeated digits like 0000000000, 1111111111, etc.
     if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
       return 'Mobile number cannot have all same digits';

@@ -68,15 +68,41 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     controller.setMapStyle(style);
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     if (widget.address != null) {
+  //       addressTextController.text = widget.address!;
+  //       searchTextController.text = widget.location!;
+  //     }
+  //     await _handleCurrentLocation();
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.address != null) {
-        addressTextController.text = widget.address!;
-        searchTextController.text = widget.location!;
+      // if (widget.address != null) {
+      //   addressTextController.text = widget.address!;
+      //   searchTextController.text = widget.location!;
+      // }
+      // await _handleCurrentLocation();
+      if (widget.location != null && widget.location!.isNotEmpty) {
+        final LatLng? fromAddress = await MapHelper.getLatLngFromAddress(widget.location!);
+        if (fromAddress != null) {
+          _updateMapToLocation(fromAddress);
+        } else {
+          await _handleCurrentLocation();
+        }
+      } else {
+        await _handleCurrentLocation();
       }
-      await _handleCurrentLocation();
+
+      searchTextController.text = widget.location!;
+      addressTextController.text = widget.address!;
+
     });
   }
 
@@ -164,7 +190,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required int locationId}) async {
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required int locationId, required String selectedLocation}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
         locationId: locationId,
@@ -183,7 +209,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             }
             _setMarker(latLng);
           }
-          searchTextController.text = data.locationdetails?.wholeAddr ?? '';
+          // searchTextController.text = data.locationdetails?.wholeAddr ?? '';
+          searchTextController.text = selectedLocation;
           if(widget.title == 'Pickup Point') {
             lpHomeCubit.setPickupLocationDetailId(data.locationdetails!.id);
           } else {
@@ -306,7 +333,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         ),
         onMapCreated: (controller) async {
           _mapController = controller;
-          await _setMapStyle(controller);
+          // await _setMapStyle(controller);
         },
         zoomGesturesEnabled: true,
         scrollGesturesEnabled: true,
@@ -384,7 +411,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         // );
                         final locationId = widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId;
                         final type = widget.title == "Pickup Point" ? 1 : 2;
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0);
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0, selectedLocation: item.description);
 
                       },
                     );

@@ -195,22 +195,22 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                       ),
                     ],
                   ),
-                  Builder(
-                    builder: (context) {
-                      if (state is OtpResendSuccess) {
-                        if (state.loginApiResponseModel.user?.otp != 0) {
-                          return Text(
-                            textAlign: TextAlign.center,
-                            "otp: ${state.loginApiResponseModel.user?.otp}",
-                          );
-                        }
-                      }
-                      return Text(
-                        textAlign: TextAlign.center,
-                        "otp: ${widget.otp}",
-                      );
-                    },
-                  ),
+                  // Builder(
+                  //   builder: (context) {
+                  //     if (state is OtpResendSuccess) {
+                  //       if (state.loginApiResponseModel.user?.otp != 0) {
+                  //         return Text(
+                  //           textAlign: TextAlign.center,
+                  //           "otp: ${state.loginApiResponseModel.user?.otp}",
+                  //         );
+                  //       }
+                  //     }
+                  //     return Text(
+                  //       textAlign: TextAlign.center,
+                  //       "otp: ${widget.otp}",
+                  //     );
+                  //   },
+                  // ),
                   20.height,
 
                   // Otp Text Field
