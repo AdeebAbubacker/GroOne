@@ -96,7 +96,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-   // _loadDataByTab(index: _tabController!.index);
+   _loadDataByTab(index: _tabController!.index);
   });
   }
 
@@ -144,18 +144,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         AppIcons.png.appIcon,
       ).paddingLeft(commonSafeAreaPadding),
       actions: [
-        // Notification
-        IconButton(
-          onPressed: () {
-            //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
-          },
-          icon: SvgPicture.asset(
-            AppIcons.svg.notification,
-            width: 30,
-            colorFilter: AppColors.svg(AppColors.black),
-          ),
-        ),
-
         // Profile
         Row(
           children: [
