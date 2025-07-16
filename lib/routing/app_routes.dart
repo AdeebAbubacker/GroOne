@@ -20,7 +20,6 @@ import 'package:gro_one_app/features/load_provider/lp_pay_now_screen/view/lp_pay
 import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
@@ -31,6 +30,7 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../dependency_injection/locator.dart';
+import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
@@ -60,7 +60,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.enDhanCard,
         builder: (BuildContext context, GoRouterState state) {
-          return EnDhanCard();
+          return EndhanNewUserAndCardScreen();
         },
       ),
 

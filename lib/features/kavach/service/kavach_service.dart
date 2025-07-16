@@ -606,18 +606,18 @@ class KavachService {
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-              (data) {
-                try {
-                  final userListResponse = KavachUserListResponse.fromJson(data);
-                  return userListResponse.data;
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse users data", e);
-                  throw e;
-                }
-              },
-        );
+        CustomLog.debug(this, "Users API raw response: ${response.value}");
+        CustomLog.debug(this, "Users API response type: ${response.value.runtimeType}");
+        
+        try {
+          // The API response is directly the data structure, not wrapped in success/status
+          final userListResponse = KavachUserListResponse.fromJson(response.value);
+          CustomLog.debug(this, "Successfully parsed user list response with ${userListResponse.data.length} users");
+          return Success(userListResponse.data);
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse users data", e);
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }

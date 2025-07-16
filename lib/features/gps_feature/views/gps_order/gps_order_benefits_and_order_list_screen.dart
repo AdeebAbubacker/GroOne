@@ -82,28 +82,71 @@ class _GpsOrderBenefitsAndOrderListScreenState
 
   void _handleBackNavigation() {
     print('🔙 Back button tapped - starting navigation');
-    // Use the same logic as WillPopScope but handle async properly
-    _getUserRoleAndNavigate();
+    
+    // Make navigation synchronous to avoid issues with onLeadingTap
+    try {
+      _navigateBackSynchronously();
+    } catch (e) {
+      print('🔙 Error in _handleBackNavigation: $e');
+      // Fallback: try to pop or navigate to default route
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        context.go(AppRouteName.lpBottomNavigationBar);
+      }
+    }
+  }
+
+  void _navigateBackSynchronously() {
+    // Try multiple navigation approaches
+    try {
+      // First, try to pop
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+        return;
+      }
+      
+      // If we can't pop, try to navigate to the appropriate dashboard
+      _getUserRoleAndNavigate();
+    } catch (e) {
+      print('🔙 Error in _navigateBackSynchronously: $e');
+      // Final fallback: try to go to default route
+      try {
+        if (context.mounted) {
+          context.go(AppRouteName.lpBottomNavigationBar);
+        }
+      } catch (fallbackError) {
+        print('🔙 Fallback navigation also failed: $fallbackError');
+      }
+    }
   }
 
   Future<void> _getUserRoleAndNavigate() async {
     print('🔙 Getting user role for navigation');
-    final userRepository = locator<UserInformationRepository>();
-    final userRole = await userRepository.getUserRole();
-    print('🔙 User role: $userRole');
-    String targetRoute;
-    if (userRole == 1 || userRole == 3) {
-      targetRoute = AppRouteName.lpBottomNavigationBar;
-    } else if (userRole == 2) {
-      targetRoute = AppRouteName.vpBottomNavigationBar;
-    } else {
-      targetRoute = AppRouteName.lpBottomNavigationBar;
-    }
-    print('🔙 Navigating to: $targetRoute');
-    if (context.mounted) {
-      context.go(targetRoute);
-    } else {
-      print('🔙 Context not mounted, cannot navigate');
+    try {
+      final userRepository = locator<UserInformationRepository>();
+      final userRole = await userRepository.getUserRole();
+      print('🔙 User role: $userRole');
+      String targetRoute;
+      if (userRole == 1 || userRole == 3) {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      } else if (userRole == 2) {
+        targetRoute = AppRouteName.vpBottomNavigationBar;
+      } else {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      }
+      print('🔙 Navigating to: $targetRoute');
+      if (context.mounted) {
+        context.go(targetRoute);
+      } else {
+        print('🔙 Context not mounted, cannot navigate');
+      }
+    } catch (e) {
+      print('🔙 Error during navigation: $e');
+      // Fallback to default navigation
+      if (context.mounted) {
+        context.go(AppRouteName.lpBottomNavigationBar);
+      }
     }
   }
 
@@ -112,25 +155,9 @@ class _GpsOrderBenefitsAndOrderListScreenState
     return WillPopScope(
       onWillPop: () async {
         print('🔙 WillPopScope triggered');
-        // Defensive: Always go to the correct dashboard on back
-        final userRepository = locator<UserInformationRepository>();
-        final userRole = await userRepository.getUserRole();
-        print('🔙 WillPopScope - User role: $userRole');
-        String targetRoute;
-        if (userRole == 1 || userRole == 3) {
-          targetRoute = AppRouteName.lpBottomNavigationBar;
-        } else if (userRole == 2) {
-          targetRoute = AppRouteName.vpBottomNavigationBar;
-        } else {
-          targetRoute = AppRouteName.lpBottomNavigationBar;
-        }
-        print('🔙 WillPopScope - Navigating to: $targetRoute');
-        if (context.mounted) {
-          context.go(targetRoute);
-        } else {
-          print('🔙 WillPopScope - Context not mounted');
-        }
-        return false;
+        // Use the same navigation logic as the back button
+        _navigateBackSynchronously();
+        return false; // Prevent default back behavior
       },
       child: BlocProvider.value(
         value: GpsKycCheckCubit(locator<GpsOrderApiRepository>())..resetCubit(),
