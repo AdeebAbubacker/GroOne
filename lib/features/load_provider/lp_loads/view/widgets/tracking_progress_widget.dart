@@ -148,7 +148,7 @@ class TrackingProgress extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.appText.remainingDistance,
+                  "Distance Covered",
                   style: AppTextStyle.body3SoftGrey.copyWith(color: AppColors.subtleTextGreyColor),
                 ),
                 4.height,
