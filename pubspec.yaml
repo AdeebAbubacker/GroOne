@@ -2,7 +2,7 @@ name: gro_one_app
 description: "Gro One App"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -50,6 +50,7 @@ dependencies:
   another_flushbar: ^1.12.30
   flutter_pdfview: ^1.4.0+1
   open_filex: ^4.7.0
+  very_good_analysis: ^9.0.0
   flutter_html: ^3.0.0
 
   # Tools
@@ -73,6 +74,7 @@ dependencies:
   dropdown_search: ^6.0.2
   mime: ^2.0.0
 
+  fl_chart: ^1.0.0
 
   # Routing
   go_router: ^15.1.2
@@ -88,6 +90,7 @@ dependencies:
 
   # Local Storage
   flutter_secure_storage: ^9.2.4
+  realm: ^20.0.1
 
   # State Management
   flutter_bloc: ^9.1.1
@@ -97,10 +100,10 @@ dependencies:
   get_it: ^8.0.3
 
   # Connectivity
-  dio: ^4.0.0
-  connectivity_plus : ^6.1.4
+  dio: ^5.3.3
+  connectivity_plus: ^6.1.4
   pretty_dio_logger:
-  dio_http_cache:
+  dio_cache_interceptor: ^3.5.0
 
   # Push Notification
 
@@ -124,9 +127,6 @@ dependencies:
   geocoding: ^3.0.0
   toastification: ^3.0.3
 
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -143,7 +143,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

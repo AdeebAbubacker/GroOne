@@ -50,7 +50,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
     return BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
       builder: (context, state) {
         if (state is KavachCheckoutShippingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator(),);
         }
 
         if (state is KavachCheckoutShippingAddressSelected) {
@@ -76,10 +76,47 @@ class KavachShippingAddressListScreen extends StatelessWidget {
                 onPressed: () {
                   final selectedAddress = context.read<KavachCheckoutShippingAddressBloc>().state;
                   if (selectedAddress is KavachCheckoutShippingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
+                    Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
                     // Handle if nothing is selected (optional)
                   }
+                },
+                title: context.appText.deliverHere,
+                style: AppButtonStyle.primary,
+              ),
+              20.height,
+            ],
+          );
+        }
+
+        if (state is KavachCheckoutShippingAddressAvailable) {
+          final addresses = state.addresses;
+
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  separatorBuilder: (context, index) => 10.height,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return AddressListItem(address: address);
+                  },
+                ),
+              ),
+              20.height,
+              AppButton(
+                onPressed: () {
+                  // Show message that user must select an address first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select an address first'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
                 },
                 title: context.appText.deliverHere,
                 style: AppButtonStyle.primary,

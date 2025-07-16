@@ -6,7 +6,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapHelper {
   MapHelper._();
 
-
   // Zoom In
   static Future<void> zoomIn(GoogleMapController controller) async {
     final zoom = await controller.getZoomLevel();
@@ -22,8 +21,11 @@ class MapHelper {
   }
 
   // Animate to a specific location
-  static Future<void> animateTo(GoogleMapController controller, LatLng latLng,
-      {double zoom = 15}) async {
+  static Future<void> animateTo(
+    GoogleMapController controller,
+    LatLng latLng, {
+    double zoom = 15,
+  }) async {
     controller.animateCamera(CameraUpdate.newLatLngZoom(latLng, zoom));
     _commonHapticFeedback();
   }
@@ -47,8 +49,10 @@ class MapHelper {
   // Get address from LatLng
   static Future<String> getAddressFromLatLng(LatLng latLng) async {
     try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
       Placemark place = placemarks.first;
       return '${place.street}, ${place.locality}, ${place.country}';
     } catch (_) {
@@ -68,6 +72,14 @@ class MapHelper {
     return null;
   }
 
+
+  // Reusable: Get address from latitude and longitude
+  static Future<String> getAddressFromLatLngDoubles(
+    double lat,
+    double lng,
+  ) async {
+    return await getAddressFromLatLng(LatLng(lat, lng));
+  }
 
   // Haptic feedback
   static void _commonHapticFeedback() {

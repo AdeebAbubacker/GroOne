@@ -366,7 +366,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     return Image.asset(AppImage.png.groBanner);
   }
 
-
   Widget _buildTab({int? status}) {
     return BlocProvider(
       create: (_) => KavachOrderListBloc(locator<KavachRepository>())

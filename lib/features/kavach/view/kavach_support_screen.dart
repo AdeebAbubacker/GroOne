@@ -22,6 +22,12 @@ class KavachSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back, color: AppColors.primaryColor,),
+        ),
         title: 'Support',
         centreTile: false,
       ),

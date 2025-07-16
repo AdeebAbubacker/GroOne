@@ -100,7 +100,7 @@ class ChooseRoleScreen extends StatelessWidget {
                           },
                     );
                       break;
-                    case 2:    
+                    case 2:
                     Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
                     break;
                     case 3: // Both
@@ -109,7 +109,7 @@ class ChooseRoleScreen extends StatelessWidget {
                     case 4: // Fleet Products
                       Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
                       break;
-                  
+
                 }
                   },
                 ),

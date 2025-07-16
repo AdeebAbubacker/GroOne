@@ -21,6 +21,8 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
     final result = await repository.fetchTruckTypes();
     if (result is Success<List<String>>) {
       emit(state.copyWith(truckTypes: UIState.success(result.value)));
+    } else if (result is Error<List<String>>) {
+      emit(state.copyWith(truckTypes: UIState.error(result.type)));
     } else {
       emit(state.copyWith(truckTypes: UIState.error(GenericError())));
     }
@@ -31,17 +33,20 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
     final result = await repository.fetchTruckLengths(type);
     if (result is Success<List<TruckLengthModel>>) {
       emit(state.copyWith(truckLengths: UIState.success(result.value)));
+    } else if (result is Error<List<TruckLengthModel>>) {
+      emit(state.copyWith(truckLengths: UIState.error(result.type)));
     } else {
       emit(state.copyWith(truckLengths: UIState.error(GenericError())));
     }
   }
-
 
   Future<void> fetchCommodities() async {
     emit(state.copyWith(commodities: UIState.loading()));
     final result = await repository.fetchCommodities();
     if (result is Success<List<CommodityModel>>) {
       emit(state.copyWith(commodities: UIState.success(result.value)));
+    } else if (result is Error<List<CommodityModel>>) {
+      emit(state.copyWith(commodities: UIState.error(result.type)));
     } else {
       emit(state.copyWith(commodities: UIState.error(GenericError())));
     }
@@ -52,6 +57,8 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
     final result = await repository.getUploadGstData(file);
     if (result is Success<KavachVehicleDocumentUploadModel>) {
       emit(state.copyWith(vehicleDocUpload: UIState.success(result.value)));
+    } else if (result is Error<KavachVehicleDocumentUploadModel>) {
+      emit(state.copyWith(vehicleDocUpload: UIState.error(result.type)));
     } else {
       emit(state.copyWith(vehicleDocUpload: UIState.error(GenericError())));
     }
@@ -67,15 +74,16 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
 
     if (result is Success<bool> && result.value) {
       emit(state.copyWith(vehicleVerification: UIState.success(true)));
+    } else if (result is Error<bool>) {
+      emit(state.copyWith(vehicleVerification: UIState.error(result.type)));
     } else {
       emit(state.copyWith(vehicleVerification: UIState.error(GenericError())));
     }
   }
+  
   void resetVehicleVerification() {
     emit(state.copyWith(
       vehicleVerification: UIState.initial(),
     ));
   }
-
-
 }

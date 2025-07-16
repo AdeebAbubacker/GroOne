@@ -20,7 +20,7 @@ class KavachVehicleTruckTypeModel {
 
 class KavachVehicleModel {
   final int id;
-  final int customerId;
+  final String customerId;
   final String vehicleNumber;
   final int vehicleTypeId;
   final String rcNumber;
@@ -40,8 +40,8 @@ class KavachVehicleModel {
   final String? insuranceValidityDate;
   final String? fcExpiryDate;
   final String? pucExpiryDate;
-  final int vehicleStatus;
-  final int status;
+  final int? vehicleStatus;
+  final int? status;
   final String createdAt;
   final KavachVehicleTruckTypeModel? truckTypeInfo;
 
@@ -82,30 +82,30 @@ class KavachVehicleModel {
         .toList();
 
     return KavachVehicleModel(
-      id: json['id'],
-      customerId: json['customerId'],
-      vehicleNumber: json['vehicleNumber'],
-      vehicleTypeId: json['vehicleTypeId'],
-      rcNumber: json['rcNumber'],
-      rcDocLink: json['rcDocLink'],
-      capacity: json['capacity'],
-      truckMakeAndModel: json['truckMakeAndModel'],
-      truckType: json['truckType'],
-      truckLength: json['truckLength'],
+      id: int.tryParse(json['vehicleId']?.toString() ?? '0') ?? 0,
+      customerId: json['customerId']?.toString() ?? '',
+      vehicleNumber: json['truckNo']?.toString() ?? '',
+      vehicleTypeId: int.tryParse(json['vehicleTypeId']?.toString() ?? '0') ?? 0,
+      rcNumber: json['rcNumber']?.toString() ?? '',
+      rcDocLink: json['rcDocLink']?.toString() ?? '',
+      capacity: json['tonnage']?.toString() ?? '',
+      truckMakeAndModel: json['modelNumber']?.toString(),
+      truckType: int.tryParse(json['truckTypeId']?.toString() ?? '0'),
+      truckLength: int.tryParse(json['truckLength']?.toString() ?? '0'),
       acceptableCommodities: commodities ?? [],
-      ownerName: json['ownerName'],
-      registrationDate: json['registrationDate'],
-      tonnage: json['tonnage'],
-      bodyType: json['bodyType'],
-      loadingSpan: json['loadingSpan'],
-      modelNumber: json['modelNumber'],
-      insurancePolicyNumber: json['insurancePolicyNumber'],
-      insuranceValidityDate: json['insuranceValidityDate'],
-      fcExpiryDate: json['fcExpiryDate'],
-      pucExpiryDate: json['pucExpiryDate'],
-      vehicleStatus: json['vehicleStatus'],
-      status: json['status'],
-      createdAt: json['createdAt'],
+      ownerName: json['ownerName']?.toString(),
+      registrationDate: json['registrationDate']?.toString(),
+      tonnage: json['tonnage']?.toString(),
+      bodyType: json['bodyType']?.toString(),
+      loadingSpan: json['loadingSpan']?.toString(),
+      modelNumber: json['modelNumber']?.toString(),
+      insurancePolicyNumber: json['insurancePolicyNumber']?.toString(),
+      insuranceValidityDate: json['insuranceValidityDate']?.toString(),
+      fcExpiryDate: json['fcExpiryDate']?.toString(),
+      pucExpiryDate: json['pucExpiryDate']?.toString(),
+      vehicleStatus: int.tryParse(json['status']?.toString() ?? '0'),
+      status: int.tryParse(json['status']?.toString() ?? '0'),
+      createdAt: json['createdAt']?.toString() ?? '',
       truckTypeInfo: json['TruckType'] != null
           ? KavachVehicleTruckTypeModel.fromJson(json['TruckType'])
           : null,

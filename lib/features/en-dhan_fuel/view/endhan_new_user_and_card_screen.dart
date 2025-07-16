@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_transaction_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
@@ -26,6 +27,8 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
+import '../../../utils/app_dialog.dart';
+import '../../../utils/common_dialog_view/common_dialog_view.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
 
@@ -64,6 +67,64 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     super.dispose();
   }
 
+  void _showAlreadyAddedCardDialog(BuildContext context) {
+    AppDialog.show(
+      context,
+      dismissible: true,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        child: Column(
+          children: [
+            // Orange circular icon with warning triangle
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE67E22), // Orange color
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE67E22).withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            20.height,
+            // Main heading
+            Text(
+              'Card Already Added',
+              style: AppTextStyle.h4.copyWith(
+                color: const Color(0xFFE67E22),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            12.height,
+            // Supporting message
+            Text(
+              'You have already added a fuel card.',
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.greyTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onTapSingleButton: () {
+          Navigator.of(context).pop();
+        },
+        onSingleButtonText: 'OK',
+      ),
+    );
+  }
+
     @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -76,7 +137,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           // Check if widget is still mounted
           if (!mounted) return;
           
-          // If KYC documents exist, fetch cards
+          // If KYC documents exist, fetch cards and balance
           if (state.kycCheckState?.status == Status.SUCCESS && 
               state.hasKycDocuments && 
               !_hasAttemptedCardsFetch &&
@@ -86,12 +147,37 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             final cubit = context.read<EnDhanCubit>();
             if (!cubit.isClosed && mounted) {
               cubit.fetchCards();
+              cubit.fetchCardBalance();
+            }
+          }
+          
+          // If KYC documents exist and cards haven't been fetched yet, fetch them
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              state.cardsState?.status == Status.INITIAL) {
+            final cubit = context.read<EnDhanCubit>();
+            if (!cubit.isClosed && mounted) {
+              cubit.fetchCards();
+              cubit.fetchCardBalance();
             }
           }
         },
         builder: (context, state) {
           // Show loading while checking KYC
           if (state.kycCheckState?.status == Status.LOADING) {
+            return Scaffold(
+              appBar: CommonAppBar(
+                title: context.appText.fuelCard,
+                centreTile: false,
+              ),
+              body: const Center(child: AppLoadingWidget()),
+            );
+          }
+
+          // Show loading while fetching cards after KYC check
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              state.cardsState?.status == Status.LOADING) {
             return Scaffold(
               appBar: CommonAppBar(
                 title: context.appText.fuelCard,
@@ -129,6 +215,36 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             );
           }
 
+          // Show error state for cards fetching
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              state.cardsState?.status == Status.ERROR) {
+            return Scaffold(
+              appBar: CommonAppBar(
+                title: context.appText.fuelCard,
+                centreTile: false,
+                actions: [
+                  AppIconButton(
+                    onPressed: () {
+                      Navigator.push(context,commonRoute(KavachSupportScreen()));
+                    },
+                    icon: AppIcons.svg.filledSupport,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  10.width,
+                ],
+              ),
+              body: Center(
+                child: AppErrorWidget(
+                  error: GenericError(),
+                  onRetry: () {
+                    context.read<EnDhanCubit>().fetchCards();
+                  },
+                ),
+              ),
+            );
+          }
+
           // Show benefits screen if no KYC documents found
           if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
             return Scaffold(
@@ -146,21 +262,56 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   10.width,
                 ],
               ),
-              body: SafeArea(child: enDhanBenifitsWidget(context)),
+              body: SafeArea(child: enDhanBenifitsWidget(context, showKycScreen: true)),
             );
           }
 
-          // Show cards screen if KYC documents exist
-          if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments) {
+          // Show benefits screen if KYC documents exist but no cards found
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              state.cardsState?.status == Status.SUCCESS &&
+              (state.cardsState?.data?.data?.document ?? []).isEmpty) {
             return Scaffold(
-              backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
-                title: 'eN-Dhan Card',
+                title: context.appText.fuelCard,
                 centreTile: false,
                 actions: [
                   AppIconButton(
                     onPressed: () {
-                      Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                      Navigator.push(context,commonRoute(KavachSupportScreen()));
+                    },
+                    icon: AppIcons.svg.filledSupport,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  10.width,
+                ],
+              ),
+              body: SafeArea(child: enDhanBenifitsWidget(context, showKycScreen: false)),
+            );
+          }
+
+           // Show cards screen if KYC documents exist and cards are available
+          if (state.kycCheckState?.status == Status.SUCCESS && 
+              state.hasKycDocuments && 
+              state.cardsState?.status == Status.SUCCESS &&
+              (state.cardsState?.data?.data?.document ?? []).isNotEmpty) {
+            return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
+              appBar: CommonAppBar(
+                title: Text("eN-Dhan Card",style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
+                centreTile: false,
+                actions: [
+                  AppIconButton(
+                    onPressed: () {
+                      // Check if there are already cards
+                      final cards = state.cardsState?.data?.data?.document ?? [];
+                      if (cards.isNotEmpty) {
+                        // Show popup if cards already exist
+                        _showAlreadyAddedCardDialog(context);
+                      } else {
+                        // Navigate to create card screen if no cards exist
+                        Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                      }
                     },
                     icon: Icon(Icons.add, color: Colors.white),
                     style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -182,10 +333,63 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     16.height,
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'My Cards (ID: HPCL${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
-                        style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                        
+                          Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                            style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          // Show balance if available
+                          if (state.cardBalanceState?.status == Status.SUCCESS)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Balance: ',
+                                    style: AppTextStyle.body3.copyWith(
+                                      color: AppColors.greyTextColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                        ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
+                                        : '₹0.00',
+                                    style: AppTextStyle.body3.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: state.cardBalanceState?.data?.data?.balance?.hasBalance == true
+                                          ? AppColors.primaryColor
+                                          : AppColors.greyTextColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
+                        
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context,commonRoute(KavachTransactionsScreen()));
+                          },
+                          child: 
+                        Row(children: [
+                           Text("Transactions",
+                           style: TextStyle(
+                            color: AppColors.primaryColor,
+                           ),),
+                           Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 15,),
+                        ],),
+                        )
+                         
+                        ],
+                      )
+                    
                     ),
                     12.height,
                     AppSearchBar(
@@ -285,7 +489,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final card = filteredCards[index];
           // Convert EnDhanCardModel to Map for EndhanCardItem
           final cardMap = {
-            'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
+            'cardNumber':card.cardNumber ?? '',
+           // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
             'vehicleNumber': card.vehicleNumber ?? '',
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it
@@ -307,7 +512,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return ' XXX XXXXX X$visibleEnd';
   }
 
-  Widget enDhanBenifitsWidget(BuildContext context){
+  Widget enDhanBenifitsWidget(BuildContext context, {bool showKycScreen = false}){
     return Stack(
       children: [
         SingleChildScrollView(
@@ -332,7 +537,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             child: AppButton(
               title: "Buy New Fuel Card",
               onPressed: (){
+                if (showKycScreen) {
+                  // Navigate to KYC screen if user doesn't have KYC documents
                 Navigator.push(context,commonRoute(EndhanKycScreen()));
+                } else {
+                  // Navigate to create card screen if user has KYC documents but no cards
+                  Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                }
               }
            ),
           ),
@@ -399,3 +610,4 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return Image.asset(AppImage.png.groBanner);
   }
 }
+

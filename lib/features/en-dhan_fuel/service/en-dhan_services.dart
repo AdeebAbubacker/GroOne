@@ -9,6 +9,8 @@ import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_reques
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -19,9 +21,9 @@ class EnDhanService {
   EnDhanService(this._apiService, this._secureSharedPrefs);
 
   /// Check KYC Documents Existence
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
     try {
-      final url = ApiUrls.enDhanKycCheck;
+      final url = ApiUrls.enDhanKycCheck(customerId);
       final result = await _apiService.get(url);
 
       if (result is Success) {
@@ -33,6 +35,9 @@ class EnDhanService {
             this,
             "KYC Check Response: success=${response.success}, message=${response.message}, data=${response.data}",
           );
+          
+
+          
           return Success(response);
         } catch (e) {
           CustomLog.error(this, "Error parsing KYC check response", e);
@@ -52,10 +57,16 @@ class EnDhanService {
   /// Upload KYC Documents
   Future<Result<EnDhanKycModel>> uploadKycDocuments(
     EnDhanKycApiRequest request,
+    String customerId,
   ) async {
     try {
       final url = ApiUrls.enDhanKycUpload;
-      final result = await _apiService.post(url, body: request.toJson());
+      
+      // Add customerId to the request body
+      final requestBody = request.toJson();
+      requestBody['customerId'] = customerId;
+      
+      final result = await _apiService.post(url, body: requestBody);
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
@@ -307,11 +318,38 @@ class EnDhanService {
   /// Upload Document
   Future<Result<DocumentUploadResponse>> uploadDocument(File file) async {
     try {
+      // Get user ID from secure storage
+      final userId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (userId == null || userId.isEmpty) {
+        CustomLog.error(this, "User ID not found in secure storage", null);
+        return Error(ErrorWithMessage(message: 'User ID not found'));
+      }
+
       final url = ApiUrls.documentUpload;
-      final result = await _apiService.multipart(url, file, pathName: "file");
+      
+      // Prepare form fields with required parameters
+      final fields = {
+        'userId': userId,
+        'fileType': 'rc_book',
+        'documentType': 'rc_document',
+      };
+
+      final result = await _apiService.multipart(
+        url, 
+        file, 
+        pathName: "file",
+        fields: fields,
+      );
 
       if (result is Success) {
-        return Success(DocumentUploadResponse.fromJson(result.value));
+        print('🔍 Upload API Response: ${result.value}');
+        print('🔍 Upload API Response Type: ${result.value.runtimeType}');
+        
+        // Use the standard getResponseStatus method like other services
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => DocumentUploadResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -326,12 +364,16 @@ class EnDhanService {
   /// Upload KYC Documents Multipart
   Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(
     EnDhanKycMultipartApiRequest request,
+    String customerId,
   ) async {
     try {
       final url = ApiUrls.enDhanKycUpload;
 
       // Get form fields (string data)
       final fields = request.getFormFields();
+      
+      // Add customerId to the form fields
+      fields['customerId'] = customerId;
 
       // Get files for multipart upload
       final files = request.getFiles();
@@ -397,8 +439,8 @@ class EnDhanService {
         data: formData,
         options: Options(
           headers: headers,
-          sendTimeout: const Duration(seconds: 30).inMilliseconds,
-          receiveTimeout: const Duration(seconds: 30).inMilliseconds,
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
         ),
       );
 
@@ -470,11 +512,69 @@ class EnDhanService {
     }
   }
 
+  /// Fetch Card Balance
+  Future<Result<EnDhanCardBalanceResponse>> fetchCardBalance() async {
+    print('🔄 EnDhanService.fetchCardBalance called');
+    try {
+      // Get customer ID from secure storage
+      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (customerId == null || customerId.isEmpty) {
+        print('❌ Customer ID not found in secure storage');
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+      
+      final url = ApiUrls.enDhanCardBalance(customerId);
+      print('🌐 Making API call to: $url');
+      CustomLog.debug(this, "Fetching card balance from: $url");
+
+      final result = await _apiService.get(url);
+      print('📥 API service result type: ${result.runtimeType}');
+
+      if (result is Success) {
+        print('✅ API call successful');
+        print('📄 Raw response: ${result.value}');
+        CustomLog.debug(this, "Card balance API raw response: ${result.value}");
+
+        try {
+          final response = EnDhanCardBalanceResponse.fromJson(result.value);
+          print('✅ Successfully parsed card balance response');
+          print('🔍 Response success: ${response.success}');
+          print('🔍 Response message: ${response.message}');
+          print('🔍 Balance data: ${response.data?.balance}');
+          CustomLog.debug(this, "Parsed card balance response: $response");
+
+          return Success(response);
+        } catch (e) {
+          print('❌ Error parsing card balance response: $e');
+          CustomLog.error(this, "Error parsing card balance response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        print('❌ API service returned error: ${result.type}');
+        return Error(result.type);
+      } else {
+        print('❌ API service returned unknown result type: ${result.runtimeType}');
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print('❌ Exception in fetchCardBalance: $e');
+      CustomLog.error(this, "Error fetching card balance", e);
+      return Error(GenericError());
+    }
+  }
+
   /// Fetch Cards List
   Future<Result<EnDhanCardListModel>> fetchCards({String? searchTerm}) async {
     print('🔄 EnDhanService.fetchCards called with searchTerm: $searchTerm');
     try {
-      String url = ApiUrls.enDhanCards;
+      // Get customer ID from secure storage
+      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (customerId == null || customerId.isEmpty) {
+        print('❌ Customer ID not found in secure storage');
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+      
+      String url = ApiUrls.enDhanCards(customerId);
       if (searchTerm != null && searchTerm.isNotEmpty) {
         url += '?searchTerm=$searchTerm';
       }
@@ -701,6 +801,91 @@ class EnDhanService {
       }
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Verify Vehicle
+  Future<Result<VehicleVerificationResponse>> verifyVehicle(
+    VehicleVerificationRequest request,
+  ) async {
+    try {
+      final url = 'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle';
+      final requestBody = request.toJson();
+      
+      CustomLog.debug(
+        this,
+        "Vehicle Verification Request: URL=$url, Body=$requestBody",
+      );
+      
+      final result = await _apiService.post(url, body: requestBody);
+
+      if (result is Success) {
+        CustomLog.debug(
+          this,
+          "Vehicle Verification Raw Response: ${result.value}",
+        );
+        
+        try {
+          final response = VehicleVerificationResponse.fromJson(result.value);
+          CustomLog.debug(
+            this,
+            "Vehicle Verification Response: status=${response.status}, message=${response.message}",
+          );
+          return Success(response);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing vehicle verification response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Vehicle Verification API Error", result.type);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.isNotEmpty) 'Search': search,
+      };
+
+      // Construct URL with query parameters
+      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  final userListResponse = KavachUserListResponse.fromJson(data);
+                  return userListResponse.data;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse users data", e);
+                  throw e;
+                }
+              },
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users", e);
       return Error(DeserializationError());
     }
   }

@@ -89,7 +89,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
           return Tab(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primaryColor
@@ -151,7 +151,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 15),
               child: SvgPicture.asset(
                 txn.status.toLowerCase() == 'success'
                     ? AppIcons.svg.kavachTransactionSuccess
@@ -187,7 +187,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: getStatusColor(txn.status).withValues(alpha: 0.2),
+                    color: getStatusColor(txn.status).withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

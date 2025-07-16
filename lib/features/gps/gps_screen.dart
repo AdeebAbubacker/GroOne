@@ -8,9 +8,8 @@ class GpsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "GPS".capitalize),
-      body: SafeArea(
-          child: Center(child: Text("Coming soon"))),
+      appBar: CommonAppBar(title: "GPS".capitalize, isLeading: true),
+      body: SafeArea(child: Center(child: Text("Coming soon"))),
     );
   }
 }

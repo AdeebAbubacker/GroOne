@@ -9,5 +9,11 @@ class SelectKavachBillingAddress extends KavachCheckoutBillingAddressEvent {
   SelectKavachBillingAddress(this.address);
 }
 
+class RestoreKavachBillingAddress extends KavachCheckoutBillingAddressEvent {
+  final KavachAddressModel address;
+  final List<KavachAddressModel> addresses;
+  RestoreKavachBillingAddress(this.address, this.addresses);
+}
+
 class ClearKavachBillingAddress extends KavachCheckoutBillingAddressEvent {}
 

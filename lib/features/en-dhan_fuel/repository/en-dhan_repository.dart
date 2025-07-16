@@ -6,7 +6,9 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
+import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class EnDhanRepository {
@@ -15,9 +17,9 @@ class EnDhanRepository {
   EnDhanRepository(this._enDhanService);
 
   /// Check KYC Documents Repository
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments() async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
     try {
-      return await _enDhanService.checkKycDocuments();
+      return await _enDhanService.checkKycDocuments(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to check KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -27,9 +29,10 @@ class EnDhanRepository {
   /// Upload KYC Documents Repository
   Future<Result<EnDhanKycModel>> uploadKycDocuments(
     EnDhanKycApiRequest request,
+    String customerId,
   ) async {
     try {
-      return await _enDhanService.uploadKycDocuments(request);
+      return await _enDhanService.uploadKycDocuments(request, customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to upload KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -116,11 +119,26 @@ class EnDhanRepository {
   /// Upload KYC Documents Multipart Repository
   Future<Result<EnDhanKycModel>> uploadKycDocumentsMultipart(
     EnDhanKycMultipartApiRequest request,
+    String customerId,
   ) async {
     try {
-      return await _enDhanService.uploadKycDocumentsMultipart(request);
+      return await _enDhanService.uploadKycDocumentsMultipart(request, customerId);
     } catch (e) {
       CustomLog.error(this, "Error uploading KYC documents", e);
+      return Error(GenericError());
+    }
+  }
+
+  /// Fetch Card Balance Repository
+  Future<Result<api_models.EnDhanCardBalanceResponse>> fetchCardBalance() async {
+    print('🔄 EnDhanRepository.fetchCardBalance called');
+    try {
+      final result = await _enDhanService.fetchCardBalance();
+      print('📥 Repository result: ${result.runtimeType}');
+      return result;
+    } catch (e) {
+      print('❌ Repository error: $e');
+      CustomLog.error(this, "Error fetching card balance", e);
       return Error(GenericError());
     }
   }
@@ -175,6 +193,36 @@ class EnDhanRepository {
       return await _enDhanService.verifyPan(request);
     } catch (e) {
       CustomLog.error(this, "Failed to verify PAN", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Verify Vehicle Repository
+  Future<Result<VehicleVerificationResponse>> verifyVehicle(
+    VehicleVerificationRequest request,
+  ) async {
+    try {
+      return await _enDhanService.verifyVehicle(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to verify vehicle", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await _enDhanService.fetchUsers(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

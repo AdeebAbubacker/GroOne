@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
+import '../../../data/storage/secured_shared_preferences.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
@@ -14,13 +15,16 @@ import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
+import '../model/kavach_user_model.dart';
 import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 
 class KavachService {
   final ApiService _apiService;
-  KavachService(this._apiService);
+  final SecuredSharedPreferences _secureSharedPrefs;
+  KavachService(this._apiService, this._secureSharedPrefs);
 
   /// Fetches Kavach products with optional search and preference filters
   Future<Result<List<KavachProduct>>> fetchProducts({
@@ -65,12 +69,23 @@ class KavachService {
   Future<Result<List<KavachVehicleModel>>> fetchVehicles(String customerId) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.kavachVehicleDetails}/$customerId',
+        '${ApiUrls.kavachVehicleDetails}/$customerId?limit=10&page=1',
       );
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => (data['data'] as List).map((e) => KavachVehicleModel.fromJson(e)).toList(),
+              (data) {
+                try {
+                  final vehicleList = data['data'] as List;
+
+                  return vehicleList.map((e) {
+                    return KavachVehicleModel.fromJson(e);
+                  }).toList();
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse vehicle data", e);
+                  throw e;
+                }
+              },
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -81,69 +96,32 @@ class KavachService {
     }
   }
 
-  /// Fetches addresses for a customer with specified address type
-  // Future<Result<List<KavachAddressModel>>> fetchAddresses(
-  //     String customerId, {
-  //       required int addrType,
-  //     }) async {
-  //   try {
-  //     // final response = await _apiService.get(
-  //     //   '${ApiUrls.kavachAddressList}?customerId=$customerId&addrType=$addrType',
-  //     //   forceRefresh: true,
-  //     // );
-  //     final response = await _apiService.get(
-  //       'https://gro-devapi.letsgro.co/customer/api/v1/address/$customerId',
-  //       forceRefresh: true,
-  //     );
-  //
-  //
-  //     if (response is Success) {
-  //       // return await _apiService.getResponseStatus(
-  //       //   response.value,
-  //       //       (data) => (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList(),
-  //       // );
-  //       return await _apiService.getResponseStatus(
-  //         response.value,
-  //             (data) => (data['data'] as List)
-  //             .map((e) => KavachAddressModel.fromJson(e))
-  //             .toList(),
-  //       );
-  //     } else {
-  //       return Error(response is Error ? response.type : GenericError());
-  //     }
-  //   } catch (e) {
-  //     CustomLog.error(this, "Failed to fetch addresses", e);
-  //     return Error(DeserializationError());
-  //   }
-  // }
+  /// Fetches addresses for a customer
   Future<Result<List<KavachAddressModel>>> fetchAddresses(
       String customerId, {
-        required int addrType,
+        int? addrType,
       }) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.kavachAddressList}/$customerId',
+        '${ApiUrls.kavachAddressList}/$customerId?limit=10&page=1',
         forceRefresh: true,
       );
 
       if (response is Success) {
-        try {
-          // Directly parse data since API has no success/status field
-          final data = response.value;
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  final allAddresses = (data['data'] as List).map((e) => KavachAddressModel.fromJson(e)).toList();
 
-          final addresses = (data['data'] as List)
-              .map((e) => KavachAddressModel.fromJson(e))
-              .toList();
-
-          final filteredAddresses = addresses
-              .where((address) => address.addrType == addrType)
-              .toList();
-
-          return Success(filteredAddresses);
-        } catch (e) {
-          CustomLog.error(this, "Error parsing address data", e);
-          return Error(DeserializationError());
-        }
+                  // Return all addresses without filtering by addrType
+                  return allAddresses;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse addresses data", e);
+                  throw e;
+                }
+              },
+        );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -196,11 +174,18 @@ class KavachService {
       );
 
       if (response is Success) {
-        // Directly parse response since API has no success field
-        final data = response.value;
-
-        final address = KavachAddressModel.fromJson(data);
-        return Success(address);
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  // The API response seems to be the direct data object
+                  return KavachAddressModel.fromJson(data);
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse add address data", e);
+                  throw e;
+                }
+              },
+        );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -307,17 +292,29 @@ class KavachService {
       final response = await _apiService.get(ApiUrls.kavachFetchCommodities);
 
       if (response is Success) {
-        try {
-          final data = response.value; // Direct response is a List
-          final commodities = (data as List) // 👈 No ['data'] here
-              .map((e) => CommodityModel.fromJson(e))
-              .toList();
-
-          return Success(commodities);
-        } catch (e) {
-          CustomLog.error(this, "Error parsing commodities", e);
-          return Error(DeserializationError());
-        }
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  // Handle the case where data might be directly a list
+                  if (data is List) {
+                    return data.map((e) => CommodityModel.fromJson(e)).toList();
+                  }
+                  // Handle the case where data is nested in a 'data' field
+                  if (data is Map<String, dynamic> && data.containsKey('data')) {
+                    final dataList = data['data'];
+                    if (dataList is List) {
+                      return dataList.map((e) => CommodityModel.fromJson(e)).toList();
+                    }
+                  }
+                  // If neither format works, return empty list
+                  return <CommodityModel>[];
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse commodities data", e);
+                  throw e;
+                }
+              },
+        );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -331,9 +328,30 @@ class KavachService {
 
   Future<Result<KavachVehicleDocumentUploadModel>> fetchUploadGstData(File file) async {
     try {
-      final result = await _apiService.multipart(ApiUrls.upload, file, pathName: "file");
+      // Get user ID from secure storage
+      final userId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      if (userId == null || userId.isEmpty) {
+        CustomLog.error(this, "User ID not found in secure storage", null);
+        return Error(ErrorWithMessage(message: 'User ID not found'));
+      }
+
+      final url = ApiUrls.documentUpload;
+
+      // Prepare form fields with required parameters
+      final fields = {
+        'userId': userId,
+        'fileType': 'rc_book',
+        'documentType': 'rc_document',
+      };
+
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: fields,
+      );
+
       if (result is Success) {
-        // This function already uses getResponseStatus as requested
         return await _apiService.getResponseStatus(
           result.value,
               (data) => KavachVehicleDocumentUploadModel.fromJson(data),
@@ -372,14 +390,29 @@ class KavachService {
       final response = await _apiService.get(ApiUrls.kavachTruckType);
 
       if (response is Success) {
-        try {
-          final data = response.value;
-          final truckTypes = (data as List).cast<String>(); // 👈 fixed
-          return Success(truckTypes);
-        } catch (e) {
-          CustomLog.error(this, "Error parsing truck types", e);
-          return Error(DeserializationError());
-        }
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  // Handle the case where data might be directly a list
+                  if (data is List) {
+                    return data.cast<String>();
+                  }
+                  // Handle the case where data is nested in a 'data' field
+                  if (data is Map<String, dynamic> && data.containsKey('data')) {
+                    final dataList = data['data'];
+                    if (dataList is List) {
+                      return dataList.cast<String>();
+                    }
+                  }
+                  // If neither format works, return empty list
+                  return <String>[];
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse truck types data", e);
+                  throw e;
+                }
+              },
+        );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
@@ -502,13 +535,43 @@ class KavachService {
         return await _apiService.getResponseStatus(
           result.value,
               (response) {
-            final data = response['data'];
-            final txnList = data?['Transactions'] ?? [];
-            if (txnList is List && txnList.isNotEmpty) {
-              return txnList
-                  .map((json) => KavachTransactionModel.fromJson(json))
-                  .toList();
+            CustomLog.debug(this, "Transaction response: $response");
+
+            // Try different response structures
+            List<dynamic> txnList = [];
+
+            // Check if Transactions is directly in response
+            if (response.containsKey('Transactions')) {
+              txnList = response['Transactions'] ?? [];
+              CustomLog.debug(this, "Found Transactions directly in response: ${txnList.length}");
+            }
+            // Check if Transactions is nested under data
+            else if (response.containsKey('data') && response['data'] is Map) {
+              final data = response['data'];
+              txnList = data['Transactions'] ?? [];
+              CustomLog.debug(this, "Found Transactions under data: ${txnList.length}");
+            }
+            // Check if the response itself is the Transactions list
+            else if (response is List) {
+              txnList = response;
+              CustomLog.debug(this, "Response is directly a list: ${txnList.length}");
+            }
+
+            CustomLog.debug(this, "Final transaction list: $txnList");
+
+            if (txnList.isNotEmpty) {
+              try {
+                final transactions = txnList
+                    .map((json) => KavachTransactionModel.fromJson(json))
+                    .toList();
+                CustomLog.debug(this, "Parsed transactions: ${transactions.length}");
+                return transactions;
+              } catch (e) {
+                CustomLog.error(this, "Failed to parse transaction data", e);
+                return <KavachTransactionModel>[];
+              }
             } else {
+              CustomLog.debug(this, "No transactions found or empty list");
               return <KavachTransactionModel>[]; // Empty list
             }
           },
@@ -523,6 +586,45 @@ class KavachService {
     }
   }
 
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      // Build query parameters
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (search.isNotEmpty) 'Search': search,
+      };
 
+      // Construct URL with query parameters
+      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+
+      final response = await _apiService.get(uri.toString());
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) {
+                try {
+                  final userListResponse = KavachUserListResponse.fromJson(data);
+                  return userListResponse.data;
+                } catch (e) {
+                  CustomLog.error(this, "Failed to parse users data", e);
+                  throw e;
+                }
+              },
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users", e);
+      return Error(DeserializationError());
+    }
+  }
 }
 
