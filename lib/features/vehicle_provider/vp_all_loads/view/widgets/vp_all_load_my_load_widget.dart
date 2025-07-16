@@ -47,7 +47,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: commonContainerDecoration(
         borderColor: AppColors.primaryColor,
         borderWidth: 1,
@@ -58,17 +58,14 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                AppImage.png.truckMyLoad,
-                width: 50,
-              ).paddingSymmetric(vertical: 10),
+              Image.asset(AppImage.png.truckMyLoad, width: 50),
               10.width,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.data.loadId, style: AppTextStyle.h5),
                   Text(
-                    formatDateTimeKavach(widget.data.createdAt?.toString()??DateTime.now().toString()),
+                    formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
                     style: AppTextStyle.primaryColor12w400,
                   ),
                 ],
@@ -162,6 +159,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           //if(widget.showButton??true)
           Row(
             children: [
+
+              // Support Button
               IconButton(
                 onPressed: () {
                   commonSupportDialog(context);
@@ -169,13 +168,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 icon: Container(
                   alignment: Alignment.center,
                   padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.primaryColor,
-                      width: 1.5,
-                    ),
-                  ),
+                  decoration: commonContainerDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(commonButtonRadius), borderColor: AppColors.primaryColor, borderWidth: 1.5),
                   child: SvgPicture.asset(
                     AppIcons.svg.support,
                     width: 25,
@@ -191,6 +184,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               //     ? "Assign Driver"
               //     : "Accept Load",
 
+              // Action Button
               VpMyLoadHelper.loadStatusButtonWidget(
                   status: widget.data.loadStatusValues!.name,
                   onPressed: () {  }
@@ -220,7 +214,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
       children: [
         SvgPicture.asset(
           iconSvg,
-          width: 18,
+          width: 20,
           colorFilter: AppColors.svg(AppColors.black),
         ),
         10.width,

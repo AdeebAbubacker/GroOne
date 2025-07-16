@@ -101,6 +101,7 @@ class SvgIcons {
   final String download = "${_svgBasePath}download.svg";
   final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
   final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
+  final String swipeButtonIcon = "${_svgBasePath}swipe_button_icon.svg";
 
 
 }
