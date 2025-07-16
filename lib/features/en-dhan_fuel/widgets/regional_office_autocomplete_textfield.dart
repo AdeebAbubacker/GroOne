@@ -1,50 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/data/model/result.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
-class ReferralAutoCompleteTextField extends StatefulWidget {
+class RegionalOfficeAutoCompleteTextField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final void Function(String)? onSelected;
+  final void Function(int)? onRegionalOfficeSelected;
+  final int? zonalOfficeId;
+  final String? Function(String?)? validator;
 
-  const ReferralAutoCompleteTextField({
+  const RegionalOfficeAutoCompleteTextField({
     super.key,
     required this.controller,
     required this.labelText,
     this.onSelected,
+    this.onRegionalOfficeSelected,
+    this.zonalOfficeId,
+    this.validator,
   });
 
   @override
-  State<ReferralAutoCompleteTextField> createState() =>
-      _ReferralAutoCompleteTextFieldState();
+  State<RegionalOfficeAutoCompleteTextField> createState() =>
+      _RegionalOfficeAutoCompleteTextFieldState();
 }
 
-class _ReferralAutoCompleteTextFieldState
-    extends State<ReferralAutoCompleteTextField> {
+class _RegionalOfficeAutoCompleteTextFieldState
+    extends State<RegionalOfficeAutoCompleteTextField> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
-  List<KavachUserModel> allUsers = [];
-  List<KavachUserModel> filteredUsers = [];
+  List<Map<String, dynamic>> allRegionalOffices = [];
+  List<Map<String, dynamic>> filteredRegionalOffices = [];
   bool isLoading = false;
   bool hasError = false;
   String errorMessage = '';
-  final GpsOrderApiRepository _repository = locator<GpsOrderApiRepository>();
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onChanged);
-    _loadUsers();
+    if (widget.zonalOfficeId != null) {
+      _loadRegionalOffices();
+    }
   }
 
-  Future<void> _loadUsers() async {
-    if (isLoading) return;
+  @override
+  void didUpdateWidget(RegionalOfficeAutoCompleteTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.zonalOfficeId != oldWidget.zonalOfficeId && widget.zonalOfficeId != null) {
+      _loadRegionalOffices();
+    }
+  }
+
+  Future<void> _loadRegionalOffices() async {
+    if (isLoading || widget.zonalOfficeId == null) return;
     
     setState(() {
       isLoading = true;
@@ -52,24 +65,17 @@ class _ReferralAutoCompleteTextFieldState
     });
 
     try {
-      final result = await _repository.fetchUsers();
-      if (result is Success<List<KavachUserModel>>) {
-        setState(() {
-          allUsers = result.value;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          hasError = true;
-          errorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
-          isLoading = false;
-        });
-      }
+      final cubit = locator<EnDhanCubit>();
+      await cubit.fetchRegionalOffices(widget.zonalOfficeId!);
+      
+      setState(() {
+        allRegionalOffices = List.from(cubit.state.regionalOffices);
+        isLoading = false;
+      });
     } catch (e) {
-      CustomLog.error(this, "Failed to load users", e);
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load users';
+        errorMessage = 'Failed to load regional offices';
         isLoading = false;
       });
     }
@@ -78,20 +84,18 @@ class _ReferralAutoCompleteTextFieldState
   void _onChanged() {
     final query = widget.controller.text.toLowerCase();
     if (query.isNotEmpty) {
-      filteredUsers = allUsers
-          .where((user) => 
-              user.userName.toLowerCase().contains(query) ||
-              user.empCode.toLowerCase().contains(query) ||
-              '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
+      filteredRegionalOffices = allRegionalOffices
+          .where((office) => 
+              (office['region_name'] ?? '').toString().toLowerCase().contains(query))
           .toList();
 
-      if (filteredUsers.isNotEmpty) {
+      if (filteredRegionalOffices.isNotEmpty) {
         _showOverlay();
       } else {
         _removeOverlay();
       }
     } else {
-      filteredUsers = [];
+      filteredRegionalOffices = [];
       _removeOverlay();
     }
     setState(() {});
@@ -131,26 +135,31 @@ class _ReferralAutoCompleteTextFieldState
             borderRadius: BorderRadius.circular(8),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: (filteredUsers.length * 56.0).clamp(0, 200),
+                maxHeight: (filteredRegionalOffices.length * 56.0).clamp(0, 200),
               ),
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
-                itemCount: filteredUsers.length,
+                itemCount: filteredRegionalOffices.length,
                 itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
+                  final office = filteredRegionalOffices[index];
+                  final regionName = office['region_name'] ?? '';
+                  final regionId = office['id'];
+                  
                   return ListTile(
                     title: Text(
-                      '${user.empCode} ${user.userName}',
+                      regionName,
                       style: AppTextStyle.body,
                     ),
                     onTap: () {
-                      final displayText = '${user.empCode} ${user.userName}';
-                      widget.controller.text = displayText;
+                      widget.controller.text = regionName;
                       widget.controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: displayText.length),
+                        TextPosition(offset: regionName.length),
                       );
-                      widget.onSelected?.call(displayText);
+                      widget.onSelected?.call(regionName);
+                      if (regionId != null) {
+                        widget.onRegionalOfficeSelected?.call(regionId);
+                      }
                       _removeOverlay();
                     },
                   );
@@ -180,8 +189,10 @@ class _ReferralAutoCompleteTextFieldState
           AppTextField(
             controller: widget.controller,
             labelText: widget.labelText,
+            readOnly: widget.zonalOfficeId == null,
+            validator: widget.validator,
             decoration: commonInputDecoration(
-              hintText: widget.labelText,
+              hintText: widget.zonalOfficeId == null ? 'Select zonal office first' : widget.labelText,
               suffixIcon: isLoading 
                   ? SizedBox(
                       width: 20,
@@ -194,7 +205,11 @@ class _ReferralAutoCompleteTextFieldState
                           color: Colors.red,
                           size: 20,
                         )
-                      : null,
+                      : Icon(
+                          CupertinoIcons.chevron_down,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
             ),
           ),
           if (hasError) ...[
@@ -208,7 +223,7 @@ class _ReferralAutoCompleteTextFieldState
             ),
             SizedBox(height: 4),
             TextButton(
-              onPressed: _loadUsers,
+              onPressed: _loadRegionalOffices,
               child: Text('Retry'),
             ),
           ],

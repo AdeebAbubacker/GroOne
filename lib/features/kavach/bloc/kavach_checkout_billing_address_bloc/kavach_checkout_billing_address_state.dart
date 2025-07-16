@@ -8,6 +8,11 @@ class KavachCheckoutBillingAddressLoading extends KavachCheckoutBillingAddressSt
 
 class KavachCheckoutBillingAddressEmpty extends KavachCheckoutBillingAddressState {}
 
+class KavachCheckoutBillingAddressAvailable extends KavachCheckoutBillingAddressState {
+  final List<KavachAddressModel> addresses;
+  KavachCheckoutBillingAddressAvailable({required this.addresses});
+}
+
 class KavachCheckoutBillingAddressError extends KavachCheckoutBillingAddressState {
   final ErrorType error;
   KavachCheckoutBillingAddressError(this.error);

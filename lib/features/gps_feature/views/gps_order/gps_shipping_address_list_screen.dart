@@ -37,7 +37,6 @@ class GpsShippingAddressListScreen extends StatelessWidget {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: GpsAddAddressBottomSheet(
-            addrType: 1, // Shipping address type
             title: context.appText.shippingAddress,
           ),
         );

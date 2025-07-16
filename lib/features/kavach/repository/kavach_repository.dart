@@ -18,6 +18,7 @@ import '../model/kavach_product_model.dart';
 import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_truck_type_model.dart';
+import '../model/kavach_user_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -56,16 +57,14 @@ class KavachRepository {
     }
   }
 
-  /// Fetches addresses for the current user with specified address type
-  Future<Result<List<KavachAddressModel>>> fetchAddresses({
-    required int addrType
-  }) async {
+  /// Fetches addresses for the current user
+  Future<Result<List<KavachAddressModel>>> fetchAddresses() async {
     try {
       final customerId = await userInfoRepo.getUserID() ?? '';
       if (customerId.isEmpty) {
         return Error(ErrorWithMessage(message: "Customer ID not found"));
       }
-      return await _service.fetchAddresses(customerId, addrType: addrType);
+      return await _service.fetchAddresses(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch addresses in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -81,7 +80,7 @@ class KavachRepository {
       if (customerId.isEmpty) {
         return Error(ErrorWithMessage(message: "Customer ID not found"));
       }
-      // Set the customer ID in the request
+      // Set the customer ID in the request as string
       request.customerId = customerId;
 
       return await _service.addAddress(request);
@@ -153,7 +152,31 @@ class KavachRepository {
 
   Future<Result<void>> addVehicle(KavachAddVehicleRequest request) async {
     try {
-      return await _service.addVehicle(request);
+      final customerId = await userInfoRepo.getUserID() ?? '';
+      CustomLog.debug(this, "Add Vehicle - Customer ID: '$customerId'");
+      
+      if (customerId.isEmpty) {
+        CustomLog.error(this, "Add Vehicle - Customer ID is empty", "Customer ID not found");
+        return Error(ErrorWithMessage(message: "Customer ID not found"));
+      }
+      
+      // Create a new request with the correct customer ID
+      final updatedRequest = KavachAddVehicleRequest(
+        customerId: customerId,
+        vehicleNumber: request.vehicleNumber,
+        vehicleTypeId: request.vehicleTypeId,
+        rcNumber: request.rcNumber,
+        rcDocLink: request.rcDocLink,
+        truckMakeAndModel: request.truckMakeAndModel,
+        truckType: request.truckType,
+        truckLength: request.truckLength,
+        capacity: request.capacity,
+        acceptableCommodities: request.acceptableCommodities,
+        vehicleStatus: request.vehicleStatus,
+      );
+      
+      CustomLog.debug(this, "Add Vehicle - Request with customer ID: ${updatedRequest.toJson()}");
+      return await _service.addVehicle(updatedRequest);
     } catch (e) {
       CustomLog.error(this, "Failed to add vehicle in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -209,6 +232,24 @@ class KavachRepository {
       return await _service.getTransactions(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch transactions in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches users for referral code functionality
+  Future<Result<List<KavachUserModel>>> fetchUsers({
+    String search = "",
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      return await _service.fetchUsers(
+        search: search,
+        page: page,
+        limit: limit,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch users in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

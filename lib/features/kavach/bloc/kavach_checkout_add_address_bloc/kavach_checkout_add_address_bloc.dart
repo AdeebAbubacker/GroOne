@@ -16,8 +16,11 @@ class KavachCheckoutAddAddressBloc extends Bloc<KavachCheckoutAddAddressEvent, K
       final result = await repository.addAddress(event.address);
       if (result is Success<KavachAddressModel>) {
         emit(KavachCheckoutAddressAdded(result.value));
-      } else if (result is Error) {
-        emit(KavachCheckoutAddressError("Failed to add address"));
+      } else if (result is Error<KavachAddressModel>) {
+        final errorMessage = result.type is ErrorWithMessage 
+            ? (result.type as ErrorWithMessage).message 
+            : "Failed to add address";
+        emit(KavachCheckoutAddressError(errorMessage));
       }
     });
 

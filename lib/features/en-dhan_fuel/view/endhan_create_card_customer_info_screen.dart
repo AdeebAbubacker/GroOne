@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -14,28 +17,184 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../../kavach/view/kavach_support_screen.dart';
+import '../widgets/zonal_office_autocomplete_textfield.dart';
+import '../widgets/regional_office_autocomplete_textfield.dart';
+import '../widgets/state_autocomplete_textfield.dart';
+import '../widgets/district_autocomplete_textfield.dart';
 
-class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
+class EndhanCreateCardCustomerInfoScreen extends StatefulWidget {
   const EndhanCreateCardCustomerInfoScreen({super.key});
+
+  @override
+  State<EndhanCreateCardCustomerInfoScreen> createState() => _EndhanCreateCardCustomerInfoScreenState();
+}
+
+class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCustomerInfoScreen> {
+  final referralCodeController = TextEditingController();
+  final zonalOfficeController = TextEditingController();
+  final regionalOfficeController = TextEditingController();
+  final stateController = TextEditingController();
+  final districtController = TextEditingController();
+  final emailController = TextEditingController();
+  final panController = TextEditingController();
+  final address1Controller = TextEditingController();
+  final address2Controller = TextEditingController();
+  final cityNameController = TextEditingController();
+  final pincodeController = TextEditingController();
+
+  @override
+  void dispose() {
+    referralCodeController.dispose();
+    zonalOfficeController.dispose();
+    regionalOfficeController.dispose();
+    stateController.dispose();
+    districtController.dispose();
+    emailController.dispose();
+    panController.dispose();
+    address1Controller.dispose();
+    address2Controller.dispose();
+    cityNameController.dispose();
+    pincodeController.dispose();
+    super.dispose();
+  }
+
+  /// Debug method to log current state of controllers and cubit
+  void _logCurrentState(EnDhanCubit cubit) {
+    // Debug logging removed for production
+  }
+
+  /// Force sync all controller values to cubit state
+  void _forceSyncControllersToCubit(EnDhanCubit cubit) {
+    cubit.setEmail(emailController.text);
+    cubit.setPan(panController.text.toUpperCase());
+    cubit.setAddress1(address1Controller.text);
+    cubit.setAddress2(address2Controller.text);
+    cubit.setCommunicationCityName(cityNameController.text.trim().replaceAll(RegExp(r'\s+'), ' '));
+    cubit.setPincode(pincodeController.text);
+    cubit.setReferralCode(referralCodeController.text);
+  }
+
+  /// Add listeners to all controllers to sync with cubit state
+  void _addControllerListeners() {
+    final cubit = locator<EnDhanCubit>();
+    
+    referralCodeController.addListener(() {
+      cubit.setReferralCode(referralCodeController.text);
+    });
+    
+    emailController.addListener(() {
+      cubit.setEmail(emailController.text);
+    });
+    
+    panController.addListener(() {
+      cubit.setPan(panController.text.toUpperCase());
+    });
+    
+    address1Controller.addListener(() {
+      cubit.setAddress1(address1Controller.text);
+    });
+    
+    address2Controller.addListener(() {
+      cubit.setAddress2(address2Controller.text);
+    });
+    
+    cityNameController.addListener(() {
+      final cleanedValue = cityNameController.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+      cubit.setCommunicationCityName(cleanedValue);
+    });
+    
+    pincodeController.addListener(() {
+      cubit.setPincode(pincodeController.text);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize controllers with current state values immediately
+    final cubit = locator<EnDhanCubit>();
+    emailController.text = cubit.state.email;
+    panController.text = cubit.state.pan;
+    address1Controller.text = cubit.state.address1;
+    address2Controller.text = cubit.state.address2;
+    cityNameController.text = cubit.state.cityName;
+    pincodeController.text = cubit.state.pincode;
+    referralCodeController.text = cubit.state.referralCode;
+    
+    // Add listeners to sync controllers with cubit state
+    _addControllerListeners();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = locator<EnDhanCubit>();
+    final profileCubit = locator<ProfileCubit>();
+    final userInfoRepo = locator<UserInformationRepository>();
     final formKey = GlobalKey<FormState>();
 
+
+
     // Initialize data when widget is first built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Reset form data to ensure clean state
-      cubit.resetFormData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Only reset form data if it's completely empty (first time loading)
+      // Don't reset if user is coming back from card info screen
+      if (cubit.state.customerName.isEmpty && 
+          cubit.state.mobile.isEmpty && 
+          cubit.state.address1.isEmpty &&
+          cubit.state.email.isEmpty &&
+          cubit.state.pan.isEmpty) {
+        cubit.resetFormData();
+      } else {
+      }
 
       // Fetch master data when screen loads
       cubit.fetchStates();
       cubit.fetchZonalOffices();
+
+      // Get username from session first
+      String? username = await userInfoRepo.getUsername();
+      String? mobileNumber = await userInfoRepo.getUserMobileNumber();
+      
+      // If username is not in session, fetch from profile
+      if (username == null || username.isEmpty) {
+        
+        // Fetch profile data
+        await profileCubit.fetchProfileDetail();
+        
+        // Get username from profile state
+        final profileState = profileCubit.state;
+        if (profileState.profileDetailUIState?.data?.customer?.customerName != null) {
+          username = profileState.profileDetailUIState!.data!.customer!.customerName;
+          mobileNumber = profileState.profileDetailUIState!.data!.customer!.mobileNumber;
+        }
+      } else {
+      }
+      
+      // Set username in cubit if available and not already set
+      if (username != null && username.isNotEmpty && cubit.state.customerName.isEmpty) {
+        cubit.setCustomerName(username);
+      }
+      // Set mobile number in cubit if available and not already set
+      if (mobileNumber != null && mobileNumber.isNotEmpty && cubit.state.mobile.isEmpty) {
+        cubit.setMobile(mobileNumber);
+      }
+      
+      // Update controllers with latest state values after profile data is loaded
+      // Set controller values directly (listeners will handle the sync)
+      emailController.text = cubit.state.email;
+      panController.text = cubit.state.pan;
+      address1Controller.text = cubit.state.address1;
+      address2Controller.text = cubit.state.address2;
+      cityNameController.text = cubit.state.cityName;
+      pincodeController.text = cubit.state.pincode;
+      referralCodeController.text = cubit.state.referralCode;
     });
 
     return BlocBuilder<EnDhanCubit, EnDhanState>(
@@ -132,8 +291,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                                 child: AppTextField(
                                   //labelText: 'Name',
                                   hintText: 'Enter name',
-                                  onChanged:
-                                      (val) => cubit.setCustomerName(val),
+                                  controller: TextEditingController(text: state.customerName),
+                                  readOnly: true, // Make the field non-editable
+                                  onChanged: null, // Remove onChanged since field is disabled
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return 'Name is required';
@@ -151,8 +311,9 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Mobile Number *',
                             hintText: '+91 9876987654',
+                            controller: TextEditingController(text: state.mobile),
+                            readOnly: true,
                             keyboardType: TextInputType.phone,
-                            onChanged: (val) => cubit.setMobile(val),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Mobile number is required';
@@ -171,7 +332,13 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'PAN Number *',
                             hintText: 'ABCDE1234F',
-                            onChanged: (val) => cubit.setPan(val),
+                            controller: panController,
+                            maxLength: 10,
+                            textCapitalization: TextCapitalization.characters,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                              LengthLimitingTextInputFormatter(10),
+                            ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'PAN number is required';
@@ -192,7 +359,7 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Email Address *',
                             hintText: 'example@email.com',
-                            onChanged: (val) => cubit.setEmail(val),
+                            controller: emailController,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Email address is required';
@@ -209,40 +376,20 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           ),
                           16.height,
                           // Zonal Office Dropdown
-                          AppDropdown(
+                          ZonalOfficeAutoCompleteTextField(
+                            controller: zonalOfficeController,
                             labelText: 'Zonal Office *',
-                            dropdownValue:
-                                state.selectedZonalOfficeId?.toString(),
-                            dropDownList:
-                                state.zonalOffices.isNotEmpty
-                                    ? state.zonalOffices
-                                        .map(
-                                          (zonal) => DropdownMenuItem(
-                                            value:
-                                                (zonal['id'] ?? '').toString(),
-                                            child: Text(
-                                              zonal['zone_name'] ?? '',
-                                            ),
-                                          ),
-                                        )
-                                        .toList()
-                                    : [
-                                      DropdownMenuItem(
-                                        value: '',
-                                        child: Text('Loading zonal offices...'),
-                                      ),
-                                    ],
-                            onChanged: (val) {
-                              if (val != null && val.isNotEmpty) {
-                                final zoneId = int.tryParse(val);
-                                if (zoneId != null) {
-                                  cubit.setSelectedZonalOfficeId(zoneId);
-                                  cubit.fetchRegionalOffices(zoneId);
-                                }
-                              }
+                            onSelected: (value) {
+                              // The widget will handle setting the text
+                            },
+                            onZonalOfficeSelected: (zoneId) {
+                              cubit.setSelectedZonalOfficeId(zoneId);
+                              cubit.fetchRegionalOffices(zoneId);
+                              // Clear regional office selection when zonal office changes
+                              regionalOfficeController.clear();
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please select a zonal office';
                               }
                               return null;
@@ -250,42 +397,18 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           ),
                           16.height,
                           // Regional Office Dropdown
-                          AppDropdown(
+                          RegionalOfficeAutoCompleteTextField(
+                            controller: regionalOfficeController,
                             labelText: 'Regional Office *',
-                            dropdownValue: _getValidRegionalOfficeValue(state),
-                            dropDownList:
-                                state.regionalOffices.isNotEmpty
-                                    ? state.regionalOffices
-                                        .map(
-                                          (regional) => DropdownMenuItem(
-                                            value:
-                                                (regional['id'] ?? '')
-                                                    .toString(),
-                                            child: Text(
-                                              regional['region_name'] ?? '',
-                                            ),
-                                          ),
-                                        )
-                                        .toSet()
-                                        .toList() // Remove duplicates
-                                    : [
-                                      DropdownMenuItem(
-                                        value: '',
-                                        child: Text(
-                                          'Select zonal office first',
-                                        ),
-                                      ),
-                                    ],
-                            onChanged: (val) {
-                              if (val != null && val.isNotEmpty) {
-                                final regionalId = int.tryParse(val);
-                                if (regionalId != null) {
-                                  cubit.setSelectedRegionalOfficeId(regionalId);
-                                }
-                              }
+                            zonalOfficeId: state.selectedZonalOfficeId,
+                            onSelected: (value) {
+                              // The widget will handle setting the text
+                            },
+                            onRegionalOfficeSelected: (regionalId) {
+                              cubit.setSelectedRegionalOfficeId(regionalId);
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please select a regional office';
                               }
                               return null;
@@ -295,7 +418,7 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Address Line 1 *',
                             hintText: 'Enter',
-                            onChanged: (val) => cubit.setAddress1(val),
+                            controller: address1Controller,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Address line 1 is required';
@@ -307,46 +430,31 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Address Line 2 *',
                             hintText: 'Enter',
-                            onChanged: (val) => cubit.setAddress2(val),
+                            controller: address2Controller,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Address line 2 is required';
+                              }
+                              return null;
+                            },
                           ),
                           16.height,
 
                           // State Dropdown
-                          AppDropdown(
+                          StateAutoCompleteTextField(
+                            controller: stateController,
                             labelText: 'State *',
-                            dropdownValue: state.selectedStateId?.toString(),
-                            dropDownList:
-                                state.states.isNotEmpty
-                                    ? state.states
-                                        .map<DropdownMenuItem<String>>(
-                                          (stateItem) =>
-                                              DropdownMenuItem<String>(
-                                                value:
-                                                    (stateItem['id'] ?? '')
-                                                        .toString(),
-                                                child: Text(
-                                                  stateItem['name'] ?? '',
-                                                ),
-                                              ),
-                                        )
-                                        .toList()
-                                    : [
-                                      DropdownMenuItem(
-                                        value: '',
-                                        child: Text('Loading states...'),
-                                      ),
-                                    ],
-                            onChanged: (val) {
-                              if (val != null && val.isNotEmpty) {
-                                final stateId = int.tryParse(val);
-                                if (stateId != null) {
-                                  cubit.setSelectedStateId(stateId);
-                                  cubit.fetchDistricts(stateId);
-                                }
-                              }
+                            onSelected: (value) {
+                              // The widget will handle setting the text
+                            },
+                            onStateSelected: (stateId) {
+                              cubit.setSelectedStateId(stateId);
+                              cubit.fetchDistricts(stateId);
+                              // Clear district selection when state changes
+                              districtController.clear();
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please select a state';
                               }
                               return null;
@@ -354,42 +462,18 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           ),
                           16.height,
                           // District Dropdown
-                          AppDropdown(
+                          DistrictAutoCompleteTextField(
+                            controller: districtController,
                             labelText: 'District *',
-                            dropdownValue: _getValidDistrictValue(state),
-                            dropDownList:
-                                state.districts.isNotEmpty
-                                    ? state.districts
-                                        .map<DropdownMenuItem<String>>(
-                                          (district) =>
-                                              DropdownMenuItem<String>(
-                                                value:
-                                                    (district['id'] ?? '')
-                                                        .toString(),
-                                                child: Text(
-                                                  district['district_name'] ??
-                                                      '',
-                                                ),
-                                              ),
-                                        )
-                                        .toSet()
-                                        .toList() // Remove duplicates
-                                    : [
-                                      DropdownMenuItem(
-                                        value: '',
-                                        child: Text('Select state first'),
-                                      ),
-                                    ],
-                            onChanged: (val) {
-                              if (val != null && val.isNotEmpty) {
-                                final districtId = int.tryParse(val);
-                                if (districtId != null) {
-                                  cubit.setSelectedDistrictId(districtId);
-                                }
-                              }
+                            stateId: state.selectedStateId,
+                            onSelected: (value) {
+                              // The widget will handle setting the text
+                            },
+                            onDistrictSelected: (districtId) {
+                              cubit.setSelectedDistrictId(districtId);
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please select a district';
                               }
                               return null;
@@ -400,14 +484,27 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'City Name *',
                             hintText: 'Enter city name',
-                            onChanged:
-                                (val) => cubit.setCommunicationCityName(val),
+                            controller: cityNameController,
+                            maxLength: 50,
+                            textCapitalization: TextCapitalization.words,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                              LengthLimitingTextInputFormatter(50),
+                            ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'City name is required';
                               }
                               if (value.trim().length < 2) {
                                 return 'City name must be at least 2 characters';
+                              }
+                              if (value.trim().length > 50) {
+                                return 'City name cannot exceed 50 characters';
+                              }
+                              // Check if contains only alphabets and spaces
+                              final cityRegex = RegExp(r'^[a-zA-Z\s]+$');
+                              if (!cityRegex.hasMatch(value.trim())) {
+                                return 'City name can only contain alphabets and spaces';
                               }
                               return null;
                             },
@@ -416,25 +513,41 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                           AppTextField(
                             labelText: 'Pincode *',
                             hintText: 'Enter pincode',
+                            controller: pincodeController,
                             keyboardType: TextInputType.number,
-                            onChanged: (val) => cubit.setPincode(val),
+                            maxLength: 6,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Pincode is required';
                               }
-                              // Pincode validation for India (6 digits)
+                              // Pincode validation for India (6 digits, only numbers)
                               final pincodeRegex = RegExp(r'^[1-9][0-9]{5}$');
                               if (!pincodeRegex.hasMatch(value.trim())) {
                                 return 'Please enter a valid 6-digit pincode';
                               }
+                              if (value.trim().length != 6) {
+                                return 'Pincode must be exactly 6 digits';
+                              }
                               return null;
                             },
                           ),
-                          32.height,
+                          16.height,
+                          ReferralAutoCompleteTextField(
+                            controller: referralCodeController,
+                            labelText: 'Referral Code (Optional)',
+                            onSelected: (value) {
+                              cubit.setReferralCode(value);
+                            },
+                          ),
+                          50.height,
                           AppButton(
                             title: 'Next',
                             style: AppButtonStyle.primary,
-                            onPressed: () {
+                            onPressed: () async {
+                              // Force sync all controller values to cubit state before validation
+                              _forceSyncControllersToCubit(cubit);
+                              await Future.delayed(Duration(milliseconds: 50));
                               if (formKey.currentState?.validate() ?? false) {
                                 // Additional validation for dropdowns and required fields
                                 if (state.selectedZonalOfficeId == null) {
@@ -487,7 +600,7 @@ class EndhanCreateCardCustomerInfoScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(horizontal: 20),
                     ),
-                    24.height,
+                    100.height,
                   ],
                 ),
               ],

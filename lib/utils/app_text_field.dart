@@ -35,6 +35,7 @@ class AppTextField extends StatelessWidget {
   final int? maxLength;
   final Iterable<String>? autofillHints;
   final TextInputAction? textInputAction;
+  final TextCapitalization textCapitalization;
   const AppTextField({
     super.key,
       this.controller,
@@ -62,6 +63,7 @@ class AppTextField extends StatelessWidget {
       this.onChanged,
     this.autofillHints,
     this.mandatoryStar = false,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -113,6 +115,7 @@ class AppTextField extends StatelessWidget {
                 }
               },
           onTap: onTextFieldTap ?? () {},
+          textCapitalization: textCapitalization,
         ),
       ],
     );

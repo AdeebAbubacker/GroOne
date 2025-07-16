@@ -76,6 +76,12 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
   
   // Track previous vehicle selections
   Map<String, List<String>>? _previousVehicleSelection;
+  
+  // Track previous form data
+  String? _previousReferralCode;
+  bool? _previousShippingSameAsBilling;
+  String? _previousShippingPersonInCharge;
+  String? _previousShippingPersonContactNo;
 
   // Filtered products based on search
   List<KavachProduct> get _filteredProducts {
@@ -237,6 +243,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           ).toList(),
           quantities: _selectedQuantities,
           previousVehicleSelection: _previousVehicleSelection,
+          previousReferralCode: _previousReferralCode,
+          previousShippingSameAsBilling: _previousShippingSameAsBilling,
+          previousShippingPersonInCharge: _previousShippingPersonInCharge,
+          previousShippingPersonContactNo: _previousShippingPersonContactNo,
         ),
       ),
     );
@@ -275,6 +285,27 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
               _previousVehicleSelection = null;
             }
           }
+          
+          // Store form data for next navigation
+          if (result.containsKey('referralCode')) {
+            _previousReferralCode = result['referralCode'] as String?;
+            print('GPS Models: Stored referral code: $_previousReferralCode');
+          }
+          
+          if (result.containsKey('shippingSameAsBilling')) {
+            _previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
+            print('GPS Models: Stored shipping same as billing: $_previousShippingSameAsBilling');
+          }
+          
+          if (result.containsKey('shippingPersonInCharge')) {
+            _previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
+            print('GPS Models: Stored shipping person in charge: $_previousShippingPersonInCharge');
+          }
+          
+          if (result.containsKey('shippingPersonContactNo')) {
+            _previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
+            print('GPS Models: Stored shipping person contact no: $_previousShippingPersonContactNo');
+          }
         }
       });
     } else {
@@ -282,6 +313,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       setState(() {
         _quantities.clear();
         _previousVehicleSelection = null;
+        _previousReferralCode = null;
+        _previousShippingSameAsBilling = null;
+        _previousShippingPersonInCharge = null;
+        _previousShippingPersonContactNo = null;
       });
     }
   }

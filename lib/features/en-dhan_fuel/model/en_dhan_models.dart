@@ -138,6 +138,113 @@ class EnDhanCardBalanceModel {
   }
 }
 
+/// Card Balance Response for API
+class EnDhanCardBalanceResponse {
+  final bool success;
+  final String message;
+  final EnDhanCardBalanceData? data;
+
+  const EnDhanCardBalanceResponse({
+    required this.success,
+    required this.message,
+    this.data,
+  });
+
+  factory EnDhanCardBalanceResponse.fromJson(Map<String, dynamic> json) {
+    return EnDhanCardBalanceResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: json['data'] != null ? EnDhanCardBalanceData.fromJson(json['data']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'success': success,
+      'message': message,
+      'data': data?.toJson(),
+    };
+  }
+
+  @override
+  String toString() {
+    return 'EnDhanCardBalanceResponse{success: $success, message: $message, data: $data}';
+  }
+}
+
+/// Card Balance Data
+class EnDhanCardBalanceData {
+  final EnDhanBalance? balance;
+
+  const EnDhanCardBalanceData({
+    this.balance,
+  });
+
+  factory EnDhanCardBalanceData.fromJson(Map<String, dynamic> json) {
+    return EnDhanCardBalanceData(
+      balance: json['balance'] != null ? EnDhanBalance.fromJson(json['balance']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'balance': balance?.toJson(),
+    };
+  }
+
+  @override
+  String toString() {
+    return 'EnDhanCardBalanceData{balance: $balance}';
+  }
+}
+
+/// Balance Details
+class EnDhanBalance {
+  final String cashBalance;
+  final String ccmsBalance;
+  final String driveStars;
+
+  const EnDhanBalance({
+    required this.cashBalance,
+    required this.ccmsBalance,
+    required this.driveStars,
+  });
+
+  factory EnDhanBalance.fromJson(Map<String, dynamic> json) {
+    return EnDhanBalance(
+      cashBalance: json['cashBalance'] ?? '0.00',
+      ccmsBalance: json['ccmsBalance'] ?? '0.00',
+      driveStars: json['driveStars'] ?? '0',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'cashBalance': cashBalance,
+      'ccmsBalance': ccmsBalance,
+      'driveStars': driveStars,
+    };
+  }
+
+  /// Calculate total balance
+  double get totalBalance {
+    final cash = double.tryParse(cashBalance) ?? 0.0;
+    final ccms = double.tryParse(ccmsBalance) ?? 0.0;
+    final stars = double.tryParse(driveStars) ?? 0.0;
+    return cash + ccms + stars;
+  }
+
+  /// Check if there is any balance
+  bool get hasBalance {
+    return totalBalance > 0;
+  }
+
+  @override
+  String toString() {
+    return 'EnDhanBalance{cashBalance: $cashBalance, ccmsBalance: $ccmsBalance, driveStars: $driveStars, totalBalance: $totalBalance}';
+  }
+}
+
 /// Fuel Purchase Response
 class EnDhanFuelPurchaseModel {
   final String? transactionId;
@@ -595,7 +702,7 @@ class EnDhanCardData {
 /// Individual Card Model
 class EnDhanCardModel {
   final int? id;
-  final int? customerId;
+  final String? customerId;
   final String? endhanCustomerId;
   final String? cardNumber;
   final String? vehicleNumber;
@@ -627,7 +734,7 @@ class EnDhanCardModel {
   factory EnDhanCardModel.fromJson(Map<String, dynamic> json) {
     return EnDhanCardModel(
       id: json['id'] as int?,
-      customerId: json['customerId'] as int?,
+      customerId: json['customerId'] as String?,
       endhanCustomerId: json['endhanCustomerId'] as String?,
       cardNumber: json['cardNo'] as String?,
       vehicleNumber: json['vehicleNo'] as String?,

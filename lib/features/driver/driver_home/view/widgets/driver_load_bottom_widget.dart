@@ -97,21 +97,21 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload E-way bill
                   UploadAttachmentFiles(
                     multiFilesList: [],
                     isSingleFile: true,
                     isLoading: false,
-                    hideDeleteButton: false,                 
+                    hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Material Invoice
                   UploadAttachmentFiles(
                     multiFilesList: [],
@@ -119,9 +119,9 @@ class DriverLoadBottomWidget extends StatelessWidget {
                     isLoading: false,
                     hideDeleteButton: false,
                   ),
-                
+
                   20.height,
-                
+
                   // Upload Other documents
                   UploadAttachmentFiles(
                     multiFilesList: [],

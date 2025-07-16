@@ -37,12 +37,20 @@ class GpsOrderCheckoutScreen extends StatefulWidget {
   final List<GpsProduct> products;
   final Map<String, int> quantities;
   final Map<String, List<String>>? previousVehicleSelection;
+  final String? previousReferralCode;
+  final bool? previousShippingSameAsBilling;
+  final String? previousShippingPersonInCharge;
+  final String? previousShippingPersonContactNo;
 
   const GpsOrderCheckoutScreen({
     super.key,
     required this.products,
     required this.quantities,
     this.previousVehicleSelection,
+    this.previousReferralCode,
+    this.previousShippingSameAsBilling,
+    this.previousShippingPersonInCharge,
+    this.previousShippingPersonContactNo,
   });
 
   @override
@@ -63,13 +71,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   TextEditingController shippingPersonContactNoController = TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
 
-  List<String> referralSuggestions = [
-    'John Doe GDP67543',
-    'David GDP67544',
-    'Michael GDP67545',
-    'Sarah GDP67546',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -81,6 +82,23 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     for (var product in _products) {
       // For now, set default stock. Later we can fetch from API
       _availableStocks[product.id] = 10;
+    }
+    
+    // Restore previous form data if available
+    if (widget.previousReferralCode != null && widget.previousReferralCode!.isNotEmpty) {
+      referralCodeController.text = widget.previousReferralCode!;
+    }
+    
+    if (widget.previousShippingSameAsBilling != null) {
+      shippingSameAsBilling = widget.previousShippingSameAsBilling!;
+    }
+    
+    if (widget.previousShippingPersonInCharge != null && widget.previousShippingPersonInCharge!.isNotEmpty) {
+      shippingPersonInChargeController.text = widget.previousShippingPersonInCharge!;
+    }
+    
+    if (widget.previousShippingPersonContactNo != null && widget.previousShippingPersonContactNo!.isNotEmpty) {
+      shippingPersonContactNoController.text = widget.previousShippingPersonContactNo!;
     }
     
     // Initialize cubits
@@ -279,6 +297,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                   value.map((controller) => controller.text.trim()).toList(),
                 ),
               ),
+              'referralCode': referralCodeController.text.trim(),
+              'shippingSameAsBilling': shippingSameAsBilling,
+              'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+              'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
             };
             print('GPS Checkout: Returning result for back button: $result');
             Navigator.of(context).pop(result);
@@ -317,7 +339,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                 ),
                 child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  suggestions: referralSuggestions,
                   labelText: 'Referral Code (Optional)',
                   onSelected: (value) {
                     print('Selected: $value');
@@ -373,6 +394,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                               value.map((controller) => controller.text.trim()).toList(),
                             ),
                           ),
+                          'referralCode': referralCodeController.text.trim(),
+                          'shippingSameAsBilling': shippingSameAsBilling,
+                          'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+                          'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
                         };
                         print('GPS Checkout: Returning result for Add More: $result');
                         Navigator.of(context).pop(result);

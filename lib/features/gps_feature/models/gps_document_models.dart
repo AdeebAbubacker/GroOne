@@ -572,7 +572,7 @@ class GpsAddress {
       id: int.tryParse(id) ?? 0,
       customerName: addressName,
       mobileNumber: '',
-      customerId: "851",
+      customerId: 851,
       addressName: addressName,
       addr1: fullAddress,
       addr2: '',
@@ -581,7 +581,7 @@ class GpsAddress {
       country: 'India',
       gstin: gstin,
       pincode: '',
-      addrType: 1,
+      addrType: int.tryParse(addressType ?? '1') ?? 1,
       status: 1,
       createdAt: DateTime.now(),
     );

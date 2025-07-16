@@ -108,6 +108,7 @@ class EnDhanCardCreationApiRequest {
 
 /// Customer Creation Request
 class EnDhanCustomerCreationApiRequest {
+  final String customerId; // Added customerId parameter
   final String customerName;
   final String title;
   final int zonalOffice;
@@ -121,9 +122,11 @@ class EnDhanCustomerCreationApiRequest {
   final String communicationMobileNo;
   final String communicationEmailid;
   final String incomeTaxPan;
+  final String? referralCode; // Added referral code parameter
   final List<EnDhanCardDetailRequest> objCardDetailsAl;
 
   const EnDhanCustomerCreationApiRequest({
+    required this.customerId, // Added customerId parameter
     required this.customerName,
     required this.title,
     required this.zonalOffice,
@@ -137,11 +140,13 @@ class EnDhanCustomerCreationApiRequest {
     required this.communicationMobileNo,
     required this.communicationEmailid,
     required this.incomeTaxPan,
+    this.referralCode, // Added referral code parameter
     required this.objCardDetailsAl,
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final Map<String, dynamic> json = <String, dynamic>{
+      'customerId': customerId, // Added customerId to JSON
       'CustomerName': customerName,
       'title': title,
       'ZonalOffice': zonalOffice,
@@ -157,6 +162,13 @@ class EnDhanCustomerCreationApiRequest {
       'IncomeTaxPan': incomeTaxPan,
       'ObjCardDetailsAl': objCardDetailsAl.map((e) => e.toJson()).toList(),
     };
+    
+    // Only include referralCode if it's not null and not empty
+    if (referralCode != null && referralCode!.isNotEmpty) {
+      json['referralCode'] = referralCode;
+    }
+    
+    return json;
   }
 
   @override
@@ -168,7 +180,7 @@ class EnDhanCustomerCreationApiRequest {
 /// Card Detail Request
 class EnDhanCardDetailRequest {
   final String vechileNo;
-  final String mobileNo;
+  final String? mobileNo;
   final String vehicleType;
   final String vinNumber;
   final String rcDocument;
@@ -176,7 +188,7 @@ class EnDhanCardDetailRequest {
 
   const EnDhanCardDetailRequest({
     required this.vechileNo,
-    required this.mobileNo,
+    this.mobileNo,
     required this.vehicleType,
     required this.vinNumber,
     required this.rcDocument,
@@ -184,14 +196,16 @@ class EnDhanCardDetailRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final data = <String, dynamic>{
       'VechileNo': vechileNo,
-      'MobileNo': mobileNo,
       'VehicleType': vehicleType,
       'VinNumber': vinNumber,
       'RcDocument': rcDocument,
       'RcNumber': rcNumber,
+      'MobileNo': mobileNo, // Always include MobileNo, even if null
     };
+    
+    return data;
   }
 
   @override
@@ -308,6 +322,25 @@ class PanVerificationRequest {
   Map<String, dynamic> toJson() {
     return {
       'pan': pan,
+      'force': force,
+    };
+  }
+}
+
+// ==================== Vehicle Verification API Requests ====================
+
+class VehicleVerificationRequest {
+  final String vehicleNumber;
+  final bool force;
+
+  const VehicleVerificationRequest({
+    required this.vehicleNumber,
+    this.force = true,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vehicle_number': vehicleNumber,  // Use snake_case
       'force': force,
     };
   }
