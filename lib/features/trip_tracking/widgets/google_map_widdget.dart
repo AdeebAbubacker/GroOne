@@ -208,7 +208,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
               polylines: _polylines,
               onMapCreated: (controller) async {
                    googleMapController = controller;
-                   await _setMapStyle(controller);
+                   // await _setMapStyle(controller);
                    setMapMarkers();
                   },
               zoomGesturesEnabled: true,

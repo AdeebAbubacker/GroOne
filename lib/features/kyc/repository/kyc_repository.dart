@@ -180,7 +180,7 @@ class KycRepository {
 
 
   /// Get State Repo
-  Future<Result<List<StateModel>>> getStateData() async {
+  Future<Result<StateModel>> getStateData() async {
     try {
       return await _kycService.fetchStateData();
     } catch (e) {
@@ -191,7 +191,7 @@ class KycRepository {
 
 
   /// Get City Repo
-  Future<Result<List<CityModel>>> getCityData(String stateName) async {
+  Future<Result<CityModel>> getCityData(String stateName) async {
     try {
       return await _kycService.fetchCityData(stateName);
     } catch (e) {
