@@ -85,8 +85,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                       _buildLocationInfoWidget(widget.data.dropLocation),
                     ],
                   ),
-                  if(widget.data.loadStatus>2)
-                    VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusValues!.name)
+                  if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
+                    VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus)
                   // LoadStatusLabel(
                   //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
                   //     loadStatus: widget.data.loadStatusValues,
@@ -185,8 +185,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               //     : "Accept Load",
 
               // Action Button
+              if(widget.data.loadStatusDetails != null)
               VpMyLoadHelper.loadStatusButtonWidget(
-                  status: widget.data.loadStatusValues!.name,
+                  status: widget.data.loadStatusDetails!.loadStatus,
                   onPressed: () {  }
               ).expand(),
 
