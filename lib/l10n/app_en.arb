@@ -509,6 +509,64 @@
   "truckProvider" : "Truck Provider",
   "poweredByHindujagroup" : "Powered by Hinduja Group",
   "emailOtpVerification" : "Email OTP Verification",
-  "loading" : "Loading"
+  "loading" : "Loading",
+  "gstVerifiedSuccessfully" : "GST verified successfully",
+  "invalidGSTNumber" : "Invalid GST Number",
+  "tanVerifiedSuccessfully" : "TAN verified successfully",
+  "invalidTANNumber" : "Invalid TAN Number",
+  "panVerifiedSuccessfully" : "Pan verified successfully",
+  "invalidPANNumber" : "Invalid PAN Number",
+  "pleaseUpload" : "Please upload",
+  "aadhaar" : "Aadhaar",
+  "cancelledCheque" : "Cancelled Cheque",
+  "tdsCertificate" : "TDS certificate",
+  "gstDocument" : "GST document",
+  "panDocument" : "PAN document",
+  "tanDocument" : "TAN document",
+  "kycSubmittedForVerification" : "KYC submitted for verification",
+  "willGetBackToYouWithin48Hours" : "Will get back to you within 48 hours.",
+  "primaryAddress" : "Primary Address",
+  "enterAddressName1" : "Enter Address name 1",
+  "fullAddress" : "Full Address",
+  "enterFullAddress" : "Enter full address",
+  "selectState" : "Select State",
+  "selectCity" : "Select City",
+  "enterPinCode" : "Enter Pin Code",
+  "enterAccountNumber" : "Enter Account Number",
+  "enterBankName" : "Enter Bank Name",
+  "enterBranchName" : "Enter Branch Name",
+  "enterIFSCCode" : "Enter IFSC code",
+  "verified" : "Verified",
+  "unVerified" : "Un-Verified",
+  "pleaseEnterGSTINNumber" : "Please enter GSTIN number",
+  "pleaseEnterAValidGSTINNumber" : "Please enter a valid GSTIN number",
+  "pleaseEnterGSTINAndUploadDocument" : "Please enter GSTIN and upload document",
+  "uploadGSTDocument" : "Upload GST Document",
+  "pleaseEnterTAN" : "Please enter TAN",
+  "pleaseEnterAValidTANNumber" : "Please enter a valid TAN number",
+  "pleaseEnterTANAndUploadDocument" : "Please enter TAN and upload document",
+  "uploadTANDocument" : "Upload TAN Document",
+  "pleaseEnterPAN" : "Please enter PAN",
+  "pleaseEnterAValidPAN" : "Please enter a valid PAN",
+  "pleaseEnterPANAndUploadDocument" : "Please enter PAN and upload document",
+  "uploadPANDocument" : "Upload PAN Document",
+  "verify" : "Verify"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
