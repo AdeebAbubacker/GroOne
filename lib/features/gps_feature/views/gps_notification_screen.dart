@@ -34,7 +34,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
     "Low Battery": true,
     "Power-Cut": true,
     "Vibration": true,
-    "Hard Braking": true,
+    "Other": true,
   };
 
   String selectedVehicle = '';
@@ -103,7 +103,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                                       width: 20,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  10.width,
                                   Text(vehicleNumber, style: AppTextStyle.h6),
                                 ],
                               ),
@@ -284,13 +284,15 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
       case "Geo-fence Exit":
         return AppIcons.svg.dashboardGeofenceOut;
       case "Device Over-speed":
-        return AppIcons.svg.dashboardIgnitionOff;
+        return AppIcons.svg.dashboardOverSpeed;
       case "Low Battery":
         return AppIcons.svg.dashboardLowBattery;
       case "Power-Cut":
         return AppIcons.svg.dashboardPowerCut;
       case "Vibration":
         return AppIcons.svg.dashboardVibration;
+      case "Other":
+        return AppIcons.svg.dashboardIgnitionOff;
       default:
         return AppIcons.svg.dashboardIgnitionOff;
     }
