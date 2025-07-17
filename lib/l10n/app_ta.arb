@@ -340,7 +340,13 @@
   "swipeToCompleteUnloading": "இறக்கலை முடிக்க ஸ்வைப் செய்யவும்",
   "swipeToCompleteLoading": "ஏற்றலை முடிக்க ஸ்வைப் செய்யவும்",
   "progress": "முன்னேற்றம்",
-  "agreedPrice" : "ஒப்புக்கொண்ட விலை"
+  "agreedPrice" : "ஒப்புக்கொண்ட விலை",
+  "podDispatchDetail": "POD அனுப்பும் விவரம்",
+  "driverConsentGiven": "டிரைவரின் அனுமதி வழங்கப்பட்டுள்ளது",
+  "noSimTrackingConsentFromDriver": "டிரைவரிடமிருந்து SIM கண்காணிப்பு அனுமதி இல்லை",
+  "acceptedPrice" : "ஏற்றுக்கொள்ளப்பட்ட விலை",
+  "loadAcceptedSuccessfully" : "ஏற்றப்பட்டது வெற்றிகரமாக"
+
 
 
 }

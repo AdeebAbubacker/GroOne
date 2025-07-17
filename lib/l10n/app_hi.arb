@@ -347,6 +347,13 @@
   "swipeToCompleteUnloading": "अनलोडिंग पूर्ण करने के लिए स्वाइप करें",
   "swipeToCompleteLoading": "लोडिंग पूर्ण करने के लिए स्वाइप करें",
   "progress": "प्रगति",
-  "agreedPrice" : "सहमत कीमत"
+  "agreedPrice" : "सहमत कीमत",
+  "podDispatchDetail": "पीओडी डिस्पैच विवरण",
+  "driverConsentGiven": "ड्राइवर की सहमति प्राप्त",
+  "noSimTrackingConsentFromDriver": "ड्राइवर से सिम ट्रैकिंग की सहमति नहीं मिली",
+  "acceptedPrice" : "स्वीकृत कीमत",
+  "loadAcceptedSuccessfully" : "लोड सफलतापूर्वक स्वीकार किया गया"
+
+
 
 }
