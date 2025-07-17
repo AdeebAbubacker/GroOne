@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -12,11 +13,11 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
-class VpMyLoadHelper {
-  VpMyLoadHelper._();
+class VpMyLoadUIHelper {
+  VpMyLoadUIHelper._();
 
   // Showing Status View
-  static Widget loadStatusWidget(String status) {
+  static Widget loadStatusWidget(String status, BuildContext context) {
     debugPrint("Status : $status");
     Widget ui({required String text ,required Color textColor, required Color backgroundColor}) {
       return Container(
@@ -33,7 +34,7 @@ class VpMyLoadHelper {
 
     switch (status) {
       case "Confirmed":
-        return ui(text : "Confirmed", textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
+        return ui(text : context.appText.confirmed, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
       case "Assigned":
         return ui(text: "Assigned",textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
       case "Loading":
@@ -69,29 +70,9 @@ class VpMyLoadHelper {
           title: "Start Trip",
         );
       case "Loading":
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: status.capitalize,
-        );
+        return _swipeButtonWidget(status: 'Loading', onPressed: onPressed);
       case "Unloading":
-        return SlideAction(
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-          outerColor:  AppColors.lightPrimaryColor3,
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-          text: "Swipe to complete unloading",
-          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-          onSubmit: (){
-            onPressed.call();
-            return;
-          },
-        );
+        return _swipeButtonWidget(status: 'Unloading', onPressed: onPressed);
       case "In Transit":
         return SlideAction(
           borderRadius: commonButtonRadius,
@@ -146,6 +127,56 @@ class VpMyLoadHelper {
         return ui(text: "Driver consent given", textColor: AppColors.activeGreenColor);
       } else if (driverConsent == 0){
         return ui(text: "No SIM tracking consent from driver", textColor: AppColors.activeRedColor);
+      } else {
+        return Container();
+      }
+      default:
+        return Container();
+    }
+  }
+
+
+  // Swipe button View
+  static Widget _swipeButtonWidget({required String status, int driverConsent = 0, required void Function() onPressed}) {
+    switch (status) {
+      case "Loading":
+      case "Unloading":
+      if (driverConsent == 1){
+        return SlideAction(
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+          outerColor:  AppColors.lightPrimaryColor3,
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: "Swipe to complete unloading",
+          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
+          onSubmit: (){
+            onPressed.call();
+            return;
+          },
+        );
+      } else if (driverConsent == 0){
+        return IgnorePointer(
+          ignoring: true,
+          child: SlideAction(
+            borderRadius: commonButtonRadius,
+            elevation: 0,
+            height: commonButtonHeight2,
+            innerColor: Colors.transparent,
+            outerColor:  AppColors.greyIconBackgroundColor,
+            sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon, colorFilter: AppColors.svg(AppColors.greyIconColor)).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+            sliderRotate: false,
+            sliderButtonYOffset: -30,
+            text: "Swipe to complete loading",
+            textStyle: AppTextStyle.button.copyWith(color: AppColors.greyTextColor),
+            onSubmit: (){
+              return;
+            },
+          ),
+        );;
       } else {
         return Container();
       }
