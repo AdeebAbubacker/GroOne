@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -16,7 +18,12 @@ import '../model/kavach_address_model.dart';
 import 'kavach_add_address_bottom_sheet.dart';
 
 class KavachShippingAddressListScreen extends StatelessWidget {
-  const KavachShippingAddressListScreen({super.key});
+  final KavachAddressModel? selectedBillingAddress;
+  
+  const KavachShippingAddressListScreen({
+    super.key,
+    this.selectedBillingAddress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,22 +92,46 @@ class KavachShippingAddressListScreen extends StatelessWidget {
         }
 
         if (state is KavachCheckoutShippingAddressSelected) {
-          final addresses = state.addresses;
+          // Filter out the selected billing address from shipping address list
+          final filteredAddresses = selectedBillingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != selectedBillingAddress!.uniqueId).toList()
+              : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shrinkWrap: true,
-                  itemCount: addresses.length,
-                  separatorBuilder: (context, index) => 10.height,
-                  itemBuilder: (context, index) {
-                    final address = addresses[index];
-                    return AddressListItem(address: address);
-                  },
-                ),
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available shipping addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              selectedBillingAddress != null 
+                                  ? 'All addresses are already selected for billing'
+                                  : 'Add your first shipping address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
               ),
               20.height,
               AppButton(
@@ -121,22 +152,46 @@ class KavachShippingAddressListScreen extends StatelessWidget {
         }
 
         if (state is KavachCheckoutShippingAddressAvailable) {
-          final addresses = state.addresses;
+          // Filter out the selected billing address from shipping address list
+          final filteredAddresses = selectedBillingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != selectedBillingAddress!.uniqueId).toList()
+              : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shrinkWrap: true,
-                  itemCount: addresses.length,
-                  separatorBuilder: (context, index) => 10.height,
-                  itemBuilder: (context, index) {
-                    final address = addresses[index];
-                    return AddressListItem(address: address);
-                  },
-                ),
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available shipping addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              selectedBillingAddress != null 
+                                  ? 'All addresses are already selected for billing'
+                                  : 'Add your first shipping address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
               ),
               20.height,
               AppButton(
@@ -214,7 +269,6 @@ class AddressListItem extends StatelessWidget {
               groupValue: selectedAddress,
               onChanged: (_) {
                 context.read<KavachCheckoutShippingAddressBloc>().add(SelectKavachShippingAddress(address));
-
               },
             ),
             Expanded(

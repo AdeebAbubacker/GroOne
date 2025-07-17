@@ -32,6 +32,7 @@ import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_add
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_state.dart';
+import '../helper/kavach_helper.dart';
 import '../model/kavach_product_model.dart';
 import '../model/kavach_address_model.dart';
 import '../repository/kavach_repository.dart';
@@ -295,6 +296,23 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     );
   }
 
+  // Helper function to get current selected addresses from blocs
+  KavachAddressModel? _getCurrentShippingAddress(BuildContext context) {
+    final shippingState = context.read<KavachCheckoutShippingAddressBloc>().state;
+    if (shippingState is KavachCheckoutShippingAddressSelected) {
+      return shippingState.selectedAddress;
+    }
+    return null;
+  }
+
+  KavachAddressModel? _getCurrentBillingAddress(BuildContext context) {
+    final billingState = context.read<KavachCheckoutBillingAddressBloc>().state;
+    if (billingState is KavachCheckoutBillingAddressSelected) {
+      return billingState.selectedAddress;
+    }
+    return null;
+  }
+
   Widget buildBodyWidget(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
@@ -370,6 +388,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       ),
                       icon: Icon(Icons.add, color: AppColors.primaryColor),
                     ),
+                  
                   ],
                 ),
               ),
@@ -414,8 +433,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onChangeTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen:
-                                      const KavachBillingAddressListScreen(),
+                                  screen: KavachBillingAddressListScreen(
+                                    selectedShippingAddress: _getCurrentShippingAddress(context),
+                                  ),
                                 );
                               },
                               title: context.appText.billingAddress,
@@ -439,8 +459,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onTextFieldTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen:
-                                      const KavachBillingAddressListScreen(),
+                                  screen: KavachBillingAddressListScreen(
+                                    selectedShippingAddress: _getCurrentShippingAddress(context),
+                                  ),
                                 );
                               },
                             );
@@ -460,7 +481,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onTextFieldTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen: const KavachBillingAddressListScreen(),
+                                  screen: KavachBillingAddressListScreen(
+                                    selectedShippingAddress: _getCurrentShippingAddress(context),
+                                  ),
                                 );
                               },
                             );
@@ -480,7 +503,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                               onTextFieldTap: () {
                                 commonBottomSheetWithBGBlur(
                                   context: context,
-                                  screen: const KavachBillingAddressListScreen(),
+                                  screen: KavachBillingAddressListScreen(
+                                    selectedShippingAddress: _getCurrentShippingAddress(context),
+                                  ),
                                 );
                               },
                             );
@@ -560,8 +585,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                     onChangeTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen:
-                                            const KavachShippingAddressListScreen(),
+                                        screen: KavachShippingAddressListScreen(
+                                          selectedBillingAddress: _getCurrentBillingAddress(context),
+                                        ),
                                       );
                                     },
                                     title: context.appText.shippingAddress,
@@ -608,8 +634,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                     onTextFieldTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen:
-                                            const KavachShippingAddressListScreen(),
+                                        screen: KavachShippingAddressListScreen(
+                                          selectedBillingAddress: selectedBillingAddress,
+                                        ),
                                       );
                                     },
                                     // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
@@ -651,8 +678,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                     onTextFieldTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen:
-                                        const KavachShippingAddressListScreen(),
+                                        screen: KavachShippingAddressListScreen(
+                                          selectedBillingAddress: _getCurrentBillingAddress(context),
+                                        ),
                                       );
                                     },
                                   ),
@@ -693,8 +721,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                     onTextFieldTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen:
-                                        const KavachShippingAddressListScreen(),
+                                        screen: KavachShippingAddressListScreen(
+                                          selectedBillingAddress: _getCurrentBillingAddress(context),
+                                        ),
                                       );
                                     },
                                   ),
@@ -743,6 +772,22 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         ),
       ),
     );
+  }
+
+  // Helper method to format vehicle number for display
+  String formatVehicleNumberForDisplay(String vehicleNumber) {
+    if (vehicleNumber.isEmpty) return '';
+    
+    // Remove any existing spaces and convert to uppercase
+    String cleanNumber = vehicleNumber.replaceAll(RegExp(r'\s'), '').toUpperCase();
+    
+    // Format: MH12AB1234 -> MH 12 AB 1234
+    if (cleanNumber.length >= 10) {
+      return '${cleanNumber.substring(0, 2)} ${cleanNumber.substring(2, 4)} ${cleanNumber.substring(4, 6)} ${cleanNumber.substring(6)}';
+    }
+    
+    // If not standard format, return as is
+    return vehicleNumber.toUpperCase();
   }
 
   Widget productWidget(KavachProduct product, int quantity) {
@@ -799,7 +844,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               children: [
                 Text(product.part, style: AppTextStyle.bodyGreyColor).expand(),
                 Text(
-                  "$indianCurrencySymbol ${totalPrice.toStringAsFixed(2)}",
+                  "$indianCurrencySymbol ${KavachHelper.formatCurrency(totalPrice.round())}",
                   style: AppTextStyle.h4PrimaryColor,
                 ),
               ],
@@ -808,7 +853,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             Column(
               children: List.generate(vehicleControllers.length, (index) {
                 return AppTextField(
-                  controller: vehicleControllers[index],
+                  controller: TextEditingController(
+                    text: formatVehicleNumberForDisplay(vehicleControllers[index].text),
+                  ),
                   onTextFieldTap: () async {
                     final selectedVehicle = await commonBottomSheet<String?>(
                       context: context,

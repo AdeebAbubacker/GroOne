@@ -87,11 +87,25 @@ class _EndhanKycScreenContent extends StatelessWidget {
     final List<FocusNode> focusNodes = List.generate(6, (i) => FocusNode());
 
     void _onOtpChanged(int idx, String value) {
+      // Handle forward navigation when a digit is entered
       if (value.length == 1 && idx < 5) {
-        focusNodes[idx + 1].requestFocus();
-      }
-      if (value.isEmpty && idx > 0) {
-        focusNodes[idx - 1].requestFocus();
+        // Add a small delay to ensure the current field is properly updated
+        Future.delayed(Duration(milliseconds: 50), () {
+          focusNodes[idx + 1].requestFocus();
+        });
+      } 
+      // Handle backward navigation when a digit is deleted
+      else if (value.isEmpty && idx > 0) {
+        // Add a small delay to ensure the current field is properly cleared
+        Future.delayed(Duration(milliseconds: 50), () {
+          focusNodes[idx - 1].requestFocus();
+          // Ensure cursor is at the end of the previous field
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            otpControllers[idx - 1].selection = TextSelection.fromPosition(
+              TextPosition(offset: otpControllers[idx - 1].text.length),
+            );
+          });
+        });
       }
     }
 
@@ -191,7 +205,25 @@ class _EndhanKycScreenContent extends StatelessWidget {
                           maxLength: 1,
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onChanged: (value) => _onOtpChanged(i, value),
+                          onChanged: (value) {
+                            _onOtpChanged(i, value);
+                            // Ensure cursor is always at the end after any change
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (otpControllers[i].text.isNotEmpty) {
+                                otpControllers[i].selection = TextSelection.fromPosition(
+                                  TextPosition(offset: otpControllers[i].text.length),
+                                );
+                              }
+                            });
+                          },
+                          onTap: () {
+                            // Ensure cursor is at the end when tapping
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              otpControllers[i].selection = TextSelection.fromPosition(
+                                TextPosition(offset: otpControllers[i].text.length),
+                              );
+                            });
+                          },
                         ),
                       )),
                     ),
@@ -278,18 +310,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Aadhaar Card
-                      // Debug info for Aadhaar verification
-                      // Text(
-                      //   'Debug: isAadhaarVerified=${state.isAadhaarVerified}, aadhaarVerifyOtpState=${state.aadhaarVerifyOtpState?.status}',
-                      //   style: TextStyle(fontSize: 10, color: Colors.grey),
-                      // ),
-                      // // Debug info for documents
-                      // Text(
-                      //   'Debug: PAN docs=${state.panDocuments.length}, Identity Front=${state.identityFrontDocuments.length}, Identity Back=${state.identityBackDocuments.length}, Address Front=${state.addressFrontDocuments.length}, Address Back=${state.addressBackDocuments.length}',
-                      //   style: TextStyle(fontSize: 10, color: Colors.grey),
-                      // ),
-                      // 5.height,
+                     
                       _buildLabelWithInfoIcon(context, 'Aadhaar Card', isMandatory: true, isVerified: state.isAadhaarVerified),
                       10.height,
 

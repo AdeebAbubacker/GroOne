@@ -187,7 +187,7 @@ class _KavachAddVehicleBottomSheetState
                   maxLength: 16,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9 -]'), // <-- Hyphen works now
+                      RegExp(r'[A-Za-z0-9\-]'), // Allow letters, digits, and hyphens only
                     ),
                   ],
                   mandatoryStar: true,
@@ -232,8 +232,7 @@ class _KavachAddVehicleBottomSheetState
                 10.height,
                 BlocBuilder<
                   KavachAddVehicleFormCubit,
-                  KavachAddVehicleFormState
-                >(
+                  KavachAddVehicleFormState >(
                   builder: (context, state) {
                     final cubit = context.read<KavachAddVehicleFormCubit>();
 

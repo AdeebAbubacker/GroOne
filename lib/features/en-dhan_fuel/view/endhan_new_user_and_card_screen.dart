@@ -212,8 +212,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (!mounted) return;
 
             // If KYC documents exist, fetch cards and balance
-            if (state.kycCheckState?.status == Status.SUCCESS &&
-                state.hasKycDocuments &&
+            if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments &&
                 !_hasAttemptedCardsFetch &&
                 state.cardsState?.status != Status.LOADING &&
                 state.cardsState?.status != Status.SUCCESS) {
@@ -345,7 +344,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               );
             }
 
-            // Show benefits screen if KYC documents exist but no cards found
+           // Show benefits screen if KYC documents exist but no cards found
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 state.hasKycDocuments &&
                 state.cardsState?.status == Status.SUCCESS &&

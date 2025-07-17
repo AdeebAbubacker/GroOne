@@ -106,6 +106,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           );
         } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
           return Scaffold(
+            backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
               title: context.appText.tankLock,
               centreTile: false,
@@ -152,6 +153,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           );
         } else {
           return Scaffold(
+            backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
               //elevation: 1.0,
               title: context.appText.tankLock,
@@ -194,46 +196,53 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 5.width,
               ],
             ),
-            body: Column(
+                        body: Column(
               children: [
-                TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  indicator: const BoxDecoration(),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-                  tabs: List.generate(5, (index) {
-                    final tabLabels = [
-                      'All',
-                      'Order Placed',
-                      'Dispatched',
-                      'Delivered',
-                      'Installed',
-                    ];
-                    final isSelected = _tabController.index == index;
-                    return Tab(
-                      child: Container(
+                // Tab Bar
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Row(
+                    children: List.generate(5, (index) {
+                      final tabLabels = [
+                        'All',
+                        'Order Placed',
+                        'Dispatched',
+                        'Delivered',
+                        'Installed',
+                      ];
+                      final isSelected = _tabController.index == index;
+                      return Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 8,
+                          horizontal: 4,
+                          vertical: 12,
                         ),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? AppColors.primaryColor
-                                  : const Color(0xFFEFEFEF),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Text(
-                          tabLabels[index],
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w500,
+                        child: GestureDetector(
+                          onTap: () => _tabController.animateTo(index),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 8,
+                            ),
+                            decoration: commonContainerDecoration(
+                              color:
+                                  isSelected
+                                      ? AppColors.primaryColor
+                                      : const Color(0xFFEFEFEF),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(
+                              tabLabels[index],
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
                 15.height,
                 Expanded(
