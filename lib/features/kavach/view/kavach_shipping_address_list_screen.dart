@@ -50,7 +50,38 @@ class KavachShippingAddressListScreen extends StatelessWidget {
     return BlocBuilder<KavachCheckoutShippingAddressBloc, KavachCheckoutShippingAddressState>(
       builder: (context, state) {
         if (state is KavachCheckoutShippingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator(),);
+        }
+
+        if (state is KavachCheckoutShippingAddressError) {
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, color: Colors.red, size: 48),
+                      10.height,
+                      Text(
+                        'Failed to load addresses',
+                        style: AppTextStyle.h5,
+                      ),
+                      10.height,
+                      AppButton(
+                        onPressed: () {
+                          context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+                        },
+                        title: 'Retry',
+                        style: AppButtonStyle.outline,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
         }
 
         if (state is KavachCheckoutShippingAddressSelected) {
@@ -76,7 +107,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
                 onPressed: () {
                   final selectedAddress = context.read<KavachCheckoutShippingAddressBloc>().state;
                   if (selectedAddress is KavachCheckoutShippingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
+                    Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
                     // Handle if nothing is selected (optional)
                   }
@@ -89,9 +120,67 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           );
         }
 
+        if (state is KavachCheckoutShippingAddressAvailable) {
+          final addresses = state.addresses;
+
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shrinkWrap: true,
+                  itemCount: addresses.length,
+                  separatorBuilder: (context, index) => 10.height,
+                  itemBuilder: (context, index) {
+                    final address = addresses[index];
+                    return AddressListItem(address: address);
+                  },
+                ),
+              ),
+              20.height,
+              AppButton(
+                onPressed: () {
+                  // Show message that user must select an address first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select an address first'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
+                title: context.appText.deliverHere,
+                style: AppButtonStyle.primary,
+              ),
+              20.height,
+            ],
+          );
+        }
+
+        // Empty state or any other state
         return Column(
           children: [
-            addVehicleButton(context)
+            addVehicleButton(context),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_off, color: Colors.grey, size: 48),
+                    10.height,
+                    Text(
+                      'No addresses found',
+                      style: AppTextStyle.h5,
+                    ),
+                    5.height,
+                    Text(
+                      'Add your first shipping address',
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         );
       },

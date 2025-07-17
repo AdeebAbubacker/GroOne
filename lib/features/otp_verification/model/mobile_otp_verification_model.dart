@@ -82,4 +82,13 @@ class KongToken {
         );
     }
 
+    Map<String, dynamic> toJson() {
+        return {
+            "expiresIn": expiresIn,
+            "tokenType": tokenType,
+            "refreshToken": refreshToken,
+            "accessToken": accessToken,
+        };
+    }
+
 }

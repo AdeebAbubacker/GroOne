@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../dependency_injection/locator.dart';
@@ -99,65 +101,60 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
       body: SafeArea(
         child: Column(
           children: [
-            10.height,
-            Container(
-              // alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
-              margin: EdgeInsets.symmetric(horizontal: 15),
-              // padding: EdgeInsets.symmetric(horizontal: 10),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.horizontal,
-                controller: _tabScrollController,
+            20.height,
 
-                child: TabBar(
-                  controller: _tabController,
-                  dividerHeight: 0,
-                  isScrollable: true,
-                  indicatorPadding: EdgeInsets.zero,
-                  indicator: const BoxDecoration(),
-                  // remove default indicator
-                  // labelPadding: const EdgeInsets.symmetric(horizontal: 5),
-                  labelPadding: EdgeInsets.zero,
-                  padding: EdgeInsets.zero,
-                  tabs: List.generate(4, (index) {
-                    final tabLabels = [
-                      'Available Loads',
-                      'My Loads',
-                      'Confirmed',
-                      'Assigned',
-                    ];
-                    final isSelected = _tabController.index == index;
-                    return Tab(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? AppColors.primaryColor
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          tabLabels[index],
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
+            // Tab Bar
+            Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
+              padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                physics: const NeverScrollableScrollPhysics(),
+                dividerHeight: 0,
+                tabAlignment: TabAlignment.center,
+                indicatorPadding: EdgeInsets.zero,
+                labelPadding: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
+                indicator: const BoxDecoration(),
+                splashFactory: NoSplash.splashFactory,
+                tabs: List.generate(4, (index) {
+                  final tabLabels = [
+                    'Available Loads',
+                    'My Loads',
+                    'Confirmed',
+                    'Assigned',
+                  ];
+                  final isSelected = _tabController.index == index;
+                  return Tab(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: commonContainerDecoration(
+                        color: isSelected ? AppColors.primaryColor : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        tabLabels[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black54,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    );
-                  }),
-                ),
+                    ),
+                  );
+                }),
               ),
-            ),
+            ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+
+            // Filter
             buildSearchBarAndFilterWidget(context),
+
+            // Tab bar View
             Expanded(
               child: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
                     bloc: locator<VpAcceptLoadBloc>(),

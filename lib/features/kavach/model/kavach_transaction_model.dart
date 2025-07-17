@@ -14,12 +14,45 @@ class KavachTransactionModel {
   });
 
   factory KavachTransactionModel.fromJson(Map<String, dynamic> json) {
-    return KavachTransactionModel(
-      orderId: json['orderId'],
-      txnId: json['txnId'],
-      orderAmount: (json['orderAmount'] as num).toDouble(),
-      status: json['status'],
-      date: DateTime.parse(json['date']),
-    );
+    try {
+      // Handle the date parsing more robustly
+      DateTime parseDate(String dateString) {
+        try {
+          // Try parsing as ISO format first
+          return DateTime.parse(dateString);
+        } catch (e) {
+          try {
+            // Try parsing with timezone offset format
+            final parts = dateString.split(' ');
+            if (parts.length >= 2) {
+              final dateTimePart = '${parts[0]} ${parts[1]}';
+              return DateTime.parse(dateTimePart);
+            }
+            // Fallback to current date
+            return DateTime.now();
+          } catch (e) {
+            // Return current date if parsing fails
+            return DateTime.now();
+          }
+        }
+      }
+
+      return KavachTransactionModel(
+        orderId: json['orderId']?.toString() ?? '',
+        txnId: json['txnId']?.toString() ?? '',
+        orderAmount: (json['orderAmount'] as num?)?.toDouble() ?? 0.0,
+        status: json['status']?.toString() ?? '',
+        date: parseDate(json['date']?.toString() ?? ''),
+      );
+    } catch (e) {
+      // Return a default model if parsing fails
+      return KavachTransactionModel(
+        orderId: json['orderId']?.toString() ?? '',
+        txnId: json['txnId']?.toString() ?? '',
+        orderAmount: (json['orderAmount'] as num?)?.toDouble() ?? 0.0,
+        status: json['status']?.toString() ?? '',
+        date: DateTime.now(),
+      );
+    }
   }
 }

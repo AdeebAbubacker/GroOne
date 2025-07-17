@@ -30,6 +30,9 @@ class PngIcons {
   final String cardPayment = "${_pngBasePath}card_payment.png";
   final String tracking = "${_pngBasePath}tracking.png";
   final String reconcilation = "${_pngBasePath}reconcilation.png";
+
+  //gps
+  final String gpsDashboardRoad = "${_pngBasePath}gps_dashboard_road.png";
 }
 
 /// GIF Icons
@@ -97,10 +100,21 @@ class SvgIcons {
   final String vahanVerify = "${_svgBasePath}verify_vahan.svg";
   final String phoneCall = "${_svgBasePath}phone_call.svg";
   final String translation = "${_svgBasePath}translation.svg";
+  final String alertCircle = "${_svgBasePath}alert_circle.svg";
   final String switchIcon = "${_svgBasePath}switch.svg";
   final String download = "${_svgBasePath}download.svg";
   final String kavachTransactionSuccess = "${_svgBasePath}kavach_transaction_success.svg";
   final String kavachTransactionFailed = "${_svgBasePath}kavach_transaction_fail.svg";
-
+  final String swipeButtonIcon = "${_svgBasePath}swipe_button_icon.svg";
+  final String gpsDashboardInactive = "${_svgBasePath}gps_dashboard_inactive.svg";
+  final String gpsDashboardInsideFence = "${_svgBasePath}gps_dashboard_inside_fence.svg";
+  final String gpsDashboardOutsideFence = "${_svgBasePath}gps_dashboard_out_fence.svg";
+  final String dashboardGeofenceIn = "${_svgBasePath}dashboard_geofence_in.svg";
+  final String dashboardGeofenceOut = "${_svgBasePath}dashboard_geofence_out.svg";
+  final String dashboardIgnitionOff = "${_svgBasePath}dashboard_ignition_off.svg";
+  final String dashboardIgnitionOn = "${_svgBasePath}dashboard_ignition_on.svg";
+  final String dashboardLowBattery = "${_svgBasePath}dashboard_low_battery.svg";
+  final String dashboardPowerCut = "${_svgBasePath}dashboard_powercut.svg";
+  final String dashboardVibration = "${_svgBasePath}dashboard_vibration.svg";
 
 }

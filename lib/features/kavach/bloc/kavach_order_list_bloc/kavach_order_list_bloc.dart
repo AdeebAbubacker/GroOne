@@ -28,7 +28,6 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
         emit(KavachOrderListLoading());
       }
 
-      // final result = await _repository.fetchCustomerOrders(page: nextPage);
       final result = await _repository.fetchCustomerOrders(
         page: nextPage,
         status: event.status,
@@ -38,7 +37,6 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
       if (result is Success<KavachOrderListResponse>) {
         final response = result.value;
         final orders = response.orders;
-        // final hasReachedMax = nextPage >= response.meta.totalPages;
         final hasReachedMax = orders.length < response.meta.limit;
 
         if (currentState is KavachOrderListLoaded && !event.isRefresh) {

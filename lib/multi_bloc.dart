@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
@@ -26,10 +28,14 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_loa
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
+import 'features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import 'features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
 import 'features/privacy_policy/bloc/privacy_policy_bloc.dart';
@@ -78,11 +84,17 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<ChoosePreferenceCubit>(create: (_) => locator<ChoosePreferenceCubit>()),
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
         BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
+        // EnDhanCubit removed from MultiBlocWrapper to control lifecycle manually
+        BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
         BlocProvider<LpCreateAccountCubit>(create: (_) => locator<LpCreateAccountCubit>()),
         BlocProvider<VpCreateAccountCubit>(create: (_) => locator<VpCreateAccountCubit>()),
         BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
         BlocProvider<PodDispatchCubit>(create: (_) => locator<PodDispatchCubit>()),
+        BlocProvider<GpsGeofenceCubit>(create: (_) => locator<GpsGeofenceCubit>()),
+        BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
+        BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
+        BlocProvider<GpsGeofenceMapCubit>(create: (_) => locator<GpsGeofenceMapCubit>()),
       ],
       child: child,
     );

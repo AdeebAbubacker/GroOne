@@ -109,7 +109,7 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
                         // Handle support button when BS6 is selected
                         // You can navigate to support screen or show support dialog
                         commonSupportDialog(context);
-                        print('Support requested for BS6 engine type');
+                        // Support requested for BS6 engine type
                 
                       },
                     ).paddingSymmetric(horizontal: 16),

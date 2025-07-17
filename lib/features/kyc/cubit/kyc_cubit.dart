@@ -28,7 +28,7 @@ part 'kyc_state.dart';
 
 class KycCubit extends BaseCubit<KycState> {
   final KycRepository _repo;
-  KycCubit(this._repo) : super(KycState());
+  KycCubit(this._repo, UserInformationRepository userInformationRepository) : super(KycState());
 
 
   // fetch user role

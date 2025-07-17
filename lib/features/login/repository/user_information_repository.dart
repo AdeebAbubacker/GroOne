@@ -14,6 +14,10 @@ class UserInformationRepository {
     return  await _securedSharedPref.get(AppString.sessionKey.userFullName);
   }
 
+  Future<String?> getUserMobileNumber() async {
+    return  await _securedSharedPref.get(AppString.sessionKey.userMobileNumber);
+  }
+
   Future<String?> getAddress() async {
     return  await _securedSharedPref.get(AppString.sessionKey.userAddress);
   }
