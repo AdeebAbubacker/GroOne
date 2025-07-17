@@ -75,6 +75,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
    TextEditingController consigneePhoneController = TextEditingController();
 
    TextEditingController consigneeEmailController = TextEditingController();
+   bool isUpdateConsignee = false;
 
   void initFunction() => frameCallback(() {
    final consignees = widget.loadItem.consignees;
@@ -86,6 +87,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneeNameController = TextEditingController(text: consigneeName);
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
+    isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
 
   });
 
@@ -419,28 +421,46 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           final addState = state.lpAddConsignee;
                           final updateState = state.lpUpdateConsignee;
 
-                          if (addState?.status == Status.SUCCESS) {
-                          ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
-                          } else if (addState?.status == Status.ERROR) {
-                            final errorType = state.lpAddConsignee?.errorType;
-                            ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
-                          }
+                          if (isUpdateConsignee) {
+                            if (updateState?.status == Status.SUCCESS && addState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
+                            }
 
-                          if (updateState?.status == Status.SUCCESS) {
-                            ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
-                          } else if (updateState?.status == Status.ERROR) {
-                            final errorType = state.lpUpdateConsignee?.errorType;
-                            ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            if (updateState?.status == Status.ERROR && addState?.status != Status.LOADING) {
+                              final errorType = updateState?.errorType;
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            }
+                          } else {
+
+                            if (addState?.status == Status.SUCCESS && updateState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
+                              final newConsignee = addState?.data;
+                              if (newConsignee != null) {
+                                setState(() {
+                                  consigneeNameController.text = newConsignee.name ?? '';
+                                  consigneePhoneController.text = newConsignee.mobileNumber ?? '';
+                                  consigneeEmailController.text = newConsignee.email ?? '';
+                                  isUpdateConsignee = true;
+                                });
+                              }
+                            }
+
+                            if (addState?.status == Status.ERROR && updateState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              final errorType = addState?.errorType;
+                              ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            }
                           }
                         },
                         builder: (context, state) {
-                        final consignees = widget.loadItem.consignees;
-                        final isAddorUpdate = consignees.isNotEmpty;
                           return _buildConsigneeDetail(
                             context: context,
                             isTextField: true,
                             isUpdatable: true,
-                            isUpdateConsignee: isAddorUpdate,
+                            isUpdateConsignee:  isUpdateConsignee,
                             nameController: consigneeNameController,
                             phoneController: consigneePhoneController,
                             emailController: consigneeEmailController,
@@ -457,7 +477,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     return;
                                   }
                                 }
-                                if (consignees.isNotEmpty) {
+                                if (isUpdateConsignee) {
                                   final existingConsignee = consignees[0];
                                       lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
                               
