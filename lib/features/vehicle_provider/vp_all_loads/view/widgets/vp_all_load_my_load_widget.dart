@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -86,7 +86,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                     ],
                   ),
                   if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
-                    VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus)
+                    VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context)
                   // LoadStatusLabel(
                   //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
                   //     loadStatus: widget.data.loadStatusValues,
@@ -100,9 +100,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
           if(widget.data.loadStatusDetails != null)...[
-            VpMyLoadHelper.simTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+            VpMyLoadUIHelper.simTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
 
-            VpMyLoadHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
+            VpMyLoadUIHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
           ],
 
 
@@ -195,7 +195,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
               // Action Button
               if(widget.data.loadStatusDetails != null)
-              VpMyLoadHelper.loadStatusButtonWidget(
+              VpMyLoadUIHelper.loadStatusButtonWidget(
                   status: widget.data.loadStatusDetails!.loadStatus,
                   onPressed: () {  }
               ).expand(),
