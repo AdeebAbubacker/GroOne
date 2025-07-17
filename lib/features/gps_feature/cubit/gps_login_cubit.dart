@@ -110,20 +110,10 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
       // Step 2.6: Get all vehicle data (includes devices and positions)
       print("🚗 Step 2.6: Fetching all vehicle data...");
       final vehicleDataResult = await _repository.getAllVehicleData(token);
-      if (vehicleDataResult is Success) {
-        print("✅ All data fetched and stored successfully!");
-        _setDataFetchUIState(UIState.success("All data loaded successfully"));
-        _hasLoadedData = true; // Mark as loaded to prevent future API calls
-      } else {
-        print(
-          "❌ Failed to fetch vehicle data: ${vehicleDataResult.runtimeType}",
-        );
-        _setDataFetchUIState(UIState.error(GenericError()));
-      }
+
       if (vehicleDataResult is Success<List<GpsCombinedVehicleData>>) {
         final vehicles = vehicleDataResult.value;
 
-        // Save distance for today
         for (var vehicle in vehicles) {
           if (vehicle.deviceId != null &&
               vehicle.vehicleNumber != null &&
@@ -145,8 +135,12 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
 
         print("✅ All data fetched and stored successfully!");
         _setDataFetchUIState(UIState.success("All data loaded successfully"));
-        _hasLoadedData = true; // Mark as loaded to prevent future API calls
+        _hasLoadedData = true;
+      } else {
+        print("❌ Failed to fetch vehicle data: ${vehicleDataResult.runtimeType}");
+        _setDataFetchUIState(UIState.error(GenericError()));
       }
+
     } catch (e) {
       print("❌ Error in sequential data fetch: $e");
       _setDataFetchUIState(UIState.error(GenericError()));
