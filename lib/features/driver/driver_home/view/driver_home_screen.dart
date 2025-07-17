@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
+import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
@@ -50,6 +51,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   Timer? _debounce;
   final driverLoadLocator = locator<DriverLoadsBloc>();
   final profileCubit = locator<ProfileCubit>();
+  final driverProfileCubit = locator<DriverProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
   late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
@@ -148,6 +150,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
             //Load List
             buildLoadListWidget(),
+
+             ElevatedButton(onPressed: () async{
+            await  driverProfileCubit.fetchProfileDetail();
+              }, child: Text("Call"),),
           ],
         ),
       ),

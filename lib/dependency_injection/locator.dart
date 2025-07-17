@@ -10,6 +10,9 @@ import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
+import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_profile/repository/driver_profile_repository.dart';
+import 'package:gro_one_app/features/driver/driver_profile/service/driver_profile_service.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/repository/email_verification_repository.dart';
 import 'package:gro_one_app/features/email_verification/service/email_verification_service.dart';
@@ -195,6 +198,16 @@ void initLocator() {
     );
     locator.registerLazySingleton(() => DriverLoadService(locator<ApiService>()));
 
+    locator.registerLazySingleton(
+      () => DriverProfileService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+        locator<UserInformationRepository>(),
+        locator<AuthRepository>(),
+      ),
+    );
+
+
     // Register GpsOrderApiRequest for GPS features
     locator.registerLazySingleton(
       () => GpsOrderApiRequest(locator<ApiService>()),
@@ -313,8 +326,20 @@ void initLocator() {
     locator.registerLazySingleton(
       () => GpsRepository(locator<GpsService>(), locator<GpsLoginRepository>()),
     );
+
     locator.registerLazySingleton(() => DriverLoadRepository(locator<DriverLoadService>(),locator<UserInformationRepository>()));
 
+     locator.registerLazySingleton(
+      () => DriverProfileRepository(
+        locator<DriverProfileService>(),
+        locator<AuthRepository>(),
+        locator<SecuredSharedPreferences>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
+
+
+      
     // ViewModels
     locator.registerLazySingleton(
       () => SplashViewModel(
@@ -546,7 +571,9 @@ void initLocator() {
     locator.registerLazySingleton(
       () => PodDispatchCubit(locator<PodDispatchRepository>()),
     );
-
+     locator.registerLazySingleton(
+      () => DriverProfileCubit(locator<DriverProfileRepository>()),
+    );
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {
     CustomLog.error(locator, "ERROR : All instances are not registered.", e);
