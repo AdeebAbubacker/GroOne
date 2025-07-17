@@ -337,5 +337,10 @@
   "addNewGeofence": "Add New Geofence",
   "confirmLocation": "Confirm Location",
   "geofenceName": "Geofence Name",
-  "geofenceLocationSetSuccessfully": "Geofence location has been set successfully."
+  "geofenceLocationSetSuccessfully": "Geofence location has been set successfully.",
+  "loadProvider": "लोड प्रदाता",
+  "truckProvider": "ट्रक प्रदाता",
+  "poweredByHindujagroup": "हिंदुजा समूह द्वारा संचालित",
+  "emailOtpVerification": "ईमेल ओटीपी सत्यापन",
+  "loading": "लोड हो रहा है"
 }

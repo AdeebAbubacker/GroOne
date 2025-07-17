@@ -333,6 +333,10 @@
   "aadharCard": "ஆதார் அட்டை*",
   "panCardOptional": "பான் அட்டை (விருப்பமானது)",
   "success": "Success",
-  "failed": "Failed"
-
+  "failed": "Failed",
+  "loadProvider": "லோடு வழங்குநர்",
+  "truckProvider": "டிரக் வழங்குநர்",
+  "poweredByHindujagroup": "ஹிந்துஜா குழுமம் வழங்குகிறது",
+  "emailOtpVerification": "மின்னஞ்சல் OTP சரிபார்ப்பு",
+  "loading": "ஏற்றப்படுகிறது"
 }

@@ -488,5 +488,11 @@
   "addNewGeofence": "Add New Geofence",
   "confirmLocation": "Confirm Location",
   "geofenceName": "Geofence Name",
-  "geofenceLocationSetSuccessfully": "Geofence location has been set successfully."
+  "geofenceLocationSetSuccessfully": "Geofence location has been set successfully.",
+  "loadProvider" : "Load Provider",
+  "truckProvider" : "Truck Provider",
+  "poweredByHindujagroup" : "Powered by Hinduja Group",
+  "emailOtpVerification" : "Email OTP Verification",
+  "loading" : "Loading"
+
 }

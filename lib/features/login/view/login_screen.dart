@@ -30,9 +30,8 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.roleId});
+  const LoginScreen({super.key,});
 
-  final int roleId;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
