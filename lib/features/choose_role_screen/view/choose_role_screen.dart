@@ -46,7 +46,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 0 ? true : false,
-                  text1: "Load Provider",
+                  text1: context.appText.loadProvider,
                   text2: context.appText.lpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 0));
@@ -55,7 +55,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 1 ? true : false,
-                  text1: "Truck Provider",
+                  text1: context.appText.truckProvider,
                   text2: context.appText.vpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 1));
@@ -64,7 +64,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 2 ? true : false,
-                  text1: "Both Load & Truck Provider",
+                  text1: context.appText.vpLpHeading,
                   text2: context.appText.vpLp,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 2));
@@ -73,7 +73,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 3 ? true : false,
-                  text1: "Require Fleet Products",
+                  text1:  context.appText.fleetHeading,
                   text2: context.appText.fleet,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 3));
@@ -115,7 +115,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                  50.height,
 
-                Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center()
+                Text(context.appText.poweredByHindujagroup, style: AppTextStyle.bodyPrimaryColor).center()
 
 
 
