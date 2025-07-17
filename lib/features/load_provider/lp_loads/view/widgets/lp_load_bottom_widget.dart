@@ -569,6 +569,8 @@ final isLoading = createOrderState?.status == Status.LOADING ||
     addPaymentState?.status == Status.LOADING;
 final double payableBalanceValue =
     double.tryParse(payableBalance.toString()) ?? 0.0;
+final double payableAdvanceValue =
+    double.tryParse(payableAdvance.toString()) ?? 0.0;    
 
   return Container(
     padding: const EdgeInsets.all(10),
@@ -665,20 +667,18 @@ final double payableBalanceValue =
          12.height,
 
         // Action Button
-        if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5 || payableBalanceValue > 0)
+        if ((payableBalanceValue > 0 || payableAdvanceValue > 0) &&
+          (paymentState == 1 || paymentState == 2 || paymentState == 3 || paymentState == 4 || paymentState == 5))
           AppButton(
             isLoading: isLoading,
             title: context.appText.payAdvance,
             onPressed: () async {
               
              final isPayingBalance = paymentState == 3 || paymentState == 5;
-            //  final selectedAmountString = isPayingBalance ? payableBalance : payableAdvance;
-            // final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
               final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
             final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
  
               // Create Order
-               // Create Order
               await lpLoadCubit.createOrder(
                 loadId: loadId,
                 createOrderidReuest: CreateOrderIdRequest(
