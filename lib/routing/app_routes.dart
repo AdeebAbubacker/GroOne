@@ -148,8 +148,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          final role = "${state.extra}";
-          return LoginScreen(roleId: int.tryParse(role)??0);
+          return LoginScreen();
         },
       ),
 

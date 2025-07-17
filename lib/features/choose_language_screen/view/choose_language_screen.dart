@@ -127,8 +127,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                         if(widget.isCloseButton){
                           Navigator.of(context).pop();
                         }else{
-                          //context.push(AppRouteName.chooseRoleScreen);
-                          context.push(AppRouteName.login,extra: "2");
+                          context.push(AppRouteName.login);
                         }
                       },
                     ),
