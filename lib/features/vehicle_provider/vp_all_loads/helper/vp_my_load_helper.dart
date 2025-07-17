@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_progress_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -151,7 +152,30 @@ class VpMyLoadHelper {
       default:
         return Container();
     }
+  }
 
+
+  // Progress Tracking Status View
+  static Widget progressTrackingWidget({required String status, double progress = 0.0}) {
+    Widget ui() {
+      return Column(
+        children: [
+          AppProgressBar(progress: progress),
+          5.height,
+          commonDivider(),
+        ],
+      );
+    }
+    switch (status) {
+      case "Loading":
+        return ui();
+      case "In Transit":
+        return ui();
+      case "Unloading":
+        return ui();
+      default:
+        return Container();
+    }
   }
 
 

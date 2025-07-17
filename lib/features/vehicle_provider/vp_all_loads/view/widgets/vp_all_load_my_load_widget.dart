@@ -99,8 +99,12 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
-          if(widget.data.loadStatusDetails != null)
-          VpMyLoadHelper.simTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+          if(widget.data.loadStatusDetails != null)...[
+            VpMyLoadHelper.simTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+
+            VpMyLoadHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
+          ],
+
 
           Row(
             children: [
@@ -160,7 +164,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           ),
           10.height,
 
-          _buildTrackingProgress(0.5,widget.data.loadStatusValues),
+
           //if(widget.showButton??true)
           Row(
             children: [
@@ -240,7 +244,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
 
 
-  Widget _buildTrackingProgress(double progress,LoadStatus? loadStatus){
+  Widget _buildTrackingProgress(double progress, LoadStatus? loadStatus){
     return Visibility(
 
       visible:false,
