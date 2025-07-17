@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -37,7 +38,7 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Select Weight", style: AppTextStyle.body1)),
+      appBar: AppBar(title: Text(context.appText.selectWeight, style: AppTextStyle.body1)),
       body: Column(
         children: [
           Expanded(
@@ -57,7 +58,6 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
                 return InkWell(
                   onTap: () {
                     setState(() {
-                      print('id ${weight.id}');
                       selectedId = weight.id;
                     });
                   },
@@ -95,7 +95,7 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
 
   Widget buildSubmitButton(){
     return AppButton(
-      title: "Select",
+      title: context.appText.select,
       onPressed: selectedId != null ? () {
         final selectedWeight = widget.dataList.firstWhere((w) => w.id == selectedId);
         widget.cubit.selectWeight(selectedWeight);

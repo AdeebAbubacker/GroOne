@@ -4,13 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 
 class LPWeightDropdown extends StatelessWidget {
   final String preFixIcon;

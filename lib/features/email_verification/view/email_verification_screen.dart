@@ -161,7 +161,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: !isLoading && isCodeLengthValid ? () async {
-            final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text, customerId: widget.userId);
+            final request = VerifyEmailOtpApiRequest(otp: int.parse(otpTextController.text), customerId: widget.userId);
             await  cubit.verifyOtp(request);
           } : (){},
         );
@@ -202,7 +202,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               ],
             ),
           ),
-          onPressed: !state.isResendButtonEnabled ? () async => await cubit.resendOtp(widget.emailAddress) : (){},
+          onPressed: !state.isResendButtonEnabled ? () async => await cubit.sendOtp(widget.emailAddress, widget.userId) : (){},
         );
       },
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);

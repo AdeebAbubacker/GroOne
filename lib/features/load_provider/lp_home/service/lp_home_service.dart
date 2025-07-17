@@ -242,6 +242,24 @@ class LpHomeService{
     }
   }
 
+  /// setBluId
+  Future<Result<void>> setBluIDFlag(String userId) async {
+    try {
+      final url = ApiUrls.bluIdFlg+userId;
+      final result = await _apiService.patch(url);
+      if (result is Success) {
+        return Success(null);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
 
 
 }

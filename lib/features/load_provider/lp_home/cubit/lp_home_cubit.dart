@@ -61,20 +61,17 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Set Location Id
   void setPickupLocationDetailId(int? id){
     emit(state.copyWith(pickupLocationId: id));
-    CustomLog.debug(this, "Set Pickup Location Id : $id");
   }
 
 
   // Set Location Id
   void setDestinationLocationDetailId(int? id){
     emit(state.copyWith(destinationLocationId: id));
-    CustomLog.debug(this, "Set Destination Location Id : $id");
   }
 
   // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
-    CustomLog.debug(this, "Set Lane Id : $id");
   }
 
   // Select Weight
@@ -214,6 +211,21 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
     if (result is Error) {
       _setGetLoadListUIState(UIState.error(result.type));
+    }
+  }
+
+  // setBluId
+  void _setBluIDFlagState(UIState uiState){
+    emit(state.copyWith(isBluIdShown: uiState));
+  }
+  Future<void> setBluIDFlag() async {
+    _setBluIDFlagState(UIState.loading());
+    dynamic result = await _repo.setBluIDFlag();
+    if (result is Success) {
+      _setBluIDFlagState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setBluIDFlagState(UIState.error(result.type));
     }
   }
 

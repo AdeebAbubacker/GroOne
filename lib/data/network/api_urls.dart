@@ -48,9 +48,8 @@ class ApiUrls {
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
 
   /// Onboarding
-  static final String sendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/send";
-  static final String resendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/resend";
-  static final String emailOTPCodeVerification = "$_baseUrl$_notification$_path$_v1/email/verify";
+  static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/send";
+  static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/verify";
   static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
   static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
 
@@ -81,6 +80,7 @@ class ApiUrls {
   static final String  pan = "$_kucDocUpload/pan";
   static final String  getCity = "$_baseUrl$_load$_path$_v1/location/city";
   static final String  getState = "$_baseUrl$_load$_path$_v1/location/state";
+  static final String  bluIdFlg = "$_baseUrl$_customer$_path$_v1$_customer/blue-id-flg/update/";
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";

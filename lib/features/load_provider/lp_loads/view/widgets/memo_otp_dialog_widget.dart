@@ -21,6 +21,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../../data/ui_state/status.dart';
+import '../../../../../routing/app_routes.dart';
 
 class MemoOtpDialogWidget extends StatefulWidget {
   final BuildContext parentContext;
@@ -63,7 +64,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
   }
 
   void handleOtpVerification(uiState) async {
-    if (uiState?.data?.message == 'OTP verified successfully') {
+    if (uiState?.data?.message == context.appText.otpVerifiedSuccess) {
       // Store parent context reference before popping
       final parentCtx = widget.parentContext;
 
@@ -135,10 +136,6 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             ),
           ),
           10.height,
-          // Text(
-          //   'OTP: ${lpLoadLocator.state.lpLoadMemoSendOtp?.data?.otp ?? ''}',
-          // ),
-          10.height,
           Center(
             child: OtpTextField(
               numberOfFields: 4,
@@ -189,7 +186,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                       await lpLoadLocator.sendOtp(loadId: widget.loadId);
                       final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
                       if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.message ?? "OTP sent";
+                        final message = otpState?.data?.message ?? "";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
                         }
