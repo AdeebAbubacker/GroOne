@@ -13,13 +13,13 @@ class DriverProfileService {
   final UserInformationRepository _userInformationRepository;
   final AuthRepository _authRepository;
   DriverProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
-//https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c
-  /// Fetch Profile Details Repo
   Future<Result<DriverProfileDetailsModel>> getDriverProfileDetails() async {
     try {
+   
      // final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
-     final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${await _userInformationRepository.getUserID() ?? ""}";
-
+     final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${await _userInformationRepository.getUserID() ?? ""}";  
+//315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c
+    print("user id is  ${ _userInformationRepository.getUserID()}");
       final result = await _apiService.get(url);
       if (result is Success) {
         print(result.value.toString());

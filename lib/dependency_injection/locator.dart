@@ -10,6 +10,9 @@ import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/service/driver_load_details_service.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/repository/driver_profile_repository.dart';
 import 'package:gro_one_app/features/driver/driver_profile/service/driver_profile_service.dart';
@@ -198,6 +201,8 @@ void initLocator() {
     );
     locator.registerLazySingleton(() => DriverLoadService(locator<ApiService>()));
 
+    locator.registerLazySingleton(() => DriverLoadDetailsService(locator<ApiService>()));
+
     locator.registerLazySingleton(
       () => DriverProfileService(
         locator<ApiService>(),
@@ -328,6 +333,9 @@ void initLocator() {
     );
 
     locator.registerLazySingleton(() => DriverLoadRepository(locator<DriverLoadService>(),locator<UserInformationRepository>()));
+
+    locator.registerLazySingleton(
+      () => DriverLoadsDetailsRepository(locator<DriverLoadDetailsService>(), locator<UserInformationRepository>(), locator<SecuredSharedPreferences>(),));
 
      locator.registerLazySingleton(
       () => DriverProfileRepository(
@@ -527,6 +535,11 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => KavachTransactionsCubit(locator<KavachRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => DriverLoadDetailsCubit(
+        locator<DriverLoadsDetailsRepository>()
+      ),
     );
     // Register GpsVehicleCubit
     locator.registerLazySingleton(

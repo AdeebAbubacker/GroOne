@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
@@ -26,7 +27,7 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/constant_variables.dart' as Status;
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -50,7 +51,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final loadPostedDateController = TextEditingController();
   Timer? _debounce;
   final driverLoadLocator = locator<DriverLoadsBloc>();
-  final profileCubit = locator<ProfileCubit>();
   final driverProfileCubit = locator<DriverProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
   late DriverLoadsBloc driverLoadBloc;
@@ -84,10 +84,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   void initFunction() => frameCallback(() async{
-     profileCubit.fetchUserRole();
+     driverProfileCubit.fetchProfileDetail();
       setState(() {});
      await lpHomeBloc.getUserId();
-    await profileCubit.fetchProfileDetail();
     setState(() {});
   driverLoadBloc = locator<DriverLoadsBloc>();
   _tabController = TabController(
@@ -151,9 +150,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             //Load List
             buildLoadListWidget(),
 
-             ElevatedButton(onPressed: () async{
-            await  driverProfileCubit.fetchProfileDetail();
-              }, child: Text("Call"),),
+
           ],
         ),
       ),
@@ -187,8 +184,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
 
             // Profile
-        BlocConsumer<ProfileCubit, ProfileState>(
-          bloc: profileCubit,
+        BlocConsumer<DriverProfileCubit, DriverProfileState>(
+          bloc: driverProfileCubit,
           listener: (context, state) {
             final status = state.profileDetailUIState?.status;
 
@@ -199,8 +196,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           },
           builder: (context, state) {
             if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
-                final blueId = state.profileDetailUIState!.data!.customer?.blueId;
+              if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null) {
+                final blueId = state.profileDetailUIState!.data!.data?.customerId;
                 return Row(
                   children: [
                     10.width,
@@ -211,10 +208,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       width: 40,
                       alignment: Alignment.center,
                       decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.data?.name ?? "")),
                     ).onClick((){
-                      Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                      Navigator.push(context, commonRoute(DriverProfileScreen(), isForward: true)).then((v) {
+                        frameCallback(() =>  driverProfileCubit.fetchProfileDetail());
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
@@ -228,7 +225,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
               child: Text(getInitialsFromName(this, name : "")),
             ).onClick((){
-              Navigator.push(context, commonRoute(ProfileScreen(), isForward: true));
+              Navigator.push(context, commonRoute(DriverProfileScreen(), isForward: true));
             }).paddingRight(commonSafeAreaPadding);
           },
         ),
