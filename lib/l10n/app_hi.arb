@@ -523,7 +523,7 @@
   "pincodeMustBeExactly6Digits": "पिनकोड ठीक 6 अंकों का होना चाहिए",
   "referralCodeOptional": "रेफरल कोड (वैकल्पिक)",
   "enterReferralCode": "रेफरल कोड दर्ज करें",
-  "retryLoadingUsers": "उपयोगकर्ताओं को लोड करने का पुनः प्रयास करें"
+  "retryLoadingUsers": "उपयोगकर्ताओं को लोड करने का पुनः प्रयास करें",
   "verify": "सत्यापित करें",
   "switchAccount": "खाता बदलें",
   "verifyEmail": "कृपया अपना ईमेल सत्यापित करें",

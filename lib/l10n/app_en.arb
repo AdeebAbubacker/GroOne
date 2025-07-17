@@ -675,7 +675,7 @@
   "pincodeMustBeExactly6Digits": "Pincode must be exactly 6 digits",
   "referralCodeOptional": "Referral Code (Optional)",
   "enterReferralCode": "Enter referral code",
-  "retryLoadingUsers": "Retry loading users"
+  "retryLoadingUsers": "Retry loading users",
   "switchAccount": "Switch Account",
   "verifyEmail": "Please verify your email",
   "isIncomplete": "is incomplete",
