@@ -1,13 +1,13 @@
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 
-import '../../../../data/model/result.dart';
-import '../../../../data/network/api_service.dart';
-import '../../../../data/network/api_urls.dart';
-import '../../../../utils/app_string.dart';
-import '../../../../utils/custom_log.dart';
-import '../api_request/create_request.dart';
-import '../model/create_response.dart';
+
 
 class LpCreateService {
   final ApiService _apiService;

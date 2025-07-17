@@ -29,6 +29,7 @@ class LPHomeState extends Equatable {
   final LoadWeightModel? selectedWeight;
   final String? matchingText;
   final String? blueId;
+  final UIState? isBluIdShown;
 
   const LPHomeState({
     this.truckTypeUIState,
@@ -48,6 +49,7 @@ class LPHomeState extends Equatable {
     this.selectedWeight,
     this.matchingText,
     this.blueId,
+    this.isBluIdShown,
   });
 
   LPHomeState copyWith({
@@ -68,6 +70,7 @@ class LPHomeState extends Equatable {
     LoadWeightModel? selectedWeight,
     String? matchingText,
     String? blueId,
+    UIState? isBluIdShown,
   }) {
     return LPHomeState(
       truckTypeUIState: truckTypeState ?? this.truckTypeUIState,
@@ -87,6 +90,7 @@ class LPHomeState extends Equatable {
       selectedWeight: selectedWeight ?? this.selectedWeight,
       matchingText: matchingText ?? this.matchingText,
       blueId: blueId ?? this.blueId,
+      isBluIdShown: isBluIdShown ?? this.isBluIdShown,
     );
   }
 
@@ -109,5 +113,6 @@ class LPHomeState extends Equatable {
     selectedWeight,
     matchingText,
     blueId,
+    isBluIdShown,
   ];
 }

@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
         bloc: loginBloc,
         listener: (context, state) async {
            if (state is LogInSuccess) {
-            ToastMessages.success(message: "Otp Sent successfully");
+            ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
             await Future.delayed(Duration(seconds: 1));
             if(context.mounted) {
               context.push(
@@ -116,18 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       5.height,
 
-                      // Phone Number
-                      // MobileNumberTextField(
-                      //   countryFlagAssetPath: AppImage.png.flag,
-                      //   controller: phoneNumber,
-                      //   onChanged: (value){
-                      //     setState(() {});
-                      //   },
-                      // ),
                       AppTextField(
                         validator: (value) => Validator.phone(value),
                         controller: phoneNumber,
-                        //labelText: context.appText.phoneNumber,
                         maxLength: 10,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
@@ -194,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: AppTextStyle.blackColor14w400,
                             ),
                             TextSpan(
-                              text: "Terms & Conditions",
+                              text: context.appText.termsAndConditions,
                               style: AppTextStyle.primaryColor14w400UnderLine,
                               recognizer:
                                   TapGestureRecognizer()
@@ -211,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: AppTextStyle.blackColor14w400,
                             ),
                             TextSpan(
-                              text: "Privacy Policy",
+                              text: context.appText.privacyPolicy,
                               style: AppTextStyle.primaryColor14w400UnderLine,
                               recognizer:
                                   TapGestureRecognizer()

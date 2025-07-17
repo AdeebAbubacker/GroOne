@@ -320,7 +320,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 suffixOnTap: () async {
                   final String? validation = Validator.email(emailTextController.text);
                   if(validation == null){
-                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                    await verifyEmailCubit.sendOtp(emailTextController.text, widget.id);
                   } else {
                     ToastMessages.alert(message: validation);
                   }

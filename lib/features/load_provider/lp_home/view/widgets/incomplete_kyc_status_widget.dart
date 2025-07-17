@@ -39,7 +39,7 @@ class IncompleteKycStatusWidget extends StatelessWidget {
 
                     TextSpan(text: "  ${context.appText.kyc}  ", style: AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)),
 
-                    TextSpan(text: "is incomplete", style: AppTextStyle.textDarkGreyColor14w500,),
+                    TextSpan(text: context.appText.isIncomplete, style: AppTextStyle.textDarkGreyColor14w500,),
                   ],
                 ),
               ),
@@ -57,7 +57,7 @@ class IncompleteKycStatusWidget extends StatelessWidget {
               }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),
-            child: Text("Verify", style: AppTextStyle.h5WhiteColor),
+            child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor),
           ),
         ],
       ),
