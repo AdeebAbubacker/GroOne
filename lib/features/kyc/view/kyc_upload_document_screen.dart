@@ -191,7 +191,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -213,7 +212,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -235,7 +233,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -257,7 +254,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -279,7 +275,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
