@@ -209,8 +209,27 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
     }
 
     // loadVehicleSelection();
-    kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
-    kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
+    
+    // Check if we have previously selected addresses to restore
+    if (selectedBillingAddress != null && billingAddresses != null) {
+      // Restore billing address immediately
+      kavachCheckoutBillingAddressBloc.add(
+        RestoreKavachBillingAddress(selectedBillingAddress!, billingAddresses!),
+      );
+    } else {
+      // Only fetch if we don't have addresses to restore
+      kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
+    }
+    
+    if (selectedShippingAddress != null && shippingAddresses != null) {
+      // Restore shipping address immediately
+      kavachCheckoutShippingAddressBloc.add(
+        RestoreKavachShippingAddress(selectedShippingAddress!, shippingAddresses!),
+      );
+    } else {
+      // Only fetch if we don't have addresses to restore
+      kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
+    }
 
     // Listen to address states to store selected addresses
     kavachCheckoutBillingAddressBloc.stream.listen((state) {
@@ -225,11 +244,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         selectedShippingAddress = state.selectedAddress;
         shippingAddresses = state.addresses;
       }
-    });
-
-    // Restore selected addresses after a delay to allow fetching
-    Future.delayed(Duration(milliseconds: 500), () {
-      restoreSelectedAddresses();
     });
   }
 

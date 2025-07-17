@@ -334,6 +334,14 @@ class _KavachAddVehicleBottomSheetState
                         value,
                         fieldName: context.appText.capacity,
                       ),
+                  decoration: commonInputDecoration(
+                    suffixIcon: Text(
+                        'Metric Tons',
+                        style: AppTextStyle.body3.copyWith(
+                          color: AppColors.textGreyColor,
+                        ),
+                      ),
+                  ),
                 ),
                 10.height,
 

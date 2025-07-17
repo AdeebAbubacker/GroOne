@@ -66,6 +66,34 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
     super.dispose();
   }
 
+  /// Helper method to get truck type display text
+  String _getTruckTypeDisplayText(GpsVehicleModel vehicle) {
+    // For GPS vehicles, we'll use a simple mapping since we don't have the full truck type API data here
+    // This can be enhanced later if needed
+    switch (vehicle.truckTypeId) {
+      case 1:
+        return 'Open - 20ft SXL';
+      case 2:
+        return 'Open - 22ft SXL';
+      case 3:
+        return 'Open - 24ft SXL';
+      case 4:
+        return 'Closed - 20ft SXL';
+      case 5:
+        return 'Closed - 22ft SXL';
+      case 6:
+        return 'Closed - 24ft SXL';
+      case 7:
+        return 'Trailer - 20ft SXL';
+      case 8:
+        return 'Trailer - 22ft SXL';
+      case 9:
+        return 'Trailer - 24ft SXL';
+      default:
+        return 'Truck - ${vehicle.truckLength}ft';
+    }
+  }
+
   Widget vehicleCard(GpsVehicleModel vehicle) {
     return InkWell(
       onTap: () {
@@ -120,7 +148,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                     style: AppTextStyle.bodyBlackColorW500,
                   ),
                   Text(
-                    '${vehicle.truckTypeId == 1 ? 'Open' : 'Closed'} Truck - ${vehicle.truckLength}ft',
+                    _getTruckTypeDisplayText(vehicle),
                     style: AppTextStyle.textGreyColor12w400,
                   ),
                 ],

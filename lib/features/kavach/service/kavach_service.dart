@@ -611,6 +611,63 @@ class KavachService {
     }
   }
 
+  /// Fetch all truck types with complete information (ID, type, subtype)
+  Future<Result<List<TruckLengthModel>>> fetchAllTruckTypes() async {
+    try {
+      // Use the full truck types API instead of distinct types
+      final response = await _apiService.get(ApiUrls.loadTruckType);
+
+      if (response is Success) {
+        try {
+          final data = response.value;
+          CustomLog.debug(this, "Truck types API raw response: ${data}");
+          CustomLog.debug(this, "Truck types API response type: ${data.runtimeType}");
+          
+          List<dynamic> truckTypesList;
+          
+          // Handle different response formats
+          if (data is List) {
+            // Direct list response
+            truckTypesList = data;
+          } else if (data is Map<String, dynamic>) {
+            // Check if data is wrapped in a response object
+            if (data.containsKey('data') && data['data'] is List) {
+              truckTypesList = data['data'] as List;
+            } else {
+              CustomLog.error(this, "Invalid response format - no 'data' key found", null);
+              return Error(DeserializationError());
+            }
+          } else {
+            CustomLog.error(this, "Invalid response format - expected List or Map, got ${data.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+          
+          final truckTypes = truckTypesList
+              .map((e) {
+                if (e is Map<String, dynamic>) {
+                  return TruckLengthModel.fromJson(e);
+                } else {
+                  CustomLog.error(this, "Invalid truck type item format: $e", null);
+                  throw Exception("Invalid truck type item format");
+                }
+              })
+              .toList();
+
+          CustomLog.debug(this, "Successfully parsed ${truckTypes.length} truck types");
+          return Success(truckTypes);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing all truck types", e);
+          return Error(DeserializationError());
+        }
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch all truck types", e);
+      return Error(DeserializationError());
+    }
+  }
+
 
   // Future<Result<List<String>>> fetchTruckTypeList() async {
   //   try {

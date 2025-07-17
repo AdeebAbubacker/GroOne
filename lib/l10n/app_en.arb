@@ -220,7 +220,7 @@
   "buyNewTankLock": "Buy New Tank Lock",
   "addressName": "Address Name",
   "referralCode": "Referral Code",
-  "sameAsBillingAddress": "Same As Billing Address",
+  "sameAsBillingAddress": "Same as Billing Address",
   "addressAddedSuccess": "Address added successfully!",
   "enterValidGstin": "Enter valid GSTIN",
   "failedToGetLocation": "Failed to get location.",

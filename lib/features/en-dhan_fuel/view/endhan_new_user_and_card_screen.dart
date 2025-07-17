@@ -15,6 +15,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -573,7 +574,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final cardMap = {
             'cardNumber':card.cardNumber ?? '',
             // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
-            'vehicleNumber': card.vehicleNumber ?? '',
+            'vehicleNumber': (card.vehicleNumber ?? '').formatVehicleNumberForDisplay,
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it
             'image': AppImage.png.endhanCard,

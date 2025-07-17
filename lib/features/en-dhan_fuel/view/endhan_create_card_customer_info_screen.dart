@@ -18,6 +18,8 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -44,8 +46,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   final regionalOfficeController = TextEditingController();
   final stateController = TextEditingController();
   final districtController = TextEditingController();
-  final emailController = TextEditingController();
-  final panController = TextEditingController();
+  // Email controller removed since field is now read-only
+  // PAN controller removed since field is now read-only
   final address1Controller = TextEditingController();
   final address2Controller = TextEditingController();
   final cityNameController = TextEditingController();
@@ -58,8 +60,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     regionalOfficeController.dispose();
     stateController.dispose();
     districtController.dispose();
-    emailController.dispose();
-    panController.dispose();
+    // Email controller disposal removed since field is now read-only
+    // PAN controller disposal removed since field is now read-only
     address1Controller.dispose();
     address2Controller.dispose();
     cityNameController.dispose();
@@ -74,8 +76,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
 
   /// Force sync all controller values to cubit state
   void _forceSyncControllersToCubit(EnDhanCubit cubit) {
-    cubit.setEmail(emailController.text);
-    cubit.setPan(panController.text.toUpperCase());
+    // Email sync removed since field is now read-only
+    // PAN sync removed since field is now read-only
     cubit.setAddress1(address1Controller.text);
     cubit.setAddress2(address2Controller.text);
     cubit.setCommunicationCityName(cityNameController.text.trim().replaceAll(RegExp(r'\s+'), ' '));
@@ -91,13 +93,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       cubit.setReferralCode(referralCodeController.text);
     });
     
-    emailController.addListener(() {
-      cubit.setEmail(emailController.text);
-    });
+    // Email controller listener removed since field is now read-only
     
-    panController.addListener(() {
-      cubit.setPan(panController.text.toUpperCase());
-    });
+    // PAN controller listener removed since field is now read-only
     
     address1Controller.addListener(() {
       cubit.setAddress1(address1Controller.text);
@@ -123,8 +121,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     
     // Initialize controllers with current state values immediately
     final cubit = locator<EnDhanCubit>();
-    emailController.text = cubit.state.email;
-    panController.text = cubit.state.pan;
+    // Email controller initialization removed since field is now read-only
+    // PAN controller initialization removed since field is now read-only
     address1Controller.text = cubit.state.address1;
     address2Controller.text = cubit.state.address2;
     cityNameController.text = cubit.state.cityName;
@@ -160,10 +158,21 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       // Fetch master data when screen loads
       cubit.fetchStates();
       cubit.fetchZonalOffices();
+      
+      // Check KYC documents to get PAN data if available
+      await cubit.checkKycDocuments();
+      
+      // Auto-populate PAN from KYC data if available and not already set
+      if (cubit.state.kycData?.document?.pan != null && 
+          cubit.state.kycData!.document!.pan!.isNotEmpty && 
+          cubit.state.pan.isEmpty) {
+        cubit.setPan(cubit.state.kycData!.document!.pan!);
+      }
 
       // Get username from session first
       String? username = await userInfoRepo.getUsername();
       String? mobileNumber = await userInfoRepo.getUserMobileNumber();
+      String? emailID = await userInfoRepo.getUserEmail();
       
       // If username is not in session, fetch from profile
       if (username == null || username.isEmpty) {
@@ -176,6 +185,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
         if (profileState.profileDetailUIState?.data?.customer?.customerName != null) {
           username = profileState.profileDetailUIState!.data!.customer!.customerName;
           mobileNumber = profileState.profileDetailUIState!.data!.customer!.mobileNumber;
+          emailID = profileState.profileDetailUIState!.data!.customer!.emailId;
         }
       } else {
       }
@@ -188,11 +198,17 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       if (mobileNumber != null && mobileNumber.isNotEmpty && cubit.state.mobile.isEmpty) {
         cubit.setMobile(mobileNumber);
       }
+      // Set email in cubit if available and not already set
+      if (emailID != null && emailID.isNotEmpty && cubit.state.email.isEmpty) {
+        cubit.setEmail(emailID);
+      }
+      
+
       
       // Update controllers with latest state values after profile data is loaded
       // Set controller values directly (listeners will handle the sync)
-      emailController.text = cubit.state.email;
-      panController.text = cubit.state.pan;
+      // Email controller update removed since field is now read-only
+      // PAN controller update removed since field is now read-only
       address1Controller.text = cubit.state.address1;
       address2Controller.text = cubit.state.address2;
       cityNameController.text = cubit.state.cityName;
@@ -203,6 +219,16 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     return BlocBuilder<EnDhanCubit, EnDhanState>(
       bloc: cubit,
       builder: (context, state) {
+        // Auto-populate PAN from KYC data if available and not already set
+        if (state.kycCheckState?.status == Status.SUCCESS && 
+            state.hasKycDocuments && 
+            state.kycData?.document?.pan != null && 
+            state.kycData!.document!.pan!.isNotEmpty && 
+            state.pan.isEmpty) {
+          // Use Future.microtask to avoid setState during build
+          Future.microtask(() => cubit.setPan(state.kycData!.document!.pan!));
+        }
+        
         return Scaffold(
           backgroundColor: AppColors.white,
 
@@ -246,6 +272,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                       ),
                     ),
 
+
+                      
                     Form(
                       key: formKey,
                       child: Column(
@@ -291,8 +319,11 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               10.width,
                               Expanded(
                                 flex: 5,
-                                child: AppTextField(
-                                
+                                child: AppTextField(                                  decoration: commonInputDecoration(
+                                    hintText: 'Enter name',
+                                    fillColor: AppColors.disabledFieldBackgroundColor,
+                                    focusColor: AppColors.disabledFieldBackgroundColor,
+                                  ),
                                   //labelText: 'Name',
                                   hintText: 'Enter name',
                                   controller: TextEditingController(text: state.customerName),
@@ -331,12 +362,18 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               }
                               return null;
                             },
+                            decoration: commonInputDecoration(
+                              hintText: '+91 9876987654',
+                              fillColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor: AppColors.disabledFieldBackgroundColor,
+                            ),
                           ),
                           16.height,
                           AppTextField(
                             labelText: 'PAN Number *',
                             hintText: 'ABCDE1234F',
-                            controller: panController,
+                            controller: TextEditingController(text: state.pan),
+                            readOnly: true,
                             maxLength: 10,
                             textCapitalization: TextCapitalization.characters,
                             inputFormatters: [
@@ -358,12 +395,18 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               }
                               return null;
                             },
+                            decoration: commonInputDecoration(
+                              hintText: 'ABCDE1234F',
+                              fillColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor: AppColors.disabledFieldBackgroundColor,
+                            ),
                           ),
                           16.height,
                           AppTextField(
                             labelText: 'Email Address *',
                             hintText: 'example@email.com',
-                            controller: emailController,
+                            controller: TextEditingController(text: state.email),
+                            readOnly: true,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Email address is required';
@@ -377,6 +420,11 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               }
                               return null;
                             },
+                            decoration: commonInputDecoration(
+                              hintText: 'example@email.com',
+                              fillColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor: AppColors.disabledFieldBackgroundColor,
+                            ),
                           ),
                           16.height,
                           // Zonal Office Dropdown

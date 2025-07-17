@@ -201,6 +201,15 @@ class KavachRepository {
     }
   }
 
+  Future<Result<List<TruckLengthModel>>> fetchAllTruckTypes() async {
+    try {
+      return await _service.fetchAllTruckTypes();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch all truck types in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
   /// Fetches masters data for vehicle preferences
   Future<Result<KavachMastersModel>> getMasters() async {

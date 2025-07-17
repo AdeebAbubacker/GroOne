@@ -131,6 +131,7 @@ class PreferenceKey {
   final String userAddress = "userAddress";
   final String userFullName = "userFullName";
   final String userMobileNumber = "mobileNumber";
+  final String userEmail = "emailId";
   final String userRole = "userRole";
   final String companyTypeId = "companyTypeId";
   final String blueId = "blueId";
