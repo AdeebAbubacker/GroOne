@@ -83,7 +83,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Select Truck Types", isCrossLeadingIcon: true),
+      appBar: CommonAppBar(title: context.appText.selectTruckTypes, isCrossLeadingIcon: true),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSelectButton(context),
     );
@@ -139,7 +139,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
           20.height,
 
           // SubType Grid
-          Text("Truck Length", style: AppTextStyle.body),
+          Text(context.appText.truckLength, style: AppTextStyle.body),
           10.height,
           GridView.builder(
             itemCount: subTypes.length,
@@ -199,7 +199,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
       title: context.appText.select,
       onPressed: (){
         if(selectedSubTypeIndex == null){
-          ToastMessages.alert(message: "Please Select Truck Length");
+          ToastMessages.alert(message: context.appText.pleaseSelectTruckLength);
           return;
         }
         Navigator.of(context).pop();

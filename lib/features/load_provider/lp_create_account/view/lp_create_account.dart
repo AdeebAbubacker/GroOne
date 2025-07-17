@@ -197,7 +197,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   children: [
                     AppDropdown(
                       validator: (value) => Validator.fieldRequired(value),
-                      labelText: "Company Type",
+                      labelText: context.appText.companyType,
                       hintText: context.appText.selectCompanyType,
                       dropdownValue: companyTypeDropDownValue,
                       mandatoryStar: true,
@@ -271,7 +271,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
             validator: (value) => Validator.pincode(value),
             controller: pinCodeTextController,
             labelText: context.appText.pincode,
-            hintText: "Enter Your Pincode",
+            hintText: context.appText.enterPinCode,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(6),
@@ -333,7 +333,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                   if(!state.isVerifiedEmail) {
                     final String? validation = Validator.email(emailTextController.text);
                     if(validation == null){
-                      verifyEmailCubit.sendOtp(emailTextController.text);
+                      verifyEmailCubit.sendOtp(emailTextController.text, widget.userId);
                     } else {
                       ToastMessages.alert(message: validation);
                     }
@@ -373,7 +373,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
           onPressed: isLoading ? (){} : () {
             if (_formKey.currentState!.validate()) {
               if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
-                ToastMessages.alert(message: "Please verify your email");
+                ToastMessages.alert(message: context.appText.verifyEmail);
                 return;
               }
               final apiRequest = LpCreateApiRequest(

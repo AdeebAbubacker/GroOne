@@ -51,8 +51,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/l
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
@@ -359,9 +357,6 @@ void initLocator() {
       ),
     );
     locator.registerLazySingleton(
-      () => LpMapSelectPickPointBloc(locator<LPMapSelectAddressRepository>()),
-    );
-    locator.registerLazySingleton(
       () => LoadPostingBloc(
         locator<UserInformationRepository>(),
         locator<LpHomeRepository>(),
@@ -377,9 +372,6 @@ void initLocator() {
     // Additional BLoCs (not duplicates)
     locator.registerLazySingleton(
       () => LoadTruckTypeBloc(locator<LpHomeRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => RateDiscoveryBloc(locator<LpHomeRepository>()),
     );
     locator.registerLazySingleton(
       () => VpHomeBloc(

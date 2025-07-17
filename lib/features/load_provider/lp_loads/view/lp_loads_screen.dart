@@ -50,8 +50,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   String? truckTypeDropDownValue;
   int? selectedTruckTypeId;
   String? routeDropDownValue;
-  int? selectedFromLocation;
-  int? selectedToLocation;
   int? selectedRoute;
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
@@ -212,9 +210,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               final routeList = uiState?.data?.data?.routeList ?? [];
 
               return DropdownSearch<RouteList>(
-                validator: (value) => value == null ? "Field required" : null,
-
-                // 👌 Static filtered list
                 items: (filter, _) {
                   final filteredList = filter.isEmpty
                       ? routeList
@@ -227,7 +222,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   return filteredList;
                 },
 
-                // 👌 Selected item
                 selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
                 compareFn: (item, selectedItem) => item.status == selectedItem?.status,
 
@@ -242,8 +236,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
                 onChanged: (value) {
                   routeDropDownValue = value?.status.toString();
-                  // selectedFromLocation = value?.fromLocationId;
-                  // selectedToLocation = value?.toLocationId;
                   selectedRoute = value?.masterLaneId;
                   setState(() {});
                 },
@@ -261,7 +253,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 suffixOnTap: () async {
                   final String? date = await commonDatePicker(
                     context,
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime.now(),
                     initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(loadPostedDateController.text),
                   );
 
@@ -280,10 +273,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         var loadStatusType = lpLoadLocator.state.selectedTabIndex;
         lpLoadLocator.getLpLoadsByType(
             loadListApiRequest: LoadListApiRequest(
-            // final loadStatus = selectedType == 0 ? null : selectedType + 1;
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-              // fromLocationId: selectedFromLocation,
-              // toLocationId: selectedToLocation,
               laneId:selectedRoute,
               truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
@@ -294,8 +284,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void clearAllFilterValues() {
-    selectedFromLocation = null;
-    selectedToLocation = null;
     selectedRoute = null;
     routeDropDownValue = null;
     selectedTruckTypeId = null;

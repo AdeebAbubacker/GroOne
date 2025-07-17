@@ -54,6 +54,7 @@ class LpLoadItem {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.loadOnhold,
     required this.loadRoute,
     required this.loadStatusDetails,
     required this.loadPrice,
@@ -81,6 +82,7 @@ class LpLoadItem {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final bool loadOnhold;
   final LoadRoute? loadRoute;
   final LoadStatusDetails? loadStatusDetails;
   final LoadPrice? loadPrice;
@@ -108,6 +110,7 @@ class LpLoadItem {
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
+    bool? loadOnhold,
     LoadRoute? loadRoute,
     LoadStatusDetails? loadStatusDetails,
     LoadPrice? loadPrice,
@@ -135,6 +138,7 @@ class LpLoadItem {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      loadOnhold: loadOnhold ?? this.loadOnhold,
       loadRoute: loadRoute ?? this.loadRoute,
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
@@ -165,6 +169,7 @@ class LpLoadItem {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      loadOnhold: json["loadOnhold"],
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),

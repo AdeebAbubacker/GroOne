@@ -481,7 +481,7 @@
   "orderIdNotFound" : "Order ID not found",
   "orderCreationFailed" : "Order creation failed",
   "otpHasBeenSentSuccessfully" : "OTP has been sent successfully",
-  "loadPostedSuccess" : "Load Posted Successfully",
+  "loadPostedSuccess" : "Load posted successfully",
   "weWillAssignVehicleAndDriver" : "We will assign the vehicle and driver soon.",
   "yourShipmentIsHeld": "Your Shipment is held from unloading due to non payment of advance",
   "vehicles": "Vehicles",
@@ -550,23 +550,45 @@
   "pleaseEnterAValidPAN" : "Please enter a valid PAN",
   "pleaseEnterPANAndUploadDocument" : "Please enter PAN and upload document",
   "uploadPANDocument" : "Upload PAN Document",
-  "verify" : "Verify"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "switchAccount": "Switch Account",
+  "verifyEmail": "Please verify your email",
+  "isIncomplete": "is incomplete",
+  "selectWeight": "Select Weight",
+  "selectCommodityTypes": "Select Commodity Types",
+  "expectedDeliveryRateRequired": "Expected Delivery Date is required",
+  "handlingChargeRequired": "Handling Charges is required",
+  "handlingChargeLessTenPercent": "Handling charges should be less than 10% of the average price",
+  "loadingPoint": "Loading Point",
+  "unLoadingPoint": "Unloading Point",
+  "consignmentWeight": "Consignment weight",
+  "commodity": "Commodity",
+  "pickupDateAndTime": "Pickup date & time",
+  "expectedDeliveryDateAndTime": "Expected Delivery Date & Time",
+  "enterHandlingCharges": "Enter Handling Charges",
+  "notesOrInstruction": "Notes/ Instructions",
+  "pleaseSelectSDateAndTime": "Please Select Date & Time",
+  "pickUpdate": "Pick-up date",
+  "weightHintText": "Weight (MT)",
+  "selectDestinationTitle": "Select Destination",
+  "pickupPoint": "Pickup Point",
+  "noRecentRouteFound": "No recent routes found.",
+  "selectPickupLocation": "Please select pickup location",
+  "selectDestinationLocation": "Please select destination location",
+  "landIdNull": "Land Id is null",
+  "searchLocation": "Search location...",
+  "enterYourAddress": "Enter your address...",
+  "changeLocation": "Change Location",
+  "weWillLetYouKnowOnceWeStartOperatingHere": "We will let you know once we start operating here",
+  "areaIsNotServiceable": "This area is not serviceable now",
+  "recentRoutesTitle": "Recent Routes",
+  "recentRoutes": "Recent route",
+  "selectDifferent": "Select Different",
+  "selectTruckTypes": "Select Truck Types",
+  "otpVerifiedSuccess": "OTP verified successfully",
+  "distanceCovered": "Distance Covered",
+  "verify" : "Verify",
+  "mobileOtpVerification" : "Mobile OTP Verification",
+  "loginSuccessfully" : "Login Successfully",
+  "nowYouCanExploreRates" : "Now you can explore the rates and post loads"
 
 }
