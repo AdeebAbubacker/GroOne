@@ -499,8 +499,11 @@
   "swipeToCompleteUnloading" : "Swipe to complete unloading",
   "swipeToCompleteLoading" : "Swipe to complete loading",
   "progress" : "Progress",
-  "agreedPrice" : "Agreed Price"
-
-
+  "agreedPrice" : "Agreed Price",
+  "podDispatchDetail" : "POD Dispatch Detail",
+  "driverConsentGiven" : "Driver consent given",
+  "noSimTrackingConsentFromDriver" : "No SIM tracking consent from driver",
+  "acceptedPrice" : "Accepted Price",
+  "loadAcceptedSuccessfully" : "Load Accepted Successfully"
 
 }
