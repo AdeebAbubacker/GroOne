@@ -161,13 +161,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     final paymentState = LpHomeHelper.getPaymentState(widget.loadStatus);
-
-      final useMemo = widget.loadStatus == LoadStatus.loading ||
-                      widget.loadStatus == LoadStatus.inTransit ||
-                      widget.loadStatus == LoadStatus.unloadingHeld;
+      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+      final useMemo = (payments == null || payments.isEmpty);
 
       final memo = widget.loadItem.loadMemoDetails;
-      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+      
 
       // Parse memo values safely
       final String memoAdvance = memo?.advance.toString() ?? '';
@@ -372,7 +370,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     agreedPrice: useMemo ? memoAgreedPrice : paymentAgreedPrice,
                     payableAdvance: useMemo ? memoPayableAdvance : paymentPayableAdvance,
                     payableBalance: useMemo ? memoPayableBalance : paymentPayableBalance,
-                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.action == "pay_advance"
+                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.paymentStatus == "paid"
                      ? true: false,
                      lpLoadCubit: lpLoadLocator,
                      action: action,
@@ -569,6 +567,8 @@ final addPaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
 final isLoading = createOrderState?.status == Status.LOADING ||
     addPaymentState?.status == Status.LOADING;
+final double payableBalanceValue =
+    double.tryParse(payableBalance.toString()) ?? 0.0;
 
   return Container(
     padding: const EdgeInsets.all(10),
@@ -665,7 +665,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
          12.height,
 
         // Action Button
-        if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5)
+        if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5 || payableBalanceValue > 0)
           AppButton(
             isLoading: isLoading,
             title: context.appText.payAdvance,
@@ -708,7 +708,19 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                   final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
                   if (addpaymentState?.status == Status.SUCCESS) {
-                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",loadId: loadId,)));
+                          final result = await Navigator.of(context).push(
+                        commonRoute(
+                          PaymentsScreen(
+                            url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                            loadId: loadId,
+                          ),
+                        ),
+                      );
+
+                  if (result == true) {
+
+                    context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
+                  }
                   } else {
                     ToastMessages.error(message: context.appText.paymentFailed);
                   }
