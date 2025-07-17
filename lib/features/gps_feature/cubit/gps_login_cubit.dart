@@ -1,6 +1,7 @@
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 
 import '../model/gps_login_model.dart';
 import '../repository/gps_login_repository.dart';
@@ -32,6 +33,7 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
         "✅ GpsLoginCubit.login() successful, token: ${result.value.token?.substring(0, 20)}...",
       );
       _authToken = result.value.token;
+      AppConstants.token = _authToken;
       _setLoginUIState(UIState.success(result.value));
 
       // Store login response in Realm

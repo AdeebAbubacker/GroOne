@@ -326,6 +326,9 @@
   "addNewGeofence" : "Add New Geofence",
   "confirmLocation" : "Confirm Location",
   "geofenceName" : "Geofence Name",
-  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully.",
+  "overSpeedCalibration": "அதிக வேக அளவீடு",
+  "connectAndShare": "இணைத்து பகிரவும்",
+  "editVehicleInfo": "வாகன தகவலைத் திருத்தவும்"
 
 }

@@ -5,6 +5,7 @@ import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_combined_vehicle_realm_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_login_realm_model.dart';
+import '../model/gps_vehicle_extra_info_realm_model.dart';
 
 class GpsRealmService {
   static const String _realmName = 'gps_vehicle_data.realm';
@@ -32,6 +33,7 @@ class GpsRealmService {
       final config = Configuration.local([
         GpsCombinedVehicleRealmData.schema,
         GpsLoginResponseRealmModel.schema,
+        GpsVehicleExtraInfoRealm.schema,
       ], path: realmPath);
 
       _realm = Realm(config);
@@ -153,6 +155,37 @@ class GpsRealmService {
     } catch (e) {
       print("❌ Failed to read login response from Realm: $e");
       return null;
+    }
+  }
+
+  /// Save vehicle extra info data to Realm
+  Future<void> saveVehicleExtraInfo(List<GpsVehicleExtraInfoRealm> extraInfoList) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing extra info data
+        _realm!.deleteAll<GpsVehicleExtraInfoRealm>();
+
+        // Add new extra info data
+        for (final extraInfo in extraInfoList) {
+          _realm!.add(extraInfo);
+        }
+      });
+      print("💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records");
+    } catch (e) {
+      print("❌ Failed to save vehicle extra info to Realm: $e");
+      throw Exception('Failed to save vehicle extra info to Realm: $e');
+    }
+  }
+
+  /// Get all vehicle extra info from Realm
+  Future<List<GpsVehicleExtraInfoRealm>> getAllVehicleExtraInfo() async {
+    await _ensureInitialized();
+    try {
+      return _realm!.all<GpsVehicleExtraInfoRealm>().toList();
+    } catch (e) {
+      print("❌ Failed to read vehicle extra info from Realm: $e");
+      throw Exception('Failed to read vehicle extra info from Realm: $e');
     }
   }
 }

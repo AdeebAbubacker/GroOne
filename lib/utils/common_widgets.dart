@@ -21,7 +21,7 @@ import 'package:shimmer/shimmer.dart';
 
 
 /// Input Decoration
-InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor, dynamic suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, Color? fillColor,  Color? focusColor, bool? enableBorder = true, TextStyle? hintStyle}) {
+InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor, dynamic suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, Color? fillColor,  Color? focusColor, bool? enableBorder = true, TextStyle? hintStyle,double? iconPadding}) {
 
   Widget? getIconWidget(){
     if(suffixIcon is String){
@@ -39,7 +39,7 @@ InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor,
     }else if(suffixIcon is IconData){
       return InkWell(
         onTap: suffixOnTap ?? (){},
-        child: Icon(suffixIcon, color: suffixIconColor).paddingAll(15),
+        child: Icon(suffixIcon, color: suffixIconColor).paddingAll(iconPadding??15),
       );
     }else if(suffixIcon is Widget){
       return InkWell(

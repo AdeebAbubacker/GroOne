@@ -324,5 +324,8 @@
   "addNewGeofence" : "Add New Geofence",
   "confirmLocation" : "Confirm Location",
   "geofenceName" : "Geofence Name",
-  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully.",
+  "overSpeedCalibration": "ओवरस्पीड अंशांकन",
+  "connectAndShare": "कनेक्ट करें और साझा करें",
+  "editVehicleInfo": "वाहन जानकारी संपादित करें"
 }

@@ -344,5 +344,8 @@
   "addNewGeofence" : "Add New Geofence",
   "confirmLocation" : "Confirm Location",
   "geofenceName" : "Geofence Name",
-  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully."
+  "geofenceLocationSetSuccessfully" : "Geofence location has been set successfully.",
+  "overSpeedCalibration" : "Overspeed Calibration",
+  "connectAndShare" : "Connect & Share",
+  "editVehicleInfo" : "Edit Vehicle Info"
 }
