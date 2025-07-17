@@ -345,8 +345,12 @@
   "driverConsentGiven": "டிரைவரின் அனுமதி வழங்கப்பட்டுள்ளது",
   "noSimTrackingConsentFromDriver": "டிரைவரிடமிருந்து SIM கண்காணிப்பு அனுமதி இல்லை",
   "acceptedPrice" : "ஏற்றுக்கொள்ளப்பட்ட விலை",
-  "loadAcceptedSuccessfully" : "ஏற்றப்பட்டது வெற்றிகரமாக"
-
+  "loadAcceptedSuccessfully" : "ஏற்றப்பட்டது வெற்றிகரமாக",
+  "loadProvider": "லோடு வழங்குநர்",
+  "truckProvider": "டிரக் வழங்குநர்",
+  "poweredByHindujagroup": "ஹிந்துஜா குழுமம் வழங்குகிறது",
+  "emailOtpVerification": "மின்னஞ்சல் OTP சரிபார்ப்பு",
+  "loading": "ஏற்றப்படுகிறது"
 
 
 }

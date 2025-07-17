@@ -504,6 +504,11 @@
   "driverConsentGiven" : "Driver consent given",
   "noSimTrackingConsentFromDriver" : "No SIM tracking consent from driver",
   "acceptedPrice" : "Accepted Price",
-  "loadAcceptedSuccessfully" : "Load Accepted Successfully"
+  "loadAcceptedSuccessfully" : "Load Accepted Successfully",
+  "loadProvider" : "Load Provider",
+  "truckProvider" : "Truck Provider",
+  "poweredByHindujagroup" : "Powered by Hinduja Group",
+  "emailOtpVerification" : "Email OTP Verification",
+  "loading" : "Loading"
 
 }
