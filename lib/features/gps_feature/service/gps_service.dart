@@ -16,7 +16,7 @@ class GpsService {
   Future<Result<List<GpsGeofenceModel>>> fetchGeofences(String token) async {
     try {
       final response = await _apiService.get(
-        "https://api.letsgro.co/api/v1/auth/tc_geofences?__include=area&__include=attributes&__limit=10000",
+        ApiUrls.gpsFetchGeofences,
         customHeaders: {
           'Authorization': token,
         },
@@ -53,8 +53,8 @@ class GpsService {
       // Choose API URL based on whether it's an update (id exists) or add
       final String apiUrl =
       (int.tryParse(model.id) != null && int.tryParse(model.id)! > 0)
-          ? "https://api.letsgro.co/api/v1/auth/update_geo_fence"
-          : "https://api.letsgro.co/api/v1/auth/add_geo_fence";
+          ? ApiUrls.gpsUpdateGeofence
+          : ApiUrls.gpsAddGeofence;
 
       final response = await _apiService.post(
         apiUrl,
@@ -77,13 +77,10 @@ class GpsService {
 
   Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle({required String userId, required String deviceId, required String token,}) async {
     try {
+      final url = ApiUrls.gpsFetchGeofencesForVehicle(userId, deviceId);
       final response = await _apiService.get(
-        "https://api.letsgro.co/api/v1/auth/tc_geofences"
-            "?__include=area&__include=attributes&__limit=10000"
-            "&user_id=$userId&device_id=$deviceId",
-        customHeaders: {
-          'Authorization': token,
-        },
+        url,
+        customHeaders: {'Authorization': token},
       );
 
       if (response is Success) {
@@ -111,7 +108,7 @@ class GpsService {
       };
 
       final response = await _apiService.post(
-        "https://api.letsgro.co/api/v1/auth/link_unlink_geo_fence_device",
+        ApiUrls.gpsLinkUnlinkGeofenceDevice,
         body: body,
         customHeaders: {
           'Authorization': token,
@@ -190,6 +187,39 @@ class GpsService {
   //
   //   throw Exception("Invalid geofence data for area generation");
   // }
+
+  Future<Result<List<GpsNotificationModel>>> fetchNotifications({
+    required String token,
+    required String userId,
+    int days = 10,
+    int limit = 200,
+  }) async {
+    try {
+      final url = ApiUrls.gpsFetchNotifications(userId, days, limit);
+      final response = await _apiService.get(
+        url,
+        customHeaders: {'Authorization': token},
+      );
+      if (response is Success) {
+        try {
+          final data = response.value;
+          final notifications = (data['data'] as List) // 👈 Access the inner list
+              .map((e) => GpsNotificationModel.fromJson(e))
+              .toList();
+          return Success(notifications);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing notifications", e);
+          return Error(DeserializationError());
+        }
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch notifications", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
   String generateArea(GpsGeofenceModel model) {
     if (model.shapeType == "circle" &&
         model.center != null &&
@@ -214,41 +244,5 @@ class GpsService {
 
     throw Exception("Invalid geofence data for area generation");
   }
-
-  Future<Result<List<GpsNotificationModel>>> fetchNotifications({
-    required String token,
-    required String userId,
-    int days = 10,
-    int limit = 200,
-  }) async {
-    try {
-      final response = await _apiService.get(
-        "https://api.letsgro.co/api/v1/auth/last_500_user_events?days=$days&limit=$limit&user_id=$userId",
-        customHeaders: {
-          'Authorization': token,
-        },
-      );
-
-      if (response is Success) {
-        try {
-          final data = response.value;
-          final notifications = (data['data'] as List) // 👈 Access the inner list
-              .map((e) => GpsNotificationModel.fromJson(e))
-              .toList();
-          return Success(notifications);
-        } catch (e) {
-          CustomLog.error(this, "Error parsing notifications", e);
-          return Error(DeserializationError());
-        }
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      CustomLog.error(this, "Failed to fetch notifications", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
-
 
 }
