@@ -12,9 +12,9 @@ class GpsNotificationCubit extends Cubit<GpsNotificationState> {
 
   GpsNotificationCubit(this._repository) : super(GpsNotificationInitial());
 
-  Future<void> loadNotifications(String userId) async {
+  Future<void> loadNotifications() async {
     emit(GpsNotificationLoading());
-    final result = await _repository.fetchNotifications(userId);
+    final result = await _repository.fetchNotifications();
     if (result is Success<List<GpsNotificationModel>>) {
       emit(GpsNotificationLoaded(result.value));
     } else if (result is Error<List<GpsNotificationModel>>) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_notification_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -41,7 +42,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
 
   @override
   void initState() {
-    context.read<GpsNotificationCubit>().loadNotifications('163');
+    context.read<GpsNotificationCubit>().loadNotifications();
     super.initState();
   }
 
@@ -50,7 +51,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
-        title: 'Notifications',
+        title: context.appText.notifications,
         centreTile: false,
         isLeading: true,
       ),
@@ -65,7 +66,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   if (vehicleState.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (vehicleState.error != null) {
-                    return Center(child: Text('Error loading vehicles'));
+                    return Center(child: Text(context.appText.errorLoadingVehicles));
                   } else {
                     // Extract unique vehicle numbers
                     final uniqueVehicleNumbers =
@@ -77,7 +78,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
 
                     // If no vehicles found
                     if (uniqueVehicleNumbers.isEmpty) {
-                      return Center(child: Text('No vehicles available'));
+                      return Center(child: Text(context.appText.noVehiclesFound));
                     }
 
                     // Ensure selectedVehicle is in the dropdown
@@ -172,8 +173,8 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     }).toList();
 
                 if (filteredNotifications.isEmpty) {
-                  return const Center(
-                    child: Text("No notifications available"),
+                  return  Center(
+                    child: Text(context.appText.noNotificationsAvailable,style: AppTextStyle.h5,),
                   );
                 }
 
@@ -244,7 +245,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Filter", style: AppTextStyle.h4),
+                    Text(context.appText.filter, style: AppTextStyle.h4),
                     const SizedBox(height: 12),
                     ...filterOptions.keys.map((key) {
                       return SwitchListTile(
