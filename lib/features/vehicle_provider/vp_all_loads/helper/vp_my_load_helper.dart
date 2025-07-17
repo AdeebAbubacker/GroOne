@@ -6,6 +6,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -124,6 +125,35 @@ class VpMyLoadHelper {
         return Container();
     }
   }
+
+
+  // Sim Tracking Status View
+  static Widget simTrackingWidget({required String status, int driverConsent = 0}) {
+    Widget ui({required String text ,required Color textColor}) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(text, textAlign: TextAlign.center ,style: AppTextStyle.h5.copyWith(color: textColor)),
+          commonDivider()
+        ],
+      );
+    }
+    switch (status) {
+      case "Loading":
+      case "Unloading":
+      if (driverConsent == 1){
+        return ui(text: "Driver consent given", textColor: AppColors.activeGreenColor);
+      } else if (driverConsent == 0){
+        return ui(text: "No SIM tracking consent from driver", textColor: AppColors.activeRedColor);
+      } else {
+        return Container();
+      }
+      default:
+        return Container();
+    }
+
+  }
+
 
 
 }
