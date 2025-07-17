@@ -28,6 +28,7 @@ import '../../../utils/validator.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_state.dart';
 import '../model/kavach_truck_length_model.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 
 class KavachAddVehicleBottomSheet extends StatefulWidget {
   const KavachAddVehicleBottomSheet({super.key});
@@ -122,7 +123,7 @@ class _KavachAddVehicleBottomSheetState
                         fieldName: context.appText.truckNumber,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                        FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
                       ],
                       readOnly: verificationState.status == Status.SUCCESS,
                       decoration: commonInputDecoration(
@@ -177,7 +178,7 @@ class _KavachAddVehicleBottomSheetState
                         fieldName: context.appText.truckMakeModel,
                       ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                    FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
                   ],
                 ),
                 10.height,
@@ -186,9 +187,7 @@ class _KavachAddVehicleBottomSheetState
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[A-Za-z0-9\-]'), // Allow letters, digits, and hyphens only
-                    ),
+                    FilteringTextInputFormatter.allow(licenseAlphaNumHyphenRegex),
                   ],
                   mandatoryStar: true,
                   validator:

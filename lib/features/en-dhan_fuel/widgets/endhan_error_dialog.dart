@@ -5,10 +5,11 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 class EndhanErrorDialog {
   static void show(BuildContext context, dynamic errorType) {
-    String errorMessage = 'An error occurred. Please try again.';
+    String errorMessage = context.appText.anErrorOccurred;
 
     if (errorType != null) {
       // Check if it's an ErrorType and use the getText method
@@ -47,7 +48,7 @@ class EndhanErrorDialog {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Error',
+            context.appText.error,
             style: AppTextStyle.body1.copyWith(color: Colors.red),
           ),
           content: Text(errorMessage, style: AppTextStyle.body3),
@@ -60,7 +61,7 @@ class EndhanErrorDialog {
                 cubit.resetCustomerCreationState();
               },
               child: Text(
-                'OK',
+                context.appText.ok,
                 style: AppTextStyle.body3.copyWith(
                   color: AppColors.primaryColor,
                 ),

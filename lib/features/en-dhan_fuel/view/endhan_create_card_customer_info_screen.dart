@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
@@ -23,6 +24,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
@@ -80,7 +82,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     // PAN sync removed since field is now read-only
     cubit.setAddress1(address1Controller.text);
     cubit.setAddress2(address2Controller.text);
-    cubit.setCommunicationCityName(cityNameController.text.trim().replaceAll(RegExp(r'\s+'), ' '));
+    cubit.setCommunicationCityName(cityNameController.text.trim().replaceAll(multipleSpacesRegex, ' '));
     cubit.setPincode(pincodeController.text);
     cubit.setReferralCode(referralCodeController.text);
   }
@@ -106,7 +108,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     });
     
     cityNameController.addListener(() {
-      final cleanedValue = cityNameController.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+      final cleanedValue = cityNameController.text.trim().replaceAll(multipleSpacesRegex, ' ');
       cubit.setCommunicationCityName(cleanedValue);
     });
     
@@ -249,7 +251,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                       child: Column(
                         children: [
                           CommonAppBar(
-                            title: "Customer Information",
+                            title: context.appText.customerInformation,
                             backgroundColor: Color(0xFFD6EEFB),
                             actions: [
                               AppIconButton(
@@ -283,7 +285,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           24.height,
 
                           // Title & Name
-                          Text("Title & Name *", style: AppTextStyle.body3),
+                          Text("${context.appText.titleAndName} *", style: AppTextStyle.body3),
                           6.height,
                           Row(
                             children: [
@@ -320,21 +322,21 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               Expanded(
                                 flex: 5,
                                 child: AppTextField(                                  decoration: commonInputDecoration(
-                                    hintText: 'Enter name',
+                                    hintText: context.appText.enterName,
                                     fillColor: AppColors.disabledFieldBackgroundColor,
                                     focusColor: AppColors.disabledFieldBackgroundColor,
                                   ),
                                   //labelText: 'Name',
-                                  hintText: 'Enter name',
+                                  hintText: context.appText.enterName,
                                   controller: TextEditingController(text: state.customerName),
                                   readOnly: true, // Make the field non-editable
                                   onChanged: null, // Remove onChanged since field is disabled
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return 'Name is required';
+                                      return context.appText.nameRequired;
                                     }
                                     if (value.trim().length < 2) {
-                                      return 'Name must be at least 2 characters';
+                                      return context.appText.nameMustBeAtLeast2Characters;
                                     }
                                     return null;
                                   },
@@ -344,21 +346,19 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
                           AppTextField(
-                            labelText: 'Mobile Number *',
+                            labelText: '${context.appText.mobileNumber} *',
                             hintText: '+91 9876987654',
                             controller: TextEditingController(text: state.mobile),
                             readOnly: true,
                             keyboardType: TextInputType.phone,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Mobile number is required';
+                                return context.appText.mobileNumberRequired;
                               }
                               // Basic mobile number validation for Indian numbers
-                              final mobileRegex = RegExp(
-                                r'^(\+91\s?)?[6-9]\d{9}$',
-                              );
+                              final mobileRegex = indianMobileNumberRegex;
                               if (!mobileRegex.hasMatch(value.trim())) {
-                                return 'Please enter a valid mobile number';
+                                return context.appText.validMobileNumber;
                               }
                               return null;
                             },
@@ -370,28 +370,26 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
                           AppTextField(
-                            labelText: 'PAN Number *',
+                            labelText: '${context.appText.panNumber} *',
                             hintText: 'ABCDE1234F',
                             controller: TextEditingController(text: state.pan),
                             readOnly: true,
                             maxLength: 10,
                             textCapitalization: TextCapitalization.characters,
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                              FilteringTextInputFormatter.allow(panNumberInputRegex),
                               LengthLimitingTextInputFormatter(10),
                             ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'PAN number is required';
+                                return context.appText.panNumberRequired;
                               }
                               // PAN validation
-                              final panRegex = RegExp(
-                                r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$',
-                              );
+                              final panRegex = panNumberValidationRegex;
                               if (!panRegex.hasMatch(
                                 value.trim().toUpperCase(),
                               )) {
-                                return 'Please enter a valid PAN number';
+                                return context.appText.validPanNumber;
                               }
                               return null;
                             },
@@ -403,20 +401,18 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
                           AppTextField(
-                            labelText: 'Email Address *',
+                            labelText: '${context.appText.emailAddress} *',
                             hintText: 'example@email.com',
                             controller: TextEditingController(text: state.email),
                             readOnly: true,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Email address is required';
+                                return context.appText.emailAddressRequired;
                               }
                               // Email validation
-                              final emailRegex = RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              );
+                              final emailRegex = emailValidationRegex;
                               if (!emailRegex.hasMatch(value.trim())) {
-                                return 'Please enter a valid email address';
+                                return context.appText.validEmailAddress;
                               }
                               return null;
                             },
@@ -430,7 +426,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           // Zonal Office Dropdown
                           ZonalOfficeAutoCompleteTextField(
                             controller: zonalOfficeController,
-                            labelText: 'Zonal Office *',
+                            labelText: '${context.appText.zonalOffice} *',
                             onSelected: (value) {
                               // The widget will handle setting the text
                             },
@@ -442,7 +438,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please select a zonal office';
+                                return context.appText.selectZonalOffice;
                               }
                               return null;
                             },
@@ -451,7 +447,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           // Regional Office Dropdown
                           RegionalOfficeAutoCompleteTextField(
                             controller: regionalOfficeController,
-                            labelText: 'Regional Office *',
+                            labelText: '${context.appText.regionalOffice} *',
                             zonalOfficeId: state.selectedZonalOfficeId,
                             onSelected: (value) {
                               // The widget will handle setting the text
@@ -461,31 +457,31 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please select a regional office';
+                                return context.appText.selectRegionalOffice;
                               }
                               return null;
                             },
                           ),
                           16.height,
                           AppTextField(
-                            labelText: 'Address Line 1 *',
+                            labelText: '${context.appText.addressLine1} *',
                             hintText: 'Enter',
                             controller: address1Controller,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Address line 1 is required';
+                                return context.appText.addressLine1Required;
                               }
                               return null;
                             },
                           ),
                           16.height,
                           AppTextField(
-                            labelText: 'Address Line 2 *',
+                            labelText: '${context.appText.addressLine2} *',
                             hintText: 'Enter',
                             controller: address2Controller,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Address line 2 is required';
+                                return context.appText.addressLine2Required;
                               }
                               return null;
                             },
@@ -495,7 +491,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           // State Dropdown
                           StateAutoCompleteTextField(
                             controller: stateController,
-                            labelText: 'State *',
+                            labelText: '${context.appText.state} *',
                             onSelected: (value) {
                               // The widget will handle setting the text
                             },
@@ -507,7 +503,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please select a state';
+                                return context.appText.pleaseSelectState;
                               }
                               return null;
                             },
@@ -516,7 +512,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           // District Dropdown
                           DistrictAutoCompleteTextField(
                             controller: districtController,
-                            labelText: 'District *',
+                            labelText: '${context.appText.district} *',
                             stateId: state.selectedStateId,
                             onSelected: (value) {
                               // The widget will handle setting the text
@@ -540,7 +536,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             maxLength: 50,
                             textCapitalization: TextCapitalization.words,
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                              FilteringTextInputFormatter.allow(cityNameInputRegex),
                               LengthLimitingTextInputFormatter(50),
                             ],
                             validator: (value) {
@@ -554,7 +550,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 return 'City name cannot exceed 50 characters';
                               }
                               // Check if contains only alphabets and spaces
-                              final cityRegex = RegExp(r'^[a-zA-Z\s]+$');
+                              final cityRegex = cityNameValidationRegex;
                               if (!cityRegex.hasMatch(value.trim())) {
                                 return 'City name can only contain alphabets and spaces';
                               }
@@ -574,7 +570,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 return 'Pincode is required';
                               }
                               // Pincode validation for India (6 digits, only numbers)
-                              final pincodeRegex = RegExp(r'^[1-9][0-9]{5}$');
+                              final pincodeRegex = indianPincodeRegex;
                               if (!pincodeRegex.hasMatch(value.trim())) {
                                 return 'Please enter a valid 6-digit pincode';
                               }
@@ -903,35 +899,8 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
             validator: widget.validator,
             decoration: commonInputDecoration(
               hintText: 'Enter referral code',
-              suffixIcon: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : hasError
-                      ? IconButton(
-                          icon: const Icon(Icons.refresh, color: Colors.red),
-                          onPressed: _loadUsers,
-                          tooltip: 'Retry loading users',
-                        )
-                      : null,
             ),
           ),
-          if (hasError && errorMessage.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                errorMessage,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 12,
-                ),
-              ),
-            ),
         ],
       ),
     );

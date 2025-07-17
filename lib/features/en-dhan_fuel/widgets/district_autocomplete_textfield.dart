@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -75,7 +76,7 @@ class _DistrictAutoCompleteTextFieldState
     } catch (e) {
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load districts';
+        errorMessage = context.appText.failedToLoadDistricts;
         isLoading = false;
       });
     }
@@ -192,7 +193,7 @@ class _DistrictAutoCompleteTextFieldState
             readOnly: widget.stateId == null,
             validator: widget.validator,
             decoration: commonInputDecoration(
-              hintText: widget.stateId == null ? 'Select state first' : widget.labelText,
+              hintText: widget.stateId == null ? context.appText.selectStateFirst : widget.labelText,
               suffixIcon: isLoading 
                   ? SizedBox(
                       width: 20,
@@ -224,7 +225,7 @@ class _DistrictAutoCompleteTextFieldState
             SizedBox(height: 4),
             TextButton(
               onPressed: _loadDistricts,
-              child: Text('Retry'),
+              child: Text(context.appText.retry),
             ),
           ],
         ],

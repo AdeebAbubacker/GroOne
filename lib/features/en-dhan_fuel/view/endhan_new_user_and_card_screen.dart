@@ -168,7 +168,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             20.height,
             // Main heading
             Text(
-              'Card Already Added',
+              context.appText.cardAlreadyAdded,
               style: AppTextStyle.h4.copyWith(
                 color: const Color(0xFFE67E22),
                 fontWeight: FontWeight.bold,
@@ -178,7 +178,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             12.height,
             // Supporting message
             Text(
-              'You have already added a fuel card.',
+              context.appText.addYourFirstFuelCard,
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.greyTextColor,
               ),
@@ -189,7 +189,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
         onTapSingleButton: () {
           Navigator.of(context).pop();
         },
-        onSingleButtonText: 'OK',
+        onSingleButtonText: context.appText.ok,
       ),
     );
   }
@@ -377,7 +377,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
-                  title: Text("eN-Dhan Card",style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
+                  title: Text(context.appText.enDhanCard,style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -421,7 +421,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                                    '${context.appText.myCards} (${context.appText.idHpcl} ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
                                     style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   // Show balance if available
@@ -431,7 +431,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                       child: Row(
                                         children: [
                                           Text(
-                                            'Balance: ',
+                                            '${context.appText.balance}: ',
                                             style: AppTextStyle.body3.copyWith(
                                               color: AppColors.greyTextColor,
                                             ),
@@ -459,7 +459,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                 },
                                 child:
                                 Row(children: [
-                                  Text("Transactions",
+                                  Text(context.appText.transactions,
                                     style: TextStyle(
                                       color: AppColors.primaryColor,
                                     ),),
@@ -474,7 +474,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                       12.height,
                       AppSearchBar(
                         searchController: _searchController,
-                        hintText: 'Search',
+                        hintText: context.appText.search,
                         onChanged: (val) {
                           setState(() {
                             _searchText = val;
@@ -539,12 +539,12 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               16.height,
               Text(
-                'No fuel cards found',
+                context.appText.noFuelCardsFound,
                 style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
               ),
               8.height,
               Text(
-                'Add your first fuel card to get started',
+                context.appText.addYourFirstFuelCard,
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
               ),
             ],
@@ -617,7 +617,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
             child: AppButton(
-                title: "Buy New Fuel Card",
+                title: context.appText.buyNewFuelCard,
                 onPressed: (){
                   if (showKycScreen) {
                     // Navigate to KYC screen if user doesn't have KYC documents
