@@ -20,6 +20,7 @@ import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
+import '../model/gps_vehicle_extra_info_realm_model.dart';
 import '../models/gps_geofence_model.dart';
 
 class GpsRealmService {
@@ -62,6 +63,7 @@ class GpsRealmService {
           GpsUserConfigurationRealmModel.schema,
           GpsGeofenceRealmModel.schema,
           GpsDistanceHistoryRealmModel.schema,
+          GpsVehicleExtraInfoRealm.schema,
         ],
         path: realmPath,
         schemaVersion: 4,
@@ -97,6 +99,7 @@ class GpsRealmService {
             GpsUserConfigurationRealmModel.schema,
             GpsGeofenceRealmModel.schema,
             GpsDistanceHistoryRealmModel.schema,
+            GpsVehicleExtraInfoRealm.schema,
           ],
           path: realmPath,
           schemaVersion: 4,
@@ -310,6 +313,41 @@ class GpsRealmService {
     } catch (e) {
       print("❌ Failed to read login response from Realm: $e");
       return null;
+    }
+  }
+
+  /// Save vehicle extra info data to Realm
+  Future<void> saveVehicleExtraInfo(
+    List<GpsVehicleExtraInfoRealm> extraInfoList,
+  ) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing extra info data
+        _realm!.deleteAll<GpsVehicleExtraInfoRealm>();
+
+        // Add new extra info data
+        for (final extraInfo in extraInfoList) {
+          _realm!.add(extraInfo);
+        }
+      });
+      print(
+        "💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records",
+      );
+    } catch (e) {
+      print("❌ Failed to save vehicle extra info to Realm: $e");
+      throw Exception('Failed to save vehicle extra info to Realm: $e');
+    }
+  }
+
+  /// Get all vehicle extra info from Realm
+  Future<List<GpsVehicleExtraInfoRealm>> getAllVehicleExtraInfo() async {
+    await _ensureInitialized();
+    try {
+      return _realm!.all<GpsVehicleExtraInfoRealm>().toList();
+    } catch (e) {
+      print("❌ Failed to read vehicle extra info from Realm: $e");
+      throw Exception('Failed to read vehicle extra info from Realm: $e');
     }
   }
 

@@ -306,7 +306,9 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.vehicleShareUpdate,
         Icons.share_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsVehicleShareAndUpdate);
+        },
       ),
       _MenuItem(
         context.appText.subscription,
