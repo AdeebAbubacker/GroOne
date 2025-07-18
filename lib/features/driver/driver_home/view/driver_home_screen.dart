@@ -95,11 +95,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     initialIndex: widget.initialTabIndex,
   );
 
-  _tabController!.addListener(() {
-    if (_tabController!.indexIsChanging) {
-      _loadDataByTab(index: _tabController!.index);
-    }
-  });
+ _tabController!.addListener(() {
+  if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
+    setState(() {
+      selectedTabIndex = _tabController!.index;
+      _loadDataByTab(index: selectedTabIndex);
+    });
+  }
+});
+
+
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _tabScrollController.jumpTo(50);
@@ -251,7 +256,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         indicator: const BoxDecoration(),
         dividerHeight: 0,
        tabs: List.generate(tabLabels.length, (index) {
-        final isSelected = _tabController!.index == index;
+        final isSelected = selectedTabIndex == index;
         return Tab(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -337,8 +342,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 itemCount: state.loads.length,
                 itemBuilder: (context, index) {
                   final load = state.loads[index];
-
-                  // Return widgets dynamically based on tabIndex
                   switch (tabIndex) {
                     case 0: 
                   return DriverLoadWidget(
