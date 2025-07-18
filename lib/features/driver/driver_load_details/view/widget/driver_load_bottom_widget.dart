@@ -1,0 +1,197 @@
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/validator.dart';
+
+import '../../../../load_provider/lp_home/helper/lp_home_helper.dart';
+
+
+
+
+
+class DriverLoadBottomWidget extends StatefulWidget {
+    final DriverLoadDetailsModel loadItem;
+  final String kilometers;
+  const DriverLoadBottomWidget({super.key,required this.loadItem,required this.kilometers});
+
+  @override
+  State<DriverLoadBottomWidget> createState() => _DriverLoadBottomWidgetState();
+}
+
+class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
+  @override
+  Widget build(BuildContext context) {
+        return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
+        decoration: commonContainerDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [  
+                      
+                  // Truck Type Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(AppImage.png.truck, width: 57, height: 42),
+                      12.width,
+                          Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if(widget.loadItem.data!.loadStatusId < LoadStatus.assigned.index)
+                            ...[
+                              Text(context.appText.requested, style: AppTextStyle.body3.copyWith(color: Colors.grey)),
+                              4.height,
+                              Text('${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}', style: AppTextStyle.body1.copyWith(fontSize: 14, color: AppColors.black)),
+                            ],
+                          if(widget.loadItem.data!.loadStatusId >= LoadStatus.assigned.index)
+                            ...[
+                              5.height,
+                              Row(
+                                children: [
+                                  Container(
+                                      decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
+                                      padding: EdgeInsets.symmetric(horizontal: 4),
+                                      // child: Text(widget.loadItem.data?.scheduleTripDetails?.vehicle?.truckNo ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                       child: Text('Truck No', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                  8.width,
+                                  Text('${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
+                              ),
+                              5.height,
+                              Row(
+                                children: [
+                                  Text(context.appText.driver, style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
+                                 // Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                 Text('driver name', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)), 
+                                ],
+                              ),
+                              5.height
+                            ],
+                            if(widget.loadItem.data!.loadStatusId >= LoadStatus.confirmed.index)
+                              ...[
+                              4.height,
+                              Container(
+                                width: widget.loadItem.data!.loadStatusId >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
+                                  padding: EdgeInsets.all(6),
+                                  decoration: commonContainerDecoration(
+                                      color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
+                                  child: Text(widget.loadItem.data?.customer?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
+                            ]
+                        ],
+                      ),
+                    
+                 ],
+                  ),
+                    20.height, 
+                    DriverSourceDestinationWidget(
+                            pickUpLocation: widget.loadItem.data?.loadRoute?.pickUpLocation,
+                            dropLocation:  widget.loadItem.data?.loadRoute?.dropLocation,
+                          ).paddingSymmetric(horizontal: 15),
+
+                 20.height,
+              _buildConsigneeDetail(
+                context: context,
+                email: widget.loadItem.data?.consignees.last.email,
+                name: widget.loadItem.data?.consignees.last.name,
+                phoneNo: widget.loadItem.data?.consignees.last.mobileNumber,
+                ),
+              20.height,
+              Text("Timeline",
+                   style: AppTextStyle.h4,
+                  ),
+                20.height,
+                 DriverLoadTimelineWidget(
+                timelineList: widget.loadItem?.data?.timeline ?? [],
+                 ),
+                ],
+              ).paddingAll(16),
+            ).expand(),
+          ],
+        ),
+      ),
+    );
+  }
+  }
+
+
+
+
+// Consignee Details
+Widget _buildConsigneeDetail({
+  required BuildContext context,
+  String? name,
+  String? phoneNo,
+  String? email,
+  bool isTextField = false,
+  bool isUpdatable = false,
+  TextEditingController? nameController,
+  TextEditingController? phoneController,
+  TextEditingController? emailController,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        20.height,
+        Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
+        20.height,
+        // Contact Name
+        _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
+  
+        20.height,
+  
+        // Contact Number
+        _buildDetailWidget(
+          text1: context.appText.contactNo,
+          text2: phoneNo ?? "",
+        ),
+        20.height,
+  
+        // Email Id
+        _buildDetailWidget(
+          text1: context.appText.emailId,
+          text2: email ?? "",
+        ),
+      ],
+    );
+}
+
+
+
+// Detail Widget
+Widget _buildDetailWidget({required String text1, required String text2}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        text1,
+        style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
+      ),
+      Text(
+        text2,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w500,
+          color: AppColors.primaryColor,
+        ),
+      ),
+    ],
+  );
+}

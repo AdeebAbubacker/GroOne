@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -84,7 +85,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   driverLong: 23,
                 ),
                 buildTopLocationWidget(loadItem!),
-                buildBottomWidget(loadItem),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
                 buildFloatingSupportButton(),
                 buildSimConsentStatus(loadItem),
               ],
@@ -181,31 +182,6 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
     );
   }
 
-  Widget buildBottomWidget(DriverLoadDetailsModel loadItem) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.45,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            )
-          ],
-        ),
-        child: Center(
-          child: Text(
-            "Driver Load Details UI (customize as needed)",
-            style: AppTextStyle.body2,
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget buildFloatingSupportButton() {
     final screenHeight = MediaQuery.of(context).size.height;
