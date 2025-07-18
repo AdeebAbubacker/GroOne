@@ -118,13 +118,11 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
           }
         }
 
-        print("✅ All data fetched and stored successfully!");
         _setDataFetchUIState(UIState.success("All data loaded successfully"));
         _hasLoadedData = true;
       } else {
         _setDataFetchUIState(UIState.error(GenericError()));
       }
-
     } catch (e) {
       _setDataFetchUIState(UIState.error(GenericError()));
     }
