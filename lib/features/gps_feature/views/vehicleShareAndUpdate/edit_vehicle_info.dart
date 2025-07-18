@@ -54,9 +54,9 @@ class EditVehicleInfoScreen extends StatelessWidget {
           extraInfoState.data != null) {
         vehicleExtraInfoList = extraInfoState.data;
         if (vehicle != null && vehicleExtraInfoList != null) {
-          selectedVehicleExtraInfo = vehicleExtraInfoList!.firstWhere(
+          selectedVehicleExtraInfo = vehicleExtraInfoList.firstWhere(
             (extraInfo) =>
-                extraInfo.deviceId.toString() == vehicle!.deviceId.toString(),
+                extraInfo.deviceId.toString() == vehicle.deviceId.toString(),
             orElse: () => vehicleExtraInfoList!.first,
           );
         }
