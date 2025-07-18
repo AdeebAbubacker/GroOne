@@ -87,7 +87,7 @@ final bool isConsentGiven = false;
                       ],
                     ),
                     if(widget.driverLoadDetails.loadStatusId == 3)
-                    Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                    _buildLoadStatus(widget.driverLoadDetails.loadStatusId ?? 0),
                   ],
                 ).expand(),
               ],
@@ -266,4 +266,21 @@ Widget progressBarWidget({required double progressValue}) {
       ),
     ],
   );
+}
+
+
+
+Widget _buildLoadStatus(int statusId) {
+  switch (statusId) {
+    case 1:
+      return Text('Pending', style: AppTextStyle.blackColor15w500);
+    case 2:
+      return Text('In Progress', style: AppTextStyle.orangeTextColor26w700);
+    case 3:
+      return Text('Confirmed', style: AppTextStyle.bodyPurpleColor);
+    case 4:
+      return Text('Delivered', style: AppTextStyle.greenColor20w700);
+    default:
+      return Text('Unknown Status', );
+  }
 }
