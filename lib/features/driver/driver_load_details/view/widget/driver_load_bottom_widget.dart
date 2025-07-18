@@ -82,28 +82,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   Text('${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
                               ),
                               5.height,
-                              Row(
-                                children: [
-                                  Text(context.appText.driver, style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
-                                 // Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
-                                 Text('driver name', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)), 
-                                ],
-                              ),
-                              5.height
+                            
                             ],
-                            if(widget.loadItem.data!.loadStatusId >= LoadStatus.confirmed.index)
-                              ...[
-                              4.height,
-                              Container(
-                                width: widget.loadItem.data!.loadStatusId >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
-                                  padding: EdgeInsets.all(6),
-                                  decoration: commonContainerDecoration(
-                                      color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
-                                  child: Text(widget.loadItem.data?.customer?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
-                            ]
+                           
                         ],
-                      ),
-                    
+                      ),           
                  ],
                   ),
                     20.height, 
