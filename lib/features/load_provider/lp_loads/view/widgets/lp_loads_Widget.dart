@@ -252,11 +252,8 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               ).center().paddingSymmetric(vertical: 4,horizontal: 10),
             ),
             5.height,
-            if(loadStatus == LoadStatus.kycPending)
-              if(widget.loadItem.customer?.kycPendingDate != null)
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-            if(loadStatus == LoadStatus.matching)
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+            if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
+             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5)
           ],
         ),
       ],

@@ -65,8 +65,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
               children: [
 
                 if (widget.title != null)...[
-                  Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-                  Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+                  Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+                  Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
                   10.height,
                 ],
 
@@ -111,12 +111,12 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             child: Container(
                               height: documentHeight,
                               alignment: Alignment.center,
-                              child: isFile ? Text(AppString.label.loading, style: AppTextStyle.body) : Center(
+                              child: isFile ? Text(context.appText.loading, style: AppTextStyle.body) : Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(AppString.label.addMore, style: AppTextStyle.textFiled),
+                                    Text(context.appText.addMore, style: AppTextStyle.textFiled),
                                     10.width,
                                     SvgPicture.asset(AppIcons.svg.documentUpload, width: 20, colorFilter: AppColors.svg(AppColors.iconColor)),
                                   ],
@@ -198,8 +198,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
           children: [
 
             if (widget.title != null)...[
-              Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-              Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+              Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+              Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
               10.height,
             ],
 
@@ -238,7 +238,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                   color: AppColors.textFieldFillColor,
                   alignment: Alignment.center,
                   child: isFile
-                      ? Text(AppString.label.loading, style: AppTextStyle.body2)
+                      ? Text(context.appText.loading, style: AppTextStyle.body2)
                       :  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,

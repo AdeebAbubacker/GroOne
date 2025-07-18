@@ -48,7 +48,6 @@ class _MyAppState extends State<MyApp> {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-    appContext = context;
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return BlocBuilder<LocaleBloc, LocaleState>(
       builder: (context, state) {
