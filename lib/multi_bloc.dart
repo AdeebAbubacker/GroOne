@@ -15,8 +15,6 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
@@ -57,11 +55,9 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
         BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
-        BlocProvider<LpMapSelectPickPointBloc>(create: (_) => locator<LpMapSelectPickPointBloc>()),
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
         BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
         BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
-        BlocProvider<RateDiscoveryBloc>(create: (_) => locator<RateDiscoveryBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),

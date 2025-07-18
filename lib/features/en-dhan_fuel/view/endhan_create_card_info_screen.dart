@@ -41,8 +41,6 @@ class EndhanCreateCardInfoScreen extends StatefulWidget {
 }
 
 class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen> {
-  bool _hasShownVerificationSuccess = false; // Flag to track if success message was shown
-  Status? _previousVerificationStatus; // Track previous verification status
   bool _isNavigating = false; // Flag to prevent multiple navigation attempts
 
   @override
@@ -61,51 +59,6 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
               }
             },
           ),
-          BlocListener<EnDhanCubit, EnDhanState>(
-            listener: (context, state) {
-              // Handle vehicle verification state - only show success when status changes to SUCCESS
-              final currentStatus = state.vehicleVerificationState?.status;
-
-              // Only show success if status changed from something else to SUCCESS
-              if (currentStatus == Status.SUCCESS &&
-                  _previousVerificationStatus != Status.SUCCESS &&
-                  !_hasShownVerificationSuccess) {
-
-                // Check if we have verification data
-                final cubit = locator<EnDhanCubit>();
-                if (cubit.state.vehicleVerificationState?.data != null) {
-                  // Set flag to prevent multiple messages
-                  _hasShownVerificationSuccess = true;
-
-                  // Reset the verification state immediately to prevent duplicate messages
-                  cubit.resetVehicleVerificationState();
-
-                  // Show success message after resetting state
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Vehicle number verified successfully!'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-
-                  // Reset flag after a delay to allow for future verifications
-                  Future.delayed(Duration(seconds: 3), () {
-                    if (mounted) {
-                      setState(() {
-                        _hasShownVerificationSuccess = false;
-                      });
-                    }
-                  });
-                }
-              }
-
-              // Update previous status
-              _previousVerificationStatus = currentStatus;
-
-
-            },
-          ),
         ],
         child: BlocBuilder<EnDhanCubit, EnDhanState>(
           builder: (context, state) {
@@ -121,12 +74,14 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     if (_isNavigating || !context.mounted) return;
 
     _isNavigating = true;
+    print('🔍 Attempting to navigate to /enDhanCard');
 
     try {
       // Use GoRouter to navigate to the new user and card screen
       context.go('/enDhanCard');
+      print('🔍 Navigation command sent successfully');
     } catch (e) {
-      print('Navigation error: $e');
+      print('🔍 Navigation error: $e');
       // Fallback: try to pop back to previous screen
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
@@ -134,7 +89,11 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     } finally {
       // Reset the flag after a delay to allow for future navigation
       Future.delayed(Duration(seconds: 2), () {
-        _isNavigating = false;
+        if (mounted) {
+          setState(() {
+            _isNavigating = false;
+          });
+        }
       });
     }
   }
@@ -147,6 +106,8 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     // Don't reset the entire cubit as it clears customer information
     // enDhanCubit.resetCubit();
 
+    print('🔍 Showing success dialog');
+
     // Show success dialog with proper navigation
     AppDialog.show(
       context,
@@ -157,13 +118,22 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
         //   _navigateToEnDhanCard(context);
         // },
         onContinue: () {
+          print('🔍 Continue button pressed');
           // Close the dialog first
           Navigator.of(context).pop();
 
           // Use a post-frame callback to ensure the dialog is closed before navigation
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            print('🔍 Post-frame callback executed');
             _navigateToEnDhanCard(context);
           });
+        },
+        afterDismiss: () {
+          print('🔍 Dialog dismissed automatically');
+          // Fallback navigation if user doesn't press continue
+          if (mounted && !_isNavigating) {
+            _navigateToEnDhanCard(context);
+          }
         },
       ),
     );
@@ -296,12 +266,25 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
                   // Upload document and get the actual URL
                   try {
+                    print('🔍 Starting document upload for card $cardIndex');
                     final uploadResponse = await locator<EnDhanCubit>()
                         .uploadDocument(File(result['path']));
 
+                    print('🔍 Upload response received: $uploadResponse');
+                    print('🔍 Upload response type: ${uploadResponse.runtimeType}');
+                    
+                    if (uploadResponse != null) {
+                      print('🔍 Upload response data: ${uploadResponse.data}');
+                      print('🔍 Upload response data URL: ${uploadResponse.data?.url}');
+                      print('🔍 Upload response success: ${uploadResponse.success}');
+                      print('🔍 Upload response message: ${uploadResponse.message}');
+                    }
+
                     if (uploadResponse != null &&
-                        uploadResponse.data?.url != null) {
+                        uploadResponse.data?.url != null &&
+                        uploadResponse.data!.url!.isNotEmpty) {
                       final uploadedUrl = uploadResponse.data!.url!;
+                      print('🔍 Using uploaded URL: $uploadedUrl');
 
                       if (cardIndex < cardData.length) {
                         setState(() {
@@ -317,6 +300,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                         );
                       }
                     } else {
+                      print('🔍 Upload failed: Invalid response data');
                       setState(() {
                         cardData[cardIndex]['rcFile'] = null;
                         cardData[cardIndex]['rcFileName'] = null;
@@ -328,6 +312,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       );
                     }
                   } catch (e) {
+                    print('🔍 Upload exception: $e');
                     setState(() {
                       cardData[cardIndex]['rcFile'] = null;
                       cardData[cardIndex]['rcFileName'] = null;
@@ -939,12 +924,6 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
                                           // Sync with cubit state
                                           _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
-
-                                          // Auto-verify the selected vehicle
-                                          if (widget.state.verifiedVehicleNumbers.containsKey(index)) {
-                                            locator<EnDhanCubit>().clearVehicleVerificationStatus(index);
-                                          }
-                                          locator<EnDhanCubit>().verifyVehicle(index, selectedVehicle);
                                         }
                                       },
                                       validator: (value) {

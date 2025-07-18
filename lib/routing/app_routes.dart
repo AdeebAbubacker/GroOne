@@ -17,9 +17,6 @@ import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benef
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_track_load_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
-import 'package:gro_one_app/features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
@@ -128,12 +125,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpValidateMemo,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpValidateMemo();
-        },
-      ),
 
       GoRoute(
         path: AppRouteName.insurance,
@@ -142,12 +133,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpPayNowScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpPayNowScreen();
-        },
-      ),
 
       // VP Bottom Navigation bar
       GoRoute(
@@ -174,8 +159,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          final role = "${state.extra}";
-          return LoginScreen(roleId: int.tryParse(role)??0);
+          return LoginScreen();
         },
       ),
 
@@ -200,12 +184,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpPayNowAndTrackLoad,
-        builder: (BuildContext context, GoRouterState state) {
-          return LPTrackLoadScreen();
-        },
-      ),
 
       GoRoute(
         path: AppRouteName.lpCreateAccount,

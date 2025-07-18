@@ -1,14 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/features/profile/view/support_screen.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -32,22 +36,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
   ProfileDetailModel? profileResponse;
 
-  int selectedIndex = 0;
-
-  List<String> tabTitles = [
-    "Home",
-    "My Loads",
-    "Support",
-    // "Switch Account",
-  ];
-
-  List<IconData> tabIcons = [
-    CupertinoIcons.home,
-    CupertinoIcons.cube,
-    Icons.headset_mic_rounded,
-    // Icons.compare_arrows_rounded,
-  ];
-
   @override
   void initState() {
     // Initialize profileCubit here to ensure dependency injection is ready
@@ -68,7 +56,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
   void onItemTapped(int index) {
     int? role = profileCubit.userRole;
 
-    debugPrint("Role : $role");
 
     if (index == 3 && (role != null && role == 3)) {
       context.go(AppRouteName.vpBottomNavigationBar);
@@ -97,7 +84,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       builder: (context, state) {
         int? role = profileCubit.userRole;
 
-        debugPrint("Role : $role");
 
         if ((role != null && role == 3)) {
           pages.add(HomeScreenLoadProvider());
@@ -108,7 +94,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
           builder: (context, selectedIndex, _) {
             return Scaffold(
               body: pages[selectedIndex],
-              //bottomNavigationBar: _buildBottomNavigationBarWidget(),
               bottomNavigationBar: BottomNavigationBar(
                 backgroundColor: AppColors.primaryColor,
                 type: BottomNavigationBarType.fixed,
@@ -147,9 +132,8 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                       icon: Padding(
                         padding: EdgeInsets.only(top: 10.0),
                         child: Icon(Icons.compare_arrows_rounded),
-                        //child: SvgPicture.asset(AppIcons.svg.switchIcon),
                       ),
-                      label: "Switch Account",
+                      label: context.appText.switchAccount,
                     ),
                 ],
               ),
@@ -195,4 +179,5 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       ).paddingOnly(top: 20, bottom: 30, right: 20, left: 20),
     );
   }
+
 }

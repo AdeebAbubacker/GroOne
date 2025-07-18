@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -121,10 +123,10 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                 splashFactory: NoSplash.splashFactory,
                 tabs: List.generate(4, (index) {
                   final tabLabels = [
-                    'Available Loads',
-                    'My Loads',
-                    'Confirmed',
-                    'Assigned',
+                    context.appText.availableLoads,
+                    context.appText.myLoads,
+                    context.appText.confirmed,
+                    context.appText.assigned,
                   ];
                   final isSelected = _tabController.index == index;
                   return Tab(
@@ -166,7 +168,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                             AppDialog.show(
                               context,
                               child: SuccessDialogView(
-                                message: 'Load Accepted Successfully',
+                                message: context.appText.loadAcceptedSuccessfully,
                                 afterDismiss: () {
                                   if (context.mounted) Navigator.pop(context);
                                 },
@@ -221,7 +223,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         } else if (state is VpLoadLoaded) {
           if (state.loads.isEmpty) {
-            return const Center(child: Text("No loads found."));
+            return genericErrorWidget(error: NotFoundError());
           }
           return ListView.builder(
             padding: EdgeInsets.all(commonSafeAreaPadding),

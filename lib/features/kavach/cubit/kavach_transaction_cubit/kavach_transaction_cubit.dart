@@ -12,17 +12,21 @@ class KavachTransactionsCubit extends Cubit<KavachTransactionsState> {
       : super(const KavachTransactionsInitial());
 
   Future<void> fetchTransactions() async {
+    print('🔍 KavachTransactionsCubit: Starting fetchTransactions');
     emit(const KavachTransactionsLoading());
     try {
       final result = await _repository.fetchTransactions();
+      print('🔍 KavachTransactionsCubit: Repository result type: ${result.runtimeType}');
+      
       if (result is Success<List<KavachTransactionModel>>) {
         print('🔍 KavachTransactionsCubit: Success - ${result.value.length} transactions');
+        print('🔍 KavachTransactionsCubit: First transaction: ${result.value.isNotEmpty ? result.value.first.orderId : 'No transactions'}');
         emit(KavachTransactionsLoaded(result.value));
       } else if (result is Error<List<KavachTransactionModel>>) {
         print('🔍 KavachTransactionsCubit: Error - ${result.type}');
         emit(KavachTransactionsError(result.type));
       } else {
-        print('🔍 KavachTransactionsCubit: Unknown result type');
+        print('🔍 KavachTransactionsCubit: Unknown result type: ${result.runtimeType}');
         emit(KavachTransactionsError(GenericError()));
       }
     } catch (e) {

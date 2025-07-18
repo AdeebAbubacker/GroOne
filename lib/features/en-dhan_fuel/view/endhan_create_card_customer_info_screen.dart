@@ -292,6 +292,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               Expanded(
                                 flex: 5,
                                 child: AppTextField(
+                                
                                   //labelText: 'Name',
                                   hintText: 'Enter name',
                                   controller: TextEditingController(text: state.customerName),
@@ -798,16 +799,30 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
                   final user = filteredUsers[index];
                   return ListTile(
                     dense: true,
-                    title: Text(
-                      user.userName,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    subtitle: Text(
-                      user.empCode,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    title: Row(
+                      children: [
+                        Text(
+                          user.empCode,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            user.userName,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                     onTap: () {
-                      widget.controller.text = user.empCode;
+                      widget.controller.text = "${user.empCode} ${user.userName}";
                       widget.onSelected(user.empCode);
                       _removeOverlay();
                     },

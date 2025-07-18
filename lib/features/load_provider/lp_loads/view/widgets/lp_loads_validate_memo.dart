@@ -8,6 +8,7 @@ import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import 'memo_otp_dialog_widget.dart';
@@ -101,7 +102,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                       await lpLoadLocator.sendOtp(loadId: widget.loadId);
                       final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
                       if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.message ?? "OTP sent";
+                        final message = otpState?.data?.message ?? "";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
                           AppDialog.show(context, child: MemoOtpDialogWidget(
@@ -180,7 +181,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
         spacing: 20,
         children: [
           buildHeadingText(context.appText.truckSupplier),
-          buildDMemoDetailWidget(label: context.appText.partnerName, value: memoDetails.truckSupplier?.partnerName ?? ''),
+          buildDMemoDetailWidget(label: context.appText.partnerName, value: memoDetails.truckSupplier?.partnerName.toString().capitalizeFirst ?? ''),
           buildDMemoDetailWidget(label: context.appText.vehicleNumber, value: memoDetails.truckSupplier?.vehicleNumber ?? ''),
         ],
       ),

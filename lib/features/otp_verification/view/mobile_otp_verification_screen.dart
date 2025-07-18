@@ -137,8 +137,8 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        heading: "Login Successfully",
-        message: "Now you can explore the rates and post loads",
+        heading: context.appText.loginSuccessfully,
+        message: context.appText.nowYouCanExploreRates,
         afterDismiss: () => context.go(routeName),
       ),
     );
@@ -219,7 +219,7 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   30.height,
-                  Text("Mobile OTP Verification", style: AppTextStyle.h2W600),
+                  Text(context.appText.mobileOtpVerification, style: AppTextStyle.h2W600),
                   20.height,
                   Row(
                     children: [
@@ -235,22 +235,6 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
                             .copyWith(decoration: TextDecoration.none),
                       ),
                     ],
-                  ),
-                  Builder(
-                    builder: (context) {
-                      if (state is OtpResendSuccess) {
-                        if (state.loginApiResponseModel.otp != 0) {
-                          return Text(
-                            textAlign: TextAlign.center,
-                            "otp: ${state.loginApiResponseModel.otp}",
-                          );
-                        }
-                      }
-                      return Text(
-                        textAlign: TextAlign.center,
-                        "otp: ${widget.otp}",
-                      );
-                    },
                   ),
                   20.height,
 
