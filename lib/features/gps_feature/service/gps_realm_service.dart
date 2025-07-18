@@ -10,7 +10,6 @@ import '../model/gps_device_fuel_realm_model.dart';
 import '../model/gps_geofence_realm_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_login_realm_model.dart';
-import '../model/gps_vehicle_extra_info_realm_model.dart';
 import '../model/gps_mobile_config_model.dart';
 import '../model/gps_mobile_config_realm_model.dart';
 import '../model/gps_user_config_model.dart';
@@ -19,6 +18,7 @@ import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
+import '../model/gps_vehicle_extra_info_realm_model.dart';
 import '../models/gps_geofence_model.dart';
 
 class GpsRealmService {
@@ -50,10 +50,8 @@ class GpsRealmService {
       final documentsDir = await getApplicationDocumentsDirectory();
       final realmPath = '${documentsDir.path}/$_realmName';
 
-
       final config = Configuration.local(
         [
-          GpsCombinedVehicleRealmData.schema,
           GpsCombinedVehicleRealmData.schema,
           GpsLoginResponseRealmModel.schema,
           GpsUserDetailsRealmModel.schema,
@@ -97,6 +95,7 @@ class GpsRealmService {
             GpsMobileConfigRealmModel.schema,
             GpsUserConfigurationRealmModel.schema,
             GpsGeofenceRealmModel.schema,
+            GpsVehicleExtraInfoRealm.schema,
           ],
           path: realmPath,
           schemaVersion: 4,
@@ -314,7 +313,9 @@ class GpsRealmService {
   }
 
   /// Save vehicle extra info data to Realm
-  Future<void> saveVehicleExtraInfo(List<GpsVehicleExtraInfoRealm> extraInfoList) async {
+  Future<void> saveVehicleExtraInfo(
+    List<GpsVehicleExtraInfoRealm> extraInfoList,
+  ) async {
     await _ensureInitialized();
     try {
       _realm!.write(() {
@@ -326,7 +327,9 @@ class GpsRealmService {
           _realm!.add(extraInfo);
         }
       });
-      print("💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records");
+      print(
+        "💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records",
+      );
     } catch (e) {
       print("❌ Failed to save vehicle extra info to Realm: $e");
       throw Exception('Failed to save vehicle extra info to Realm: $e');
