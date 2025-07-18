@@ -7,7 +7,8 @@ class KavachAddAddressApiRequest {
   String? gstIn;
   final String country;
   final int addrType;
-  int? customerId;
+  String? customerId;
+  bool? isDefault;
 
   KavachAddAddressApiRequest({
     required this.addressName,
@@ -19,19 +20,21 @@ class KavachAddAddressApiRequest {
     required this.country,
     this.gstIn,
     this.customerId,
+    this.isDefault,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'addressName': addressName,
-      'addr1': addr1,
+      'customerId': customerId,
+      'addrName': addressName,
+      'addr': addr1,
       'city': city,
       'state': state,
       'pincode': pincode,
-      'addrType': addrType,
+      'isDefault': isDefault ?? true,
+      'addrType': addrType.toString(),
       'country': country,
-      'gstin': gstIn,
-      'customerId': customerId,
+      'gstIn': gstIn,
     };
   }
 }

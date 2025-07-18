@@ -2,16 +2,25 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_update_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_feedback_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_otp_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_memo_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 
 class LpLoadService {
   final ApiService _apiService;
@@ -45,8 +54,8 @@ class LpLoadService {
   }
 
 
-  Future<Result<LpLoadGetByIdResponse>> fetchLoadsById({
-    required int loadId,
+  Future<Result<LoadGetByIdResponse>> fetchLoadsById({
+    required String loadId,
     bool forceRefresh = false
   }) async {
 
@@ -59,7 +68,7 @@ class LpLoadService {
 
       if (response is Success) {
         final data = response.value;
-        final loads = LpLoadGetByIdResponse.fromJson(data);
+        final loads = LoadGetByIdResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -71,15 +80,15 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LoadMemoData>> fetchMemoDetails({required int loadId, bool forceRefresh = false}) async {
+  Future<Result<LpLoadMemoResponse>> fetchMemoDetails({required String loadId, bool forceRefresh = false}) async {
 
     try {
       final url = ApiUrls.lpLoadMemo;
       final response = await _apiService.get('$url/$loadId/memo', forceRefresh: forceRefresh);
 
       if (response is Success) {
-        final data = response.value['data'];
-        final loads = LoadMemoData.fromJson(data);
+        final data = response.value;
+        final loads = LpLoadMemoResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -91,12 +100,13 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeList() async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
       final url = ApiUrls.loadTruckType;
       final response = await _apiService.get(url);
       if (response is Success) {
-        final loads = LoadTruckTypeListModel.fromJson(response.value);
+        final List<dynamic> list = response.value;
+        final loads = list.map((e) => LoadTruckTypeListModel.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -143,31 +153,13 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadMemoOtpResponse>> verifyOtp({required String customerId, required String otp, required String loadId}) async {
+  Future<Result<LpLoadMemoVerifyOtpResponse>> verifyOtp({required String customerId, required String otp, required String loadId}) async {
     try {
       final url = ApiUrls.lpLoadVerifyOtp;
       final response = await _apiService.post(url, body: {"otp":otp, "customerId":customerId, "loadId": loadId});
 
       if (response is Success) {
-        final loads = LpLoadMemoOtpResponse.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-  Future<Result<LpLoadMemoOtpResponse>> applyFilter({required int fromRoute, required int toRoute, required String truckType, required String loadPostedDate}) async {
-    try {
-      final url = ApiUrls.lpLoadList;
-      final response = await _apiService.get('$url?fromLocationId=$fromRoute&toLocationId=$toRoute&truckTypeId=$truckType&loadPostDate=$loadPostedDate');
-
-      if (response is Success) {
-        final loads = LpLoadMemoOtpResponse.fromJson(response.value);
+        final loads = LpLoadMemoVerifyOtpResponse.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -182,7 +174,7 @@ class LpLoadService {
   Future<Result<CreditCheckApiResponse>> getCreditCheck({ required String customerId,}) async {
     try {
       final url = ApiUrls.lpCreditCheck;
-      final response = await _apiService.get('$url/export/$customerId');
+      final response = await _apiService.get('$url/$customerId');
 
       if (response is Success) {
         final loads = CreditCheckApiResponse.fromJson(response.value);
@@ -255,5 +247,169 @@ class LpLoadService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<LpLoadFeedbackResponse>> updateFeedback({required String loadId, required String feedback}) async {
+    try {
+      final url = ApiUrls.lpLoadFeedback+loadId;
+      final response = await _apiService.put(url, body: {"notes":feedback});
+
+      if (response is Success) {
+        final loads = LpLoadFeedbackResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<DocumentDetails>> getDocumentById({required String docId}) async {
+    try {
+      final url = ApiUrls.lpLoadDocument+docId;
+      final response = await _apiService.get(url);
+
+
+      if (response is Success) {
+        final loads = DocumentDetails.fromJson(response.value['data']);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+
+  Future<Result<TrackingDistanceResponse>> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+    try {
+      final url = ApiUrls.trackingDistance;
+      final response = await _apiService.post(url, body: request.toJson());
+      if (response is Success) {
+        final loads = TrackingDistanceResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<ConsigneAddedSuccessModel>> addConsignee({
+  required AddConsigneeApiRequest addConsigneeReq,
+}) async {
+  try {
+    final url = ApiUrls.lpLoadAddConsignee; 
+    final response = await _apiService.post(
+      url,
+      body: addConsigneeReq.toJson());
+
+    if (response is Success) {
+      final data = response.value;
+      final result = ConsigneAddedSuccessModel.fromJson(data);
+      print("Sucesss");
+      return Success(result);
+    } else if (response is Error) {
+        print("error");
+      return Error(response.type);
+    } else { print("error");
+      return Error(GenericError());
+    }
+  } catch (e) { print("error");
+    return Error(DeserializationError());
+  }
+ }
+
+ Future<Result<ConsigneAddedSuccessModel>> updateConsignee({
+  required String consigneId,
+  required UpdateConsigneeApiRequest request,
+}) async {
+  try {
+    final url = '${ApiUrls.lpLoadAddConsignee}/$consigneId';
+    final response = await _apiService.put(url, body: request.toJson());
+
+  if (response is Success) {
+      final data = response.value;
+      final result = ConsigneAddedSuccessModel.fromJson(data);
+      print("Sucesss");
+      return Success(result);
+    } else if (response is Error) {
+        print("error");
+      return Error(response.type);
+    } else { print("error");
+      return Error(GenericError());
+    }
+  } catch (e) { print("error");
+    return Error(DeserializationError());
+  }
+}
+
+ 
+Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
+  required InitiatePaymentRequest initiatePaymentRequest,
+}) async {
+  try {
+    final url = ApiUrls.lppayment;
+
+    final response = await _apiService.post(
+      url,
+      body: initiatePaymentRequest.toJson(),
+    );
+
+    if (response is Success) {
+      final data = response.value;
+      final result = OrderAddedSuccess.fromJson(data);
+      print("Payment Option Added Successfully");
+      return Success(result);
+    } else if (response is Error) {
+      print("API Error");
+      return Error(response.type);
+    } else {
+      print("Unknown Error");
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print("Deserialization Error: $e");
+    return Error(DeserializationError());
+  }
+}
+
+Future<Result<LpCreateOrderResponse>> createLpOrder({
+   required CreateOrderIdRequest createOrderIdRequest,
+  required String loadId,
+
+}) async {
+  try {
+  final url = "${ApiUrls.lpCreateOrderBase}?loadId=$loadId";
+    final response = await _apiService.post(
+      url,
+      body: createOrderIdRequest.toJson(),
+    );
+
+    if (response is Success) {
+      final data = response.value;
+      final result = LpCreateOrderResponse.fromJson(data);
+      print('Order pay request successful: $data');
+      return Success(result);
+    } else if (response is Error) {
+      print('API Error: ${response.type}');
+      return Error(response.type);
+    } else {
+      print('Unknown response type');
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print('Deserialization/Error: $e');
+    return Error(DeserializationError());
+  }
+}
 }
 

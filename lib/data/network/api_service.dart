@@ -32,16 +32,22 @@ class ApiService {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
-
-    // Add authentication header if token exists
     try {
-      String? refreshToken = await _secureSharedPrefs.get(
-        AppString.sessionKey.refreshToken,
-      );
+     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
+      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-      } else {}
+        print("🔐 Authorization header set: 'Bearer $refreshToken'");
+        CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
+      } else {
+        print("🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
+        CustomLog.debug(this, "Authorization token : $refreshToken");
+      }
     } catch (e) {
+      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
 
@@ -53,10 +59,10 @@ class ApiService {
     CustomLog.info(this, "Cache cleared successfully");
     // await _cacheManager.clearAll();
   }
-
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       if (HasInternetConnection.isInternet != true) {
         return Error(InternetNetworkError());
@@ -75,7 +81,7 @@ class ApiService {
         //   maxStale: const Duration(days: 1),
         //   forceRefresh: forceRefresh,
         // ),
-        options: Options(headers: await _getHeaders()),
+        options: Options(headers: headers),
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
@@ -91,6 +97,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
+        Map<String, String>? customHeaders
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -100,10 +107,13 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
     CustomLog.debug(
       this,
-      "\nMethod: Post \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
     );
+    final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -114,7 +124,7 @@ class ApiService {
         data: body,
         queryParameters: queryParams,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -296,7 +306,6 @@ class ApiService {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        // Clear invalid token and log the issue
         await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
@@ -394,4 +403,6 @@ class ApiService {
       return Error(ResponseStatusFailed());
     }
   }
+
+
 }

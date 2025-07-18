@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_order_details_screen.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -35,13 +36,13 @@ class KavachOrderCardWidget extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
+                    color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     order.statusHistory.first.statusLabel,
                     style: TextStyle(
-                      color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
+                      color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),

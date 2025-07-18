@@ -27,15 +27,15 @@ class SplashViewModel extends ChangeNotifier{
   }
 
 
-  UIState<String>? _checkUserRoleUIState;
-  UIState<String>? get userRoleUIState =>  _checkUserRoleUIState;
-  void _setUserRoleUIState(UIState<String>? value){
+  UIState<int>? _checkUserRoleUIState;
+  UIState<int>? get userRoleUIState =>  _checkUserRoleUIState;
+  void _setUserRoleUIState(UIState<int>? value){
     _checkUserRoleUIState = value;
   }
 
   Future<void> fetchUserType() async {
     Result result = await _splashRepository.getUserRole();
-    if (result is Success<String>) {
+    if (result is Success<int>) {
       _setUserRoleUIState(UIState.success(result.value));
     }
     if(result is Error){

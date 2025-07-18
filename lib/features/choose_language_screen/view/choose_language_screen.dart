@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
@@ -37,11 +38,13 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     debugPrint("Cross Back Button : ${widget.isCloseButton}");
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonOnboardingAppbar(showBackButton: false, showTranslateButton: false, isCrossLeadingIcon: widget.isCloseButton),
+      appBar: CommonOnboardingAppbar(showBackButton: false,
+          showTranslateButton: false,
+          isCrossLeadingIcon: widget.isCloseButton),
       body: SafeArea(
         minimum: EdgeInsets.all(commonSafeAreaPadding),
         child: BlocBuilder<LanguageBloc, LanguageState>(
@@ -118,12 +121,14 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ).align(Alignment.center),
                     10.height,
                     AppButton(
+
                       title: context.appText.next,
                       onPressed: () {
                         if(widget.isCloseButton){
                           Navigator.of(context).pop();
                         }else{
-                          context.push(AppRouteName.chooseRoleScreen);
+                          //context.push(AppRouteName.chooseRoleScreen);
+                          context.push(AppRouteName.login,extra: "2");
                         }
                       },
                     ),
@@ -164,9 +169,9 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
             decoration: BoxDecoration(
               border: Border.all(
                 color:
-                    isSelected
-                        ? AppColors.primaryColor
-                        : AppColors.disableColor,
+                isSelected
+                    ? AppColors.primaryColor
+                    : AppColors.disableColor,
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(50),
@@ -182,9 +187,10 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
             ),
           ),
           subtitle:
-              text2.isNotEmpty
-                  ? text1 == 'English'? null : Text(text2, style: AppTextStyle.textGreyColor14w400)
-                  : null,
+          text2.isNotEmpty
+              ? text1 == 'English' ? null : Text(
+              text2, style: AppTextStyle.textGreyColor14w400)
+              : null,
           title: Text(text1, style: AppTextStyle.textBlackColor20w500),
           trailing: Image.asset(width: 78, height: 50, imageString),
         ),
@@ -192,13 +198,17 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     );
   }
 
-  String getImgPath(String name){
-    if(name.contains('Tamil')){
+  String getImgPath(String name) {
+    if (name.contains('Tamil')) {
       return AppImage.png.tamilLanguage;
-    }else if(name.contains('Hindi')){
+    } else if (name.contains('Hindi')) {
       return AppImage.png.hindiLanguage;
-    }else{
+    } else {
       return AppImage.png.englishLanguage;
     }
   }
+
+
+
+
 }

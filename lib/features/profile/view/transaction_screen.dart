@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_text_style.dart';
@@ -17,24 +20,21 @@ class LpTransaction extends StatefulWidget {
 }
 
 class _LpTransactionState extends State<LpTransaction> {
+
+  final searchController = TextEditingController();
   int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.transactions,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-        toolbarHeight: 50,
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      appBar: CommonAppBar(title:  context.appText.transactions, scrolledUnderElevation: 0.0),
+      body: SafeArea(
+        minimum: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
         child: Column(
           spacing: 20,
           children: [
+
+            // Tabs
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -64,13 +64,18 @@ class _LpTransactionState extends State<LpTransaction> {
                 ),
               ],
             ),
-            AppTextField(
-              decoration: commonInputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: "Search",
-                fillColor: AppColors.white,
-              ),
+
+            // Search Bar
+            AppSearchBar(
+              searchController: searchController,
+              onChanged: (text) {
+                debounce(() {
+
+                });
+              },
             ),
+
+
             selectedIndex == 0
                 ? allWidget()
                 : selectedIndex == 1

@@ -10,10 +10,22 @@ class KavachVehicleDocumentUploadModel {
   final Data? data;
 
   factory KavachVehicleDocumentUploadModel.fromJson(Map<String, dynamic> json){
+    
+    // Handle both direct response format and nested format
+    Data? uploadData;
+    
+    if (json['url'] != null) {
+      // Direct structure: {url: "...", filePath: "...", originalName: "..."}
+      uploadData = Data.fromJson(json);
+    } else if (json['data'] != null && json['data']['url'] != null) {
+      // Nested structure: {success: true, data: {url: "..."}}
+      uploadData = Data.fromJson(json['data']);
+    }
+    
     return KavachVehicleDocumentUploadModel(
-      success: json["success"] ?? false,
+      success: json["success"] ?? true, // Default to true if not specified
       message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      data: uploadData,
     );
   }
 
@@ -22,24 +34,38 @@ class KavachVehicleDocumentUploadModel {
     "message": message,
     "data": data?.toJson(),
   };
-
 }
 
 class Data {
   Data({
     required this.url,
+    this.filePath,
+    this.originalName,
+    this.size,
+    this.mimeType,
   });
 
   final String url;
+  final String? filePath;
+  final String? originalName;
+  final int? size;
+  final String? mimeType;
 
   factory Data.fromJson(Map<String, dynamic> json){
     return Data(
       url: json["url"] ?? "",
+      filePath: json["filePath"],
+      originalName: json["originalName"],
+      size: json["size"],
+      mimeType: json["mimeType"],
     );
   }
 
   Map<String, dynamic> toJson() => {
     "url": url,
+    "filePath": filePath,
+    "originalName": originalName,
+    "size": size,
+    "mimeType": mimeType,
   };
-
 }

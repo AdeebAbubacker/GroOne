@@ -16,8 +16,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 class TruckTypesScreen extends StatefulWidget {
-  final List<TruckTypeData> dataList;
-  final Function(TruckTypeData) onSelect;
+  final List<LoadTruckTypeListModel> dataList;
+  final Function(LoadTruckTypeListModel) onSelect;
   const TruckTypesScreen({super.key, required this.dataList, required this.onSelect});
 
   @override
@@ -47,7 +47,7 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
   ];
 
 
-  List<String> getUniqueTypes(List<TruckTypeData> dataList) {
+  List<String> getUniqueTypes(List<LoadTruckTypeListModel> dataList) {
     return dataList.map((e) => e.type).toSet().toList();
   }
 

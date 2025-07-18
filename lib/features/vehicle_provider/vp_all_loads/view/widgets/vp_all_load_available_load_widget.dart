@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -42,15 +43,16 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
 
   @override
   Widget build(BuildContext context) {
-    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
-    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+
     return GestureDetector(
       onTap: () {
         context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
         });
-      },
+        },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         decoration: commonContainerDecoration(
@@ -79,7 +81,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         Text(
                           widget.data.pickUpWholeAddr.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
+                          maxLines: 1,
                         ),
                         Icon(
                           Icons.arrow_right_alt_outlined,
@@ -88,12 +90,12 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         Text(
                           widget.data.dropWholeAddr.capitalize,
                           style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
+                          maxLines: 1,
                         ),
                       ],
                     ),
                     Text(
-                      formatDateTimeKavach(widget.data.dueDate!.toString()),
+                      formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
                       style: AppTextStyle.primaryColor12w400,
                     ),
                   ],
@@ -138,23 +140,30 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
             ),
             15.height,
             Container(
+              alignment: Alignment.centerRight,
               padding: EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.primaryLightColor,
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(
-                    "Quoted Price",
-                    style: AppTextStyle.textBlackColor18w400,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                  Text(
-                    amount,
-                    style: AppTextStyle.h4PrimaryColor,
-                    textAlign: TextAlign.center,
-                  ).expand(),
+                  FittedBox(
+                    child: Text(
+                      "Quoted Price",
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
+                    )
+                  ),
+
+                  FittedBox(
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    )
+                  ),
                 ],
               ),
             ),

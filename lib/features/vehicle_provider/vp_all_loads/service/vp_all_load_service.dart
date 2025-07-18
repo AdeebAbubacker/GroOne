@@ -12,16 +12,21 @@ class VpLoadService {
     required String customerId,
     required int type,
     String search = "",
-    bool forceRefresh = false
+    bool forceRefresh = false,
+    int? limit
+
   }) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.lpLoadById}/vp/load?customerId=$customerId&type=$type&search=$search',
+        '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&type=$type&search=$search',
+        queryParams: {
+          "limit":limit??10
+        },
         forceRefresh: forceRefresh,
       );
 
       if (response is Success) {
-        final data = response.value['data'] as List;
+        final data = response.value['data']['data'] as List;
         final loads = data.map((e) => VpRecentLoadData.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {

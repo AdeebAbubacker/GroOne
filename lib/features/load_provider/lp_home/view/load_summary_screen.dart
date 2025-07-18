@@ -21,8 +21,10 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -30,6 +32,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:lottie/lottie.dart';
 
 class LoadSummaryScreen extends StatefulWidget {
   final CreateLoadApiRequest apiRequest;
@@ -105,6 +108,11 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       return;
     }
 
+    if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
+      ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
+      return;
+    }
+
     if (widget.isKycValid == 3) {
       await onSubmit(context);
     } else {
@@ -115,7 +123,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   Future<void> _postLoad(BuildContext context) async {
     final req = widget.apiRequest.copyWith(
       note: noteTextController.text,
-      handlingCharges: int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price)),
+      handlingCharges: int.parse(handlingChargesTextController.text),
       expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
@@ -187,15 +195,16 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
             buildReadOnlyField("Vehicle Length", widget.vehicleLength),
             buildReadOnlyField("Consignment weight", "${widget.approxWeight} MT"),
             buildReadOnlyField("Commodity", widget.category),
-            buildReadOnlyField("Pickup date & time", widget.date),
+            buildReadOnlyField("Pickup date & time", DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
 
             InkWell(
                 onTap: () async {
+                  final DateTime? pickupDate = DateTimeHelper.convertStringToDateTime(widget.date);
 
                   final String? date = await commonDatePicker(
                     context,
-                    firstDate: DateTime.now(),
-                    initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(dateAndTime ?? DateTime.now().toString()),
+                    firstDate: pickupDate,
+                    initialDate: pickupDate,
                   );
 
                   if(!context.mounted) return;
@@ -290,16 +299,30 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
           if (createdLoadId != null) {
             await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
           }
-          AppDialog.show(
-            context,
-            child: SuccessDialogView(
-              message: 'Load Created Successfully',
-              afterDismiss: () {
-                Navigator.of(context).pop(true);
-                Navigator.of(context).pop(true);
-              },
-            ),
-          );
+          if(context.mounted) {
+            AppDialog.show(
+              context,
+              dismissible: true,
+              child: CommonDialogView(
+                hideCloseButton: true,
+                onSingleButtonText: context.appText.continueText,
+                onTapSingleButton: () {
+                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop(true);
+                },
+                child: Column(
+                  children: [
+                    Lottie.asset(AppJSON.success, width: 150, repeat: false, frameRate: FrameRate(120)),
+                    Text('${context.appText.loadId} : ${state.createLoadModel.data?.loadSeriesId}', style: AppTextStyle.h4),
+                    20.height,
+                    Text(context.appText.loadPostedSuccess, style: AppTextStyle.greenColor20w700),
+                    20.height,
+                    Text(context.appText.weWillAssignVehicleAndDriver, style: AppTextStyle.bodyGreyColor),
+                  ],
+                ),
+              ),
+            );
+          }
           lpHomeCubit.fetchGetLoadList();
           lpHomeCubit.clearPickUpAndDestination();
         }

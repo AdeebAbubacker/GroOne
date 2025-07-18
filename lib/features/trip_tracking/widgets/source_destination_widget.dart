@@ -40,19 +40,13 @@ class SourceDestinationWidget extends StatelessWidget {
                   dashGapLength: 3.0,
                 ).paddingOnly(top: 5,bottom: 5),
               ),
-
-
               Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
             ],
           ),
           10.width,
-
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-
               // Source (Pick Up)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +56,6 @@ class SourceDestinationWidget extends StatelessWidget {
                   Text(pickUpLocation??"", style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
                 ],
               ),
-
 
               commonDivider(),
 

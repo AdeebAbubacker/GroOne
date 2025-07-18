@@ -24,6 +24,7 @@ import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import '../repository/kavach_repository.dart';
 import 'kavach_support_screen.dart';
+import 'kavach_transaction_screen.dart';
 
 class KavachOrdersListScreen extends StatefulWidget {
   const KavachOrdersListScreen({super.key});
@@ -66,10 +67,37 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               actions: [
                 AppIconButton(
                   onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                  },
+                  icon: Icon(Icons.add, color: Colors.white),
+                  style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                ),
+                AppIconButton(
+                  onPressed: () {
                     Navigator.push(context, commonRoute(KavachSupportScreen()));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
+                ),
+                PopupMenuButton<String>(
+                  color: Colors.white,
+                  icon: Image.asset(AppIcons.png.moreVertical),
+                  offset: Offset(20, 50),
+                  onSelected: (value) {
+                    if (value == context.appText.transactions) {
+                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: context.appText.transactions,
+                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                      ),
+                    ];
+                  },
                 ),
                 5.width,
               ],
@@ -84,10 +112,37 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               actions: [
                 AppIconButton(
                   onPressed: () {
+                    Navigator.of(
+                      context,
+                    ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                  },
+                  icon: Icon(Icons.add, color: Colors.white),
+                  style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                ),
+                AppIconButton(
+                  onPressed: () {
                     Navigator.push(context, commonRoute(KavachSupportScreen()));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
+                ),
+                PopupMenuButton<String>(
+                  color: Colors.white,
+                  icon: Image.asset(AppIcons.png.moreVertical),
+                  offset: Offset(20, 50),
+                  onSelected: (value) {
+                    if (value == context.appText.transactions) {
+                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: context.appText.transactions,
+                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                      ),
+                    ];
+                  },
                 ),
                 5.width,
               ],
@@ -117,6 +172,24 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
+                ),
+                PopupMenuButton<String>(
+                  color: Colors.white,
+                  icon: Image.asset(AppIcons.png.moreVertical),
+                  offset: Offset(20, 50),
+                  onSelected: (value) {
+                    if (value == context.appText.transactions) {
+                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: context.appText.transactions,
+                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                      ),
+                    ];
+                  },
                 ),
                 5.width,
               ],
@@ -197,7 +270,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
   Widget buildGetYourTankLockButtonWidget() {
     return AppButton(
-      title: "Get you Tank Lock Now",
+      title: "Get your Tank Lock Now",
       onPressed: () {
         Navigator.of(
           context,
@@ -292,7 +365,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   Widget buildGroBannerImageWidget() {
     return Image.asset(AppImage.png.groBanner);
   }
-
 
   Widget _buildTab({int? status}) {
     return BlocProvider(

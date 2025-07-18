@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
@@ -85,11 +86,17 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Navigate Home Screen
-  void navigateHomeScreen(String userRole, BuildContext context){
-    if (userRole == "1") {
-      context.push(AppRouteName.lpBottomNavigationBar);
-    } else if (userRole == "2") {
-      context.push(AppRouteName.vpBottomNavigationBar);
+  void navigateHomeScreen(int userRole, BuildContext context){
+    CustomLog.debug(this, "User Role data type : ${userRole.runtimeType}");
+    if (userRole == 0) {
+      context.go(AppRouteName.driverHome);
+    } 
+    else if (userRole == 1) {
+      context.go(AppRouteName.lpBottomNavigationBar);
+    } else if (userRole == 2) {
+      context.go(AppRouteName.vpBottomNavigationBar);
+    } else if (userRole == 3){
+      context.go(AppRouteName.lpBottomNavigationBar);
     } else {
       context.push(AppRouteName.notFound);
     }

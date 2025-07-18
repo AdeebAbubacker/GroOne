@@ -8,6 +8,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
   final String? search;
   final int? fromLocationId;
   final int? toLocationId;
+  final int? laneId;
   final String? truckTypeId;
   final String? loadPostDate;
 
@@ -19,6 +20,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
     this.search,
     this.fromLocationId,
     this.toLocationId,
+    this.laneId,
     this.truckTypeId,
     this.loadPostDate,
   });
@@ -31,6 +33,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
     if (search != null) 'search': search,
     if (fromLocationId != null) 'fromLocationId': fromLocationId,
     if (toLocationId != null) 'toLocationId': toLocationId,
+    if (laneId != null) 'laneId': laneId,
     if (truckTypeId != null) 'truckTypeId': truckTypeId,
     if (loadPostDate != null) 'loadPostDate': loadPostDate,
   };
@@ -43,6 +46,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
     String? search,
     int? fromLocationId,
     int? toLocationId,
+    int? laneId,
     String? truckTypeId,
     String? loadPostDate,
   }) {
@@ -54,6 +58,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
       search: search ?? this.search,
       fromLocationId: fromLocationId ?? this.fromLocationId,
       toLocationId: toLocationId ?? this.toLocationId,
+      laneId: laneId ?? this.laneId,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       loadPostDate: loadPostDate ?? this.loadPostDate,
     );

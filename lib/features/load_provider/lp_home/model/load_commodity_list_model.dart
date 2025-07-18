@@ -1,44 +1,5 @@
 class LoadCommodityListModel {
   LoadCommodityListModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
-
-  final bool success;
-  final String message;
-  final List<LoadCommodityList> data;
-
-  LoadCommodityListModel copyWith({
-    bool? success,
-    String? message,
-    List<LoadCommodityList>? data,
-  }) {
-    return LoadCommodityListModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory LoadCommodityListModel.fromJson(Map<String, dynamic> json){
-    return LoadCommodityListModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<LoadCommodityList>.from(json["data"]!.map((x) => LoadCommodityList.fromJson(x))),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
-  };
-
-}
-
-class LoadCommodityList {
-  LoadCommodityList({
     required this.id,
     required this.name,
     required this.description,
@@ -56,16 +17,16 @@ class LoadCommodityList {
   final DateTime? createdAt;
   final dynamic deletedAt;
 
-  LoadCommodityList copyWith({
+  LoadCommodityListModel copyWith({
     int? id,
     String? name,
     dynamic? description,
     dynamic? iconUrl,
-    num? status,
+    int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    DateTime? deletedAt,
   }) {
-    return LoadCommodityList(
+    return LoadCommodityListModel(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
@@ -76,26 +37,16 @@ class LoadCommodityList {
     );
   }
 
-  factory LoadCommodityList.fromJson(Map<String, dynamic> json){
-    return LoadCommodityList(
+  factory LoadCommodityListModel.fromJson(Map<String, dynamic> json){
+    return LoadCommodityListModel(
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
       description: json["description"],
       iconUrl: json["iconUrl"],
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      deletedAt: DateTime.tryParse(json["deletedAt"] ?? ""),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "description": description,
-    "iconUrl": iconUrl,
-    "status": status,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-  };
 
 }

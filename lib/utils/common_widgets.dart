@@ -96,7 +96,7 @@ Widget commonCacheNetworkImage({required String path, dynamic errorImage, double
         return Image.asset(errorImage);
       }
     }else if(errorImage is IconData){
-      return Icon(errorImage);
+      return Icon(errorImage, color: AppColors.greyIconColor);
     }else if(errorImage is Widget){
       return errorImage;
     } else {

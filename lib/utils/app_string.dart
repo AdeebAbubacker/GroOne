@@ -27,7 +27,7 @@ class AppLabelText {
   final String documents = "Documents";
   final String docSupport = "*Only support .jpg, .png & .heic & pdf files not more than 5 mb.";
   final String imageSupport = "*Only support .jpg, .png & .heic";
-  final String imageSize = "Image size should be less than 8MB";
+  final String imageSize = "Image size should be less than 5MB";
   final String fileSize = "File size should be less than 8MB";
   final String chooseFile = "Choose File";
   final String selectDate = "Select Date";
@@ -130,6 +130,7 @@ class PreferenceKey {
   final String fcmToken = "fcmToken";
   final String userAddress = "userAddress";
   final String userFullName = "userFullName";
+  final String userMobileNumber = "mobileNumber";
   final String userRole = "userRole";
   final String companyTypeId = "companyTypeId";
   final String blueId = "blueId";

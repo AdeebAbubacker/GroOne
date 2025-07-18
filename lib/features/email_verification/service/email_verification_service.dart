@@ -18,7 +18,8 @@ class EmailVerificationService {
       final url = ApiUrls.sendEmailOtp;
       final result = await _apiService.post(url, body: {"email": email});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> SendEmailOtpModel.fromJson(data));
+       final sendEmailOtpResponse=  SendEmailOtpModel.fromJson(result.value);
+        return  Success(sendEmailOtpResponse) ;
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -36,7 +37,8 @@ class EmailVerificationService {
       final url = ApiUrls.resendEmailOtp;
       final result = await _apiService.post(url, body: {"email": email});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> ResendEmailOtpModel.fromJson(data));
+      final resentOtpResponse= ResendEmailOtpModel.fromJson(result.value);
+        return  Success(resentOtpResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -54,7 +56,8 @@ class EmailVerificationService {
       final url = ApiUrls.emailOTPCodeVerification;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> VerifyEmailOtpModel.fromJson(data));
+        final verifyOtpModel=VerifyEmailOtpModel.fromJson(result.value);
+        return Success(verifyOtpModel);
       } else if (result is Error) {
         return Error(result.type);
       } else {

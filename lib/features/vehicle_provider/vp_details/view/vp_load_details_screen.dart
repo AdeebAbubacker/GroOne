@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 
@@ -20,9 +21,12 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/loa
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -30,7 +34,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class VpLoadDetailsScreen extends StatefulWidget {
-  final int? loadId;
+  final String? loadId;
   const VpLoadDetailsScreen({super.key, required this.loadId});
 
   @override
@@ -38,14 +42,16 @@ class VpLoadDetailsScreen extends StatefulWidget {
 }
 
 class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
+
   final cubit = locator<LoadDetailsCubit>();
   final homeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpHomeBloc>();
+  bool _consentStatusCalled = false;
 
+  /// Get Load Details
 
-  /// Map Style
   getLoadDetails() {
-    frameCallback(() => cubit.getLoadDetails(widget.loadId ?? 0));
+    frameCallback(() => cubit.getLoadDetails(widget.loadId ?? ""));
   }
 
   @override
@@ -54,59 +60,151 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     super.initState();
   }
 
-
+  callApi(LoadDetailModelData loadItem) async {
+    if(loadItem.trackingDetails==null){
+      return;
+    }
+    await cubit.getTrackingDistance(request: TrackingDistanceApiRequest(
+      originLat: loadItem.trackingDetails?.originLat ?? 0.0,
+      originLong: loadItem.trackingDetails?.originLong ?? 0.0,
+      currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
+      currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
+      destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
+      destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-
-        body: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
-          bloc: cubit,
+    return Scaffold(
+      body: BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+        bloc: cubit,
           builder: (context, state) {
-            if (state.loadDetailsUIState?.status == Status.LOADING) {
-              return CircularProgressIndicator().center();
+          if (state.loadDetailsUIState?.status == Status.LOADING) {
+            return CircularProgressIndicator().center();
+          }
+          if (state.loadDetailsUIState?.status == Status.ERROR) {
+            return genericErrorWidget(
+              error: state.loadDetailsUIState?.errorType,
+            );
+          }
+          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+            final loads = state.loadDetailsUIState?.data;
+            if (loads?.data == null) {
+              return genericErrorWidget(error: NotFoundError());
             }
-            if (state.loadDetailsUIState?.status == Status.ERROR) {
-              return genericErrorWidget(
-                error: state.loadDetailsUIState?.errorType,
-              );
-            }
-            if (state.loadDetailsUIState?.status == Status.SUCCESS) {
-              final loads = state.loadDetailsUIState?.data;
-              if (loads?.data == null) {
-                return genericErrorWidget(error: NotFoundError());
-              }
 
-              return Stack(
-                children: [
-                  Positioned.fill(child: GoogleMapWidget(
-                    pickupLocation: loads!.data!.pickUpLocation,
-                    dropLocation: loads.data!.dropLocation,
-                    pickUpLatLong: loads.data!.pickUpLatlon,
-                    dropLatLong: loads.data!.dropLatlon,
-                  )),
-                  Positioned(
-                    top: 15,
-                    left: 15,
-                    right: 15,
-                    child: buildSourceAndDestinationWidget(loads.data!)
-                  ),
-                  LoadDetailsWidget(
-                    vpHomeBloc: vpHomeBloc,
-                    cubit: cubit,lpHomeCubit: homeCubit,),
-                ],
-              );
+            return Stack(
+              children: [
+                Positioned.fill(child: GoogleMapWidget(
+                  driverLat: loads?.data?.trackingDetails?.currentLat,
+                  driverLong:  loads?.data?.trackingDetails?.currentLong,
+                  pickupLocation: loads?.data?.loadRoute?.pickUpLocation,
+                  dropLocation: loads?.data?.loadRoute?.dropLocation,
+                  pickUpLatLong: loads?.data?.loadRoute?.pickUpLatlon,
+                  dropLatLong: loads?.data?.loadRoute?.dropLatlon,
+                )),
+                Positioned(
+                  top: 65,
+                  left: 15,
+                  right: 15,
+                  child: buildSourceAndDestinationWidget(loads?.data)
+                ),
+                LoadDetailsWidget(
+                  vpHomeBloc: vpHomeBloc,
+                  cubit: cubit,lpHomeCubit: homeCubit,
+                ),
+                buildFloatingWidget(),
+                if((state.loadStatusId??0)>4)
+                buildSimConsentWidget(loads?.data?.driverConsent??0)
+              ],
+            );
+          }
+          return genericErrorWidget(error: GenericError());
+        },
+        listener: (context, state) {
+          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+            final loads = state.loadDetailsUIState?.data;
+
+            if (loads?.data !=null) {
+              if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
+                _consentStatusCalled = true;
+                callApi(loads!.data!);
+              }
             }
-            return genericErrorWidget(error: GenericError());
-          },
+          }
+        }
         ),
-      ),
     );
   }
 
+
+
+  /// Support
+  Widget buildFloatingWidget() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+
+    return Positioned(
+        right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
+      children: [
+
+        IconButton(
+              onPressed: () {
+                commonSupportDialog(context);
+              },
+              icon: Container(
+                padding: EdgeInsets.all(4),
+                decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+                child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+              )
+          ),
+        IconButton(
+            onPressed: () {
+              commonSupportDialog(context);
+            },
+            icon: Container(
+              padding: EdgeInsets.all(4),
+              decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+              child: SvgPicture.asset(
+                AppIcons.svg.support,
+                width: 25,
+                colorFilter: AppColors.svg(AppColors.primaryColor),
+              ),
+            )
+        ),
+
+      ],
+    ));
+  }
+
+  Widget buildSimConsentWidget(int driverConsent) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+    final isTrackingAllowed = driverConsent==1;
+
+    return Positioned(
+        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
+        onPressed: () {
+          commonSupportDialog(context);
+        },
+        icon: Container(
+          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+          child: Row(
+            children: [
+              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+              10.width,
+              Text(context.appText.sim, style: AppTextStyle.h5 )
+            ],
+          ).paddingAll(8),
+        )
+    ));
+
+
+  }
+
   /// Build Source And Destination
-  Widget buildSourceAndDestinationWidget(LoadDetails loadDetails) {
+  Widget buildSourceAndDestinationWidget(LoadDetailModelData? loadDetails) {
     return BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
       builder: (context, state) {
         return Container(
@@ -122,14 +220,14 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   },child: Icon(Icons.arrow_back)),
                   8.width,
                   Text(
-                    "${loadDetails.loadId}",
+                    "${loadDetails?.loadSeriesId}",
                     style: TextStyle(color: AppColors.textBlackDetailColor),
                   ),
                   Spacer(),
 
                   Text(
                     DateTimeHelper.formatCustomDate(
-                      loadDetails.createdAt ?? DateTime.now(),
+                      loadDetails?.createdAt ?? DateTime.now(),
                     ),
                     style: TextStyle(
                       fontSize: 10,
@@ -143,21 +241,25 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildLocationDetailsTileWidget(
-                    loadDetails.pickUpLocation,
+                    loadDetails?.loadRoute?.pickUpLocation,
                     DateTimeHelper.getFormattedDate(
-                      DateTime.tryParse(loadDetails.pickUpDateTime??"")?? DateTime.now(),
+                      loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
-                  Icon(Icons.arrow_forward).expand(),
+                  Icon(Icons.arrow_forward),
+                  20.width,
                   _buildLocationDetailsTileWidget(
-                    loadDetails.dropLocation,
+                    loadDetails?.loadRoute?.dropLocation,
                     DateTimeHelper.getFormattedDate(
-                      loadDetails.expectedDeliveryDateTime ?? DateTime.now(),
+                      loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
-                  if (state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.assigned)
+                  if ((state.loadStatusId??1)>=3)
                    ...[
-                     LoadStatusLabel(loadStatus: state.loadStatus!),
+                     LoadStatusLabel(
+                         loadOnHold: loadDetails?.loadOnHold??false,
+                         loadStatusTitle:loadDetails?.loadStatusDetails?.loadStatus??"" ,
+                         loadStatus: state.loadStatus!),
                    ]
                 ],
               ).paddingSymmetric(horizontal: 5),
@@ -182,7 +284,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           style: TextStyle(color: AppColors.black, fontSize: 16),
           maxLines: 1,
         ),
-        Text(date ?? "", style: TextStyle(color: AppColors.grayColor)),
+        FittedBox(child: Text(date ?? "", style: TextStyle(color: AppColors.grayColor))),
       ],
     ).expand();
   }

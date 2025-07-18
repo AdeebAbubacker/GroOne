@@ -14,8 +14,8 @@ class LPTruckTypeDropdown extends StatefulWidget {
   final String? selectedText;
   final String hintText;
   final String preFixIcon;
-  final List<TruckTypeData> dataList;
-  final Function(TruckTypeData) onSelect;
+  final List<LoadTruckTypeListModel> dataList;
+  final Function(LoadTruckTypeListModel) onSelect;
   const LPTruckTypeDropdown({super.key, required this.onTab, required this.hintText, this.selectedText,required this.dataList, required this.preFixIcon, required this.onSelect});
 
   @override

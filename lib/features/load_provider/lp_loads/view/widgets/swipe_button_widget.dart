@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
@@ -10,22 +12,27 @@ class CustomSwipeButton extends StatelessWidget {
   final Future<dynamic>? Function()?  onSubmit;
   final double? padding;
   final String? text;
-  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit,this.padding,this.text});
+  final bool enable;
+  const CustomSwipeButton({super.key, required this.price, required this.loadId, required this.onSubmit,this.padding,this.text,this.enable=true});
 
   @override
   Widget build(BuildContext context) {
     return SlideAction(
       borderRadius: 16,
       elevation: 0,
-      height: 55,
+      height: commonButtonHeight,
       innerColor: Colors.transparent,
-      outerColor: const Color(0xffE5EBFF),
-      sliderButtonIcon: _buildChevronIcon(),
+      outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withOpacity(0.5),
+      enabled: enable,
+      sliderButtonIcon: Visibility(
+        visible: enable,
+          child: _buildChevronIcon()),
       sliderRotate: false,
       sliderButtonYOffset: -20,
-      text: text ?? 'Swipe to Agree',
-      textStyle: AppTextStyle.body2.copyWith(color: AppColors.primaryColor),
+      text: text ?? context.appText.swipeToAgree,
+      textStyle: AppTextStyle.body2.copyWith(color:enable?  AppColors.primaryColor:AppColors.disableColor),
       onSubmit: onSubmit,
+
     ).paddingAll(padding??10);
   }
 

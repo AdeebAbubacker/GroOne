@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
-
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/service/firebase_secondary_service.dart';

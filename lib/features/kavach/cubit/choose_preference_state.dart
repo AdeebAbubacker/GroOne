@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
 import '../../../../data/model/result.dart';
-import '../model/masters_model.dart';
-import '../model/choose_preference_model.dart';
+import '../model/kavach_masters_model.dart';
+import '../model/kavach_choose_preference_model.dart';
 
 
 class ChoosePreferenceState extends Equatable {
   /// Masters data containing vehicle filters (make, model, engine type, etc.)
-  final MastersModel? mastersData;
+  final KavachMastersModel? mastersData;
   
   /// Loading state for masters data
   final bool mastersLoading;
@@ -15,13 +15,13 @@ class ChoosePreferenceState extends Equatable {
   final ErrorType? mastersError;
   
   /// Current user preferences
-  final ChoosePreferenceModel userPreferences;
+  final KavachChoosePreferenceModel userPreferences;
 
   const ChoosePreferenceState({
     this.mastersData,
     this.mastersLoading = false,
     this.mastersError,
-    this.userPreferences = const ChoosePreferenceModel(),
+    this.userPreferences = const KavachChoosePreferenceModel(),
   });
 
   /// Creates initial state
@@ -30,16 +30,16 @@ class ChoosePreferenceState extends Equatable {
       mastersData: null,
       mastersLoading: false,
       mastersError: null,
-      userPreferences: ChoosePreferenceModel(),
+      userPreferences: KavachChoosePreferenceModel(),
     );
   }
 
   /// Creates a copy of the state with updated values
   ChoosePreferenceState copyWith({
-    MastersModel? mastersData,
+    KavachMastersModel? mastersData,
     bool? mastersLoading,
     ErrorType? mastersError,
-    ChoosePreferenceModel? userPreferences,
+    KavachChoosePreferenceModel? userPreferences,
   }) {
     return ChoosePreferenceState(
       mastersData: mastersData ?? this.mastersData,

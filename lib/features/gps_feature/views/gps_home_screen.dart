@@ -5,10 +5,15 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
+
+import '../cubit/vehicle_list_cubit.dart';
 
 class GpsHomeScreen extends StatelessWidget {
   const GpsHomeScreen({super.key});
@@ -17,31 +22,38 @@ class GpsHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final GpsLoginCubit gpsLoginCubit = locator<GpsLoginCubit>();
 
-    // Auto-login on widget build
+    // Auto-login on widget build only if data hasn't been loaded yet
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      gpsLoginCubit.login();
+      if (!gpsLoginCubit.hasLoadedData) {
+        gpsLoginCubit.loginAndFetchAllData();
+      } else {
+        print("🚀 GpsHomeScreen - Data already loaded, skipping login call");
+      }
     });
 
     return BlocProvider.value(
       value: gpsLoginCubit,
       child: BlocListener<GpsLoginCubit, GpsLoginState>(
         listener: (context, state) {
-          if (state.loginState?.status == Status.SUCCESS) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'GPS Login successful - Response stored in Realm',
-                ),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state.loginState?.status == Status.ERROR) {
+          // Only show snackbars for errors during initial load, not success messages
+          if (state.loginState?.status == Status.ERROR) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
                   'GPS Login failed: ${state.loginState?.errorType?.toString() ?? 'Unknown error'}',
                 ),
                 backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          if (state.dataFetchState?.status == Status.ERROR) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Data fetch failed: ${state.dataFetchState?.errorType?.toString() ?? 'Unknown error'}',
+                ),
+                backgroundColor: Colors.orange,
               ),
             );
           }
@@ -88,39 +100,89 @@ class GpsHomeScreen extends StatelessWidget {
           ),
           body: BlocBuilder<GpsLoginCubit, GpsLoginState>(
             builder: (context, state) {
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Alert Card (expiring soon)
-                    _buildAlertCard(context),
-                    // Main content
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(24),
-                          topRight: Radius.circular(24),
+              // Only show loading overlay during manual refresh, not initial silent load
+              final isLoading =
+                  false; // Disable loading overlay for initial load
+
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      print("🔄 GpsHomeScreen - Pull to refresh triggered");
+                      await gpsLoginCubit.refreshData();
+                      // Show success message for manual refresh
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('GPS data refreshed successfully!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
                         ),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Alert Card (expiring soon)
+                          _buildAlertCard(context),
+                          // Main content
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(24),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(
+                                AppConstants.defaultPadding,
+                              ),
+                              child: Column(
+                                children: [
+                                  _buildMenuGrid(context),
+                                  const SizedBox(
+                                    height: AppConstants.defaultPadding,
+                                  ),
+                                  _buildTrackVehiclesCard(context),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Bottom banner
+                          _buildBottomBannerImageWidget(),
+                          // Buy New GPS button
+                          _buildBuyNewGpsButton(context),
+                        ],
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(
-                          AppConstants.defaultPadding,
-                        ),
+                    ),
+                  ),
+                  // Loading overlay
+                  if (isLoading)
+                    Container(
+                      color: Colors.black54,
+                      child: const Center(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildMenuGrid(context),
-                            const SizedBox(height: AppConstants.defaultPadding),
-                            _buildTrackVehiclesCard(context),
+                            CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Loading GPS data...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    // Bottom banner
-                    _buildBottomBannerImageWidget(),
-                    // Buy New GPS button
-                    _buildBuyNewGpsButton(context),
-                  ],
-                ),
+                ],
               );
             },
           ),
@@ -183,7 +245,18 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.dashboard,
         Icons.dashboard_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          // context.push(AppRouteName.gpsDashboard);
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsDashboardScreen(),
+              ),
+            ),
+          );
+        },
       ),
       _MenuItem(
         context.appText.geofence,
@@ -241,7 +314,12 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.orders,
         Icons.shopping_cart_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          Navigator.push(
+            context,
+            commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+          );
+        },
       ),
     ];
     return GridView.builder(

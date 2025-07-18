@@ -1,0 +1,155 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:open_filex/open_filex.dart';
+
+
+import '../../../../../utils/app_icons.dart';
+
+class PreviewDocumentWidget extends StatelessWidget {
+  final LoadDocument loadDocument;
+  final DocumentEntity documentEntity;
+  final bool? isLoading;
+  final Function() onClickDownload;
+  final Function() onClickDeleteIcon;
+  final bool? showDeleteLoader;
+  final bool? showDeleteIcon;
+  const PreviewDocumentWidget({super.key,
+    this.showDeleteLoader=false,
+    this.showDeleteIcon,
+    required this.onClickDeleteIcon,
+    required this.loadDocument,required this.documentEntity,this.isLoading,required this.onClickDownload});
+
+  @override
+  Widget build(BuildContext context) {
+    return  buildUploadedDocPreviewItem(
+      showDeleteIcon: showDeleteIcon,
+      onClickDeleteIcon: onClickDeleteIcon,
+       isLoading: isLoading??false,
+        onClickDownload:onClickDownload ,
+        fileTitle:documentEntity.documentType??"",
+      context: context,
+      dateTime:formatDateTimeKavach(loadDocument.createdAt?.toString()??DateTime.now().toString()),
+      fileUrl: "",
+      isDownloadable: true,
+      isFileAvailable: true,
+
+      showDeleteLoader: showDeleteLoader??false
+    );
+  }
+}
+
+Widget buildUploadedDocPreviewItem({
+  required String fileTitle,
+  required String dateTime,
+  required bool isFileAvailable,
+  required bool isDownloadable,
+  required String fileUrl,
+  required BuildContext context,
+   bool isLoading=false,
+   bool showDeleteLoader=false,
+  bool? showDeleteIcon,
+  required Function() onClickDownload,
+  required Function() onClickDeleteIcon
+}) {
+
+
+  return Container(
+    height: 55,
+    width: double.infinity,
+
+    padding: EdgeInsets.symmetric(horizontal: 12),
+    decoration: BoxDecoration(
+      color: AppColors.docViewCardBgColor,
+      borderRadius: BorderRadius.circular(commonTexFieldRadius),
+    ),
+    child: Row(
+      children: [
+        SvgPicture.asset(
+          AppIcons.svg.documentView,
+          width: 22,
+          height: 22,
+          colorFilter: AppColors.svg(
+            isFileAvailable ? AppColors.primaryColor : AppColors.iconRed,
+          ),
+        ),
+        10.width,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              isFileAvailable ? fileTitle : context.appText.fileNotFound,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 12,
+                color:
+                isFileAvailable
+                    ? AppColors.textBlackColor
+                    : AppColors.iconRed,
+              ),
+            ),
+            4.height,
+            Text(
+              dateTime,
+              style: AppTextStyle.body.copyWith(
+                fontWeight: FontWeight.w400,
+                fontSize: 10,
+                color: AppColors.textGreyColor,
+              ),
+            ),
+          ],
+        ).expand(),
+
+
+       Visibility(
+         visible: showDeleteIcon??false,
+         child:  showDeleteLoader ?  SizedBox(
+         height: 15,
+         width: 15,
+         child: CircularProgressIndicator(
+           strokeWidth: 1,
+         ),
+       ):  IconButton(
+           icon: Icon(
+             Icons.delete_outline,
+             size: 20,
+             color: AppColors.primaryColor,
+           ),
+           onPressed: () {
+             onClickDeleteIcon();
+           }
+       ),),
+
+        if (isFileAvailable && isDownloadable)
+          isLoading ?  Center(child: SizedBox(
+            height: 15,
+            width: 15,
+            child: CircularProgressIndicator(
+              strokeWidth: 1,
+            ),
+          ),):
+          IconButton(
+            icon: Icon(
+              Icons.file_download_outlined,
+              size: 20,
+              color: AppColors.primaryColor,
+            ),
+            onPressed: () {
+              onClickDownload();
+            }
+          ),
+      ],
+    ),
+  );
+}

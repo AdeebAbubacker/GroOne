@@ -25,11 +25,11 @@ class SplashService {
   }
 
   // Check User type session
-  Future<Result<String>> checkUserRole() async {
+  Future<Result<int>> checkUserRole() async {
     try {
-      String? userType = await _securedSharedPref.get(AppString.sessionKey.userRole);
+      int? userType = await _securedSharedPref.getInt(AppString.sessionKey.userRole);
       CustomLog.debug(this, "User Type : $userType");
-      if((userType != null && userType.isNotEmpty)){
+      if((userType != null)){
         return Success(userType);
       }else{
         return Error(UnauthenticatedError());

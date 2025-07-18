@@ -214,6 +214,8 @@ class AppTextStyle {
   static TextStyle body3GreyColor = body3.copyWith(color: AppColors.greyTextColor);
   static TextStyle body3WhiteColor = body3.copyWith(color: Colors.white);
   static TextStyle body3PrimaryColor = body3.copyWith(color: AppColors.primaryColor);
+  static TextStyle body3SoftGrey = body3.copyWith(color: AppColors.subtleTextGreyColor, fontWeight: FontWeight.w400, fontSize: 12);
+
 
   // Body 3
   static TextStyle body4 = GoogleFonts.ubuntu(color: AppColors.primaryTextColor, fontSize: 11);
@@ -250,5 +252,8 @@ class AppTextStyle {
   static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
   static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 12);
   static TextStyle textFieldHintBlackColor = GoogleFonts.ubuntu(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 14);
+  
+   /// Radial Progress text
+  static TextStyle radialProgressText = GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 10,color: AppColors.primaryTextColor);
 
 }

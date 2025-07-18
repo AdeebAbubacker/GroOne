@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -21,7 +22,10 @@ import '../../../utils/extra_utils.dart';
 import '../bloc/role_bloc.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
-  const ChooseRoleScreen({super.key});
+  final String userId;
+  final String mobileNumber;
+
+  const ChooseRoleScreen({super.key,required this.userId,required this.mobileNumber, });
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +84,33 @@ class ChooseRoleScreen extends StatelessWidget {
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
-                    context.push(AppRouteName.login, extra: "${state.index + 1}");
+                    // CustomLog.debug(this, "Role Id : ${state.index + 1}");
+                    // context.push(AppRouteName.login, extra: "${state.index + 1}");
+
+                    final roleId = state.index + 1;
+
+                  switch (roleId) {
+                    case 1: // Load Provider
+                    context.push(
+                          AppRouteName.lpCreateAccount,
+                          extra: {
+                            "userId": userId,
+                            "mobileNumber": mobileNumber,
+                            "roleId": roleId.toString(),
+                          },
+                    );
+                      break;
+                    case 2:
+                    Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                    break;
+                    case 3: // Both
+                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                      break;
+                    case 4: // Fleet Products
+                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                      break;
+
+                }
                   },
                 ),
                  50.height,
