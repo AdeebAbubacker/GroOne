@@ -48,6 +48,8 @@ class ApiService {
     return headers;
   }
 
+
+
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
@@ -58,9 +60,6 @@ class ApiService {
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
-      if (HasInternetConnection.isInternet != true) {
-        return Error(InternetNetworkError());
-      }
       await clearCache();
 
       final headers = customHeaders ?? await _getHeaders();
@@ -75,7 +74,7 @@ class ApiService {
         //   maxStale: const Duration(days: 1),
         //   forceRefresh: forceRefresh,
         // ),
-        options: Options(headers: await _getHeaders()),
+        options: Options(headers: headers),
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
@@ -91,6 +90,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
+    Map<String, String>? customHeaders,
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -109,12 +109,13 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.post(
         url,
         data: body,
         queryParameters: queryParams,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -133,6 +134,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
+    Map<String, String>? customHeaders,
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -151,12 +153,13 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.put(
         url,
         data: body,
         queryParameters: queryParams,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -171,16 +174,17 @@ class ApiService {
   }
 
   // Delete
-  Future<Result<dynamic>> delete(String url) async {
+  Future<Result<dynamic>> delete(String url, {Map<String, String>? customHeaders}) async {
     CustomLog.debug(this, "Method: Delete, URL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.delete(
         url,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -200,6 +204,7 @@ class ApiService {
     dynamic files, {
     Map<String, String>? fields,
     String? pathName,
+    Map<String, String>? customHeaders,
   }) async {
     try {
       if (!HasInternetConnection.isInternet) {
@@ -251,11 +256,12 @@ class ApiService {
       if (fields != null && fields.isNotEmpty) {
         formData.fields.addAll(fields.entries);
       }
+      final headers = customHeaders ?? await _getHeaders(isMultipart: true);
       final response = await _dio.post(
         url,
         data: formData,
         options: Options(
-          headers: await _getHeaders(isMultipart: true),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),

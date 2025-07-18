@@ -1,29 +1,83 @@
-part of 'report_cubit.dart';
+// lib/features/gps_feature/cubit/report_state.dart
+part of 'report_cubit.dart'; // This will connect it to the Cubit file we create next
 
- class GpsReportState extends Equatable {
-  @override
-  List<Object?> get props => [];
+// Enum to represent the different loading states for data
+enum GpsDataStatus { initial, loading, success, error }
+
+// Enum to represent the different types of reports the user can select
+enum ReportType {
+  stops('STOPS'),
+  trips('TRIPS'),
+  daily('DAILY'),
+  dailyKm('DAILY KM'),
+  reachability('REACHABILITY');
+
+  const ReportType(this.displayName);
+  final String displayName;
 }
 
-class ReportInitial extends GpsReportState {}
+class GpsReportState extends Equatable {
+  // State for the vehicle dropdown
+  final GpsDataStatus vehicleStatus;
+  final List<GpsCombinedVehicleData> vehicles;
 
-class ReportLoading extends GpsReportState {}
+  // State for the report list itself
+  final GpsDataStatus reportStatus;
+  final List<dynamic> reports; // This list can hold any type of report model
+  final ReportType?
+  currentReportType; // To know what kind of data is in the list
 
-class ReportLoaded extends GpsReportState {
-  final List<Report> reports;
+  // State for addresses
+  final GpsDataStatus addressStatus;
+  final Map<int, AddressResponse> addresses; // Device ID -> Address mapping
 
-  ReportLoaded(this.reports);
+  // General error message for the screen
+  final String? errorMessage;
+
+  const GpsReportState({
+    this.vehicleStatus = GpsDataStatus.initial,
+    this.vehicles = const [],
+    this.reportStatus = GpsDataStatus.initial,
+    this.reports = const [],
+    this.currentReportType,
+    this.addressStatus = GpsDataStatus.initial,
+    this.addresses = const {},
+    this.errorMessage,
+  });
+
+  // copyWith allows us to create a new state object based on the old one,
+  // making state updates easy and predictable.
+  GpsReportState copyWith({
+    GpsDataStatus? vehicleStatus,
+    List<GpsCombinedVehicleData>? vehicles,
+    GpsDataStatus? reportStatus,
+    List<dynamic>? reports,
+    ReportType? currentReportType,
+    GpsDataStatus? addressStatus,
+    Map<int, AddressResponse>? addresses,
+    String? errorMessage,
+  }) {
+    return GpsReportState(
+      vehicleStatus: vehicleStatus ?? this.vehicleStatus,
+      vehicles: vehicles ?? this.vehicles,
+      reportStatus: reportStatus ?? this.reportStatus,
+      reports: reports ?? this.reports,
+      currentReportType: currentReportType ?? this.currentReportType,
+      addressStatus: addressStatus ?? this.addressStatus,
+      addresses: addresses ?? this.addresses,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
 
   @override
-
-  List<Object?> get props => [reports];
-}
-
-class ReportError extends GpsReportState {
-  final String message;
-
-  ReportError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [
+    vehicleStatus,
+    vehicles,
+    reportStatus,
+    reports,
+    currentReportType,
+    addressStatus,
+    addresses,
+    errorMessage,
+  ];
 }

@@ -249,9 +249,9 @@ void initLocator() {
     // GPS Services
     locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
     locator.registerLazySingleton(() => GpsRealmService());
-    locator.registerLazySingleton(() => GpsReportService(locator<ApiService>()),);
+    locator.registerLazySingleton(() => GpsReportService(locator<ApiService>(),locator<GpsLoginRepository>()));
 
-    locator.registerLazySingleton(() => GpsReportRepository(locator<GpsReportService>()),);
+    locator.registerLazySingleton(() => GpsReportRepository(service: locator<GpsReportService>()));
     locator.registerLazySingleton(() => GpsLoginRepository(locator<GpsLoginService>(), locator<GpsRealmService>(),),);
 
     // View Model
