@@ -41,12 +41,12 @@ class GpsRepository {
     }
   }
 
-  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(String userId, String deviceId) async {
+  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(String deviceId) async {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
       return await _service.fetchGeofencesForVehicle(
-        userId: userId,
+        userId: '163',
         deviceId: deviceId,
         token: token,
       );
@@ -91,13 +91,13 @@ class GpsRepository {
     }
   }
 
-  Future<Result<List<GpsNotificationModel>>> fetchNotifications(String userId) async {
+  Future<Result<List<GpsNotificationModel>>> fetchNotifications() async {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
       return await _service.fetchNotifications(
         token: token,
-        userId: userId,
+        userId: '163',
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
