@@ -8,7 +8,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -19,7 +21,7 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
   void select(GpsCombinedVehicleData? vehicle) => emit(vehicle);
 }
 
-class VehicleMapScreen extends StatelessWidget {
+class VehicleMapScreen extends StatefulWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
   const VehicleMapScreen({
@@ -29,20 +31,31 @@ class VehicleMapScreen extends StatelessWidget {
   });
 
   @override
+  State<VehicleMapScreen> createState() => _VehicleMapScreenState();
+}
+
+class _VehicleMapScreenState extends State<VehicleMapScreen>
+    with GpsRefreshMixin {
+  @override
+  GpsScreenType get screenType => GpsScreenType.map;
+
+  @override
   Widget build(BuildContext context) {
     final Completer<GoogleMapController> mapController = Completer();
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: locator<VehicleListCubit>()),
         BlocProvider<SelectedVehicleCubit>(
-          create: (_) => SelectedVehicleCubit()..select(initialSelectedVehicle),
+          create:
+              (_) =>
+                  SelectedVehicleCubit()..select(widget.initialSelectedVehicle),
         ),
       ],
       child: BlocBuilder<SelectedVehicleCubit, GpsCombinedVehicleData?>(
         builder: (context, selectedVehicle) {
-          final isSingleVehicle = vehicles.length == 1;
+          final isSingleVehicle = widget.vehicles.length == 1;
           final markers = <Marker>{};
-          for (final vehicle in vehicles) {
+          for (final vehicle in widget.vehicles) {
             final loc = vehicle.location;
             if (loc != null && loc.contains(',')) {
               final parts = loc.split(',');
@@ -250,7 +263,7 @@ class VehicleMapScreen extends StatelessWidget {
                         GpsCombinedVehicleData? nearestVehicle;
                         double? nearestDistance;
 
-                        for (final vehicle in vehicles) {
+                        for (final vehicle in widget.vehicles) {
                           if (vehicle.location != null &&
                               vehicle.location!.contains(',')) {
                             final parts = vehicle.location!.split(',');
