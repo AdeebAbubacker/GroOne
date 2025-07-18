@@ -73,7 +73,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     return [
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
       VpAllLoadsScreen(initialTabIndex: vpAllLoadsInitialTabIndex),
-      const Center(child: Text('Support')),
+       Center(child: Text(context.appText.support)),
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }
@@ -148,7 +148,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                     child: Icon(Icons.compare_arrows_rounded),
                     //child: SvgPicture.asset(AppIcons.svg.switchIcon),
                   ),
-                  label: "Switch Account",
+                  label: context.appText.switchAccount,
                 ),
             ],
           ),

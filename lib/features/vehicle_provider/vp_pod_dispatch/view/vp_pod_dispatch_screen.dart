@@ -67,12 +67,12 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   // Submit Pod Api call
   void submitPodApiCall() {
     if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - Load Id : ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
       if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(message: "Something went wrong - Pod Center Name : $podCenterNameDropDownValue");
+        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
         return;
       }
 
@@ -150,7 +150,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
                       AppDropdown(
                         validator: (value) => Validator.fieldRequired(value),
                         labelText: context.appText.podCenter,
-                        hintText: "Select POD Center",
+                        hintText: context.appText.selectPodCenter,
                         dropdownValue: podCenterIdDropDownValue,
                         decoration: commonInputDecoration(fillColor: Colors.white),
                         dropDownList: data.data.map((e) => DropdownMenuItem(

@@ -1,6 +1,9 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -8,31 +11,35 @@ class VpHelper{
 
 
  static String getLoadStatusButtonTitle(int loadStatus){
+   BuildContext context=navigatorKey.currentState!.context;
     switch(loadStatus){
       case 3:
-        return "Assign Driver";
+        return context.appText.assignDriver;
       default:
-        return "Accept Load";
+        return context.appText.acceptLoad;
     }
-
  }
 
- static String getLoadStatus(LoadStatus loadStatus){
-   return switch(loadStatus){
-     LoadStatus.matching => "",
-     LoadStatus.accepted => "Confirmed",
-     // TODO: Handle this case.
-     LoadStatus.assigned => "Assigned",
-     // TODO: Handle this case.
-     LoadStatus.loading => "Loading",
-     // TODO: Handle this case.
-     LoadStatus.unloading => "Unloading",
-     // TODO: Handle this case.
-     LoadStatus.inTransit => "In Transit",
-     // TODO: Handle this case.
-     LoadStatus.completed => "Completed",
-   };
+ /// Refresh Indicator
+ static Widget withRefreshIndicator(Future<void> Function() onRefresh,{Widget? child}) {
+   return RefreshIndicator(
+     onRefresh: onRefresh,
+     child: child??SizedBox(),
+   );
+ }
 
+ /// Refresh Indicator
+ static Widget withSliverRefresh(Future<void> Function() onRefresh,{Widget? child}) {
+   return RefreshIndicator(
+     onRefresh: onRefresh,
+     child: CustomScrollView(
+       slivers: [
+         SliverFillRemaining(
+           child:   child??SizedBox(),
+         )
+       ],
+     ),
+   );
  }
 }
 
@@ -51,15 +58,16 @@ enum LoadStatus {
 
 
 String getBottomButtonTitle(LoadStatus status){
+  BuildContext context=navigatorKey.currentState!.context;
   switch(status){
     case LoadStatus.loading:
-      return "Swipe to complete Loading";
+      return context.appText.swipeToCompleteLoading;
       case LoadStatus.inTransit:
-      return "Swipe To start unloading";
+      return context.appText.swipeToStartUnLoading;
       case LoadStatus.unloading:
-      return "Swipe to complete Unloading";
+      return context.appText.swipeToCompleteUnLoading;
     default:
-      return "Swipe to Start Trip";
+      return context.appText.swipeToStart;
   }
 }
 

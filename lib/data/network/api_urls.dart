@@ -6,6 +6,12 @@ class ApiUrls {
   /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
+  /// Map Key
+  static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
+
+
+
+
   /// Path
   static String get _path => "/api";
   static String get _load => "/load";
@@ -186,5 +192,8 @@ class ApiUrls {
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 
  /// Driver
- static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true"; 
+ static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
+
+
+
 }

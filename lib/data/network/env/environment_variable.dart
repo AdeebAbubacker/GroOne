@@ -8,6 +8,11 @@ class EnvironmentVariables {
     return _getEnvVariable("API_BASE_URL");
   }
 
+  /// Fetch Base URL
+  static String get fetchMapKey {
+    return _getEnvVariable("MAP_KEY");
+  }
+
   /// Helper method to fetch environment variables safely
   static String _getEnvVariable(String key) {
     final devValue = dotenv.env[key] ?? "";

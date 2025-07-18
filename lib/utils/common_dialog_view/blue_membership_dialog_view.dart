@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -52,14 +53,14 @@ class _BlueMembershipDialogViewState extends State<BlueMembershipDialogView> {
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           alignment: Alignment.center,
           decoration: commonContainerDecoration(color: AppColors.primaryColor),
-          child: Text("Blue Membership ID: ${widget.blueId}", textAlign: TextAlign.center, style: AppTextStyle.h6WhiteColor),
+          child: Text("${context.appText.blueMembershipId}: ${widget.blueId}", textAlign: TextAlign.center, style: AppTextStyle.h6WhiteColor),
         ),
         20.height,
 
-        Text("Blue membership ID generated Successfully", textAlign: TextAlign.center, style: AppTextStyle.h4),
+        Text(context.appText.blueMemberGeneratedSuccessfully, textAlign: TextAlign.center, style: AppTextStyle.h4),
         10.height,
 
-        Text("Start exploring premium load options today", style: AppTextStyle.body3GreyColor, textAlign: TextAlign.center),
+        Text(context.appText.startExploringPremiumLoadOption, style: AppTextStyle.body3GreyColor, textAlign: TextAlign.center),
       ],
     ).paddingSymmetric(horizontal: 5);
   }

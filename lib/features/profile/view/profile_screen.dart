@@ -96,19 +96,22 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.profile),
-      body: SafeArea(
-        minimum: EdgeInsets.all(commonSafeAreaPadding),
-        child: Column(
-          spacing: 15,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            buildProfileDetailWidget(),
-            5.height,
-            profileOptionWidget(context),
-            buildProfileVersionWidget(),
-          ],
-        ),
-      ).withScroll(),
+      body: RefreshIndicator(
+        onRefresh: () async => initFunction(),
+        child: SafeArea(
+          minimum: EdgeInsets.all(commonSafeAreaPadding),
+          child: Column(
+            spacing: 15,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              buildProfileDetailWidget(),
+              5.height,
+              profileOptionWidget(context),
+              buildProfileVersionWidget(),
+            ],
+          ),
+        ).withScroll(),
+      ),
     );
   }
 

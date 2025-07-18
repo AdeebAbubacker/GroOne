@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -127,7 +128,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       iconSvg: AppIcons.svg.deliveryTruckSpeed,
                     ),
                     detailWidget(
-                      text: "${widget.data.consignmentWeight} Tonn",
+                      text: "${widget.data.consignmentWeight} ${context.appText.tonn}",
                       iconSvg: AppIcons.svg.weight,
                     ),
                   ],
@@ -153,7 +154,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 children: [
                   FittedBox(
                     child: Text(
-                      "Quoted Price",
+                      context.appText.quotedPrice,
                       style: AppTextStyle.textBlackColor18w400,
                       textAlign: TextAlign.center,
                     ),
@@ -221,7 +222,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title: 'Accept Load',
+                      title: context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );

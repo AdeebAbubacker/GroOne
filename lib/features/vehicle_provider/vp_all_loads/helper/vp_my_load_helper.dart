@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -15,7 +16,8 @@ class VpMyLoadHelper {
 
   // Showing Status View
   static Widget loadStatusWidget(String status) {
-    debugPrint("Status : $status");
+
+
     Widget ui({required String text ,required Color textColor, required Color backgroundColor}) {
       return Container(
         decoration: commonContainerDecoration(
@@ -31,40 +33,40 @@ class VpMyLoadHelper {
 
     switch (status) {
       case "Confirmed":
-        return ui(text : "Confirmed", textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
+        return ui(text : status, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
       case "Assigned":
-        return ui(text: "Assigned",textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
+        return ui(text: status,textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
       case "Loading":
-        return ui(text: "Loading", textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
+        return ui(text: status, textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
       case "Unloading":
-        return ui(text: "Unloading",textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
+        return ui(text: status,textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
       case "In Transit":
-        return ui(text: "In Transit" ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
+        return ui(text: status ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
       case "POD Dispatch":
-        return ui(text: "POD Dispatch",textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
+        return ui(text: status,textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
       case "Completed":
-        return ui(text: "Completed", textColor: Colors.white, backgroundColor: Color(0xff018800));
+        return ui(text: status, textColor: Colors.white, backgroundColor: Color(0xff018800));
       default:
         return Container();
     }
   }
 
   // Showing Status Button
-  static Widget loadStatusButtonWidget({required String status, bool isLoading = false, required void Function() onPressed}) {
+  static Widget loadStatusButtonWidget({required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context}) {
     switch (status) {
       case "Confirmed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "Assign Driver",
+          title:context.appText.assignDriver,
         );
       case "Assigned":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "Start Trip",
+          title:context.appText.startTrip ,
         );
       case "Loading":
         return AppButton(
@@ -83,7 +85,8 @@ class VpMyLoadHelper {
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete unloading",
+          text: context.appText.swipeToCompleteUnLoading,
+
           textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
           onSubmit: (){
             onPressed.call();
@@ -100,7 +103,7 @@ class VpMyLoadHelper {
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to unload",
+          text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
           onSubmit: (){
             onPressed.call();
@@ -111,14 +114,14 @@ class VpMyLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "POD Dispatch Detail",
+          title: context.appText.podDispatchedDetails,
         );
       case "Completed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "View Detail",
+          title: context.appText.viewDetails,
         );
       default:
         return Container();

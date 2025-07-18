@@ -78,7 +78,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
+    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {

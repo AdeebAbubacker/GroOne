@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -67,7 +69,10 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tabScrollController.jumpTo(50); // or .animateTo(...) for animation
+      if(_tabScrollController.positions.isNotEmpty){
+        _tabScrollController.jumpTo(50);
+      }
+       // or .animateTo(...) for animation
     });
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
   }
@@ -88,8 +93,16 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     });
   }
 
+
   void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final type = index + 1;
+    final search = searchController.text;
+    vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
+    setState(() {});
+  }
+
+  Future<void> _onPullToRefresh({bool forceRefresh=false}) async{
+    final type = _tabController.index+1;
     final search = searchController.text;
     vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
     setState(() {});
@@ -121,10 +134,10 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                 splashFactory: NoSplash.splashFactory,
                 tabs: List.generate(4, (index) {
                   final tabLabels = [
-                    'Available Loads',
-                    'My Loads',
-                    'Confirmed',
-                    'Assigned',
+                    context.appText.availableLoads,
+                    context.appText.myLoads,
+                    context.appText.confirmed,
+                    context.appText.assigned,
                   ];
                   final isSelected = _tabController.index == index;
                   return Tab(
@@ -166,7 +179,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                             AppDialog.show(
                               context,
                               child: SuccessDialogView(
-                                message: 'Load Accepted Successfully',
+                                message: context.appText.loadAcceptedSuccessfully,
                                 afterDismiss: () {
                                   if (context.mounted) Navigator.pop(context);
                                 },
@@ -221,48 +234,57 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         } else if (state is VpLoadLoaded) {
           if (state.loads.isEmpty) {
-            return const Center(child: Text("No loads found."));
+            return VpHelper.withSliverRefresh(
+                child: Center(child: Text(context.appText.noLoadsFound)),
+                _onPullToRefresh);
+
           }
-          return ListView.builder(
-            padding: EdgeInsets.all(commonSafeAreaPadding),
-            shrinkWrap: true,
-            itemCount: state.loads.length,
-            itemBuilder: (context, index) {
-              if (_tabController.index == 0) {
-                return VpAllLoadAvailableLoadWidget(
-                    data: state.loads[index]
-                ).paddingSymmetric(vertical: 7);
-              } else if (_tabController.index == 1) {
-                return VpAllLoadMyLoadWidget(
-                  data: state.loads[index],
-                  onClickAssignDriver: () {
-                    context.push(AppRouteName.loadDetailsScreen,extra: {
-                      "loadId":state.loads[index].id
-                    });
-                  },
-                ).paddingSymmetric(vertical: 7);
-              } else {
-                return GestureDetector(
-                  onTap: () {
-                    context.push(AppRouteName.loadDetailsScreen,extra: {
-                      "loadId":state.loads[index].id
-                    });
-                  },
-                  child: VpAllLoadMyLoadWidget(
-                    data: state.loads[index],
-                    showButton: _tabController.index!=3,
-                    onClickAssignDriver: () {
-                      context.push(AppRouteName.loadDetailsScreen,extra: {
-                        "loadId":state.loads[index].id
-                      });
-                    },
-                  ).paddingSymmetric(vertical: 7),
-                );
-              }
-            },
-          );
+          return VpHelper.withRefreshIndicator(
+              child: ListView.builder(
+                padding: EdgeInsets.all(commonSafeAreaPadding),
+                shrinkWrap: true,
+                itemCount: state.loads.length,
+                itemBuilder: (context, index) {
+                  if (_tabController.index == 0) {
+                    return VpAllLoadAvailableLoadWidget(
+                        data: state.loads[index]
+                    ).paddingSymmetric(vertical: 7);
+                  } else if (_tabController.index == 1) {
+                    return VpAllLoadMyLoadWidget(
+                      data: state.loads[index],
+                      onClickAssignDriver: () {
+                        context.push(AppRouteName.loadDetailsScreen,extra: {
+                          "loadId":state.loads[index].id
+                        });
+                      },
+                    ).paddingSymmetric(vertical: 7);
+                  } else {
+                    return GestureDetector(
+                      onTap: () {
+                        context.push(AppRouteName.loadDetailsScreen,extra: {
+                          "loadId":state.loads[index].id
+                        });
+                      },
+                      child: VpAllLoadMyLoadWidget(
+                        data: state.loads[index],
+                        showButton: _tabController.index!=3,
+                        onClickAssignDriver: () {
+                          context.push(AppRouteName.loadDetailsScreen,extra: {
+                            "loadId":state.loads[index].id
+                          });
+                        },
+                      ).paddingSymmetric(vertical: 7),
+                    );
+                  }
+                },
+              ),
+              _onPullToRefresh);
+
+
         } else if (state is VpLoadError) {
-          return Center(child: Text(state.message));
+          return VpHelper.withSliverRefresh(
+              _onPullToRefresh,
+            child: Center(child: Text(state.message)));
         } else {
           return const SizedBox.shrink();
         }

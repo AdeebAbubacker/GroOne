@@ -78,9 +78,9 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if(widget.data.assignStatus==3)
-                Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                Text(widget.data.loadStatusDetails?.loadStatus??"", style: AppTextStyle.bodyPurpleColor),
                 if(widget.data.assignStatus==4)
-                  Text('Assigned', style: AppTextStyle.bodyPurpleColor.copyWith(
+                  Text(widget.data.loadStatusDetails?.loadStatus??"", style: AppTextStyle.bodyPurpleColor.copyWith(
                     color: AppColors.activeDarkGreenColor
                   ))
               ],
@@ -210,7 +210,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               children: [
                 FittedBox(
                   child: Text(
-                    "Accepted Price",
+                    context.appText.acceptedPrice,
                     style: AppTextStyle.textBlackColor18w400,
                     textAlign: TextAlign.center,
                   ),
@@ -258,7 +258,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               AppButton(
                 buttonHeight: 40,
                 onPressed: widget.onClickAssignDriver ?? () {},
-                title: "Assign Driver",
+                title: context.appText.assignDriver,
                     // widget.data.assignStatus == 2
                     //     ?
                     //     : "Start Trip",

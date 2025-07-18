@@ -48,6 +48,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
 
+
   /// Get Load Details
 
   getLoadDetails() {
@@ -84,14 +85,18 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             return CircularProgressIndicator().center();
           }
           if (state.loadDetailsUIState?.status == Status.ERROR) {
-            return genericErrorWidget(
+            return VpHelper.withSliverRefresh(
+                () => getLoadDetails(),
+                child: genericErrorWidget(
               error: state.loadDetailsUIState?.errorType,
-            );
+            ));
           }
           if (state.loadDetailsUIState?.status == Status.SUCCESS) {
             final loads = state.loadDetailsUIState?.data;
             if (loads?.data == null) {
-              return genericErrorWidget(error: NotFoundError());
+              return VpHelper.withSliverRefresh(
+                      () => getLoadDetails(),
+                  child: genericErrorWidget(error: NotFoundError()));
             }
 
             return Stack(
