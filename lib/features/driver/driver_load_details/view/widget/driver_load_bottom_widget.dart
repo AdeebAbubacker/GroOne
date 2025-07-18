@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
+import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -47,7 +51,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [  
-                      
+      
+                 
                   // Truck Type Row
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -106,25 +111,49 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             pickUpLocation: widget.loadItem.data?.loadRoute?.pickUpLocation,
                             dropLocation:  widget.loadItem.data?.loadRoute?.dropLocation,
                           ).paddingSymmetric(horizontal: 15),
-
-                 20.height,
-              _buildConsigneeDetail(
-                context: context,
-                email: widget.loadItem.data?.consignees.last.email,
-                name: widget.loadItem.data?.consignees.last.name,
-                phoneNo: widget.loadItem.data?.consignees.last.mobileNumber,
-                ),
-              20.height,
-              Text("Timeline",
-                   style: AppTextStyle.h4,
-                  ),
-                20.height,
-                 DriverLoadTimelineWidget(
-                timelineList: widget.loadItem?.data?.timeline ?? [],
-                 ),
-                ],
-              ).paddingAll(16),
-            ).expand(),
+                          20.height,
+                          _buildAdableSectionHeader(
+                          showAddButton:true,
+                          context: context,
+                          title: 'Damages and Shortages',
+                          onAdd: () {
+                                    Navigator.push(
+                                      context,
+                                      commonRoute(DriverDamagesAndShortagesScreen(vehicleId: widget.loadItem.data?.scheduleTripDetails?.vehicleId, loadId: widget.loadItem.data?.loadId,)),
+                                    );
+                                  },
+                                ),
+                            20.height,
+                              _buildAdableSectionHeader(
+                                context: context,
+                                showAddButton: true,
+                                title: 'Settlements',
+                                onAdd: () {
+                                  Navigator.push(
+                                    context,
+                                    commonRoute(DriverSettlementsScreen(
+                                     vehicleID: widget.loadItem.data?.scheduleTripDetails?.vehicleId, loadId: widget.loadItem.data?.loadId,
+                                    )),
+                                  );
+                                },
+                              ),      
+                          _buildConsigneeDetail(
+                            context: context,
+                            email: widget.loadItem.data?.consignees.last.email,
+                            name: widget.loadItem.data?.consignees.last.name,
+                            phoneNo: widget.loadItem.data?.consignees.last.mobileNumber,
+                            ),
+                          20.height,
+                          Text("Timeline",
+                              style: AppTextStyle.h4,
+                              ),
+                            20.height,
+                            DriverLoadTimelineWidget(
+                            timelineList: widget.loadItem?.data?.timeline ?? [],
+                            ),
+                            ],
+                          ).paddingAll(16),
+                        ).expand(),
           ],
         ),
       ),
@@ -194,4 +223,40 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
       ),
     ],
   );
+}
+
+
+// Addable Section Header
+Widget _buildAdableSectionHeader({
+  required BuildContext context,
+  required String title,
+  required VoidCallback onAdd,
+  bool? showAddButton
+}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      _buildHeading(text: title),
+      Spacer(),
+      Visibility(
+        visible: (showAddButton??true),
+        child: GestureDetector(
+          onTap: onAdd,
+          child: Text(
+            '+ ${context.appText.add}',
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryColor,
+            ),
+          ),
+        ),
+      ),
+      10.width,
+    ],
+  );
+}
+
+// Heading
+Widget _buildHeading({required String text}) {
+  return Text(text, style: AppTextStyle.h4);
 }
