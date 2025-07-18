@@ -107,8 +107,10 @@ import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
 import '../features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
+import '../features/gps_feature/service/gps_data_refresh_service.dart';
 import '../features/gps_feature/service/gps_login_service.dart';
 import '../features/gps_feature/service/gps_realm_service.dart';
+import '../features/gps_feature/service/gps_screen_manager.dart';
 import '../features/gps_feature/service/gps_vehicle_extra_info_service.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 
@@ -335,6 +337,8 @@ void initLocator() {
     locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
     locator.registerLazySingleton(() => GpsRealmService());
     locator.registerLazySingleton(() => HasInternetConnection());
+    locator.registerLazySingleton(() => GpsDataRefreshService());
+    locator.registerLazySingleton(() => GpsScreenManager());
     locator.registerLazySingleton(
       () => GpsLoginRepository(
         locator<GpsLoginService>(),
@@ -563,6 +567,15 @@ void initLocator() {
     locator.registerLazySingleton(
       () => PodDispatchCubit(locator<PodDispatchRepository>()),
     );
+
+    // Initialize GPS services after all dependencies are registered
+    try {
+      locator<GpsDataRefreshService>().initialize();
+      locator<GpsScreenManager>().initialize();
+      CustomLog.info(locator, "GPS services initialized successfully");
+    } catch (e) {
+      CustomLog.error(locator, "ERROR: GPS services initialization failed", e);
+    }
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {
