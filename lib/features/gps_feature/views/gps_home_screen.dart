@@ -8,6 +8,8 @@ import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -324,7 +326,12 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.settings,
         Icons.settings_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          Navigator.push(
+            context,
+            commonRoute(GpsSettingsScreen()),
+          );
+        },
       ),
       _MenuItem(
         context.appText.reports,
@@ -342,6 +349,17 @@ class GpsHomeScreen extends StatelessWidget {
             commonRoute(GpsOrderBenefitsAndOrderListScreen()),
           );
         },
+      ),
+      _MenuItem(
+        context.appText.parking,
+        Icons.local_parking,
+        AppConstants.primaryColor,
+            () {
+          Navigator.push(context, commonRoute( BlocProvider.value(
+            value: locator<VehicleListCubit>()..loadVehicleData(),
+            child: GpsParkingModeScreen(),
+          ),));
+            },
       ),
     ];
     return GridView.builder(

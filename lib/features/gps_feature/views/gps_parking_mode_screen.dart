@@ -1,0 +1,180 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import '../../../dependency_injection/locator.dart';
+import '../../../utils/app_application_bar.dart';
+import '../../../utils/app_colors.dart';
+import '../../../utils/app_icon_button.dart';
+import '../../../utils/app_icons.dart';
+import '../../../utils/app_route.dart';
+import '../../../utils/app_text_style.dart';
+import '../../../utils/common_widgets.dart';
+import '../cubit/vehicle_list_cubit.dart';
+import 'widgets/gps_parking_mode_scheduler.dart';
+import 'gps_notification_screen.dart';
+
+class GpsParkingModeScreen extends StatefulWidget {
+  const GpsParkingModeScreen({super.key});
+
+  @override
+  State<GpsParkingModeScreen> createState() => _GpsParkingModeScreenState();
+}
+
+class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    final cubit = context.read<VehicleListCubit>();
+    if (!cubit.hasLoadedData) {
+      cubit.loadVehicleData();
+    }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CommonAppBar(
+        title: "Parking Mode",
+        centreTile: false,
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.read<VehicleListCubit>().refreshData(),
+            icon: const Icon(Icons.refresh, color: Colors.blue),
+            label: Text("Refresh", style: AppTextStyle.primaryColor12w400),
+          ),
+          AppIconButton(
+            onPressed: () {
+              final vehicleListCubit = locator<VehicleListCubit>();
+              // Only load data if not already loaded
+              if (!vehicleListCubit.hasLoadedData) {
+                vehicleListCubit.loadVehicleData();
+              } else {
+                debugPrint(
+                  "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
+                );
+              }
+
+              Navigator.push(
+                context,
+                commonRoute(
+                  BlocProvider.value(
+                    value: vehicleListCubit,
+                    child: GpsNotificationScreen(),
+                  ),
+                ),
+              );
+            },
+            icon: SvgPicture.asset(AppIcons.svg.notification, height: 20),
+            iconColor: AppColors.primaryColor,
+          ),
+          AppIconButton(
+            onPressed: () {},
+            icon: Image.asset(AppIcons.png.moreVertical),
+            iconColor: AppColors.primaryColor,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: AppTextField(
+              decoration: commonInputDecoration(
+                hintText: "Search Vehicle",
+                suffixIcon: const Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() => searchController.text = value);
+                context.read<VehicleListCubit>().searchVehicles(value);
+              },
+              controller: searchController,
+            ),
+          ),
+          BlocBuilder<VehicleListCubit, VehicleListState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final vehicles = state.filteredVehicles;
+
+              if (vehicles.isEmpty) {
+                return Center(
+                  child: Text("No vehicles found", style: AppTextStyle.h6),
+                );
+              }
+
+              return Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  itemCount: vehicles.length,
+                  separatorBuilder: (_, __) => 10.height,
+                  itemBuilder: (context, index) {
+                    final vehicle = vehicles[index];
+                    return _buildVehicleTile(
+                      context,
+                      vehicle.vehicleNumber ?? '',
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVehicleTile(BuildContext context, String vehicleNumber) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: CircleAvatar(
+          backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
+          child: SvgPicture.asset(AppIcons.svg.truck, width: 24),
+        ),
+        title: Text(vehicleNumber, style: AppTextStyle.h6),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Switch(
+              value: true,
+              activeTrackColor: AppColors.activeGreenColor,
+              activeColor: Colors.white,
+              onChanged: (val) {},
+            ),
+            IconButton(
+              icon: Icon(Icons.schedule, color: AppColors.primaryColor),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (_) => const GpsParkingModeScheduler(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

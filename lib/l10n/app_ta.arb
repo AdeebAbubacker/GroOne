@@ -459,5 +459,6 @@
   "polylineGeofence": "Polyline Geofence",
   "points": "Points",
   "notifications": "Notifications",
-  "noNotificationsAvailable": "No notifications available"
+  "noNotificationsAvailable": "No notifications available",
+  "parking": "Parking"
 }
