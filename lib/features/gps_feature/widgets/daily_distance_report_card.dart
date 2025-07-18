@@ -10,48 +10,63 @@ class DailyDistanceReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with vehicle ID
+          // Header Row
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF424242), // Dark grey header
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
-              '${report.deviceId}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            child: const Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Date',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'Distance (KM)',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          // Body with date and distance data
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(12),
-                bottomRight: Radius.circular(12),
-              ),
-            ),
-            child: Column(
-              children: report.dailyDistances.map((item) => _buildDataRow(item)).toList(),
-            ),
-          ),
+          
+          const SizedBox(height: 8),
+          
+          // Data Rows
+          ...report.dailyDistances.map((item) => _buildDataRow(item)).toList(),
         ],
       ),
     );
@@ -64,29 +79,35 @@ class DailyDistanceReportCard extends StatelessWidget {
     print("  - Distance (raw): ${item.distance}");
     print("  - Distance (formatted): ${item.distance.toStringAsFixed(0)}");
     
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         children: [
-          // Date column
+          // Date column with calendar icon
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Date',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
-                  ),
+                const Icon(
+                  Icons.calendar_today,
+                  color: Color(0xFF2196F3),
+                  size: 20,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(width: 8),
                 Text(
                   _formatDate(item.date),
                   style: const TextStyle(
-                    color: Color(0xFF4CAF50), // Green color
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
                 ),
               ],
@@ -94,26 +115,14 @@ class DailyDistanceReportCard extends StatelessWidget {
           ),
           // Distance column
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Kilometers',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.distance == 0 ? '0' : item.distance.toStringAsFixed(1), // Show decimal only if data exists
-                  style: const TextStyle(
-                    color: Color(0xFF4CAF50), // Green color
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            child: Text(
+              _formatDistance(item.distance),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
           ),
         ],
@@ -123,12 +132,20 @@ class DailyDistanceReportCard extends StatelessWidget {
 
   String _formatDate(String dateString) {
     try {
-      // Try to parse the date string
+      // Try to parse the date string and format it as dd-MM-yyyy
       final date = DateTime.parse(dateString);
-      return DateFormat('MMM dd, yyyy').format(date);
+      return DateFormat('dd-MM-yyyy').format(date);
     } catch (e) {
       // If parsing fails, return the original string
       return dateString;
     }
+  }
+
+  String _formatDistance(double distance) {
+    // Format distance to show as "356 Kms" format
+    if (distance == 0) {
+      return '0 Kms';
+    }
+    return '${distance.toStringAsFixed(0)} Kms';
   }
 } 

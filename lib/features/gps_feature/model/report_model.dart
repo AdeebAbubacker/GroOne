@@ -160,8 +160,47 @@ class SummaryReport extends Equatable {
   final double avgSpeed;
   final String startTime;
   final String endTime;
+  final String reportDate;
+  final double startLat;
+  final double startLng;
+  final double endLat;
+  final double endLng;
+  final String startAddress;
+  final String endAddress;
+  final double safetyScore;
+  final int harshAcceleration;
+  final int harshBraking;
+  final int harshCornering;
+  final int overSpeed;
+  final int crash;
 
-  const SummaryReport({ required this.deviceId, required this.deviceName, required this.distance, required this.engineTime, required this.idleTime, required this.maxSpeed, required this.avgSpeed, required this.startTime, required this.endTime });
+  const SummaryReport({
+    required this.deviceId,
+    required this.deviceName,
+    required this.distance,
+    required this.engineTime,
+    required this.idleTime,
+    required this.maxSpeed,
+    required this.avgSpeed,
+    required this.startTime,
+    required this.endTime,
+    required this.reportDate,
+    required this.startLat,
+    required this.startLng,
+    required this.endLat,
+    required this.endLng,
+    required this.startAddress,
+    required this.endAddress,
+    required this.safetyScore,
+    required this.harshAcceleration,
+    required this.harshBraking,
+    required this.harshCornering,
+    required this.overSpeed,
+    required this.crash,
+  });
+
+  // Helper getter for safety count as integer
+  int get safetyCount => safetyScore.toInt();
 
   factory SummaryReport.fromJson(Map<String, dynamic> json) {
     return SummaryReport(
@@ -174,6 +213,19 @@ class SummaryReport extends Equatable {
       avgSpeed: _parseNum<double>(json['avg_speed']),
       startTime: _parseString(json['start_time']),
       endTime: _parseString(json['end_time']),
+      reportDate: _parseString(json['@timestamp']),
+      startLat: _parseNum<double>(json['start_lat']),
+      startLng: _parseNum<double>(json['start_lng']),
+      endLat: _parseNum<double>(json['end_lat']),
+      endLng: _parseNum<double>(json['end_lng']),
+      startAddress: _parseString(json['start_location']),
+      endAddress: _parseString(json['end_location']),
+      safetyScore: _parseNum<double>(json['driving_safety_score']),
+      harshAcceleration: _parseNum<int>(json['harsh_acceleration']),
+      harshBraking: _parseNum<int>(json['harsh_braking']),
+      harshCornering: _parseNum<int>(json['harsh_cornering']),
+      overSpeed: _parseNum<int>(json['over_speed']),
+      crash: _parseNum<int>(json['crash']),
     );
   }
   @override

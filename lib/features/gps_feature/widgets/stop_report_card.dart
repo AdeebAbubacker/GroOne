@@ -1,25 +1,76 @@
 // lib/features/gps_feature/presentation/widgets/stop_report_card.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../model/report_model.dart';
+import '../model/address_model.dart';
+import '../cubit/report_cubit.dart';
 
 class StopReportCard extends StatelessWidget {
   final StopReport report;
-  const StopReportCard({Key? key, required this.report}) : super(key: key);
+  final AddressResponse? addressResponse;
+  
+  const StopReportCard({
+    Key? key, 
+    required this.report,
+    this.addressResponse,
+  }) : super(key: key);
 
   String _formatDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString);
       return DateFormat('MMM dd, yyyy').format(dateTime);
-    } catch (e) { return 'Invalid Date'; }
+    } catch (e) { 
+      return 'Invalid Date'; 
+    }
   }
 
   String _formatTime(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString);
       return DateFormat('h:mm a').format(dateTime);
-    } catch (e) { return 'N/A'; }
+    } catch (e) { 
+      return 'N/A'; 
+    }
+  }
+
+  String _getDisplayAddress() {
+    print("🌍 UI: Getting display address for stop location");
+    print("🌍 UI: Stop Device ID: ${report.deviceId}");
+    print("🌍 UI: Stop Start Time: ${report.startTime}");
+    print("🌍 UI: AddressResponse available: ${addressResponse != null}");
+    
+    // If we have real addresses from reverse geocoding, use them
+    if (addressResponse != null) {
+      final realAddress = addressResponse!.startAddress;
+      print("🌍 UI: Real address from response: '$realAddress'");
+      if (realAddress != "No Address") {
+        print("🌍 UI: Using real address: $realAddress");
+        return realAddress;
+      } else {
+        print("🌍 UI: Real address is 'No Address', falling back to coordinates");
+      }
+    } else {
+      print("🌍 UI: No AddressResponse available, falling back to coordinates or original address");
+    }
+    
+    // Fallback to original address from API if it looks like a real address
+    if (report.address.isNotEmpty && !report.address.contains(',')) {
+      print("🌍 UI: Using original address from API: ${report.address}");
+      return report.address;
+    }
+    
+    // Final fallback to formatted coordinates
+    // If coordinates are 0,0 (invalid GPS), show dash
+    if (report.latitude == 0.0 && report.longitude == 0.0) {
+      print("🌍 UI: Coordinates are 0,0 (invalid GPS), showing dash");
+      return "-";
+    }
+    
+    final formatted = "Lat: ${report.latitude.toStringAsFixed(6)}\nLng: ${report.longitude.toStringAsFixed(6)}";
+    print("🌍 UI: Using formatted coordinates: $formatted");
+    return formatted;
   }
 
   @override
@@ -72,7 +123,7 @@ class StopReportCard extends StatelessWidget {
               // Location - flexible to take remaining space
               Expanded(
                 child: Text(
-                  report.address,
+                  _getDisplayAddress(),
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
@@ -122,7 +173,7 @@ class StopReportCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     // Add your map navigation logic here
-                    print('Navigate to map for location: ${report.address}');
+                    print('Navigate to map for location: ${_getDisplayAddress()}');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

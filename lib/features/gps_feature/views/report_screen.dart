@@ -7,6 +7,7 @@ import '../../../dependency_injection/locator.dart';
 import '../cubit/report_cubit.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/report_model.dart';
+import '../model/address_model.dart';
 import '../repository/gps_login_repository.dart';
 import '../widgets/stop_report_card.dart';
 import '../widgets/summary_report_card.dart';
@@ -273,14 +274,34 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                 // THIS IS THE FULLY IMPLEMENTED SWITCH
                 switch (state.currentReportType) {
                   case ReportType.stops:
-                    return StopReportCard(report: item as StopReport);
+                    final stopReport = item as StopReport;
+                    final stopId = "${stopReport.deviceId}_${stopReport.startTime}";
+                    final stopAddressResponse = context.read<GpsReportCubit>().getAddressForStop(stopId);
+                    return StopReportCard(
+                      report: stopReport,
+                      // Convert StopAddressResponse to AddressResponse format for compatibility
+                      addressResponse: stopAddressResponse != null 
+                        ? AddressResponse(
+                            positionId: 0, // Not used for stops
+                            deviceId: stopAddressResponse.deviceId,
+                            startAddress: stopAddressResponse.address,
+                            endAddress: stopAddressResponse.address, // Same address for stops
+                          )
+                        : null,
+                    );
                   case ReportType.trips:
                     return TripReportCard(
                       report: item as TripReport,
                       addressResponse: context.read<GpsReportCubit>().getAddressForTrip(item.startPositionId),
                     );
                   case ReportType.daily:
-                    return SummaryReportCard(report: item as SummaryReport);
+                    final summaryReport = item as SummaryReport;
+                    final summaryId = "${summaryReport.deviceId}_${summaryReport.startTime}";
+                    final summaryAddressResponse = context.read<GpsReportCubit>().getAddressForSummary(summaryId);
+                    return SummaryReportCard(
+                      report: summaryReport,
+                      addressResponse: summaryAddressResponse,
+                    );
                   case ReportType.dailyKm:
                     return DailyDistanceReportCard(report: item as DailyDistanceReport);
                   case ReportType.reachability:

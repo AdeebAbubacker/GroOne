@@ -27,9 +27,17 @@ class GpsReportState extends Equatable {
   final ReportType?
   currentReportType; // To know what kind of data is in the list
 
-  // State for addresses
+  // State for trip addresses
   final GpsDataStatus addressStatus;
-  final Map<int, AddressResponse> addresses; // Device ID -> Address mapping
+  final Map<int, AddressResponse> addresses; // Trip ID -> Address mapping
+
+  // State for stop addresses
+  final GpsDataStatus stopAddressStatus;
+  final Map<String, StopAddressResponse> stopAddresses; // Stop ID -> Address mapping
+
+  // State for summary addresses
+  final GpsDataStatus summaryAddressStatus;
+  final Map<String, SummaryAddressResponse> summaryAddresses; // Summary ID -> Address mapping
 
   // General error message for the screen
   final String? errorMessage;
@@ -42,6 +50,10 @@ class GpsReportState extends Equatable {
     this.currentReportType,
     this.addressStatus = GpsDataStatus.initial,
     this.addresses = const {},
+    this.stopAddressStatus = GpsDataStatus.initial,
+    this.stopAddresses = const {},
+    this.summaryAddressStatus = GpsDataStatus.initial,
+    this.summaryAddresses = const {},
     this.errorMessage,
   });
 
@@ -55,6 +67,10 @@ class GpsReportState extends Equatable {
     ReportType? currentReportType,
     GpsDataStatus? addressStatus,
     Map<int, AddressResponse>? addresses,
+    GpsDataStatus? stopAddressStatus,
+    Map<String, StopAddressResponse>? stopAddresses,
+    GpsDataStatus? summaryAddressStatus,
+    Map<String, SummaryAddressResponse>? summaryAddresses,
     String? errorMessage,
   }) {
     return GpsReportState(
@@ -65,19 +81,27 @@ class GpsReportState extends Equatable {
       currentReportType: currentReportType ?? this.currentReportType,
       addressStatus: addressStatus ?? this.addressStatus,
       addresses: addresses ?? this.addresses,
+      stopAddressStatus: stopAddressStatus ?? this.stopAddressStatus,
+      stopAddresses: stopAddresses ?? this.stopAddresses,
+      summaryAddressStatus: summaryAddressStatus ?? this.summaryAddressStatus,
+      summaryAddresses: summaryAddresses ?? this.summaryAddresses,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-    vehicleStatus,
-    vehicles,
-    reportStatus,
-    reports,
-    currentReportType,
-    addressStatus,
-    addresses,
-    errorMessage,
-  ];
+        vehicleStatus,
+        vehicles,
+        reportStatus,
+        reports,
+        currentReportType,
+        addressStatus,
+        addresses,
+        stopAddressStatus,
+        stopAddresses,
+        summaryAddressStatus,
+        summaryAddresses,
+        errorMessage,
+      ];
 }

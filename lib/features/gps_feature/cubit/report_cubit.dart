@@ -124,6 +124,18 @@ class GpsReportCubit extends Cubit<GpsReportState> {
         print("  - Automatically fetching addresses for ${result.value.length} trip reports...");
         fetchAddressesForTrips(result.value);
       }
+
+      // If this was a stop report, automatically fetch addresses
+      if (reportType == ReportType.stops && result.value.isNotEmpty) {
+        print("  - Automatically fetching addresses for ${result.value.length} stop reports...");
+        fetchAddressesForStops(result.value);
+      }
+
+      // If this was a summary report, automatically fetch addresses
+      if (reportType == ReportType.daily && result.value.isNotEmpty) {
+        print("  - Automatically fetching addresses for ${result.value.length} summary reports...");
+        fetchAddressesForSummaries(result.value);
+      }
     } else if (result is Error) {
       final error = (result as Error).type;
       print("  - Error: $error");
@@ -200,5 +212,135 @@ class GpsReportCubit extends Cubit<GpsReportState> {
     print("🌍 Cubit: Available trip IDs in address map: ${state.addresses.keys.toList()}");
     print("🌍 Cubit: Address status: ${state.addressStatus}");
     return address;
+  }
+
+  /// Fetch addresses for stop reports
+  Future<void> fetchAddressesForStops(List<dynamic> stopReports) async {
+    try {
+      print("🌍 Cubit: Starting to fetch addresses for ${stopReports.length} stop reports");
+      
+      if (stopReports.isNotEmpty) {
+        // Get unique stop IDs to check what we already have cached
+        final stopIds = stopReports.map((report) => "${report.deviceId}_${report.startTime}").toList();
+        
+        // Check if we already have addresses for all these stop IDs
+        bool allAddressesCached = stopIds.every((stopId) => state.stopAddresses.containsKey(stopId));
+        
+        if (allAddressesCached) {
+          print("🌍 Cubit: All stop addresses already cached, skipping API calls");
+          print("🌍 Cubit: Cached stop IDs: ${state.stopAddresses.keys.toList()}");
+          print("🌍 Cubit: Requested stop IDs: $stopIds");
+          return;
+        }
+      }
+      
+      emit(state.copyWith(stopAddressStatus: GpsDataStatus.loading));
+      
+      final addresses = await _reportService.fetchAddressesForStops(stopReports);
+      
+      print("🌍 Cubit: Received ${addresses.length} stop address responses");
+      
+      // Create a map for quick lookup using stop IDs
+      Map<String, StopAddressResponse> stopAddressMap = Map.from(state.stopAddresses); // Start with existing cache
+      for (var address in addresses) {
+        stopAddressMap[address.stopId] = address; // Use stopId as key
+        print("🌍 Cubit: Storing address for stop ${address.stopId} (device ${address.deviceId})");
+        print("   Address: ${address.address}");
+      }
+      
+      print("🌍 Cubit: Stop address map created with ${stopAddressMap.length} entries");
+      print("🌍 Cubit: Stop address map keys: ${stopAddressMap.keys.toList()}");
+      
+      emit(state.copyWith(
+        stopAddresses: stopAddressMap,
+        stopAddressStatus: GpsDataStatus.success,
+      ));
+      
+      print("🌍 Cubit: Stop address state updated successfully");
+    } catch (e) {
+      print("🌍 Cubit: Error fetching stop addresses: $e");
+      emit(state.copyWith(stopAddressStatus: GpsDataStatus.error));
+    }
+  }
+
+  /// Get address for a specific stop
+  StopAddressResponse? getAddressForStop(String stopId) {
+    print("🌍 Cubit: Looking up address for stop $stopId");
+    final address = state.stopAddresses[stopId];
+    if (address != null) {
+      print("🌍 Cubit: Found stop address: YES (${address.address})");
+    } else {
+      print("🌍 Cubit: Found stop address: NO");
+    }
+    print("🌍 Cubit: Available stop IDs in address map: ${state.stopAddresses.keys.toList()}");
+    print("🌍 Cubit: Stop address status: ${state.stopAddressStatus}");
+    return address;
+  }
+
+  /// Fetch addresses for summary reports
+  Future<void> fetchAddressesForSummaries(List<dynamic> summaryReports) async {
+    try {
+      print("🌍 Cubit: Starting to fetch addresses for ${summaryReports.length} summary reports");
+      
+      if (summaryReports.isEmpty) {
+        print("🌍 Cubit: No summary reports to process for addresses");
+        return;
+      }
+
+      // Update state to show we're loading addresses
+      emit(state.copyWith(summaryAddressStatus: GpsDataStatus.loading));
+      
+      // Fetch addresses from service
+      final List<SummaryAddressResponse> addressResponses = 
+          await _reportService.fetchAddressesForSummaries(summaryReports);
+      
+      print("🌍 Cubit: Received ${addressResponses.length} summary address responses");
+      
+      // Convert list to map for faster lookup
+      Map<String, SummaryAddressResponse> addressMap = {};
+      for (final response in addressResponses) {
+        addressMap[response.summaryId] = response;
+        print("🌍 Cubit: Storing summary address for ID ${response.summaryId}");
+        print("   Start: ${response.startAddress}");
+        print("   End: ${response.endAddress}");
+      }
+      
+      print("🌍 Cubit: Summary address map created with ${addressMap.length} entries");
+      print("🌍 Cubit: Summary address map keys: ${addressMap.keys.toList()}");
+      
+      // Update state with the fetched addresses
+      emit(state.copyWith(
+        summaryAddressStatus: GpsDataStatus.success,
+        summaryAddresses: addressMap,
+      ));
+      
+      print("🌍 Cubit: Summary address state updated successfully");
+      
+    } catch (e) {
+      print("🌍 Cubit: Error fetching summary addresses: $e");
+      emit(state.copyWith(
+        summaryAddressStatus: GpsDataStatus.error,
+        errorMessage: "Failed to load summary addresses: ${e.toString()}",
+      ));
+    }
+  }
+
+  /// Get address for a specific summary
+  SummaryAddressResponse? getAddressForSummary(String summaryId) {
+    print("🌍 Cubit: Looking up address for summary $summaryId");
+    final address = state.summaryAddresses[summaryId];
+    if (address != null) {
+      print("🌍 Cubit: Found summary address: YES (Start: ${address.startAddress})");
+    } else {
+      print("🌍 Cubit: Found summary address: NO");
+    }
+    print("🌍 Cubit: Available summary IDs in address map: ${state.summaryAddresses.keys.toList()}");
+    print("🌍 Cubit: Summary address status: ${state.summaryAddressStatus}");
+    return address;
+  }
+
+  /// Helper method to create stop ID from report
+  String _createStopId(dynamic stopReport) {
+    return "${stopReport.deviceId}_${stopReport.startTime}";
   }
 }

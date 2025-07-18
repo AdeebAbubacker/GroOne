@@ -76,6 +76,13 @@ class TripReportCard extends StatelessWidget {
       if (parts.length == 2) {
         final lat = double.tryParse(parts[0].trim()) ?? 0.0;
         final lng = double.tryParse(parts[1].trim()) ?? 0.0;
+        
+        // If coordinates are 0,0 (invalid GPS), show dash
+        if (lat == 0.0 && lng == 0.0) {
+          print("🌍 UI: Coordinates are 0,0 (invalid GPS), showing dash");
+          return "-";
+        }
+        
         final formatted = "Lat: ${lat.toStringAsFixed(6)}\nLng: ${lng.toStringAsFixed(6)}";
         print("🌍 UI: Using formatted coordinates: $formatted");
         return formatted;
