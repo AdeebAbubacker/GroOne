@@ -4,6 +4,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/model/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -13,6 +14,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -89,13 +91,18 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                       ),           
                  ],
                   ),
+                  
                     20.height, 
                     DriverSourceDestinationWidget(
                             pickUpLocation: widget.loadItem.data?.loadRoute?.pickUpLocation,
                             dropLocation:  widget.loadItem.data?.loadRoute?.dropLocation,
                           ).paddingSymmetric(horizontal: 15),
                           20.height,
-                          _buildAdableSectionHeader(
+                     if(widget.loadItem.data!.loadStatusId > 2)
+                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                      _buildAdableSectionHeader(
                           showAddButton:true,
                           context: context,
                           title: 'Damages and Shortages',
@@ -134,6 +141,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             DriverLoadTimelineWidget(
                             timelineList: widget.loadItem?.data?.timeline ?? [],
                             ),
+                     ],),     
+
+_buildBottomButtonWidget(context)
+                          
                             ],
                           ).paddingAll(16),
                         ).expand(),
@@ -243,3 +254,72 @@ Widget _buildAdableSectionHeader({
 Widget _buildHeading({required String text}) {
   return Text(text, style: AppTextStyle.h4);
 }
+
+
+// From Vp Side
+ Widget _buildBottomButtonWidget(BuildContext context){
+    return  Container(
+      decoration: commonContainerDecoration(
+          color: Colors.white,
+          blurRadius: 30,
+     
+      ), child: Row(
+      spacing: 10,
+      children:   [
+        ...[
+      
+            AppButton(
+              title: "Support",
+             style: AppButtonStyle.outline.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed: () {
+               commonSupportDialog(context);
+             },
+             textStyle: TextStyle(fontSize: 14),
+           ).expand(),
+     
+           AppButton(
+          
+             title: "View Trip Settlement",
+
+             
+             style: AppButtonStyle.primary.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed:   () async {
+    
+             },
+             textStyle: TextStyle(
+               fontSize: 14,
+               color: AppColors.white,
+             ),
+           ).expand(),
+         
+            SizedBox(
+              height: 60,
+              width: MediaQuery.of(context).size.width * 0.90,
+              child: CustomSwipeButton(
+                padding: 0,
+                price: 0,
+                loadId: "",
+        
+                text: "Matching",
+                onSubmit: () {
+                
+                },
+              ),
+            ),
+        ],
+      ],
+    ),
+    );
+  }
