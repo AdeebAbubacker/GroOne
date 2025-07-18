@@ -108,7 +108,6 @@ class AppColors {
 
   static final Color chevronGreyColor = Color(0xff999999);
 
-
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

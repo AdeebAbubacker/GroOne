@@ -1,6 +1,7 @@
 // lib/features/gps_feature/presentation/gps_report_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
@@ -38,35 +39,41 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
     toDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
   }
 
-  Future<void> _pickDateRange(BuildContext context) async {
-    final newDateRange = await showDateRangePicker(
+  Future<void> _pickFromDate(BuildContext context) async {
+    final newDate = await showDatePicker(
       context: context,
-      initialDateRange: DateTimeRange(start: fromDate!, end: toDate!),
+      initialDate: fromDate!,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     
-    if (newDateRange != null) {
+    if (newDate != null) {
       setState(() {
-        // Set from date to start of day (00:00:00.000)
         fromDate = DateTime(
-          newDateRange.start.year,
-          newDateRange.start.month,
-          newDateRange.start.day,
-          0, // hour
-          0, // minute
-          0, // second
-          0, // millisecond
+          newDate.year,
+          newDate.month,
+          newDate.day,
+          0, 0, 0, 0,
         );
-        // Set to date to end of day (23:59:59.999)
+      });
+    }
+  }
+
+  Future<void> _pickToDate(BuildContext context) async {
+    final newDate = await showDatePicker(
+      context: context,
+      initialDate: toDate!,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    
+    if (newDate != null) {
+      setState(() {
         toDate = DateTime(
-          newDateRange.end.year,
-          newDateRange.end.month,
-          newDateRange.end.day,
-          23, // hour
-          59, // minute
-          59, // second
-          999, // millisecond
+          newDate.year,
+          newDate.month,
+          newDate.day,
+          23, 59, 59, 999,
         );
       });
     }
@@ -106,30 +113,48 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
           }
         },
         child: Scaffold(
-        backgroundColor: const Color(0xFFE0E0E0),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 1,
-          leading: const Icon(Icons.arrow_back_ios, color: Colors.green, size: 20),
-          titleSpacing: 0,
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('v2.6D', style: TextStyle(color: Colors.grey, fontSize: 14)),
-              SizedBox(width: 8),
-              Text('Reports', style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.normal)),
+          backgroundColor: const Color(0xFFF5F5F5),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Text(
+              'Reports',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Other Reports functionality
+                },
+                child: const Text(
+                  'Other Reports',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, color: Colors.blue, size: 16),
+              const SizedBox(width: 16),
             ],
           ),
-          actions: [IconButton(icon: const Icon(Icons.calendar_today_outlined, color: Colors.black), onPressed: () => _pickDateRange(context))],
-        ),
-        body: Column(
-          children: [
-            _buildFilterSection(),
-            Expanded(child: _buildReportBody()),
-          ],
+          body: Column(
+            children: [
+              _buildFilterSection(),
+              Expanded(child: _buildReportBody()),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildFilterSection() {
@@ -143,43 +168,34 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
           });
         }
         return Container(
-          color: const Color(0xFFE0E0E0),
+          color: Colors.white,
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              _buildFilterCard(
-                text: 'Test GPS Login',
-                onTap: () async {
-                  print("🔍 Testing GPS Login...");
-                  final gpsLoginRepository = locator<GpsLoginRepository>();
-                  final loginResult = await gpsLoginRepository.login();
-                  if (loginResult is Success) {
-                    print("  - GPS Login successful!");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('GPS Login successful!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  } else {
-                    print("  - GPS Login failed: ${(loginResult as Error).type}");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('GPS Login failed: ${(loginResult as Error).type}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-                isArrow: true,
+              // Date row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDateField(
+                      label: 'From Date',
+                      date: fromDate!,
+                      onTap: () => _pickFromDate(context),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildDateField(
+                      label: 'To Date',
+                      date: toDate!,
+                      onTap: () => _pickToDate(context),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              _buildFilterCard(
-                text: '${DateFormat('yyyy-MM-dd').format(fromDate!)} - ${DateFormat('yyyy-MM-dd').format(toDate!)}',
-                onTap: () => _pickDateRange(context),
-              ),
-              const SizedBox(height: 12),
-              _buildFilterCard(
+              const SizedBox(height: 16),
+              // Vehicle selection
+              _buildDropdownField(
+                icon: Icons.directions_car,
                 text: selectedVehicle?.vehicleNumber ?? 'Select Vehicle',
                 onTap: () => _showSelectionSheet<GpsCombinedVehicleData>(
                   context: context,
@@ -188,10 +204,11 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                   itemTitleBuilder: (vehicle) => vehicle.vehicleNumber ?? 'Unknown',
                   onSelected: (vehicle) => setState(() => selectedVehicle = vehicle),
                 ),
-                isDropdown: true,
               ),
-              const SizedBox(height: 12),
-              _buildFilterCard(
+              const SizedBox(height: 16),
+              // Report type selection
+              _buildDropdownField(
+                icon: Icons.assignment,
                 text: selectedReportType.displayName,
                 onTap: () => _showSelectionSheet<ReportType>(
                   context: context,
@@ -200,14 +217,20 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                   itemTitleBuilder: (type) => type.displayName,
                   onSelected: (type) => setState(() => selectedReportType = type),
                 ),
-                isDropdown: true,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
+              // Show Report button
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 48,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF4CAF50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
                   onPressed: () {
                     print("🔍 Search button pressed!");
                     print("  - Selected Vehicle: ${selectedVehicle?.vehicleNumber}");
@@ -226,14 +249,21 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                     } else {
                       print("  - No vehicle selected!");
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                         SnackBar(
                           content: Text('Please select a vehicle first'),
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.appRedColor,
                         ),
                       );
                     }
                   },
-                  child: const Icon(Icons.search, color: Colors.white, size: 28),
+                  child: const Text(
+                    'Show Report',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -243,9 +273,97 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
     );
   }
 
+  Widget _buildDateField({
+    required String label,
+    required DateTime date,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.disableColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.calendar_today,
+              color: AppColors.primaryColor,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style:  TextStyle(
+                    color: AppColors.darkGreyColor,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  DateFormat('dd-MM-yyyy').format(date),
+                  style: const TextStyle(
+                    color: AppColors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color:AppColors.disableColor),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: AppColors.primaryColor,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+             Icon(
+              Icons.keyboard_arrow_down,
+              color: AppColors.grayColor,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildReportBody() {
     return Container(
-      color: const Color(0xFF0D47A1),
+      color: AppColors.white,
       child: BlocBuilder<GpsReportCubit, GpsReportState>(
         builder: (context, state) {
           print("🔍 Report body state: ${state.reportStatus}");
@@ -254,20 +372,30 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
           
           if (state.reportStatus == GpsDataStatus.loading) {
             print("  - Showing loading indicator");
-            return const Center(child: CircularProgressIndicator(color: Colors.white));
+            return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
           }
           if (state.reportStatus == GpsDataStatus.error) {
             print("  - Showing error: ${state.errorMessage}");
-            return Center(child: Text(state.errorMessage ?? 'An error occurred.', style: const TextStyle(color: Colors.white)));
+            return Center(
+              child: Text(
+                state.errorMessage ?? 'An error occurred.',
+                style:  TextStyle(color: AppColors.grayColor),
+              ),
+            );
           }
           if (state.reportStatus == GpsDataStatus.success && state.reports.isEmpty) {
             print("  - Showing no reports found");
-            return const Center(child: Text('No reports found for the selected criteria.', style: TextStyle(color: Colors.white)));
+            return  Center(
+              child: Text(
+                'No reports found for the selected criteria.',
+                style: TextStyle(color: AppColors.grayColor),
+              ),
+            );
           }
           if (state.reportStatus == GpsDataStatus.success) {
             print("  - Showing ${state.reports.length} reports");
             return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: state.reports.length,
               itemBuilder: (context, index) {
                 final item = state.reports[index];
@@ -277,65 +405,63 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                     final stopReport = item as StopReport;
                     final stopId = "${stopReport.deviceId}_${stopReport.startTime}";
                     final stopAddressResponse = context.read<GpsReportCubit>().getAddressForStop(stopId);
-                    return StopReportCard(
-                      report: stopReport,
-                      // Convert StopAddressResponse to AddressResponse format for compatibility
-                      addressResponse: stopAddressResponse != null 
-                        ? AddressResponse(
-                            positionId: 0, // Not used for stops
-                            deviceId: stopAddressResponse.deviceId,
-                            startAddress: stopAddressResponse.address,
-                            endAddress: stopAddressResponse.address, // Same address for stops
-                          )
-                        : null,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: StopReportCard(
+                        report: stopReport,
+                        // Convert StopAddressResponse to AddressResponse format for compatibility
+                        addressResponse: stopAddressResponse != null 
+                          ? AddressResponse(
+                              positionId: 0, // Not used for stops
+                              deviceId: stopAddressResponse.deviceId,
+                              startAddress: stopAddressResponse.address,
+                              endAddress: stopAddressResponse.address, // Same address for stops
+                            )
+                          : null,
+                      ),
                     );
                   case ReportType.trips:
-                    return TripReportCard(
-                      report: item as TripReport,
-                      addressResponse: context.read<GpsReportCubit>().getAddressForTrip(item.startPositionId),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TripReportCard(
+                        report: item as TripReport,
+                        addressResponse: context.read<GpsReportCubit>().getAddressForTrip(item.startPositionId),
+                      ),
                     );
                   case ReportType.daily:
                     final summaryReport = item as SummaryReport;
                     final summaryId = "${summaryReport.deviceId}_${summaryReport.startTime}";
                     final summaryAddressResponse = context.read<GpsReportCubit>().getAddressForSummary(summaryId);
-                    return SummaryReportCard(
-                      report: summaryReport,
-                      addressResponse: summaryAddressResponse,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SummaryReportCard(
+                        report: summaryReport,
+                        addressResponse: summaryAddressResponse,
+                      ),
                     );
                   case ReportType.dailyKm:
-                    return DailyDistanceReportCard(report: item as DailyDistanceReport);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: DailyDistanceReportCard(report: item as DailyDistanceReport),
+                    );
                   case ReportType.reachability:
-                    return ReachabilityReportCard(report: item as ReachabilityReport);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ReachabilityReportCard(report: item as ReachabilityReport),
+                    );
                   default:
                     return const SizedBox.shrink();
                 }
               },
             );
           }
-          return const Center(child: Text("Select filters and tap search to begin.", style: TextStyle(color: Colors.white70)));
+          return  Center(
+            child: Text(
+              "Select filters and tap 'Show Report' to begin.",
+              style: TextStyle(color: AppColors.grayColor),
+            ),
+          );
         },
-      ),
-    );
-  }
-
-  Widget _buildFilterCard({ required String text, required VoidCallback onTap, bool isDropdown = false, bool isArrow = false }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 2,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(text, style: const TextStyle(fontSize: 16)),
-              if (isDropdown) const Icon(Icons.check_box, color: Colors.green),
-              if (isArrow) const Icon(Icons.arrow_forward_ios, color: Colors.green, size: 16),
-            ],
-          ),
-        ),
       ),
     );
   }
