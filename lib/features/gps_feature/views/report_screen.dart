@@ -146,11 +146,13 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
               const SizedBox(width: 16),
             ],
           ),
-          body: Column(
-            children: [
-              _buildFilterSection(),
-              Expanded(child: _buildReportBody()),
-            ],
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildFilterSection(),
+                _buildReportBody(),
+              ],
+            ),
           ),
         ),
       ),
@@ -168,7 +170,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
           });
         }
         return Container(
-          color: Colors.white,
+          color: AppColors.white,
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -232,14 +234,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    print("🔍 Search button pressed!");
-                    print("  - Selected Vehicle: ${selectedVehicle?.vehicleNumber}");
-                    print("  - Selected Report Type: $selectedReportType");
-                    print("  - From Date: $fromDate");
-                    print("  - To Date: $toDate");
-                    
                     if (selectedVehicle != null) {
-                      print("  - Vehicle ID: ${selectedVehicle!.deviceId}");
                       context.read<GpsReportCubit>().fetchReportData(
                         reportType: selectedReportType,
                         vehicleId: selectedVehicle?.deviceId ?? 0,
@@ -247,7 +242,6 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                         toDate: toDate!,
                       );
                     } else {
-                      print("  - No vehicle selected!");
                       ScaffoldMessenger.of(context).showSnackBar(
                          SnackBar(
                           content: Text('Please select a vehicle first'),
@@ -363,19 +357,16 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
 
   Widget _buildReportBody() {
     return Container(
-      color: AppColors.white,
+      color: AppColors.greyContainerBackgroundColor,
+      constraints: const BoxConstraints(
+        minHeight: 200,
+      ),
       child: BlocBuilder<GpsReportCubit, GpsReportState>(
         builder: (context, state) {
-          print("🔍 Report body state: ${state.reportStatus}");
-          print("  - Reports count: ${state.reports.length}");
-          print("  - Error message: ${state.errorMessage}");
-          
           if (state.reportStatus == GpsDataStatus.loading) {
-            print("  - Showing loading indicator");
             return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
           }
           if (state.reportStatus == GpsDataStatus.error) {
-            print("  - Showing error: ${state.errorMessage}");
             return Center(
               child: Text(
                 state.errorMessage ?? 'An error occurred.',
@@ -384,7 +375,6 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
             );
           }
           if (state.reportStatus == GpsDataStatus.success && state.reports.isEmpty) {
-            print("  - Showing no reports found");
             return  Center(
               child: Text(
                 'No reports found for the selected criteria.',
@@ -393,8 +383,9 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
             );
           }
           if (state.reportStatus == GpsDataStatus.success) {
-            print("  - Showing ${state.reports.length} reports");
             return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: state.reports.length,
               itemBuilder: (context, index) {

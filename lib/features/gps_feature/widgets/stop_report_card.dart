@@ -1,6 +1,7 @@
 // lib/features/gps_feature/presentation/widgets/stop_report_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 
 import '../model/report_model.dart';
@@ -79,9 +80,8 @@ class StopReportCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: const Color(0xffffffff), // Light blue background
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2196F3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,9 +90,9 @@ class StopReportCard extends StatelessWidget {
           Text(
             _formatDate(report.startTime), 
             style: const TextStyle(
-              color: Colors.black87, 
+              color: AppColors.black,
               fontWeight: FontWeight.bold, 
-              fontSize: 18
+              fontSize: 16
             )
           ),
           const SizedBox(height: 12),
@@ -105,9 +105,9 @@ class StopReportCard extends StatelessWidget {
               Text(
                 _formatTime(report.startTime),
                 style: const TextStyle(
-                  color: Color(0xFFE53935), // Red color for time
+                  color: AppColors.activeRedColor, // Red color for time
                   fontWeight: FontWeight.bold,
-                  fontSize: 16
+                  fontSize: 14
                 )
               ),
               const SizedBox(width: 8),
@@ -115,8 +115,8 @@ class StopReportCard extends StatelessWidget {
               const Text(
                 '|',
                 style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 16
+                  color: AppColors.black,
+                  fontSize: 14
                 )
               ),
               const SizedBox(width: 8),
@@ -125,8 +125,8 @@ class StopReportCard extends StatelessWidget {
                 child: Text(
                   _getDisplayAddress(),
                   style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 15,
+                    color: AppColors.black,
+                    fontSize: 13,
                     height: 1.3
                   )
                 ),
@@ -139,7 +139,7 @@ class StopReportCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFBBDEFB), // Slightly darker blue
+              color: AppColors.primaryLightColor, // Slightly darker blue
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -152,16 +152,16 @@ class StopReportCard extends StatelessWidget {
                       const Text(
                         'Engine On time',
                         style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14
+                          color: AppColors.black,
+                          fontSize: 12
                         )
                       ),
                       const SizedBox(height: 4),
                       Text(
                         report.duration,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 16,
+                        style:  TextStyle(
+                          color: AppColors.black,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold
                         )
                       ),
@@ -183,16 +183,16 @@ class StopReportCard extends StatelessWidget {
                         Text(
                           'View on Map',
                           style: TextStyle(
-                            color: Color(0xFF2196F3),
-                            fontSize: 14,
+                            color: AppColors.primaryColor,
+                            fontSize: 13,
                             fontWeight: FontWeight.w500
                           )
                         ),
                         SizedBox(width: 4),
                         Icon(
                           Icons.arrow_forward_ios,
-                          color: Color(0xFF2196F3),
-                          size: 14
+                          color: AppColors.primaryColor,
+                          size: 13
                         ),
                       ],
                     ),

@@ -1,6 +1,7 @@
 // lib/features/gps_feature/presentation/widgets/trip_report_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 
 import '../model/report_model.dart';
@@ -45,6 +46,33 @@ class TripReportCard extends StatelessWidget {
     // Sum of all safety violations similar to native code
     int sum = report.harshBraking + report.harshCornering + report.harshAcceleration + report.overSpeed;
     return sum.toString();
+  }
+
+  /// Get color based on driving safety score
+  /// Logic from Android:
+  /// - score <= 7.5: Red
+  /// - score >= 8.75: Light Green
+  /// - score > 7.5 && score < 8.75: Yellow
+  /// - else: White
+  Color _getSafetyScoreColor() {
+    final safetyScore = report.safetyScore;
+    
+    // Debug logging to verify color logic
+    print("🎨 Safety Score: $safetyScore");
+    
+    if (safetyScore <= 7.5) {
+      print("🎨 Color: RED (score <= 7.5)");
+      return AppColors.appRedColor; // Red
+    } else if (safetyScore >= 8.75) {
+      print("🎨 Color: GREEN (score >= 8.75)");
+      return const Color(0xFF4CAF50); // Light Green
+    } else if (safetyScore > 7.5 && safetyScore < 8.75) {
+      print("🎨 Color: YELLOW (7.5 < score < 8.75)");
+      return const Color(0xFFFFC107); // Yellow
+    } else {
+      print("🎨 Color: WHITE (fallback)");
+      return Colors.white; // White
+    }
   }
 
   String _getDisplayAddress({required bool isStart}) {
@@ -140,7 +168,7 @@ class TripReportCard extends StatelessWidget {
             Text(
               _formatDate(report.reportDate),
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
@@ -149,7 +177,7 @@ class TripReportCard extends StatelessWidget {
             Text(
               '${_calculateTotalViolations()} Safety count',
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 color: Color(0xFF4CAF50),
                 fontWeight: FontWeight.w600,
               ),
@@ -164,17 +192,17 @@ class TripReportCard extends StatelessWidget {
             const Text(
               'Color Code',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.grey,
                 fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 6),
             Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: Color(0xFF4CAF50),
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                color: _getSafetyScoreColor(),
                 shape: BoxShape.circle,
               ),
             ),
@@ -219,7 +247,7 @@ class TripReportCard extends StatelessWidget {
           child: Icon(
             isStart ? Icons.my_location : Icons.location_on,
             color: isStart ? const Color(0xFF4CAF50) : const Color(0xFFE53935),
-            size: 20,
+            size: 14,
           ),
         ),
         const SizedBox(width: 8),
@@ -232,7 +260,7 @@ class TripReportCard extends StatelessWidget {
               Text(
                 address,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   color: Colors.black87,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
@@ -242,7 +270,7 @@ class TripReportCard extends StatelessWidget {
               Text(
                 time,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: Colors.grey,
                   fontWeight: FontWeight.w400,
                 ),
@@ -314,7 +342,7 @@ class TripReportCard extends StatelessWidget {
     required String label,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(8),
@@ -322,7 +350,7 @@ class TripReportCard extends StatelessWidget {
       child: Row(
         children: [
           // Icon
-          Icon(icon, color: iconColor, size: 24),
+          Icon(icon, color: iconColor, size: 18),
           const SizedBox(width: 12),
           
           // Value and Label
@@ -333,7 +361,7 @@ class TripReportCard extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: Colors.grey,
                     fontWeight: FontWeight.w500,
                   ),
@@ -342,7 +370,7 @@ class TripReportCard extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
