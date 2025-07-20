@@ -156,14 +156,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           children: [
             // Tab Bar
             buildTabBarWidget(),
-
+    
             //Search Field
             buildSearchBarAndFilterWidget(context),
-
+    
             //Load List
             buildLoadListWidget(),
-
-
+    
+    
           ],
         ),
       ),
@@ -334,75 +334,80 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
          }
 
   Widget buildDriverLoadTab(int tabIndex) {
-        return BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
-          bloc: driverLoadBloc,
-          listener: (context, state) {
-      if (state is DriverLoadStatusChanged) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Driver load status updated successfully")),
-        );
-        _loadDataByTab(index: tabIndex, forceRefresh: true);
-      } else if (state is DriverLoadStatusChangeFailed) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to update driver load status")),
-        );
-      }
+        return RefreshIndicator(
+    onRefresh: () async {
+      _loadDataByTab(index: tabIndex, forceRefresh: true);
     },
-          builder: (context, state) {
-            if (state is DriverLoadsLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is DriverLoadsLoaded) {
-              if (state.loads.isEmpty) {
-                return const Center(child: Text("No loads found."));
+          child: BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
+            bloc: driverLoadBloc,
+            listener: (context, state) {
+                if (state is DriverLoadStatusChanged) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Driver load status updated successfully")),
+          );
+          _loadDataByTab(index: tabIndex, forceRefresh: true);
+                } else if (state is DriverLoadStatusChangeFailed) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to update driver load status")),
+          );
+                }
+              },
+            builder: (context, state) {
+              if (state is DriverLoadsLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is DriverLoadsLoaded) {
+                if (state.loads.isEmpty) {
+                  return const Center(child: Text("No loads found."));
+                }
+          
+                return ListView.builder(
+                  padding: EdgeInsets.all(commonSafeAreaPadding),
+                  shrinkWrap: true,
+                  itemCount: state.loads.length,
+                  itemBuilder: (context, index) {
+                    final load = state.loads[index];
+                    switch (tabIndex) {
+                      case 0: 
+                    return DriverLoadWidget(
+                        driverLoadDetails: state.loads[index],
+                  onClickAssignDriver: () {
+                  },
+                ).paddingSymmetric(vertical: 7);
+              
+                      case 1:
+                      return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                  onClickAssignDriver: () {
+          context.read<DriverLoadsBloc>().add(
+              ChangeDriverLoadStatus(
+                loadId: state.loads[index].loadId,  // from model
+                loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+              ),);
+                  },
+                ).paddingSymmetric(vertical: 7);
+                      default:
+                          return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                  onClickAssignDriver: () {
+                    context.read<DriverLoadsBloc>().add(
+              ChangeDriverLoadStatus(
+                loadId: state.loads[index].loadId,  // from model
+                loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+              ),);
+                  },
+                ).paddingSymmetric(vertical: 7);
+                    }
+                  },
+          
+                  
+                );
+              } else if (state is DriverLoadsError) { 
+                return Center(child: Text(state.message));
+              } else {
+                return const SizedBox.shrink();
               }
-
-              return ListView.builder(
-                padding: EdgeInsets.all(commonSafeAreaPadding),
-                shrinkWrap: true,
-                itemCount: state.loads.length,
-                itemBuilder: (context, index) {
-                  final load = state.loads[index];
-                  switch (tabIndex) {
-                    case 0: 
-                  return DriverLoadWidget(
-                      driverLoadDetails: state.loads[index],
-                onClickAssignDriver: () {
-                },
-              ).paddingSymmetric(vertical: 7);
-            
-                    case 1:
-                    return   DriverLoadWidget( driverLoadDetails: state.loads[index],
-                onClickAssignDriver: () {
-context.read<DriverLoadsBloc>().add(
-    ChangeDriverLoadStatus(
-      loadId: state.loads[index].loadId,  // from model
-      loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
-      customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-    ),);
-                },
-              ).paddingSymmetric(vertical: 7);
-                    default:
-                        return   DriverLoadWidget( driverLoadDetails: state.loads[index],
-                onClickAssignDriver: () {
-                  context.read<DriverLoadsBloc>().add(
-    ChangeDriverLoadStatus(
-      loadId: state.loads[index].loadId,  // from model
-      loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
-      customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-    ),);
-                },
-              ).paddingSymmetric(vertical: 7);
-                  }
-                },
-
-                
-              );
-            } else if (state is DriverLoadsError) { 
-              return Center(child: Text(state.message));
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
+            },
+          ),
         );
       }
 }
