@@ -1,5 +1,6 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
@@ -16,8 +17,8 @@ class DriverProfileService {
   Future<Result<DriverProfileDetailsModel>> getDriverProfileDetails() async {
     try {
    
-     // final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
-     final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${await _userInformationRepository.getUserID() ?? ""}";  
+      final url = ApiUrls.driverProfile + (await _userInformationRepository.getUserID() ?? "");
+     //final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${await _userInformationRepository.getUserID() ?? ""}";  
 //315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c
     print("user id is  ${ _userInformationRepository.getUserID()}");
       final result = await _apiService.get(url);

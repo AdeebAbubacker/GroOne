@@ -131,36 +131,6 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
           ),
           commonDivider(),
           ProfileMyAccountTile(
-            imageString: AppImage.svg.master,
-            text: "Master",
-            onTap: () {
-              Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
-            },
-          ),
-          commonDivider(),
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.routes,
-            text: "Routes",
-            onTap: () {},
-          ),
-          commonDivider(),
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.myDocuments,
-            text: "My Documents",
-            onTap: () {
-              Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
-            },
-          ),
-          commonDivider(),
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.transaction,
-            text: context.appText.transactions,
-            onTap: () {
-              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
-            },
-          ),
-          commonDivider(),
-          ProfileMyAccountTile(
             imageString: AppImage.svg.settings,
             text: context.appText.settings,
             onTap: () {

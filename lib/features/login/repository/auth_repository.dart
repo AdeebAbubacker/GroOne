@@ -152,7 +152,7 @@ class AuthRepository {
       }
 
       // Save customer details basic user info
-      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.driverId.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, 0);
 
       // Note: Profile response doesn't include token, so we don't store it here
