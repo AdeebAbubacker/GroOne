@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -206,12 +208,10 @@ final bool isConsentGiven = false;
                   ),
                 ),
                 10.width,
-                AppButton(
-                  buttonHeight: 40,
-                  onPressed: widget.onClickAssignDriver ?? () {},
-                  title: "Start Trip",
-                  style: AppButtonStyle.primary,
-                ).expand(),
+              DriverLoadHelper.loadStatusButtonWidget(
+                statusId: widget.driverLoadDetails.loadStatusId,
+                  onPressed: () {  }
+              ).expand(),  
                
               ],
             ),

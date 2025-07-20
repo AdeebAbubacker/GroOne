@@ -11,3 +11,11 @@ class FetchDriverLoads extends DriverLoadsEvent {
 
   FetchDriverLoads({this.loadStatus , this.search = "", this.laneId, this.forceRefresh = false});
 }
+
+class ChangeDriverLoadStatus extends DriverLoadsEvent {
+  final String loadId;
+  final int loadStatus;
+  final String customerId;
+
+  ChangeDriverLoadStatus({required this.loadId, required this.loadStatus,required this.customerId});
+}

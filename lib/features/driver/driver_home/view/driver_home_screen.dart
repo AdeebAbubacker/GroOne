@@ -335,8 +335,19 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
          }
 
     Widget buildDriverLoadTab(int tabIndex) {
-        return BlocBuilder<DriverLoadsBloc, DriverLoadsState>(
+        return BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
           bloc: driverLoadBloc,
+          listener: (context, state) {
+      if (state is DriverLoadStatusChanged) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Driver load status updated successfully")),
+        );
+      } else if (state is DriverLoadStatusChangeFailed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to update driver load status")),
+        );
+      }
+    },
           builder: (context, state) {
             if (state is DriverLoadsLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -362,7 +373,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     case 1:
                     return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                 onClickAssignDriver: () {
-
+context.read<DriverLoadsBloc>().add(
+    ChangeDriverLoadStatus(
+      loadId: state.loads[index].loadId,  // from model
+      loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+      customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+    ),);
                 },
               ).paddingSymmetric(vertical: 7);
                     default:
@@ -372,6 +388,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               ).paddingSymmetric(vertical: 7);
                   }
                 },
+
+                
               );
             } else if (state is DriverLoadsError) { 
               return Center(child: Text(state.message));
