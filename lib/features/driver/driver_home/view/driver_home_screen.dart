@@ -373,7 +373,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   }
                 },
               );
-            } else if (state is DriverLoadsError) {
+            } else if (state is DriverLoadsError) { 
               return Center(child: Text(state.message));
             } else {
               return const SizedBox.shrink();

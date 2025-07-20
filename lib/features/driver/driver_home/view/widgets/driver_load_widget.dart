@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -86,8 +87,18 @@ final bool isConsentGiven = false;
                         ),
                       ],
                     ),
-                    if(widget.driverLoadDetails.loadStatusId == 3)
-                    _buildLoadStatus(widget.driverLoadDetails.loadStatusId ?? 0),
+                    // if(widget.driverLoadDetails.loadStatusId == 5)
+                    //_buildLoadStatus(widget.driverLoadDetails.loadStatusId ?? 0),
+                   Container(
+              decoration: commonContainerDecoration(
+                color: LpHomeHelper.getLoadStatusColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')
+              ),
+              width: 100,
+              child: Text(
+                LpHomeHelper.getLoadTypeDisplayText(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? ''),
+                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')),
+              ).center().paddingAll(4),
+            ), 
                   ],
                 ).expand(),
               ],
@@ -270,17 +281,3 @@ Widget progressBarWidget({required double progressValue}) {
 
 
 
-Widget _buildLoadStatus(int statusId) {
-  switch (statusId) {
-    case 1:
-      return Text('Pending', style: AppTextStyle.blackColor15w500);
-    case 2:
-      return Text('In Progress', style: AppTextStyle.orangeTextColor26w700);
-    case 3:
-      return Text('Confirmed', style: AppTextStyle.bodyPurpleColor);
-    case 4:
-      return Text('Delivered', style: AppTextStyle.greenColor20w700);
-    default:
-      return Text('Unknown Status', );
-  }
-}
