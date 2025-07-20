@@ -116,5 +116,6 @@ class SvgIcons {
   final String dashboardLowBattery = "${_svgBasePath}dashboard_low_battery.svg";
   final String dashboardPowerCut = "${_svgBasePath}dashboard_powercut.svg";
   final String dashboardVibration = "${_svgBasePath}dashboard_vibration.svg";
-
+  final String tAndCDoc = "${_svgBasePath}terms_and_condition_doc.svg";
+  final String privacyLock = "${_svgBasePath}privacy_lock.svg";
 }

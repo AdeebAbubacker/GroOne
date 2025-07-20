@@ -137,9 +137,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
    void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final search = searchController.text;
     int? loadStatus;
-  if (index > 0) {
-   
-  loadStatus = index + 3; // index 1 = 4, index 2 = 5, ..., index 5 = 8
+  if (index > 0) {  
+  loadStatus = index + 3; 
    print('my index is ------- ${loadStatus}');
 } else{
    loadStatus = null;
@@ -334,7 +333,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-    Widget buildDriverLoadTab(int tabIndex) {
+  Widget buildDriverLoadTab(int tabIndex) {
         return BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
           bloc: driverLoadBloc,
           listener: (context, state) {
@@ -342,6 +341,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Driver load status updated successfully")),
         );
+        _loadDataByTab(index: tabIndex, forceRefresh: true);
       } else if (state is DriverLoadStatusChangeFailed) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Failed to update driver load status")),
@@ -384,6 +384,12 @@ context.read<DriverLoadsBloc>().add(
                     default:
                         return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                 onClickAssignDriver: () {
+                  context.read<DriverLoadsBloc>().add(
+    ChangeDriverLoadStatus(
+      loadId: state.loads[index].loadId,  // from model
+      loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+      customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+    ),);
                 },
               ).paddingSymmetric(vertical: 7);
                   }

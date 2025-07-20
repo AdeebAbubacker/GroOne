@@ -27,7 +27,9 @@ class DriverLoadRepository {
     try {
       return await service.changeLoadStatus(
           loadStatus: loadStatus,
-          loadId: loadId,userId: customerId);
+          loadId: loadId,
+          userId: customerId,
+          );
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));

@@ -52,26 +52,38 @@ class DriverLoadService {
     }
   }
 
-  Future<Result<VpLoadAcceptModel>> changeLoadStatus({required String? userId,required String loadId,required int? loadStatus}) async {
-    try {
-      final statusUpdateUrl=(loadStatus??0)>4?ApiUrls.updateLoadStatus:ApiUrls.vpAcceptLoad;
+  Future<Result<VpLoadAcceptModel>> changeLoadStatus({
+  required String? userId,
+  required String loadId,
+  required int? loadStatus,
+}) async {
+  try {
+    // final statusUpdateUrl = '${ApiUrls.updateLoadStatus}/$userId/$loadId';
+
+    // final result = await _apiService.put(
+    //   queryParams: {
+    //     'loadStatus': loadStatus,
+    //   },
+    //   statusUpdateUrl,
+    // );
+ final statusUpdateUrl=ApiUrls.updateLoadStatus;
       final result = await _apiService.put(
         queryParams: {
-          "loadStatus":loadStatus
+          "loadStatus":'6'
         },
           '$statusUpdateUrl/$userId/$loadId');
-      if (result is Success) {
-       final changeLoadStatusResponse= VpLoadAcceptModel.fromJson(result.value);
-        return Success(changeLoadStatusResponse);
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
+    if (result is Success) {
+      final changeLoadStatusResponse = VpLoadAcceptModel.fromJson(result.value);
+      return Success(changeLoadStatusResponse);
+    } else if (result is Error) {
+      return Error(result.type);
+    } else {
+      return Error(GenericError());
     }
+  } catch (e) {
+    CustomLog.error(this, AppString.error.deserializationError, e);
+    return Error(DeserializationError());
   }
+}
 }
 
