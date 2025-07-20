@@ -11,7 +11,7 @@ class DriverLoadService {
   DriverLoadService(this._apiService);
 
   Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
-    required int status,
+     int? status,
     required String driverId,
     String search = "",
     int? laneId,
@@ -19,11 +19,14 @@ class DriverLoadService {
   }) async {
     try {
       // String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId&loadStatus=$status";
-        // String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
-        String url = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/list?isDriver=true&driverId=315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c";  
+       String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
+       // String url = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/list?isDriver=true&driverId=315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c";  
+       if (status != null && status != 3) {
+        url += "&loadStatus=$status";
+      }
       if (search.isNotEmpty) {
       url += "&search=$search";
-    }
+      }
       if (laneId != null) {
         url += "&laneId=$laneId";
       }

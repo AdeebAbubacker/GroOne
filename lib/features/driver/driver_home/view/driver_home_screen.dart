@@ -65,10 +65,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 1;
   TabController? _tabController;
   final tabLabels = [
-     'KYC Pending',
-     'Matching',
-     'Confirmed',
+     'All',
      'Assigned',
+     'Loading',
+     'In Transit',
+     'Unloading',
+     'Completed'
   ];
 
   @override
@@ -90,7 +92,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     setState(() {});
   driverLoadBloc = locator<DriverLoadsBloc>();
   _tabController = TabController(
-    length: 4,
+    length: 6,
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
@@ -133,9 +135,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
 
    void _loadDataByTab({required int index,bool forceRefresh = false}) {
-    final type = index + 1;
     final search = searchController.text;
-    driverLoadBloc.add(FetchDriverLoads(loadStatus: type, search: search, forceRefresh: forceRefresh));
+    int? loadStatus;
+  if (index > 0) {
+   
+  loadStatus = index + 3; // index 1 = 4, index 2 = 5, ..., index 5 = 8
+   print('my index is ------- ${loadStatus}');
+} else{
+   loadStatus = null;
+}
+    driverLoadBloc.add(FetchDriverLoads(loadStatus: loadStatus, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
 
