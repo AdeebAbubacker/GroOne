@@ -65,7 +65,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               .firstWhere((v) => v.vehicleNumber == selectedVehicle);
 
           gpsGeofenceCubit.loadVehicleGeofences(
-            userId: "163",
             deviceId: selectedVehicleData.deviceId.toString(),
             vehicleId: selectedVehicle,
           );
@@ -107,14 +106,14 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             children: [
               10.height,
               Text(
-                enable ? "Add Geofence" : "Remove Geofence",
+                enable ? context.appText.addGeofence : context.appText.removeGeofence,
                 style: AppTextStyle.h5,
               ),
               10.height,
               Text(
                 enable
-                    ? "Are you sure you want to enable this geofence?"
-                    : "Are you sure you want to disable this geofence?",
+                    ? context.appText.confirmEnableGeofence
+                    : context.appText.confirmDisableGeofence,
                 style: AppTextStyle.blackColor14w400,
               ),
               20.height,
@@ -122,13 +121,13 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 children: [
                   AppButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    title: 'No',
+                    title: context.appText.no,
                     style: AppButtonStyle.outline,
                   ).expand(),
                   10.width,
                   AppButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    title: 'Yes',
+                    title: context.appText.yes,
                     style: AppButtonStyle.primary,
                   ).expand(),
                 ],
@@ -151,7 +150,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         actions: [
           AppIconButton(
             onPressed: () {
-              print("🔄 GpsGeofenceScreen - Refresh button pressed");
+              debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
               gpsGeofenceCubit.refreshData();
             },
             icon: const Icon(Icons.refresh, size: 20),
@@ -164,7 +163,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               if (!vehicleListCubit.hasLoadedData) {
                 vehicleListCubit.loadVehicleData();
               } else {
-                print(
+                debugPrint(
                   "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
                 );
               }
@@ -241,15 +240,15 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                           geofence: item,
                           onSave: (updatedGeofence) {
                             // Handle the updated geofence data (e.g., save to database, API)
-                            print(
+                            debugPrint(
                               "Geofence updated: ${updatedGeofence.name}, ID: ${updatedGeofence.id}",
                             );
                             if (updatedGeofence.shapeType == "circle") {
-                              print(
+                              debugPrint(
                                 "Center: ${updatedGeofence.center}, Radius: ${updatedGeofence.radius}",
                               );
                             } else if (updatedGeofence.shapeType == "polygon") {
-                              print(
+                              debugPrint(
                                 "Polygon Points: ${updatedGeofence.polygonPoints}",
                               );
                             }
@@ -263,7 +262,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             },
           );
         } else if (state is GpsGeofenceError) {
-          return Center(child: Text('Error: ${state.message}'));
+          return Center(child: Text('${context.appText.error}: ${state.message}'));
         }
         return const SizedBox();
       },
@@ -278,7 +277,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             if (vehicleState.isLoading) {
               return const Center(child: CircularProgressIndicator());
             } else if (vehicleState.error != null) {
-              return Center(child: Text('Error loading vehicles'));
+              return Center(child: Text(context.appText.errorLoadingVehicles));
             } else {
               // Extract unique vehicle numbers
               final uniqueVehicleNumbers =
@@ -290,7 +289,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
 
               // If no vehicles found
               if (uniqueVehicleNumbers.isEmpty) {
-                return Center(child: Text('No vehicles available'));
+                return Center(child: Text(context.appText.noVehiclesAvailable));
               }
 
               // Ensure selectedVehicle is in the dropdown
@@ -301,7 +300,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               return Padding(
                 padding: const EdgeInsets.all(15),
                 child: AppDropdown(
-                  labelText: "Select Vehicle",
+                  labelText: context.appText.selectVehicle,
                   dropdownValue:
                       selectedVehicle.isNotEmpty ? selectedVehicle : null,
                   dropDownList:
@@ -332,7 +331,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                     final selectedVehicleData = vehicleState.filteredVehicles
                         .firstWhere((v) => v.vehicleNumber == selectedVehicle);
                     gpsGeofenceCubit.loadVehicleGeofences(
-                      userId: "163", // Fetch from secured storage
                       deviceId: selectedVehicleData.deviceId.toString(),
                       vehicleId: selectedVehicle, // use vehicle number or ID
                     );
@@ -450,7 +448,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 (context) => GeofenceMapViewScreen(
                   geofence: null,
                   onSave: (newGeofence) {
-                    print("New Geofence added: ${newGeofence.name}");
+                    debugPrint("New Geofence added: ${newGeofence.name}");
                   },
                 ),
           ),

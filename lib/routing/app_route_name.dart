@@ -15,6 +15,9 @@ class AppRouteName {
   static const String gps = "/gps";
   static const String gpsDashboard = "/gpsDashboard";
   static const String gpsGeofence = "/gpsGeofence";
+  static const String gpsVehicleShareAndUpdate = "/gpsVehicleShareAndUpdate";
+  static const String gpsEditVehicleInfo = "/gpsEditVehicleInfo";
+  static const String gpsVehicleSelectScreen = "/gpsVehicleSelectScreen";
   static const String vehicleList = "/vehicleList";
   static const String gpsOrderBenefits = "/gpsOrderBenefits";
   static const String instantLoan = "/instantLoad";
