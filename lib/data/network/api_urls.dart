@@ -121,7 +121,7 @@ class ApiUrls {
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
-  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
+  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/fetch-rate";
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
