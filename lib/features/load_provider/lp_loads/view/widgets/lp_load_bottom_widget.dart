@@ -179,7 +179,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
       final String paymentPayableBalance = payments?.last.payableBalance ?? '';
-      final action = (payments != null && payments.isNotEmpty && payments.last.action == 'pay_advance') ? 'clear_balance' : 'pay_advance';   
+     final action = (payments != null && payments.isNotEmpty ) ? 'clear_balance' : 'pay_advance';   
+    // final action = 'clear_balance';
     return Positioned(
       bottom: 0,
       left: 0,
@@ -372,8 +373,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     agreedPrice: useMemo ? memoAgreedPrice : paymentAgreedPrice,
                     payableAdvance: useMemo ? memoPayableAdvance : paymentPayableAdvance,
                     payableBalance: useMemo ? memoPayableBalance : paymentPayableBalance,
-                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.last.paymentStatus == "paid"
-                     ? true: false,
+                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.isNotEmpty == true &&
+                    widget.loadItem.lpPaymentsData!.data.payments.last.paymentStatus == "paid",
+
                      lpLoadCubit: lpLoadLocator,
                      action: action,
                   ),
@@ -605,12 +607,12 @@ final double payableAdvanceValue =
         // Agreed Price
         _buildPriceRow(context.appText.agreedPrice, agreedPrice, context),
         8.height,
-        if (paymentState == 5)
+        if (isAdancePaid)
         // Advance paid 
         _buildPriceRow(context.appText.advancePaid, advancePaid, context),
         8.height,
 
-        if (paymentState != 5)
+        if (!isAdancePaid)
         // Payable Advance Row with Status
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -675,8 +677,8 @@ final double payableAdvanceValue =
 
          8.height,
 
-        // Payable Balance (only if paymentState is 2 or 3)
-        if (paymentState == 3 || paymentState == 5)
+        // Payable Balance 
+        if (isAdancePaid)
           _buildPriceRow(
             context.appText.payableBalance,
             payableBalance,
@@ -687,11 +689,9 @@ final double payableAdvanceValue =
          12.height,
 
         // Action Button
-        if ((payableBalanceValue > 0 || payableAdvanceValue > 0) &&
-          (paymentState == 1 || paymentState == 2 || paymentState == 3 || paymentState == 4 || paymentState == 5))
           AppButton(
             isLoading: isLoading,
-            title: context.appText.payAdvance,
+            title: 'context.appText.payAdvance',
             onPressed: () async {
               
              final isPayingBalance = paymentState == 3 || paymentState == 5;
@@ -751,11 +751,10 @@ final double payableAdvanceValue =
                 ToastMessages.error(message: context.appText.orderCreationFailed);
               }
             },
-            richTextWidget: paymentState == 2 || paymentState == 4 || paymentState == 5
-                ? Row(
+            richTextWidget: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if(!!isAdancePaid)
+                      if(!isAdancePaid)
                       SvgPicture.asset(
                         AppIcons.svg.alertWarning,
                         height: 18,
@@ -763,23 +762,13 @@ final double payableAdvanceValue =
                       ),
                       8.width,
                       Text(
-                        paymentState == 5 ? context.appText.payBalance : context.appText.payAdvance,  
+                        isAdancePaid ? context.appText.payBalance : context.appText.payAdvance,  
                         style: AppTextStyle.buttonWhiteTextColor,
                       ),
                     ],
                   )
-                : paymentState == 3
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                       context.appText.payBalance ,
-                            style: AppTextStyle.buttonWhiteTextColor,
-                          ),
-                        ],
-                      )
-                    : null,
-          ),
+               
+          )
       ],
     ),
   );

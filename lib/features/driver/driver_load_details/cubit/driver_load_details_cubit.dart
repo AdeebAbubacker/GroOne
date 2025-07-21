@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
@@ -6,6 +8,8 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 
 part 'driver_load_details_state.dart';
 
@@ -33,5 +37,22 @@ Future<void> getLpLoadsById({required String loadId}) async {
     _setLoadByIdUIState(UIState.error(result.type));
   }
 }
+
+  // // Upload File
+  void _setUploadTripDocFileUIState(UIState<UploadDamageFileModel>? uiState){
+    emit(state.copyWith(uploadDamageUIState: uiState));
+  }
+  Future<void> uploadDamageFile(File file) async {
+    _setUploadTripDocFileUIState(UIState.loading());
+    Result result = await _repository.uploadTripDocFileData(file,'lorry_receipt');
+    if (result is Success<UploadDamageFileModel>) {
+      _setUploadTripDocFileUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setUploadTripDocFileUIState(UIState.error(result.type));
+    }
+  }
+
+
 }
 

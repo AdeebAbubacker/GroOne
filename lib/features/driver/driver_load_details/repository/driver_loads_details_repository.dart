@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
@@ -24,13 +26,16 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class  DriverLoadsDetailsRepository {
   final DriverLoadDetailsService service;
   final UserInformationRepository userRepo;
+  
   final SecuredSharedPreferences securedSharedPreferences;
 
   DriverLoadsDetailsRepository(this.service, this.userRepo, this.securedSharedPreferences);
@@ -43,5 +48,18 @@ class  DriverLoadsDetailsRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
+/// Upload File Repo
+  Future<Result<UploadDamageFileModel>> uploadTripDocFileData(File file,String fileType) async {
+    try {
+      return await service.fetchUploadDamageData(
+          file : file,
+          userId: await userRepo.getUserID() ?? "",
+          fileType: 'd',
+          documentType: await userRepo.getUserRole() == 0 ? "Driver_DOCUMENT" : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 }

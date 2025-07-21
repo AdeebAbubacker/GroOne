@@ -119,29 +119,30 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             phoneNo: widget.loadItem.data?.consignees.last.mobileNumber ?? '',
                             ),
                           20.height,
+                          if(widget.loadItem.data!.loadStatusId == 5)
                           if(widget.loadItem.data!.loadDocument!.isNotEmpty)
                       // Download Documents
                      ...[
                        Text(context.appText.tripdocument, style: AppTextStyle.h4),
                        10.height,
                       Column(
-  children: widget.loadItem.data!.loadDocument!
-      .expand((docList) => docList) // flatten List<List<T>> into List<T>
-      .map((doc) {
-        return Column(
-          children: [
-            TripDocuments(
-              docName: doc.documentDetails?.title ?? '',
-              docDateTime: doc.createdAt!,
-              docUrl: doc.documentDetails?.filePath ?? '',
-              downloadKey: doc.loadDocumentId,
-              docId: doc.documentId,
-            ),
-            10.height,
-          ],
-        );
-      }).toList(),
-)
+                      children: widget.loadItem.data!.loadDocument!
+                          .expand((docList) => docList) // flatten List<List<T>> into List<T>
+                          .map((doc) {
+                            return Column(
+                              children: [
+                                TripDocuments(
+                                  docName: doc.documentDetails?.title ?? '',
+                                  docDateTime: doc.createdAt!,
+                                  docUrl: doc.documentDetails?.filePath ?? '',
+                                  downloadKey: doc.loadDocumentId,
+                                  docId: doc.documentId,
+                                ),
+                                10.height,
+                              ],
+                            );
+                          }).toList(),
+                    )
 
                      ],
                       20.height,
