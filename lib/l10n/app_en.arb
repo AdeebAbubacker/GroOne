@@ -848,7 +848,7 @@
   "fromFile" : "File",
   "selectImageFrom" : "Select image from?",
   "blueMemberShipIdSuccess" : "Blue membership ID generated Successfully",
-  "startExploringPremiumLoad" : "Start exploring premium load options today"
+  "startExploringPremiumLoad" : "Start exploring premium load options today",
   "geofenceLocationSetSuccessfully": "Geofence location has been set successfully.",
   "tripDocument":"Trip Documents",
   "assignDriver":"Assign Driver",

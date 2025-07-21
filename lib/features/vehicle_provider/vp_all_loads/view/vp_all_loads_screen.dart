@@ -255,14 +255,21 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                         data: state.loads[index]
                     ).paddingSymmetric(vertical: 7);
                   } else if (_tabController.index == 1) {
-                    return VpAllLoadMyLoadWidget(
-                      data: state.loads[index],
-                      onClickAssignDriver: () {
+                    return GestureDetector(
+                      onTap: () {
                         context.push(AppRouteName.loadDetailsScreen,extra: {
                           "loadId":state.loads[index].id
                         });
                       },
-                    ).paddingSymmetric(vertical: 7);
+                      child: VpAllLoadMyLoadWidget(
+                        data: state.loads[index],
+                        onClickAssignDriver: () {
+                          context.push(AppRouteName.loadDetailsScreen,extra: {
+                            "loadId":state.loads[index].id
+                          });
+                        },
+                      ).paddingSymmetric(vertical: 7),
+                    );
                   } else {
                     return GestureDetector(
                       onTap: () {
