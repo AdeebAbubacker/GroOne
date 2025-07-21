@@ -1,24 +1,24 @@
 class VehicleListResponse {
   VehicleListResponse({
-    required this.success,
+
     required this.message,
     required this.data,
   });
 
-  final bool success;
+
   final String message;
   final List<VehicleDetail> data;
 
   factory VehicleListResponse.fromJson(Map<String, dynamic> json){
     return VehicleListResponse(
-      success: json["success"] ?? false,
+
       message: json["message"] ?? "",
       data: json["data"] == null ? [] : List<VehicleDetail>.from(json["data"]!.map((x) => VehicleDetail.fromJson(x))),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "success": success,
+
     "message": message,
     "data": data.map((x) => x.toJson()).toList(),
   };
@@ -29,7 +29,7 @@ class VehicleDetail {
   VehicleDetail({
     required this.id,
     required this.customerId,
-    required this.vehicleNumber,
+    required this.truckNumber,
     required this.vehicleTypeId,
     required this.rcNumber,
     required this.rcDocLink,
@@ -39,10 +39,10 @@ class VehicleDetail {
     required this.deletedAt,
   });
 
-  final int id;
-  final num customerId;
-  final String vehicleNumber;
-  final num vehicleTypeId;
+  final String? id;
+  final String? customerId;
+  final String truckNumber;
+  final String? vehicleTypeId;
   final String rcNumber;
   final String rcDocLink;
   final String capacity;
@@ -52,10 +52,10 @@ class VehicleDetail {
 
   factory VehicleDetail.fromJson(Map<String, dynamic> json){
     return VehicleDetail(
-      id: json["id"] ?? 0,
-      customerId: json["customerId"] ?? 0,
-      vehicleNumber: json["vehicleNumber"] ?? "",
-      vehicleTypeId: json["vehicleTypeId"] ?? 0,
+      id: json["vehicleId"]?.toString() ?? '',
+      customerId: json["customerId"] ?? "",
+      truckNumber: json["truckNo"] ?? "",
+      vehicleTypeId: json["vehicleTypeId"] ?? "",
       rcNumber: json["rcNumber"] ?? "",
       rcDocLink: json["rcDocLink"] ?? "",
       capacity: json["capacity"] ?? "",
@@ -68,7 +68,7 @@ class VehicleDetail {
   Map<String, dynamic> toJson() => {
     "id": id,
     "customerId": customerId,
-    "vehicleNumber": vehicleNumber,
+    "vehicleNumber": truckNumber,
     "vehicleTypeId": vehicleTypeId,
     "rcNumber": rcNumber,
     "rcDocLink": rcDocLink,

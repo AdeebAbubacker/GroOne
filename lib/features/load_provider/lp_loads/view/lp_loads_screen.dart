@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -45,10 +49,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   Timer? _debounce;
   final lpLoadLocator = locator<LpLoadCubit>();
   String? truckTypeDropDownValue;
-  String? selectedDropDownValueId;
+  int? selectedTruckTypeId;
   String? routeDropDownValue;
-  int? selectedFromLocation;
-  int? selectedToLocation;
+  int? selectedRoute;
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int page = 1;
@@ -129,7 +132,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     );
 
     // Update pagination state from API response
-    final pageMeta = lpLoadLocator.state.lpLoadResponse?.data?.data?.pageMeta;
+    final pageMeta = lpLoadLocator.state.lpLoadResponse?.data?.pageMeta;
     if (pageMeta != null) {
       paginationController.updatePageMeta(pageMeta);
     }
@@ -163,74 +166,86 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       hideCloseButton: true,
       showYesNoButtonButtons: true,
-      noButtonText: 'Cancel',
-      yesButtonText: 'Apply',
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.apply,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Filter", style: AppTextStyle.body1.copyWith(fontSize: 20)),
+          Text(context.appText.filter, style: AppTextStyle.body1.copyWith(fontSize: 20)),
           10.height,
-          Text("Truck Type", style: AppTextStyle.body3),
+          Text(context.appText.truckType, style: AppTextStyle.body3),
           5.height,
           BlocBuilder<LpLoadCubit, LpLoadState>(
               builder: (context, state) {
                 final uiState = state.lpLoadTruckTypes;
-                final truckTypes = uiState?.data?.data ?? [];
-                return AppDropdown(
-                  validator: (value) => Validator.fieldRequired(value),
-                  dropdownValue: truckTypeDropDownValue,
-                  mandatoryStar: true,
-                  decoration: commonInputDecoration(fillColor: Colors.white),
-                  dropDownList: truckTypes.map((e) => DropdownMenuItem(
-                      value: e.id.toString(),
-                      child: Text(e.subType.toString(), style: AppTextStyle.body)),
-                  ).toList(),
-                  onChanged: (onChangeValue) {
-                    truckTypeDropDownValue = onChangeValue;
-                    selectedDropDownValueId = onChangeValue;
-                    setState(() {});
-                  },
+                final truckTypes = uiState?.data ?? [];
+                final truckTypeLabels = truckTypes.map((e) => '${e.type} Truck - ${e.subType}').toList();
+                final truckTypeLabelIdMap = Map.fromEntries(
+                    truckTypes.map((e) => MapEntry('${e.type} Truck - ${e.subType}', e.id))
                 );
-              }
+
+                return DropdownSearch<String>(
+                validator: (value) => Validator.fieldRequired(value),
+                items: (filter, _) => truckTypeLabels
+                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
+                    .toList(),
+                popupProps: PopupProps.menu(
+                  menuProps: MenuProps(backgroundColor: AppColors.white)
+                ),
+                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+                selectedItem: truckTypeDropDownValue,
+                onChanged: (value) {
+                  truckTypeDropDownValue = value;
+                  selectedTruckTypeId = truckTypeLabelIdMap[value];
+                  setState(() {});
+                },
+              );
+            }
           ),
           15.height,
-          Text("Route", style: AppTextStyle.body3),
+          Text(context.appText.route, style: AppTextStyle.body3),
           5.height,
           BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadRouteDetails;
-                final routeList = uiState?.data?.routeDataList ?? [];
-                return AppDropdown(
-                  validator: (value) => Validator.fieldRequired(value),
-                  dropdownValue: routeDropDownValue,
-                  mandatoryStar: true,
-                  decoration: commonInputDecoration(fillColor: Colors.white),
-                  dropDownList: routeList.map((e) => DropdownMenuItem(
-                    value: e.id.toString(),
-                    child:  SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.6, // or any suitable width
-                      child: Text(
-                        "${e.fromLocation?.name ?? ''} → ${e.toLocation?.name ?? ''}",
-                        style: AppTextStyle.body,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
-                      ),
-                    ),),
-                  ).toList(),
-                  onChanged: (onChangeValue) {
-                    routeDropDownValue = onChangeValue;
-                    // Find selected route object
-                    final selectedRoute = routeList.firstWhere(
-                          (element) => element.id.toString() == onChangeValue,
-                    );
-                    selectedFromLocation = selectedRoute.fromLocationId;
-                    selectedToLocation = selectedRoute.toLocationId;
-                    },
-                );
-              }
+            builder: (context, state) {
+              final uiState = state.lpLoadRouteDetails;
+              final routeList = uiState?.data?.data?.routeList ?? [];
+
+              return DropdownSearch<RouteList>(
+                items: (filter, _) {
+                  final filteredList = filter.isEmpty
+                      ? routeList
+                      : routeList.where((item) {
+                    final fromName = (item.fromLocation?['name'] ?? '').toString().toLowerCase();
+                    final toName = (item.toLocation?['name'] ?? '').toString().toLowerCase();
+                    return fromName.contains(filter.toLowerCase()) ||
+                        toName.contains(filter.toLowerCase());
+                  }).toList();
+                  return filteredList;
+                },
+
+                selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
+                compareFn: (item, selectedItem) => item.status == selectedItem?.status,
+
+                itemAsString: (item) =>
+                "${item.fromLocation?['name'] ?? ''} → ${item.toLocation?['name'] ?? ''}",
+
+                popupProps: PopupProps.menu(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    menuProps: MenuProps(backgroundColor: AppColors.white)
+                ),
+
+                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+                onChanged: (value) {
+                  routeDropDownValue = value?.status.toString();
+                  selectedRoute = value?.masterLaneId;
+                  setState(() {});
+                },
+              );
+            },
           ),
+
           15.height,
-          Text("Load Posted Date", style: AppTextStyle.body3),
+          Text(context.appText.loadPostedDate, style: AppTextStyle.body3),
           5.height,
           AppTextField(
             controller: loadPostedDateController,
@@ -239,7 +254,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 suffixOnTap: () async {
                   final String? date = await commonDatePicker(
                     context,
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime.now(),
                     initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(loadPostedDateController.text),
                   );
 
@@ -258,10 +274,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         var loadStatusType = lpLoadLocator.state.selectedTabIndex;
         lpLoadLocator.getLpLoadsByType(
             loadListApiRequest: LoadListApiRequest(
-              loadStatus: loadStatusType == 3 ? loadStatusType + 2 : loadStatusType + 1,
-              fromLocationId: selectedFromLocation,
-              toLocationId: selectedToLocation,
-              truckTypeId: truckTypeDropDownValue,
+              loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
+              laneId:selectedRoute,
+              truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
             ));
         clearAllFilterValues();
@@ -270,9 +285,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void clearAllFilterValues() {
-    selectedFromLocation = null;
-    selectedToLocation = null;
+    selectedRoute = null;
     routeDropDownValue = null;
+    selectedTruckTypeId = null;
     truckTypeDropDownValue = null;
     loadPostedDateController.clear();
   }
@@ -287,7 +302,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           children: [
             buildTabBarWidget(),
             buildSearchBarAndFilterWidget(context),
-            buildLoadListWidget(),
+            buildLoadListWidget(context),
           ],
         ),
     ));
@@ -370,7 +385,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   /// Load List
-  Widget buildLoadListWidget() {
+  Widget buildLoadListWidget(BuildContext context) {
     if (_tabController == null) {
       return const SizedBox();
     }
@@ -383,10 +398,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
-        final loadList = uiState.data?.data?.data ?? [];
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType);
+        }
+
+        final loadList = uiState.data?.data ?? [];
 
         if (loadList.isEmpty) {
-          return const Center(child: Text("No loads found."));
+          return genericErrorWidget(error: NotFoundError());
         }
 
         return NotificationListener<ScrollNotification>(

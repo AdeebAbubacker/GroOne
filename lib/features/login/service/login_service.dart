@@ -20,18 +20,17 @@ class LoginInService {
         body: request,
       );
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => LoginApiResponseModel.fromJson(data),
-        );
+        final data = LoginApiResponseModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 }
+
+

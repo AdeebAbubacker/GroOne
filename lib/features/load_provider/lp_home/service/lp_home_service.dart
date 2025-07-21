@@ -28,14 +28,14 @@ class LpHomeService{
       final url = ApiUrls.getLoads+id;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LpGetLoadModel.fromJson(data));
+        final data = LpGetLoadModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -54,45 +54,46 @@ class LpHomeService{
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
 
   /// Fetch Load Commodity
-  Future<Result<LoadCommodityListModel>> fetchLoadCommodityData() async {
+  Future<Result<List<LoadCommodityListModel>>> fetchLoadCommodityData() async {
     try {
       final url = ApiUrls.loadCommodity;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadCommodityListModel.fromJson(data));
+        final List<dynamic> list = result.value;
+        final loads = list.map((e) => LoadCommodityListModel.fromJson(e)).toList();
+        return Success(loads);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
 
   /// Fetch Truck Type
-  Future<Result<LoadTruckTypeListModel>> fetchTruckTypeData() async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeData() async {
     try {
       final url = ApiUrls.loadTruckType;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadTruckTypeListModel.fromJson(data));
+        final List<dynamic> list = result.value;
+        final loads = list.map((e) => LoadTruckTypeListModel.fromJson(e)).toList();
+        return Success(loads);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -104,14 +105,14 @@ class LpHomeService{
       final url = ApiUrls.getRecentRoute;
       final result = await _apiService.get(url, queryParams: {'customerId': userId});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RecentRoutesModel.fromJson(data));
+        final data = RecentRoutesModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -130,7 +131,6 @@ class LpHomeService{
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -142,14 +142,14 @@ class LpHomeService{
       final url = ApiUrls.createLoad;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> CreateLoadModel.fromJson(data));
+        final data = CreateLoadModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -161,14 +161,14 @@ class LpHomeService{
       final url = ApiUrls.getRateDiscoveryPrice;
       final result = await _apiService.get(url, queryParams: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> RateDiscoveryModel.fromJson(data));
+        final data = RateDiscoveryModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -180,14 +180,14 @@ class LpHomeService{
       final url = ApiUrls.mapAutoComplete;
       final result = await _apiService.get(url, queryParams: {"input" : input});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> AutoCompleteModel.fromJson(data));
+        final data = AutoCompleteModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -199,33 +199,51 @@ class LpHomeService{
       final url = ApiUrls.verifyLocation;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> VerifyLocationModel.fromJson(data));
+        final data = VerifyLocationModel.fromJson(result.value);
+        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
 
   /// Fetch Weight Load
-  Future<Result<LoadWeightModel>> fetchLoadWeightData() async {
+  Future<Result<List<LoadWeightModel>>> fetchLoadWeightData() async {
     try {
       final url = ApiUrls.getWeight;
       final result = await _apiService.get(url);
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> LoadWeightModel.fromJson(data));
+        final List<dynamic> list = result.value;
+        final loads = list.map((e) => LoadWeightModel.fromJson(e)).toList();
+        return Success(loads);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// setBluId
+  Future<Result<void>> setBluIDFlag(String userId) async {
+    try {
+      final url = ApiUrls.bluIdFlg+userId;
+      final result = await _apiService.patch(url);
+      if (result is Success) {
+        return Success(null);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
       return Error(DeserializationError());
     }
   }

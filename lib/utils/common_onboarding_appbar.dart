@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -24,6 +26,7 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
       actions: [
 
         // Language Selection
+        if(showTranslateButton!)
         AppIconButton(
           onPressed: (){
             Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));
@@ -38,7 +41,12 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
         ),
         20.width,
 
-        Image.asset(AppImage.png.appIcon, width: 80),
+        InkWell(
+          onTap: (){
+            Navigator.of(context).push(commonRoute(LpBottomNavigation()));
+          },
+          child: Image.asset(AppImage.png.appIcon, width: 80),
+        ),
         20.width,
       ],
     );

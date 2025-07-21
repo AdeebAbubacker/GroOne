@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
-import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/privacy_polcy_screen.dart';
-import 'package:gro_one_app/features/t_and_c_and_privacypolicy/view/terms_and_conditions_screen.dart';
+import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
+import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
@@ -22,6 +22,7 @@ import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
@@ -29,16 +30,14 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.roleId});
+  const LoginScreen({super.key,});
 
-  final int roleId;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final loginBloc = locator<LoginBloc>();
 
   final formKey = GlobalKey<FormState>();
@@ -66,20 +65,26 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: CommonOnboardingAppbar(),
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
-        listener: (context, state) {
-          if (state is LogInSuccess) {
-            ToastMessages.success(message: "Otp Sent successfully");
-            context.push(
-              AppRouteName.otpVerificationScreen,
-              extra: {
-                "mobileNumber": state.loginApiResponseModel.data.user.mobileNumber,
-                "otp": state.loginApiResponseModel.data.user.otp.toString(),
-                "roleId": widget.roleId.toString(),
-              },
-            );
+        listener: (context, state) async {
+           if (state is LogInSuccess) {
+            ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
+            await Future.delayed(Duration(seconds: 1));
+            if(context.mounted) {
+              context.push(
+                AppRouteName.otpVerificationScreen,
+                extra: {
+                "mobileNumber": state.loginApiResponseModel.mobile.toString(),
+                "otp": state.loginApiResponseModel.otp.toString(),
+                "driver" : state.loginApiResponseModel.driver,
+                },
+              );
+            }
           }
+
           if (state is LogInError) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
           }
         },
         builder: (context, state) {
@@ -111,18 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       5.height,
 
-                      // Phone Number
-                      // MobileNumberTextField(
-                      //   countryFlagAssetPath: AppImage.png.flag,
-                      //   controller: phoneNumber,
-                      //   onChanged: (value){
-                      //     setState(() {});
-                      //   },
-                      // ),
                       AppTextField(
                         validator: (value) => Validator.phone(value),
                         controller: phoneNumber,
-                        //labelText: context.appText.phoneNumber,
                         maxLength: 10,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
@@ -130,14 +126,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                         keyboardType: iosNumberKeyboard,
                         decoration: commonInputDecoration(
-                          hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                          hintText:
+                              "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
                           prefixIcon: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Image.asset(AppImage.png.flag),
                               10.width,
-                              Text("+91", style: AppTextStyle.textFieldHintBlackColor),
+                              Text(
+                                "+91",
+                                style: AppTextStyle.textFieldHintBlackColor,
+                              ),
                             ],
                           ).paddingOnly(left: 20, right: 5),
                         ),
@@ -151,16 +151,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       AppButton(
                         isLoading: isLoading,
                         title: "Get OTP",
-                        style: (phoneNumber.text.length == 10 && checkBoxBool == true) ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+                        style:
+                            (phoneNumber.text.length == 10 &&
+                                    checkBoxBool == true)
+                                ? AppButtonStyle.primary
+                                : AppButtonStyle.disableButton,
                         onPressed: () {
-                          if (!formKey.currentState!.validate()){
+                          if (!formKey.currentState!.validate()) {
                             return;
                           }
-                          if (phoneNumber.text.length == 10 && checkBoxBool == true) {
-                            loginBloc.add(LoginInRequested(
+                          if (phoneNumber.text.length == 10 &&
+                              checkBoxBool == true) {
+                            loginBloc.add(
+                              LoginInRequested(
                                 apiRequest: LoginApiRequest(
-                                  mobile: phoneNumber.text,
-                                  role: widget.roleId,
+                                  mobile: int.parse(phoneNumber.text.toInt),
+                                  type: 1,
                                 ),
                               ),
                             );
@@ -179,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: AppTextStyle.blackColor14w400,
                             ),
                             TextSpan(
-                              text: "Terms & Conditions",
+                              text: context.appText.termsAndConditions,
                               style: AppTextStyle.primaryColor14w400UnderLine,
                               recognizer:
                                   TapGestureRecognizer()
@@ -196,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: AppTextStyle.blackColor14w400,
                             ),
                             TextSpan(
-                              text: "Privacy Policy",
+                              text: context.appText.privacyPolicy,
                               style: AppTextStyle.primaryColor14w400UnderLine,
                               recognizer:
                                   TapGestureRecognizer()
@@ -247,3 +253,4 @@ class _LoginScreenState extends State<LoginScreen> {
     ).expand();
   }
 }
+   

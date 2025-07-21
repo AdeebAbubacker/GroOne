@@ -22,11 +22,21 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
+  final bool isMultipleSelectionFile;
   final bool? isLoading;
   final bool? hideDeleteButton;
   final String? title;
   final Function? thenUploadFileToSever;
-  const UploadAttachmentFiles({super.key, required this.multiFilesList, this.isSingleFile = false, this.title, this.thenUploadFileToSever, this.isLoading = false, this.hideDeleteButton = false});
+  final void Function(int)? onDelete;
+  const UploadAttachmentFiles({super.key,
+    required this.multiFilesList,
+    this.isSingleFile = false,
+    this.isMultipleSelectionFile = true,
+    this.title, this.thenUploadFileToSever,
+    this.isLoading = false,
+    this.hideDeleteButton = false,
+    this.onDelete,
+  });
 
   @override
   State<UploadAttachmentFiles> createState() => _UploadAttachmentFilesState();
@@ -55,8 +65,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
               children: [
 
                 if (widget.title != null)...[
-                  Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-                  Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+                  Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+                  Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
                   10.height,
                 ],
 
@@ -76,7 +86,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                         return GestureDetector(
                           onTap: !isFile ? () {
                             commonHideKeyboard(context);
-                            commonBottomSheetWithBGBlur(context: context, screen: const UploadFileAndImageBottomSheet()).then((value) {
+                            commonBottomSheetWithBGBlur(context: context, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
                               if (value != null) {
                                 isFile = true;
                                 widget.multiFilesList.add(value);
@@ -91,28 +101,30 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             });
                             setState(() {});
                           } : () {},
+
+                          // Add More
                           child: DottedBorder(
                             color: Colors.black38,
                             strokeWidth: 1.5,
-                            radius: const Radius.circular(12),
+                            radius: const Radius.circular(commonTexFieldRadius),
                             borderType: BorderType.RRect,
                             child: Container(
                               height: documentHeight,
                               alignment: Alignment.center,
-                              child: isFile ? Text(AppString.label.loading, style: AppTextStyle.body) : Center(
+                              child: isFile ? Text(context.appText.loading, style: AppTextStyle.body) : Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(AppString.label.addMore, style: AppTextStyle.body2GreyColor),
+                                    Text(context.appText.addMore, style: AppTextStyle.textFiled),
                                     10.width,
-                                    SvgPicture.asset(AppIcons.svg.documentUpload, width: 20, colorFilter: AppColors.svg(AppColors.greyIconColor)),
+                                    SvgPicture.asset(AppIcons.svg.documentUpload, width: 20, colorFilter: AppColors.svg(AppColors.iconColor)),
                                   ],
                                 ),
                               ),
                             ),
                           ),
-                        ).paddingOnly(right: 5, left: 5, top: 5);
+                        ).paddingOnly(top: 5);
                       } else {
                         return 0.width;
                       }
@@ -153,23 +165,20 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
 
                             Builder(
                               builder: (context){
-                                if(!widget.isLoading!){
+                                final isLastIndex = index == widget.multiFilesList.length - 1;
+
+                                if(widget.isLoading!){
+                                  if(isLastIndex) {
+                                    return CupertinoActivityIndicator().paddingRight(10);
+                                  } else{
+                                    return _buildRemoveDocumentWidget(index);
+                                  }
+                                } else {
                                   if(widget.hideDeleteButton!) {
                                     return const SizedBox();
                                   } else {
-                                    return AppIconButton(
-                                      onPressed: (){
-                                        widget.multiFilesList.removeAt(index);
-                                        commonHapticFeedback();
-                                        commonHideKeyboard(context);
-                                        setState(() {});
-                                      },
-                                      icon: AppIcons.svg.delete,
-                                      iconColor: AppColors.activeRedColor,
-                                    );
+                                    return _buildRemoveDocumentWidget(index);
                                   }
-                                } else {
-                                  return CupertinoActivityIndicator().paddingRight(10);
                                 }
                               },
                             ),
@@ -189,15 +198,15 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
           children: [
 
             if (widget.title != null)...[
-              Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-              Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+              Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+              Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
               10.height,
             ],
 
             GestureDetector(
               onTap: !isFile ? () {
                 commonHideKeyboard(context);
-                commonBottomSheet(context: context, barrierDismissible: true, screen: const UploadFileAndImageBottomSheet()).then((value) {
+                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
                   debugPrint("First Time : $value");
                   isFile = true;
                   if (value != null) {
@@ -229,7 +238,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                   color: AppColors.textFieldFillColor,
                   alignment: Alignment.center,
                   child: isFile
-                      ? Text(AppString.label.loading, style: AppTextStyle.body2)
+                      ? Text(context.appText.loading, style: AppTextStyle.body2)
                       :  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -248,4 +257,21 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
       }
     });
   }
+
+  Widget _buildRemoveDocumentWidget(int index){
+    return AppIconButton(
+      onPressed: (){
+        widget.multiFilesList.removeAt(index);
+        commonHapticFeedback();
+        commonHideKeyboard(context);
+        if(widget.onDelete != null){
+          widget.onDelete?.call(index);
+        }
+        setState(() {});
+      },
+      icon: AppIcons.svg.delete,
+      iconColor: AppColors.activeRedColor,
+    );
+  }
+
 }

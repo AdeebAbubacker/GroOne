@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -15,13 +16,14 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:lottie/lottie.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shimmer/shimmer.dart';
 
 
 /// Input Decoration
-InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor, dynamic suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, Color? fillColor,  Color? focusColor, bool? enableBorder = true, TextStyle? hintStyle}) {
+InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor, dynamic suffixIcon, Function()? suffixOnTap, Widget? dateTime, Widget? prefixIcon, Color? fillColor,  Color? focusColor, bool? enableBorder = true, TextStyle? hintStyle,double? iconPadding}) {
 
   Widget? getIconWidget(){
     if(suffixIcon is String){
@@ -39,7 +41,7 @@ InputDecoration commonInputDecoration({String? hintText, Color? suffixIconColor,
     }else if(suffixIcon is IconData){
       return InkWell(
         onTap: suffixOnTap ?? (){},
-        child: Icon(suffixIcon, color: suffixIconColor).paddingAll(15),
+        child: Icon(suffixIcon, color: suffixIconColor).paddingAll(iconPadding??15),
       );
     }else if(suffixIcon is Widget){
       return InkWell(
@@ -96,7 +98,7 @@ Widget commonCacheNetworkImage({required String path, dynamic errorImage, double
         return Image.asset(errorImage);
       }
     }else if(errorImage is IconData){
-      return Icon(errorImage);
+      return Icon(errorImage, color: AppColors.greyIconColor);
     }else if(errorImage is Widget){
       return errorImage;
     } else {
@@ -174,10 +176,10 @@ Widget genericErrorWidget({ErrorType? error, void Function()? onRefresh, void Fu
       Text(getErrorMsg(errorType: error ?? GenericError()), textAlign: TextAlign.center, style: AppTextStyle.body2),
       50.height,
       if (onRefresh != null)
-        AppButton(title: AppString.label.refresh, onPressed: onRefresh, style: AppButtonStyle.primary),
+        AppButton(title: appContext.appText.refresh, onPressed: onRefresh, style: AppButtonStyle.primary),
       20.height,
       if(goBack != null)
-      AppButton(title: AppString.label.back, onPressed: goBack),
+      AppButton(title: appContext.appText.back, onPressed: goBack),
 
     ],
   ).center().isAnimate().paddingAll(commonSafeAreaPadding);

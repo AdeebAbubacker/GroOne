@@ -4,8 +4,11 @@ class PriceHelper {
 
   static String formatINR(dynamic amount, {String symbol = '₹'}) {
     try {
-      final numValue = num.tryParse(amount.toString()) ?? 0;
-      final hasDecimals = amount.toString().contains('.');
+      final cleanAmount = amount.toString().replaceAll('Rs', '').trim();
+
+      final numValue = num.tryParse(cleanAmount) ?? 0;
+      final hasDecimals = cleanAmount.contains('.');
+
       final formatter = NumberFormat.currency(
         locale: 'en_IN',
         symbol: symbol,

@@ -25,6 +25,7 @@ class ProfileRepository {
     try {
       return await _profileService.getProfileDetails();
     } catch (e) {
+
       CustomLog.error(this, "Failed to request get user details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -95,6 +96,11 @@ class ProfileRepository {
   /// Get Show Blue
   Future<String?> getCustomerTypeId() async {
     return await _userInformationRepository.getCustomerTypeID();
+  }
+
+  /// Get Show Blue
+  Future<int?> getUserRole() async {
+    return await _userInformationRepository.getUserRole();
   }
 
   /// Get Blue Id

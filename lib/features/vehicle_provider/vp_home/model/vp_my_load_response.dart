@@ -13,7 +13,7 @@ class VpMyLoadResponse {
     return VpMyLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VpLoadsList>.from(json["data"]!.map((x) => VpLoadsList.fromJson(x))),
+      data: json["data"] == null ? [] : List<VpLoadsList>.from(json["data"]['data']!.map((x) => VpLoadsList.fromJson(x))),
     );
   }
 
@@ -64,8 +64,8 @@ class VpLoadsList {
 
 
 
-  final int id;
-  final num customerId;
+  final String id;
+  final dynamic customerId;
   final num commodityId;
   final num truckTypeId;
   final String pickUpAddr;
@@ -87,24 +87,26 @@ class VpLoadsList {
   final CustomerDetail? customerDetail;
 
   factory VpLoadsList.fromJson(Map<String, dynamic> json){
+
     return VpLoadsList(
-      vpMaxRate:
-      json['vpMaxRate']?.toString()??"",
-      vpRate:json['vpRate']?.toString()??"" ,
-      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
-      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
+      vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
+      vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
+      dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
+      pickUpWholeAddr: json['loadRoute']!=null  ? json['loadRoute']['pickUpWholeAddr']?.toString()??"":"",
+      pickUpAddr: json['loadRoute']!=null ? json['loadRoute']["pickUpAddr"] ?? "":"",
+      pickUpLatlon:  json['loadRoute']!=null ? json['loadRoute']["pickUpLatlon"] ?? "":"",
+      dropAddr: json['loadRoute']!=null  ? json['loadRoute']["dropAddr"] ?? "":"",
+      dropLatlon:  json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
 
 
-      loadId: json['loadId']??"",
-      id: json["id"] ?? 0,
+      loadId: json['loadSeriesId']??"",
+      id: json["loadId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
-      pickUpAddr: json["pickUpAddr"] ?? "",
-      assignStatus: json["loadStatus"] ?? 0,
-      pickUpLatlon: json["pickUpLatlon"] ?? "",
-      dropAddr: json["dropAddr"] ?? "",
-      dropLatlon: json["dropLatlon"] ?? "",
+
+      assignStatus: json["loadStatusId"] ?? 0,
+
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight:  json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",

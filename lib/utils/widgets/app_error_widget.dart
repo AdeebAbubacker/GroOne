@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 class AppErrorWidget extends StatelessWidget {
   /// The error type containing the error message and details
@@ -37,7 +39,7 @@ class AppErrorWidget extends StatelessWidget {
           TextButton(
             onPressed: onRetry,
             child: Text(
-              AppString.label.refresh.capitalize,
+              appContext.appText.refresh.capitalize,
               style: const TextStyle(
                 color: AppColors.primaryColor,
                 fontSize: 16,

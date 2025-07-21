@@ -50,6 +50,11 @@ class Validator {
       return 'Please enter a valid 10-digit mobile number';
     }
 
+    // Starts with 0
+    if (value.startsWith('0')) {
+      return 'Mobile number cannot start with 0';
+    }
+
     // Disallow repeated digits like 0000000000, 1111111111, etc.
     if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
       return 'Mobile number cannot have all same digits';
@@ -73,7 +78,7 @@ class Validator {
     return null;
   }
   static String? pincode(String? value) {
-    String pattern = r'^\d{4,6}$'; // Matches 4 to 6 digit numbers (common for many countries)
+    String pattern = r'^[1-9][0-9]{5}$'; // Reject all 0s, allow 6 digits
     RegExp regExp = RegExp(pattern);
 
     if (value == null || value.isEmpty) {
@@ -123,19 +128,29 @@ class Validator {
       return '$fieldName is required';
     }
 
-    final regex = RegExp(r'^[a-zA-Z0-9\- ]+$');
+    // Format: 2 letters + hyphen + 13 digits (total 16 characters)
+    // Example: DL-1420110012345
+    final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
-    if (!regex.hasMatch(value)) {
-      return '$fieldName should contain only letters, numbers, hyphens, and spaces';
+    if (!regex.hasMatch(value.trim().toUpperCase())) {
+      return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
     }
 
-    if (value.length != 16) {
-      return '$fieldName must be exactly 16 characters';
-    }
     return null;
   }
 
+  static String? validateVehicleNumber(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
 
+    // Indian vehicle number pattern (no spaces, no hyphens)
+    final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
 
+    if (!regex.hasMatch(value.trim().toUpperCase())) {
+      return '$fieldName is invalid. Example: MH12AB1234';
+    }
+    return null;
+  }
 
 }

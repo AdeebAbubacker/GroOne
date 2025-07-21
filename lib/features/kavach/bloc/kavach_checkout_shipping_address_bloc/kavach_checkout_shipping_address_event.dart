@@ -9,4 +9,10 @@ class SelectKavachShippingAddress extends KavachCheckoutShippingAddressEvent {
   SelectKavachShippingAddress(this.address);
 }
 
+class RestoreKavachShippingAddress extends KavachCheckoutShippingAddressEvent {
+  final KavachAddressModel address;
+  final List<KavachAddressModel> addresses;
+  RestoreKavachShippingAddress(this.address, this.addresses);
+}
+
 class ClearKavachShippingAddress extends KavachCheckoutShippingAddressEvent {}

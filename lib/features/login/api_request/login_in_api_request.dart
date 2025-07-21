@@ -1,8 +1,29 @@
-class LoginApiRequest {
-  String mobile;
-  int role;
+import 'package:gro_one_app/data/model/serializable.dart';
 
-  LoginApiRequest({required this.mobile, required this.role});
+class LoginApiRequest implements Serializable<LoginApiRequest> {
+  final int? mobile;
+  final int? type;
 
-  Map<String, dynamic> toJson() => {"mobile": mobile, "role": role};
+  const LoginApiRequest({
+    this.mobile,
+    this.type,
+  });
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "mobile": mobile ?? 0,
+      "type": type ?? 0,
+    };
+  }
+
+  LoginApiRequest copyWith({
+    int? mobile,
+    int? type,
+  }) {
+    return LoginApiRequest(
+      mobile: mobile ?? this.mobile,
+      type: type ?? this.type,
+    );
+  }
 }

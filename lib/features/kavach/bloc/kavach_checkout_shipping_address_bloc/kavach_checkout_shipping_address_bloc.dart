@@ -11,6 +11,7 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
   KavachCheckoutShippingAddressBloc(this.repository) : super(KavachCheckoutShippingAddressLoading()) {
     on<FetchKavachShippingAddresses>(_onFetchAddresses);
     on<SelectKavachShippingAddress>(_onSelectAddress);
+    on<RestoreKavachShippingAddress>(_onRestoreShippingAddress);
     on<ClearKavachShippingAddress>((event, emit) {
       emit(KavachCheckoutShippingAddressEmpty());
     });
@@ -18,16 +19,20 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
 
   Future<void> _onFetchAddresses(FetchKavachShippingAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
     emit(KavachCheckoutShippingAddressLoading());
-    final result = await repository.fetchAddresses(addrType: 1);
+    final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
+        print('KavachCheckoutShippingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutShippingAddressEmpty());
       } else {
-        final firstAddress = result.value.first;
-        emit(KavachCheckoutShippingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        // Don't auto-select the first address, let user choose
+        print('KavachCheckoutShippingAddressBloc: Emitting available state with ${result.value.length} addresses');
+        emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutShippingAddressError(result.type));
     }
   }
@@ -40,8 +45,12 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
         selectedAddress: event.address,
         addresses: currentState.addresses,
       ));
-    } else {
-      // When there was no prior selected state (e.g., after Clear)
+    } else if (currentState is KavachCheckoutShippingAddressAvailable) {
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else if (currentState is KavachCheckoutShippingAddressEmpty) {
       emit(KavachCheckoutShippingAddressSelected(
         selectedAddress: event.address,
         addresses: [event.address],
@@ -49,4 +58,10 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     }
   }
 
+  void _onRestoreShippingAddress(RestoreKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
+    emit(KavachCheckoutShippingAddressSelected(
+      selectedAddress: event.address,
+      addresses: event.addresses,
+    ));
+  }
 }

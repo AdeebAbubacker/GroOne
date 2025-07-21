@@ -21,6 +21,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../../data/ui_state/status.dart';
+import '../../../../../routing/app_routes.dart';
 
 class MemoOtpDialogWidget extends StatefulWidget {
   final BuildContext parentContext;
@@ -63,7 +64,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
   }
 
   void handleOtpVerification(uiState) async {
-    if (uiState?.data?.data?.message == 'OTP verified successfully') {
+    if (uiState?.data?.message == context.appText.otpVerifiedSuccess) {
       // Store parent context reference before popping
       final parentCtx = widget.parentContext;
 
@@ -75,7 +76,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
         AppDialog.show(
           parentCtx,
           child: SuccessDialogView(
-            heading: "Memo E-Signed successfully",
+            heading: context.appText.memoESignSuccess,
             onContinue: () {
               LpBottomNavigation.selectedIndexNotifier.value = 1;
               Navigator.pushReplacement(
@@ -111,7 +112,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: 'Verify OTP',
+                  text: context.appText.verifyOtp,
                   style: AppTextStyle.h3.copyWith(
                     fontSize: 26,
                     color: AppColors.primaryColor,
@@ -119,7 +120,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                 ),
                 TextSpan(
                   text:
-                  '  for confirming your load We have sent an OTP to your registered mobile number. ',
+                  context.appText.otpSendToMobile,
                   style: AppTextStyle.body2.copyWith(height: 1.9),
                 ),
                 TextSpan(
@@ -128,16 +129,11 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                   recognizer:
                   TapGestureRecognizer()
                     ..onTap = () {
-                      // Handle terms & conditions tap
-                      debugPrint('Terms & Conditions tapped');
+                      commonSupportDialog(context);
                     },
                 ),
               ],
             ),
-          ),
-          10.height,
-          Text(
-            'OTP: ${lpLoadLocator.state.lpLoadMemoSendOtp?.data?.data?.otp ?? ''}',
           ),
           10.height,
           Center(
@@ -169,7 +165,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                 (otpController.text.length == 4)
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-            title: 'Verify OTP',
+            title: context.appText.verifyOtp,
 
             onPressed: () async {
               if (otpController.text.length == 4) {
@@ -190,7 +186,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                       await lpLoadLocator.sendOtp(loadId: widget.loadId);
                       final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
                       if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.data?.message ?? "OTP sent";
+                        final message = otpState?.data?.message ?? "";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
                         }
@@ -210,7 +206,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
                 child: Text(
                   _secondsRemaining > 0
                       ? "Resend OTP in $_secondsRemaining Seconds"
-                      : "Resend OTP",
+                      : context.appText.resendOtp,
                   style: AppTextStyle.textBlackColor14w400,
                 ),
               ),

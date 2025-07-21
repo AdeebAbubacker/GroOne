@@ -9,8 +9,11 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 class LpMyAccount extends StatelessWidget {
-  final ProfileDetailsData profileData;
-  const LpMyAccount({super.key, required this.profileData});
+  final Customer? customerDetail;
+  final BankDetails? bankDetails;
+  final Address? address;
+  final KycDoc? kycDoc;
+  const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails, required this.address, required this.kycDoc});
 
   String checkUserDetails(dynamic value){
     if(value != null && value.toString().isNotEmpty){
@@ -31,87 +34,90 @@ class LpMyAccount extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 20,
             children: [
-              headingText(text: context.appText.personalDetails),
+              0.height,
 
-              if (profileData.customer != null) ...[
-
+              if (customerDetail != null)...[
+                headingText(text: context.appText.personalDetails),
                 buildDetailWidget(
                   text1: context.appText.name,
-                  text2: checkUserDetails(profileData.customer!.customerName),
+                  text2: checkUserDetails(customerDetail?.customerName),
                 ),
 
                 buildDetailWidget(
                   text1: context.appText.mobileNumber,
-                  text2: checkUserDetails(profileData.customer!.mobileNumber),
+                  text2: checkUserDetails(customerDetail?.mobileNumber),
                 ),
 
                 buildDetailWidget(
-                  text1: context.appText.email,
-                  text2: checkUserDetails(profileData.customer!.emailId)
+                    text1: context.appText.email,
+                    text2: checkUserDetails(customerDetail?.emailId)
                 ),
                 dividerWidget(),
 
+                // Account Detail
                 headingText(text: context.appText.accountDetails),
-
                 buildDetailWidget(
-                  text1: context.appText.blueMembershipId,
-                  text2: checkUserDetails(profileData.customer!.blueId)
+                    text1: context.appText.blueMembershipId,
+                    text2: checkUserDetails(customerDetail?.blueId)
                 ),
 
-                buildDetailWidget(
-                  text1: context.appText.accountType,
-                  text2: checkUserDetails(profileData.customer!.accountType),
-                ),
+                if(customerDetail?.companyType != null)
+                  buildDetailWidget(
+                    text1: context.appText.accountType,
+                    text2: checkUserDetails(customerDetail?.companyType!.companyType),
+                  ),
 
                 buildDetailWidget(
                   text1: context.appText.registrationData,
-                  text2: profileData.customer!.createdAt != null ? DateTimeHelper.getFormattedDate(profileData.customer!.createdAt!) : "--",
+                  text2: customerDetail?.createdAt != null ? DateTimeHelper.getFormattedDate(customerDetail!.createdAt!) : "--",
                 ),
 
                 buildDetailWidget(
                   text1: context.appText.kycStatus,
-                  text2: profileData.customer!.isKyc == 3 ? "Verified" : "Un-Verified",
+                  text2: customerDetail?.isKyc == 3 ? "Verified" : "Un-Verified",
                 ),
 
                 dividerWidget(),
               ],
+
 
 
               // Bank Details
-              if (profileData.details != null) ...[
+              if(bankDetails == null)...[
                 headingText(text: 'Bank Details'),
-
                 buildDetailWidget(
                   text1: 'Account no.',
-                  text2: checkUserDetails(profileData.details!.bankAccount),
+                  text2: checkUserDetails(bankDetails?.bankAccount),
                 ),
                 buildDetailWidget(
                   text1: 'Bank Name',
-                  text2: checkUserDetails(profileData.details!.bankName),
+                  text2: checkUserDetails(bankDetails?.bankName),
                 ),
                 buildDetailWidget(
                   text1: 'Branch Name',
-                  text2: checkUserDetails(profileData.details!.branchName),
+                  text2: checkUserDetails(bankDetails?.branchName),
                 ),
                 buildDetailWidget(
                   text1: 'IFSC code',
-                  text2: checkUserDetails(profileData.details!.ifscCode),
+                  text2: checkUserDetails(bankDetails?.ifscCode),
                 ),
                 dividerWidget(),
-
-                // Company Detail
-                headingText(text: context.appText.companyDetails),
-                buildDetailWidget(
-                  text1: context.appText.companyName,
-                  text2: checkUserDetails(profileData.details!.companyName),
-                ),
-
-                if (profileData.details!.companyTypeId != 2)
-                  buildDetailWidget(
-                    text1: context.appText.gst,
-                    text2: checkUserDetails(profileData.details!.gstin),
-                  ),
               ],
+
+
+              // Company Detail
+              headingText(text: context.appText.companyDetails),
+              if (customerDetail != null)
+              buildDetailWidget(
+                text1: context.appText.companyName,
+                text2: checkUserDetails(customerDetail?.companyName),
+              ),
+
+              if (customerDetail?.companyType?.id != 2)
+                buildDetailWidget(
+                  text1: context.appText.gst,
+                  text2: checkUserDetails(kycDoc?.gstin ?? ''),
+                ),
 
               20.height,
             ],

@@ -74,7 +74,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
 
           dropdownDecoration: DropdownDecoration(
             elevation: 10,
-            marginTop: 10,
+            marginTop: 0,
             maxHeight: 400,
             backgroundColor: Colors.white,
             borderRadius: BorderRadius.circular(commonTexFieldRadius),
@@ -95,6 +95,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
           ),
 
         ),
+      
       ],
     );
   }

@@ -5,9 +5,9 @@
 import 'dart:convert';
 
 
-String createRequestToJson(CreateRequest data) => json.encode(data.toJson());
+String createRequestToJson(LpCreateApiRequest data) => json.encode(data.toJson());
 
-class CreateRequest {
+class LpCreateApiRequest {
   String customerName;
   String mobileNumber;
   String companyName;
@@ -16,7 +16,7 @@ class CreateRequest {
   int roleId;
   String pincode;
 
-  CreateRequest({
+  LpCreateApiRequest({
     required this.customerName,
     required this.mobileNumber,
     required this.companyName,

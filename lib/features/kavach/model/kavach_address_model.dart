@@ -39,26 +39,29 @@ class KavachAddressModel extends Equatable {
 
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
-      id: json['id'],
-      customerName: json['customerName']??'',
-      mobileNumber: json['mobileNumber']??'',
-      customerId: json['customerId'],
-      addressName: json['addressName']??'',
-      addr1: json['addr1'],
-      addr2: json['addr2'],
-      city: json['city'],
-      state: json['state'],
-      country: json['country'],
-      gstin: json['gstin'],
-      pincode: json['pincode'],
-      addrType: json['addrType'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
+      id: int.tryParse(json['preferedAddressId']?.toString() ?? '0') ?? 0,
+      customerName: json['customerName'] ?? '',
+      mobileNumber: json['mobileNumber'] ?? '',
+      customerId: int.tryParse(json['customerId']?.toString() ?? '0') ?? 0,
+      addressName: json['addrName'] ?? '',
+      addr1: json['addr'] ?? '',
+      addr2: json['addr2'] ?? '',
+      city: json['city'] ?? '',
+      state: json['state'] ?? '',
+      country: json['country'] ?? '',
+      gstin: json['gstIn'],
+      pincode: json['pincode'] ?? '',
+      addrType: int.tryParse(json['addrType']?.toString() ?? '0') ?? 0,
+      status: int.tryParse(json['status']?.toString() ?? '0') ?? 0,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
     );
   }
 
   String get fullAddress => '$addr1, $city, $state, $country - $pincode';
+  
+  // Create a unique identifier using address properties since ID might not be unique
+  String get uniqueId => '$addressName-$addr1-$city-$pincode';
 
   @override
   List<Object?> get props => [

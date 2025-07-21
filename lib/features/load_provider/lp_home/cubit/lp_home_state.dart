@@ -17,7 +17,7 @@ class LPHomeState extends Equatable {
   final UIState<AutoCompleteModel>? autoCompleteUIState;
   final UIState<VerifyLocationModel>? verifyLocationUIState;
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
-  final UIState<LoadWeightModel>? loadWeightUIState;
+  final UIState<List<LoadWeightModel>>? loadWeightUIState;
   final UIState<ProfileDetailModel>? profileDetailUIState;
   final UIState<LpGetLoadModel>? lpGetLoadUIState;
   final bool showSuccessKyc;
@@ -26,9 +26,10 @@ class LPHomeState extends Equatable {
   final int? pickupLocationId;
   final int? destinationLocationId;
   final num? laneId;
-  final LoadWeightData? selectedWeight;
+  final LoadWeightModel? selectedWeight;
   final String? matchingText;
   final String? blueId;
+  final UIState? isBluIdShown;
 
   const LPHomeState({
     this.truckTypeUIState,
@@ -48,6 +49,7 @@ class LPHomeState extends Equatable {
     this.selectedWeight,
     this.matchingText,
     this.blueId,
+    this.isBluIdShown,
   });
 
   LPHomeState copyWith({
@@ -56,7 +58,7 @@ class LPHomeState extends Equatable {
     UIState<AutoCompleteModel>? autoCompleteUIState,
     UIState<VerifyLocationModel>? verifyLocationUIState,
     UIState<RateDiscoveryModel>? rateDiscoveryUIState,
-    UIState<LoadWeightModel>? loadWeightUIState,
+    UIState<List<LoadWeightModel>>? loadWeightUIState,
     UIState<ProfileDetailModel>? profileDetailUIState,
     UIState<LpGetLoadModel>? getLoadListUIState,
     bool? showSuccessKyc,
@@ -65,9 +67,10 @@ class LPHomeState extends Equatable {
     int? pickupLocationId,
     int? destinationLocationId,
     num? laneId,
-    LoadWeightData? selectedWeight,
+    LoadWeightModel? selectedWeight,
     String? matchingText,
     String? blueId,
+    UIState? isBluIdShown,
   }) {
     return LPHomeState(
       truckTypeUIState: truckTypeState ?? this.truckTypeUIState,
@@ -87,6 +90,7 @@ class LPHomeState extends Equatable {
       selectedWeight: selectedWeight ?? this.selectedWeight,
       matchingText: matchingText ?? this.matchingText,
       blueId: blueId ?? this.blueId,
+      isBluIdShown: isBluIdShown ?? this.isBluIdShown,
     );
   }
 
@@ -109,5 +113,6 @@ class LPHomeState extends Equatable {
     selectedWeight,
     matchingText,
     blueId,
+    isBluIdShown,
   ];
 }

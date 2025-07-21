@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -21,7 +22,10 @@ import '../../../utils/extra_utils.dart';
 import '../bloc/role_bloc.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
-  const ChooseRoleScreen({super.key});
+  final String userId;
+  final String mobileNumber;
+
+  const ChooseRoleScreen({super.key,required this.userId,required this.mobileNumber, });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +46,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 0 ? true : false,
-                  text1: "Load Provider",
+                  text1: context.appText.loadProvider,
                   text2: context.appText.lpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 0));
@@ -51,7 +55,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 1 ? true : false,
-                  text1: "Truck Provider",
+                  text1: context.appText.truckProvider,
                   text2: context.appText.vpText,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 1));
@@ -60,7 +64,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 2 ? true : false,
-                  text1: "Both Load & Truck Provider",
+                  text1: context.appText.vpLpHeading,
                   text2: context.appText.vpLp,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 2));
@@ -69,7 +73,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 ),
                 chooseRoleTile(
                   isSelected: state.index == 3 ? true : false,
-                  text1: "Require Fleet Products",
+                  text1:  context.appText.fleetHeading,
                   text2: context.appText.fleet,
                   onTap: () {
                     context.read<RoleBloc>().add(const ChangeIndex(index: 3));
@@ -80,12 +84,38 @@ class ChooseRoleScreen extends StatelessWidget {
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
-                    context.push(AppRouteName.login, extra: "${state.index + 1}");
+                    // CustomLog.debug(this, "Role Id : ${state.index + 1}");
+                    // context.push(AppRouteName.login, extra: "${state.index + 1}");
+
+                    final roleId = state.index + 1;
+
+                  switch (roleId) {
+                    case 1: // Load Provider
+                    context.push(
+                          AppRouteName.lpCreateAccount,
+                          extra: {
+                            "userId": userId,
+                            "mobileNumber": mobileNumber,
+                            "roleId": roleId.toString(),
+                          },
+                    );
+                      break;
+                    case 2:
+                    Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                    break;
+                    case 3: // Both
+                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                      break;
+                    case 4: // Fleet Products
+                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
+                      break;
+
+                }
                   },
                 ),
                  50.height,
 
-                Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center()
+                Text(context.appText.poweredByHindujagroup, style: AppTextStyle.bodyPrimaryColor).center()
 
 
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
@@ -16,7 +18,12 @@ import '../model/kavach_address_model.dart';
 import 'kavach_add_address_bottom_sheet.dart';
 
 class KavachBillingAddressListScreen extends StatelessWidget {
-  const KavachBillingAddressListScreen({super.key});
+  final KavachAddressModel? selectedShippingAddress;
+  
+  const KavachBillingAddressListScreen({
+    super.key,
+    this.selectedShippingAddress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +42,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
         await commonBottomSheetWithBGBlur(
           context: context,
           screen: KavachAddAddressBottomSheet(
-            addrType: 2, // Shipping address type
+            addrType: 2, // Billing address type
             title: context.appText.billingAddress,
           ),
         );
@@ -50,33 +57,88 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     return BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
       builder: (context, state) {
         if (state is KavachCheckoutBillingAddressLoading) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator(),);
+        }
+
+        if (state is KavachCheckoutBillingAddressError) {
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, color: Colors.red, size: 48),
+                      10.height,
+                      Text(
+                        'Failed to load addresses',
+                        style: AppTextStyle.h5,
+                      ),
+                      10.height,
+                      AppButton(
+                        onPressed: () {
+                          context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+                        },
+                        title: 'Retry',
+                        style: AppButtonStyle.outline,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
         }
 
         if (state is KavachCheckoutBillingAddressSelected) {
-          final addresses = state.addresses;
+          // Filter out the selected shipping address from billing address list
+          final filteredAddresses = selectedShippingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
+              : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shrinkWrap: true,
-                  itemCount: addresses.length,
-                  separatorBuilder: (context, index) => 10.height,
-                  itemBuilder: (context, index) {
-                    final address = addresses[index];
-                    return AddressListItem(address: address);
-                  },
-                ),
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available billing addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              selectedShippingAddress != null 
+                                  ? 'All addresses are already selected for shipping'
+                                  : 'Add your first billing address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
               ),
               20.height,
               AppButton(
                 onPressed: () {
                   final selectedAddress = context.read<KavachCheckoutBillingAddressBloc>().state;
                   if (selectedAddress is KavachCheckoutBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress); // Optional: return selected address
+                    Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
                     // Handle if nothing is selected (optional)
                   }
@@ -89,9 +151,91 @@ class KavachBillingAddressListScreen extends StatelessWidget {
           );
         }
 
+        if (state is KavachCheckoutBillingAddressAvailable) {
+          // Filter out the selected shipping address from billing address list
+          final filteredAddresses = selectedShippingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
+              : state.addresses;
+
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available billing addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              selectedShippingAddress != null 
+                                  ? 'All addresses are already selected for shipping'
+                                  : 'Add your first billing address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
+              ),
+              20.height,
+              AppButton(
+                onPressed: () {
+                  // Show message that user must select an address first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select an address first'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
+                title: context.appText.deliverHere,
+                style: AppButtonStyle.primary,
+              ),
+              20.height,
+            ],
+          );
+        }
+
+        // Empty state or any other state
         return Column(
           children: [
-            addVehicleButton(context)
+            addVehicleButton(context),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_off, color: Colors.grey, size: 48),
+                    10.height,
+                    Text(
+                      'No addresses found',
+                      style: AppTextStyle.h5,
+                    ),
+                    5.height,
+                    Text(
+                      'Add your first billing address',
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         );
       },
