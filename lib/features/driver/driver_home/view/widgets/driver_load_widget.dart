@@ -159,27 +159,7 @@ final bool isConsentGiven = false;
               ],
             ),
             15.height,
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.primaryLightColor,
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    "Accepted Price",
-                    style: AppTextStyle.textBlackColor18w400,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                  Text(
-                    "$indianCurrencySymbol 1000",
-                    style: AppTextStyle.h4PrimaryColor,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                ],
-              ),
-            ),
+           
             10.height,
             Row(
               children: [
