@@ -75,6 +75,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
    TextEditingController consigneePhoneController = TextEditingController();
 
    TextEditingController consigneeEmailController = TextEditingController();
+   bool isUpdateConsignee = false;
 
   void initFunction() => frameCallback(() {
    final consignees = widget.loadItem.consignees;
@@ -86,6 +87,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneeNameController = TextEditingController(text: consigneeName);
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
+    isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
 
   });
 
@@ -161,13 +163,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     final paymentState = LpHomeHelper.getPaymentState(widget.loadStatus);
-
-      final useMemo = widget.loadStatus == LoadStatus.loading ||
-                      widget.loadStatus == LoadStatus.inTransit ||
-                      widget.loadStatus == LoadStatus.unloadingHeld;
+      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+      final useMemo = (payments == null || payments.isEmpty);
 
       final memo = widget.loadItem.loadMemoDetails;
-      final payments = widget.loadItem.lpPaymentsData?.data.payments;
+      
 
       // Parse memo values safely
       final String memoAdvance = memo?.advance.toString() ?? '';
@@ -178,7 +178,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       final String paymentAdvance = payments?.last.advancePaid ?? '';
       final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
-      final String paymentPayableBalance = payments?.last.payableBalance ?? '';   
+      final String paymentPayableBalance = payments?.last.payableBalance ?? '';
+     final action = (payments != null && payments.isNotEmpty ) ? 'clear_balance' : 'pay_advance';   
+    // final action = 'clear_balance';
     return Positioned(
       bottom: 0,
       left: 0,
@@ -371,6 +373,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     agreedPrice: useMemo ? memoAgreedPrice : paymentAgreedPrice,
                     payableAdvance: useMemo ? memoPayableAdvance : paymentPayableAdvance,
                     payableBalance: useMemo ? memoPayableBalance : paymentPayableBalance,
+                     isAdancePaid: widget.loadItem.lpPaymentsData?.data.payments.isNotEmpty == true &&
+                    widget.loadItem.lpPaymentsData!.data.payments.last.paymentStatus == "paid",
+
+                     lpLoadCubit: lpLoadLocator,
+                     action: action,
                   ),
                       16.height,
                     ],
@@ -416,28 +423,46 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           final addState = state.lpAddConsignee;
                           final updateState = state.lpUpdateConsignee;
 
-                          if (addState?.status == Status.SUCCESS) {
-                          ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
-                          } else if (addState?.status == Status.ERROR) {
-                            final errorType = state.lpAddConsignee?.errorType;
-                            ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
-                          }
+                          if (isUpdateConsignee) {
+                            if (updateState?.status == Status.SUCCESS && addState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
+                            }
 
-                          if (updateState?.status == Status.SUCCESS) {
-                            ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
-                          } else if (updateState?.status == Status.ERROR) {
-                            final errorType = state.lpUpdateConsignee?.errorType;
-                            ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            if (updateState?.status == Status.ERROR && addState?.status != Status.LOADING) {
+                              final errorType = updateState?.errorType;
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            }
+                          } else {
+
+                            if (addState?.status == Status.SUCCESS && updateState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
+                              final newConsignee = addState?.data;
+                              if (newConsignee != null) {
+                                setState(() {
+                                  consigneeNameController.text = newConsignee.name ?? '';
+                                  consigneePhoneController.text = newConsignee.mobileNumber ?? '';
+                                  consigneeEmailController.text = newConsignee.email ?? '';
+                                  isUpdateConsignee = true;
+                                });
+                              }
+                            }
+
+                            if (addState?.status == Status.ERROR && updateState?.status != Status.LOADING) {
+                               FocusScope.of(context).unfocus();
+                              final errorType = addState?.errorType;
+                              ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+                            }
                           }
                         },
                         builder: (context, state) {
-                        final consignees = widget.loadItem.consignees;
-                        final isAddorUpdate = consignees.isNotEmpty;
                           return _buildConsigneeDetail(
                             context: context,
                             isTextField: true,
                             isUpdatable: true,
-                            isUpdateConsignee: isAddorUpdate,
+                            isUpdateConsignee:  isUpdateConsignee,
                             nameController: consigneeNameController,
                             phoneController: consigneePhoneController,
                             emailController: consigneeEmailController,
@@ -454,7 +479,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     return;
                                   }
                                 }
-                                if (consignees.isNotEmpty) {
+                                if (isUpdateConsignee) {
                                   final existingConsignee = consignees[0];
                                       lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
                               
@@ -554,6 +579,9 @@ Widget _buildAdvancePaymentCard({
   required String payableAdvance,
   required String payableBalance,
   required String advancePaid,
+  required String action,
+  required bool isAdancePaid,
+  required LpLoadCubit lpLoadCubit,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
 final createOrderState = lpLoadCubit.state.lpCreateOrder;
@@ -561,6 +589,10 @@ final addPaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
 final isLoading = createOrderState?.status == Status.LOADING ||
     addPaymentState?.status == Status.LOADING;
+final double payableBalanceValue =
+    double.tryParse(payableBalance.toString()) ?? 0.0;
+final double payableAdvanceValue =
+    double.tryParse(payableAdvance.toString()) ?? 0.0;    
 
   return Container(
     padding: const EdgeInsets.all(10),
@@ -575,12 +607,12 @@ final isLoading = createOrderState?.status == Status.LOADING ||
         // Agreed Price
         _buildPriceRow(context.appText.agreedPrice, agreedPrice, context),
         8.height,
-        if (paymentState == 5)
+        if (isAdancePaid)
         // Advance paid 
         _buildPriceRow(context.appText.advancePaid, advancePaid, context),
         8.height,
 
-        if (paymentState != 5)
+        if (!isAdancePaid)
         // Payable Advance Row with Status
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -595,7 +627,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                   ),
                 ),
                8.width,
-                if (paymentState == 2 ||paymentState == 4 )
+                 if (!isAdancePaid)
                   Row(
                     children: [
                       const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -609,7 +641,7 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                       ),
                     ],
                   )
-                else if (paymentState == 3)
+                else if (isAdancePaid)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -645,8 +677,8 @@ final isLoading = createOrderState?.status == Status.LOADING ||
 
          8.height,
 
-        // Payable Balance (only if paymentState is 2 or 3)
-        if (paymentState == 3 || paymentState == 5)
+        // Payable Balance 
+        if (isAdancePaid)
           _buildPriceRow(
             context.appText.payableBalance,
             payableBalance,
@@ -657,23 +689,22 @@ final isLoading = createOrderState?.status == Status.LOADING ||
          12.height,
 
         // Action Button
-        if (paymentState == 1 || paymentState == 2 || paymentState == 3|| paymentState == 4 || paymentState == 5)
           AppButton(
             isLoading: isLoading,
-            title: context.appText.payAdvance,
+            title: 'context.appText.payAdvance',
             onPressed: () async {
               
              final isPayingBalance = paymentState == 3 || paymentState == 5;
-             final selectedAmountString = isPayingBalance ? payableBalance : payableAdvance;
+              final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
             final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
-
+ 
               // Create Order
               await lpLoadCubit.createOrder(
                 loadId: loadId,
                 createOrderidReuest: CreateOrderIdRequest(
                       amount: paymentAmount,
                 type: 'online',
-                action: isPayingBalance ? 'pay_balance' : 'pay_advance',
+                action: action,
                       )
                   );
 
@@ -697,7 +728,19 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                   final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
 
                   if (addpaymentState?.status == Status.SUCCESS) {
-                    Navigator.of(context).push(commonRoute(PaymentsScreen(url: addpaymentState?.data?.data?.data?.tinyUrl ?? "")));
+                          final result = await Navigator.of(context).push(
+                        commonRoute(
+                          PaymentsScreen(
+                            url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                            loadId: loadId,
+                          ),
+                        ),
+                      );
+
+                  if (result == true) {
+
+                    context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
+                  }
                   } else {
                     ToastMessages.error(message: context.appText.paymentFailed);
                   }
@@ -708,10 +751,10 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                 ToastMessages.error(message: context.appText.orderCreationFailed);
               }
             },
-            richTextWidget: paymentState == 2 || paymentState == 4 || paymentState == 5
-                ? Row(
+            richTextWidget: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if(!isAdancePaid)
                       SvgPicture.asset(
                         AppIcons.svg.alertWarning,
                         height: 18,
@@ -719,23 +762,13 @@ final isLoading = createOrderState?.status == Status.LOADING ||
                       ),
                       8.width,
                       Text(
-                        paymentState == 5 ? context.appText.payBalance : context.appText.payAdvance,  
+                        isAdancePaid ? context.appText.payBalance : context.appText.payAdvance,  
                         style: AppTextStyle.buttonWhiteTextColor,
                       ),
                     ],
                   )
-                : paymentState == 3
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                       context.appText.payBalance ,
-                            style: AppTextStyle.buttonWhiteTextColor,
-                          ),
-                        ],
-                      )
-                    : null,
-          ),
+               
+          )
       ],
     ),
   );

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentsScreen extends StatefulWidget {
   final String url;
-  const PaymentsScreen({super.key,required this.url});
+  final String loadId;
+  const PaymentsScreen({super.key,required this.url,required this.loadId});
 
   @override
   PaymentsScreenState createState() => PaymentsScreenState();
@@ -39,11 +39,17 @@ class PaymentsScreenState extends State<PaymentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBarWidget(context),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : WebViewWidget(controller: _controller),
+    return  WillPopScope(
+    onWillPop: () async {
+     Navigator.pop(context, true);
+  return false;
+    },
+    child: Scaffold(
+        appBar: buildAppBarWidget(context),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : WebViewWidget(controller: _controller),
+      ),
     );
   }
 }
@@ -52,6 +58,9 @@ class PaymentsScreenState extends State<PaymentsScreen> {
   // appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
+      leading: IconButton(onPressed: () {
+         Navigator.pop(context, true); 
+      }, icon: Icon(Icons.arrow_back)),
       centreTile: true,
       title: 'Make payment',
       backgroundColor: Colors.transparent,

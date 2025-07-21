@@ -49,7 +49,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
 
   /// Get display filename from document data
   String _getDisplayFileName(dynamic fileName) {
-    if (fileName == null) return 'Unknown file';
+    if (fileName == null) return context.appText.unknownFile;
     
     final fileNameStr = fileName.toString();
     
@@ -68,7 +68,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
         // Error parsing URL
       }
       // Fallback: show a generic name for uploaded files
-      return 'Uploaded Document';
+      return context.appText.uploadedDocument;
     }
     
     // For local files, use the filename as is
@@ -89,8 +89,8 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.title != null)...[
-          Text(widget.title ?? 'Upload Document', style: AppTextStyle.textFiled),
-          Text('Supported formats: PDF, JPG, PNG, DOC', style: AppTextStyle.body4GreyColor),
+          Text(widget.title ?? context.appText.uploadDocument, style: AppTextStyle.textFiled),
+          Text(context.appText.supportedFormats, style: AppTextStyle.body4GreyColor),
           10.height,
         ],
 

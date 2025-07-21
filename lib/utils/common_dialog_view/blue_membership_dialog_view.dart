@@ -57,10 +57,10 @@ class _BlueMembershipDialogViewState extends State<BlueMembershipDialogView> {
         ),
         20.height,
 
-        Text(context.appText.blueMemberGeneratedSuccessfully, textAlign: TextAlign.center, style: AppTextStyle.h4),
+        Text(context.appText.blueMemberShipIdSuccess, textAlign: TextAlign.center, style: AppTextStyle.h4),
         10.height,
 
-        Text(context.appText.startExploringPremiumLoadOption, style: AppTextStyle.body3GreyColor, textAlign: TextAlign.center),
+        Text(context.appText.startExploringPremiumLoad, style: AppTextStyle.body3GreyColor, textAlign: TextAlign.center),
       ],
     ).paddingSymmetric(horizontal: 5);
   }

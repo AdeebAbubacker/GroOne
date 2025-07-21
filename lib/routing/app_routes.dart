@@ -6,17 +6,17 @@ import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.
 import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_track_load_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
-import 'package:gro_one_app/features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
@@ -96,18 +96,35 @@ class AppRoutes {
       ),
 
       GoRoute(
+        path: AppRouteName.gpsVehicleShareAndUpdate,
+        builder: (BuildContext context, GoRouterState state) {
+          return const VehicleShareUpdateScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsEditVehicleInfo,
+        builder: (BuildContext context, GoRouterState state) {
+          final vehicleData = state.extra as Map<String, dynamic>?;
+          return EditVehicleInfoScreen(vehicleData: vehicleData);
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsVehicleSelectScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          final isFromId = "${state.extra}";
+          return VehicleSelectScreen(isFromId: int.parse(isFromId),);
+        },
+      ),
+
+      GoRoute(
         path: AppRouteName.instantLoan,
         builder: (BuildContext context, GoRouterState state) {
           return InstantLoanScreen();
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpValidateMemo,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpValidateMemo();
-        },
-      ),
 
       GoRoute(
         path: AppRouteName.insurance,
@@ -116,12 +133,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpPayNowScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpPayNowScreen();
-        },
-      ),
 
       // VP Bottom Navigation bar
       GoRoute(
@@ -148,8 +159,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          final role = "${state.extra}";
-          return LoginScreen(roleId: int.tryParse(role)??0);
+          return LoginScreen();
         },
       ),
 
@@ -174,12 +184,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpPayNowAndTrackLoad,
-        builder: (BuildContext context, GoRouterState state) {
-          return LPTrackLoadScreen();
-        },
-      ),
 
       GoRoute(
         path: AppRouteName.lpCreateAccount,

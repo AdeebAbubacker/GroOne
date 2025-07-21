@@ -129,4 +129,14 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
   void clearGpsShippingAddress() {
     emit(GpsShippingAddressEmpty());
   }
+
+  void clearGpsShippingAddressSelection() {
+    // If we have loaded addresses, go back to loaded state without selection
+    if (state is GpsShippingAddressSelected) {
+      final addresses = (state as GpsShippingAddressSelected).addresses;
+      emit(GpsShippingAddressLoaded(addresses));
+    }
+    // If we're in loaded state, stay there (no selection)
+    // If we're in empty/error state, stay there
+  }
 } 

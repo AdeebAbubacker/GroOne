@@ -3,6 +3,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
@@ -50,8 +51,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   String? truckTypeDropDownValue;
   int? selectedTruckTypeId;
   String? routeDropDownValue;
-  int? selectedFromLocation;
-  int? selectedToLocation;
   int? selectedRoute;
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
@@ -212,9 +211,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               final routeList = uiState?.data?.data?.routeList ?? [];
 
               return DropdownSearch<RouteList>(
-                validator: (value) => value == null ? "Field required" : null,
-
-                // 👌 Static filtered list
                 items: (filter, _) {
                   final filteredList = filter.isEmpty
                       ? routeList
@@ -227,7 +223,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   return filteredList;
                 },
 
-                // 👌 Selected item
                 selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
                 compareFn: (item, selectedItem) => item.status == selectedItem?.status,
 
@@ -242,8 +237,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
                 onChanged: (value) {
                   routeDropDownValue = value?.status.toString();
-                  // selectedFromLocation = value?.fromLocationId;
-                  // selectedToLocation = value?.toLocationId;
                   selectedRoute = value?.masterLaneId;
                   setState(() {});
                 },
@@ -261,7 +254,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 suffixOnTap: () async {
                   final String? date = await commonDatePicker(
                     context,
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime.now(),
                     initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime(loadPostedDateController.text),
                   );
 
@@ -280,10 +274,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         var loadStatusType = lpLoadLocator.state.selectedTabIndex;
         lpLoadLocator.getLpLoadsByType(
             loadListApiRequest: LoadListApiRequest(
-            // final loadStatus = selectedType == 0 ? null : selectedType + 1;
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-              // fromLocationId: selectedFromLocation,
-              // toLocationId: selectedToLocation,
               laneId:selectedRoute,
               truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
@@ -294,8 +285,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void clearAllFilterValues() {
-    selectedFromLocation = null;
-    selectedToLocation = null;
     selectedRoute = null;
     routeDropDownValue = null;
     selectedTruckTypeId = null;
@@ -409,10 +398,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType);
+        }
+
         final loadList = uiState.data?.data ?? [];
 
         if (loadList.isEmpty) {
-          return Center(child: Text(context.appText.noLoadFound));
+          return genericErrorWidget(error: NotFoundError());
         }
 
         return NotificationListener<ScrollNotification>(

@@ -4,6 +4,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 class EndhanCardItem extends StatefulWidget {
   final Map<String, dynamic> card;
@@ -39,7 +40,7 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              'DIGITAL CARD',
+              context.appText.digitalCard,
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.greyTextColor,
                 fontWeight: FontWeight.w600,
@@ -81,7 +82,7 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
                       IconButton(
                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
                         icon: Icon(_obscureCardNumber ? Icons.visibility_off : Icons.visibility, size: 20),
-                        tooltip: _obscureCardNumber ? 'Show card number' : 'Hide card number',
+                        tooltip: _obscureCardNumber ? context.appText.showCardNumber : context.appText.hideCardNumber,
                         onPressed: () {
                           setState(() {
                             _obscureCardNumber = !_obscureCardNumber;
@@ -138,13 +139,13 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
               // Icon(Icons.refresh, color: AppColors.textBlackColor, size: 18),
               // const Spacer(),
               Text(
-                'Mob Num: ',
+                context.appText.mobNum,
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
               ),
 
               
                Text(
-                 widget.card['mobile'] != "" && widget.card['mobile'] != null ? widget.card['mobile']: "N/A",
+                 widget.card['mobile'] != "" && widget.card['mobile'] != null ? widget.card['mobile']: context.appText.na,
                 style: AppTextStyle.body3.copyWith(
                   color: AppColors.primaryTextColor,
                   fontWeight: FontWeight.w600,

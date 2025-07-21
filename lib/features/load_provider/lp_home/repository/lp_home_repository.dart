@@ -14,7 +14,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_m
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
 class LpHomeRepository{
   final LpHomeService _lpHomeService;
@@ -26,7 +25,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.getLoads(id: await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
-      CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -36,7 +34,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.getLoadDetail(id: userId);
     } catch (e) {
-      CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -47,7 +44,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchLoadCommodityData();
     } catch (e) {
-      CustomLog.error(this, "Failed to request load commodity data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -58,7 +54,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchTruckTypeData();
     } catch (e) {
-      CustomLog.error(this, "Failed to request truck type data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -70,7 +65,6 @@ class LpHomeRepository{
       String? userId = await _userInformationRepository.getUserID();
       return await _lpHomeService.fetchCreateLoadData(request.copyWith(customerId: userId));
     } catch (e) {
-      CustomLog.error(this, "Failed to request create load data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -81,7 +75,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchRateDiscoveryData(request);
     } catch (e) {
-      CustomLog.error(this, "Failed to request rate discovery data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -92,7 +85,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "");
     } catch (e) {
-      CustomLog.error(this, "Failed to request recent route data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -103,7 +95,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchMapAutoCompleteData(input);
     } catch (e) {
-      CustomLog.error(this, "Failed to request auto complete data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -114,7 +105,6 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchVerifyLocationData(request);
     } catch (e) {
-      CustomLog.error(this, "Failed to request verify location data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -125,7 +115,16 @@ class LpHomeRepository{
     try {
       return await _lpHomeService.fetchLoadWeightData();
     } catch (e) {
-      CustomLog.error(this, "Failed to request get load weight data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// setBluId
+  Future<Result<void>> setBluIDFlag() async {
+    try {
+      String userId = await _userInformationRepository.getUserID() ?? '';
+      return await _lpHomeService.setBluIDFlag(userId);
+    } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

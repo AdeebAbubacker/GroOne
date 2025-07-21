@@ -182,23 +182,27 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.createAccount),
-      body: SafeArea(
-        bottom: false,
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              buildNameAndPhoneNumberWidget(),
-              30.height,
-              buildBusinessDetailsWidget(context),
-              30.height,
-              buildBusinessProofWidget(),
-              50.height,
-            ],
-          ).withScroll(padding: EdgeInsets.all(commonSafeAreaPadding)),
-        ),
-      ),
+      body: buildBodyWidget(context),
       bottomNavigationBar: buildSubmitButton(),
+    );
+  }
+
+  Widget buildBodyWidget(BuildContext context){
+    return SafeArea(
+      bottom: false,
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            buildNameAndPhoneNumberWidget(),
+            30.height,
+            buildBusinessDetailsWidget(context),
+            30.height,
+            buildBusinessProofWidget(),
+            50.height,
+          ],
+        ).withScroll(padding: EdgeInsets.all(commonSafeAreaPadding)),
+      ),
     );
   }
 
@@ -317,7 +321,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                 suffixOnTap: () async {
                   final String? validation = Validator.email(emailTextController.text);
                   if(validation == null){
-                    await verifyEmailCubit.sendOtp(emailTextController.text);
+                    await verifyEmailCubit.sendOtp(emailTextController.text, widget.id);
                   } else {
                     ToastMessages.alert(message: validation);
                   }

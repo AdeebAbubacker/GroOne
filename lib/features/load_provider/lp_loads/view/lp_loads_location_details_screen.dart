@@ -83,7 +83,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   void callTimer(LoadData loadItem){
     if(loadItem.createdAt != null && loadItem.loadStatusDetails?.loadStatus != null){
-      // final status = loadItem.loadStatusDetails?.loadStatus;
       final statusString = loadItem.loadStatusDetails?.loadStatus;
       final status = LpHomeHelper.getLoadStatusFromString(statusString);
       if (status == LoadStatus.matching || status == LoadStatus.kycPending) {
@@ -124,7 +123,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 return Stack(
                   children: [
                     Positioned(top: 20,left: 0,child: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context))),
-                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId)).paddingTop(50),
+                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId), error: uiState.errorType).paddingTop(50),
                   ],
                 );
               }
@@ -168,7 +167,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
 
   /// Location Details
   Widget buildTopLocationWidget(LoadData loadItem, LoadStatus? status) {
-    var statusData = loadItem.loadOnhold ? 'Unloading Held' :loadItem.loadStatusDetails?.loadStatus ?? '';
+    var statusData = loadItem.loadOnhold ? context.appText.unloadingHeld :loadItem.loadStatusDetails?.loadStatus ?? '';
     return Positioned(
       top: 15,
       left: 16,
@@ -280,23 +279,8 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       ),
                     ),
                     4.height,
-                    if (status == LoadStatus.kycPending)
-                      if(loadItem.customer?.kycPendingDate != null)
-                        Text(
-                        _countDown,
-                        // LpHomeHelper.getKycPendingTimeLeft(loadItem.customer!.kycPendingDate.toString()),
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5),
-                    if (status == LoadStatus.matching)
-                        Text(
-                        _countDown,
-                        // LpHomeHelper.getMatchingTime(loadItem.matchingStartDate.toString()),
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5) ,
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
                     if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
                       Row(
                         children: [

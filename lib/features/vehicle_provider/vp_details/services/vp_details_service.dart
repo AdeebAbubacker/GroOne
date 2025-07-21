@@ -42,7 +42,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch(e){
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -65,7 +64,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -109,7 +107,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -127,7 +124,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -146,7 +142,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -166,7 +161,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -186,7 +180,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -206,7 +199,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -226,7 +218,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -246,7 +237,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -275,7 +265,6 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }

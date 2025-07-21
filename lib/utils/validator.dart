@@ -128,15 +128,14 @@ class Validator {
       return '$fieldName is required';
     }
 
-    final regex = RegExp(r'^[a-zA-Z0-9\- ]+$');
+    // Format: 2 letters + hyphen + 13 digits (total 16 characters)
+    // Example: DL-1420110012345
+    final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
-    if (!regex.hasMatch(value)) {
-      return '$fieldName should contain only letters, numbers, hyphens, and spaces';
+    if (!regex.hasMatch(value.trim().toUpperCase())) {
+      return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
     }
 
-    if (value.length <= 10) {
-      return '$fieldName should be more than 10 characters';
-    }
     return null;
   }
 

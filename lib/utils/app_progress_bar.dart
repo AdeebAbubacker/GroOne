@@ -6,7 +6,6 @@ import 'app_text_style.dart';
 
 class AppProgressBar extends StatelessWidget {
   final double progress; // value between 0.0 to 1.0
-
   const AppProgressBar({super.key, required this.progress});
 
   @override

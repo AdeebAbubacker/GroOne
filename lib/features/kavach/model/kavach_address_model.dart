@@ -59,6 +59,9 @@ class KavachAddressModel extends Equatable {
   }
 
   String get fullAddress => '$addr1, $city, $state, $country - $pincode';
+  
+  // Create a unique identifier using address properties since ID might not be unique
+  String get uniqueId => '$addressName-$addr1-$city-$pincode';
 
   @override
   List<Object?> get props => [

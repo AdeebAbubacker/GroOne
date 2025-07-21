@@ -6,6 +6,8 @@ class GpsProductsState extends Equatable {
   final bool hasMorePages;
   final String searchQuery;
   final UIState<GpsProductListResponse>? productsState;
+  final Map<String, int> quantities;
+  final Map<String, int> availableStocks;
 
   const GpsProductsState({
     required this.products,
@@ -13,6 +15,8 @@ class GpsProductsState extends Equatable {
     required this.hasMorePages,
     required this.searchQuery,
     this.productsState,
+    required this.quantities,
+    required this.availableStocks,
   });
 
   factory GpsProductsState.initial() {
@@ -21,6 +25,8 @@ class GpsProductsState extends Equatable {
       hasMorePages: false,
       searchQuery: '',
       productsState: null,
+      quantities: {},
+      availableStocks: {},
     );
   }
 
@@ -30,6 +36,8 @@ class GpsProductsState extends Equatable {
     bool? hasMorePages,
     String? searchQuery,
     UIState<GpsProductListResponse>? productsState,
+    Map<String, int>? quantities,
+    Map<String, int>? availableStocks,
   }) {
     return GpsProductsState(
       products: products ?? this.products,
@@ -37,6 +45,8 @@ class GpsProductsState extends Equatable {
       hasMorePages: hasMorePages ?? this.hasMorePages,
       searchQuery: searchQuery ?? this.searchQuery,
       productsState: productsState ?? this.productsState,
+      quantities: quantities ?? this.quantities,
+      availableStocks: availableStocks ?? this.availableStocks,
     );
   }
 
@@ -47,10 +57,12 @@ class GpsProductsState extends Equatable {
         hasMorePages,
         searchQuery,
         productsState,
+        quantities,
+        availableStocks,
       ];
 
   @override
   String toString() {
-    return 'GpsProductsState{products: ${products.length}, hasMorePages: $hasMorePages, searchQuery: $searchQuery, productsState: $productsState}';
+    return 'GpsProductsState{products: ${products.length}, hasMorePages: $hasMorePages, searchQuery: $searchQuery, productsState: $productsState, quantities: $quantities, availableStocks: $availableStocks}';
   }
 } 

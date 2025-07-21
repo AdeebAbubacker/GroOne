@@ -13,7 +13,6 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-
 class VPBottomNavigationBar extends StatefulWidget {
   const VPBottomNavigationBar({super.key});
 
@@ -22,8 +21,7 @@ class VPBottomNavigationBar extends StatefulWidget {
 }
 
 class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
-
-  final profileCubit = locator<ProfileCubit>();
+  late final ProfileCubit profileCubit;
 
   ProfileDetailModel? profileResponse;
 
@@ -33,20 +31,19 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   int vpAllLoadsInitialTabIndex = 0;
   int bottomHt = 50;
 
-
-
   @override
   void initState() {
+    // Initialize profileCubit here to ensure dependency injection is ready
+    profileCubit = locator<ProfileCubit>();
     initFunction();
     super.initState();
   }
 
   void initFunction() => frameCallback(() async {
-    await profileCubit.fetchProfileDetail();
+    await profileCubit.fetchProfileDetail(instance: this);
     profileCubit.fetchUserRole();
     setState(() {});
   });
-
 
   void onItemTapped(int index) {
     changeTab(index, allLoadsSubTabIndex: 0);
@@ -62,10 +59,9 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       }
       int? role = profileCubit.userRole;
 
-      if(selectedIndex == 3 && (role != null && role == 3)) {
+      if (selectedIndex == 3 && (role != null && role == 3)) {
         context.go(AppRouteName.lpBottomNavigationBar);
       }
-
     });
   }
 
@@ -78,14 +74,12 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     ];
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileCubit, ProfileState>(
       bloc: profileCubit,
       listener: (context, state) {
-
-        if (state.profileDetailUIState?.status==Status.SUCCESS) {
+        if (state.profileDetailUIState?.status == Status.SUCCESS) {
           profileResponse = state.profileDetailUIState?.data;
           bool isKyc = profileResponse?.customer?.isKyc == 3;
 
@@ -98,12 +92,11 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         }
       },
       builder: (context, state) {
-
         int? role = profileCubit.userRole;
 
         debugPrint("Role : $role");
 
-        if((role != null && role == 3)) {
+        if ((role != null && role == 3)) {
           _pages.add(VpHomeScreen(onViewAllOrSeeMore: changeTab));
         }
 
@@ -143,7 +136,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 
               if (profileCubit.userRole != null && profileCubit.userRole == 3)
                 BottomNavigationBarItem(
-                  icon:  Padding(
+                  icon: Padding(
                     padding: EdgeInsets.only(top: 10.0),
                     child: Icon(Icons.compare_arrows_rounded),
                     //child: SvgPicture.asset(AppIcons.svg.switchIcon),
@@ -156,7 +149,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       },
     );
   }
-
 }
 
 class VpVariables {

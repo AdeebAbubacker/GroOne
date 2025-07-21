@@ -13,7 +13,6 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-
 class BothBottomNavigation extends StatefulWidget {
   const BothBottomNavigation({super.key});
 
@@ -22,14 +21,14 @@ class BothBottomNavigation extends StatefulWidget {
 }
 
 class _BothBottomNavigationState extends State<BothBottomNavigation> {
-
-  final profileCubit = locator<ProfileCubit>();
+  late final ProfileCubit profileCubit;
   ProfileDetailModel? profileResponse;
 
   @override
   void initState() {
-    // TODO: implement initState
-    frameCallback((){
+    // Initialize profileCubit here to ensure dependency injection is ready
+    profileCubit = locator<ProfileCubit>();
+    frameCallback(() {
       profileCubit.fetchUserRole();
     });
     super.initState();
@@ -48,14 +47,12 @@ class _BothBottomNavigationState extends State<BothBottomNavigation> {
 
   int selectedIndex = 0;
 
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileCubit, ProfileState>(
       bloc: profileCubit,
       listener: (context, state) {
-
-        if (state.profileDetailUIState?.status== Status.SUCCESS) {
+        if (state.profileDetailUIState?.status == Status.SUCCESS) {
           profileResponse = state.profileDetailUIState?.data;
           bool isKyc = profileResponse?.customer?.isKyc == 3;
 
@@ -68,12 +65,11 @@ class _BothBottomNavigationState extends State<BothBottomNavigation> {
         }
       },
       builder: (context, state) {
-
         int? role = profileCubit.userRole;
 
         debugPrint("Role : $role");
 
-        if((role != null && role == 3)) {
+        if ((role != null && role == 3)) {
           pages.add(HomeScreenLoadProvider());
         }
 
@@ -87,7 +83,6 @@ class _BothBottomNavigationState extends State<BothBottomNavigation> {
             currentIndex: selectedIndex,
             onTap: onItemTapped,
             items: [
-
               BottomNavigationBarItem(
                 icon: const Padding(
                   padding: EdgeInsets.only(top: 8.0),
@@ -112,14 +107,14 @@ class _BothBottomNavigationState extends State<BothBottomNavigation> {
                 label: context.appText.support,
               ),
 
-                BottomNavigationBarItem(
-                  icon:  Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: Icon(Icons.compare_arrows_rounded),
-                    //child: SvgPicture.asset(AppIcons.svg.switchIcon),
-                  ),
-                  label: "Switch Account",
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Icon(Icons.compare_arrows_rounded),
+                  //child: SvgPicture.asset(AppIcons.svg.switchIcon),
                 ),
+                label: "Switch Account",
+              ),
             ],
           ),
         );

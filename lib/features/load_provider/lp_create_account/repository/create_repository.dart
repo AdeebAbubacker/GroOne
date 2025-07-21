@@ -1,12 +1,10 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/login/repository/auth_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/service/create_service.dart';
-import 'package:gro_one_app/features/login/repository/auth_repository.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
-import '../../../vehicle_provider/vp_creation/model/vp_creation_model.dart';
-import '../model/create_response.dart';
 
 class LpCreateRepository {
   final LpCreateService _lpCreateService;
@@ -34,7 +32,6 @@ class LpCreateRepository {
       }
       return Error(GenericError());
     } catch (e) {
-      CustomLog.error(this, "Failed to request lp creation", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -45,7 +42,6 @@ class LpCreateRepository {
     try {
       return await _lpCreateService.fetchGetCompanyTypeData();
     } catch (e) {
-      CustomLog.error(this, "Failed to request company type data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

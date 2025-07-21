@@ -20,8 +20,9 @@ class KavachHelper {
     }
   }
 
-  static String formatCurrency(totalPrice) {
-    final formatter = NumberFormat("#,##,###");
-    return "₹ ${formatter.format(totalPrice)}";
+  static String formatCurrency(dynamic totalPrice) {
+    final formatter = NumberFormat("#,##,###.##");
+    final num value = totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
+    return "${formatter.format(value)}";
   }
 }

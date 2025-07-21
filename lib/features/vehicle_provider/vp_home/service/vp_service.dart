@@ -40,7 +40,6 @@ class VpHomeService {
       }
     } catch (e) {
 
-      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -61,7 +60,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -85,7 +83,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -105,7 +102,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -130,7 +126,6 @@ class VpHomeService {
       }
     } catch (e) {
 
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -148,7 +143,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -172,7 +166,6 @@ class VpHomeService {
       },);
 
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return  null;
     }
   }

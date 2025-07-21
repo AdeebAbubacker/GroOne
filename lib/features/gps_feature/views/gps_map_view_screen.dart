@@ -151,7 +151,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
           circleId: const CircleId("geofence_circle"),
           center: center,
           radius: radius,
-          fillColor: Colors.blue.withOpacity(0.2),
+          fillColor: Colors.blue.withValues(alpha: 0.2),
           strokeColor: Colors.blue,
           strokeWidth: 2,
         ),
@@ -454,8 +454,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   Widget buildLocationSearchField(BuildContext context) {
     return AppTextField(
       controller: searchController,
-      labelText: "Location",
-      hintText: "Search for a location",
+      labelText: context.appText.search,
+      hintText: context.appText.search,
       decoration: commonInputDecoration(
         suffixIcon: Icon(Icons.clear, size: 20),
         suffixOnTap: () {
@@ -495,7 +495,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
               itemBuilder: (context, index) {
                 final item = suggestions[index];
                 return ListTile(
-                  title: Text(item.description ?? "Unknown"),
+                  title: Text(item.description ?? context.appText.unknown),
                   onTap: () {
                     // Call verify location API
                     final request = VerifyLocationApiRequest(
@@ -552,8 +552,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
             context,
             text:
                 widget.geofence == null
-                    ? 'Geofence added successfully'
-                    : 'Geofence updated successfully',
+                    ? context.appText.geofenceAddedSuccess
+                    : context.appText.geofenceUpdatedSuccess,
             subheading: '',
           );
 
@@ -743,10 +743,10 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           children: [
                             Row(
                               children: [
-                                const Text('Geofence Radius:'),
+                                Text('${context.appText.geofenceRadius}:'),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${_currentRadius.toInt()} Mts',
+                                  '${_currentRadius.toInt()} ${context.appText.metersShort}',
                                   style: const TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.bold,
@@ -777,7 +777,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                         )
                       else if (isPolygonShape)
                         Text(
-                          'Polygon Geofence (${_currentPolygonPoints.length} points)',
+                          '${context.appText.polygonGeofence} (${_currentPolygonPoints.length} ${context.appText.points})',
                           style: const TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
@@ -785,15 +785,15 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                         )
                       else if (isPolylineShape)
                         Text(
-                          'Polyline Geofence (${_currentPolylinePoints.length} points)',
+                          '${context.appText.polylineGeofence} (${_currentPolylinePoints.length} ${context.appText.points})',
                           style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
                         )
                       else
-                        const Text(
-                          'Select a geofence type to start',
+                         Text(
+                          context.appText.selectGeofenceTypeHint,
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       12.height,
@@ -823,7 +823,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           child: Text(
                             widget.geofence == null
                                 ? context.appText.confirmLocation
-                                : 'Update Geofence',
+                                : context.appText.updateGeofence,
                             style:
                                 _currentCenter == null
                                     ? AppTextStyle.h5.copyWith(
@@ -852,7 +852,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? Colors.blue.withOpacity(0.8) : color,
+        color: isActive ? Colors.blue.withValues(alpha: 0.8) : color,
         shape: BoxShape.circle,
         boxShadow: const [
           BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),

@@ -30,6 +30,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
@@ -191,7 +192,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -213,7 +213,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -235,7 +234,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -257,7 +255,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -279,7 +276,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
         return Success(true);
       }
     }
@@ -293,40 +289,41 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Verify GST api call
-  Future<void> verifyGstApiCall(String gstNumber) async {
+  Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycCubit.verifyGst(apiRequest);
-    if (kycCubit.state.gstState?.status == Status.SUCCESS) {
-      ToastMessages.success(message: "GST verified successfully");
+    if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
+      ToastMessages.success(message: context.appText.gstVerifiedSuccessfully);
     }
-    if (kycCubit.state.gstState?.status == Status.ERROR) {
-      ToastMessages.alert(message: "Invalid GST Number");
+    if (kycCubit.state.gstState?.status == Status.ERROR && context.mounted) {
+      ToastMessages.alert(message: context.appText.invalidGSTNumber);
     }
   }
 
 
   // Verify TAN api call
-  Future<void> verifyTANApiCall(String tanNumber) async {
+  Future<void> verifyTANApiCall(String tanNumber, BuildContext context) async {
     final apiRequest = VerifyTanApiRequest(tan: tanNumber, force: true);
     await kycCubit.verifyTan(apiRequest);
-    if (kycCubit.state.tanState?.status == Status.SUCCESS) {
-      ToastMessages.success(message: "TAN verified successfully");
+    if (kycCubit.state.tanState?.status == Status.SUCCESS && context.mounted) {
+      ToastMessages.success(message: context.appText.tanVerifiedSuccessfully);
     }
-    if (kycCubit.state.tanState?.status == Status.ERROR) {
-      ToastMessages.alert(message: "Invalid TAN Number");
+    if (kycCubit.state.tanState?.status == Status.ERROR  && context.mounted) {
+      ToastMessages.alert(message: context.appText.invalidTANNumber);
     }
   }
 
 
   // Verify pan api call
-  Future<void> verifyPANApiCall(String panNumber) async {
+  Future<void> verifyPANApiCall(String panNumber, BuildContext context) async {
     final apiRequest = VerifyPanApiRequest(pan: panNumber, force: true);
     await kycCubit.verifyPan(apiRequest);
+    if(!context.mounted) return;
     if (kycCubit.state.panState?.status == Status.SUCCESS) {
-      ToastMessages.success(message: "Pan verified successfully");
+      ToastMessages.success(message:  context.appText.tanVerifiedSuccessfully);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
-      ToastMessages.alert(message: "Invalid PAN Number");
+      ToastMessages.alert(message: context.appText.invalidTANNumber);
     }
   }
 
@@ -343,20 +340,20 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   }) {
     // helper to toast & fail fast
     bool need(String msg, bool ok) {
-      if (!ok) ToastMessages.alert(message: 'Please upload $msg');
+      if (!ok) ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       return ok;
     }
 
     // VP FLOW
     if (userRole == 2) {
       if (companyId == 2) {
-        return need('Aadhaar', true) & need('Cancelled Cheque', checkDocLink.isNotEmpty); // always true – already taken on previous screen
+        return need(context.appText.aadhaar, true) & need(context.appText.cancelledCheque, checkDocLink.isNotEmpty); // always true – already taken on previous screen
       }
 
-      final gstOk  = need('GST document',   gstDoc.isNotEmpty);
-      final panOk  = need('PAN document',   panDoc.isNotEmpty);
-      final chkOk  = need('Cancelled Cheque', checkDocLink.isNotEmpty);
-      final tdsOk  = need('TDS certificate', tdsDocLink.isNotEmpty);
+      final gstOk  = need(context.appText.gstDocument,   gstDoc.isNotEmpty);
+      final panOk  = need(context.appText.panDocument,   panDoc.isNotEmpty);
+      final chkOk  = need(context.appText.cancelledCheque, checkDocLink.isNotEmpty);
+      final tdsOk  = need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty);
       return gstOk & panOk & chkOk & tdsOk;  // for Sole + Others
     }
 
@@ -365,16 +362,16 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
       return true; // only Aadhaar needed
     }
     if (companyId == 1) {
-      final gstOk = need('GST document', gstDoc.isNotEmpty);
-      final panOk = need('PAN document', panDoc.isNotEmpty);
-      final tanOk = need('TAN document', tanDoc.isNotEmpty);
+      final gstOk = need(context.appText.gstDocument, gstDoc.isNotEmpty);
+      final panOk = need(context.appText.panDocument, panDoc.isNotEmpty);
+      final tanOk = need(context.appText.tanDocument, tanDoc.isNotEmpty);
       return gstOk & panOk & tanOk; // Aadhaar already present
     }
 
     // all other company types for LP
-    final gstOk = need('GST document', gstDoc.isNotEmpty);
-    final panOk = need('PAN document', panDoc.isNotEmpty);
-    final tanOk = need('TAN document', tanDoc.isNotEmpty);
+    final gstOk = need(context.appText.gstDocument, gstDoc.isNotEmpty);
+    final panOk = need(context.appText.panDocument, panDoc.isNotEmpty);
+    final tanOk = need(context.appText.tanDocument, tanDoc.isNotEmpty);
     return gstOk & panOk & tanOk;
   }
 
@@ -429,8 +426,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: "KYC submitted for verification",
-        heading: "Will get back to you within 48 hours.",
+        message: context.appText.kycSubmittedForVerification,
+        heading: context.appText.willGetBackToYouWithin48Hours,
         onContinue: (){
           Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
@@ -500,7 +497,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                     //  VP Individual Proprietor id 2
                                     if(companyId == 2)...[
                                       25.height,
-                                      _buildAadhaarWidget(),
+                                      _buildAadhaarWidget(context),
                                       25.height,
                                       buildCancelledCheckWidget(),
                                       50.height,
@@ -509,7 +506,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                                     //  VP Sole Proprietor id = 1
                                     if(companyId == 1)...[
-                                      _buildAadhaarWidget(),
+                                      _buildAadhaarWidget(context),
                                       25.height,
                                       _buildGstWidget(),
                                       25.height,
@@ -541,7 +538,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   children: [
                                     // LP Sole Proprietor id = 1
                                     if(companyId == 1)...[
-                                      _buildAadhaarWidget(),
+                                      _buildAadhaarWidget(context),
                                       25.height,
                                       _buildGstWidget(),
                                       25.height,
@@ -553,7 +550,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                                     // LP Individual Proprietor id = 2
                                     if(companyId == 2)...[
-                                      _buildAadhaarWidget(),
+                                      _buildAadhaarWidget(context),
                                       50.height,
                                     ],
 
@@ -576,7 +573,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                           // Primary Address
                           _buildMultipleTextFieldWidget(
-                            text: "Primary Address",
+                            text: context.appText.primaryAddress,
                             children: [
                               10.height,
 
@@ -585,8 +582,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: addressNameTextController,
                                 mandatoryStar: true,
-                                labelText: "Address Name",
-                                hintText: "Enter Address name 1",
+                                labelText: context.appText.addressName,
+                                hintText: context.appText.enterAddressName1,
                               ),
                               20.height,
 
@@ -595,8 +592,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 validator: (value) => Validator.fieldRequired(value),
                                 controller: fullAddressTextController,
                                 mandatoryStar: true,
-                                labelText: "Full Address",
-                                hintText: "Enter full address",
+                                labelText: context.appText.fullAddress,
+                                hintText: context.appText.enterFullAddress,
                               ),
                               20.height,
 
@@ -605,87 +602,87 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                               BlocConsumer<KycCubit, KycState>(
                                 bloc: kycCubit,
                                 listenWhen: (previous, current) => previous.stateUIState?.status != current.stateUIState?.status,
-                                listener:  (context, state) async {
+                                listener:  (context, state) {
                                   final status = state.stateUIState?.status;
-
                                   if (status == Status.ERROR) {
                                     final error = state.stateUIState?.errorType;
                                     ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                                   }
                                 },
                                 builder: (context, state) {
-                                  final status = state.stateUIState?.status;
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(context.appText.state.toString().capitalizeFirst, style: AppTextStyle.body3),
+                                          Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                        ],
+                                      ),
+                                      6.height,
+                                      DropdownSearch<String>(
+                                        validator: (value) => Validator.fieldRequired(value),
+                                        key: dropDownStateKey,
+                                        items: (String filter, _) async {
+                                          final localList = kycCubit.state.stateUIState?.data ?? [];
 
-                                  if (status == Status.SUCCESS && state.stateUIState?.data != null && state.stateUIState!.data!.isNotEmpty) {
+                                          final localMatches = localList
+                                              .where((e) => e.name.toLowerCase().contains(filter.toLowerCase()))
+                                              .toList();
 
-                                    List<StateModelList> stateList = state.stateUIState!.data!;
-
-                                    return Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(" State", style: AppTextStyle.body3),
-                                            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                          ],
-                                        ),
-                                        6.height,
-                                        DropdownSearch<String>(
-                                          validator: (value) => Validator.fieldRequired(value),
-                                          key: dropDownStateKey,
-                                          items: (filter, infiniteScrollProps) => stateList
-                                              .where((element) => element.name.toLowerCase().contains(filter.toLowerCase()))
-                                              .map((e) => e.name)
-                                              .toList(),
-                                          popupProps: PopupProps.modalBottomSheet(
-                                            fit: FlexFit.loose,
-                                             showSearchBox: true,
-                                            constraints: BoxConstraints(
-                                              maxHeight: MediaQuery.of(context).size.height * 0.8,
-                                            ),
-                                          ),
-                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: "Select State")),
-                                          selectedItem: selectedState,
-                                          onChanged: (value) {
-                                            selectedState = value;
-                                            selectedCity = null;
-                                            if (value != null) {
-                                              kycCubit.fetchCityList(value);
+                                          if (localMatches.isNotEmpty || filter.trim().isEmpty) {
+                                            return localMatches.map((e) => e.name).toList();
+                                          } else {
+                                            final result = await kycCubit.getFilteredStateList(filter: filter);
+                                            if (result is Success<StateModel>) {
+                                              final remoteList = result.value.data;
+                                              return remoteList.map((e) => e.name).toList();
+                                            } else {
+                                              return [];
                                             }
-                                          },
+                                          }
+                                        },
+                                        popupProps: PopupProps.modalBottomSheet(
+                                          fit: FlexFit.loose,
+                                          showSearchBox: true,
+                                          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                                          emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noStateFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                                          loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
                                         ),
-                                      ],
-                                    );
-                                  }
-                                  return 0.height; // Return empty if no data
+                                        decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
+                                        selectedItem: selectedState,
+                                        onChanged: (value) {
+                                          selectedState = value;
+                                          selectedCity = null;
+                                          if (value != null) {
+                                            kycCubit.fetchCityList(value);
+                                          }
+                                        },
+                                      ),
+
+                                    ],
+                                  );
                                 },
                               ),
                               20.height,
 
-
                               // CITY DROPDOWN
-                              BlocConsumer<KycCubit, KycState>(
-                                bloc: kycCubit,
-                                listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
-                                listener:  (context, state) async {
-                                  final status = state.cityUIState?.status;
-
-                                  if (status == Status.ERROR) {
-                                    final error = state.cityUIState?.errorType;
-                                    ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-                                  }
-                                },
-                                builder: (context, state) {
-                                  final status = state.cityUIState?.status;
-
-                                  if (status == Status.SUCCESS && state.cityUIState?.data != null && state.cityUIState!.data!.isNotEmpty) {
-
-                                    List<CityModelList> cityList = state.cityUIState!.data!;
-
+                              if (selectedState != null)
+                                BlocConsumer<KycCubit, KycState>(
+                                  bloc: kycCubit,
+                                  listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
+                                  listener: (context, state) {
+                                    final status = state.cityUIState?.status;
+                                    if (status == Status.ERROR) {
+                                      final error = state.cityUIState?.errorType;
+                                      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                                    }
+                                  },
+                                  builder: (context, state) {
                                     return Column(
                                       children: [
                                         Row(
                                           children: [
-                                            Text(" City", style: AppTextStyle.body3),
+                                            Text(context.appText.city.toString().capitalizeFirst, style: AppTextStyle.body3),
                                             Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
                                           ],
                                         ),
@@ -693,18 +690,34 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                         DropdownSearch<String>(
                                           validator: (value) => Validator.fieldRequired(value),
                                           key: dropDownCityKey,
-                                          items: (filter, infiniteScrollProps) => selectedState != null
-                                              ? cityList
-                                              .where((element) => element.city.toLowerCase().contains(filter.toLowerCase()))
-                                              .map((e) => e.city)
-                                              .toList()
-                                              : [],
+                                          items: (String filter, _) async {
+                                            final localList = kycCubit.state.cityUIState?.data ?? [];
+
+                                            final localMatches = localList
+                                                .where((e) => e.city.toLowerCase().contains(filter.toLowerCase()))
+                                                .toList();
+
+                                            if (localMatches.isNotEmpty || filter.trim().isEmpty) {
+                                              return localMatches.map((e) => e.city).toList();
+                                            } else {
+                                              final result = await kycCubit.getFilteredCityList(stateName: selectedState!, filter: filter);
+                                              if (result is Success<CityModel>) {
+                                                final remoteList = result.value.data;
+                                                return remoteList.map((e) => e.city).toList();
+                                              } else {
+                                                return [];
+                                              }
+                                            }
+                                          },
                                           popupProps: PopupProps.modalBottomSheet(
                                             fit: FlexFit.loose,
                                             showSearchBox: true,
-                                            constraints: BoxConstraints(maxHeight: 400),
+                                            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                                            emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noCityFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                                            loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
                                           ),
-                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: "Select City")),
+                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectCity),
+                                          ),
                                           selectedItem: selectedCity,
                                           onChanged: (value) {
                                             selectedCity = value;
@@ -713,17 +726,17 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                         20.height
                                       ],
                                     );
-                                  }
-                                  return 0.height; // Return empty if no data
-                                },
-                              ),
+                                  },
+                                )
+                              else
+                                0.height,
 
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
                                 mandatoryStar: true,
-                                labelText: "Pin Code",
-                                hintText: "Enter Pin Code",
+                                labelText: context.appText.pinCode,
+                                hintText: context.appText.enterPinCode,
                                 maxLength: 6,
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
                                 inputFormatters: [
@@ -736,15 +749,15 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
                           // Bank Details
                           _buildMultipleTextFieldWidget(
-                            text: "Bank Details",
+                            text: context.appText.bankDetails,
                             children: [
                               10.height,
                               AppTextField(
                                 validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                 controller: accountNumberTextController,
                                 mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                labelText: "Account Number",
-                                hintText: "Enter Account Number",
+                                labelText: context.appText.accountNumber,
+                                hintText: context.appText.enterAccountNumber,
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.digitsOnly,
@@ -757,8 +770,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                 validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                 controller: bankNameTextController,
                                 mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                labelText: "Bank Name",
-                                hintText: "Enter Bank Name",
+                                labelText: context.appText.bankName,
+                                hintText: context.appText.enterBankName,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]"))
                                 ],
@@ -769,8 +782,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                   controller: branchNameTextController,
                                   mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                  labelText: "Branch Name",
-                                  hintText: "Enter Branch Name",
+                                  labelText: context.appText.branchName,
+                                  hintText: context.appText.enterBranchName,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]"))
                                   ],
@@ -781,8 +794,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
                                   controller: ifscCodeTextController,
                                   mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                  labelText: "IFSC Code",
-                                  hintText: "Enter IFSC code",
+                                  labelText: context.appText.ifscCode,
+                                  hintText: context.appText.enterIFSCCode,
                                   inputFormatters: [
                                     IFSCCodeFormatter()
                                   ],
@@ -795,7 +808,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                       ),
                     ),
                     30.height,
-
                   ],
                 );
               },
@@ -817,7 +829,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
           if(kycCubit.userRole != null && kycCubit.userRole == 2) {
             return UploadAttachmentFiles(
-              title: "Cancelled Cheque *",
+              title: "${context.appText.cancelledCheque} *",
               multiFilesList: checkDocLink,
               isSingleFile: true,
               isLoading: cancelledCheckUploadState == Status.LOADING,
@@ -843,7 +855,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
           final tdsUploadState = state.uploadTDSDocUIState?.status;
           if(kycCubit.userRole != null && kycCubit.userRole == 2) {
             return UploadAttachmentFiles(
-              title: "TDS Certificate *",
+              title: "${context.appText.tdsCertificate} *",
               multiFilesList: tdsDocLink,
               isSingleFile: true,
               isLoading: tdsUploadState == Status.LOADING,
@@ -891,11 +903,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
 
   // Aadhaar Text Field
-  Widget _buildAadhaarWidget(){
+  Widget _buildAadhaarWidget(BuildContext context){
     return buildTextFieldWithLabelWidget(
       readOnly: true,
-      rightText: "Aadhaar Number",
-      leftText: "Verified",
+      rightText: context.appText.aadhaarNumber,
+      leftText: context.appText.verified,
       controller: aadhaarNumberTextController,
       fillColor: AppColors.lightGreyBackgroundColor
     );
@@ -918,29 +930,30 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                   UpperCaseTextFormatter(),
                   GSTInputFormatter()
                 ],
-                leftText: verified ? "Verified" : "Un-Verified",
+                leftText: verified ? context.appText.verified : context.appText.unVerified,
                 readOnly: verified,
                 rightText: "GSTIN",
                 controller: gstInTextController,
                 suffixOnTap:  state.verifiedGst != null && state.verifiedGst! ? (){} : () async {
 
                   if(gstInTextController.text.isEmpty){
-                    ToastMessages.alert(message: "Please enter GSTIN number");
+                    ToastMessages.alert(message: context.appText.pleaseEnterGSTINNumber);
                     return;
                   }
 
                   if (!isValidGSTIN(gstInTextController.text)) {
-                    ToastMessages.alert(message: "Please enter a valid GSTIN number");
+                    ToastMessages.alert(message: context.appText.pleaseEnterAValidGSTINNumber);
                     return;
                   }
 
                   if (gstDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(gstDoc);
                     if(result is Success) {
-                      await verifyGstApiCall(gstInTextController.text);
+                      if(!context.mounted) return;
+                      await verifyGstApiCall(gstInTextController.text, context);
                     }
                   }  else {
-                    ToastMessages.alert(message: "Please enter GSTIN and upload document");
+                    ToastMessages.alert(message: context.appText.verified);
                   }
                 }
             ),
@@ -948,7 +961,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
             // Upload GST
             UploadAttachmentFiles(
-               title: "Upload GST Document",
+               title: context.appText.uploadGSTDocument,
                 multiFilesList: gstDoc,
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING,
@@ -977,19 +990,19 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                   UpperCaseTextFormatter(),
                   TANInputFormatter(),
                 ],
-                leftText: verified ? "Verified" : "Un-Verified",
+                leftText: verified ? context.appText.verified : context.appText.unVerified,
                 readOnly: verified,
                 rightText: "TAN",
                 controller: tanTextController,
                 suffixOnTap: () async {
 
                   if(tanTextController.text.isEmpty){
-                    ToastMessages.alert(message: "Please enter TAN");
+                    ToastMessages.alert(message: context.appText.pleaseEnterTAN);
                     return;
                   }
 
                   if (!isValidTAN(tanTextController.text)) {
-                    ToastMessages.alert(message: "Please enter a valid TAN number");
+                    ToastMessages.alert(message: context.appText.pleaseEnterAValidTANNumber);
                     return;
                   }
 
@@ -997,10 +1010,11 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                   if (tanTextController.text.isNotEmpty && tanDoc.isNotEmpty) {
                     final Result result = await uploadTanDocumentApiCall(tanDoc);
                     if(result is Success) {
-                      await verifyTANApiCall(tanTextController.text);
+                      if(!context.mounted) return;
+                      await verifyTANApiCall(tanTextController.text, context);
                     }
                   } else {
-                    ToastMessages.alert(message: "Please enter TAN and upload document");
+                    ToastMessages.alert(message: context.appText.pleaseEnterTANAndUploadDocument);
                   }
                 }
             ),
@@ -1008,7 +1022,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
             // Upload TAN Doc
             UploadAttachmentFiles(
-              title: "Upload TAN Document",
+              title: context.appText.uploadTANDocument,
               multiFilesList: tanDoc,
               isSingleFile: true,
               isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
@@ -1038,26 +1052,27 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 PANCardInputFormatter(),
               ],
               maxLength: 10,
-                leftText: verified ? "Verified" : "Un-Verified",
+                leftText: verified ? context.appText.verified : context.appText.unVerified,
                 readOnly: verified,
                 rightText: "PAN",
                 controller: panTextController,
                 suffixOnTap: () async {
                   if(panTextController.text.isEmpty){
-                    ToastMessages.alert(message: "Please enter PAN");
+                    ToastMessages.alert(message: context.appText.pleaseEnterPAN);
                     return;
                   }
                   if (!isValidPAN(panTextController.text)) {
-                    ToastMessages.alert(message: "Please enter a valid PAN");
+                    ToastMessages.alert(message: context.appText.pleaseEnterAValidPAN);
                     return;
                   }
                   if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
                     final Result result = await uploadGSTDocumentApiCall(panDoc);
                     if(result is Success) {
-                      await verifyPANApiCall(panTextController.text);
+                      if(!context.mounted) return;
+                      await verifyPANApiCall(panTextController.text, context);
                     }
                   } else {
-                    ToastMessages.alert(message: "Please enter PAN and upload document");
+                    ToastMessages.alert(message: context.appText.pleaseEnterPANAndUploadDocument);
                   }
                 }
             ),
@@ -1065,7 +1080,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
 
             // Upload PAN Doc
             UploadAttachmentFiles(
-              title: "Upload PAN Document",
+              title: context.appText.uploadPANDocument,
               multiFilesList: panDoc,
               isSingleFile: true,
               isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
@@ -1133,7 +1148,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
               fillColor : fillColor ?? AppColors.white,
               suffixIcon: readOnly
                   ?  0.width
-                  : Text("Verify", style: AppTextStyle.h6PrimaryColor),
+                  : Text(context.appText.verify, style: AppTextStyle.h6PrimaryColor),
               suffixOnTap: suffixOnTap ?? (){}
           ),
         ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
@@ -15,8 +17,6 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
@@ -57,11 +57,9 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
         BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
-        BlocProvider<LpMapSelectPickPointBloc>(create: (_) => locator<LpMapSelectPickPointBloc>()),
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
         BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
         BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
-        BlocProvider<RateDiscoveryBloc>(create: (_) => locator<RateDiscoveryBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
@@ -95,6 +93,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsGeofenceMapCubit>(create: (_) => locator<GpsGeofenceMapCubit>()),
+        BlocProvider<DriverProfileCubit>(create: (_) => locator<DriverProfileCubit>()),
+        BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
       ],
       child: child,
     );

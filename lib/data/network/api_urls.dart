@@ -54,9 +54,8 @@ class ApiUrls {
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
 
   /// Onboarding
-  static final String sendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/send";
-  static final String resendEmailOtp = "$_baseUrl$_notification$_path$_v1/email/resend";
-  static final String emailOTPCodeVerification = "$_baseUrl$_notification$_path$_v1/email/verify";
+  static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/send";
+  static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/verify";
   static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
   static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
 
@@ -87,6 +86,7 @@ class ApiUrls {
   static final String  pan = "$_kucDocUpload/pan";
   static final String  getCity = "$_baseUrl$_load$_path$_v1/location/city";
   static final String  getState = "$_baseUrl$_load$_path$_v1/location/state";
+  static final String  bluIdFlg = "$_baseUrl$_customer$_path$_v1$_customer/blue-id-flg/update/";
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";
@@ -172,7 +172,8 @@ class ApiUrls {
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;
-  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
+  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
+  static String gpsKycUpload(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
   static final String gpsProductList = "https://gro-devapi.letsgro.co$_fleet$_path$_v1/product/list";
   static final String gpsAddressList = "https://gro-devapi.letsgro.co$_customer$_path$_v1/address";
   static final String gpsCreateOrder = "$_baseUrl$_fleet$_path$_v1/orders/create";
@@ -193,7 +194,18 @@ class ApiUrls {
 
  /// Driver
  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
+ static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
+ static const String driverLoadById = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/";
 
 
-
+  /// GPS Tracking
+  static const String _gpsBase = "https://api.letsgro.co/api/v1/auth";
+  static final String gpsFetchGeofences = "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000";
+  static final String gpsAddGeofence = "$_gpsBase/add_geo_fence";
+  static final String gpsUpdateGeofence = "$_gpsBase/update_geo_fence";
+  static final String gpsLinkUnlinkGeofenceDevice = "$_gpsBase/link_unlink_geo_fence_device";
+  static String gpsFetchGeofencesForVehicle(String userId, String deviceId) =>
+      "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000&user_id=$userId&device_id=$deviceId";
+  static String gpsFetchNotifications(String userId, int days, int limit) =>
+      "$_gpsBase/last_500_user_events?days=$days&limit=$limit&user_id=$userId";
 }

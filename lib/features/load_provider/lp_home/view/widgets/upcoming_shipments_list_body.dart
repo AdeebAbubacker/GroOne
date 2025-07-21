@@ -71,7 +71,6 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
       final statusString = widget.loadData.loadStatusDetails?.loadStatus;
       final status = LpHomeHelper.getLoadStatusFromString(statusString);
       if (status == LoadStatus.matching || status == LoadStatus.kycPending) {
-        //lpHomeCubit.startMatchingTimer(widget.loadData.createdAt!.toIso8601String());
         _updateCountDown(status);                                   // first paint
         _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
           _updateCountDown(status);
@@ -88,6 +87,8 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
         ? PriceHelper.formatINR(widget.loadData.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadData.loadPrice?.rate} - ${widget.loadData.loadPrice?.maxRate}');
     final status = LpHomeHelper.getLoadStatusFromString(widget.loadData.loadStatusDetails?.loadStatus);
+    var statusData = widget.loadData.loadOnhold ? context.appText.unloadingHeld :widget.loadData.loadStatusDetails?.loadStatus ?? '';
+
 
     return  GestureDetector(
       onTap: () {
@@ -122,37 +123,14 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                   children: [
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(widget.loadData.loadStatusDetails!.loadStatus)),
-                      child: Text(widget.loadData.loadStatusDetails!.loadStatus, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(widget.loadData.loadStatusDetails!.loadStatus))),
+                      decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(statusData)),
+                      child: Text(statusData, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(statusData))),
                     ),
                     5.height,
 
                     // Matching Timer
-                    if (status == LoadStatus.matching)
-                      // BlocBuilder<LPHomeCubit, LPHomeState>(
-                      //   bloc: lpHomeCubit,
-                      //   buildWhen: (p, c) => p.matchingText != c.matchingText,
-                      //   builder: (context, state) {
-                      //     return Text(
-                      //        _countDown,
-                      //       style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                      //     );
-                      //   },
-
-
-                      // )
-                      Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                      )
-
-                    else if (status == LoadStatus.kycPending)
-                      if(widget.loadData.customer?.customer?.kycPendingDate != null)
-                        Text(
-                          _countDown,
-                          style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        )
-                        // Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadData.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor))
                   ],
                 ) : SizedBox()
             ),
@@ -178,8 +156,6 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                   dashColor: Colors.grey,
                   dashGapLength: 3.0,
                 ).paddingSymmetric(horizontal: 10).expand(),
-
-                //Icon(Icons.arrow_forward, color: AppColors.primaryColor).paddingSymmetric(horizontal: 15),
 
                 Row(
                   children: [

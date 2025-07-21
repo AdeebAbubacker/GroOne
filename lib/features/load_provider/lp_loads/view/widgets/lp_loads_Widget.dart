@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -85,7 +87,6 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   void callTimer(){
     if(widget.loadItem.createdAt != null && widget.loadItem.loadStatusDetails?.loadStatus != null){
-      // final status = widget.loadItem.loadStatusDetails?.loadStatus;
       final statusString = widget.loadItem.loadStatusDetails?.loadStatus;
       final status = LpHomeHelper.getLoadStatusFromString(statusString);
       if (status == LoadStatus.matching || status == LoadStatus.kycPending) {
@@ -206,6 +207,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   /// Load ID Details
   Widget buildLoadIdDetailsWidget(LoadStatus? loadStatus) {
+    var statusData = widget.loadItem.loadOnhold ? context.appText.unloadingHeld :widget.loadItem.loadStatusDetails?.loadStatus ?? '';
     return Row(
       children: [
         Container(
@@ -241,22 +243,17 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           children: [
             Container(
               decoration: commonContainerDecoration(
-                color: LpHomeHelper.getLoadStatusColor(widget.loadItem.loadStatusDetails?.loadStatus ?? '')
+                color: LpHomeHelper.getLoadStatusColor(statusData)
               ),
-              width: 100,
+              // width: 100,
               child: Text(
-                LpHomeHelper.getLoadTypeDisplayText(widget.loadItem.loadStatusDetails?.loadStatus ?? ''),
-                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.loadItem.loadStatusDetails?.loadStatus ?? '')),
-              ).center().paddingAll(4),
+                LpHomeHelper.getLoadTypeDisplayText(statusData),
+                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(statusData)),
+              ).center().paddingSymmetric(vertical: 4,horizontal: 10),
             ),
             5.height,
-            if(loadStatus == LoadStatus.kycPending)
-              if(widget.loadItem.customer?.kycPendingDate != null)
-              // Text(LpHomeHelper.getKycPendingTimeLeft(widget.loadItem.customer!.kycPendingDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-            if(loadStatus == LoadStatus.matching)
-             // Text(LpHomeHelper.getMatchingTime(widget.loadItem.matchingStartDate.toString()), style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
+            if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
+             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5)
           ],
         ),
       ],

@@ -287,11 +287,6 @@ class EnDhanService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        // Debug the API response
-        print('🔍 Vehicle Types API Response: ${result.value}');
-        print(
-          '🔍 Vehicle Types API Response Type: ${result.value.runtimeType}',
-        );
 
         // Check if the response is successful
         if (result.value['success'] == true) {
@@ -437,7 +432,7 @@ class EnDhanService {
       // Add authentication header if token exists
       try {
         String? refreshToken = await _secureSharedPrefs.get(
-          AppString.sessionKey.refreshToken,
+          AppString.sessionKey.accessToken,
         );
         if (refreshToken != null && refreshToken.isNotEmpty) {
           headers['Authorization'] = 'Bearer $refreshToken';

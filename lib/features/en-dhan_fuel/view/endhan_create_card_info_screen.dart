@@ -24,6 +24,8 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
@@ -32,6 +34,7 @@ import '../../../utils/app_route.dart';
 import '../../../utils/common_widgets.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'package:go_router/go_router.dart';
+import '../../kavach/view/widgets/vehicle_selection_field.dart';
 
 class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
@@ -74,14 +77,13 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     if (_isNavigating || !context.mounted) return;
 
     _isNavigating = true;
-    print('🔍 Attempting to navigate to /enDhanCard');
-
+   
     try {
       // Use GoRouter to navigate to the new user and card screen
       context.go('/enDhanCard');
-      print('🔍 Navigation command sent successfully');
+     
     } catch (e) {
-      print('🔍 Navigation error: $e');
+      
       // Fallback: try to pop back to previous screen
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
@@ -106,30 +108,29 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
     // Don't reset the entire cubit as it clears customer information
     // enDhanCubit.resetCubit();
 
-    print('🔍 Showing success dialog');
 
     // Show success dialog with proper navigation
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: 'Customer and cards created successfully!',
+        message: context.appText.customerAndCardsCreatedSuccessfully,
         // afterDismiss: () {
         //   // This will be called after 3 seconds automatically
         //   _navigateToEnDhanCard(context);
         // },
         onContinue: () {
-          print('🔍 Continue button pressed');
+          
           // Close the dialog first
           Navigator.of(context).pop();
 
           // Use a post-frame callback to ensure the dialog is closed before navigation
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            print('🔍 Post-frame callback executed');
+            
             _navigateToEnDhanCard(context);
           });
         },
         afterDismiss: () {
-          print('🔍 Dialog dismissed automatically');
+          
           // Fallback navigation if user doesn't press continue
           if (mounted && !_isNavigating) {
             _navigateToEnDhanCard(context);
@@ -167,6 +168,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
   ];
   List<bool> _expanded = [true];
   int? _currentUploadingCardIndex;
+  List<bool> vehicleVerificationStatus = [false]; // Track verification status for each card
 
   @override
   void initState() {
@@ -213,6 +215,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         },
       });
       _expanded.add(false); // default collapsed
+      vehicleVerificationStatus.add(false); // new card starts as not verified
     });
 
     // Also add card to cubit state
@@ -233,7 +236,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Select Document', style: AppTextStyle.body1),
+                Text(context.appText.selectDocument, style: AppTextStyle.body1),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: Icon(Icons.clear_rounded),
@@ -246,7 +249,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                 Icons.camera_alt,
                 color: AppColors.primaryColor,
               ),
-              title: Text('Camera'),
+              title: Text(context.appText.camera),
               onTap: () async {
                 Navigator.of(context).pop();
                 final result = await ImagePickerFrom.fromCamera();
@@ -266,25 +269,19 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
                   // Upload document and get the actual URL
                   try {
-                    print('🔍 Starting document upload for card $cardIndex');
+                    
                     final uploadResponse = await locator<EnDhanCubit>()
                         .uploadDocument(File(result['path']));
 
-                    print('🔍 Upload response received: $uploadResponse');
-                    print('🔍 Upload response type: ${uploadResponse.runtimeType}');
+                  
                     
-                    if (uploadResponse != null) {
-                      print('🔍 Upload response data: ${uploadResponse.data}');
-                      print('🔍 Upload response data URL: ${uploadResponse.data?.url}');
-                      print('🔍 Upload response success: ${uploadResponse.success}');
-                      print('🔍 Upload response message: ${uploadResponse.message}');
-                    }
+                   
 
                     if (uploadResponse != null &&
                         uploadResponse.data?.url != null &&
                         uploadResponse.data!.url!.isNotEmpty) {
                       final uploadedUrl = uploadResponse.data!.url!;
-                      print('🔍 Using uploaded URL: $uploadedUrl');
+                    
 
                       if (cardIndex < cardData.length) {
                         setState(() {
@@ -294,25 +291,25 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Document uploaded successfully!',
+                              context.appText.documentUploadedSuccessfully,
                             ),
                           ),
                         );
                       }
                     } else {
-                      print('🔍 Upload failed: Invalid response data');
+                      
                       setState(() {
                         cardData[cardIndex]['rcFile'] = null;
                         cardData[cardIndex]['rcFileName'] = null;
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Upload failed: No URL received'),
+                          content: Text(context.appText.uploadFailedNoUrl),
                         ),
                       );
                     }
                   } catch (e) {
-                    print('🔍 Upload exception: $e');
+                   
                     setState(() {
                       cardData[cardIndex]['rcFile'] = null;
                       cardData[cardIndex]['rcFileName'] = null;
@@ -329,7 +326,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                 Icons.photo_library,
                 color: AppColors.primaryColor,
               ),
-              title: Text('Gallery'),
+              title: Text(context.appText.gallery),
               onTap: () async {
                 Navigator.of(context).pop();
                 final result = await ImagePickerFrom.fromGallery();
@@ -361,7 +358,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Document uploaded successfully!',
+                              context.appText.documentUploadedSuccessfully,
                             ),
                           ),
                         );
@@ -373,7 +370,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Upload failed: No URL received'),
+                          content: Text(context.appText.uploadFailedNoUrl),
                         ),
                       );
                     }
@@ -383,7 +380,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       cardData[cardIndex]['rcFileName'] = null;
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Upload failed: $e')),
+                      SnackBar(content: Text('${context.appText.uploadFailed} $e')),
                     );
                   }
                 }
@@ -426,7 +423,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              'Document uploaded successfully!',
+                              context.appText.documentUploadedSuccessfully,
                             ),
                           ),
                         );
@@ -438,7 +435,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Upload failed: No URL received'),
+                          content: Text(context.appText.uploadFailedNoUrl),
                         ),
                       );
                     }
@@ -448,7 +445,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       cardData[cardIndex]['rcFileName'] = null;
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Upload failed: $e')),
+                      SnackBar(content: Text('${context.appText.uploadFailed} $e')),
                     );
                   }
                 }
@@ -481,7 +478,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         // Validate vehicle number
         if (controllers['vehicleNumber']?.text?.trim().isEmpty ?? true) {
           isValid = false;
-          errorMessage = 'Vehicle number is required for card ${i + 1}';
+          errorMessage = '${context.appText.vehicleNumberRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
@@ -489,14 +486,14 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         if (card['vehicleType'] == null ||
             card['vehicleType'].toString().isEmpty) {
           isValid = false;
-          errorMessage = 'Vehicle type is required for card ${i + 1}';
+          errorMessage = '${context.appText.vehicleTypeRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
         // Validate VIN number
         if (controllers['vinNumber']?.text?.trim().isEmpty ?? true) {
           isValid = false;
-          errorMessage = 'VIN number is required for card ${i + 1}';
+          errorMessage = '${context.appText.vinNumberRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
@@ -506,7 +503,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
           final mobileRegex = RegExp(r'^(\+91\s?)?[6-9]\d{9}$');
           if (!mobileRegex.hasMatch(mobileText)) {
             isValid = false;
-            errorMessage = 'Please enter a valid mobile number for card ${i + 1}';
+            errorMessage = '${context.appText.validMobileNumber} for ${context.appText.card} ${i + 1}';
             break;
           }
         }
@@ -514,14 +511,14 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         // Validate RC book (used as RC number)
         if (controllers['rcBook']?.text?.trim().isEmpty ?? true) {
           isValid = false;
-          errorMessage = 'RC book is required for card ${i + 1}';
+          errorMessage = '${context.appText.rcBookRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
         // Validate RC file upload
         if (card['rcFile'] == null) {
           isValid = false;
-          errorMessage = 'RC document upload is required for card ${i + 1}';
+          errorMessage = '${context.appText.rcDocumentUploadRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
@@ -756,6 +753,13 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
       localCard['rcDocuments'] = [];
       localCard['rcFile'] = null;
       localCard['rcFileName'] = null;
+      
+      // Update verification status - only set as verified if it was previously verified
+      if (i < vehicleVerificationStatus.length) {
+        // Don't automatically verify vehicles just because they have text
+        // They should only be verified if explicitly verified or selected from list
+        vehicleVerificationStatus[i] = false;
+      }
     }
 
     setState(() {});
@@ -783,8 +787,20 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
           },
         ];
         _expanded = [true];
+        vehicleVerificationStatus = [false];
       });
     }
+  }
+
+  bool _isVehicleAlreadySelected(String vehicleNumber) {
+    for (int i = 0; i < cardData.length; i++) {
+      final controllers = cardData[i]['controllers'] as Map<String, TextEditingController>;
+      final currentVehicleNumber = controllers['vehicleNumber']?.text.trim() ?? '';
+      if (currentVehicleNumber == vehicleNumber && currentVehicleNumber.isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
@@ -815,7 +831,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                   child: Column(
                     children: [
                       CommonAppBar(
-                        title: "Card Information",
+                        title: context.appText.cardInformation,
                         backgroundColor: Color(0xFFD6EEFB),
                         actions: [
                           AppIconButton(
@@ -868,7 +884,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                               headerBuilder: (context, isExpanded) {
                                 return ListTile(
                                   title: Text(
-                                    'Card ${index + 1}',
+                                    '${context.appText.card} ${index + 1}',
                                     style: AppTextStyle.body3.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -876,7 +892,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                   trailing: index > 0
                                       ? IconButton(
                                     icon: Icon(Icons.delete, color: AppColors.activeRedColor),
-                                    tooltip: 'Delete this card',
+                                    tooltip: context.appText.deleteThisCard,
                                     onPressed: () {
                                       setState(() {
                                         cardData.removeAt(index);
@@ -899,61 +915,64 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Vehicle Number *',
+                                      '${context.appText.vehicleNumber} *',
                                       style: AppTextStyle.body3.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     6.height,
-                                    AppTextField(
-                                      hintText: 'Select vehicle number',
-                                      controller: controllers['vehicleNumber'],
-                                      readOnly: true,
-                                      onTextFieldTap: () async {
-                                        final selectedVehicle = await commonBottomSheet<String?>(
-                                          context: context,
-                                          screen: const KavachAddedVehiclesScreen(),
-                                          barrierDismissible: true,
-                                        );
-
-                                        if (selectedVehicle != null) {
-                                          setState(() {
-                                            controllers['vehicleNumber']?.text = selectedVehicle;
-                                            card['vehicleNumber'] = selectedVehicle;
-                                          });
-
-                                          // Sync with cubit state
-                                          _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
+                                    VehicleSelectionField(
+                                      controller: controllers['vehicleNumber']!,
+                                      hintText: context.appText.selectVehicleNumber,
+                                      index: index,
+                                      isVerified: index < vehicleVerificationStatus.length ? vehicleVerificationStatus[index] : false,
+                                      isVehicleAlreadySelected: _isVehicleAlreadySelected(controllers['vehicleNumber']?.text.trim() ?? ''),
+                                      onVehicleSelected: (selectedIndex, selectedVehicle) {
+                                        // Check for duplicates across all cards, excluding the current card
+                                        bool isAlreadySelected = false;
+                                        for (int i = 0; i < widget.state.cards.length; i++) {
+                                          // Skip the current card being updated
+                                          if (i == index) continue;
+                                          
+                                          final otherCard = widget.state.cards[i];
+                                          if (otherCard.vehicleNumber.trim() == selectedVehicle.trim()) {
+                                            isAlreadySelected = true;
+                                            break;
+                                          }
                                         }
-                                      },
-                                      validator: (value) {
-                                        if ((widget.state.hasAttemptedSubmit ?? false) && (value == null || value.trim().isEmpty)) {
-                                          return 'Vehicle number is required';
+                                        
+                                        if (isAlreadySelected) {
+                                          ToastMessages.alert(message: 'Vehicle already selected');
+                                          return;
                                         }
-                                        return null;
+                                        
+                                        // Set the vehicle in the controller only if no duplicates
+                                        setState(() {
+                                          controllers['vehicleNumber']?.text = selectedVehicle;
+                                          card['vehicleNumber'] = selectedVehicle;
+                                        });
+                                        // Mark as verified when selected from list
+                                        if (selectedIndex < vehicleVerificationStatus.length) {
+                                          vehicleVerificationStatus[selectedIndex] = true;
+                                        }
+                                        // Sync with cubit state
+                                        _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
+                                        setState(() {}); // Trigger rebuild to show green tick
                                       },
-                                      decoration: commonInputDecoration(
-                                        hintText: 'Select vehicle number',
-                                        suffixIcon: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: AppColors.lightBlueIconBackgroundColor2,
-                                              child: SvgPicture.asset(
-                                                AppIcons.svg.truck,
-                                                colorFilter: AppColors.svg(AppColors.primaryColor),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 5),
-                                              child: Icon(
-                                                CupertinoIcons.chevron_down,
-                                                color: AppColors.chevronGreyColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      onVehicleVerified: (verifiedVehicle) {
+                                        // Update verification status when manually verified
+                                        if (verifiedVehicle.isNotEmpty) {
+                                          if (index < vehicleVerificationStatus.length) {
+                                            vehicleVerificationStatus[index] = true;
+                                          }
+                                        } else {
+                                          // Reset verification status when text is cleared or changed
+                                          if (index < vehicleVerificationStatus.length) {
+                                            vehicleVerificationStatus[index] = false;
+                                          }
+                                        }
+                                        setState(() {}); // Trigger rebuild to update UI
+                                      },
                                     ),
                                     12.height,
                                     Column(
@@ -961,7 +980,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Vehicle Type *',
+                                          '${context.appText.vehicleType} *',
                                           style: AppTextStyle.body3.copyWith(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -970,7 +989,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     ),
                                     6.height,
                                     AppDropdown(
-                                      hintText: 'Select',
+                                      hintText: context.appText.select,
                                       dropdownValue: card['vehicleType'],
                                       dropDownList:
                                       (widget
@@ -1002,8 +1021,8 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 .vehicleTypesState
                                                 ?.status ==
                                                 Status.LOADING
-                                                ? 'Loading vehicle types...'
-                                                : 'No vehicle types available (${widget.state.vehicleTypes.length})',
+                                                ? context.appText.loadingVehicleTypes
+                                                : '${context.appText.noVehicleTypesAvailable} (${widget.state.vehicleTypes.length})',
                                           ),
                                         ),
                                       ],
@@ -1014,21 +1033,21 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       },
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Vehicle type is required';
+                                          return context.appText.vehicleTypeRequired;
                                         }
                                         return null;
                                       },
                                     ),
                                     12.height,
                                     Text(
-                                      'VIN Number *',
+                                      '${context.appText.vinNumber} *',
                                       style: AppTextStyle.body3.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     6.height,
                                     AppTextField(
-                                      hintText: 'Enter VIN number',
+                                      hintText: context.appText.enterVinNumber,
                                       controller: controllers['vinNumber'],
                                       onChanged: (val) {
                                         card['vinNumber'] = val;
@@ -1040,17 +1059,17 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       validator: (value) {
                                         if (value == null ||
                                             value.trim().isEmpty) {
-                                          return 'VIN number is required';
+                                          return context.appText.vinNumberRequired;
                                         }
                                         if (value.trim().length != 17) {
-                                          return 'VIN number must be exactly 17 characters';
+                                          return context.appText.vinNumberMustBe17Characters;
                                         }
                                         return null;
                                       },
                                     ),
                                     12.height,
                                     Text(
-                                      'Mobile Number',
+                                      context.appText.mobileNumber,
                                       style: AppTextStyle.body3.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1067,7 +1086,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       },
                                       validator: (value) {
                                         if ((widget.state.hasAttemptedSubmit ?? false) && value != null && value.isNotEmpty && value.length > 10) {
-                                          return 'Mobile number cannot be more than 10 digits';
+                                          return context.appText.mobileNumberCannotBeMoreThan10Digits;
                                         }
                                         return null;
                                       },
@@ -1076,7 +1095,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     Row(
                                       children: [
                                         Text(
-                                          'RC book *',
+                                          '${context.appText.rcBook} *',
                                           style: AppTextStyle.body3.copyWith(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -1084,7 +1103,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                         4.width,
                                         Tooltip(
                                           message:
-                                          'Upload your RC book document',
+                                          context.appText.uploadRcBookDocument,
                                           child: Icon(
                                             Icons.info_outline,
                                             size: 16,
@@ -1105,7 +1124,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       validator: (value) {
                                         if (value == null ||
                                             value.trim().isEmpty) {
-                                          return 'RC book is required';
+                                          return context.appText.rcBookRequired;
                                         }
                                         return null;
                                       },
@@ -1117,7 +1136,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     // Document upload widget
                                     EndhanDocumentUploadWidget(
                                       key: ValueKey('card_${index}_documents_${card['rcDocuments']?.length ?? 0}_${card['rcFile'] ?? 'null'}'),
-                                      feildTitle: "Upload RC document *",
+                                      feildTitle: "${context.appText.uploadRcDocument} *",
                                       multiFilesList: card['rcDocuments'] ?? [],
                                       isSingleFile: true,
                                       onFilesChanged: (newList) {
@@ -1194,7 +1213,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 ).showSnackBar(
                                                   SnackBar(
                                                     content: Text(
-                                                      'Upload failed: No URL received',
+                                                      context.appText.uploadFailedNoUrl,
                                                     ),
                                                   ),
                                                 );
@@ -1210,7 +1229,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                               ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    'Upload failed: $e',
+                                                    '${context.appText.uploadFailed} $e',
                                                   ),
                                                 ),
                                               );
@@ -1218,14 +1237,14 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                           } else {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text('No file path found'),
+                                                content: Text(context.appText.noFilePathFound),
                                               ),
                                             );
                                           }
                                         } else {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('No documents selected'),
+                                              content: Text(context.appText.noDocumentsSelected),
                                             ),
                                           );
                                         }
@@ -1250,7 +1269,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                               color: AppColors.primaryColor,
                             ),
                             label: Text(
-                              'New Card',
+                              context.appText.newCard,
                               style: AppTextStyle.body3.copyWith(
                                 color: AppColors.primaryColor,
                               ),
@@ -1266,7 +1285,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: AppButton(
-                          title: isLoading ? 'Creating...' : 'Save & Create',
+                          title: isLoading ? context.appText.creating : context.appText.saveAndCreate,
                           style: AppButtonStyle.primary,
                           onPressed: isLoading ? () {} : _handleSaveAndCreate,
                         ),

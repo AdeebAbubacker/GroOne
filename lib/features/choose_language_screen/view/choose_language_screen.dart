@@ -35,7 +35,6 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   @override
   void initState() {
     _languageBlock.add(LoadLanguages());
-    debugPrint("Cross Back Button : ${widget.isCloseButton}");
     super.initState();
   }
 
@@ -52,29 +51,6 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 30.height,
-                //
-                // // App bar
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     if(widget.isCloseButton)
-                //       IconButton(
-                //         onPressed: () {
-                //           context.pop();
-                //         },
-                //         icon: Icon(Icons.clear),
-                //       )
-                //     else
-                //       10.width,
-                //
-                //     Image.asset(
-                //       AppImage.png.appIcon,
-                //       width: 74.25.w,
-                //       height: 33.h,
-                //     ),
-                //   ],
-                // ),
                 20.height,
                 RichText(
                   text: TextSpan(
@@ -127,8 +103,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                         if(widget.isCloseButton){
                           Navigator.of(context).pop();
                         }else{
-                          //context.push(AppRouteName.chooseRoleScreen);
-                          context.push(AppRouteName.login,extra: "2");
+                          context.push(AppRouteName.login);
                         }
                       },
                     ),

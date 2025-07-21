@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -46,125 +46,128 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
-    return GestureDetector(
-      onTap: () {
-        context.push(AppRouteName.loadDetailsScreen,extra: {
-          "loadId":widget.data.id
-        });
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        decoration: commonContainerDecoration(
-          borderColor: AppColors.primaryColor,
-          borderWidth: 1,
-          color: AppColors.blackishWhite,
-        ),
-        child: Column(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(AppImage.png.truckMyLoad, width: 50),
-                10.width,
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(widget.data.loadId, style: AppTextStyle.h5),
-                    Text(
-                      formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
-                      style: AppTextStyle.primaryColor12w400,
-                    ),
-                  ],
-                ).expand(),
-                5.width,
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: [
-                        _buildLocationInfoWidget(widget.data.pickUpLocation),
-                        Icon(
-                          Icons.arrow_right_alt_outlined,
-                          color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 2),
-                        _buildLocationInfoWidget(widget.data.dropLocation),
-                      ],
-                    ),
-                    if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
-                      VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus)
-                    // LoadStatusLabel(
-                    //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
-                    //     loadStatus: widget.data.loadStatusValues,
-                    // )
-                  ],
-                ).expand(),
-              ],
-            ),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: commonContainerDecoration(
+        borderColor: AppColors.primaryColor,
+        borderWidth: 1,
+        color: AppColors.blackishWhite,
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(AppImage.png.truckMyLoad, width: 50),
+              10.width,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.data.loadId, style: AppTextStyle.h5),
+                  Text(
+                    formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
+                    style: AppTextStyle.primaryColor12w400,
+                  ),
+                ],
+              ).expand(),
+              5.width,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    children: [
+                      _buildLocationInfoWidget(widget.data.pickUpLocation),
+                      Icon(
+                        Icons.arrow_right_alt_outlined,
+                        color: AppColors.primaryColor,
+                      ).paddingSymmetric(horizontal: 2),
+                      _buildLocationInfoWidget(widget.data.dropLocation),
+                    ],
+                  ),
+                  if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
+                    VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context)
+                  // LoadStatusLabel(
+                  //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
+                  //     loadStatus: widget.data.loadStatusValues,
+                  // )
+                ],
+              ).expand(),
+            ],
+          ),
 
-            commonDivider(),
-            //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
-            Row(
-              children: [
-                detailWidget(
-                  text: widget.data.truckType?.type ?? "--",
-                  iconSvg: AppIcons.svg.deliveryTruckSpeed,
-                ),
-                detailWidget(
-                  text: widget.data.truckType?.subType ?? "--",
-                  iconSvg: AppIcons.svg.deliveryTruckSpeed,
-                ),
-              ],
-            ),
-            10.height,
-            Row(
-              children: [
-                detailWidget(
-                  text: widget.data.commodity?.name ?? "--",
-                  iconSvg: AppIcons.svg.package,
-                ),
-                detailWidget(
-                  text: "${widget.data.consignmentWeight} Tonn",
-                  iconSvg: AppIcons.svg.weight,
-                ),
-              ],
-            ),
+          commonDivider(),
+          //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
-            Visibility(
-              visible:(widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 5),
-                margin:  EdgeInsets.only(top: 15),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColors.primaryLightColor,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    FittedBox(
-                      child: Text(
-                        widget.data.loadStatusValues==LoadStatus.assigned ? context.appText.tripPrice: context.appText.acceptedPrice,
-                        style: AppTextStyle.textBlackColor18w400,
-                        textAlign: TextAlign.center,
-                      )
-                    ),
-                    FittedBox(
-                      child: Text(
-                        amount,
-                        style: AppTextStyle.h4PrimaryColor,
-                        textAlign: TextAlign.center,
-                      ),
+          if(widget.data.loadStatusDetails != null)...[
+            VpMyLoadUIHelper.simTrackingWidget(context: context, status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+
+            VpMyLoadUIHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
+          ],
+
+
+          Row(
+            children: [
+              detailWidget(
+                text: widget.data.truckType?.type ?? "--",
+                iconSvg: AppIcons.svg.deliveryTruckSpeed,
+              ),
+              detailWidget(
+                text: widget.data.truckType?.subType ?? "--",
+                iconSvg: AppIcons.svg.deliveryTruckSpeed,
+              ),
+            ],
+          ),
+          10.height,
+          Row(
+            children: [
+              detailWidget(
+                text: widget.data.commodity?.name ?? "--",
+                iconSvg: AppIcons.svg.package,
+              ),
+              detailWidget(
+                text: "${widget.data.consignmentWeight} ${context.appText.tons}",
+                iconSvg: AppIcons.svg.weight,
+              ),
+            ],
+          ),
+
+          Visibility(
+            visible:(widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 5),
+              margin:  EdgeInsets.only(top: 15),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryLightColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  FittedBox(
+                    child: Text(
+                      widget.data.loadStatusValues==LoadStatus.assigned ? context.appText.tripPrice : context.appText.acceptedPrice ,
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
                     )
-                  ],
-                ),
+                  ),
+                  FittedBox(
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                ],
               ),
             ),
-            10.height,
-            _buildTrackingProgress(0.5,widget.data.loadStatusValues),
-            //if(widget.showButton??true)
-            Row(
-              children: [
+          ),
+          10.height,
+
+
+          //if(widget.showButton??true)
+          Row(
+            children: [
 
                 // Support Button
                 IconButton(
@@ -184,11 +187,11 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 ),
                 10.width,
 
-                // title:state.loadStatus==LoadStatus.completed ? "View Trip Settlement":
-                //
-                //
-                //     ? "Assign Driver"
-                //     : "Accept Load",
+              // title:state.loadStatus==LoadStatus.completed ? "View Trip Settlement":
+              //
+              //
+              //     ? "Assign Driver"
+              //     : "Accept Load",
 
                 // Action Button
                 if(widget.data.loadStatusDetails != null)
@@ -198,21 +201,20 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                     onPressed: () {  }
                 ).expand(),
 
-                // Visibility(
-                //   visible:true,
-                //
-                //   // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
-                //   child: AppButton(
-                //     buttonHeight: 40,
-                //     onPressed: widget.onClickAssignDriver ?? () {},
-                //     title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
-                //     style: AppButtonStyle.primary,
-                //   ).expand(),
-                // ),
-              ],
-            ),
-          ],
-        ),
+              // Visibility(
+              //   visible:true,
+              //
+              //   // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
+              //   child: AppButton(
+              //     buttonHeight: 40,
+              //     onPressed: widget.onClickAssignDriver ?? () {},
+              //     title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
+              //     style: AppButtonStyle.primary,
+              //   ).expand(),
+              // ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -243,19 +245,4 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
 
 
-  Widget _buildTrackingProgress(double progress,LoadStatus? loadStatus){
-    return Visibility(
-
-      visible:false,
-      // (loadStatus?.index??0)>LoadStatus.assigned.index && (loadStatus?.index??0) <=LoadStatus.inTransit.index ,
-      child: Column(
-        children: [
-          commonDivider(),
-          AppProgressBar(progress: progress),
-          8.height,
-          commonDivider(),
-        ],
-      ),
-    );
-  }
 }
