@@ -118,6 +118,8 @@ dependencies:
 
   # Localization
   flutter_localization: ^0.2.0
+  flutter_localizations:
+    sdk: flutter
 
   #otp text field
   flutter_otp_text_field: ^1.5.1+1
@@ -129,8 +131,6 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^3.0.0
   toastification: ^3.0.3
-
-
 
 dev_dependencies:
   flutter_test:

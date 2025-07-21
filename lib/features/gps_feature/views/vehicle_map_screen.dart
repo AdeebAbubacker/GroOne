@@ -10,16 +10,38 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/app_share_helper.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
+  bool _isClosed = false;
+  
   SelectedVehicleCubit() : super(null);
-  void select(GpsCombinedVehicleData? vehicle) => emit(vehicle);
+  
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(null);
+  }
+  
+  void select(GpsCombinedVehicleData? vehicle) {
+    if (!_isClosed) {
+      emit(vehicle);
+    }
+  }
 }
 
 class VehicleMapScreen extends StatefulWidget {
@@ -744,17 +766,96 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                       icon: Icons.play_arrow,
                       onTap: () {},
                     ),
-                    const SizedBox(width: 12),
-                    _ActionButton(
-                      label: 'Capture',
-                      icon: Icons.camera_alt,
-                      onTap: () {},
-                    ),
+                    // const SizedBox(width: 12),
+                    // _ActionButton(
+                    //   label: 'Capture',
+                    //   icon: Icons.camera_alt,
+                    //   onTap: () {},
+                    // ),
                     const SizedBox(width: 12),
                     _ActionButton(
                       label: 'Share',
                       icon: Icons.share,
-                      onTap: () {},
+                      onTap: () {
+                        AppShareHelper.showVehicleShareWidget(
+                          context: context,
+                          vehicleNumber: widget.vehicle.vehicleNumber ?? '',
+                          location: widget.vehicle.location,
+                          lastUpdate: widget.vehicle.lastUpdate,
+                          deviceId: widget.vehicle.deviceId,
+                          token: AppConstants.token,
+                          onLiveLocationShare: (token, deviceId, vehicleNumber, isLiveLocation, hours) async {
+                            try {
+                              final repository = locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository.shareVehicleLocation(
+                                token: token,
+                                deviceId: deviceId,
+                                vehicleNumber: vehicleNumber,
+                                isLiveLocation: isLiveLocation,
+                                hours: hours,
+                                location: widget.vehicle.location ?? '',
+                                lastUpdate: widget.vehicle.lastUpdate,
+                              );
+                              if (context.mounted) {
+                                if (result is Success<String>) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+                                );
+                              }
+                            }
+                          },
+                          onCurrentLocationShare: (vehicleNumber, location, lastUpdate) async {
+                            try {
+                              final repository = locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository.shareVehicleLocation(
+                                token: AppConstants.token ?? '',
+                                deviceId: widget.vehicle.deviceId!,
+                                vehicleNumber: vehicleNumber,
+                                isLiveLocation: false,
+                                hours: 0,
+                                location: location,
+                                lastUpdate: lastUpdate,
+                              );
+                              if (context.mounted) {
+                                if (result is Success<String>) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('No location data available for sharing'),
+                                      backgroundColor: Colors.orange,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('No location data available for sharing'),
+                                    backgroundColor: Colors.orange,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     _ActionButton(

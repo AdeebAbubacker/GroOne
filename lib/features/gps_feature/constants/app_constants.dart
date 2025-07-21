@@ -29,6 +29,4 @@ class AppConstants {
   static const Color chartBlue = Color(0xFF007AFF);
 
   //String
-
-  static String token ='';
 }
