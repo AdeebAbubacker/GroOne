@@ -122,7 +122,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               Expanded(
                 child: Text(
                   widget.data.pickUpWholeAddr??"",
-
                   style: AppTextStyle.blackColor15w500.copyWith(fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

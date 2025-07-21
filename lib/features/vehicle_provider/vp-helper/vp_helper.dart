@@ -98,3 +98,19 @@ LoadStatus getLoadStatus(int? status){
   };
 }
 
+
+enum DocumentFileType {
+
+  lorryReceipt('lorry_receipt'),
+  ewayBill('eway_bill'),
+  materialInvoice('material_invoice'),
+  proofOfDocument('Proof_of_document'),
+  uploadOtherDocument('upload_other_document');
+
+
+  final String value;
+
+  const DocumentFileType(this.value);
+}
+
+

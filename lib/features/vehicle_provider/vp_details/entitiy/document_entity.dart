@@ -3,6 +3,8 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 
+import '../../vp-helper/vp_helper.dart';
+
 
 class DocumentEntity {
   String? title;
@@ -53,7 +55,7 @@ class DocumentEntity {
 List<DocumentEntity> documentTypeList=[
   DocumentEntity(
     documentTypeId: 5,
-    fileType: "lorry_receipt",
+    fileType: DocumentFileType.lorryReceipt.name,
     title:navigatorKey.currentState?.context.appText.uploadLorryReceipt,
     visible: true,
     isLoading: false,
@@ -61,24 +63,32 @@ List<DocumentEntity> documentTypeList=[
   ),
   DocumentEntity(
     documentTypeId: 6,
-    fileType: "eway_bill",
+    fileType: DocumentFileType.ewayBill.name,
     title: navigatorKey.currentState?.context.appText.uploadEwayBill,
       visible: true,
     documentType: navigatorKey.currentState?.context.appText.ewayBill,
   ),
   DocumentEntity(
     documentTypeId: 7,
-    fileType: "material_invoice",
+    fileType: DocumentFileType.materialInvoice.name,
     title:navigatorKey.currentState?.context.appText.uploadMaterialInvoice,
     visible: true,
     documentType: navigatorKey.currentState?.context.appText.materialInvoice,
   ),
   DocumentEntity(
     documentTypeId: 8,
-    fileType: "Proof_of_document",
+    fileType: DocumentFileType.proofOfDocument.name,
     title:navigatorKey.currentState?.context.appText.uploadPOD,
     visible: false,
     documentType: navigatorKey.currentState?.context.appText.pod,
+  ),
+
+  DocumentEntity(
+    documentTypeId: 309,
+    fileType: DocumentFileType.uploadOtherDocument.name,
+    title:navigatorKey.currentState?.context.appText.uploadOtherDocuments,
+    visible: true,
+    documentType: navigatorKey.currentState?.context.appText.uploadOtherDocuments,
   ),
 
 ];

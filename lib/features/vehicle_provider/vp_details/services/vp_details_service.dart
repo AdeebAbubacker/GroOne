@@ -80,11 +80,14 @@ class VpDetailsService{
        final createDocumentResponse= CreateDocumentResponse.fromJson(result.value);
         return Success(createDocumentResponse);
       } else if (result is Error) {
+
         return Error(result.type);
       } else {
+
         return Error(GenericError());
       }
     } catch (e) {
+
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }

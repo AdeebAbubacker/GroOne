@@ -17,7 +17,7 @@
   "getOtp": "Get OTP",
   "enterMobileNumber": "Enter your mobile number to continue.",
   "loginSingUp": "Login / Sign up",
-  "agree": "By Logging in, you agree to GRO's ",
+  "agree": "By logging in, you agree to GRO's ",
   "termsAndConditions": "terms & conditions",
   "and": " and ",
   "privacyPolicy": "Privacy policy",
@@ -566,7 +566,8 @@
   "startTrip":"Start Trip",
   "swipeToUnLoad":"Swipe to unload",
   "podDispatchedDetails":"POD Dispatch Detail",
-  "viewDetails":"View Detail"
+  "viewDetails":"View Detail",
+  "uploadOtherDocuments":"Upload Other documents"
 
 
 

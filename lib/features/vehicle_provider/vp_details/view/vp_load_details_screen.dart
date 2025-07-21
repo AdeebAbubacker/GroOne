@@ -98,7 +98,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       () => getLoadDetails(),
                   child: genericErrorWidget(error: NotFoundError()));
             }
-
             return Stack(
               children: [
                 Positioned.fill(child: GoogleMapWidget(
@@ -130,7 +129,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
         listener: (context, state) {
           if (state.loadDetailsUIState?.status == Status.SUCCESS) {
             final loads = state.loadDetailsUIState?.data;
-
             if (loads?.data !=null) {
               if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
                 _consentStatusCalled = true;
