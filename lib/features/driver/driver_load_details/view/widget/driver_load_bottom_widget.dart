@@ -141,7 +141,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           20.height,
                       if (widget.loadItem.data!.loadStatusId == 5) ...[
                         20.height,
-                        Text('Upload Documents', style: AppTextStyle.h4),
+                        Text('Trip Documents', style: AppTextStyle.h4),
                         10.height,
 
                         buildUploadDocumentWidget(

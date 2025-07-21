@@ -56,11 +56,11 @@ class  DriverLoadsDetailsRepository {
       return await service.fetchUploadDamageData(
           file : file,
           userId: await userRepo.getUserID() ?? "",
-          fileType: 'd',
-          documentType: await userRepo.getUserRole() == 0 ? "Driver_DOCUMENT" : LP_DOCUMENT
+          fileType: fileType,
+          documentType: await userRepo.getUserRole() == 0 ? "driver_document" : LP_DOCUMENT
       );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload gst document data", e);
+      CustomLog.error(this, "Failed to get upload document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
