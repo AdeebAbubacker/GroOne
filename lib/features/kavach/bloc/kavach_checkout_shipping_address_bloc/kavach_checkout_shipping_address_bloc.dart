@@ -49,9 +49,12 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
             emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
           }
         } else {
-          // No previously selected address, show available state
-          print('KavachCheckoutShippingAddressBloc: Emitting available state with ${result.value.length} addresses');
-          emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
+          // No previously selected address, automatically select the first address
+          print('KavachCheckoutShippingAddressBloc: No previously selected address, auto-selecting first address');
+          emit(KavachCheckoutShippingAddressSelected(
+            selectedAddress: result.value.first,
+            addresses: result.value,
+          ));
         }
       }
     } else if (result is Error<List<KavachAddressModel>>) {

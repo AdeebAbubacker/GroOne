@@ -317,7 +317,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.vehicleDetails, style: AppTextStyle.h5),
+                  Text(
+                    widget.selectedVehicleNumbers.length == 1 
+                        ? "Vehicle Detail" 
+                        : context.appText.vehicleDetails,
+                    style: AppTextStyle.h5
+                  ),
                   SizedBox(height: 5),
                   Text(
                     widget.selectedVehicleNumbers.join(", "),
@@ -359,7 +364,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Center(child: CircularProgressIndicator()),
           ],
@@ -374,7 +384,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Text(
               'Failed to load order summary',
@@ -391,7 +406,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+          Text(
+            widget.products.length == 1 
+                ? "Product Detail" 
+                : context.appText.paymentDetails, 
+            style: AppTextStyle.h4
+          ),
           10.height,
           ...orderSummary!.data.summary.map((summaryItem) {
             return Column(

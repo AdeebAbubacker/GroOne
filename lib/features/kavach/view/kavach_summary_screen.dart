@@ -220,7 +220,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.appText.vehicleDetails,
+                    widget.selectedVehicleNumbers.length == 1 
+                        ? "Vehicle Detail" 
+                        : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
                   SizedBox(height: 5),
@@ -240,13 +242,14 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
-                  10.height,
-                  _buildAddressCard(widget.shippingAddress),
-                  15.height,
+                 
                   Text(context.appText.billingAddress, style: AppTextStyle.h5,),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
+                  15.height,
+                    Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
+                  10.height,
+                  _buildAddressCard(widget.shippingAddress),
                 ],
               ),
             ),
@@ -264,7 +267,12 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+          Text(
+            widget.products.length == 1 
+                ? "Product Detail" 
+                : context.appText.paymentDetails, 
+            style: AppTextStyle.h4
+          ),
           10.height,
           ...widget.products.map((product) {
             final qty = widget.quantities[product.id] ?? 0;
