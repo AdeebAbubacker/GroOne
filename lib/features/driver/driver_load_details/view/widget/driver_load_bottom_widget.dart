@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
@@ -28,6 +29,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -39,16 +41,17 @@ import '../../../../load_provider/lp_home/helper/lp_home_helper.dart';
 
 
 class DriverLoadBottomWidget extends StatefulWidget {
+  final DriverLoadDetailsCubit cubit;
     final DriverLoadDetailsModel loadItem;
   final String kilometers;
-  const DriverLoadBottomWidget({super.key,required this.loadItem,required this.kilometers});
+  const DriverLoadBottomWidget({super.key,required this.loadItem,required this.kilometers,required this.cubit,});
 
   @override
   State<DriverLoadBottomWidget> createState() => _DriverLoadBottomWidgetState();
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
-  final DriverLoadDetailsCubit cubit = locator<DriverLoadDetailsCubit>();
+
       List<dynamic> lorryReceiptFiles = [];
       List<String> uploadedLorryReceipts = [];
 
@@ -100,8 +103,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   Container(
                                       decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
                                       padding: EdgeInsets.symmetric(horizontal: 4),
-                                      // child: Text(widget.loadItem.data?.scheduleTripDetails?.vehicle?.truckNo ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
-                                       child: Text('Truck No', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                       child: Text(widget.loadItem.data?.driverTrackingModel?.truckNumber ?? 'TN AY 3467', style: AppTextStyle.body3.copyWith(color: AppColors.black))),                           
                                   8.width,
                                   Text('${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
                               ),
@@ -122,7 +124,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           20.height,
                       15.height,
                           _buildLoadEntityWidget(
-                          
+                          commodities: widget.loadItem.data?.commodity!.name.toString() ?? '',
+                          weight: widget.loadItem.data?.weight!.value.toString() ?? '',
                           ),     
                      if ((widget.loadItem.data?.loadStatusId ?? 0) > 4)
                      Column(
@@ -138,18 +141,18 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           20.height,
                       if (widget.loadItem.data!.loadStatusId == 5) ...[
                         20.height,
-                        Text('Upload Documents', style: AppTextStyle.h4),
+                        Text('Trip Documents', style: AppTextStyle.h4),
                         10.height,
 
                         buildUploadDocumentWidget(
                           title: "Lorry Receipt",
                           fileList: lorryReceiptFiles,
                           uploadedFileList: uploadedLorryReceipts,
-                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                          uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'lorry_receipt'),
                           onDelete: (index) => setState(() {
                             uploadedLorryReceipts.removeAt(index);
                           }),
-                          cubit: cubit,
+                          cubit: widget.cubit,
                         ),
 
                         20.height,
@@ -158,11 +161,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           title: "E-Way Bill",
                           fileList: eWayBillFiles,
                           uploadedFileList: uploadedEWayBills,
-                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                          uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'eway_bill'),
                           onDelete: (index) => setState(() {
                             uploadedEWayBills.removeAt(index);
                           }),
-                          cubit: cubit,
+                          cubit: widget.cubit,
                         ),
 
                         20.height,
@@ -171,17 +174,20 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           title: "Material Invoice",
                           fileList: materialInvoiceFiles,
                           uploadedFileList: uploadedMaterialInvoices,
-                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                           uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'material_invoice'),
                           onDelete: (index) => setState(() {
                             uploadedMaterialInvoices.removeAt(index);
                           }),
-                          cubit: cubit,
+                          cubit: widget.cubit,
                         ),
                       ]
                       ,  20.height,
 
 
-                          if(widget.loadItem.data!.loadDocument!.isNotEmpty && widget.loadItem.data!.loadStatusId != 5)
+                          if (widget.loadItem.data?.loadDocument != null &&
+                        widget.loadItem.data!.loadDocument!.any((list) => list.isNotEmpty) &&
+                        widget.loadItem.data!.loadStatusId != 5)
+
                       // Download Documents
                      ...[
                        Text(context.appText.tripdocument, style: AppTextStyle.h4),
@@ -248,14 +254,42 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             ),
                            ],),     
 
-                              DriverLoadHelper.loadStatusButtonWidget(
-                                statusId: 8,
-                                onPressed: () {},
-                              ).paddingOnly(top: 20),
+                      BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+                            bloc: widget.cubit,
+                            listener: (context, state) {
+                              final loadStatusState = state.loadStatusUIState;
 
+                              if (loadStatusState is Success) {
+                                ToastMessages.success(message: "Load status updated successfully");
+                                widget.cubit.getLpLoadsById(
+                                  loadId: widget.loadItem.data?.loadId ?? '',
+                                );
+                              }
+                              if (loadStatusState is Error) {
+                                ToastMessages.success(message: "Failed to update load status");
+                                widget.cubit.getLpLoadsById(
+                                  loadId: widget.loadItem.data?.loadId ?? '',
+                                );
+                              }
+                            },
+                            child: DriverLoadHelper.loadStatusButtonWidget(
+                              statusId: widget.loadItem.data?.loadStatusId ?? 4,
+                              onPressed: () {
+                                final customerId = widget.loadItem.data?.customer?.customerId ?? '';
+                                final loadId = widget.loadItem.data?.loadId ?? '';
+                                final currentStatus =   widget.loadItem.data?.loadStatusId ?? 4;
 
-                          
-                            ],
+                                if (currentStatus < 7) {
+                                  widget.cubit.fupdateLoadStatus(
+                                    customerId: customerId,
+                                    loadid: loadId,
+                                    loadStatus: currentStatus + 1,
+                                  );
+                                }
+                              },
+                            ).paddingOnly(top: 5),
+                          )
+                          ],
                           ).paddingAll(16),
                         ).expand(),
           ],
@@ -282,7 +316,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
         if (url != null && url.isNotEmpty) {
           setState(() {
             uploadedFileList.add(url);
-            fileList.clear();
+            
           });
         }
       }
@@ -417,7 +451,7 @@ Widget _buildHeading({required String text}) {
 }
 
 // Build Load Entity
-  Widget _buildLoadEntityWidget() {
+  Widget _buildLoadEntityWidget({required String commodities,required String weight}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -430,7 +464,7 @@ Widget _buildHeading({required String text}) {
           children: [
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
-              "gh",
+              commodities,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -452,7 +486,7 @@ Widget _buildHeading({required String text}) {
             ),
 
             Text(
-              "34 Ton",
+              "${weight} Ton",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,

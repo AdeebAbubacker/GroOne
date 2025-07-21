@@ -90,12 +90,12 @@ class AddedDamageWidget extends StatelessWidget {
                   Text(description, style: AppTextStyle.body4GreyColor),
                   5.height,
                   if(isFileView)
-                    InkWell(
-                      onTap: (){
-                        Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
-                      },
-                      child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
-                    ),
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
+                    },
+                    child: Text(context.appText.viewFiles, style: AppTextStyle.body3PrimaryColor),
+                  ),
                 ],
               ),
             ),

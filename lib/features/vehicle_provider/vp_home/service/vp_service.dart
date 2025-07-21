@@ -149,14 +149,14 @@ class VpHomeService {
 
   Future<DirectionResponse?>  getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
      Dio _dio=locator<Dio>();
+
      try {
       return await _dio.get(
           ApiUrls.googleDirectionApi,
-
           queryParameters: {
             "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
             "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
-            "key":"AIzaSyAQW_V1fIJSXzYD5gjAh9wnztxLnE_pJ7E"
+            "key":ApiUrls.fetchedMapKEY
           }
       ).then((result) {
         if(result.statusCode==200){

@@ -89,7 +89,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   driverLong: 23,
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
                 buildFloatingWidget(context),
                 buildSimConsentWidget(loadItem),
               ],
@@ -181,18 +181,6 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   ],
                 ).expand(),
                  DriverLoadHelper.driverStatusWidget(loadItem.data?.loadStatusId.toString()),
-                //  Container(
-                //   decoration: commonContainerDecoration(
-                //     color: LpHomeHelper.getLoadStatusColor('3')
-                //   ),
-                //   width: 100,
-                //   child: Text(
-                //     LpHomeHelper.getLoadTypeDisplayText(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? ''),
-                //     style: AppTextStyle.body3.copyWith(
-                //       color: LpHomeHelper.getLoadStatusTextColor(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? '')
-                //     ),
-                //   ).center().paddingAll(4),
-                // ), 
                 ],
             )
           ],
