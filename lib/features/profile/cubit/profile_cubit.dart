@@ -60,7 +60,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
     emit(state.copyWith(profileDetailUIState: uiState));
   }
-  Future<void> fetchProfileDetail() async {
+  Future<void> fetchProfileDetail({Object? instance}) async {
+    CustomLog.debug(instance ?? this, "Profile Detail Api Call");
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<ProfileDetailModel>) {
@@ -87,6 +88,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setLogoutUIState(UIState.error(result.type));
     }
   }
+
+
 
 
 }
