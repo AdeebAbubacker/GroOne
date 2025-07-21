@@ -1,6 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
@@ -135,6 +136,29 @@ class AuthRepository {
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, userData.companyTypeId);
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
+
+      // Note: Profile response doesn't include token, so we don't store it here
+      // Token should be stored during initial login process
+      CustomLog.debug(this, "Save user from home saved successfully (no token in profile response)");
+      return const Success(true);
+    } catch (e) {
+      CustomLog.error(this, "Save Resident user info to preferences error", e);
+      return Error(GenericError());
+    }
+  }
+
+    /// Save user data from driver home
+  Future<Result<bool>> saveUserInfoFromDriverHome(DriverProfileDetailsModel user) async {
+    try {
+      final userData = user.data;
+      if (userData == null) {
+        CustomLog.error(this, "Save user failed", "User data is null");
+        return Error(LoginAttemptError());
+      }
+
+      // Save customer details basic user info
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.driverId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, 0);
 
       // Note: Profile response doesn't include token, so we don't store it here
       // Token should be stored during initial login process
