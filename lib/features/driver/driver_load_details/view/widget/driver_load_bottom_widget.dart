@@ -182,7 +182,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                       ,  20.height,
 
 
-                          if(widget.loadItem.data!.loadDocument!.isNotEmpty && widget.loadItem.data!.loadStatusId != 5)
+                          if (widget.loadItem.data?.loadDocument != null &&
+    widget.loadItem.data!.loadDocument!.any((list) => list.isNotEmpty) &&
+    widget.loadItem.data!.loadStatusId != 5)
+
                       // Download Documents
                      ...[
                        Text(context.appText.tripdocument, style: AppTextStyle.h4),
@@ -250,12 +253,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                            ],),     
 
                               DriverLoadHelper.loadStatusButtonWidget(
-                                statusId: 8,
+                                statusId: widget.loadItem.data?.loadStatusId ?? 4,
                                 onPressed: () {},
-                              ).paddingOnly(top: 20),
-
-
-                          
+                              ).paddingOnly(top: 5),
                             ],
                           ).paddingAll(16),
                         ).expand(),
