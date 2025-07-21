@@ -7,6 +7,7 @@ import '../../load_provider/lp_home/model/auto_complete_model.dart';
 import '../../load_provider/lp_home/model/verify_location.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
+import '../models/gps_parking_model.dart';
 
 class GpsService {
   final ApiService _apiService;
@@ -244,5 +245,29 @@ class GpsService {
 
     throw Exception("Invalid geofence data for area generation");
   }
+
+  Future<Result<List<GpsParkingModeModel>>> fetchParkingModeList(String token) async {
+    try {
+      final response = await _apiService.get(
+        'https://api.letsgro.co/api/v1/auth/parking_mode',
+        customHeaders: {'Authorization': token},
+      );
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => (data['data'] as List)
+              .map((e) => GpsParkingModeModel.fromJson(e))
+              .toList(),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch parking mode list", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
 }

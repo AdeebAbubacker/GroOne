@@ -5,6 +5,7 @@ import '../../load_provider/lp_home/model/auto_complete_model.dart';
 import '../../load_provider/lp_home/model/verify_location.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
+import '../models/gps_parking_model.dart';
 import '../service/gps_service.dart';
 import 'gps_login_repository.dart';
 
@@ -101,6 +102,17 @@ class GpsRepository {
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<List<GpsParkingModeModel>>> fetchParkingModes() async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Error(GenericError());
+      return await _service.fetchParkingModeList(token);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch parking modes", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

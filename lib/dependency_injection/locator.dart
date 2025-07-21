@@ -104,6 +104,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import '../features/gps_feature/cubit/get_vehicle_extra_info_cubit.dart';
 import '../features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
+import '../features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
 import '../features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
@@ -556,6 +557,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => GpsGeofenceMapCubit(locator<GpsRepository>()),
+    );
+    locator.registerLazySingleton(
+          () => GpsParkingModeCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsLoginCubit(locator<GpsLoginRepository>()),
