@@ -26,9 +26,15 @@ import '../bloc/kavach_order_bloc/kavach_order_event.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import '../helper/kavach_helper.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
+import '../../profile/cubit/profile_cubit.dart';
+import '../../login/repository/user_information_repository.dart';
 import 'kavach_support_screen.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
@@ -64,6 +70,8 @@ class KavachSummaryScreen extends StatefulWidget {
 
 class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   final kavachOrderBloc = locator<KavachOrderBloc>();
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
 
   double get totalPrice {
     double total = 0.0;
@@ -88,6 +96,43 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return totalPrice + totalGst;
   }
 
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "CompanyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "BlueMembershipID": "BLUE123456"
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
@@ -110,6 +155,20 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             subheading: ''
           );
           Future.delayed(Duration(seconds: 3),() {
+            // Clear address blocs before navigating back
+            try {
+              // Clear billing address bloc
+              final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+              billingBloc.add(ClearKavachBillingAddress());
+              
+              // Clear shipping address bloc
+              final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+              shippingBloc.add(ClearKavachShippingAddress());
+            } catch (e) {
+              // Handle any errors if blocs are not available
+              print('Error clearing address blocs: $e');
+            }
+            
             Navigator.of(context).popUntil((route) {
               if (route.settings.name == 'KavachOrderListScreen') {
                 if (route.navigator != null && route.navigator!.context.mounted) {
@@ -299,6 +358,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 createdEmpUserId = 52864; // This should be fetched based on referral code
               }
 
+              // Get real customer information
+              final customerInfo = await getCustomerInfo();
+
               final request = KavachOrderRequest(
                 orderSource: "MOBILE",
                 isOrderPaid: true, // Always true as per documentation
@@ -308,11 +370,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 categoryId: 1, // Always 1 for Products
                 shippingPersonIncharge: widget.shippingPersonInCharge,
                 shippingPersonContactNo: widget.shippingPersonContactNo,
-                customerInfo: {
-                  "CompanyName": "ABC Logistics Pvt Ltd",
-                  "contactNumber": "9876543210",
-                  "BlueMembershipID": "BLUE123456"
-                },
+                customerInfo: customerInfo,
                 createdEmpUserId: createdEmpUserId,
                 createdEmpId: createdEmpId, // Will be null if no referral code
                 orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
