@@ -21,9 +21,7 @@ class DriverLoadService {
     bool forceRefresh = false
   }) async {
     try {
-      // String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId&loadStatus=$status";
        String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
-       // String url = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/list?isDriver=true&driverId=315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c";  
        if (status != null && status != 3) {
         url += "&loadStatus=$status";
       }
@@ -58,18 +56,10 @@ class DriverLoadService {
   required int? loadStatus,
 }) async {
   try {
-    // final statusUpdateUrl = '${ApiUrls.updateLoadStatus}/$userId/$loadId';
-
-    // final result = await _apiService.put(
-    //   queryParams: {
-    //     'loadStatus': loadStatus,
-    //   },
-    //   statusUpdateUrl,
-    // );
  final statusUpdateUrl=ApiUrls.updateLoadStatus;
       final result = await _apiService.put(
         queryParams: {
-          "loadStatus":'6'
+          "loadStatus":loadStatus
         },
           '$statusUpdateUrl/$userId/$loadId');
     if (result is Success) {

@@ -188,7 +188,8 @@ class ApiUrls {
  /// Driver
  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
-  
+ static const String driverLoadById = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/";
+ 
 
   /// GPS Tracking
   static const String _gpsBase = "https://api.letsgro.co/api/v1/auth";

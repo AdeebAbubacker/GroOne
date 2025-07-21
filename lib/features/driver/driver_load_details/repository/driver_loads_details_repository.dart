@@ -42,7 +42,7 @@ class  DriverLoadsDetailsRepository {
 
   Future<Result<DriverLoadDetailsModel>> fetchDriversLoadById({required String loadId, bool forceRefresh = false}) async {
     try {
-      return service.fetchLoadsById(loadId: loadId,forceRefresh: forceRefresh);
+      return service.fetchLoadsById(driverId:await userRepo.getUserID() ?? "", loadId: loadId,forceRefresh: forceRefresh);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch loads by ID data", e);
       return Error(ErrorWithMessage(message: e.toString()));
