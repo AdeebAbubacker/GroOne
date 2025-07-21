@@ -170,7 +170,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
                     return _buildVehicleTile(
                       context,
                       vehicle.vehicleNumber ?? '',
-                      parkingEntry.parkingMode,
+                      parkingEntry,
                     );
                   },
                 ),
@@ -185,7 +185,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
   Widget _buildVehicleTile(
     BuildContext context,
     String vehicleNumber,
-    bool parkingMode,
+      GpsParkingModeModel parkingEntry,
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -205,10 +205,12 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Switch(
-              value: parkingMode,
+              value: parkingEntry.parkingMode,
               activeTrackColor: AppColors.activeGreenColor,
               activeColor: Colors.white,
-              onChanged: (val) {},
+              onChanged: (val) {
+                context.read<GpsParkingModeCubit>().toggleParkingMode(parkingEntry, val);
+              },
             ),
             IconButton(
               icon: Icon(Icons.schedule, color: AppColors.primaryColor),

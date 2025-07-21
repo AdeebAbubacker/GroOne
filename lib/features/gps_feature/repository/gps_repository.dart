@@ -117,4 +117,23 @@ class GpsRepository {
     }
   }
 
+  Future<Result<void>> updateParkingMode({
+    required int deviceId,
+    required bool parkingMode,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) return Error(GenericError());
+      return await _service.updateParkingMode(
+        userId: '163',
+        deviceId: deviceId,
+        parkingMode: parkingMode,
+        token: token,
+      );
+    } catch (e) {
+      CustomLog.error(this, "Repository: updateParkingMode failed", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 }

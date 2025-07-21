@@ -17,7 +17,8 @@ import 'multi_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
-  await FirebaseService.initializeSecondaryApp();
+  ///todo(Ajit, Ranjith) - getting error in IOS as it is not initialized properly
+  // await FirebaseService.initializeSecondaryApp();
   runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
 }
 

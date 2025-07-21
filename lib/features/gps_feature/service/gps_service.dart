@@ -269,5 +269,33 @@ class GpsService {
     }
   }
 
+  Future<Result<void>> updateParkingMode({
+    required String userId,
+    required int deviceId,
+    required bool parkingMode,
+    required String token,
+  }) async {
+    try {
+      final response = await _apiService.put(
+        'https://api.letsgro.co/api/v1/auth/parking_mode/$userId',
+        body: {
+          "parking_mode": parkingMode,
+          "device_id": deviceId,
+        },
+        customHeaders: {'Authorization': token},
+      );
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(response.value, (_) => null);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to update parking mode", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 
 }

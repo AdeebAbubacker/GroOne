@@ -143,6 +143,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
+        Map<String, String>? customHeaders
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -156,6 +157,7 @@ class ApiService {
       this,
       "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString",
     );
+    final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -166,7 +168,7 @@ class ApiService {
         data: body,
         queryParameters: queryParams,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),

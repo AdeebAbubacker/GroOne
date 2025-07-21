@@ -20,4 +20,35 @@ class GpsParkingModeCubit extends Cubit<GpsParkingModeState> {
       emit(GpsParkingModeError(result.type.toString()));
     }
   }
+
+  Future<void> toggleParkingMode(GpsParkingModeModel model, bool newValue) async {
+    final currentState = state;
+    emit(GpsParkingModeLoading());
+
+    final result = await _repository.updateParkingMode(
+      deviceId: model.deviceId,
+      parkingMode: newValue,
+    );
+
+    if (result is Success<void>) {
+      if (currentState is GpsParkingModeLoaded) {
+        final updatedList = currentState.modes.map((e) {
+          if (e.deviceId == model.deviceId) {
+            return GpsParkingModeModel(
+              id: e.id,
+              deviceId: e.deviceId,
+              parkingMode: newValue,
+            );
+          }
+          return e;
+        }).toList();
+        emit(GpsParkingModeLoaded(updatedList));
+      } else {
+        await loadParkingModes(); // fallback reload
+      }
+    } else {
+      emit(GpsParkingModeError("Failed to update parking mode"));
+    }
+  }
+
 }
