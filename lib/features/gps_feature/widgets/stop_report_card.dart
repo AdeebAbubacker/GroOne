@@ -1,12 +1,10 @@
-// lib/features/gps_feature/presentation/widgets/stop_report_card.dart
+// lib/features/gps_feature/widgets/stop_report_card.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 
-import '../model/report_model.dart';
+import '../../../utils/app_colors.dart';
 import '../model/address_model.dart';
-import '../cubit/report_cubit.dart';
+import '../model/report_model.dart';
 import 'address_skeleton.dart';
 
 class StopReportCard extends StatelessWidget {
@@ -38,41 +36,26 @@ class StopReportCard extends StatelessWidget {
   }
 
   String _getDisplayAddress() {
-    print("🌍 UI: Getting display address for stop location");
-    print("🌍 UI: Stop Device ID: ${report.deviceId}");
-    print("🌍 UI: Stop Start Time: ${report.startTime}");
-    print("🌍 UI: AddressResponse available: ${addressResponse != null}");
-    
     // If we have real addresses from reverse geocoding, use them
     if (addressResponse != null) {
       final realAddress = addressResponse!.startAddress;
-      print("🌍 UI: Real address from response: '$realAddress'");
       if (realAddress != "No Address") {
-        print("🌍 UI: Using real address: $realAddress");
         return realAddress;
-      } else {
-        print("🌍 UI: Real address is 'No Address', falling back to coordinates");
       }
-    } else {
-      print("🌍 UI: No AddressResponse available, falling back to coordinates or original address");
     }
     
     // Fallback to original address from API if it looks like a real address
     if (report.address.isNotEmpty && !report.address.contains(',')) {
-      print("🌍 UI: Using original address from API: ${report.address}");
       return report.address;
     }
     
     // Final fallback to formatted coordinates
     // If coordinates are 0,0 (invalid GPS), show dash
     if (report.latitude == 0.0 && report.longitude == 0.0) {
-      print("🌍 UI: Coordinates are 0,0 (invalid GPS), showing dash");
       return "-";
     }
     
-    final formatted = "Lat: ${report.latitude.toStringAsFixed(6)}\nLng: ${report.longitude.toStringAsFixed(6)}";
-    print("🌍 UI: Using formatted coordinates: $formatted");
-    return formatted;
+    return "Lat: ${report.latitude.toStringAsFixed(6)}\nLng: ${report.longitude.toStringAsFixed(6)}";
   }
 
   @override

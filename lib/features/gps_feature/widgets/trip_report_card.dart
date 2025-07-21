@@ -1,12 +1,10 @@
-// lib/features/gps_feature/presentation/widgets/trip_report_card.dart
+// lib/features/gps_feature/widgets/trip_report_card.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
 
-import '../model/report_model.dart';
+import '../../../utils/app_colors.dart';
 import '../model/address_model.dart';
-import '../cubit/report_cubit.dart';
+import '../model/report_model.dart';
 import 'address_skeleton.dart';
 
 class TripReportCard extends StatelessWidget {
@@ -71,34 +69,21 @@ class TripReportCard extends StatelessWidget {
       print("🎨 Color: YELLOW (7.5 < score < 8.75)");
       return const Color(0xFFFFC107); // Yellow
     } else {
-      print("🎨 Color: WHITE (fallback)");
       return Colors.white; // White
     }
   }
 
   String _getDisplayAddress({required bool isStart}) {
-    print("🌍 UI: Getting display address for ${isStart ? 'start' : 'end'} location");
-    print("🌍 UI: Trip ID: ${report.startPositionId}");
-    print("🌍 UI: Device ID: ${report.deviceId}");
-    print("🌍 UI: AddressResponse available: ${addressResponse != null}");
-    
     // If we have real addresses from reverse geocoding, use them
     if (addressResponse != null) {
       final realAddress = isStart ? addressResponse!.startAddress : addressResponse!.endAddress;
-      print("🌍 UI: Real address from response: '$realAddress'");
       if (realAddress != "No Address") {
-        print("🌍 UI: Using real address: $realAddress");
         return realAddress;
-      } else {
-        print("🌍 UI: Real address is 'No Address', falling back to coordinates");
       }
-    } else {
-      print("🌍 UI: No AddressResponse available, falling back to coordinates");
     }
     
     // Fallback to formatted coordinates from the report
     final rawAddress = isStart ? report.startAddress : report.endAddress;
-    print("🌍 UI: Raw address from report: '$rawAddress'");
     
     if (rawAddress.contains(',')) {
       final parts = rawAddress.split(',');
@@ -108,17 +93,13 @@ class TripReportCard extends StatelessWidget {
         
         // If coordinates are 0,0 (invalid GPS), show dash
         if (lat == 0.0 && lng == 0.0) {
-          print("🌍 UI: Coordinates are 0,0 (invalid GPS), showing dash");
           return "-";
         }
         
-        final formatted = "Lat: ${lat.toStringAsFixed(6)}\nLng: ${lng.toStringAsFixed(6)}";
-        print("🌍 UI: Using formatted coordinates: $formatted");
-        return formatted;
+        return "Lat: ${lat.toStringAsFixed(6)}\nLng: ${lng.toStringAsFixed(6)}";
       }
     }
     
-    print("🌍 UI: Using raw address as fallback: $rawAddress");
     return rawAddress;
   }
 

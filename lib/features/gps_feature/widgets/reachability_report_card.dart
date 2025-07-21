@@ -1,10 +1,10 @@
-// lib/features/gps_feature/presentation/widgets/reachability_report_card.dart
+// lib/features/gps_feature/widgets/reachability_report_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 
-import '../model/report_model.dart';
+import '../../../utils/app_colors.dart';
 import '../model/address_model.dart';
+import '../model/report_model.dart';
 import 'address_skeleton.dart';
 
 class ReachabilityReportCard extends StatelessWidget {
@@ -40,49 +40,32 @@ class ReachabilityReportCard extends StatelessWidget {
   }
 
   String _getDisplayAddress() {
-    print("🌍 UI: Getting display address for reachability location");
-    print("🌍 UI: Reachability ID: ${report.id}");
-    print("🌍 UI: Device ID: ${report.deviceId}");
-    print("🌍 UI: AddressResponse available: ${addressResponse != null}");
-    
     // First priority: Real address fetched from server using lat/lng
     if (addressResponse != null) {
       final realAddress = addressResponse!.address;
-      print("🌍 UI: Real address from reverse geocoding: '$realAddress'");
       if (realAddress != "No Address") {
-        print("🌍 UI: Using real reverse geocoded address: $realAddress");
-        return realAddress;
-      } else {
         return realAddress;
       }
-    } else {
-      print("🌍 UI: No AddressResponse available, falling back to API fields");
     }
     
     // Second priority: Addresses from API response
     if (report.setAddress.isNotEmpty && report.setAddress != "No Address") {
-      print("🌍 UI: Using setAddress from API: ${report.setAddress}");
       return report.setAddress;
     }
     if (report.endAddress.isNotEmpty && report.endAddress != "No Address") {
-      print("🌍 UI: Using endAddress from API: ${report.endAddress}");
       return report.endAddress;
     }
     
     // Third priority: Geofence name
     if (report.geofenceName.isNotEmpty) {
-      print("🌍 UI: Using geofence name: ${report.geofenceName}");
       return report.geofenceName;
     }
     
     // Final fallback: Coordinates
     if (report.lat != 0.0 && report.lng != 0.0) {
-      final formatted = "Lat: ${report.lat.toStringAsFixed(6)}, Lng: ${report.lng.toStringAsFixed(6)}";
-      print("🌍 UI: Using formatted coordinates: $formatted");
-      return formatted;
+      return "Lat: ${report.lat.toStringAsFixed(6)}, Lng: ${report.lng.toStringAsFixed(6)}";
     }
     
-    print("🌍 UI: No location data available");
     return "Location not available";
   }
 

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../utils/app_colors.dart';
 import '../model/report_model.dart';
 
 class DailyDistanceReportCard extends StatelessWidget {
@@ -73,12 +74,6 @@ class DailyDistanceReportCard extends StatelessWidget {
   }
 
   Widget _buildDataRow(DailyDistanceItem item) {
-    // Debug logging to see what values we're getting
-    print("🔍 DailyDistanceItem debug:");
-    print("  - Date: ${item.date}");
-    print("  - Distance (raw): ${item.distance}");
-    print("  - Distance (formatted): ${item.distance.toStringAsFixed(0)}");
-    
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
       decoration: BoxDecoration(

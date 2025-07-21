@@ -31,10 +31,8 @@ class OtherReportsWebViewScreen extends StatelessWidget {
       const String baseUrl = 'https://track.letsgro.co/';
       final String url = '${baseUrl}v1/auth/login?url=/app/report&basic=$basic';
       
-      print('🌐 Opening Other Reports URL: $url');
       return url;
     } catch (e) {
-      print('🌐 Error building URL: $e');
       rethrow;
     }
   }
@@ -86,16 +84,15 @@ class OtherReportsWebViewScreen extends StatelessWidget {
       ..setNavigationDelegate(
         NavigationDelegate(
           onPageStarted: (String url) {
-            print('🌐 Page started loading: $url');
+            // Page started loading
           },
           onPageFinished: (String url) {
-            print('🌐 Page finished loading: $url');
+            // Page finished loading
           },
           onWebResourceError: (WebResourceError error) {
-            print('🌐 WebView error: ${error.description}');
+            // Handle error
           },
           onNavigationRequest: (NavigationRequest request) {
-            print('🌐 Navigation request: ${request.url}');
             return NavigationDecision.navigate;
           },
         ),

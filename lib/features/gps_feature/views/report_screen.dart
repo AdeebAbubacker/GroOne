@@ -1,21 +1,20 @@
-// lib/features/gps_feature/presentation/gps_report_screen.dart
+// lib/features/gps_feature/views/report_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:intl/intl.dart';
+
 import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../utils/app_colors.dart';
 import '../cubit/report_cubit.dart';
+import '../model/address_model.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/report_model.dart';
-import '../model/address_model.dart';
-import '../repository/gps_login_repository.dart';
+import '../widgets/daily_distance_report_card.dart';
+import '../widgets/reachability_report_card.dart';
 import '../widgets/stop_report_card.dart';
 import '../widgets/summary_report_card.dart';
 import '../widgets/trip_report_card.dart';
-import '../widgets/reachability_report_card.dart';
-import '../widgets/daily_distance_report_card.dart';
-import '../widgets/address_skeleton.dart';
 import 'other_reports_webview_screen.dart';
 
 class GpsReportScreen extends StatelessWidget {
@@ -461,66 +460,7 @@ class GpsReportScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: state.reports.length,
                   itemBuilder: (context, index) {
-                final item = state.reports[index];
-                // Render different card types based on current report type
-                switch (state.currentReportType) {
-                  case ReportType.stops:
-                    final stopReport = item as StopReport;
-                    final stopId = "${stopReport.deviceId}_${stopReport.startTime}";
-                    final stopAddressResponse = context.read<GpsReportCubit>().getAddressForStop(stopId);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: StopReportCard(
-                        report: stopReport,
-                        // Convert StopAddressResponse to AddressResponse format for compatibility
-                        addressResponse: stopAddressResponse != null 
-                          ? AddressResponse(
-                              positionId: 0, // Not used for stops
-                              deviceId: stopAddressResponse.deviceId,
-                              startAddress: stopAddressResponse.address,
-                              endAddress: stopAddressResponse.address, // Same address for stops
-                            )
-                          : null,
-                      ),
-                    );
-                  case ReportType.trips:
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: TripReportCard(
-                        report: item as TripReport,
-                        addressResponse: context.read<GpsReportCubit>().getAddressForTrip(item.startPositionId),
-                      ),
-                    );
-                  case ReportType.daily:
-                    final summaryReport = item as SummaryReport;
-                    final summaryId = "${summaryReport.deviceId}_${summaryReport.startTime}";
-                    final summaryAddressResponse = context.read<GpsReportCubit>().getAddressForSummary(summaryId);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: SummaryReportCard(
-                        report: summaryReport,
-                        addressResponse: summaryAddressResponse,
-                      ),
-                    );
-                  case ReportType.dailyKm:
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: DailyDistanceReportCard(report: item as DailyDistanceReport),
-                    );
-                  case ReportType.reachability:
-                    final reachabilityReport = item as ReachabilityReport;
-                    final reachabilityId = reachabilityReport.id.toString();
-                    final reachabilityAddressResponse = context.read<GpsReportCubit>().getAddressForReachability(reachabilityId);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ReachabilityReportCard(
-                        report: reachabilityReport,
-                        addressResponse: reachabilityAddressResponse,
-                      ),
-                    );
-                                        default:
-                        return const SizedBox.shrink();
-                    }
+                    return _buildReportCard(context, state, index);
                   },
                 ),
               ],
@@ -536,7 +476,91 @@ class GpsReportScreen extends StatelessWidget {
       ),
     );
   }
-  // Helper method to get appropriate icon for empty states
+
+  Widget _buildReportCard(BuildContext context, GpsReportState state, int index) {
+    final item = state.reports[index];
+    
+    switch (state.currentReportType) {
+      case ReportType.stops:
+        return _buildStopReportCard(context, item as StopReport);
+      case ReportType.trips:
+        return _buildTripReportCard(context, item as TripReport);
+      case ReportType.daily:
+        return _buildSummaryReportCard(context, item as SummaryReport);
+      case ReportType.dailyKm:
+        return _buildDailyDistanceReportCard(item as DailyDistanceReport);
+      case ReportType.reachability:
+        return _buildReachabilityReportCard(context, item as ReachabilityReport);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildStopReportCard(BuildContext context, StopReport stopReport) {
+    final stopId = "${stopReport.deviceId}_${stopReport.startTime}";
+    final stopAddressResponse = context.read<GpsReportCubit>().getAddressForStop(stopId);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: StopReportCard(
+        report: stopReport,
+        addressResponse: stopAddressResponse != null 
+          ? AddressResponse(
+              positionId: 0,
+              deviceId: stopAddressResponse.deviceId,
+              startAddress: stopAddressResponse.address,
+              endAddress: stopAddressResponse.address,
+            )
+          : null,
+      ),
+    );
+  }
+
+  Widget _buildTripReportCard(BuildContext context, TripReport tripReport) {
+    final addressResponse = context.read<GpsReportCubit>().getAddressForTrip(tripReport.startPositionId);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: TripReportCard(
+        report: tripReport,
+        addressResponse: addressResponse,
+      ),
+    );
+  }
+
+  Widget _buildSummaryReportCard(BuildContext context, SummaryReport summaryReport) {
+    final summaryId = "${summaryReport.deviceId}_${summaryReport.startTime}";
+    final summaryAddressResponse = context.read<GpsReportCubit>().getAddressForSummary(summaryId);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: SummaryReportCard(
+        report: summaryReport,
+        addressResponse: summaryAddressResponse,
+      ),
+    );
+  }
+
+  Widget _buildDailyDistanceReportCard(DailyDistanceReport dailyDistanceReport) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DailyDistanceReportCard(report: dailyDistanceReport),
+    );
+  }
+
+  Widget _buildReachabilityReportCard(BuildContext context, ReachabilityReport reachabilityReport) {
+    final reachabilityId = reachabilityReport.id.toString();
+    final reachabilityAddressResponse = context.read<GpsReportCubit>().getAddressForReachability(reachabilityId);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ReachabilityReportCard(
+        report: reachabilityReport,
+        addressResponse: reachabilityAddressResponse,
+      ),
+    );
+  }
+
   IconData _getEmptyStateIcon(ReportType? reportType) {
     switch (reportType) {
       case ReportType.reachability:
@@ -555,7 +579,6 @@ class GpsReportScreen extends StatelessWidget {
   }
 }
 
-// Reusable Selection Sheet Widget
 class SelectionSheet<T> extends StatelessWidget {
   final String title;
   final List<T> items;
@@ -604,5 +627,4 @@ class SelectionSheet<T> extends StatelessWidget {
         ],
       ),
     );
-  }
-}
+  }}
