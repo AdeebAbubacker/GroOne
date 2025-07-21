@@ -40,7 +40,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   }
 
   void initFunction() => frameCallback(() async {
-    await profileCubit.fetchProfileDetail();
+    await profileCubit.fetchProfileDetail(instance: this);
     profileCubit.fetchUserRole();
     setState(() {});
   });

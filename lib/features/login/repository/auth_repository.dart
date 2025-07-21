@@ -1,6 +1,7 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
@@ -20,6 +21,7 @@ class AuthRepository {
       final userData = user;
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
+      await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, userData.kongToken?.accessToken.toString() ?? '',);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.kongToken?.refreshToken.toString() ?? '',);
       CustomLog.debug(this, "Save user from login saved successfully");
 
@@ -53,6 +55,7 @@ class AuthRepository {
 
       // Get the access token from kongToken if available, otherwise use the regular token
       String accessToken = '';
+      String refreshToken = '';
       print("🔐 Token selection process:");
       print("🔐 KongToken is null: ${userData.kongToken == null}");
 
@@ -67,6 +70,7 @@ class AuthRepository {
       }
       if (userData.kongToken != null && userData.kongToken!.accessToken.isNotEmpty) {
         accessToken = userData.kongToken!.accessToken;
+        refreshToken = userData.kongToken!.refreshToken;
         print("🔐 SELECTED: access_token from kongToken: '$accessToken'");
         CustomLog.debug(this, "🔐 SELECTED: access_token from kongToken: '$accessToken'");
       } else {
@@ -83,18 +87,20 @@ class AuthRepository {
 
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
-      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, accessToken);
+      await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
+      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
 
       // Verify token was saved
-      String? savedToken = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
+      String? savedToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
       CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
-      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, accessToken);
+      await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
+      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
 
       CustomLog.debug(this, "🔐 Login successful - Access Token stored: ${accessToken.isNotEmpty ? 'Yes' : 'No'}");
       CustomLog.debug(this, "🔐 Stored token value: '$accessToken'");
-      
+
       // Verify token was stored by reading it back
-      String? storedToken = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
+      String? storedToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
       print("🔐 Verification - Read back stored token: '$storedToken'");
       print("🔐 Verification - Token matches: ${storedToken == accessToken}");
 
@@ -141,6 +147,29 @@ class AuthRepository {
     }
   }
 
+    /// Save user data from driver home
+  Future<Result<bool>> saveUserInfoFromDriverHome(DriverProfileDetailsModel user) async {
+    try {
+      final userData = user.data;
+      if (userData == null) {
+        CustomLog.error(this, "Save user failed", "User data is null");
+        return Error(LoginAttemptError());
+      }
+
+      // Save customer details basic user info
+      await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.driverId.toString());
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, 0);
+
+      // Note: Profile response doesn't include token, so we don't store it here
+      // Token should be stored during initial login process
+      CustomLog.debug(this, "Save user from home saved successfully (no token in profile response)");
+      return const Success(true);
+    } catch (e) {
+      CustomLog.error(this, "Save Resident user info to preferences error", e);
+      return Error(GenericError());
+    }
+  }
+
 
 
   /// Save user data from create account
@@ -172,7 +201,7 @@ class AuthRepository {
   /// Check if user has valid authentication token
   Future<bool> hasValidToken() async {
     try {
-      String? token = await _securedSharedPref.get(AppString.sessionKey.refreshToken);
+      String? token = await _securedSharedPref.get(AppString.sessionKey.accessToken);
       return token != null && token.isNotEmpty;
     } catch (e) {
       CustomLog.error(this, "Error checking token validity", e);
@@ -215,7 +244,8 @@ class AuthRepository {
   Future<void> _clearAuthData() async {
     await _securedSharedPref.deleteKey(AppString.sessionKey.userId);
     await _securedSharedPref.deleteKey(AppString.sessionKey.userRole);
-    await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.accessToken);
+    // await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
     await _securedSharedPref.deleteKey(AppString.sessionKey.companyTypeId);
     await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
     await _securedSharedPref.reset();
@@ -239,7 +269,7 @@ class AuthRepository {
   Future<Result<bool>> forceReLogin() async {
     try {
       // Clear only the token, keep user data
-      await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
+      await _securedSharedPref.deleteKey(AppString.sessionKey.accessToken);
       CustomLog.debug(this, "🔐 Forced re-login - Token cleared, user data preserved");
       return const Success(true);
     } catch (e) {

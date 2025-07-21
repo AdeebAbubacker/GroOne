@@ -369,6 +369,160 @@ class GpsKycCheckModel {
   }
 }
 
+/// New GPS KYC Upload Request Model (for the new API)
+class GpsKycUploadRequest {
+  final String aadhar;
+  final bool isAadhar;
+  final String? pan;
+  final String? panDocLink;
+  final bool? isPan;
+
+  const GpsKycUploadRequest({
+    required this.aadhar,
+    required this.isAadhar,
+    this.pan,
+    this.panDocLink,
+    this.isPan,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = {
+      'aadhar': aadhar,
+      'isAadhar': isAadhar,
+    };
+
+    // Only include PAN fields if PAN is provided
+    if (pan != null && pan!.isNotEmpty) {
+      json['pan'] = pan;
+      json['isPan'] = isPan ?? true;
+      if (panDocLink != null && panDocLink!.isNotEmpty) {
+        json['panDocLink'] = panDocLink;
+      }
+    }
+
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+  }
+}
+
+/// New GPS KYC Check Response Model (for the new API)
+class GpsKycCheckResponseModel {
+  final String customerId;
+  final GpsKycDocuments? documents;
+  final int isKyc;
+
+  const GpsKycCheckResponseModel({
+    required this.customerId,
+    this.documents,
+    required this.isKyc,
+  });
+
+  factory GpsKycCheckResponseModel.fromJson(Map<String, dynamic> json) {
+    return GpsKycCheckResponseModel(
+      customerId: json['customerId'] ?? '',
+      documents: json['documents'] != null 
+          ? GpsKycDocuments.fromJson(json['documents']) 
+          : null,
+      isKyc: json['isKyc'] ?? 0,
+    );
+  }
+
+  /// Check if KYC documents exist
+  bool get hasKycDocuments {
+    // Check if isKyc is 1 AND documents exist AND Aadhaar has a proper number
+    return isKyc == 1 && 
+           documents != null && 
+           documents!.aadhar != null && 
+           documents!.aadhar!.isNotEmpty &&
+           documents!.isAadhar == true;
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycCheckResponseModel{customerId: $customerId, documents: $documents, isKyc: $isKyc}';
+  }
+}
+
+/// GPS KYC Documents Model
+class GpsKycDocuments {
+  final String? aadhar;
+  final bool? isAadhar;
+  final String? pan;
+  final String? panDocLink;
+  final bool? isPan;
+  final String? gstin;
+  final String? gstinDocLink;
+  final bool? isGstin;
+  final String? tan;
+  final String? tanDocLink;
+  final bool? isTan;
+  final String? chequeDocLink;
+  final String? tdsDocLink;
+
+  const GpsKycDocuments({
+    this.aadhar,
+    this.isAadhar,
+    this.pan,
+    this.panDocLink,
+    this.isPan,
+    this.gstin,
+    this.gstinDocLink,
+    this.isGstin,
+    this.tan,
+    this.tanDocLink,
+    this.isTan,
+    this.chequeDocLink,
+    this.tdsDocLink,
+  });
+
+  factory GpsKycDocuments.fromJson(Map<String, dynamic> json) {
+    return GpsKycDocuments(
+      aadhar: json['aadhar'],
+      isAadhar: json['isAadhar'],
+      pan: json['pan'],
+      panDocLink: json['panDocLink'],
+      isPan: json['isPan'],
+      gstin: json['gstin'],
+      gstinDocLink: json['gstinDocLink'],
+      isGstin: json['isGstin'],
+      tan: json['tan'],
+      tanDocLink: json['tanDocLink'],
+      isTan: json['isTan'],
+      chequeDocLink: json['chequeDocLink'],
+      tdsDocLink: json['tdsDocLink'],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycDocuments{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, gstin: $gstin, gstinDocLink: $gstinDocLink, isGstin: $isGstin, tan: $tan, tanDocLink: $tanDocLink, isTan: $isTan, chequeDocLink: $chequeDocLink, tdsDocLink: $tdsDocLink}';
+  }
+}
+
+/// New GPS KYC Upload Response Model
+class GpsKycUploadResponseModel {
+  final String message;
+
+  const GpsKycUploadResponseModel({
+    required this.message,
+  });
+
+  factory GpsKycUploadResponseModel.fromJson(Map<String, dynamic> json) {
+    return GpsKycUploadResponseModel(
+      message: json['message'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycUploadResponseModel{message: $message}';
+  }
+}
+
 // ==================== GPS Order Creation API Requests ====================
 
 /// GPS Order Vehicle Model

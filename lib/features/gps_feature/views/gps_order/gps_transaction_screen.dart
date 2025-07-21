@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_colors.dart';
 import '../../../../utils/app_text_style.dart';
@@ -73,7 +74,7 @@ class _GpsTransactionScreenState extends State<GpsTransactionScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackgroundColor,
       appBar: CommonAppBar(
-        title: 'Transactions',
+        title: context.appText.transactions,
         centreTile: true,
         isLeading: true,
       ),
@@ -153,7 +154,7 @@ class _GpsTransactionScreenState extends State<GpsTransactionScreen> {
           // Transaction List
           Expanded(
             child: filtered.isEmpty
-                ? Center(child: Text('No transactions found', style: AppTextStyle.h5))
+                ? Center(child: Text(context.appText.noTransactionsFound, style: AppTextStyle.h5))
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     itemCount: filtered.length,
@@ -269,7 +270,7 @@ class _FilterSheet extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Filter', style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.bold)),
+                Text(context.appText.filter, style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.bold)),
                 IconButton(
                   icon: SvgPicture.asset(AppIcons.svg.clearOutline, width: 22, height: 22, colorFilter: AppColors.svg(AppColors.iconColor)),
                   onPressed: () => Navigator.pop(context),
@@ -277,14 +278,14 @@ class _FilterSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            Text('Transaction Type', style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
+            Text(context.appText.transactionType, style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
             const SizedBox(height: 6),
             DropdownButtonFormField<String>(
-              value: 'All Transaction',
-              items: const [
-                DropdownMenuItem(value: 'All Transaction', child: Text('All Transaction')),
-                DropdownMenuItem(value: 'Renewal', child: Text('Renewal')),
-                DropdownMenuItem(value: 'Purchase', child: Text('Purchase')),
+              value: context.appText.allTransaction,
+              items: [
+                DropdownMenuItem(value: context.appText.allTransaction, child: Text(context.appText.allTransaction)),
+                DropdownMenuItem(value: context.appText.renewal, child: Text(context.appText.renewal)),
+                DropdownMenuItem(value: context.appText.purchase, child: Text(context.appText.purchase)),
               ],
               onChanged: (_) {},
               decoration: InputDecoration(
@@ -297,13 +298,13 @@ class _FilterSheet extends StatelessWidget {
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
             ),
             const SizedBox(height: 14),
-            Text('Status', style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
+            Text(context.appText.status, style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
             const SizedBox(height: 6),
             DropdownButtonFormField<String>(
-              value: 'Success',
-              items: const [
-                DropdownMenuItem(value: 'Success', child: Text('Success')),
-                DropdownMenuItem(value: 'Failed', child: Text('Failed')),
+              value: context.appText.success,
+              items: [
+                DropdownMenuItem(value: context.appText.success, child: Text(context.appText.success)),
+                DropdownMenuItem(value: context.appText.failed, child: Text(context.appText.failed)),
               ],
               onChanged: (_) {},
               decoration: InputDecoration(
@@ -316,7 +317,7 @@ class _FilterSheet extends StatelessWidget {
               icon: const Icon(Icons.keyboard_arrow_down_rounded),
             ),
             const SizedBox(height: 14),
-            Text('From Date', style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
+            Text(context.appText.fromDate, style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
             const SizedBox(height: 6),
             TextFormField(
               initialValue: '15/04/2022',
@@ -335,7 +336,7 @@ class _FilterSheet extends StatelessWidget {
               style: AppTextStyle.textBlackColor14w400,
             ),
             const SizedBox(height: 14),
-            Text('To Date', style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
+            Text(context.appText.toDate, style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w500)),
             const SizedBox(height: 6),
             TextFormField(
               initialValue: '15/04/2022',
@@ -356,7 +357,7 @@ class _FilterSheet extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: AppButtonStyle.outline,
-                    child: Text('Download As PDF', style: AppTextStyle.primaryColor16w400),
+                    child: Text(context.appText.downloadAsPdf, style: AppTextStyle.primaryColor16w400),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -364,7 +365,7 @@ class _FilterSheet extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {},
                     style: AppButtonStyle.primary,
-                    child: Text('Show Transactions', style: AppTextStyle.whiteColor14w400),
+                    child: Text(context.appText.showTransactions, style: AppTextStyle.whiteColor14w400),
                   ),
                 ),
               ],

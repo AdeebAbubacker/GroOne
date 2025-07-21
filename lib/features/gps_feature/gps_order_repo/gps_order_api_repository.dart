@@ -1,4 +1,4 @@
-import 'dart:io';
+
 
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
@@ -119,11 +119,24 @@ class GpsOrderApiRepository {
   }
 
   /// Check GPS KYC Documents Repository
-  Future<Result<GpsKycCheckModel>> checkKycDocuments(String customerId) async {
+  Future<Result<GpsKycCheckResponseModel>> checkKycDocuments(String customerId) async {
     try {
       return await _gpsOrderApiService.checkKycDocuments(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to check GPS KYC documents", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Upload GPS KYC Documents Repository (new API)
+  Future<Result<GpsKycUploadResponseModel>> uploadKycDocuments(
+      GpsKycUploadRequest request,
+      String customerId,
+      ) async {
+    try {
+      return await _gpsOrderApiService.uploadKycDocuments(request, customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to upload GPS KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -179,6 +192,18 @@ class GpsOrderApiRepository {
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch users in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches available stock for a specific GPS product
+  Future<Result<int>> fetchAvailableStock({
+    required String productId,
+  }) async {
+    try {
+      return await _gpsOrderApiService.fetchAvailableStock(productId: productId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch available stock in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

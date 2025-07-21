@@ -89,12 +89,12 @@ class _GpsAddAddressBottomSheetState
               children: [
                 AppTextField(
                   controller: customerNameController,
-                  labelText: 'Address Name',
+                  labelText: context.appText.addressName,
                   maxLength: 50,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
                   ],
-                  validator: (value) => Validator.fieldRequired(value, fieldName: 'Customer Name'),
+                  validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.name),
                 ),
                 10.height,
                 AppTextField(
@@ -183,7 +183,7 @@ class _GpsAddAddressBottomSheetState
                         final customerId = await userRepository.getUserID();
                         
                         if (customerId == null || customerId.isEmpty) {
-                          ToastMessages.error(message: 'Unable to get customer ID');
+                          ToastMessages.error(message: context.appText.unableToGetCustomerId);
                           return;
                         }
 
@@ -200,40 +200,21 @@ class _GpsAddAddressBottomSheetState
                           gstIn: gstNoController.text.trim(),
                         );
 
-                        print('🔍 GPS Add Address Request:');
-                        print('  - Customer ID: $customerId');
-                        print('  - Address Name: ${customerNameController.text.trim()}');
-                        print('  - Address: ${addressController.text.trim()}');
-                        print('  - City: ${cityController.text.trim()}');
-                        print('  - State: ${stateController.text.trim()}');
-                        print('  - Pincode: ${pinCodeController.text.trim()}');
-                        print('  - Address Type: ${request.addrType}');
-                        print('  - GST: ${gstNoController.text.trim()}');
-
                         final result = await _repository.addGpsAddress(request);
-                        
-                        print('🔍 GPS Add Address API Response:');
-                        print('  - Result type: ${result.runtimeType}');
+                    
                         
                         if (result is Success) {
                           final response = (result as Success<GpsAddAddressResponse>).value;
-                          print('  - Success response: $response');
-                          print('  - Response success: ${response.success}');
-                          print('  - Response message: ${response.message}');
-                          print('  - Response data: ${response.data}');
-                          print('  - Response data ID: ${response.data?.id}');
-                          print('  - Response data address name: ${response.data?.addressName}');
+                        
                           Navigator.of(context).pop();
                           ToastMessages.success(message: context.appText.addressAddedSuccess);
                         } else if (result is Error<GpsAddAddressResponse>) {
-                          print('  - Error response: ${result.type}');
-                          print('  - Error type: ${result.type.runtimeType}');
                           if (result.type is ErrorWithMessage) {
                             print('  - Error message: ${(result.type as ErrorWithMessage).message}');
                           }
                           final errorMessage = result.type is ErrorWithMessage
                               ? (result.type as ErrorWithMessage).message
-                              : 'Failed to add address';
+                              : context.appText.failedToAddAddress;
                           ToastMessages.error(message: errorMessage);
                         }
                       },

@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 
+import '../../gps_order_request/gps_order_api_request.dart';
+
 class GpsUploadDocumentState extends Equatable {
   final String aadhaar;
   final bool isAadhaarValid;
@@ -18,7 +20,7 @@ class GpsUploadDocumentState extends Equatable {
   final bool hasAttemptedSubmit;
   // Only PAN document list (used for all document fields)
   final List<Map<String, dynamic>> panDocuments;
-  final UIState<GpsDocumentUploadResponse>? uploadKycState;
+  final UIState<GpsKycUploadResponseModel>? uploadKycState;
 
   const GpsUploadDocumentState({
     required this.aadhaar,
@@ -65,7 +67,7 @@ class GpsUploadDocumentState extends Equatable {
     UIState<GpsPanVerificationResponse>? panVerificationState,
     bool? hasAttemptedSubmit,
     List<Map<String, dynamic>>? panDocuments,
-    UIState<GpsDocumentUploadResponse>? uploadKycState,
+    UIState<GpsKycUploadResponseModel>? uploadKycState,
   }) {
     return GpsUploadDocumentState(
       aadhaar: aadhaar ?? this.aadhaar,

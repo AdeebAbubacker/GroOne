@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -63,7 +64,7 @@ class _ZonalOfficeAutoCompleteTextFieldState
     } catch (e) {
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load zonal offices';
+        errorMessage = context.appText.failedToLoadZonalOffices;
         isLoading = false;
       });
     }
@@ -211,7 +212,7 @@ class _ZonalOfficeAutoCompleteTextFieldState
             SizedBox(height: 4),
             TextButton(
               onPressed: _loadZonalOffices,
-              child: Text('Retry'),
+              child: Text(context.appText.retry),
             ),
           ],
         ],

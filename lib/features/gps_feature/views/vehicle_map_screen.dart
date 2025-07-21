@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_servic
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
@@ -367,7 +368,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        vehicle.vehicleNumber ?? '-',
+                        (vehicle.vehicleNumber ?? '-').formatVehicleNumberForDisplay,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,

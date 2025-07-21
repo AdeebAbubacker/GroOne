@@ -123,6 +123,7 @@ class AppColors {
   static const Color redTextColor = Color(0xffff5723);
   static const Color red = Colors.red;
   static const Color teal = Color(0xff009688);
+  static const Color disabledFieldBackgroundColor = Color(0xFFF2F2F2);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

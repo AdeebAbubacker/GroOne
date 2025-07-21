@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
-import 'gps_vehicle_selection_screen.dart';
+
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -32,6 +32,8 @@ import 'gps_shipping_address_list_screen.dart';
 import 'gps_order_summary_screen.dart';
 import '../../../../features/kavach/view/widgets/product_counter.dart';
 import '../widgets/referral_autocomplete_textfield.dart';
+import '../../../../features/kavach/view/widgets/vehicle_selection_field.dart';
+import '../../../kavach/model/kavach_address_model.dart';
 
 class GpsOrderCheckoutScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -59,6 +61,7 @@ class GpsOrderCheckoutScreen extends StatefulWidget {
 
 class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with WidgetsBindingObserver {
   Map<String, List<TextEditingController>> vehicleControllersPerProduct = {};
+  Map<String, List<bool>> vehicleVerificationStatusPerProduct = {}; // Track verification status
   late final GpsShippingAddressCubit gpsShippingAddressCubit;
   late final GpsBillingAddressCubit gpsBillingAddressCubit;
 
@@ -125,6 +128,16 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
         }
       });
       vehicleControllersPerProduct[product.id] = controllers;
+      
+      // Initialize verification status - vehicles from previous selection are considered verified
+      final verificationStatus = List<bool>.generate(qty, (index) {
+        if (index < previousControllers.length && previousControllers[index].isNotEmpty) {
+          return true; // Previously selected vehicles are verified
+        } else {
+          return false;
+        }
+      });
+      vehicleVerificationStatusPerProduct[product.id] = verificationStatus;
     }
 
     // Initialize address cubits with state preservation
@@ -146,6 +159,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     // Add a small delay to ensure cubits are properly initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndRestoreAddressStates();
+      _clearAddressSelectionsIfFreshOrder();
     });
   }
 
@@ -219,9 +233,63 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     }
   }
 
+  /// Clear address selections if this is a fresh order (no previous data)
+  void _clearAddressSelectionsIfFreshOrder() {
+    // Check if this is a fresh order by looking at previous data
+    final hasPreviousData = widget.previousReferralCode != null && 
+                           widget.previousReferralCode!.isNotEmpty ||
+                           widget.previousVehicleSelection != null ||
+                           widget.previousShippingPersonInCharge != null ||
+                           widget.previousShippingPersonContactNo != null;
+
+    // If no previous data, clear address selections
+    if (!hasPreviousData) {
+      print('🔄 GPS Checkout: Fresh order detected, clearing address selections');
+      
+      // Clear billing address selection but preserve loaded addresses
+      if (gpsBillingAddressCubit.state is GpsBillingAddressSelected) {
+        gpsBillingAddressCubit.clearGpsBillingAddressSelection();
+      }
+      
+      // Clear shipping address selection but preserve loaded addresses
+      if (gpsShippingAddressCubit.state is GpsShippingAddressSelected) {
+        gpsShippingAddressCubit.clearGpsShippingAddressSelection();
+      }
+      
+      // Reset shipping same as billing checkbox
+      setState(() {
+        shippingSameAsBilling = false;
+      });
+      
+      print('🔄 GPS Checkout: Address selections cleared for fresh order');
+    } else {
+      print('🔄 GPS Checkout: Previous data detected, preserving address selections');
+    }
+  }
+
+  // Helper function to get current selected addresses from cubits
+  KavachAddressModel? _getCurrentShippingAddress() {
+    final shippingState = gpsShippingAddressCubit.state;
+    if (shippingState is GpsShippingAddressSelected) {
+      return shippingState.selectedAddress;
+    }
+    return null;
+  }
+
+  KavachAddressModel? _getCurrentBillingAddress() {
+    final billingState = gpsBillingAddressCubit.state;
+    if (billingState is GpsBillingAddressSelected) {
+      return billingState.selectedAddress;
+    }
+    return null;
+  }
+
   void syncVehicleControllersWithProducts() {
     vehicleControllersPerProduct.removeWhere(
           (productId, _) => !_products.any((p) => p.id == productId),
+    );
+    vehicleVerificationStatusPerProduct.removeWhere(
+      (productId, _) => !_products.any((p) => p.id == productId),
     );
   }
 
@@ -230,6 +298,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
       final productId = product.id;
       final qty = _quantities[productId] ?? 0;
       final existingControllers = vehicleControllersPerProduct[productId] ?? [];
+      final existingVerificationStatus = vehicleVerificationStatusPerProduct[productId] ?? [];
 
       final newControllers = List<TextEditingController>.generate(qty, (index) {
         if (index < existingControllers.length) {
@@ -239,7 +308,16 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
         }
       });
 
+      final newVerificationStatus = List<bool>.generate(qty, (index) {
+        if (index < existingVerificationStatus.length) {
+          return existingVerificationStatus[index]; // reuse existing
+        } else {
+          return false; // new ones start as not verified
+        }
+      });
+
       vehicleControllersPerProduct[productId] = newControllers;
+      vehicleVerificationStatusPerProduct[productId] = newVerificationStatus;
     }
   }
 
@@ -374,7 +452,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                         Navigator.of(context).pop(result);
                       },
                       label: Text(
-                        'Add More GPS Devices',
+                        context.appText.addMoreGpsDevices,
                         style: AppTextStyle.primaryColor16w400,
                       ),
                       icon: Icon(Icons.add, color: AppColors.primaryColor),
@@ -409,6 +487,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     context: context,
                                     screen: GpsBillingAddressListScreen(
                                       billingAddressCubit: gpsBillingAddressCubit,
+                                      selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   );
                                 },
@@ -432,6 +511,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     context: context,
                                     screen: GpsBillingAddressListScreen(
                                       billingAddressCubit: gpsBillingAddressCubit,
+                                      selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   );
                                   // Refresh addresses after returning from billing address screen
@@ -487,6 +567,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                         context: context,
                                         screen: GpsBillingAddressListScreen(
                                           billingAddressCubit: gpsBillingAddressCubit,
+                                          selectedShippingAddress: _getCurrentShippingAddress(),
                                         ),
                                       );
                                     },
@@ -516,6 +597,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       context: context,
                                       screen: GpsBillingAddressListScreen(
                                         billingAddressCubit: gpsBillingAddressCubit,
+                                        selectedShippingAddress: _getCurrentShippingAddress(),
                                       ),
                                     );
                                   },
@@ -562,6 +644,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                           context: context,
                                           screen: GpsShippingAddressListScreen(
                                             shippingAddressCubit: gpsShippingAddressCubit,
+                                            selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         );
                                       },
@@ -608,6 +691,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                           context: context,
                                           screen: GpsShippingAddressListScreen(
                                             shippingAddressCubit: gpsShippingAddressCubit,
+                                            selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         );
                                       },
@@ -691,6 +775,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                           context: context,
                                           screen: GpsShippingAddressListScreen(
                                             shippingAddressCubit: gpsShippingAddressCubit,
+                                            selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         );
                                       },
@@ -736,6 +821,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                         context: context,
                                         screen: GpsShippingAddressListScreen(
                                           shippingAddressCubit: gpsShippingAddressCubit,
+                                          selectedBillingAddress: _getCurrentBillingAddress(),
                                         ),
                                       );
                                     },
@@ -798,7 +884,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                         loadVehicleSelection();
                       });
                     } else {
-                      ToastMessages.alert(message: context.appText.unableToAddMoreItems);
+                      ToastMessages.alert(message: context.appText.cannotAddMoreItemsStockLimitReached);
                     }
                   },
 
@@ -826,7 +912,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
               children: [
                 Text(product.part ?? '', style: AppTextStyle.bodyGreyColor).expand(),
                 Text(
-                  "$indianCurrencySymbol ${totalPrice.toStringAsFixed(2)}",
+                  "$indianCurrencySymbol ${KavachHelper.formatCurrency(totalPrice.toStringAsFixed(2))}",
                   style: AppTextStyle.h4PrimaryColor,
                 ),
               ],
@@ -834,54 +920,49 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
             12.height,
             Column(
               children: List.generate(vehicleControllers.length, (index) {
-                return AppTextField(
+                final verificationStatus = vehicleVerificationStatusPerProduct[product.id]?[index] ?? false;
+                return VehicleSelectionField(
                   controller: vehicleControllers[index],
-                  onTextFieldTap: () async {
-                    final selectedVehicle =
-                    await commonBottomSheet<String?>(
-                        context: context,
-                        screen: GpsVehicleSelectionScreen(
-                          currentlySelectedVehicle: vehicleControllers[index].text.trim(),
-                        ),
-                        barrierDismissible: true
-                    );
-                    if (selectedVehicle != null) {
-                      final isAlreadySelected = isVehicleAlreadySelected(selectedVehicle);
-                      if (isAlreadySelected &&
-                          vehicleControllers[index].text.trim() != selectedVehicle) {
-                        ToastMessages.alert(
-                          message: 'Vehicle already selected',
-                        );
-                        return;
-                      } else {
-                        setState(() {
-                          vehicleControllers[index].text = selectedVehicle;
-                        });
+                  hintText: context.appText.selectVehicleRegNum,
+                  index: index,
+                  isVerified: verificationStatus,
+                  isVehicleAlreadySelected: isVehicleAlreadySelected(vehicleControllers[index].text.trim()),
+                  onVehicleSelected: (selectedIndex, selectedVehicle) {
+                    // Check for duplicates across all products, excluding the current field
+                    bool isAlreadySelected = false;
+                    vehicleControllersPerProduct.forEach((productId, controllers) {
+                      for (int i = 0; i < controllers.length; i++) {
+                        // Skip the current field being updated
+                        if (productId == product.id && i == selectedIndex) continue;
+                        
+                        if (controllers[i].text.trim() == selectedVehicle.trim()) {
+                          isAlreadySelected = true;
+                          return;
+                        }
                       }
+                    });
+                    
+                    if (isAlreadySelected) {
+                      ToastMessages.alert(message: context.appText.vehicleAlreadySelected);
+                      return;
                     }
+                    
+                    // Set the vehicle in the controller only if no duplicates
+                    vehicleControllers[selectedIndex].text = selectedVehicle;
+                    // Mark as verified when selected from list
+                    vehicleVerificationStatusPerProduct[product.id]![selectedIndex] = true;
+                    setState(() {}); // Trigger rebuild to show green tick
                   },
-                  readOnly: true,
-                  decoration: kavachInputDecoration(
-                    hintText: context.appText.selectVehicleRegNum,
-                    preffixIcon:  CircleAvatar(
-                      backgroundColor:
-                      AppColors.lightBlueIconBackgroundColor2,
-                      child: SvgPicture.asset(
-                        AppIcons.svg.truck,
-                        colorFilter: AppColors.svg(AppColors.primaryColor),
-                      ),
-                    ).paddingAll(7),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        Icon(
-                          CupertinoIcons.chevron_down,
-                          color: AppColors.chevronGreyColor,
-                        ).paddingSymmetric(horizontal: 5),
-                      ],
-                    ),
-                  ),
+                  onVehicleVerified: (verifiedVehicle) {
+                    // Update verification status when manually verified
+                    if (verifiedVehicle.isNotEmpty) {
+                      vehicleVerificationStatusPerProduct[product.id]![index] = true;
+                    } else {
+                      // Reset verification status when text is cleared or changed
+                      vehicleVerificationStatusPerProduct[product.id]![index] = false;
+                    }
+                    setState(() {}); // Trigger rebuild to update UI
+                  },
                 ).paddingBottom(10);
               }),
             ),
@@ -1012,8 +1093,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
             );
           }
         } else {
-          gpsShippingAddressCubit.clearGpsShippingAddress();
-          gpsShippingAddressCubit.fetchGpsShippingAddresses();
+          gpsShippingAddressCubit.clearGpsShippingAddressSelection();
+          // No need to fetch again if addresses are already loaded
         }
       },
       value: shippingSameAsBilling,

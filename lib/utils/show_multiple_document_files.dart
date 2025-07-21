@@ -2,12 +2,14 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 @immutable
 class ShowMultipleDocumentFiles extends StatefulWidget {
@@ -30,7 +32,7 @@ class _ShowMultipleDocumentFilesState extends State<ShowMultipleDocumentFiles> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppString.label.attachment, style: AppTextStyle.textFiled),
+                Text(appContext.appText.attachment, style: AppTextStyle.textFiled),
                 5.height,
 
                 // Documents View

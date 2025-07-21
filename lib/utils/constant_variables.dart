@@ -45,6 +45,20 @@ const String indianCurrencySymbol = "₹";
 
 const iosNumberKeyboard = TextInputType.numberWithOptions(signed: true, decimal: true);
 
+// Regex Patterns for EnDhan Customer Info Screen
+final RegExp multipleSpacesRegex = RegExp(r'\s+');
+final RegExp indianMobileNumberRegex = RegExp(r'^(\+91\s?)?[6-9]\d{9}$');
+final RegExp panNumberInputRegex = RegExp(r'[A-Z0-9]');
+final RegExp panNumberValidationRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+final RegExp emailValidationRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+final RegExp cityNameInputRegex = RegExp(r'[a-zA-Z\s]');
+final RegExp cityNameValidationRegex = RegExp(r'^[a-zA-Z\s]+$');
+final RegExp indianPincodeRegex = RegExp(r'^[1-9][0-9]{5}$');
+
+// Regex Patterns for Kavach Add Vehicle Screen
+final RegExp vehicleAlphaNumSpaceRegex = RegExp(r'[a-zA-Z0-9 ]');
+final RegExp licenseAlphaNumHyphenRegex = RegExp(r'[A-Za-z0-9\-]');
+
 
 
 

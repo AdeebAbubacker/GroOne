@@ -16,6 +16,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 import '../constants/app_constants.dart';
 import '../widgets/map_floating_menu.dart';
@@ -515,7 +516,7 @@ class VehicleListView extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  vehicle.vehicleNumber ?? context.appText.unknown,
+                  (vehicle.vehicleNumber ?? context.appText.unknown).formatVehicleNumberForDisplay,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
