@@ -808,7 +808,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                       ),
                     ),
                     30.height,
-
                   ],
                 );
               },
