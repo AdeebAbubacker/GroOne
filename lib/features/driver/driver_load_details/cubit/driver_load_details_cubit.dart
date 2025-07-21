@@ -44,9 +44,10 @@ Future<void> getLpLoadsById({required String loadId}) async {
   void _setUploadTripDocFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
-  Future<void> uploadDamageFile(File file) async {
+  Future<void> uptripDocumentFile(File file,String fileType) async {
     _setUploadTripDocFileUIState(UIState.loading());
-    Result result = await _repository.uploadTripDocFileData(file,'lorry_receipt');
+    // Result result = await _repository.uploadTripDocFileData(file,'lorry_receipt');
+    Result result = await _repository.uploadTripDocFileData(file,fileType);
     if (result is Success<UploadDamageFileModel>) {
       _setUploadTripDocFileUIState(UIState.success(result.value));
     }

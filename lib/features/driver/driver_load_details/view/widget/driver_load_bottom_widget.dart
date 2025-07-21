@@ -148,7 +148,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           title: "Lorry Receipt",
                           fileList: lorryReceiptFiles,
                           uploadedFileList: uploadedLorryReceipts,
-                          uploadCallback: (path) => widget.cubit.uploadDamageFile(File(path)),
+                          uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'lorry_receipt'),
                           onDelete: (index) => setState(() {
                             uploadedLorryReceipts.removeAt(index);
                           }),
@@ -161,7 +161,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           title: "E-Way Bill",
                           fileList: eWayBillFiles,
                           uploadedFileList: uploadedEWayBills,
-                          uploadCallback: (path) => widget.cubit.uploadDamageFile(File(path)),
+                          uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'eway_bill'),
                           onDelete: (index) => setState(() {
                             uploadedEWayBills.removeAt(index);
                           }),
@@ -174,7 +174,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           title: "Material Invoice",
                           fileList: materialInvoiceFiles,
                           uploadedFileList: uploadedMaterialInvoices,
-                          uploadCallback: (path) => widget.cubit.uploadDamageFile(File(path)),
+                           uploadCallback: (path) => widget.cubit.uptripDocumentFile(File(path),'material_invoice'),
                           onDelete: (index) => setState(() {
                             uploadedMaterialInvoices.removeAt(index);
                           }),
