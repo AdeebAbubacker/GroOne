@@ -17,3 +17,17 @@ class DriverLoadsError extends DriverLoadsState {
   DriverLoadsError(this.message);
 }
 
+
+class DriverLoadStatusChanging extends DriverLoadsState {}
+
+class DriverLoadStatusChanged extends DriverLoadsState {
+  final VpLoadAcceptModel result;
+
+  DriverLoadStatusChanged(this.result);
+}
+
+class DriverLoadStatusChangeFailed extends DriverLoadsState {
+  final String message;
+
+  DriverLoadStatusChangeFailed(this.message);
+}

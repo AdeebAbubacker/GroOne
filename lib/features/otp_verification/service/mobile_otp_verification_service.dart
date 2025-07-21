@@ -29,7 +29,6 @@ class MobileOtpVerificationService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -48,8 +47,7 @@ class MobileOtpVerificationService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError()); 
+      return Error(DeserializationError());
     }
   }
 }

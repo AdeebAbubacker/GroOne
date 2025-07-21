@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -25,14 +26,15 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
     AppIcons.svg.folder, // Add this in your AppIcons.svg
   ];
 
-  final List<String> labels = [
-    AppString.label.fromCamera,
-    AppString.label.fromGallery,
-    AppString.label.fromFile,
-  ];
+  
 
   @override
   Widget build(BuildContext context) {
+    final List<String> labels = [
+      context.appText.fromCamera,
+      context.appText.fromGallery,
+      context.appText.fromFile,
+    ];
     if (!widget.isMultipleSelectionFile) {
       icons.removeLast();
       labels.removeLast();
@@ -47,7 +49,7 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppString.label.selectImageFrom, style: AppTextStyle.appBar),
+              Text(context.appText.selectImageFrom, style: AppTextStyle.appBar),
               IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.clear_rounded))
             ],
           ),

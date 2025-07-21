@@ -192,7 +192,7 @@ class GpsOrderApiService {
       // Add authentication header if token exists
       try {
         String? refreshToken = await _secureSharedPrefs.get(
-          AppString.sessionKey.refreshToken,
+          AppString.sessionKey.accessToken,
         );
         CustomLog.debug(this, "🔐 Token retrieval attempt:");
         CustomLog.debug(this, "🔐 Raw token value: '$refreshToken'");

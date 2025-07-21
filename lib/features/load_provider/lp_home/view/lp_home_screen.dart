@@ -159,7 +159,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   void clearAllValues(){
     dateTimeTextController.clear();
     weightTextController.clear();
-    lpHomeCubit.clearPickUpAndDestination();
     lpHomeCubit.setDestination(null);
     lpHomeCubit.setPickup(null);
     commodityId = null;
@@ -176,9 +175,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     setState(() {});
   }
 
-
-
-
   // For Get Rate Discovery validation
   bool isFormValid() {
     final pickup = lpHomeCubit.state.pickup?.data;
@@ -191,9 +187,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         weightTextController.text.trim().isNotEmpty;
     return checkAllField;
   }
-
-
-
 
   Future<void> fetchRateDiscovery() async {
 
@@ -225,9 +218,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     }
     setState(() {});
   }
-
-
-
 
   // Load Post Api Call
   Future<void> postLoad(BuildContext context) async {
@@ -289,15 +279,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       price: rateDiscoveryPrice ?? "0000 - 0000",
       date : dateTimeTextController.text,
       isKycValid: isKycValid
-    ), isForward: true)).then((onValue){
+    ), isForward: true)).then((onValue)async{
       if(onValue != null && onValue == true){
         clearAllValues();
+        await lpHomeCubit.fetchLoadWeight();
         setState(() {});
       }
     });
 
   }
-
 
   // Kyc Bottom Sheet
   void kycBottomSheet(BuildContext context){
@@ -315,8 +305,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
-
   // Blue Membership Dialog
   void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
     AppDialog.show(
@@ -329,6 +317,28 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       ),
     );
   });
+
+
+  void navigateToLPSelectAddressScreen(state) {
+    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
+        title: context.appText.pickupPoint,
+        address: state.pickup?.data?.address,
+        location: state.pickup?.data?.location), isForward: true))
+        .then((onValue) async {
+      if (onValue != null && onValue == true) {
+        await fetchRateDiscovery();
+      }
+    });
+  }
+
+  void navigateToRecentRouteScreen() {
+    Navigator.of(context).push(createRoute(RecentRouteScreen()))
+        .then((onValue) async {
+      if (onValue != null && onValue == true) {
+        await fetchRateDiscovery();
+      }
+    });
+  }
 
 
   @override
@@ -597,23 +607,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
                                   if (uiState.data != null && uiState.data!.data.isNotEmpty && pickupLocation == null) {
-                                    Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                    navigateToRecentRouteScreen();
                                   } else {
                                     ToastMessages.alert(message: context.appText.noRecentRouteFound);
-                                    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                    navigateToLPSelectAddressScreen(state);
                                   }
                                   break;
 
                                 case Status.ERROR:
-                                  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                  navigateToLPSelectAddressScreen(state);
                                   break;
                                 default:
-                                  Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                  navigateToRecentRouteScreen();
                               }
                             } else {
-                              Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                              navigateToLPSelectAddressScreen(state);
                             }
-                            await fetchRateDiscovery();
                           },
 
                         ),
@@ -627,12 +636,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           onClick: () async {
                             Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.selectDestinationTitle, address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
                               if(onValue != null && onValue == true){
+                                await fetchRateDiscovery();
                               } else {
                                 lpHomeCubit.setDestination(null);
                               }
                               setState(() {});
                             });
-                            await fetchRateDiscovery();
                           },
                         ),
 
@@ -713,16 +722,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     onTab: () async {
                       Navigator.of(context).push(createRoute(WeightSelectionScreen(
                             dataList: weights,
-                            onSelect: (weight) {
+                            onSelect: (weight) async {
                               lpHomeCubit.selectWeight(weight);
                               weightTextController.text = weight.value.toString();
                               setState(() {});
+                              await fetchRateDiscovery();
                             },
                             cubit: lpHomeCubit,
                           ),
                         ),
                       );
-                      await fetchRateDiscovery();
                     },
                     cubit: lpHomeCubit,
                   ).expand();

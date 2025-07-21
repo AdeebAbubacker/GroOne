@@ -104,7 +104,7 @@ class DriverLoadDetails {
     final List<List<LoadDocument>> loadDocument;
     final dynamic loadSettlement;
     final Customer? customer;
-    final dynamic vpCustomer;
+    final VpCustomerModel? vpCustomer;
     final List<Consignee> consignees;
     final Weightage? weightage;
     final LoadApproval? loadApproval;
@@ -224,7 +224,7 @@ class DriverLoadDetails {
             loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocument>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocument>.from(x!.map((x) => LoadDocument.fromJson(x))))),
             loadSettlement: json["loadSettlement"],
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-            vpCustomer: json["vpCustomer"],
+            vpCustomer: json["vpCustomer"] == null ? null : VpCustomerModel.fromJson(json["vpCustomer"]),
             consignees: json["consignees"] == null ? [] : List<Consignee>.from(json["consignees"]!.map((x) => Consignee.fromJson(x))),
             weightage: json["weightage"] == null ? null : Weightage.fromJson(json["weightage"]),
             loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
@@ -1527,6 +1527,349 @@ class PageMeta {
             nextPage: json["nextPage"],
             pageSize: json["pageSize"] ?? 0,
             total: json["total"] ?? 0,
+        );
+    }
+
+}
+
+
+class VpCustomerModel {
+    VpCustomerModel({
+        required this.customerId,
+        required this.customerName,
+        required this.mobileNumber,
+        required this.companyTypeId,
+        required this.emailId,
+        required this.blueId,
+        required this.kycRejectReason,
+        required this.password,
+        required this.companyName,
+        required this.otp,
+        required this.ememoOtp,
+        required this.otpAttempt,
+        required this.isKyc,
+        required this.preferredLanes,
+        required this.roleId,
+        required this.tempFlg,
+        required this.status,
+        required this.isLogin,
+        required this.blueIdFlg,
+        required this.kycPendingDate,
+        required this.kycVerificationDate,
+        required this.createdAt,
+        required this.deletedAt,
+        required this.kycType,
+        required this.companyType,
+        required this.customerAddress,
+        required this.vehicle,
+    });
+
+    final String customerId;
+    final String customerName;
+    final String mobileNumber;
+    final int companyTypeId;
+    final String emailId;
+    final String blueId;
+    final dynamic kycRejectReason;
+    final dynamic password;
+    final String companyName;
+    final String otp;
+    final dynamic ememoOtp;
+    final String otpAttempt;
+    final int isKyc;
+    final dynamic preferredLanes;
+    final int roleId;
+    final bool tempFlg;
+    final int status;
+    final bool isLogin;
+    final bool blueIdFlg;
+    final DateTime? kycPendingDate;
+    final DateTime? kycVerificationDate;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+    final Type? kycType;
+    final Type? companyType;
+    final CustomerAddress? customerAddress;
+    final List<Vehicle> vehicle;
+
+    VpCustomerModel copyWith({
+        String? customerId,
+        String? customerName,
+        String? mobileNumber,
+        int? companyTypeId,
+        String? emailId,
+        String? blueId,
+        dynamic? kycRejectReason,
+        dynamic? password,
+        String? companyName,
+        String? otp,
+        dynamic? ememoOtp,
+        String? otpAttempt,
+        int? isKyc,
+        dynamic? preferredLanes,
+        int? roleId,
+        bool? tempFlg,
+        int? status,
+        bool? isLogin,
+        bool? blueIdFlg,
+        DateTime? kycPendingDate,
+        DateTime? kycVerificationDate,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+        Type? kycType,
+        Type? companyType,
+        CustomerAddress? customerAddress,
+        List<Vehicle>? vehicle,
+    }) {
+        return VpCustomerModel(
+            customerId: customerId ?? this.customerId,
+            customerName: customerName ?? this.customerName,
+            mobileNumber: mobileNumber ?? this.mobileNumber,
+            companyTypeId: companyTypeId ?? this.companyTypeId,
+            emailId: emailId ?? this.emailId,
+            blueId: blueId ?? this.blueId,
+            kycRejectReason: kycRejectReason ?? this.kycRejectReason,
+            password: password ?? this.password,
+            companyName: companyName ?? this.companyName,
+            otp: otp ?? this.otp,
+            ememoOtp: ememoOtp ?? this.ememoOtp,
+            otpAttempt: otpAttempt ?? this.otpAttempt,
+            isKyc: isKyc ?? this.isKyc,
+            preferredLanes: preferredLanes ?? this.preferredLanes,
+            roleId: roleId ?? this.roleId,
+            tempFlg: tempFlg ?? this.tempFlg,
+            status: status ?? this.status,
+            isLogin: isLogin ?? this.isLogin,
+            blueIdFlg: blueIdFlg ?? this.blueIdFlg,
+            kycPendingDate: kycPendingDate ?? this.kycPendingDate,
+            kycVerificationDate: kycVerificationDate ?? this.kycVerificationDate,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+            kycType: kycType ?? this.kycType,
+            companyType: companyType ?? this.companyType,
+            customerAddress: customerAddress ?? this.customerAddress,
+            vehicle: vehicle ?? this.vehicle,
+        );
+    }
+
+    factory VpCustomerModel.fromJson(Map<String, dynamic> json){ 
+        return VpCustomerModel(
+            customerId: json["customer_id"] ?? "",
+            customerName: json["customerName"] ?? "",
+            mobileNumber: json["mobileNumber"] ?? "",
+            companyTypeId: json["companyTypeId"] ?? 0,
+            emailId: json["emailId"] ?? "",
+            blueId: json["blueId"] ?? "",
+            kycRejectReason: json["kycRejectReason"],
+            password: json["password"],
+            companyName: json["companyName"] ?? "",
+            otp: json["otp"] ?? "",
+            ememoOtp: json["ememo_otp"],
+            otpAttempt: json["otpAttempt"] ?? "",
+            isKyc: json["isKyc"] ?? 0,
+            preferredLanes: json["preferredLanes"],
+            roleId: json["roleId"] ?? 0,
+            tempFlg: json["tempFlg"] ?? false,
+            status: json["status"] ?? 0,
+            isLogin: json["isLogin"] ?? false,
+            blueIdFlg: json["blueIdFlg"] ?? false,
+            kycPendingDate: DateTime.tryParse(json["kycPendingDate"] ?? ""),
+            kycVerificationDate: DateTime.tryParse(json["kycVerificationDate"] ?? ""),
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+            kycType: json["kycType"] == null ? null : Type.fromJson(json["kycType"]),
+            companyType: json["companyType"] == null ? null : Type.fromJson(json["companyType"]),
+            customerAddress: json["customerAddress"] == null ? null : CustomerAddress.fromJson(json["customerAddress"]),
+            vehicle: json["vehicle"] == null ? [] : List<Vehicle>.from(json["vehicle"]!.map((x) => Vehicle.fromJson(x))),
+        );
+    }
+
+}
+
+class VpCustomerType {
+    VpCustomerType({
+        required this.id,
+        required this.companyType,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
+        required this.kycType,
+    });
+
+    final int id;
+    final String companyType;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+    final String kycType;
+
+    VpCustomerType copyWith({
+        int? id,
+        String? companyType,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+        String? kycType,
+    }) {
+        return VpCustomerType(
+            id: id ?? this.id,
+            companyType: companyType ?? this.companyType,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+            kycType: kycType ?? this.kycType,
+        );
+    }
+
+    factory VpCustomerType.fromJson(Map<String, dynamic> json){ 
+        return VpCustomerType(
+            id: json["id"] ?? 0,
+            companyType: json["companyType"] ?? "",
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+            kycType: json["kycType"] ?? "",
+        );
+    }
+
+}
+
+class VpCustomerAddress {
+    VpCustomerAddress({
+        required this.customersAddressId,
+        required this.customerId,
+        required this.addressName,
+        required this.fullAddress,
+        required this.city,
+        required this.state,
+        required this.pincode,
+        required this.status,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
+
+    final String customersAddressId;
+    final String customerId;
+    final String addressName;
+    final String fullAddress;
+    final String city;
+    final String state;
+    final String pincode;
+    final dynamic status;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic deletedAt;
+
+    VpCustomerAddress copyWith({
+        String? customersAddressId,
+        String? customerId,
+        String? addressName,
+        String? fullAddress,
+        String? city,
+        String? state,
+        String? pincode,
+        dynamic? status,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return VpCustomerAddress(
+            customersAddressId: customersAddressId ?? this.customersAddressId,
+            customerId: customerId ?? this.customerId,
+            addressName: addressName ?? this.addressName,
+            fullAddress: fullAddress ?? this.fullAddress,
+            city: city ?? this.city,
+            state: state ?? this.state,
+            pincode: pincode ?? this.pincode,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory VpCustomerAddress.fromJson(Map<String, dynamic> json){ 
+        return VpCustomerAddress(
+            customersAddressId: json["customers_address_id"] ?? "",
+            customerId: json["customer_id"] ?? "",
+            addressName: json["addressName"] ?? "",
+            fullAddress: json["fullAddress"] ?? "",
+            city: json["city"] ?? "",
+            state: json["state"] ?? "",
+            pincode: json["pincode"] ?? "",
+            status: json["status"],
+            createdAt: DateTime.tryParse(json["created_at"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),
+            deletedAt: json["deleted_at"],
+        );
+    }
+
+}
+
+class VpCustomerVehicle {
+    VpCustomerVehicle({
+        required this.vpVehiclesId,
+        required this.customerId,
+        required this.truckType,
+        required this.ownedTrucks,
+        required this.attachedTrucks,
+        required this.preferredLanes,
+        required this.status,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
+
+    final String vpVehiclesId;
+    final String customerId;
+    final List<int> truckType;
+    final int ownedTrucks;
+    final int attachedTrucks;
+    final List<int> preferredLanes;
+    final int status;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic deletedAt;
+
+    VpCustomerVehicle copyWith({
+        String? vpVehiclesId,
+        String? customerId,
+        List<int>? truckType,
+        int? ownedTrucks,
+        int? attachedTrucks,
+        List<int>? preferredLanes,
+        int? status,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return VpCustomerVehicle(
+            vpVehiclesId: vpVehiclesId ?? this.vpVehiclesId,
+            customerId: customerId ?? this.customerId,
+            truckType: truckType ?? this.truckType,
+            ownedTrucks: ownedTrucks ?? this.ownedTrucks,
+            attachedTrucks: attachedTrucks ?? this.attachedTrucks,
+            preferredLanes: preferredLanes ?? this.preferredLanes,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory VpCustomerVehicle.fromJson(Map<String, dynamic> json){ 
+        return VpCustomerVehicle(
+            vpVehiclesId: json["vp_vehicles_id"] ?? "",
+            customerId: json["customer_id"] ?? "",
+            truckType: json["truckType"] == null ? [] : List<int>.from(json["truckType"]!.map((x) => x)),
+            ownedTrucks: json["ownedTrucks"] ?? 0,
+            attachedTrucks: json["attachedTrucks"] ?? 0,
+            preferredLanes: json["preferredLanes"] == null ? [] : List<int>.from(json["preferredLanes"]!.map((x) => x)),
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["created_at"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),
+            deletedAt: json["deleted_at"],
         );
     }
 
