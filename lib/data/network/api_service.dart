@@ -34,7 +34,7 @@ class ApiService {
     };
     try {
      // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
-      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
 
 
       if (refreshToken != null && refreshToken.isNotEmpty) {
@@ -354,11 +354,14 @@ class ApiService {
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
-        return Error(ConflictError());
+        final msg = response?.data?['message'];
+        return Error(ConflictError(message: msg));
       case 498:
-        return Error(InvalidTokenError());
+        final msg = response?.data?['message'];
+        return Error(InvalidTokenError(message: msg));
       case 500:
-        return Error(InternalServerError());
+        final msg = response?.data?['message'];
+        return Error(InternalServerError(message: msg));
       default:
         log("Unexpected status code: ${response?.statusCode}");
         return Error(GenericError());
@@ -368,7 +371,7 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
       CustomLog.debug(
         this,
         "Cleared invalid token due to 401 Unauthorized error",

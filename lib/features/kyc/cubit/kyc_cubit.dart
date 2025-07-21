@@ -59,9 +59,9 @@ class KycCubit extends BaseCubit<KycState> {
   void _setStateUIState(UIState<List<StateModelList>>? uiState){
     emit(state.copyWith(stateUIState: uiState));
   }
-  Future<void> fetchStateList() async {
+  Future<void> fetchStateList({String filter = ''}) async {
     _setStateUIState(UIState.loading());
-    Result result = await _repo.getStateData();
+    Result result = await _repo.getStateData(filter: filter);
     if (result is Success<StateModel>) {
       _setStateUIState(UIState.success(result.value.data));
     }
@@ -70,20 +70,29 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  Future<Result<StateModel>> getFilteredStateList({required String filter}) async {
+    return await _repo.getStateData(filter: filter);
+  }
+
+
 
   // Fetch City Api Call
   void _setCityUIState(UIState<List<CityModelList>>? uiState){
     emit(state.copyWith(cityUIState: uiState));
   }
-  Future<void> fetchCityList(String stateName) async {
+  Future<void> fetchCityList(String stateName, {String filter = ''}) async {
     _setCityUIState(UIState.loading());
-    Result result = await _repo.getCityData(stateName);
+    Result result = await _repo.getCityData(stateName, filter: filter);
     if (result is Success<CityModel>) {
       _setCityUIState(UIState.success(result.value.data));
     }
     if (result is Error) {
       _setCityUIState(UIState.error(result.type));
     }
+  }
+
+  Future<Result<CityModel>> getFilteredCityList({required String stateName, required String filter}) async {
+    return await _repo.getCityData(stateName,filter: filter);
   }
 
 

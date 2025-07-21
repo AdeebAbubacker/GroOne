@@ -81,8 +81,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         await _handleCurrentLocation();
       }
 
-      searchTextController.text = widget.location!;
-      addressTextController.text = widget.address!;
+      searchTextController.text = widget.location ?? '';
+      addressTextController.text = widget.address ?? '';
 
     });
   }
