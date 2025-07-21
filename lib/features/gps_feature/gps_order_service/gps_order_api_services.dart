@@ -1,4 +1,4 @@
-import 'dart:io';
+
 
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -45,20 +45,18 @@ class GpsOrderApiService {
   }
 
   /// Check GPS KYC Documents
-  Future<Result<GpsKycCheckModel>> checkKycDocuments(String customerId) async {
+  Future<Result<GpsKycCheckResponseModel>> checkKycDocuments(String customerId) async {
     try {
       final url = ApiUrls.gpsKycCheck(customerId);
       CustomLog.debug(this, "GPS KYC Check URL: $url");
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        // Handle the response directly instead of using getResponseStatus
-        // because "Document not found" is a valid response, not an error
         try {
-          final response = GpsKycCheckModel.fromJson(result.value);
+          final response = GpsKycCheckResponseModel.fromJson(result.value);
           CustomLog.debug(
             this,
-            "GPS KYC Check Response: success=${response.success}, message=${response.message}, data=${response.data}",
+            "GPS KYC Check Response: customerId=${response.customerId}, isKyc=${response.isKyc}, hasDocuments=${response.hasKycDocuments}",
           );
           return Success(response);
         } catch (e) {
@@ -74,15 +72,48 @@ class GpsOrderApiService {
           );
           // Return a success response indicating no documents found
           return Success(
-            GpsKycCheckModel(
-              success: true,
-              message: "No KYC documents found",
-              data: null,
-              hasKycDocuments: false,
-              kycData: null,
+            GpsKycCheckResponseModel(
+              customerId: customerId,
+              documents: null,
+              isKyc: 0,
             ),
           );
         }
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Upload GPS KYC Documents (new API)
+  Future<Result<GpsKycUploadResponseModel>> uploadKycDocuments(
+      GpsKycUploadRequest request,
+      String customerId,
+      ) async {
+    try {
+      final url = ApiUrls.gpsKycUpload(customerId);
+      CustomLog.debug(this, "GPS KYC Upload URL: $url");
+      CustomLog.debug(this, "GPS KYC Upload Request: ${request.toJson()}");
+      
+      final result = await _apiService.post(url, body: request.toJson());
+
+      if (result is Success) {
+        try {
+          final response = GpsKycUploadResponseModel.fromJson(result.value);
+          CustomLog.debug(
+            this,
+            "GPS KYC Upload Response: ${response.message}",
+          );
+          return Success(response);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing GPS KYC upload response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -539,6 +570,7 @@ class GpsOrderApiService {
         'customerId': customerId,
         'page': page.toString(),
         'limit': limit.toString(),
+        'fleetProductId' : "1"
       };
 
       final result = await _apiService.get(
@@ -604,6 +636,28 @@ class GpsOrderApiService {
       }
     } catch (e) {
       CustomLog.error(this, "GPS Fetch Users - Exception: $e", e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Fetches available stock for a specific GPS product
+  Future<Result<int>> fetchAvailableStock({
+    required String productId,
+  }) async {
+    try {
+      // For now, use the same endpoint as Kavach but with fleetProductId=1 for GPS
+      final response = await _apiService.get('${ApiUrls.kavachAvailableStock}?productId=$productId&teamId=1');
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+              (data) => int.tryParse(data['data']['availableStock'].toString()) ?? 0,
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch available stock for GPS product", e);
       return Error(DeserializationError());
     }
   }

@@ -1,7 +1,7 @@
 part of 'gps_kyc_check_cubit.dart';
 
 class GpsKycCheckState extends Equatable {
-  final UIState<GpsKycCheckModel>? kycCheckState;
+  final UIState<GpsKycCheckResponseModel>? kycCheckState;
   final bool hasKycDocuments;
   final Map<String, dynamic>? kycData;
 
@@ -16,7 +16,7 @@ class GpsKycCheckState extends Equatable {
   }
 
   GpsKycCheckState copyWith({
-    UIState<GpsKycCheckModel>? kycCheckState,
+    UIState<GpsKycCheckResponseModel>? kycCheckState,
     bool? hasKycDocuments,
     Map<String, dynamic>? kycData,
   }) {

@@ -166,7 +166,8 @@ class ApiUrls {
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;
-  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
+  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
+  static String gpsKycUpload(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
   static final String gpsProductList = "https://gro-devapi.letsgro.co$_fleet$_path$_v1/product/list";
   static final String gpsAddressList = "https://gro-devapi.letsgro.co$_customer$_path$_v1/address";
   static final String gpsCreateOrder = "$_baseUrl$_fleet$_path$_v1/orders/create";

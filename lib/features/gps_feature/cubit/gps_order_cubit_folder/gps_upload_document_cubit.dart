@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
 
 import 'gps_upload_document_state.dart';
 
@@ -361,14 +362,14 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
   }
 
-  void _setUploadKycUIState(UIState<GpsDocumentUploadResponse> uiState) {
+  void _setUploadKycUIState(UIState<GpsKycUploadResponseModel> uiState) {
     if (!_isClosed) {
       emit(state.copyWith(uploadKycState: uiState));
     }
   }
 
-  Future<void> uploadKycDocumentsMultipart() async {
-    print('🔍 GPS uploadKycDocumentsMultipart called, cubit closed: $_isClosed');
+  Future<void> uploadKycDocuments() async {
+    print('🔍 GPS uploadKycDocuments called, cubit closed: $_isClosed');
     if (_isClosed) {
       print('🔍 GPS Cubit is closed, returning early');
       return;
@@ -401,61 +402,51 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     _setUploadKycUIState(UIState.loading());
 
     try {
-      // Get PAN document file
-      File? panImageFile;
-      if (state.panDocuments.isNotEmpty) {
+      String? panDocLink;
+      
+      // Upload PAN document if provided
+      if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
         final document = state.panDocuments.first;
         if (document['path'] != null) {
-          panImageFile = File(document['path']);
-          print('🔍 GPS PAN document: ${panImageFile?.path}');
+          final panImageFile = File(document['path']);
+          print('🔍 GPS Uploading PAN document: ${panImageFile.path}');
+          
+          // Upload the PAN document first to get the URL
+          final uploadResult = await _uploadDocument(panImageFile, customerId);
+          if (uploadResult is Success<String>) {
+            panDocLink = uploadResult.value;
+            print('🔍 GPS PAN document uploaded successfully: $panDocLink');
+          } else {
+            print('❌ GPS PAN document upload failed');
+            _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
+            return;
+          }
         }
+      } else {
+        print('🔍 GPS No PAN document provided - proceeding with Aadhaar only');
       }
 
-      // Use the same PAN image for all document fields
-      File? addressProofFrontFile = panImageFile;
-      File? addressProofBackFile = panImageFile;
-      File? identityProofFrontFile = panImageFile;
-      File? identityProofBackFile = panImageFile;
-
-      print('🔍 GPS Using PAN image for all document fields:');
-      print('  - PAN Image: ${panImageFile?.path}');
-      print('  - Address Proof Front: ${addressProofFrontFile?.path}');
-      print('  - Address Proof Back: ${addressProofBackFile?.path}');
-      print('  - Identity Proof Front: ${identityProofFrontFile?.path}');
-      print('  - Identity Proof Back: ${identityProofBackFile?.path}');
-
-      final request = GpsDocumentUploadMultipartApiRequest(
+      // Create KYC upload request
+      final request = GpsKycUploadRequest(
         aadhar: state.aadhaar,
+        isAadhar: true,
         pan: state.pan.isNotEmpty ? state.pan : null,
-        panImage: panImageFile,
-        addressProofFront: addressProofFrontFile,
-        addressProofBack: addressProofBackFile,
-        identityProofFront: identityProofFrontFile,
-        identityProofBack: identityProofBackFile,
-        customerId: customerId,
+        panDocLink: panDocLink,
+        isPan: state.pan.isNotEmpty ? true : null,
       );
 
-      print('🔍 GPS Upload request debug:');
-      print('  - Aadhar: ${request.aadhar}');
-      print('  - PAN: ${request.pan}');
-      print('  - PanImage: ${request.panImage?.path}');
-      print('  - AddressProofFront: ${request.addressProofFront?.path}');
-      print('  - AddressProofBack: ${request.addressProofBack?.path}');
-      print('  - IdentityProofFront: ${request.identityProofFront?.path}');
-      print('  - IdentityProofBack: ${request.identityProofBack?.path}');
-      print('  - Form fields: ${request.getFormFields()}');
-      print('  - Files: ${request.getFiles().keys.toList()}');
+      print('🔍 GPS KYC upload request: ${request.toJson()}');
 
-      final result = await _repository.uploadGpsDocumentsMultipart(request);
+      final result = await _repository.uploadKycDocuments(request, customerId);
 
       if (_isClosed) {
         print('🔍 GPS Cubit is closed after API call, returning early');
         return;
       }
 
-      if (result is Success<GpsDocumentUploadResponse>) {
+      if (result is Success<GpsKycUploadResponseModel>) {
         final response = result.value;
-        print('🔍 GPS KYC documents uploaded successfully');
+        print('🔍 GPS KYC documents uploaded successfully: ${response.message}');
         _setUploadKycUIState(UIState.success(response));
       } else if (result is Error) {
         print('❌ GPS KYC documents upload failed: ${(result as Error).type}');
@@ -466,6 +457,38 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       if (!_isClosed) {
         _setUploadKycUIState(UIState.error(GenericError()));
       }
+    }
+  }
+
+  /// Upload a single document and return the URL
+  Future<Result<String>> _uploadDocument(File file, String customerId) async {
+    try {
+      final apiService = locator<ApiService>();
+      final result = await apiService.multipart(
+        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        file,
+        fields: {
+          'userId': customerId,
+          'fileType': 'pan_document',
+          'documentType': 'kyc_document',
+        },
+        pathName: 'file',
+      );
+
+      if (result is Success) {
+        final responseData = result.value;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('url')) {
+            return Success(responseData['url']);
+          }
+        }
+        return Error(ErrorWithMessage(message: 'Invalid upload response format'));
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Document upload error: $e');
+      return Error(GenericError());
     }
   }
 

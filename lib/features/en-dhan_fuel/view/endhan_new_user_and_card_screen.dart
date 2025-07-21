@@ -37,6 +37,7 @@ import '../../../utils/common_dialog_view/common_dialog_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
+import 'endhan_transaction_screen.dart';
 
 class EndhanNewUserAndCardScreen extends StatefulWidget {
   const EndhanNewUserAndCardScreen({super.key});
@@ -391,7 +392,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                         } else {
                           // Navigate to create card screen if no cards exist
                           Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
-                        }
+                       }
                       },
                       icon: Icon(Icons.add, color: Colors.white),
                       style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -455,7 +456,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
 
                               InkWell(
                                 onTap: (){
-                                  Navigator.push(context,commonRoute(KavachTransactionsScreen()));
+                                  Navigator.push(context,commonRoute(EndhanTransactionScreen()));
                                 },
                                 child:
                                 Row(children: [

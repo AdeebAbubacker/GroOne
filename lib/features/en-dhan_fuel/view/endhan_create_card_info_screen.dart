@@ -25,6 +25,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
@@ -33,6 +34,7 @@ import '../../../utils/app_route.dart';
 import '../../../utils/common_widgets.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'package:go_router/go_router.dart';
+import '../../kavach/view/widgets/vehicle_selection_field.dart';
 
 class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
@@ -166,6 +168,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
   ];
   List<bool> _expanded = [true];
   int? _currentUploadingCardIndex;
+  List<bool> vehicleVerificationStatus = [false]; // Track verification status for each card
 
   @override
   void initState() {
@@ -212,6 +215,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         },
       });
       _expanded.add(false); // default collapsed
+      vehicleVerificationStatus.add(false); // new card starts as not verified
     });
 
     // Also add card to cubit state
@@ -749,6 +753,13 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
       localCard['rcDocuments'] = [];
       localCard['rcFile'] = null;
       localCard['rcFileName'] = null;
+      
+      // Update verification status - only set as verified if it was previously verified
+      if (i < vehicleVerificationStatus.length) {
+        // Don't automatically verify vehicles just because they have text
+        // They should only be verified if explicitly verified or selected from list
+        vehicleVerificationStatus[i] = false;
+      }
     }
 
     setState(() {});
@@ -776,8 +787,20 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
           },
         ];
         _expanded = [true];
+        vehicleVerificationStatus = [false];
       });
     }
+  }
+
+  bool _isVehicleAlreadySelected(String vehicleNumber) {
+    for (int i = 0; i < cardData.length; i++) {
+      final controllers = cardData[i]['controllers'] as Map<String, TextEditingController>;
+      final currentVehicleNumber = controllers['vehicleNumber']?.text.trim() ?? '';
+      if (currentVehicleNumber == vehicleNumber && currentVehicleNumber.isNotEmpty) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
@@ -898,55 +921,58 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       ),
                                     ),
                                     6.height,
-                                    AppTextField(
+                                    VehicleSelectionField(
+                                      controller: controllers['vehicleNumber']!,
                                       hintText: context.appText.selectVehicleNumber,
-                                      controller: controllers['vehicleNumber'],
-                                      readOnly: true,
-                                      onTextFieldTap: () async {
-                                        final selectedVehicle = await commonBottomSheet<String?>(
-                                          context: context,
-                                          screen: const KavachAddedVehiclesScreen(),
-                                          barrierDismissible: true,
-                                        );
-
-                                        if (selectedVehicle != null) {
-                                          setState(() {
-                                            controllers['vehicleNumber']?.text = selectedVehicle;
-                                            card['vehicleNumber'] = selectedVehicle;
-                                          });
-
-                                          // Sync with cubit state
-                                          _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
+                                      index: index,
+                                      isVerified: index < vehicleVerificationStatus.length ? vehicleVerificationStatus[index] : false,
+                                      isVehicleAlreadySelected: _isVehicleAlreadySelected(controllers['vehicleNumber']?.text.trim() ?? ''),
+                                      onVehicleSelected: (selectedIndex, selectedVehicle) {
+                                        // Check for duplicates across all cards, excluding the current card
+                                        bool isAlreadySelected = false;
+                                        for (int i = 0; i < widget.state.cards.length; i++) {
+                                          // Skip the current card being updated
+                                          if (i == index) continue;
+                                          
+                                          final otherCard = widget.state.cards[i];
+                                          if (otherCard.vehicleNumber.trim() == selectedVehicle.trim()) {
+                                            isAlreadySelected = true;
+                                            break;
+                                          }
                                         }
-                                      },
-                                      validator: (value) {
-                                        if ((widget.state.hasAttemptedSubmit ?? false) && (value == null || value.trim().isEmpty)) {
-                                          return context.appText.vehicleNumberRequired;
+                                        
+                                        if (isAlreadySelected) {
+                                          ToastMessages.alert(message: 'Vehicle already selected');
+                                          return;
                                         }
-                                        return null;
+                                        
+                                        // Set the vehicle in the controller only if no duplicates
+                                        setState(() {
+                                          controllers['vehicleNumber']?.text = selectedVehicle;
+                                          card['vehicleNumber'] = selectedVehicle;
+                                        });
+                                        // Mark as verified when selected from list
+                                        if (selectedIndex < vehicleVerificationStatus.length) {
+                                          vehicleVerificationStatus[selectedIndex] = true;
+                                        }
+                                        // Sync with cubit state
+                                        _syncCardFieldWithCubit(index, 'vehicleNumber', selectedVehicle);
+                                        setState(() {}); // Trigger rebuild to show green tick
                                       },
-                                      decoration: commonInputDecoration(
-                                        hintText: context.appText.selectVehicleNumber,
-                                        suffixIcon: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: AppColors.lightBlueIconBackgroundColor2,
-                                              child: SvgPicture.asset(
-                                                AppIcons.svg.truck,
-                                                colorFilter: AppColors.svg(AppColors.primaryColor),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 5),
-                                              child: Icon(
-                                                CupertinoIcons.chevron_down,
-                                                color: AppColors.chevronGreyColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      onVehicleVerified: (verifiedVehicle) {
+                                        // Update verification status when manually verified
+                                        if (verifiedVehicle.isNotEmpty) {
+                                          if (index < vehicleVerificationStatus.length) {
+                                            vehicleVerificationStatus[index] = true;
+                                          }
+                                        } else {
+                                          // Reset verification status when text is cleared or changed
+                                          if (index < vehicleVerificationStatus.length) {
+                                            vehicleVerificationStatus[index] = false;
+                                          }
+                                        }
+                                        setState(() {}); // Trigger rebuild to update UI
+                                      },
                                     ),
                                     12.height,
                                     Column(
