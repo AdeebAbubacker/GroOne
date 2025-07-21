@@ -503,10 +503,6 @@ class _GpsOtpVerificationBottomSheetState
                         setState(() {
                           otpValue = verificationCode;
                         });
-                        // Auto-submit when 6 digits are entered
-                        if (verificationCode.length == 6) {
-                          _verifyOtp(verificationCode);
-                        }
                       },
                     ),
                   

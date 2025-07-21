@@ -403,6 +403,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           'selectedShippingAddress': selectedShippingAddress,
                           'billingAddresses': billingAddresses,
                           'shippingAddresses': shippingAddresses,
+                          'clearSearch': true, // Add flag to clear search
                         });
                         syncVehicleControllersWithProducts();
                         loadVehicleSelection();

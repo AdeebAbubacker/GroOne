@@ -46,6 +46,7 @@ class _KavachAddVehicleBottomSheetState
   final licenseNumberController = TextEditingController();
   final capacityController = TextEditingController();
   bool isVerified = false;
+  bool showValidationErrors = false;
 
   List<Map<String, dynamic>> vehicleDocList = []; // Add this at state level
 
@@ -118,6 +119,7 @@ class _KavachAddVehicleBottomSheetState
                       mandatoryStar: true,
                       maxLength: 15,
                       labelText: context.appText.truckNumber,
+                      textCapitalization: TextCapitalization.characters,
                       validator: (value) => Validator.validateVehicleNumber(
                         value,
                         fieldName: context.appText.truckNumber,
@@ -172,6 +174,7 @@ class _KavachAddVehicleBottomSheetState
                   mandatoryStar: true,
                   maxLength: 20,
                   labelText: context.appText.truckMakeModel,
+                  textCapitalization: TextCapitalization.characters,
                   validator:
                       (value) => Validator.noSpecialCharacters(
                         value,
@@ -186,6 +189,7 @@ class _KavachAddVehicleBottomSheetState
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
+                  textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(licenseAlphaNumHyphenRegex),
                   ],
@@ -371,12 +375,14 @@ class _KavachAddVehicleBottomSheetState
                                 value == null || value.isEmpty
                                     ? context.appText.pleaseSelectCommodity
                                     : null,
+                        showValidationError: showValidationErrors,
                       );
 
 
 
                     } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}');
+                      return Text('Error: ${state.commodities.errorType}',
+                      style: AppTextStyle.body3.copyWith(color: Colors.red));
                     }
 
                     return const SizedBox.shrink();
@@ -411,6 +417,9 @@ class _KavachAddVehicleBottomSheetState
                     20.width,
                     AppButton(
                       onPressed: () async {
+                        setState(() {
+                          showValidationErrors = true;
+                        });
                         if (!formKey.currentState!.validate()) return;
                         if (vehicleDocList.isEmpty) {
                           ToastMessages.alert(

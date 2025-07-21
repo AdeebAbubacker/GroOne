@@ -290,6 +290,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               final request = KavachOrderRequest(
                 orderSource: "MOBILE",
                 isOrderPaid: false,
+                orderTypeId: 1,
                 customerId: await kavachOrderBloc.getUserId()??'',
                 totalPrice: totalAmount,
                 categoryId: 1,
@@ -347,6 +348,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
                   );
                 }).toList(),
+                teamId: 1,
 
               );
 

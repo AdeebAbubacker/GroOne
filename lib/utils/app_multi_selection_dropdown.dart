@@ -17,6 +17,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
   final String? Function(List<DropdownItem<T>>?)? validator;
   final Widget? prefixIcon;
   final String? headerText;
+  final bool showValidationError;
 
   const AppMultiSelectionDropdown({
     super.key,
@@ -28,7 +29,9 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
     this.onSelectionChange,
     this.validator,
     this.prefixIcon,
-    this.headerText, this.mandatoryStar = false,
+    this.headerText, 
+    this.mandatoryStar = false,
+    this.showValidationError = false,
   });
 
   @override
@@ -50,7 +53,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
           items: items,
           enabled: true,
           searchEnabled: true,
-          validator: validator,
+          validator: null, // Disable built-in validator to avoid maroon error text
           onSelectionChange: onSelectionChange,
 
           chipDecoration: ChipDecoration(
@@ -70,6 +73,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
             backgroundColor: AppColors.textFieldFillColor,
             border: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.borderColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
             focusedBorder: OutlineInputBorder(borderSide:  BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+            errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 1.5), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
           ),
 
           dropdownDecoration: DropdownDecoration(
@@ -95,7 +99,26 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
           ),
 
         ),
-      
+        // Add custom error text display in red color only when validation is triggered
+        if (validator != null && showValidationError)
+          Builder(
+            builder: (context) {
+              final errorText = validator!(controller.selectedItems);
+              if (errorText != null) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                  child: Text(
+                    errorText,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
       ],
     );
   }

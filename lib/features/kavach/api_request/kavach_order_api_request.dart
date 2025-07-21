@@ -39,6 +39,7 @@ class KavachOrderItem {
 class KavachOrderRequest {
   final String orderSource;
   final bool isOrderPaid;
+  final int orderTypeId;
   final String customerId;
   final double totalPrice;
   final int categoryId;
@@ -50,10 +51,12 @@ class KavachOrderRequest {
   final List<KavachOrderItem> orders;
   final int createdEmpUserId;
   final String orderReferencedBy;
+  final int teamId;
 
   KavachOrderRequest({
     required this.orderSource,
     required this.isOrderPaid,
+    required this.orderTypeId,
     required this.customerId,
     required this.totalPrice,
     required this.categoryId,
@@ -65,11 +68,13 @@ class KavachOrderRequest {
     required this.orders,
     required this.createdEmpUserId,
     required this.orderReferencedBy,
+    required this.teamId,
   });
 
   Map<String, dynamic> toJson() => {
     "orderSource": orderSource,
     "isOrderPaid": isOrderPaid,
+    "orderTypeId": orderTypeId,
     "customerId": customerId,
     "totalPrice": totalPrice,
     "categoryId": categoryId,
@@ -81,6 +86,7 @@ class KavachOrderRequest {
     "orders": orders.map((o) => o.toJson()).toList(),
     "createdEmpUserId": createdEmpUserId,
     "orderReferencedBy": orderReferencedBy,
+    "teamId": teamId,
   };
 }
 

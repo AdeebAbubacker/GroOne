@@ -434,6 +434,21 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     );
 
                     if (result != null) {
+                      // Check if search should be cleared
+                      final shouldClearSearch = result['clearSearch'] as bool? ?? false;
+                      
+                      if (shouldClearSearch) {
+                        // Clear search and fetch all products
+                        searchController.clear();
+                        bloc.add(events.ClearKavachQuantities());
+                        bloc.add(
+                          events.FetchKavachProducts(
+                            search: "", // Empty search to fetch all products
+                            preferences: bloc.state.userPreferences,
+                          ),
+                        );
+                      }
+                      
                       // Update quantities
                       bloc.add(
                         events.UpdateKavachQuantities(result['quantities']),
