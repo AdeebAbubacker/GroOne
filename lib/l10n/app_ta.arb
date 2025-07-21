@@ -797,6 +797,8 @@
   "unableToGetCustomerId": "வாடிக்கையாளர் ஐடியை பெற முடியவில்லை",
   "failedToLoadVehicles": "வாகனங்களை ஏற்ற முடியவில்லை",
   "vehicleIsCurrentlyInactive": "வாகனம் தற்போது செயலற்ற நிலையில் உள்ளது",
+
+  "nowYouCanExploreRates": "இப்போது நீங்கள் விகிதங்களை ஆராய்ந்து சரக்குகளை பதிவிடலாம்",
   "success": "வெற்றி",
   "failed": "தோல்வி",
   "failedToLoadTermsAndConditions": "விதிமுறைகள் மற்றும் நிபந்தனைகளை ஏற்றுவதில் தோல்வி.",

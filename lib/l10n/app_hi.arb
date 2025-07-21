@@ -741,6 +741,7 @@
   "unableToGetCustomerId": "ग्राहक आईडी प्राप्त करने में असमर्थ",
   "failedToLoadVehicles": "वाहन लोड करने में विफल",
   "vehicleIsCurrentlyInactive": "वाहन वर्तमान में निष्क्रिय है",
+  "nowYouCanExploreRates": "अब आप दरें देख सकते हैं और लोड पोस्ट कर सकते हैं",
   "totalVehicles": "कुल वाहन",
   "insideFence": "बाड़ के अंदर",
   "outsideFence": "बाड़ के बाहर",
