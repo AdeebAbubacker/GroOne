@@ -94,7 +94,8 @@ class _KavachAddVehicleBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
+    return SafeArea(
+      child: AppBottomSheetBody(
       title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
@@ -482,7 +483,7 @@ class _KavachAddVehicleBottomSheetState
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

@@ -76,7 +76,8 @@ class _KavachAddAddressBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
+    return SafeArea(
+      child: AppBottomSheetBody(
       title: widget.title, // Use the passed title
       hideDivider: false,
       body: BlocListener<KavachCheckoutAddAddressBloc, KavachCheckoutAddAddressState>(
@@ -100,7 +101,8 @@ class _KavachAddAddressBottomSheetState
         },
         child: _buildBody(context: context),
       ),
-    );
+    )
+ );
   }
 
   Widget _buildBody({required BuildContext context}) {

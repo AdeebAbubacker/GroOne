@@ -69,7 +69,8 @@ class _GpsAddAddressBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
+    return SafeArea(
+      child: AppBottomSheetBody(
       title: widget.title,
       hideDivider: false,
       body: Container(
@@ -230,6 +231,7 @@ class _GpsAddAddressBottomSheetState
           ),
         ),
       ),
-    );
+    )
+ );
   }
 } 
