@@ -70,22 +70,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     }).length;
   }
 
-  Future<void> _loadWeeklyDistance(List<GpsCombinedVehicleData> vehicles) async {
-    if (selectedVehicleNumber == null || vehicles.isEmpty) return;
-
-    final vehicle = vehicles.firstWhere(
-          (v) => v.vehicleNumber == selectedVehicleNumber,
-      orElse: () => vehicles.first,
-    );
-
-    if (vehicle.deviceId == null) return;
-
-    final result = await GpsRealmService().getWeeklyDistanceGraph(vehicle.deviceId!);
-    setState(() {
-      _weeklyDistance = result;
-      _isWeeklyDistanceLoading = false;
-    });
-  }
 
   Future<void> _loadDistanceDataForSelectedVehicle(List<GpsCombinedVehicleData> vehicles) async {
     if (selectedVehicleNumber == null || vehicles.isEmpty) return;

@@ -394,8 +394,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
         AppButton(
           title: context.appText.buyNewGps,
           onPressed: () {
-            Navigator.push(context, commonRoute(GpsHomeScreen()));
-            // Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
+            Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
             // Navigator.push(context,commonRoute(GpsModelsScreen()));
           },
         ).paddingOnly(bottom: 30, left: 15, right: 15, top: 10),
