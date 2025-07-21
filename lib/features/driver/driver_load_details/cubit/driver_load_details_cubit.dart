@@ -29,7 +29,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
 Future<void> getLpLoadsById({required String loadId}) async {
   _setLoadByIdUIState(UIState.loading());
 
-  Result result = await _repository.fetchDriversLoadById(loadId: 'd');
+  Result result = await _repository.fetchDriversLoadById(loadId: loadId);
 
   if (result is Success<DriverLoadDetailsModel>) {
     _setLoadByIdUIState(UIState.success(result.value)); 

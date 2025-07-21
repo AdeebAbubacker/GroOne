@@ -347,6 +347,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
           _loadDataByTab(index: tabIndex, forceRefresh: true);
                 } else if (state is DriverLoadStatusChangeFailed) {
+                _loadDataByTab(index: tabIndex, forceRefresh: true);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Failed to update driver load status")),
           );

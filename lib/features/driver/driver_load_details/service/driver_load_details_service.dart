@@ -25,7 +25,7 @@ class DriverLoadDetailsService {
     try {
       final url = ApiUrls.driverLoadById;
       final response = await _apiService.get(
-      "${url}/${driverId}/${loadId}",
+      "${url}${driverId}/${loadId}",
         forceRefresh: forceRefresh,
       );
 
