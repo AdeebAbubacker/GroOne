@@ -269,32 +269,77 @@ class GpsService {
     }
   }
 
-  Future<Result<void>> updateParkingMode({
-    required String userId,
+  // Future<Result<void>> updateParkingMode({
+  //   required int deviceId,
+  //   required bool parkingMode,
+  //   required String token,
+  // }) async {
+  //   try {
+  //     final response = await _apiService.post(
+  //       'https://api.letsgro.co/api/v1/auth/parking_mode',
+  //       body: {
+  //         "parking_mode": parkingMode,
+  //         "device_id": deviceId,
+  //       },
+  //       customHeaders: {'Authorization': token},
+  //     );
+  //
+  //     if (response is Success) {
+  //       return await _apiService.getResponseStatus(response.value, (_) => null);
+  //     } else {
+  //       return Error(GenericError());
+  //     }
+  //   } catch (e) {
+  //     CustomLog.error(this, "Failed to update parking mode", e);
+  //     return Error(ErrorWithMessage(message: e.toString()));
+  //   }
+  // }
+  Future<Result<GpsParkingModeModel>> updateParkingMode({
+    required int? id,
     required int deviceId,
     required bool parkingMode,
     required String token,
   }) async {
+    final payload = {
+      "device_id": deviceId,
+      "parking_mode": parkingMode,
+    };
+
     try {
-      final response = await _apiService.put(
-        'https://api.letsgro.co/api/v1/auth/parking_mode/$userId',
-        body: {
-          "parking_mode": parkingMode,
-          "device_id": deviceId,
-        },
+      final response = id != null && id > 0
+          ? await _apiService.patch(
+        'https://api.letsgro.co/api/v1/auth/parking_mode/$id',
+        body: payload,
+        customHeaders: {'Authorization': token},
+      )
+          : await _apiService.post(
+        'https://api.letsgro.co/api/v1/auth/parking_mode',
+        body: payload,
         customHeaders: {'Authorization': token},
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(response.value, (_) => null);
-      } else {
+        return await _apiService.getResponseStatus(response.value, (data) {
+          final raw = data['data'];
+
+          if (raw is List && raw.isNotEmpty) {
+            return GpsParkingModeModel.fromJson(raw.first);
+          } else if (raw is Map<String, dynamic>) {
+            return GpsParkingModeModel.fromJson(raw);
+          } else {
+            throw Exception("Unexpected data format in parking mode update response");
+          }
+        });
+      }
+      else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to update parking mode", e);
+      CustomLog.error(this, "Update parking mode error", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
 
 
 

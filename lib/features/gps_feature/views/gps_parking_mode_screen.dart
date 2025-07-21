@@ -17,6 +17,7 @@ import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_parking_model.dart';
 import 'widgets/gps_parking_mode_scheduler.dart';
 import 'gps_notification_screen.dart';
+import 'package:collection/collection.dart';
 
 class GpsParkingModeScreen extends StatefulWidget {
   const GpsParkingModeScreen({super.key});
@@ -157,15 +158,24 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
                   itemBuilder: (context, index) {
                     final vehicle = vehicles[index];
                     final deviceId = vehicle.deviceId;
-                    final parkingEntry = parkingModes.firstWhere(
-                      (e) => e.deviceId == deviceId,
-                      orElse:
-                          () => GpsParkingModeModel(
-                            id: -1,
-                            deviceId: deviceId ?? 0,
-                            parkingMode: false,
-                          ),
+                    // final parkingEntry = parkingModes.firstWhere(
+                    //   (e) => e.deviceId == deviceId,
+                    //   orElse:
+                    //       () => GpsParkingModeModel(
+                    //         id: -1,
+                    //         deviceId: deviceId ?? 0,
+                    //         parkingMode: false,
+                    //       ),
+                    // );
+                    final parkingEntry = parkingModes.firstWhereOrNull(
+                          (e) => e.deviceId == deviceId,
+                    ) ?? GpsParkingModeModel(
+                      id: -1,
+                      deviceId: deviceId ?? 0,
+                      parkingMode: false,
                     );
+
+
 
                     return _buildVehicleTile(
                       context,
@@ -208,7 +218,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
               value: parkingEntry.parkingMode,
               activeTrackColor: AppColors.activeGreenColor,
               activeColor: Colors.white,
-              onChanged: (val) {
+              onChanged: (val) async {
                 context.read<GpsParkingModeCubit>().toggleParkingMode(parkingEntry, val);
               },
             ),
