@@ -2,8 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
-import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../cubit/report_cubit.dart';
@@ -345,10 +343,9 @@ class GpsReportScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      _getEmptyStateIcon(state.currentReportType),
+                    Icon(_getEmptyStateIcon(state.currentReportType),
                       size: 64,
-                      color: AppColors.grayColor.withOpacity(0.5),
+                      color: AppColors.grayColor.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(

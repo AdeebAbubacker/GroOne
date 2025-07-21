@@ -1,7 +1,6 @@
 // lib/features/gps_feature/widgets/reachability_report_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../../../utils/app_colors.dart';
 import '../model/address_model.dart';
 import '../model/report_model.dart';
@@ -10,12 +9,12 @@ import 'address_skeleton.dart';
 class ReachabilityReportCard extends StatelessWidget {
   final ReachabilityReport report;
   final ReachabilityAddressResponse? addressResponse;
-  
+
   const ReachabilityReportCard({
-    Key? key, 
+    super.key,
     required this.report,
     this.addressResponse,
-  }) : super(key: key);
+  });
 
   String _formatDateTime(String dateTimeString) {
     try {
@@ -47,7 +46,7 @@ class ReachabilityReportCard extends StatelessWidget {
         return realAddress;
       }
     }
-    
+
     // Second priority: Addresses from API response
     if (report.setAddress.isNotEmpty && report.setAddress != "No Address") {
       return report.setAddress;
@@ -55,17 +54,17 @@ class ReachabilityReportCard extends StatelessWidget {
     if (report.endAddress.isNotEmpty && report.endAddress != "No Address") {
       return report.endAddress;
     }
-    
+
     // Third priority: Geofence name
     if (report.geofenceName.isNotEmpty) {
       return report.geofenceName;
     }
-    
+
     // Final fallback: Coordinates
     if (report.lat != 0.0 && report.lng != 0.0) {
       return "Lat: ${report.lat.toStringAsFixed(6)}, Lng: ${report.lng.toStringAsFixed(6)}";
     }
-    
+
     return "Location not available";
   }
 
@@ -106,7 +105,10 @@ class ReachabilityReportCard extends StatelessWidget {
                 ),
                 // Status Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: _getStatusColor(),
                     borderRadius: BorderRadius.circular(20),
@@ -123,13 +125,7 @@ class ReachabilityReportCard extends StatelessWidget {
               ],
             ),
           ),
-          
-          // Map Section
-
-          
-
-          
-         // Address Section
+          // Address Section
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.all(12),
@@ -137,35 +133,36 @@ class ReachabilityReportCard extends StatelessWidget {
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: addressResponse == null 
-              ? const AddressSkeleton(showStartEnd: false)
-              : Row(
-                  children: [
-                    Container(
-                      width: 4,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.activeDarkGreenColor,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _getDisplayAddress(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
+            child:
+                addressResponse == null
+                    ? const AddressSkeleton(showStartEnd: false)
+                    : Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.activeDarkGreenColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _getDisplayAddress(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Details Section
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -209,9 +206,9 @@ class ReachabilityReportCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Reached Row
                 Row(
                   children: [
@@ -250,17 +247,11 @@ class ReachabilityReportCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
                 const SizedBox(height: 12),
-                
                 // Radius Row
                 Row(
                   children: [
-                    Icon(
-                      Icons.radar,
-                      size: 20,
-                      color: Colors.grey[600],
-                    ),
+                    Icon(Icons.radar, size: 20, color: Colors.grey[600]),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,10 +278,9 @@ class ReachabilityReportCard extends StatelessWidget {
               ],
             ),
           ),
-          
           const SizedBox(height: 16),
         ],
       ),
     );
   }
-} 
+}

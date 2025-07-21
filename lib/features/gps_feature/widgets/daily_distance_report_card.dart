@@ -19,7 +19,7 @@ class DailyDistanceReportCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -79,7 +79,7 @@ class DailyDistanceReportCard extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
