@@ -187,7 +187,7 @@ final bool isConsentGiven = false;
                 ),
                 10.width,
               DriverLoadHelper.loadStatusButtonWidget(
-                statusId: 5,
+                statusId:widget.driverLoadDetails.loadStatusId,
                  onPressed: widget.onClickAssignDriver ?? () {},
               ).expand(),  
                
