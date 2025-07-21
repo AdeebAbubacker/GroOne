@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 
@@ -53,6 +54,20 @@ Future<void> getLpLoadsById({required String loadId}) async {
     }
   }
 
+  //  Damage list Api Call
+  void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
+    emit(state.copyWith(damageListUIState: uiState));
+  }
+  Future<void> fetchDamageList(String loadId) async {
+    _setDamageListUIState(UIState.loading());
+    Result result = await _repository.getDamageListData(loadId);
+    if (result is Success<GetDamageListModel>) {
+      _setDamageListUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDamageListUIState(UIState.error(result.type));
+    }
+  }
 
 }
 

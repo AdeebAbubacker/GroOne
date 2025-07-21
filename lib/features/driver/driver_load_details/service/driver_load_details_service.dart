@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -59,6 +60,25 @@ class DriverLoadDetailsService {
       );
       if (result is Success) {
         final data = UploadDamageFileModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
+    /// Get Damage List Service
+  Future<Result<GetDamageListModel>> fetchDamageList(String loadId) async {
+    try {
+      final url = ApiUrls.damage;
+      final result = await _apiService.get(url, queryParams: {"loadId" : loadId});
+      if (result is Success) {
+        final data= GetDamageListModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);

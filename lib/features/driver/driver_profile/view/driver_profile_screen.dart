@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/master_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
@@ -8,6 +10,8 @@ import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -19,6 +23,8 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -37,8 +43,10 @@ class DriverProfileScreen extends StatefulWidget {
 
 class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
   final driverProfileCubit = locator<DriverProfileCubit>();
+  final UserInformationRepository _userInformationRepository = locator<UserInformationRepository>();
   final double profileSize = 120;
   String appVersion = '';
+  String? userId;
 
   @override
   void initState() {
@@ -47,7 +55,12 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+     final userId = (await _userInformationRepository.getUserID())?.toString();
+
+  // Only fetch profile if user is logged in
+  if (userId != null && userId.isNotEmpty ) {
     driverProfileCubit.fetchProfileDetail();
+  }
     appVersion = await appVersionInfo();
     setState(() {});
   });
@@ -109,7 +122,20 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
       },
     );
   }
-
+  void logoutDialogPopUp(BuildContext context, bool isLoading) {
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        yesButtonText: context.appText.logOut,
+        noButtonText: context.appText.cancel,
+        showYesNoButtonButtons: true,
+        hideCloseButton: true,
+        onClickYesButton: ()=> driverProfileCubit.logout(),
+        yesButtonLoading: isLoading,
+        child: LogOutDialogueUi(),
+      ),
+    );
+  }
   Widget profileOptionWidget(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -150,6 +176,31 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
           ),
           commonDivider(),
           10.height,
+           BlocConsumer<DriverProfileCubit, DriverProfileState>(
+            bloc: driverProfileCubit,
+            listenWhen: (previous, current) => previous.logoutUIState?.status != current.logoutUIState?.status,
+            listener: (context, state) {
+              final status = state.logoutUIState?.status;
+
+              if (status == Status.SUCCESS) {
+  
+                context.go(AppRouteName.chooseLanguage);
+              }
+
+              if (status == Status.ERROR) {
+                final error = state.logoutUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+            },
+            builder: (context, state) {
+              return ProfileMyAccountTile(
+                imageString: AppImage.svg.logOut,
+                text: context.appText.logOut,
+                onTap: () => logoutDialogPopUp(context, state.logoutUIState?.status == Status.LOADING),
+                showArrow: false,
+              );
+            },
+          ),
         ],
       ),
     );

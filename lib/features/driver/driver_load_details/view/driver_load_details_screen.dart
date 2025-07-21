@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
@@ -179,19 +180,20 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                     ),
                   ],
                 ).expand(),
-                
-                    Container(
-        decoration: commonContainerDecoration(
-          color: LpHomeHelper.getLoadStatusColor('3')
-        ),
-        width: 100,
-        child: Text(
-          LpHomeHelper.getLoadTypeDisplayText(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? ''),
-          style: AppTextStyle.body3.copyWith(
-            color: LpHomeHelper.getLoadStatusTextColor(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? '')
-          ),
-        ).center().paddingAll(4),
-      ), ],
+                 DriverLoadHelper.driverStatusWidget(loadItem.data?.loadStatusId.toString()),
+                //  Container(
+                //   decoration: commonContainerDecoration(
+                //     color: LpHomeHelper.getLoadStatusColor('3')
+                //   ),
+                //   width: 100,
+                //   child: Text(
+                //     LpHomeHelper.getLoadTypeDisplayText(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? ''),
+                //     style: AppTextStyle.body3.copyWith(
+                //       color: LpHomeHelper.getLoadStatusTextColor(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? '')
+                //     ),
+                //   ).center().paddingAll(4),
+                // ), 
+                ],
             )
           ],
         ).paddingAll(12),

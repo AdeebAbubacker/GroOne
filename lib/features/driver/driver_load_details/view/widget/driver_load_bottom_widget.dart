@@ -1,8 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_damages_list_view.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
@@ -22,8 +28,10 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
+import '../../../../../data/ui_state/status.dart';
 import '../../../../load_provider/lp_home/helper/lp_home_helper.dart';
 
 
@@ -40,6 +48,15 @@ class DriverLoadBottomWidget extends StatefulWidget {
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
+  final DriverLoadDetailsCubit cubit = locator<DriverLoadDetailsCubit>();
+      List<dynamic> lorryReceiptFiles = [];
+      List<String> uploadedLorryReceipts = [];
+
+      List<dynamic> eWayBillFiles = [];
+      List<String> uploadedEWayBills = [];
+
+      List<dynamic> materialInvoiceFiles = [];
+      List<String> uploadedMaterialInvoices = [];
   @override
   Widget build(BuildContext context) {
     print('load sstua ${widget.loadItem.data!.loadStatusId}');
@@ -96,7 +113,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                       ),           
                  ],
                   ),
-                  
+    
                     20.height, 
                     DriverSourceDestinationWidget(
                             pickUpLocation: widget.loadItem.data?.loadRoute?.pickUpLocation,
@@ -119,15 +136,59 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             phoneNo: widget.loadItem.data?.consignees.last.mobileNumber ?? '',
                             ),
                           20.height,
-                          if(widget.loadItem.data!.loadStatusId == 5)
-                          if(widget.loadItem.data!.loadDocument!.isNotEmpty)
+                      if (widget.loadItem.data!.loadStatusId == 5) ...[
+                        20.height,
+                        Text('Upload Documents', style: AppTextStyle.h4),
+                        10.height,
+
+                        buildUploadDocumentWidget(
+                          title: "Lorry Receipt",
+                          fileList: lorryReceiptFiles,
+                          uploadedFileList: uploadedLorryReceipts,
+                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                          onDelete: (index) => setState(() {
+                            uploadedLorryReceipts.removeAt(index);
+                          }),
+                          cubit: cubit,
+                        ),
+
+                        20.height,
+
+                        buildUploadDocumentWidget(
+                          title: "E-Way Bill",
+                          fileList: eWayBillFiles,
+                          uploadedFileList: uploadedEWayBills,
+                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                          onDelete: (index) => setState(() {
+                            uploadedEWayBills.removeAt(index);
+                          }),
+                          cubit: cubit,
+                        ),
+
+                        20.height,
+
+                        buildUploadDocumentWidget(
+                          title: "Material Invoice",
+                          fileList: materialInvoiceFiles,
+                          uploadedFileList: uploadedMaterialInvoices,
+                          uploadCallback: (path) => cubit.uploadDamageFile(File(path)),
+                          onDelete: (index) => setState(() {
+                            uploadedMaterialInvoices.removeAt(index);
+                          }),
+                          cubit: cubit,
+                        ),
+                      ]
+                      ,  20.height,
+
+
+                          if(widget.loadItem.data!.loadDocument!.isNotEmpty && widget.loadItem.data!.loadStatusId != 5)
                       // Download Documents
                      ...[
                        Text(context.appText.tripdocument, style: AppTextStyle.h4),
                        10.height,
                       Column(
                       children: widget.loadItem.data!.loadDocument!
-                          .expand((docList) => docList) // flatten List<List<T>> into List<T>
+                          .expand((docList) => docList) 
                           .map((doc) {
                             return Column(
                               children: [
@@ -145,6 +206,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                     )
 
                      ],
+                      if(widget.loadItem.data!.loadStatusId > 5)
+                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                       20.height,
                       _buildAdableSectionHeader(
                           showAddButton:true,
@@ -171,7 +236,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   );
                                 },
                               ),      
-                         20.height,
+                      
+                      ],),
+                     20.height,
                           Text("Timeline",
                               style: AppTextStyle.h4,
                               ),
@@ -196,6 +263,57 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
       ),
     );
   }
+  Widget buildUploadDocumentWidget({
+  required String title,
+  required List<dynamic> fileList,
+  required List<String> uploadedFileList,
+  required void Function(String path) uploadCallback,
+  required void Function(int index) onDelete,
+  required DriverLoadDetailsCubit cubit,
+}) {
+  return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+    bloc: cubit,
+    listenWhen: (previous, current) =>
+        previous.uploadDamageUIState?.status != current.uploadDamageUIState?.status,
+    listener: (context, state) {
+      final status = state.uploadDamageUIState?.status;
+      if (status == Status.SUCCESS) {
+        final url = state.uploadDamageUIState?.data?.url;
+        if (url != null && url.isNotEmpty) {
+          setState(() {
+            uploadedFileList.add(url);
+            fileList.clear();
+          });
+        }
+      }
+      if (status == Status.ERROR) {
+        final error = state.uploadDamageUIState?.errorType;
+        fileList.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error uploading: ${error.runtimeType}")),
+        );
+      }
+    },
+    builder: (context, state) {
+      final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
+      return UploadAttachmentFiles(
+        title: title,
+        multiFilesList: fileList,
+        isMultipleSelectionFile: false,
+        isSingleFile: false,
+        isLoading: isLoading,
+        thenUploadFileToSever: () {
+          if (fileList.isNotEmpty) {
+            final selected = fileList.last['path'];
+            uploadCallback(selected);
+          }
+        },
+        onDelete: onDelete,
+      );
+    },
+  );
+}
+
   }
 
 
@@ -436,3 +554,5 @@ Widget _buildHeading({required String text}) {
     ),
     );
   }
+
+

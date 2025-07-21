@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -16,9 +17,12 @@ class DriverProfileService {
   DriverProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
   Future<Result<DriverProfileDetailsModel>> getDriverProfileDetails() async {
     try {
-   
-      final url = ApiUrls.driverProfile + (await _userInformationRepository.getUserID() ?? "");
-     //final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${await _userInformationRepository.getUserID() ?? ""}";  
+    final userId = await _userInformationRepository.getUserID();
+     // final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
+     final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${userId ?? ""}";  
+     if (userId == null || userId.isEmpty) {
+    return Error(InvalidInputError());
+  }
 //315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c
     print("user id is  ${ _userInformationRepository.getUserID()}");
       final result = await _apiService.get(url);
@@ -75,4 +79,23 @@ class DriverProfileService {
     }
   }
 
+   /// Log out repo
+  Future<Result<DriverlogoutModel>> fetchLogOutData() async {
+    try {
+      final url = ApiUrls.logout;
+      final customerId = await _userInformationRepository.getUserID();
+      final result = await _apiService.post("https://gro-devapi.letsgro.co/customer/api/v1/auth/logout", body: { "customerId" : customerId ?? "","isDriver": true});
+      if (result is Success) {
+        final logOutModel= DriverlogoutModel.fromJson(result.value);
+        return  Success(logOutModel);
+      } else if (result is Error) { 
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      CustomLog. error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
 }

@@ -141,4 +141,62 @@ class DriverLoadHelper {
         return Container();
     }
   }
+
+   static Widget driverStatusWidget(String? status) {
+    Widget buildUI({
+      required String text,
+      required Color textColor,
+      required Color backgroundColor,
+    }) {
+      return Container(
+        decoration: commonContainerDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyle.body.copyWith(color: textColor),
+        ).paddingSymmetric(horizontal: 10, vertical: 3),
+      );
+    }
+
+    switch (status) {
+      case "4":
+        return buildUI(
+          text: "Assigned",
+          textColor: Colors.blue.shade900,
+          backgroundColor: Colors.blue.shade100,
+        );
+      case "5":
+        return buildUI(
+          text: "Loading",
+          textColor: Colors.orange.shade800,
+          backgroundColor: Colors.orange.shade100,
+        );
+      case "6":
+        return buildUI(
+          text: "In Transit",
+          textColor: Colors.deepPurple,
+          backgroundColor: Colors.deepPurple.shade100,
+        );
+      case "7":
+        return buildUI(
+          text: "Unloading",
+          textColor: Colors.teal,
+          backgroundColor: Colors.teal.shade100,
+        );
+      case "8":
+        return buildUI(
+          text: "Completed",
+          textColor: Colors.green,
+          backgroundColor: Colors.green.shade100,
+        );
+      default:
+        return buildUI(
+          text: "Unknown",
+          textColor: Colors.black54,
+          backgroundColor: Colors.grey.shade300,
+        );
+    }
+  }
 }

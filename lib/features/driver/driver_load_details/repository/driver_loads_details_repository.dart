@@ -26,6 +26,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -62,4 +63,15 @@ class  DriverLoadsDetailsRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+   /// Gat Damage List Repo
+  Future<Result<GetDamageListModel>> getDamageListData(String loadId) async {
+    try {
+      return await service.fetchDamageList(loadId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request damage list data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+ 
 }

@@ -1,5 +1,6 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/service/driver_profile_service.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
@@ -33,5 +34,25 @@ class DriverProfileRepository {
     }
   }
 
+    /// LogOut Repo
+  Future<Result<DriverlogoutModel>> getLogOutData() async {
+    try {
+      return await _profileService.fetchLogOutData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request logout data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 
+  /// Sign Out
+  Future<Result<bool>> signOut() async {
+    try {
+      await _authRepository.signOut(); // Your logout logic here
+      return Success(true);
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
 }
+
+

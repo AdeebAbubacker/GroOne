@@ -2,7 +2,7 @@ part of 'driver_profile_cubit.dart';
 
 class DriverProfileState extends Equatable {
   final UIState<DriverProfileDetailsModel>? profileDetailUIState;
-  final UIState<LogOutModel>? logoutUIState;
+  final UIState<DriverlogoutModel>? logoutUIState;
   final bool showSuccessKyc;
   final String? blueId;
   const DriverProfileState({
@@ -14,7 +14,7 @@ class DriverProfileState extends Equatable {
 
   DriverProfileState copyWith({
     UIState<DriverProfileDetailsModel>? profileDetailUIState,
-    UIState<LogOutModel>? logoutUIState,
+    UIState<DriverlogoutModel>? logoutUIState,
     bool? showSuccessKyc,
     String? blueId,
 
