@@ -15,68 +15,18 @@ import '../widgets/summary_report_card.dart';
 import '../widgets/trip_report_card.dart';
 import '../widgets/reachability_report_card.dart';
 import '../widgets/daily_distance_report_card.dart';
+import '../widgets/address_skeleton.dart';
+import 'other_reports_webview_screen.dart';
 
-class GpsReportScreen extends StatefulWidget {
+class GpsReportScreen extends StatelessWidget {
   const GpsReportScreen({super.key});
 
-  @override
-  State<GpsReportScreen> createState() => _GpsReportScreenState();
-}
-
-class _GpsReportScreenState extends State<GpsReportScreen> {
-  DateTime? fromDate;
-  DateTime? toDate;
-  GpsCombinedVehicleData? selectedVehicle;
-  ReportType selectedReportType = ReportType.stops;
-
-  @override
-  void initState() {
-    super.initState();
-    final now = DateTime.now();
-    // Set from date to start of day (00:00:00)
-    fromDate = DateTime(now.year, now.month, now.day);
-    // Set to date to end of day (23:59:59)
-    toDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
-  }
-
   Future<void> _pickFromDate(BuildContext context) async {
-    final newDate = await showDatePicker(
-      context: context,
-      initialDate: fromDate!,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    
-    if (newDate != null) {
-      setState(() {
-        fromDate = DateTime(
-          newDate.year,
-          newDate.month,
-          newDate.day,
-          0, 0, 0, 0,
-        );
-      });
-    }
+    await context.read<GpsReportCubit>().pickFromDate(context);
   }
 
   Future<void> _pickToDate(BuildContext context) async {
-    final newDate = await showDatePicker(
-      context: context,
-      initialDate: toDate!,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    
-    if (newDate != null) {
-      setState(() {
-        toDate = DateTime(
-          newDate.year,
-          newDate.month,
-          newDate.day,
-          23, 59, 59, 999,
-        );
-      });
-    }
+    await context.read<GpsReportCubit>().pickToDate(context);
   }
 
   void _showSelectionSheet<T>({
@@ -132,17 +82,23 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  // Other Reports functionality
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const OtherReportsWebViewScreen(),
+                    ),
+                  );
                 },
                 child: const Text(
                   'Other Reports',
                   style: TextStyle(
-                    color: Colors.blue,
+                    color: AppColors.primaryColor,
                     fontSize: 14,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColors.primaryColor,
                   ),
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.blue, size: 16),
+              const Icon(Icons.arrow_forward_ios, color: AppColors.primaryColor, size: 16),
               const SizedBox(width: 16),
             ],
           ),
@@ -162,13 +118,6 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
   Widget _buildFilterSection() {
     return BlocBuilder<GpsReportCubit, GpsReportState>(
       builder: (context, state) {
-        if (state.vehicleStatus == GpsDataStatus.success && selectedVehicle == null && state.vehicles.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() {
-              selectedVehicle = state.vehicles.first;
-            });
-          });
-        }
         return Container(
           color: AppColors.white,
           padding: const EdgeInsets.all(16.0),
@@ -180,7 +129,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                   Expanded(
                     child: _buildDateField(
                       label: 'From Date',
-                      date: fromDate!,
+                      date: state.fromDate,
                       onTap: () => _pickFromDate(context),
                     ),
                   ),
@@ -188,7 +137,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                   Expanded(
                     child: _buildDateField(
                       label: 'To Date',
-                      date: toDate!,
+                      date: state.toDate,
                       onTap: () => _pickToDate(context),
                     ),
                   ),
@@ -198,26 +147,26 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
               // Vehicle selection
               _buildDropdownField(
                 icon: Icons.directions_car,
-                text: selectedVehicle?.vehicleNumber ?? 'Select Vehicle',
+                text: state.selectedVehicle?.vehicleNumber ?? 'Select Vehicle',
                 onTap: () => _showSelectionSheet<GpsCombinedVehicleData>(
                   context: context,
                   title: 'Select Vehicle',
                   items: state.vehicles,
                   itemTitleBuilder: (vehicle) => vehicle.vehicleNumber ?? 'Unknown',
-                  onSelected: (vehicle) => setState(() => selectedVehicle = vehicle),
+                  onSelected: (vehicle) => context.read<GpsReportCubit>().selectVehicle(vehicle),
                 ),
               ),
               const SizedBox(height: 16),
               // Report type selection
               _buildDropdownField(
                 icon: Icons.assignment,
-                text: selectedReportType.displayName,
+                text: state.selectedReportType.displayName,
                 onTap: () => _showSelectionSheet<ReportType>(
                   context: context,
                   title: 'Select Report Type',
                   items: ReportType.values,
                   itemTitleBuilder: (type) => type.displayName,
-                  onSelected: (type) => setState(() => selectedReportType = type),
+                  onSelected: (type) => context.read<GpsReportCubit>().selectReportType(type),
                 ),
               ),
               const SizedBox(height: 24),
@@ -234,16 +183,11 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    if (selectedVehicle != null) {
-                      context.read<GpsReportCubit>().fetchReportData(
-                        reportType: selectedReportType,
-                        vehicleId: selectedVehicle?.deviceId ?? 0,
-                        fromDate: fromDate!,
-                        toDate: toDate!,
-                      );
+                    if (state.selectedVehicle != null) {
+                      context.read<GpsReportCubit>().fetchReports();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar(
+                        SnackBar(
                           content: Text('Please select a vehicle first'),
                           backgroundColor: AppColors.appRedColor,
                         ),
@@ -293,7 +237,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
               children: [
                 Text(
                   label,
-                  style:  TextStyle(
+                  style: TextStyle(
                     color: AppColors.darkGreyColor,
                     fontSize: 12,
                   ),
@@ -324,7 +268,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color:AppColors.disableColor),
+          border: Border.all(color: AppColors.disableColor),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -344,7 +288,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                 ),
               ),
             ),
-             Icon(
+            Icon(
               Icons.keyboard_arrow_down,
               color: AppColors.grayColor,
               size: 20,
@@ -370,27 +314,155 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
             return Center(
               child: Text(
                 state.errorMessage ?? 'An error occurred.',
-                style:  TextStyle(color: AppColors.grayColor),
-              ),
-            );
-          }
-          if (state.reportStatus == GpsDataStatus.success && state.reports.isEmpty) {
-            return  Center(
-              child: Text(
-                'No reports found for the selected criteria.',
                 style: TextStyle(color: AppColors.grayColor),
               ),
             );
           }
+          if (state.reportStatus == GpsDataStatus.success && state.reports.isEmpty) {
+            String emptyMessage;
+            switch (state.currentReportType) {
+              case ReportType.reachability:
+                emptyMessage = 'No reachability alerts found for the selected period.';
+                break;
+              case ReportType.stops:
+                emptyMessage = 'No stops found for the selected period.';
+                break;
+              case ReportType.trips:
+                emptyMessage = 'No trips found for the selected period.';
+                break;
+              case ReportType.daily:
+                emptyMessage = 'No daily summary found for the selected period.';
+                break;
+              case ReportType.dailyKm:
+                emptyMessage = 'No distance data found for the selected period.';
+                break;
+              default:
+                emptyMessage = 'No reports found for the selected period.';
+            }
+            
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _getEmptyStateIcon(state.currentReportType),
+                      size: 64,
+                      color: AppColors.grayColor.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      emptyMessage,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.grayColor,
+                        fontSize: 16,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           if (state.reportStatus == GpsDataStatus.success) {
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: state.reports.length,
-              itemBuilder: (context, index) {
+            // Check if addresses are still loading for report types that need addresses
+            bool addressesLoading = false;
+            switch (state.currentReportType) {
+              case ReportType.stops:
+                addressesLoading = state.stopAddressStatus == GpsDataStatus.loading;
+                break;
+              case ReportType.trips:
+                addressesLoading = state.addressStatus == GpsDataStatus.loading;
+                break;
+              case ReportType.daily:
+                addressesLoading = state.summaryAddressStatus == GpsDataStatus.loading;
+                break;
+              case ReportType.reachability:
+                addressesLoading = state.reachabilityAddressStatus == GpsDataStatus.loading;
+                break;
+              case ReportType.dailyKm:
+                // This report type doesn't need addresses
+                addressesLoading = false;
+                break;
+              default:
+                addressesLoading = false;
+            }
+
+            // Note: Individual cards will show skeleton for addresses if they're still loading
+
+            // Check if address loading failed but still show reports without addresses
+            bool addressLoadingFailed = false;
+            String? addressErrorMessage;
+            switch (state.currentReportType) {
+              case ReportType.stops:
+                if (state.stopAddressStatus == GpsDataStatus.error) {
+                  addressLoadingFailed = true;
+                  addressErrorMessage = 'Failed to load stop addresses';
+                }
+                break;
+              case ReportType.trips:
+                if (state.addressStatus == GpsDataStatus.error) {
+                  addressLoadingFailed = true;
+                  addressErrorMessage = 'Failed to load trip addresses';
+                }
+                break;
+              case ReportType.daily:
+                if (state.summaryAddressStatus == GpsDataStatus.error) {
+                  addressLoadingFailed = true;
+                  addressErrorMessage = 'Failed to load summary addresses';
+                }
+                break;
+              case ReportType.reachability:
+                if (state.reachabilityAddressStatus == GpsDataStatus.error) {
+                  addressLoadingFailed = true;
+                  addressErrorMessage = 'Failed to load reachability addresses';
+                }
+                break;
+              default:
+                break;
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Show error banner if address loading failed
+                if (addressLoadingFailed && addressErrorMessage != null)
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning, color: Colors.orange.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            addressErrorMessage!,
+                            style: TextStyle(
+                              color: Colors.orange.shade700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Reports list
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: state.reports.length,
+                  itemBuilder: (context, index) {
                 final item = state.reports[index];
-                // THIS IS THE FULLY IMPLEMENTED SWITCH
+                // Render different card types based on current report type
                 switch (state.currentReportType) {
                   case ReportType.stops:
                     final stopReport = item as StopReport;
@@ -436,17 +508,25 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                       child: DailyDistanceReportCard(report: item as DailyDistanceReport),
                     );
                   case ReportType.reachability:
+                    final reachabilityReport = item as ReachabilityReport;
+                    final reachabilityId = reachabilityReport.id.toString();
+                    final reachabilityAddressResponse = context.read<GpsReportCubit>().getAddressForReachability(reachabilityId);
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: ReachabilityReportCard(report: item as ReachabilityReport),
+                      child: ReachabilityReportCard(
+                        report: reachabilityReport,
+                        addressResponse: reachabilityAddressResponse,
+                      ),
                     );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
+                                        default:
+                        return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              ],
             );
           }
-          return  Center(
+          return Center(
             child: Text(
               "Select filters and tap 'Show Report' to begin.",
               style: TextStyle(color: AppColors.grayColor),
@@ -456,6 +536,23 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
       ),
     );
   }
+  // Helper method to get appropriate icon for empty states
+  IconData _getEmptyStateIcon(ReportType? reportType) {
+    switch (reportType) {
+      case ReportType.reachability:
+        return Icons.gps_not_fixed;
+      case ReportType.stops:
+        return Icons.pause_circle_outline;
+      case ReportType.trips:
+        return Icons.route;
+      case ReportType.daily:
+        return Icons.calendar_today;
+      case ReportType.dailyKm:
+        return Icons.straighten;
+      default:
+        return Icons.assignment;
+    }
+  }
 }
 
 // Reusable Selection Sheet Widget
@@ -464,7 +561,12 @@ class SelectionSheet<T> extends StatelessWidget {
   final List<T> items;
   final String Function(T) itemTitleBuilder;
 
-  const SelectionSheet({ Key? key, required this.title, required this.items, required this.itemTitleBuilder }) : super(key: key);
+  const SelectionSheet({
+    Key? key,
+    required this.title,
+    required this.items,
+    required this.itemTitleBuilder,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +577,10 @@ class SelectionSheet<T> extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           const Divider(height: 1),
           LimitedBox(
@@ -486,7 +591,11 @@ class SelectionSheet<T> extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = items[index];
                 return ListTile(
-                  title: Text(itemTitleBuilder(item), textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+                  title: Text(
+                    itemTitleBuilder(item),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                   onTap: () => Navigator.of(context).pop(item),
                 );
               },

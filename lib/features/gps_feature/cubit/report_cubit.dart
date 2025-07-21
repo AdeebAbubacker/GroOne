@@ -1,4 +1,5 @@
 // lib/features/gps_feature/cubit/report_cubit.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -21,7 +22,66 @@ class GpsReportCubit extends Cubit<GpsReportState> {
     GpsReportService? reportService,
   })  : _repository = repository ?? locator<GpsReportRepository>(),
         _reportService = reportService ?? locator<GpsReportService>(),
-        super(const GpsReportState());
+        super(GpsReportState());
+
+  // Date selection methods
+  void updateFromDate(DateTime date) {
+    emit(state.copyWith(
+      fromDate: DateTime(date.year, date.month, date.day, 0, 0, 0, 0),
+    ));
+  }
+
+  void updateToDate(DateTime date) {
+    emit(state.copyWith(
+      toDate: DateTime(date.year, date.month, date.day, 23, 59, 59, 999),
+    ));
+  }
+
+  // Date picker methods - handles UI logic in cubit
+  Future<void> pickFromDate(BuildContext context) async {
+    final newDate = await showDatePicker(
+      context: context,
+      initialDate: state.fromDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    
+    if (newDate != null) {
+      updateFromDate(newDate);
+    }
+  }
+
+  Future<void> pickToDate(BuildContext context) async {
+    final newDate = await showDatePicker(
+      context: context,
+      initialDate: state.toDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    
+    if (newDate != null) {
+      updateToDate(newDate);
+    }
+  }
+
+
+
+  // Vehicle selection method
+  void selectVehicle(GpsCombinedVehicleData vehicle) {
+    emit(state.copyWith(selectedVehicle: vehicle));
+  }
+
+  // Report type selection method
+  void selectReportType(ReportType reportType) {
+    emit(state.copyWith(selectedReportType: reportType));
+  }
+
+  // Auto-select first vehicle when vehicles are loaded
+  void _autoSelectFirstVehicle() {
+    if (state.vehicles.isNotEmpty && state.selectedVehicle == null) {
+      emit(state.copyWith(selectedVehicle: state.vehicles.first));
+    }
+  }
 
   // This method will be called once when the screen is first loaded.
   // Its job is to fetch the list of vehicles for the dropdown.
@@ -34,6 +94,7 @@ class GpsReportCubit extends Cubit<GpsReportState> {
         vehicleStatus: GpsDataStatus.success,
         vehicles: result.value,
       ));
+      _autoSelectFirstVehicle(); // Auto-select first vehicle after loading
     } else if (result is Error) {
       final error = (result as Error).type;
       emit(state.copyWith(
@@ -41,6 +102,24 @@ class GpsReportCubit extends Cubit<GpsReportState> {
         errorMessage: _getErrorMessage(error),
       ));
     }
+  }
+
+  // Method to fetch reports using current state values
+  Future<void> fetchReports() async {
+    if (state.selectedVehicle == null) {
+      emit(state.copyWith(
+        reportStatus: GpsDataStatus.error,
+        errorMessage: 'Please select a vehicle first',
+      ));
+      return;
+    }
+
+    await fetchReportData(
+      reportType: state.selectedReportType,
+      vehicleId: state.selectedVehicle!.deviceId ?? 0,
+      fromDate: state.fromDate,
+      toDate: state.toDate,
+    );
   }
 
   // Helper method to convert error types to user-friendly messages
@@ -58,6 +137,8 @@ class GpsReportCubit extends Cubit<GpsReportState> {
         }
       }
       return 'An error occurred while fetching the report.';
+    } else if (error.toString().contains('NotFoundError')) {
+      return 'No data found for the selected criteria.';
     } else if (error.toString().contains('GenericError')) {
       return 'An unexpected error occurred. Please try again.';
     } else {
@@ -136,15 +217,32 @@ class GpsReportCubit extends Cubit<GpsReportState> {
         print("  - Automatically fetching addresses for ${result.value.length} summary reports...");
         fetchAddressesForSummaries(result.value);
       }
+
+      // If this was a reachability report, automatically fetch addresses
+      if (reportType == ReportType.reachability && result.value.isNotEmpty) {
+        print("  - Automatically fetching addresses for ${result.value.length} reachability reports...");
+        fetchAddressesForReachability(result.value);
+      }
     } else if (result is Error) {
       final error = (result as Error).type;
       print("  - Error: $error");
       print("  - Error details: $error");
-      // If there was an error, update the state with a user-friendly error message.
-      emit(state.copyWith(
-        reportStatus: GpsDataStatus.error,
-        errorMessage: _getErrorMessage(error),
-      ));
+      
+      // Special handling for reachability reports: NotFoundError means no alerts, which is normal
+      if (reportType == ReportType.reachability && error.toString().contains('NotFoundError')) {
+        print("  - NotFoundError for reachability reports treated as empty success");
+        emit(state.copyWith(
+          reportStatus: GpsDataStatus.success,
+          reports: [], // Empty list for no reachability alerts
+          currentReportType: reportType,
+        ));
+      } else {
+        // If there was an error, update the state with a user-friendly error message.
+        emit(state.copyWith(
+          reportStatus: GpsDataStatus.error,
+          errorMessage: _getErrorMessage(error),
+        ));
+      }
     }
   }
 
@@ -336,6 +434,80 @@ class GpsReportCubit extends Cubit<GpsReportState> {
     }
     print("🌍 Cubit: Available summary IDs in address map: ${state.summaryAddresses.keys.toList()}");
     print("🌍 Cubit: Summary address status: ${state.summaryAddressStatus}");
+    return address;
+  }
+
+  /// Fetch addresses for reachability reports
+  Future<void> fetchAddressesForReachability(List<dynamic> reachabilityReports) async {
+    try {
+      print("🌍 Cubit: Starting to fetch addresses for ${reachabilityReports.length} reachability reports");
+      
+      if (reachabilityReports.isEmpty) {
+        print("🌍 Cubit: No reachability reports to process for addresses");
+        return;
+      }
+
+      // Get unique reachability IDs to check what we already have cached
+      final reachabilityIds = reachabilityReports.map((report) => report.id.toString()).toList();
+      
+      // Check if we already have addresses for all these reachability IDs
+      bool allAddressesCached = reachabilityIds.every((reachabilityId) => state.reachabilityAddresses.containsKey(reachabilityId));
+      
+      if (allAddressesCached) {
+        print("🌍 Cubit: All reachability addresses already cached, skipping API calls");
+        print("🌍 Cubit: Cached reachability IDs: ${state.reachabilityAddresses.keys.toList()}");
+        print("🌍 Cubit: Requested reachability IDs: $reachabilityIds");
+        return;
+      }
+
+      // Update state to show we're loading addresses
+      emit(state.copyWith(reachabilityAddressStatus: GpsDataStatus.loading));
+      
+      // Fetch addresses from service
+      final List<ReachabilityAddressResponse> addressResponses = 
+          await _reportService.fetchAddressesForReachability(reachabilityReports);
+      
+      print("🌍 Cubit: Received ${addressResponses.length} reachability address responses");
+      
+      // Convert list to map for faster lookup
+      Map<String, ReachabilityAddressResponse> addressMap = Map.from(state.reachabilityAddresses); // Start with existing cache
+      for (final response in addressResponses) {
+        addressMap[response.reachabilityId] = response;
+        print("🌍 Cubit: Storing reachability address for ID ${response.reachabilityId}");
+        print("   Address: ${response.address}");
+      }
+      
+      print("🌍 Cubit: Reachability address map created with ${addressMap.length} entries");
+      print("🌍 Cubit: Reachability address map keys: ${addressMap.keys.toList()}");
+      
+      // Update state with the fetched addresses
+      emit(state.copyWith(
+        reachabilityAddressStatus: GpsDataStatus.success,
+        reachabilityAddresses: addressMap,
+      ));
+      
+      print("🌍 Cubit: Reachability address state updated successfully");
+      
+    } catch (e) {
+      print("🌍 Cubit: Error fetching reachability addresses: $e");
+      emit(state.copyWith(
+        reachabilityAddressStatus: GpsDataStatus.error,
+        errorMessage: "Failed to load reachability addresses: ${e.toString()}",
+      ));
+    }
+  }
+
+  /// Get address for a specific reachability alert
+  ReachabilityAddressResponse? getAddressForReachability(String reachabilityId) {
+    print("🌍 Cubit: Looking up address for reachability $reachabilityId");
+    final address = state.reachabilityAddresses[reachabilityId];
+    if (address != null) {
+      print("🌍 Cubit: Found reachability address: YES (${address.address})");
+    } else {
+      print("🌍 Cubit: Found reachability address: NO");
+    }
+    print("🌍 Cubit: Available reachability IDs in address map: ${state.reachabilityAddresses.keys.toList()}");
+    print("🌍 Cubit: Reachability address status: ${state.reachabilityAddressStatus}");
     return address;
   }
 

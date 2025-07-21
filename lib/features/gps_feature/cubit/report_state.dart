@@ -17,6 +17,16 @@ enum ReportType {
 }
 
 class GpsReportState extends Equatable {
+  // Date selection state
+  final DateTime fromDate;
+  final DateTime toDate;
+  
+  // Vehicle selection state
+  final GpsCombinedVehicleData? selectedVehicle;
+  
+  // Report type selection state
+  final ReportType selectedReportType;
+
   // State for the vehicle dropdown
   final GpsDataStatus vehicleStatus;
   final List<GpsCombinedVehicleData> vehicles;
@@ -39,10 +49,18 @@ class GpsReportState extends Equatable {
   final GpsDataStatus summaryAddressStatus;
   final Map<String, SummaryAddressResponse> summaryAddresses; // Summary ID -> Address mapping
 
+  // State for reachability addresses
+  final GpsDataStatus reachabilityAddressStatus;
+  final Map<String, ReachabilityAddressResponse> reachabilityAddresses; // Reachability ID -> Address mapping
+
   // General error message for the screen
   final String? errorMessage;
 
-  const GpsReportState({
+  GpsReportState({
+    DateTime? fromDate,
+    DateTime? toDate,
+    this.selectedVehicle,
+    this.selectedReportType = ReportType.stops,
     this.vehicleStatus = GpsDataStatus.initial,
     this.vehicles = const [],
     this.reportStatus = GpsDataStatus.initial,
@@ -54,12 +72,29 @@ class GpsReportState extends Equatable {
     this.stopAddresses = const {},
     this.summaryAddressStatus = GpsDataStatus.initial,
     this.summaryAddresses = const {},
+    this.reachabilityAddressStatus = GpsDataStatus.initial,
+    this.reachabilityAddresses = const {},
     this.errorMessage,
-  });
+  }) : fromDate = fromDate ?? _getStartOfToday(),
+       toDate = toDate ?? _getEndOfToday();
+
+  static DateTime _getStartOfToday() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  static DateTime _getEndOfToday() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, 23, 59, 59);
+  }
 
   // copyWith allows us to create a new state object based on the old one,
   // making state updates easy and predictable.
   GpsReportState copyWith({
+    DateTime? fromDate,
+    DateTime? toDate,
+    GpsCombinedVehicleData? selectedVehicle,
+    ReportType? selectedReportType,
     GpsDataStatus? vehicleStatus,
     List<GpsCombinedVehicleData>? vehicles,
     GpsDataStatus? reportStatus,
@@ -71,9 +106,15 @@ class GpsReportState extends Equatable {
     Map<String, StopAddressResponse>? stopAddresses,
     GpsDataStatus? summaryAddressStatus,
     Map<String, SummaryAddressResponse>? summaryAddresses,
+    GpsDataStatus? reachabilityAddressStatus,
+    Map<String, ReachabilityAddressResponse>? reachabilityAddresses,
     String? errorMessage,
   }) {
     return GpsReportState(
+      fromDate: fromDate ?? this.fromDate,
+      toDate: toDate ?? this.toDate,
+      selectedVehicle: selectedVehicle ?? this.selectedVehicle,
+      selectedReportType: selectedReportType ?? this.selectedReportType,
       vehicleStatus: vehicleStatus ?? this.vehicleStatus,
       vehicles: vehicles ?? this.vehicles,
       reportStatus: reportStatus ?? this.reportStatus,
@@ -85,12 +126,18 @@ class GpsReportState extends Equatable {
       stopAddresses: stopAddresses ?? this.stopAddresses,
       summaryAddressStatus: summaryAddressStatus ?? this.summaryAddressStatus,
       summaryAddresses: summaryAddresses ?? this.summaryAddresses,
+      reachabilityAddressStatus: reachabilityAddressStatus ?? this.reachabilityAddressStatus,
+      reachabilityAddresses: reachabilityAddresses ?? this.reachabilityAddresses,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
+        fromDate,
+        toDate,
+        selectedVehicle,
+        selectedReportType,
         vehicleStatus,
         vehicles,
         reportStatus,
@@ -102,6 +149,8 @@ class GpsReportState extends Equatable {
         stopAddresses,
         summaryAddressStatus,
         summaryAddresses,
+        reachabilityAddressStatus,
+        reachabilityAddresses,
         errorMessage,
       ];
 }

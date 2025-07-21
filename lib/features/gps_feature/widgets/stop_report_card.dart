@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../model/report_model.dart';
 import '../model/address_model.dart';
 import '../cubit/report_cubit.dart';
+import 'address_skeleton.dart';
 
 class StopReportCard extends StatelessWidget {
   final StopReport report;
@@ -122,14 +123,19 @@ class StopReportCard extends StatelessWidget {
               const SizedBox(width: 8),
               // Location - flexible to take remaining space
               Expanded(
-                child: Text(
-                  _getDisplayAddress(),
-                  style: const TextStyle(
-                    color: AppColors.black,
-                    fontSize: 13,
-                    height: 1.3
-                  )
-                ),
+                child: addressResponse == null 
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: const AddressSkeleton(showStartEnd: false),
+                    )
+                  : Text(
+                      _getDisplayAddress(),
+                      style: const TextStyle(
+                        color: AppColors.black,
+                        fontSize: 13,
+                        height: 1.3
+                      )
+                    ),
               ),
             ],
           ),

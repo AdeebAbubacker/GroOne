@@ -234,23 +234,74 @@ class SummaryReport extends Equatable {
 
 // --- Model for 'REACHABILITY' Report ---
 class ReachabilityReport extends Equatable {
+  final String dateAdded;
   final int deviceId;
+  final int email;
+  final String geofenceId;
   final String geofenceName;
+  final int id;
+  final double lat;
+  final double latAtReach;
+  final double lng;
+  final double lngAtReach;
+  final String notificationConfigs;
+  final double radius;
   final String reachDate;
+  final String sms;
   final String status;
+  final int userId;
+  final int web;
+  final String setAddress;
+  final String endAddress;
 
-  const ReachabilityReport({ required this.deviceId, required this.geofenceName, required this.reachDate, required this.status });
+  const ReachabilityReport({ 
+    required this.dateAdded,
+    required this.deviceId, 
+    required this.email,
+    required this.geofenceId,
+    required this.geofenceName, 
+    required this.id,
+    required this.lat,
+    required this.latAtReach,
+    required this.lng,
+    required this.lngAtReach,
+    required this.notificationConfigs,
+    required this.radius,
+    required this.reachDate, 
+    required this.sms,
+    required this.status,
+    required this.userId,
+    required this.web,
+    required this.setAddress,
+    required this.endAddress,
+  });
 
   factory ReachabilityReport.fromJson(Map<String, dynamic> json) {
     return ReachabilityReport(
+      dateAdded: _parseString(json['date_added']),
       deviceId: _parseNum<int>(json['device_id']),
+      email: _parseNum<int>(json['email']),
+      geofenceId: _parseString(json['geofence_id']),
       geofenceName: _parseString(json['geofence_name']),
+      id: _parseNum<int>(json['id']),
+      lat: _parseNum<double>(json['lat']),
+      latAtReach: _parseNum<double>(json['lat_at_reach']),
+      lng: _parseNum<double>(json['lng']),
+      lngAtReach: _parseNum<double>(json['lng_at_reach']),
+      notificationConfigs: _parseString(json['notification_configs']),
+      radius: _parseNum<double>(json['radius']),
       reachDate: _parseString(json['reach_date']),
+      sms: _parseString(json['sms']),
       status: _parseString(json['status']),
+      userId: _parseNum<int>(json['user_id']),
+      web: _parseNum<int>(json['web']),
+      setAddress: _parseString(json['setAddress']),
+      endAddress: _parseString(json['endAddress']),
     );
   }
+  
   @override
-  List<Object?> get props => [deviceId, geofenceName, reachDate];
+  List<Object?> get props => [id, deviceId, geofenceId, reachDate];
 }
 
 // --- Models for 'DAILY KM' Report ---

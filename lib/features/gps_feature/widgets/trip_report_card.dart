@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../model/report_model.dart';
 import '../model/address_model.dart';
 import '../cubit/report_cubit.dart';
+import 'address_skeleton.dart';
 
 class TripReportCard extends StatelessWidget {
   final TripReport report;
@@ -213,6 +214,19 @@ class TripReportCard extends StatelessWidget {
   }
 
   Widget _buildLocationTimelineSection() {
+    // Check if addresses are available
+    if (addressResponse == null) {
+      // Show skeleton while addresses are loading
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const AddressSkeleton(showStartEnd: true),
+      );
+    }
+
     return Column(
       children: [
         // Start Location

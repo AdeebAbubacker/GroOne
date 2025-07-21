@@ -149,8 +149,8 @@ class GpsReportService {
       queryParams: {
         'start': fromDate ?? '2025-07-02T18:30:00.000Z',
         'end': toDate ?? '2025-07-04T18:29:59.999Z',
-        'device_ids': 2274,
-        // 'device_ids': vehicleId ?? 2274,
+        // 'device_ids': 2274,
+        'device_ids': vehicleId ?? 0,
         'timezone_offset': -330,
         'inputs': inputsJson,
       },
@@ -169,8 +169,7 @@ class GpsReportService {
       queryParams: {
         'start': fromDate ?? '2025-07-02T18:30:00.000Z',
         'end': toDate ?? '2025-07-04T18:29:59.999Z',
-        'device_ids': 2274,
-        // 'device_ids': vehicleId ?? 2274,
+        'device_ids': vehicleId ?? 0,
         'timezone_offset': -330,
         'inputs': '[]',
       },
@@ -189,8 +188,7 @@ class GpsReportService {
       queryParams: {
         'start': fromDate,
         'end': toDate,
-        'device_ids': 2274,
-        // 'device_ids': vehicleId,
+        'device_ids': vehicleId ?? 0,
         'timezone_offset': -330,
         'inputs': '[]',
       },
@@ -209,8 +207,7 @@ class GpsReportService {
       queryParams: {
         'start': fromDate,
         'end': toDate,
-        'device_ids': 2274,
-        // 'device_ids': vehicleId.toString(),
+        'device_ids': vehicleId ?? 0,
         'timezone_offset': -330,
         'inputs': '[]',
       },
@@ -227,8 +224,7 @@ class GpsReportService {
     return _fetchAndParse<ReachabilityReport>(
       endpoint: "reachability_alerts",
       queryParams: {
-        '__device_id__equal': 2274,
-        // '__device_id__equal': vehicleId,
+        '__device_id__equal': vehicleId,
         '__reach_date__datetime_btw': [fromDate, toDate],
       },
       fromJson: (json) => ReachabilityReport.fromJson(json),
@@ -602,5 +598,113 @@ class GpsReportService {
     
     print("🌍 Service: Completed summary address fetching, returning ${addresses.length} addresses");
     return addresses;
+  }
+
+  /// Get addresses for multiple reachability reports using lat/lng coordinates
+  Future<List<ReachabilityAddressResponse>> fetchAddressesForReachability(List<dynamic> reachabilityReports) async {
+    print("🌍 Service: Starting to fetch addresses for ${reachabilityReports.length} reachability reports");
+    
+    final List<ReachabilityAddressResponse> addresses = [];
+    
+    for (int i = 0; i < reachabilityReports.length; i++) {
+      final report = reachabilityReports[i];
+      print("🌍 Service: Processing reachability ${i + 1}/${reachabilityReports.length} (ID: ${report.id})");
+      
+      // Create ReachabilityAddressPojo from report
+      final reachabilityPojo = ReachabilityAddressPojo.fromReachabilityReport(report);
+      print("🌍 Service: Created ReachabilityAddressPojo for ID ${reachabilityPojo.reachabilityId}");
+      print("   Coordinates: ${reachabilityPojo.latitude}, ${reachabilityPojo.longitude}");
+      
+      // Get address from server
+      final result = await getAddressForReachability(reachabilityPojo);
+      
+      if (result is Success<ReachabilityAddressResponse>) {
+        addresses.add(result.value);
+        print("🌍 Service: Successfully got address for reachability ${reachabilityPojo.reachabilityId}");
+      } else {
+        // Add fallback "No Address" entry
+        final fallbackAddress = ReachabilityAddressResponse(
+          reachabilityId: reachabilityPojo.reachabilityId,
+          deviceId: reachabilityPojo.deviceId,
+          address: "No Address",
+        );
+        addresses.add(fallbackAddress);
+        print("🌍 Service: Failed to get address for reachability ${reachabilityPojo.reachabilityId}, added fallback");
+      }
+      
+      // Rate limiting: wait 1 second between requests
+      if (i < reachabilityReports.length - 1) {
+        print("🌍 Service: Waiting 1 second before next request...");
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+    
+    print("🌍 Service: Completed reachability address fetching, returning ${addresses.length} addresses");
+    return addresses;
+  }
+
+  /// Get address for a single reachability report
+  Future<Result<ReachabilityAddressResponse>> getAddressForReachability(ReachabilityAddressPojo reachabilityPojo) async {
+    try {
+      print("🌍 Getting address for reachability: ${reachabilityPojo.reachabilityId}");
+      print("   Device: ${reachabilityPojo.deviceId}");
+      print("   Coordinates: ${reachabilityPojo.latitude}, ${reachabilityPojo.longitude}");
+
+      // Format coordinates exactly like Android code: DecimalFormat("##.###")
+      String _formatDecimal(double value) {
+        final formatter = NumberFormat("##.###");
+        return formatter.format(value);
+      }
+
+      // Build request payload exactly matching Android implementation
+      final requestBody = {
+        "id": reachabilityPojo.reachabilityId,
+        "lat": _formatDecimal(reachabilityPojo.latitude),
+        "lng": _formatDecimal(reachabilityPojo.longitude),
+      };
+
+      print("🌍 Reverse geocoding request body: $requestBody");
+
+      final result = await _apiService.post(
+        "/auth/v1/report/position/detail/reverse-geocoding",
+        body: requestBody,
+      );
+
+      print("🌍 Reverse geocoding result type: ${result.runtimeType}");
+
+      if (result is Success) {
+        final data = result.value;
+        print("🌍 Reverse geocoding response: $data");
+        
+        // Extract address from response - try different possible keys
+        String address = "No Address";
+        
+        if (data is Map<String, dynamic>) {
+          // Try different possible address fields from response
+          address = data['address'] ?? 
+                   data['formatted_address'] ?? 
+                   data['display_name'] ?? 
+                   data['name'] ?? 
+                   "No Address";
+                   
+          print("🌍 Extracted address: '$address'");
+        }
+
+        final addressResponse = ReachabilityAddressResponse(
+          reachabilityId: reachabilityPojo.reachabilityId,
+          deviceId: reachabilityPojo.deviceId,
+          address: address,
+        );
+
+        print("🌍 Created ReachabilityAddressResponse: ${addressResponse.address}");
+        return Success(addressResponse);
+      } else {
+        print("🌍 Reverse geocoding failed: ${result.toString()}");
+        return Error(ErrorWithMessage(message: "Failed to get address from server"));
+      }
+    } catch (e) {
+      print("🌍 Error in reverse geocoding: $e");
+      return Error(ErrorWithMessage(message: "Error during reverse geocoding"));
+    }
   }
 }

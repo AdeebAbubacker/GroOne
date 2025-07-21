@@ -169,4 +169,50 @@ class SummaryAddressPojo extends Equatable {
 
   @override
   List<Object?> get props => [summaryId, deviceId, startLat, startLng, endLat, endLng];
+}
+
+// Models for reachability addresses
+class ReachabilityAddressResponse extends Equatable {
+  final String reachabilityId; // Unique identifier for this reachability alert (id)
+  final int deviceId;
+  final String address; // Single address for the reachability location
+
+  const ReachabilityAddressResponse({
+    required this.reachabilityId,
+    required this.deviceId,
+    required this.address,
+  });
+
+  @override
+  List<Object?> get props => [reachabilityId, deviceId, address];
+}
+
+class ReachabilityAddressPojo extends Equatable {
+  final String reachabilityId; // Unique identifier for this reachability alert (id)
+  final int deviceId;
+  final double latitude;
+  final double longitude;
+
+  const ReachabilityAddressPojo({
+    required this.reachabilityId,
+    required this.deviceId,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory ReachabilityAddressPojo.fromReachabilityReport(ReachabilityReport report) {
+    // Use the actual ID from the report for unique identification
+    final reachabilityId = report.id.toString();
+    
+    return ReachabilityAddressPojo(
+      reachabilityId: reachabilityId,
+      deviceId: report.deviceId,
+      // Use the actual coordinates where the alert was triggered (lat_at_reach)
+      latitude: report.latAtReach != 0.0 ? report.latAtReach : report.lat,
+      longitude: report.lngAtReach != 0.0 ? report.lngAtReach : report.lng,
+    );
+  }
+
+  @override
+  List<Object?> get props => [reachabilityId, deviceId, latitude, longitude];
 } 
