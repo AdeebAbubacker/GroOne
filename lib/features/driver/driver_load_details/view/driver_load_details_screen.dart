@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -123,6 +124,8 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                       : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
+                   
+
               ],
             ),
             12.height,
@@ -177,7 +180,18 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   ],
                 ).expand(),
                 
-              ],
+                    Container(
+        decoration: commonContainerDecoration(
+          color: LpHomeHelper.getLoadStatusColor('3')
+        ),
+        width: 100,
+        child: Text(
+          LpHomeHelper.getLoadTypeDisplayText(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? ''),
+          style: AppTextStyle.body3.copyWith(
+            color: LpHomeHelper.getLoadStatusTextColor(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? '')
+          ),
+        ).center().paddingAll(4),
+      ), ],
             )
           ],
         ).paddingAll(12),

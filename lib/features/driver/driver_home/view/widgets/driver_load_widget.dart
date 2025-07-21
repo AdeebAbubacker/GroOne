@@ -88,8 +88,6 @@ final bool isConsentGiven = false;
                         ),
                       ],
                     ),
-                    // if(widget.driverLoadDetails.loadStatusId == 5)
-                    //_buildLoadStatus(widget.driverLoadDetails.loadStatusId ?? 0),
                    Container(
               decoration: commonContainerDecoration(
                 color: LpHomeHelper.getLoadStatusColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')
