@@ -342,15 +342,12 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             bloc: driverLoadBloc,
             listener: (context, state) {
                 if (state is DriverLoadStatusChanged) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Driver load status updated successfully")),
-          );
+                  ToastMessages.success(message: "Load status updated successfully");
           _loadDataByTab(index: tabIndex, forceRefresh: true);
                 } else if (state is DriverLoadStatusChangeFailed) {
                 _loadDataByTab(index: tabIndex, forceRefresh: true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to update driver load status")),
-          );
+                  ToastMessages.error(message: "Failed to update load status");
+        
                 }
               },
             builder: (context, state) {
@@ -372,24 +369,30 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     return DriverLoadWidget(
                         driverLoadDetails: state.loads[index],
                    onClickAssignDriver: () {
-          context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,          
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
+        final currentStatus = state.loads[index].loadStatusId;
+            if (currentStatus < 7) {
+              context.read<DriverLoadsBloc>().add(
+                ChangeDriverLoadStatus(
+                  loadId: state.loads[index].loadId,  
+                  loadStatus: currentStatus +1 ,         
+                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                ),
+              );}
                   },
                 ).paddingSymmetric(vertical: 7);
               
                       case 1:
                       return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-          context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,         
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
+           final currentStatus = state.loads[index].loadStatusId;
+            if (currentStatus < 7) {
+              context.read<DriverLoadsBloc>().add(
+                ChangeDriverLoadStatus(
+                  loadId: state.loads[index].loadId,  
+                  loadStatus: currentStatus +1 ,         
+                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                ),
+              );}
                   },
                 ).paddingSymmetric(vertical: 7);
                       default:
