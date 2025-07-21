@@ -160,6 +160,7 @@ class LoadDetailsRepository {
       final userId=await _userInformationRepository.getUserID() ?? "";
       return await _vpDetailsService.createNewDocument(createDocumentRequest: createDocumentRequest,userId: userId);
     } catch (e) {
+      print("error in create document");
       CustomLog.error(this, "Failed to get upload gst document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }

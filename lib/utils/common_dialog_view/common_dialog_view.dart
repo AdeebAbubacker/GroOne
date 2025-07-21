@@ -118,28 +118,33 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         // Buttons
         if(widget.showYesNoButtonButtons!)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Column(
           children: [
-            // No Button
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              style: AppButtonStyle.outline,
-              title: widget.noButtonText ?? context.appText.no,
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ).expand(),
-            16.width,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // No Button
+                AppButton(
+                  buttonHeight: commonButtonHeight2,
+                  style: AppButtonStyle.outline,
+                  title: widget.noButtonText ?? context.appText.no,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ).expand(),
+                16.width,
 
-            // Yes Button
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              isLoading: widget.yesButtonLoading,
-              onPressed: widget.onClickYesButton ?? (){},
-              title: widget.yesButtonText ?? context.appText.yes,
-            ).expand(),
+                // Yes Button
+                AppButton(
+                  buttonHeight: commonButtonHeight2,
+                  isLoading: widget.yesButtonLoading,
+                  onPressed: widget.onClickYesButton ?? (){},
+                  title: widget.yesButtonText ?? context.appText.yes,
+                ).expand(),
 
+              ],
+            ),
+            10.height
           ],
         ),
       ],

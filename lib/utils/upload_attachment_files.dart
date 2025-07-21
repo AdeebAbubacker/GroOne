@@ -28,6 +28,7 @@ class UploadAttachmentFiles extends StatefulWidget {
   final String? title;
   final Function? thenUploadFileToSever;
   final void Function(int)? onDelete;
+  final List? allowedExtensions;
   const UploadAttachmentFiles({super.key,
     required this.multiFilesList,
     this.isSingleFile = false,
@@ -36,6 +37,7 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.isLoading = false,
     this.hideDeleteButton = false,
     this.onDelete,
+    this.allowedExtensions,
   });
 
   @override
@@ -86,7 +88,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                         return GestureDetector(
                           onTap: !isFile ? () {
                             commonHideKeyboard(context);
-                            commonBottomSheetWithBGBlur(context: context, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
+                            commonBottomSheetWithBGBlur(context: context, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile, allowedExtensions: widget.allowedExtensions)).then((value) {
                               if (value != null) {
                                 isFile = true;
                                 widget.multiFilesList.add(value);
@@ -206,7 +208,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
             GestureDetector(
               onTap: !isFile ? () {
                 commonHideKeyboard(context);
-                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
+                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile, allowedExtensions: widget.allowedExtensions)).then((value) {
                   debugPrint("First Time : $value");
                   isFile = true;
                   if (value != null) {

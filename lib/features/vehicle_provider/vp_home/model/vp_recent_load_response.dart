@@ -241,7 +241,7 @@ class VpRecentLoadData {
       dropLocation: json['loadRoute']!=null ? json['loadRoute']["dropLocation"] ?? "":"",
       dropLatlon: json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json['weight']!=null ?json['weight']['value'] :0,
+      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,

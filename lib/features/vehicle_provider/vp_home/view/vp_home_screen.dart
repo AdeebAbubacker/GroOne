@@ -54,14 +54,13 @@ class VpHomeScreen extends StatefulWidget {
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
-class _VpHomeScreenState extends BaseState<VpHomeScreen> {
+class _VpHomeScreenState extends State<VpHomeScreen> {
 
   // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
-   final lpHomeCubit = locator<LPHomeCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
+   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
 
 
@@ -89,15 +88,17 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
-    await lpHomeBloc.getUserId();
-    await profileCubit.fetchProfileDetail();
-    await profileCubit.fetchCompanyTypeId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
+    profileCubit.fetchProfileDetail(instance: this);
+    lpHomeBloc.getUserId();
+    profileCubit.fetchCompanyTypeId();
   });
 
 
-  void disposeFunction() => frameCallback(() {});
+  void disposeFunction() => frameCallback(() {
+
+  });
 
 
    // Blue Membership Dialog
@@ -119,6 +120,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
         onRefresh: () async {
           vpRecentLoadListBloc.add(VpRecentLoadEvent());
           vpHomeScreenBloc.add(VpMyLoadListRequested());
+          await profileCubit.fetchProfileDetail();
+
         },
         child: SafeArea(
           child: Column(
@@ -221,7 +224,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                        frameCallback(() =>  profileCubit.fetchProfileDetail(instance: this));
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
@@ -351,7 +354,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         ),
                       ),
                       child: Text(
-                        "View All",
+                        context.appText.viewAll,
                         style: AppTextStyle.h5WhiteColor,
                       ),
                     ),
@@ -424,7 +427,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
               AppDialog.show(
                 context,
                 child: SuccessDialogView(
-                  message: 'Load Accepted Successfully',
+                  message: context.appText.loadAcceptedSuccessfully,
                   afterDismiss: () {
                     if (context.mounted) Navigator.pop(context);
                   },

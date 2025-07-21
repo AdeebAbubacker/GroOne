@@ -28,6 +28,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -55,11 +56,11 @@ class  DriverLoadsDetailsRepository {
       return await service.fetchUploadDamageData(
           file : file,
           userId: await userRepo.getUserID() ?? "",
-          fileType: 'd',
-          documentType: await userRepo.getUserRole() == 0 ? "Driver_DOCUMENT" : LP_DOCUMENT
+          fileType: fileType,
+          documentType: await userRepo.getUserRole() == 0 ? "driver_document" : LP_DOCUMENT
       );
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload gst document data", e);
+      CustomLog.error(this, "Failed to get upload document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -74,4 +75,17 @@ class  DriverLoadsDetailsRepository {
     }
   }
  
+ Future<Result<VpLoadAcceptModel>> changeLoadStatus({
+    required String customerId,required String loadId,required int? loadStatus}) async {
+    try {
+      return await service.changeLoadStatus(
+          loadStatus: loadStatus,
+          loadId: loadId,
+          userId: customerId,
+          );
+    } catch (e) {
+      CustomLog.error(this, "Failed to request Login In", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  } 
 }

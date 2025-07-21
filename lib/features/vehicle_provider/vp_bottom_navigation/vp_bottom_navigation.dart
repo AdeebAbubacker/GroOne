@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -11,6 +12,11 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_scree
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class VPBottomNavigationBar extends StatefulWidget {
@@ -40,13 +46,33 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   }
 
   void initFunction() => frameCallback(() async {
-    await profileCubit.fetchProfileDetail();
+    await profileCubit.fetchProfileDetail(instance: this);
     profileCubit.fetchUserRole();
     setState(() {});
   });
 
   void onItemTapped(int index) {
-    changeTab(index, allLoadsSubTabIndex: 0);
+    if(index == 3) {
+      AppDialog.show(context, child: CommonDialogView(
+        showYesNoButtonButtons: true,
+        noButtonText: context.appText.cancel,
+        yesButtonText: context.appText.switchText,
+        child: Column(
+          children: [
+            SvgPicture.asset(AppImage.svg.switchLp),
+            Text(context.appText.switchToLp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
+            10.height,
+            Text(context.appText.switchToLpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
+            10.height,
+          ],
+        ),
+        onClickYesButton: () {
+          changeTab(index, allLoadsSubTabIndex: 0);
+        },
+      ));
+    } else {
+      changeTab(index, allLoadsSubTabIndex: 0);
+    }
   }
 
   void changeTab(int bottomTabIndex, {int? allLoadsSubTabIndex}) {
@@ -69,7 +95,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     return [
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
       VpAllLoadsScreen(initialTabIndex: vpAllLoadsInitialTabIndex),
-      const Center(child: Text('Support')),
+       Center(child: Text(context.appText.support)),
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }
@@ -141,7 +167,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
                     child: Icon(Icons.compare_arrows_rounded),
                     //child: SvgPicture.asset(AppIcons.svg.switchIcon),
                   ),
-                  label: "Switch Account",
+                  label: context.appText.switchAccount,
                 ),
             ],
           ),

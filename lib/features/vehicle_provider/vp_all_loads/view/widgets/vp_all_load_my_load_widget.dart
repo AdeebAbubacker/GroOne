@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
@@ -42,7 +43,6 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
 class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   @override
   Widget build(BuildContext context) {
-
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
@@ -170,49 +170,33 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           Row(
             children: [
 
-              // Support Button
-              IconButton(
-                onPressed: () {
-                  commonSupportDialog(context);
-                },
-                icon: Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(5),
-                  decoration: commonContainerDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(commonButtonRadius), borderColor: AppColors.primaryColor, borderWidth: 1.5),
-                  child: SvgPicture.asset(
-                    AppIcons.svg.support,
-                    width: 25,
-                    colorFilter: AppColors.svg(AppColors.primaryColor),
+                // Support Button
+                IconButton(
+                  onPressed: () {
+                    commonSupportDialog(context);
+                  },
+                  icon: Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    decoration: commonContainerDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(commonButtonRadius), borderColor: AppColors.primaryColor, borderWidth: 1.5),
+                    child: SvgPicture.asset(
+                      AppIcons.svg.support,
+                      width: 25,
+                      colorFilter: AppColors.svg(AppColors.primaryColor),
+                    ),
                   ),
                 ),
-              ),
-              10.width,
-
-              // title:state.loadStatus==LoadStatus.completed ? "View Trip Settlement":
-              //
-              //
-              //     ? "Assign Driver"
-              //     : "Accept Load",
+                10.width,
 
               // Action Button
-              if(widget.data.loadStatusDetails != null)
-              VpMyLoadUIHelper.loadStatusButtonWidget(
-                  context: context,
-                  status: widget.data.loadStatusDetails!.loadStatus,
-                  onPressed: () {  }
-              ).expand(),
+                if(widget.data.loadStatusDetails != null)
+                VpMyLoadHelper.loadStatusButtonWidget(
+                    status: widget.data.loadStatusDetails!.loadStatus,
+                    context: context,
+                    onPressed: () {  }
+                ).expand(),
 
-              // Visibility(
-              //   visible:true,
-              //
-              //   // (widget.data.loadStatusValues?.index??0)<LoadStatus.loading.index,
-              //   child: AppButton(
-              //     buttonHeight: 40,
-              //     onPressed: widget.onClickAssignDriver ?? () {},
-              //     title:widget.data.loadStatusValues==LoadStatus.accepted?"Assign Driver":widget.data.loadStatusValues==LoadStatus.assigned ? "Start Trip":"Start Trip",
-              //     style: AppButtonStyle.primary,
-              //   ).expand(),
-              // ),
+
             ],
           ),
         ],

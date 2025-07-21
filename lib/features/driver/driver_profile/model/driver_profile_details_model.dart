@@ -43,6 +43,7 @@ class Data {
         required this.licenseCategory,
         required this.specialLicense,
         required this.communicationPreference,
+        required this.companyDetails,
     });
 
     final String driverId;
@@ -60,6 +61,7 @@ class Data {
     final int licenseCategory;
     final int specialLicense;
     final String communicationPreference;
+    final CompanyDetails? companyDetails;
 
     Data copyWith({
         String? driverId,
@@ -77,6 +79,7 @@ class Data {
         int? licenseCategory,
         int? specialLicense,
         String? communicationPreference,
+        CompanyDetails? companyDetails,
     }) {
         return Data(
             driverId: driverId ?? this.driverId,
@@ -94,6 +97,7 @@ class Data {
             licenseCategory: licenseCategory ?? this.licenseCategory,
             specialLicense: specialLicense ?? this.specialLicense,
             communicationPreference: communicationPreference ?? this.communicationPreference,
+            companyDetails: companyDetails ?? this.companyDetails,
         );
     }
 
@@ -114,6 +118,45 @@ class Data {
             licenseCategory: json["licenseCategory"] ?? 0,
             specialLicense: json["specialLicense"] ?? 0,
             communicationPreference: json["communicationPreference"] ?? "",
+            companyDetails: json["companyDetails"] == null ? null : CompanyDetails.fromJson(json["companyDetails"]),
+        );
+    }
+
+}
+
+class CompanyDetails {
+    CompanyDetails({
+        required this.companyName,
+        required this.companyTypeId,
+        required this.mobile,
+        required this.gstin,
+    });
+
+    final String companyName;
+    final int companyTypeId;
+    final String mobile;
+    final String gstin;
+
+    CompanyDetails copyWith({
+        String? companyName,
+        int? companyTypeId,
+        String? mobile,
+        String? gstin,
+    }) {
+        return CompanyDetails(
+            companyName: companyName ?? this.companyName,
+            companyTypeId: companyTypeId ?? this.companyTypeId,
+            mobile: mobile ?? this.mobile,
+            gstin: gstin ?? this.gstin,
+        );
+    }
+
+    factory CompanyDetails.fromJson(Map<String, dynamic> json){ 
+        return CompanyDetails(
+            companyName: json["companyName"] ?? "",
+            companyTypeId: json["companyTypeId"] ?? 0,
+            mobile: json["mobile"] ?? "",
+            gstin: json["gstin"] ?? "",
         );
     }
 

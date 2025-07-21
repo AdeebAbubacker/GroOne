@@ -6,6 +6,12 @@ class ApiUrls {
   /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
+  /// Map Key
+  static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
+
+
+
+
   /// Path
   static String get _path => "/api";
   static String get _load => "/load";
@@ -115,7 +121,7 @@ class ApiUrls {
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
-  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
+  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/fetch-rate";
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
@@ -190,7 +196,7 @@ class ApiUrls {
  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
  static const String driverLoadById = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/";
- 
+
 
   /// GPS Tracking
   static const String _gpsBase = "https://api.letsgro.co/api/v1/auth";

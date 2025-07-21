@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/driver/driver_profile/view/driver_account_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
@@ -96,7 +97,7 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
         }
       },
       builder: (context, state) {
-        final driver = state.profileDetailUIState?.data?.data; // Adjust field as per your model
+        final driver = state.profileDetailUIState?.data?.data; 
         if (driver == null) return const SizedBox();
 
         return Column(
@@ -108,7 +109,7 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
               decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
               alignment: Alignment.center,
               child: Text(
-                getInitialsFromName(this, name: driver.name), // Adjust field
+                getInitialsFromName(this, name: driver.name), 
                 style: AppTextStyle.h1,
               ),
             ).isAnimate(),
@@ -116,7 +117,7 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
               Text(driver.name, style: AppTextStyle.h5).isAnimate(),
 
             if (driver.driverId != null && driver.driverId!.isNotEmpty)
-              Text("Driver ID: ${driver.driverId}", style: AppTextStyle.body).isAnimate(),
+              Text("${driver.companyDetails?.companyName}", style: AppTextStyle.body).isAnimate(),
           ],
         );
       },
@@ -154,7 +155,14 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
                 text: context.appText.myAccount,
                 onTap: () {
             
-                },
+              final profile = state.profileDetailUIState?.data;
+            if (profile != null) {
+                Navigator.of(context).push(commonRoute( DriverAccountScreen(
+                    driverProfileDetailsModel: profile,
+                
+                  ), isForward: true));
+                 }
+               },
               );
             },
           ),

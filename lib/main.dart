@@ -60,6 +60,7 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: L10n.all,
             theme: AppThemeStyle.appTheme,
             routerConfig: AppRoutes.router,
+
           ),
         );
       },
