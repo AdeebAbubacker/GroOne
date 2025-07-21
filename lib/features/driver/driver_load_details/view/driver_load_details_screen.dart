@@ -89,7 +89,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   driverLong: 23,
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
                 buildFloatingWidget(context),
                 buildSimConsentWidget(loadItem),
               ],

@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/repository/drive
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 
 part 'driver_load_details_state.dart';
 
@@ -69,5 +70,21 @@ Future<void> getLpLoadsById({required String loadId}) async {
     }
   }
 
+   //  Update Load Status Api Call
+  void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState){
+    emit(state.copyWith(loadStatusUiUpdate: uiState));
+  }
+  Future<void> fupdateLoadStatus({required String customerId,required String loadid,required int loadStatus}) async {
+    _updateloadStatusUIState(UIState.loading());
+    Result result = await _repository.changeLoadStatus(customerId: customerId,loadId: loadid,loadStatus: loadStatus);
+    if (result is Success<VpLoadAcceptModel>) {
+      _updateloadStatusUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _updateloadStatusUIState(UIState.error(result.type));
+    }
+  }
+
+  
 }
 

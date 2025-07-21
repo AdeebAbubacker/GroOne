@@ -395,12 +395,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       default:
                           return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-                    context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,         
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
+            final currentStatus = state.loads[index].loadStatusId;
+            if (currentStatus < 7) {
+              context.read<DriverLoadsBloc>().add(
+                ChangeDriverLoadStatus(
+                  loadId: state.loads[index].loadId,  
+                  loadStatus: currentStatus +1 ,         
+                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                ),
+              );}
                   },
                 ).paddingSymmetric(vertical: 7);
                     }
