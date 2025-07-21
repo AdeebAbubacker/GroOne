@@ -60,7 +60,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
+   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
 
 
@@ -120,6 +120,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
         onRefresh: () async {
           vpRecentLoadListBloc.add(VpRecentLoadEvent());
           vpHomeScreenBloc.add(VpMyLoadListRequested());
+          await profileCubit.fetchProfileDetail();
+
         },
         child: SafeArea(
           child: Column(
@@ -352,7 +354,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                         ),
                       ),
                       child: Text(
-                        "View All",
+                        context.appText.viewAll,
                         style: AppTextStyle.h5WhiteColor,
                       ),
                     ),
@@ -425,7 +427,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               AppDialog.show(
                 context,
                 child: SuccessDialogView(
-                  message: 'Load Accepted Successfully',
+                  message: context.appText.loadAcceptedSuccessfully,
                   afterDismiss: () {
                     if (context.mounted) Navigator.pop(context);
                   },

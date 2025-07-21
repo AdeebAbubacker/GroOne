@@ -92,7 +92,7 @@ class AddedDamageWidget extends StatelessWidget {
                     onTap: (){
                       Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
                     },
-                    child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
+                    child: Text(context.appText.viewFiles, style: AppTextStyle.body3PrimaryColor),
                   ),
                 ],
               ),

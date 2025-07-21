@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+
 class VpMyLoadResponse {
   VpMyLoadResponse({
     required this.success,
@@ -20,7 +22,7 @@ class VpMyLoadResponse {
   Map<String, dynamic> toJson() => {
     "success": success,
     "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
   };
 
 }
@@ -52,6 +54,7 @@ class VpLoadsList {
     required this.dropWholeAddr,
     required this.vpRate,
     required this.vpMaxRate,
+    required this.loadStatusDetails,
   });
 
 
@@ -86,9 +89,12 @@ class VpLoadsList {
   final Customer? customer;
   final CustomerDetail? customerDetail;
 
+  final LoadStatusDetails? loadStatusDetails;
+
   factory VpLoadsList.fromJson(Map<String, dynamic> json){
 
     return VpLoadsList(
+      loadStatusDetails: json['loadStatusDetails']!=null ? LoadStatusDetails.fromJson(json['loadStatusDetails']):null,
       vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
       vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",

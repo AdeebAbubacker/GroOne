@@ -127,19 +127,19 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
   void vpCreationApiCall() {
     if (formKey.currentState!.validate()) {
       if (uploadedRcFile == null) {
-        ToastMessages.alert(message: "Please upload RC Document");
+        ToastMessages.alert(message: context.appText.rcDocumentRequiredError);
         return;
       }
       if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
-        ToastMessages.alert(message: "Please verify your email");
+        ToastMessages.alert(message: context.appText.verifyEmailError);
         return;
       }
       if(int.parse(ownedTruckTextController.text) == 0){
-        ToastMessages.alert(message: "Owned Truck can't be 0");
+        ToastMessages.alert(message: context.appText.ownTruckValidation);
         return;
       }
       if(int.parse(attachedTruckTextController.text) == 0){
-        ToastMessages.alert(message: "Attached Truck can't be 0");
+        ToastMessages.alert(message: context.appText.attachedTruckValidation);
         return;
       }
       final request = VpCreationApiRequest(
@@ -232,6 +232,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
           controller: mobileNumberTextController,
           labelText: context.appText.phoneNumber,
           maxLength: 10,
+
           inputFormatters: [phoneNumberInputFormatter],
           keyboardType: TextInputType.phone,
           decoration: commonInputDecoration(
@@ -244,7 +245,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               children: [
                 Image.asset(AppImage.png.flag),
                 10.width,
-                Text("+91", style: AppTextStyle.textBlackColor16w400),
+                Text("+91", style: AppTextStyle.textFiled),
               ],
             ).paddingOnly(left: 20, right: 5),
           ),
@@ -541,7 +542,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
               if (state.uploadRcFileUIState?.data != null && state.uploadRcFileUIState?.data?.data != null && state.uploadRcFileUIState!.data!.data!.url.isNotEmpty){
                 uploadedRcFile = state.uploadRcFileUIState!.data!.data!.url;
                 vpCreationCubit.resetUploadRcFileUIState();
-                ToastMessages.success(message: "File uploaded successfully");
+                ToastMessages.success(message: context.appText.fileUploadSuccessfully);
               }
             }
 
@@ -584,7 +585,6 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         if (status == Status.SUCCESS) {
           navigateToHomeScreen(context);
         }
-
         if (status == Status.ERROR) {
           final error = state.createAccountUIState?.errorType;
           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));

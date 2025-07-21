@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
@@ -26,7 +27,7 @@ class LoadStatusLabel extends StatelessWidget {
         color: _getBackgroundColor(),
       ),
       child: Text(
-        (loadOnHold??false) ? "Unloading Held":
+        (loadOnHold??false) ? context.appText.unLoadingHeld:
         loadStatusTitle ?? "",
         style: AppTextStyle.body.copyWith(
           fontSize: 12,
