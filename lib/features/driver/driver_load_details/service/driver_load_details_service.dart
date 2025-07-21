@@ -25,8 +25,6 @@ class DriverLoadDetailsService {
     try {
       final url = ApiUrls.driverLoadById;
       final response = await _apiService.get(
-        // 'https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/315bafa0-0d0d-4eb6-81d1-85f6e4b79e7c/23d870ee-1134-4860-ae10-edf8d53f0149',
-       // 'https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/${driverID}/${loadId}',
       "${url}/${driverId}/${loadId}",
         forceRefresh: forceRefresh,
       );
