@@ -30,7 +30,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Order ID: ${order.orderUniqueId}',
-                    style: AppTextStyle.h4PrimaryColor,
+                    style: AppTextStyle.h5PrimaryColor,
                   ),
                 ),
                 Container(

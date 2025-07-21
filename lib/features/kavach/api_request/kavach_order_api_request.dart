@@ -50,6 +50,7 @@ class KavachOrderRequest {
   final Map<String, dynamic> shippingAddress;
   final List<KavachOrderItem> orders;
   final int createdEmpUserId;
+  final String? createdEmpId;
   final String orderReferencedBy;
   final int teamId;
 
@@ -67,26 +68,36 @@ class KavachOrderRequest {
     required this.shippingAddress,
     required this.orders,
     required this.createdEmpUserId,
+    this.createdEmpId,
     required this.orderReferencedBy,
     required this.teamId,
   });
 
-  Map<String, dynamic> toJson() => {
-    "orderSource": orderSource,
-    "isOrderPaid": isOrderPaid,
-    "orderTypeId": orderTypeId,
-    "customerId": customerId,
-    "totalPrice": totalPrice,
-    "categoryId": categoryId,
-    "shippingPersonIncharge": shippingPersonIncharge,
-    "shippingPersonContactNo": shippingPersonContactNo,
-    "customerInfo": customerInfo,
-    "billingAddress": billingAddress,
-    "shippingAddress": shippingAddress,
-    "orders": orders.map((o) => o.toJson()).toList(),
-    "createdEmpUserId": createdEmpUserId,
-    "orderReferencedBy": orderReferencedBy,
-    "teamId": teamId,
-  };
+  Map<String, dynamic> toJson() {
+    final json = {
+      "orderSource": orderSource,
+      "isOrderPaid": isOrderPaid,
+      "orderTypeId": orderTypeId,
+      "customerId": customerId,
+      "totalPrice": totalPrice,
+      "categoryId": categoryId,
+      "shippingPersonIncharge": shippingPersonIncharge,
+      "shippingPersonContactNo": shippingPersonContactNo,
+      "customerInfo": customerInfo,
+      "billingAddress": billingAddress,
+      "shippingAddress": shippingAddress,
+      "orders": orders.map((o) => o.toJson()).toList(),
+      "createdEmpUserId": createdEmpUserId,
+      "orderReferencedBy": orderReferencedBy,
+      "teamId": teamId,
+    };
+    
+    // Add createdEmpId only if it's not null
+    if (createdEmpId != null) {
+      json["createdEmpId"] = createdEmpId!;
+    }
+    
+    return json;
+  }
 }
 

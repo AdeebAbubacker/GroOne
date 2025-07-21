@@ -173,7 +173,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               ),
             ),
 
-            15.height,
+            //15.height,
             Container(
               padding: EdgeInsets.all(10),
               decoration: commonContainerDecoration(),
@@ -287,13 +287,25 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           15.width,
           AppButton(
             onPressed: () async {
+              // Determine if referral code is provided and extract employee details
+              String? createdEmpId;
+              int createdEmpUserId = 1234; // Default value
+              
+              if (widget.orderReferencedBy.isNotEmpty) {
+                // If referral code is provided, use it as createdEmpId
+                createdEmpId = widget.orderReferencedBy;
+                // For now, using a default user ID. In a real implementation, 
+                // you would fetch the employee details from the referral code
+                createdEmpUserId = 52864; // This should be fetched based on referral code
+              }
+
               final request = KavachOrderRequest(
                 orderSource: "MOBILE",
-                isOrderPaid: false,
-                orderTypeId: 1,
+                isOrderPaid: true, // Always true as per documentation
+                orderTypeId: 1, // Default as 1
                 customerId: await kavachOrderBloc.getUserId()??'',
                 totalPrice: totalAmount,
-                categoryId: 1,
+                categoryId: 1, // Always 1 for Products
                 shippingPersonIncharge: widget.shippingPersonInCharge,
                 shippingPersonContactNo: widget.shippingPersonContactNo,
                 customerInfo: {
@@ -301,8 +313,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "contactNumber": "9876543210",
                   "BlueMembershipID": "BLUE123456"
                 },
-                createdEmpUserId: 1234,
-                orderReferencedBy: widget.orderReferencedBy,
+                createdEmpUserId: createdEmpUserId,
+                createdEmpId: createdEmpId, // Will be null if no referral code
+                orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
                 billingAddress: {
                   "addressLine1": widget.billingAddress.addressName,
                   "addressLine2": widget.billingAddress.addr1,
