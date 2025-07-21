@@ -6,6 +6,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
@@ -19,12 +21,19 @@ import 'package:gro_one_app/utils/app_route.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
-import '../../../utils/app_route.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import 'gps_notification_screen.dart';
 
-class GpsHomeScreen extends StatelessWidget {
+class GpsHomeScreen extends StatefulWidget {
   const GpsHomeScreen({super.key});
+
+  @override
+  State<GpsHomeScreen> createState() => _GpsHomeScreenState();
+}
+
+class _GpsHomeScreenState extends State<GpsHomeScreen> with GpsRefreshMixin {
+  @override
+  GpsScreenType get screenType => GpsScreenType.home;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +144,7 @@ class GpsHomeScreen extends StatelessWidget {
                   RefreshIndicator(
                     onRefresh: () async {
                       print("🔄 GpsHomeScreen - Pull to refresh triggered");
-                      await gpsLoginCubit.refreshData();
+                      await manualRefresh();
                       // Show success message for manual refresh
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -308,7 +317,9 @@ class GpsHomeScreen extends StatelessWidget {
         context.appText.vehicleShareUpdate,
         Icons.share_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsVehicleShareAndUpdate);
+        },
       ),
       _MenuItem(
         context.appText.subscription,

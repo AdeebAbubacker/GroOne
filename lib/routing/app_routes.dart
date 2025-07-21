@@ -6,9 +6,12 @@ import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.
 import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
@@ -89,6 +92,29 @@ class AppRoutes {
         path: AppRouteName.gpsOrderBenefits,
         builder: (BuildContext context, GoRouterState state) {
           return GpsOrderBenefitsAndOrderListScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsVehicleShareAndUpdate,
+        builder: (BuildContext context, GoRouterState state) {
+          return const VehicleShareUpdateScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsEditVehicleInfo,
+        builder: (BuildContext context, GoRouterState state) {
+          final vehicleData = state.extra as Map<String, dynamic>?;
+          return EditVehicleInfoScreen(vehicleData: vehicleData);
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsVehicleSelectScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          final isFromId = "${state.extra}";
+          return VehicleSelectScreen(isFromId: int.parse(isFromId),);
         },
       ),
 
