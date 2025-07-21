@@ -287,11 +287,6 @@ class EnDhanService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        // Debug the API response
-        print('🔍 Vehicle Types API Response: ${result.value}');
-        print(
-          '🔍 Vehicle Types API Response Type: ${result.value.runtimeType}',
-        );
 
         // Check if the response is successful
         if (result.value['success'] == true) {

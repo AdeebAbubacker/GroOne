@@ -61,10 +61,28 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
         final response = result.value;
         print('🔍 GPS Products fetched successfully: ${response.data?.rows.length} products');
         
+        final updatedQuantities = Map<String, int>.from(state.quantities);
+        final updatedAvailableStocks = Map<String, int>.from(state.availableStocks);
+
+        // Fetch available stock for each product
+        for (var product in response.data?.rows ?? []) {
+          updatedQuantities.putIfAbsent(product.id, () => 0);
+          
+          // Fetch stock for each product upon initial load
+          final stockResult = await _repository.fetchAvailableStock(productId: product.id);
+          if (stockResult is Success<int>) {
+            updatedAvailableStocks[product.id] = stockResult.value;
+          } else {
+            updatedAvailableStocks[product.id] = 0;
+          }
+        }
+        
         emit(state.copyWith(
           products: response.data?.rows ?? [],
           meta: response.data?.meta,
           hasMorePages: (response.data?.meta.totalPages ?? 0) > page,
+          quantities: updatedQuantities,
+          availableStocks: updatedAvailableStocks,
         ));
         _setProductsUIState(UIState.success(response));
       } else if (result is Error) {
@@ -97,6 +115,8 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
       products: [],
       meta: null,
       hasMorePages: false,
+      quantities: {},
+      availableStocks: {},
     ));
     
     await fetchGpsProducts();
@@ -125,5 +145,65 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
       return product.name.toLowerCase().contains(state.searchQuery.toLowerCase()) ||
              (product.part?.toLowerCase().contains(state.searchQuery.toLowerCase()) ?? false);
     }).toList();
+  }
+
+  /// Increment product quantity
+  void incrementQuantity(String productId) {
+    if (_isClosed) return;
+    
+    final updated = Map<String, int>.from(state.quantities);
+    updated[productId] = (updated[productId] ?? 0) + 1;
+
+    emit(state.copyWith(quantities: updated));
+  }
+
+  /// Decrement product quantity
+  void decrementQuantity(String productId) {
+    if (_isClosed) return;
+    
+    final updated = Map<String, int>.from(state.quantities);
+    final currentQty = updated[productId] ?? 0;
+
+    if (currentQty > 0) {
+      updated[productId] = currentQty - 1;
+      emit(state.copyWith(quantities: updated));
+    }
+  }
+
+  /// Try to increment quantity with stock validation
+  Future<void> tryIncrementQuantity(String productId) async {
+    if (_isClosed) return;
+    
+    final stockResult = await _repository.fetchAvailableStock(productId: productId);
+
+    if (stockResult is Success<int>) {
+      final availableStock = stockResult.value;
+      final currentQty = state.quantities[productId] ?? 0;
+
+      if (currentQty < availableStock) {
+        final updatedQuantities = Map<String, int>.from(state.quantities);
+        updatedQuantities[productId] = currentQty + 1;
+        emit(state.copyWith(quantities: updatedQuantities));
+      } else {
+        // Stock limit reached - could emit an event or use a callback
+        print('⚠️ Cannot increment quantity - stock limit reached for product $productId');
+      }
+    } else {
+      print('❌ Failed to check stock availability for product $productId');
+    }
+  }
+
+  /// Update quantities with new values
+  void updateQuantities(Map<String, int> updatedQuantities) {
+    if (_isClosed) return;
+    
+    emit(state.copyWith(quantities: Map.from(updatedQuantities)));
+  }
+
+  /// Clear quantities
+  void clearQuantities() {
+    if (_isClosed) return;
+    
+    emit(state.copyWith(quantities: {}));
   }
 } 

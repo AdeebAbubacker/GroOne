@@ -1,28 +1,28 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_button.dart';
+
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import '../../../utils/app_application_bar.dart';
-import '../../../utils/app_button_style.dart';
-import '../../../utils/app_icon_button.dart';
-import '../../../utils/app_icons.dart';
-import '../../../utils/app_image.dart';
-import '../../../utils/app_route.dart';
-import '../../../utils/common_functions.dart';
-import 'kavach_choose_your_preference_screen.dart';
-import 'kavach_support_screen.dart';
 
-class KavachOrderDetailsScreen extends StatelessWidget {
-  final KavachOrderListOrderItem order;
+import '../../../../utils/app_application_bar.dart';
+import '../../../../utils/app_button_style.dart';
+import '../../../../utils/app_icon_button.dart';
+import '../../../../utils/app_icons.dart';
 
-  const KavachOrderDetailsScreen({super.key, required this.order});
+import '../../../../utils/app_route.dart';
+
+import 'gps_models_screen.dart';
+import '../../../kavach/view/kavach_support_screen.dart';
+import 'package:intl/intl.dart';
+
+class GpsOrderDetailScreen extends StatelessWidget {
+  final GpsOrderItem order;
+
+  const GpsOrderDetailScreen({super.key, required this.order});
 
   int getTotalQuantity() {
     return order.lineItems.fold(0, (sum, item) => sum + item.quantity);
@@ -38,7 +38,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           AppIconButton(
             onPressed: () {
               Navigator.of(context).pushReplacement(
-                commonRoute(KavachChooseYourPreferenceScreen()),
+                commonRoute(GpsModelsScreen()),
               );
             },
             icon: Icon(Icons.add, color: Colors.white),
@@ -55,14 +55,11 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         ],
         centreTile: false,
       ),
-      // bottomNavigationBar: _downloadButton(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
-             
               12.height,
               _productDetails(context),
               12.height,
@@ -90,47 +87,52 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${context.appText.orderId}: ${order.orderUniqueId}',
-                  style: AppTextStyle.primaryColor14w700,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${context.appText.orderId}: ${order.orderUniqueId}',
+                      style: AppTextStyle.primaryColor14w700,
+                    ),
+                    4.height,
+                    Text(
+                      formatDateTimeGps(order.orderDate),
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
                 ),
-                4.height,
-                Text(
-                  formatDateTimeKavach(order.orderDate.toString()),
-                  style: AppTextStyle.bodyGreyColor,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: KavachHelper.getKavachOrderStatusColor(
-                order.statusHistory.last.statusLabel,
-              ).withValues(alpha: 0.09),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              order.statusHistory.last.statusLabel,
-              style: TextStyle(
-                color: KavachHelper.getKavachOrderStatusColor(
-                  order.statusHistory.last.statusLabel,
-                ),
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: getGpsOrderStatusColor(
+                    order.statusHistory.isNotEmpty 
+                        ? order.statusHistory.first.orderStatus.statusLabel 
+                        : 'Unknown',
+                  ).withValues(alpha: 0.09),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  order.statusHistory.isNotEmpty 
+                      ? order.statusHistory.first.orderStatus.statusLabel 
+                      : 'Unknown',
+                  style: TextStyle(
+                    color: getGpsOrderStatusColor(
+                      order.statusHistory.isNotEmpty 
+                          ? order.statusHistory.first.orderStatus.statusLabel 
+                          : 'Unknown',
+                    ),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
           ),
-       
-        ],
-      ),
-       25.height,
+          25.height,
           Text(context.appText.productDetails, style: AppTextStyle.h5),
           8.height,
           ...order.lineItems.map((p) => _productItem(p, context)),
@@ -144,7 +146,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 context.appText.totalAmountPaid,
                 style: AppTextStyle.h5GreyColor,
               ),
-              Text("₹${KavachHelper.formatCurrency(order.totalPrice)}", style: AppTextStyle.h5),
+              Text("₹${formatCurrency(order.totalPrice)}", style: AppTextStyle.h5),
             ],
           ),
           10.height,
@@ -153,20 +155,33 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _productItem(KavachOrderListItem p, BuildContext context) {
+  Widget _productItem(GpsOrderLineItem p, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Image.asset(AppImage.png.kavachProduct, width: 70),
+          // Use a GPS device icon or image
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: AppColors.greyContainerBackgroundColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.gps_fixed,
+              color: AppColors.primaryColor,
+              size: 30,
+            ),
+          ),
           8.height,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.product?.name ?? '', style: AppTextStyle.h5),
+                Text(p.product.name, style: AppTextStyle.h5),
                 Text(
-                  p.product?.part ?? '',
+                  p.product.part,
                   style: AppTextStyle.textGreyColor12w400,
                 ),
               ],
@@ -175,7 +190,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('₹${KavachHelper.formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
+              Text('₹${formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
               Text(
                 '${context.appText.qty} - ${p.quantity}',
                 style: AppTextStyle.textGreyColor12w400,
@@ -199,21 +214,19 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder:
-                (context, index) => _stage(
-                  title: order.statusHistory[index].statusLabel,
-                  date: order.statusHistory[index].createdAt,
-                  subtitle: order.statusHistory[index].remarks,
-                  isLast: (order.statusHistory.length - 1) == index,
-                  installationPersonMobile:
-                      order.installationContactPersonNumber,
-                  installationPersonName: order.installationContactPerson,
-                  context: context,
-                ),
-            itemCount: order.statusHistory.length,
-          ),
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) => _stage(
+                title: order.statusHistory[index].orderStatus.statusLabel,
+                date: order.statusHistory[index].createdAt,
+                subtitle: order.statusHistory[index].remarks,
+                isLast: (order.statusHistory.length - 1) == index,
+                installationPersonMobile: order.installationContactPersonNumber,
+                installationPersonName: order.installationContactPerson,
+                context: context,
+              ),
+              itemCount: order.statusHistory.length,
+            ),
           ),
         ],
       ),
@@ -222,7 +235,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
 
   Widget _stage({
     required String title,
-    required DateTime date,
+    required String date,
     required String subtitle,
     required bool isLast,
     required BuildContext context,
@@ -260,9 +273,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                       Text(title, style: AppTextStyle.blackColor15w500),
                       5.width,
                       Visibility(
-                        visible:
-                            title.toLowerCase() ==
-                            context.appText.installationScheduled.toLowerCase(),
+                        visible: title.toLowerCase().contains('installation'),
                         child: Icon(Icons.headset_mic_rounded, size: 16),
                       ),
                     ],
@@ -270,13 +281,11 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                   Text(subtitle, style: AppTextStyle.textGreyColor14w300),
                   5.height,
                   Text(
-                    formatDateTimeKavach(date.toString()),
+                    formatDateTimeGps(date),
                     style: AppTextStyle.textGreyColor14w300,
                   ),
                   Visibility(
-                    visible:
-                        title.toLowerCase() ==
-                        context.appText.installationScheduled.toLowerCase(),
+                    visible: title.toLowerCase().contains('installation'),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -305,10 +314,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _addressSection(KavachOrderListAddress address, BuildContext context) {
+  Widget _addressSection(GpsOrderAddress address, BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical:commonSafeAreaPadding ),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: commonSafeAreaPadding),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,16 +330,16 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           ),
           10.height,
           Text(address.addressLine1, style: AppTextStyle.textGreyColor14w300),
-          Text(address.addressLine2, style: AppTextStyle.textGreyColor14w300),
+          if (address.addressLine2.isNotEmpty)
+            Text(address.addressLine2, style: AppTextStyle.textGreyColor14w300),
           Text(address.city, style: AppTextStyle.textGreyColor14w300),
           Text(address.state, style: AppTextStyle.textGreyColor14w300),
           Text(
             '${address.country} - ${address.postalCode}',
             style: AppTextStyle.textGreyColor14w300,
           ),
-          address.gstId.isNotEmpty
-              ? Text(address.gstId, style: AppTextStyle.textGreyColor14w300)
-              : SizedBox.shrink(),
+          if (address.gstId.isNotEmpty)
+            Text(address.gstId, style: AppTextStyle.textGreyColor14w300),
         ],
       ),
     );
@@ -351,9 +360,9 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               10.height,
               PriceRow(
                 "${context.appText.price} (${getTotalQuantity()} ${context.appText.items})",
-                '₹${KavachHelper.formatCurrency(order.price.toStringAsFixed(2))}',
+                '₹${formatCurrency(order.price)}',
               ),
-              PriceRow(context.appText.gstKavach, '₹${KavachHelper.formatCurrency(order.totalGst.toStringAsFixed(2))}'),
+              PriceRow(context.appText.gstKavach, '₹${formatCurrency(order.totalGst)}'),
               5.height,
               DottedLine(
                 direction: Axis.horizontal,
@@ -363,7 +372,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 dashColor: AppColors.greyIconColor,
               ),
               5.height,
-              PriceRow(context.appText.totalAmountPaid, '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(2))}'),
+              PriceRow(context.appText.totalAmountPaid, '₹${formatCurrency(order.totalPrice)}'),
             ],
           ),
         ),
@@ -386,21 +395,43 @@ class KavachOrderDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _downloadButton() {
-    return AppButton(
-      onPressed: () {},
-      title: 'Download Invoice',
-    ).bottomNavigationPadding();
+  // Helper methods
+  Color getGpsOrderStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'order placed':
+        return AppColors.primaryColor;
+      case 'dispatched':
+        return Colors.orange;
+      case 'delivered':
+        return AppColors.greenColor;
+      case 'failed':
+        return AppColors.activeRedColor;
+      case 'installed':
+        return Colors.teal;
+      case 'processing':
+        return Colors.blue;
+      case 'cancelled':
+        return AppColors.activeRedColor;
+      default:
+        return AppColors.primaryColor;
+    }
   }
-}
 
-class Product {
-  final String name;
-  final String code;
-  final int price;
-  final int quantity;
+  String formatCurrency(dynamic totalPrice) {
+    final formatter = NumberFormat("#,##,###.##");
+    final num value = totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
+    return formatter.format(value);
+  }
 
-  Product(this.name, this.code, this.price, this.quantity);
+  String formatDateTimeGps(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      final formatter = DateFormat('dd MMM yyyy, hh:mm a');
+      return formatter.format(date);
+    } catch (e) {
+      return dateString;
+    }
+  }
 }
 
 class PriceRow extends StatelessWidget {

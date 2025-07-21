@@ -26,6 +26,7 @@ import '../bloc/kavach_order_bloc/kavach_order_event.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import '../helper/kavach_helper.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
 import 'kavach_support_screen.dart';
@@ -231,17 +232,17 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                         ],
                       ),
                     ),
-                    Text("₹${totalPrice.toStringAsFixed(2)}", style: AppTextStyle.blackColor15w500),
+                    Text("₹${KavachHelper.formatCurrency(totalPrice.toStringAsFixed(2))}", style: AppTextStyle.blackColor15w500),
                   ],
                 ),
                 5.height,
                 _buildDetailRow("HSN Code",  product.hsnSacCode??'-'),
                 _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
-                _buildDetailRow("Rate /Unit ₹", "₹${product.price.toStringAsFixed(2)}"),
-                _buildDetailRow("IGST", "₹${igst.toStringAsFixed(2)}"),
-                _buildDetailRow("CGST", "₹${cgst.toStringAsFixed(2)}"),
-                _buildDetailRow("SGST", "₹${sgst.toStringAsFixed(2)}"),
-                _buildDetailRow("Total GST", "₹${gstAmount.toStringAsFixed(2)}"),
+                _buildDetailRow("Rate /Unit ₹", "₹${KavachHelper.formatCurrency(product.price.toStringAsFixed(2))}"),
+                _buildDetailRow("IGST", "₹${KavachHelper.formatCurrency(igst.toStringAsFixed(2))}"),
+                _buildDetailRow("CGST", "₹${KavachHelper.formatCurrency(cgst.toStringAsFixed(2))}"),
+                _buildDetailRow("SGST", "₹${KavachHelper.formatCurrency(sgst.toStringAsFixed(2))}"),
+                _buildDetailRow("Total GST", "₹${KavachHelper.formatCurrency(gstAmount.toStringAsFixed(2))}"),
                 5.height,
                 DottedLine(
                   direction: Axis.horizontal,
@@ -251,7 +252,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow("Total Amount", "₹${totalWithGst.toStringAsFixed(0)}"),
+                _buildDetailRow("Total Amount", "₹${KavachHelper.formatCurrency(totalWithGst.toStringAsFixed(0))}"),
                 15.height,
               ],
             );
@@ -280,7 +281,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
-              Text('₹${totalAmount.toStringAsFixed(2)}', style: AppTextStyle.primaryColor16w900),
+              Text('₹${KavachHelper.formatCurrency(totalAmount.toStringAsFixed(2))}', style: AppTextStyle.primaryColor16w900),
             ],
           ),
           15.width,

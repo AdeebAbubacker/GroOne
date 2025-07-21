@@ -29,9 +29,11 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../utils/app_dialog.dart' show AppDialog;
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
+import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../models/gps_document_models.dart';
+import 'gps_order_benefits_and_order_list_screen.dart';
 
 class GpsOrderSummaryScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -161,32 +163,42 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           AppDialog.show(
             context,
             child: SuccessDialogView(
-              message: 'Order placed successfully',
+              message: context.appText.orderPlacedSuccessfully,
               onContinue: () async {
                 try {
+                  // Close the dialog first
                   Navigator.of(context).pop();
-                  await Future.delayed(Duration(milliseconds: 300));
+                  
+                  // Wait for dialog to close completely
+                  await Future.delayed(Duration(milliseconds: 500));
+                  
                   if (context.mounted) {
-                    // Debug current route
-                    print(
-                      '🔄 GPS Order Success: Current route: ${GoRouterState.of(context).uri}',
-                    );
-                    print(
-                      '🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}',
-                    );
-                    // Try using direct navigation instead of GoRouter
+                    print('🔄 GPS Order Success: Attempting GoRouter navigation');
+                    print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
+                    
+                    // Use GoRouter navigation as before
                     context.go(AppRouteName.gpsOrderBenefits);
-                    print('🔄 GPS Order Success: Direct navigation used');
+                    
+                    print('🔄 GPS Order Success: GoRouter navigation called successfully');
                   } else {
-                    print(
-                      '❌ GPS Order Success: Context is not mounted after delay',
-                    );
+                    print('❌ GPS Order Success: Context not mounted after dialog close');
                   }
                 } catch (e) {
+                  print('❌ GPS Order Success: Navigation error: $e');
+                  
                   if (context.mounted) {
-                    // Use GoRouter to navigate and clear stack
-                    context.go(AppRouteName.gpsOrderBenefits);
-                    print('🔄 GPS Order Success: Fallback navigation used');
+                    try {
+                      // Fallback: Try GoRouter again with different approach
+                      print('🔄 GPS Order Success: Trying GoRouter fallback');
+                      context.go(AppRouteName.gpsOrderBenefits);
+                    } catch (goRouterError) {
+                      print('❌ GPS Order Success: GoRouter fallback also failed: $goRouterError');
+                      
+                      // Final fallback: Show error message
+                      ToastMessages.error(
+                        message: 'Navigation failed. Please try again.',
+                      );
+                    }
                   }
                 }
               },
@@ -225,7 +237,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             isLoadingSummary = false;
           });
           ToastMessages.error(
-            message: "Failed to load order summary: ${state.message}",
+            message: context.appText.failedToLoadOrderSummary,
           );
         }
       },
@@ -282,13 +294,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.h5),
-                  10.height,
-                  _buildAddressCard(widget.shippingAddress),
-                  15.height,
                   Text(context.appText.billingAddress, style: AppTextStyle.h5),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
+                  15.height,
+                  Text(context.appText.shippingAddress, style: AppTextStyle.h5),
+                  10.height,
+                  _buildAddressCard(widget.shippingAddress),
                 ],
               ),
             ),
@@ -360,24 +372,24 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                       ),
                     ),
                     Text(
-                      "₹${(summaryItem.unitPrice * summaryItem.quantity)}",
+                      "₹${KavachHelper.formatCurrency((summaryItem.unitPrice * summaryItem.quantity).toStringAsFixed(2))}",
                       style: AppTextStyle.blackColor15w500,
                     ),
                   ],
                 ),
                 5.height,
-                _buildDetailRow("HSN Code", summaryItem.hsnCode),
+                _buildDetailRow(context.appText.hsnCode, summaryItem.hsnCode),
                 _buildDetailRow(
-                  "Qty",
+                  context.appText.qty,
                   summaryItem.quantity.toString().padLeft(2, '0'),
                 ),
-                _buildDetailRow("Rate /Unit ₹", "₹${summaryItem.unitPrice}"),
+                _buildDetailRow(context.appText.ratePerUnit, "₹${KavachHelper.formatCurrency(summaryItem.unitPrice.toStringAsFixed(2))}",),
                 if (summaryItem.discount > 0)
-                  _buildDetailRow("Discount", "₹${summaryItem.discount}"),
-                _buildDetailRow("IGST", "₹${summaryItem.igst}"),
-                _buildDetailRow("CGST", "₹${summaryItem.cgst}"),
-                _buildDetailRow("SGST", "₹${summaryItem.sgst}"),
-                _buildDetailRow("Total GST", "₹${summaryItem.totalGst}"),
+                  _buildDetailRow("Discount", "₹${KavachHelper.formatCurrency(summaryItem.discount.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.igst, "₹${KavachHelper.formatCurrency(summaryItem.igst.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.cgst, "₹${KavachHelper.formatCurrency(summaryItem.cgst.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.sgst, "₹${KavachHelper.formatCurrency(summaryItem.sgst.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.totalGst, "₹${KavachHelper.formatCurrency(summaryItem.totalGst.toStringAsFixed(2))}",),
                 5.height,
                 DottedLine(
                   direction: Axis.horizontal,
@@ -387,7 +399,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow("Total Amount", "₹${summaryItem.totalAmount}"),
+                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount.toStringAsFixed(2))}",),
                 15.height,
               ],
             );
@@ -418,7 +430,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
-              Text('₹$totalAmount', style: AppTextStyle.primaryColor16w900),
+              Text('₹${KavachHelper.formatCurrency(totalAmount)}', style: AppTextStyle.primaryColor16w900),
             ],
           ),
           15.width,

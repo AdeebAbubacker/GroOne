@@ -15,16 +15,19 @@ import 'gps_add_address_bottom_sheet.dart';
 
 class GpsBillingAddressListScreen extends StatelessWidget {
   final GpsBillingAddressCubit billingAddressCubit;
+  final KavachAddressModel? selectedShippingAddress;
   
   const GpsBillingAddressListScreen({
     super.key,
     required this.billingAddressCubit,
+    this.selectedShippingAddress,
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.billingAddress,
+      hideDivider: false,
       body: SizedBox(
           height: MediaQuery.of(context).size.height * 0.5,
          child: _buildBody(context: context)),
@@ -57,16 +60,74 @@ class GpsBillingAddressListScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
+        if (state is GpsBillingAddressError) {
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, color: Colors.red, size: 48),
+                      10.height,
+                      Text(
+                        'Failed to load addresses',
+                        style: AppTextStyle.h5,
+                      ),
+                      10.height,
+                      AppButton(
+                        onPressed: () {
+                          billingAddressCubit.fetchGpsBillingAddresses();
+                        },
+                        title: 'Retry',
+                        style: AppButtonStyle.outline,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
         if (state is GpsBillingAddressLoaded || state is GpsBillingAddressSelected) {
           final addresses = state is GpsBillingAddressLoaded 
               ? (state as GpsBillingAddressLoaded).addresses
               : (state as GpsBillingAddressSelected).addresses;
 
+          // Filter out the selected shipping address from billing address list
+          final filteredAddresses = selectedShippingAddress != null 
+              ? addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
+              : addresses;
+
           // Check if addresses list is null or empty
-          if (addresses.isEmpty) {
+          if (filteredAddresses.isEmpty) {
             return Column(
               children: [
-                addVehicleButton(context)
+                addVehicleButton(context),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_off, color: Colors.grey, size: 48),
+                        10.height,
+                        Text(
+                          'No available billing addresses',
+                          style: AppTextStyle.h5,
+                        ),
+                        5.height,
+                        Text(
+                          selectedShippingAddress != null 
+                              ? 'All addresses are already selected for shipping'
+                              : 'Add your first billing address',
+                          style: AppTextStyle.bodyGreyColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             );
           }
@@ -78,10 +139,10 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   shrinkWrap: true,
-                  itemCount: addresses.length,
+                  itemCount: filteredAddresses.length,
                   separatorBuilder: (context, index) => 10.height,
                   itemBuilder: (context, index) {
-                    final address = addresses[index];
+                    final address = filteredAddresses[index];
                     return AddressListItem(
                       address: address,
                       billingAddressCubit: billingAddressCubit,
@@ -96,7 +157,13 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                   if (selectedAddress is GpsBillingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
-                    // Handle if nothing is selected
+                    // Show message that user must select an address first
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please select an address first'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
                   }
                 },
                 title: context.appText.deliverHere,
@@ -110,7 +177,27 @@ class GpsBillingAddressListScreen extends StatelessWidget {
         // Empty state - show add address button
         return Column(
           children: [
-            addVehicleButton(context)
+            addVehicleButton(context),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_off, color: Colors.grey, size: 48),
+                    10.height,
+                    Text(
+                      'No addresses found',
+                      style: AppTextStyle.h5,
+                    ),
+                    5.height,
+                    Text(
+                      'Add your first billing address',
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         );
       },

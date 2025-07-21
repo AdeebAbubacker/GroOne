@@ -43,22 +43,38 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
 
       if (_isClosed) return; // Check again after async operation
 
-      if (result is Success<GpsKycCheckModel>) {
+      if (result is Success<GpsKycCheckResponseModel>) {
         final kycModel = result.value;
         final hasDocuments = kycModel.hasKycDocuments;
 
         print('📋 GPS KYC Check Response:');
-        print('  Success: ${kycModel.success}');
-        print('  Message: ${kycModel.message}');
-        print('  Data Type: ${kycModel.data.runtimeType}');
-        print('  Data: ${kycModel.data}');
+        print('  Customer ID: ${kycModel.customerId}');
+        print('  Is KYC: ${kycModel.isKyc}');
         print('  Has Documents: $hasDocuments');
-        print('  KYC Data: ${kycModel.kycData}');
+        print('  Documents: ${kycModel.documents}');
+        
+        // Additional detailed logging
+        if (kycModel.documents != null) {
+          print('  Aadhaar: ${kycModel.documents!.aadhar}');
+          print('  Is Aadhaar: ${kycModel.documents!.isAadhar}');
+          print('  PAN: ${kycModel.documents!.pan}');
+          print('  Is PAN: ${kycModel.documents!.isPan}');
+        }
 
         emit(
           state.copyWith(
             hasKycDocuments: hasDocuments,
-            kycData: kycModel.kycData,
+            kycData: kycModel.documents != null ? {
+              'customerId': kycModel.customerId,
+              'isKyc': kycModel.isKyc,
+              'documents': {
+                'aadhar': kycModel.documents!.aadhar,
+                'isAadhar': kycModel.documents!.isAadhar,
+                'pan': kycModel.documents!.pan,
+                'panDocLink': kycModel.documents!.panDocLink,
+                'isPan': kycModel.documents!.isPan,
+              }
+            } : null,
           ),
         );
         _setKycCheckUIState(UIState.success(kycModel));
@@ -75,7 +91,7 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
   }
 
   /// Sets the KYC check UI state
-  void _setKycCheckUIState(UIState<GpsKycCheckModel>? uiState) {
+  void _setKycCheckUIState(UIState<GpsKycCheckResponseModel>? uiState) {
     if (!_isClosed) {
       emit(state.copyWith(kycCheckState: uiState));
     }
