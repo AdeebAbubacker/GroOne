@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -86,8 +88,8 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                 ),
                 buildTopLocationWidget(loadItem!),
                 DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
-               // buildFloatingSupportButton(),
-                buildSimConsentStatus(loadItem),
+                buildFloatingWidget(context),
+                buildSimConsentWidget(loadItem),
               ],
             );
           },
@@ -174,6 +176,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                     ),
                   ],
                 ).expand(),
+                
               ],
             )
           ],
@@ -183,43 +186,52 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 
-  // Widget buildFloatingSupportButton() {
-  //   final screenHeight = MediaQuery.of(context).size.height;
-  //   final bottomWidgetMaxHeight = screenHeight * 0.45;
-
-  //   return Positioned(
-  //     right: 5,
-  //     bottom: bottomWidgetMaxHeight + 10,
-  //     child: IconButton(
-  //       onPressed: () {
-  //         commonSupportDialog(context);
-  //       },
-  //       icon: Container(
-  //         padding: const EdgeInsets.all(4),
-  //         decoration: commonContainerDecoration(
-  //           shadow: true,
-  //           shadowColor: AppColors.secondaryButtonColor,
-  //           borderRadius: BorderRadius.circular(20),
-  //         ),
-  //         child: SvgPicture.asset(
-  //           "assets/icons/support.svg", // replace with your actual icon
-  //           width: 25,
-  //           colorFilter: AppColors.svg(AppColors.primaryColor),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget buildSimConsentStatus(DriverLoadDetailsModel loadItem) {
+  /// Support
+  Widget buildFloatingWidget(status) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final bottomWidgetMaxHeight = screenHeight * 0.45;
+
+    return Positioned(
+        right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
+          children: [
+            // if(status.index > LoadStatus.assigned.index)
+            // IconButton(
+            //     onPressed: () {
+            //
+            //     },
+            //     icon: Container(
+            //       padding: EdgeInsets.all(4),
+            //       decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+            //       child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+            //     )
+            // ),
+            IconButton(
+            onPressed: () {
+              commonSupportDialog(context);
+            },
+            icon: Container(
+              padding: EdgeInsets.all(4),
+              decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+              child: SvgPicture.asset(
+                AppIcons.svg.support,
+                width: 25,
+                colorFilter: AppColors.svg(AppColors.primaryColor),
+              ),
+            )
+                ),
+
+          ],
+        ));
+  }
+
+
+    Widget buildSimConsentWidget(DriverLoadDetailsModel loadItem) {
+      final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
     final isTrackingAllowed = loadItem.data?.driverConsent == 1;
 
     return Positioned(
-      left: 5,
-      bottom: bottomWidgetMaxHeight + 10,
-      child: IconButton(
+        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
         onPressed: () {
           commonSupportDialog(context);
         },
@@ -227,20 +239,18 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
           decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
           child: Row(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red,
-                ),
-                height: 12,
-                width: 12,
-              ),
+              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
               10.width,
-              Text("SIM", style: AppTextStyle.h5),
+              Text(context.appText.sim, style: AppTextStyle.h5 )
             ],
           ).paddingAll(8),
-        ),
-      ),
-    );
+        )
+    ));
+
+
   }
 }
+
+
+
+

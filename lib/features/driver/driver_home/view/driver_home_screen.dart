@@ -370,7 +370,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       case 0: 
                     return DriverLoadWidget(
                         driverLoadDetails: state.loads[index],
-                  onClickAssignDriver: () {
+                   onClickAssignDriver: () {
+          context.read<DriverLoadsBloc>().add(
+              ChangeDriverLoadStatus(
+                loadId: state.loads[index].loadId,  
+                loadStatus: state.loads[index].loadStatusId +1,          
+                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+              ),);
                   },
                 ).paddingSymmetric(vertical: 7);
               
@@ -379,8 +385,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   onClickAssignDriver: () {
           context.read<DriverLoadsBloc>().add(
               ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  // from model
-                loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+                loadId: state.loads[index].loadId,  
+                loadStatus: state.loads[index].loadStatusId +1,         
                 customerId: state.loads[index].vpCustomer?.customerId ?? '', 
               ),);
                   },
@@ -390,8 +396,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   onClickAssignDriver: () {
                     context.read<DriverLoadsBloc>().add(
               ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  // from model
-                loadStatus: state.loads[index].loadStatusId +1,          // example: 5 for "Loading"
+                loadId: state.loads[index].loadId,  
+                loadStatus: state.loads[index].loadStatusId +1,         
                 customerId: state.loads[index].vpCustomer?.customerId ?? '', 
               ),);
                   },

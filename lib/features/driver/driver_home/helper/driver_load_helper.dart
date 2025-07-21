@@ -51,7 +51,7 @@ class DriverLoadHelper {
   static Widget loadStatusButtonWidget({
     required int statusId,
     bool isLoading = false,
-    required void Function() onPressed,
+    required VoidCallback onPressed,
   }) {
     switch (statusId) {
       case 3:
@@ -69,12 +69,27 @@ class DriverLoadHelper {
           title: "Start Trip",
         );
       case 5:
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: "Loading",
+        return
+        SlideAction(
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+          outerColor: AppColors.lightPrimaryColor3,
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon)
+              .cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: "Swipe to Complete Loading",
+          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
+       onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
         );
+
       case 6:
         return SlideAction(
           borderRadius: commonButtonRadius,
@@ -88,7 +103,12 @@ class DriverLoadHelper {
           sliderButtonYOffset: -30,
           text: "Swipe to unload",
           textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-          onSubmit: () {},
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
         );
       case 7:
         return SlideAction(
@@ -101,9 +121,14 @@ class DriverLoadHelper {
               .cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete unloading",
+          text: "Swipe to complete trip",
           textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-          onSubmit: () {},
+          onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
         );
       case 8:
         return AppButton(

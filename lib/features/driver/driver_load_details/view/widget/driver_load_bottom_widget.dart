@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driv
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -100,7 +101,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                     DriverSourceDestinationWidget(
                             pickUpLocation: widget.loadItem.data?.loadRoute?.pickUpLocation,
                             dropLocation:  widget.loadItem.data?.loadRoute?.dropLocation,
-                          ).paddingSymmetric(horizontal: 15),
+                          ),
                           20.height,
                       15.height,
                           _buildLoadEntityWidget(
@@ -118,6 +119,32 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             phoneNo: widget.loadItem.data?.consignees.last.mobileNumber ?? '',
                             ),
                           20.height,
+                          if(widget.loadItem.data!.loadDocument!.isNotEmpty)
+                      // Download Documents
+                     ...[
+                       Text(context.appText.tripdocument, style: AppTextStyle.h4),
+                       10.height,
+                      Column(
+  children: widget.loadItem.data!.loadDocument!
+      .expand((docList) => docList) // flatten List<List<T>> into List<T>
+      .map((doc) {
+        return Column(
+          children: [
+            TripDocuments(
+              docName: doc.documentDetails?.title ?? '',
+              docDateTime: doc.createdAt!,
+              docUrl: doc.documentDetails?.filePath ?? '',
+              downloadKey: doc.loadDocumentId,
+              docId: doc.documentId,
+            ),
+            10.height,
+          ],
+        );
+      }).toList(),
+)
+
+                     ],
+                      20.height,
                       _buildAdableSectionHeader(
                           showAddButton:true,
                           context: context,
@@ -337,7 +364,7 @@ Widget _buildHeading({required String text}) {
           ],
         ),
       ],
-    ).paddingSymmetric(horizontal: 15);
+    );
   }
 
 

@@ -102,7 +102,7 @@ class Data {
     final LoadPrice? loadPrice;
     final ScheduleTripDetails? scheduleTripDetails;
     final LoadMemo? loadMemo;
-    final List<List<LoadDocument>> loadDocument;
+    List<List<LoadDocumentData>>? loadDocument;
     final dynamic loadSettlement;
     final dynamic podDispatch;
     final LoadApproval? loadApproval;
@@ -145,7 +145,7 @@ class Data {
         LoadPrice? loadPrice,
         ScheduleTripDetails? scheduleTripDetails,
         LoadMemo? loadMemo,
-        List<List<LoadDocument>>? loadDocument,
+       List<List<LoadDocumentData>>? loadDocument,
         dynamic? loadSettlement,
         dynamic? podDispatch,
         LoadApproval? loadApproval,
@@ -234,7 +234,7 @@ class Data {
             loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
             scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
             loadMemo: json["loadMemo"] == null ? null : LoadMemo.fromJson(json["loadMemo"]),
-            loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocument>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocument>.from(x!.map((x) => LoadDocument.fromJson(x))))),
+           loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocumentData>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocumentData>.from(x!.map((x) => LoadDocumentData.fromJson(x))))),
             loadSettlement: json["loadSettlement"],
             podDispatch: json["podDispatch"],
             loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
@@ -942,110 +942,114 @@ class LoadApproval {
     }
 
 }
+class LoadDocumentData {
+  LoadDocumentData({
+    required this.loadDocumentId,
+    required this.loadId,
+    required this.documentId,
+    required this.status,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deletedAt,
+    required this.documentDetails,
+    required this.documentError,
+  });
 
-class LoadDocument {
-    LoadDocument({
-        required this.loadDocumentId,
-        required this.loadId,
-        required this.documentId,
-        required this.status,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
-        required this.documentDetails,
-        required this.documentError,
-    });
+  final String loadDocumentId;
+  final String loadId;
+  final String documentId;
+  final int status;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
+  final DocumentDetails? documentDetails;
+  final String documentError;
 
-    final String loadDocumentId;
-    final String loadId;
-    final String documentId;
-    final int status;
-    final DateTime? createdAt;
-    final DateTime? updatedAt;
-    final dynamic deletedAt;
-    final DocumentDetails? documentDetails;
-    final dynamic documentError;
+  LoadDocumentData copyWith({
+    String? loadDocumentId,
+    String? loadId,
+    String? documentId,
+    int? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? deletedAt,
+    DocumentDetails? documentDetails,
+    String? documentError,
+  }) {
+    return LoadDocumentData(
+      loadDocumentId: loadDocumentId ?? this.loadDocumentId,
+      loadId: loadId ?? this.loadId,
+      documentId: documentId ?? this.documentId,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      documentDetails: documentDetails ?? this.documentDetails,
+      documentError: documentError ?? this.documentError,
+    );
+  }
 
-    LoadDocument copyWith({
-        String? loadDocumentId,
-        String? loadId,
-        String? documentId,
-        int? status,
-        DateTime? createdAt,
-        DateTime? updatedAt,
-        dynamic? deletedAt,
-        DocumentDetails? documentDetails,
-        dynamic? documentError,
-    }) {
-        return LoadDocument(
-            loadDocumentId: loadDocumentId ?? this.loadDocumentId,
-            loadId: loadId ?? this.loadId,
-            documentId: documentId ?? this.documentId,
-            status: status ?? this.status,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
-            documentDetails: documentDetails ?? this.documentDetails,
-            documentError: documentError ?? this.documentError,
-        );
-    }
-
-    factory LoadDocument.fromJson(Map<String, dynamic> json){ 
-        return LoadDocument(
-            loadDocumentId: json["loadDocumentId"] ?? "",
-            loadId: json["loadId"] ?? "",
-            documentId: json["documentId"] ?? "",
-            status: json["status"] ?? 0,
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-            deletedAt: json["deletedAt"],
-            documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
-            documentError: json["documentError"],
-        );
-    }
+  factory LoadDocumentData.fromJson(Map<String, dynamic> json){
+    return LoadDocumentData(
+      loadDocumentId: json["loadDocumentId"] ?? "",
+      loadId: json["loadId"] ?? "",
+      documentId: json["documentId"] ?? "",
+      status: json["status"] ?? 0,
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+      documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
+      documentError: json["documentError"] ?? "",
+    );
+  }
 
 }
 
 class DocumentDetails {
-    DocumentDetails({
-        required this.documentId,
-        required this.title,
-        required this.documentType,
-        required this.fileSize,
-        required this.originalFilename,
-    });
+  DocumentDetails({
+    required this.documentId,
+    required this.title,
+    required this.documentType,
+    required this.fileSize,
+    required this.filePath,
+    required this.originalFilename,
+  });
 
-    final String documentId;
-    final String title;
-    final String documentType;
-    final String fileSize;
-    final String originalFilename;
+  final String documentId;
+  final String title;
+  final String documentType;
+  final String fileSize;
+  final String filePath;
+  final String originalFilename;
 
-    DocumentDetails copyWith({
-        String? documentId,
-        String? title,
-        String? documentType,
-        String? fileSize,
-        String? originalFilename,
-    }) {
-        return DocumentDetails(
-            documentId: documentId ?? this.documentId,
-            title: title ?? this.title,
-            documentType: documentType ?? this.documentType,
-            fileSize: fileSize ?? this.fileSize,
-            originalFilename: originalFilename ?? this.originalFilename,
-        );
-    }
+  DocumentDetails copyWith({
+    String? documentId,
+    String? title,
+    String? documentType,
+    String? fileSize,
+    String? filePath,
+    String? originalFilename,
+  }) {
+    return DocumentDetails(
+      documentId: documentId ?? this.documentId,
+      title: title ?? this.title,
+      documentType: documentType ?? this.documentType,
+      fileSize: fileSize ?? this.fileSize,
+      filePath: filePath ?? this.filePath,
+      originalFilename: originalFilename ?? this.originalFilename,
+    );
+  }
 
-    factory DocumentDetails.fromJson(Map<String, dynamic> json){ 
-        return DocumentDetails(
-            documentId: json["documentId"] ?? "",
-            title: json["title"] ?? "",
-            documentType: json["documentType"] ?? "",
-            fileSize: json["fileSize"] ?? "",
-            originalFilename: json["originalFilename"] ?? "",
-        );
-    }
+  factory DocumentDetails.fromJson(Map<String, dynamic> json){
+    return DocumentDetails(
+      documentId: json["documentId"] ?? "",
+      title: json["title"] ?? "",
+      documentType: json["documentType"] ?? "",
+      fileSize: json["fileSize"] ?? "",
+      filePath: json["filePath"] ?? "",
+      originalFilename: json["originalFilename"] ?? "",
+    );
+  }
 
 }
 
