@@ -5,12 +5,14 @@ class DriverLoadDetailsState extends Equatable {
   final UIState<DriverLoadDetailsModel>? lpLoadById;
   final UIState<UploadDamageFileModel>? uploadDamageUIState;
   final UIState<GetDamageListModel>? damageListUIState;
+  final UIState<VpLoadAcceptModel>? loadStatusUIState;
   final bool? isUpdateDamage;
 
   const DriverLoadDetailsState({
     this.lpLoadById,
     this.uploadDamageUIState,
     this.damageListUIState,
+     this.loadStatusUIState,
     this.isUpdateDamage,
   });
 
@@ -18,6 +20,7 @@ class DriverLoadDetailsState extends Equatable {
     UIState<DriverLoadDetailsModel>? lpLoadById,
     UIState<UploadDamageFileModel>? uploadDamageUIState,
     UIState<GetDamageListModel>? damageListUIState,
+    UIState<VpLoadAcceptModel>? loadStatusUiUpdate,
     bool? isUpdateDamage,
   }) {
     return DriverLoadDetailsState(
@@ -25,6 +28,7 @@ class DriverLoadDetailsState extends Equatable {
       uploadDamageUIState: uploadDamageUIState ?? this.uploadDamageUIState,
       damageListUIState: damageListUIState ?? this.damageListUIState,
       isUpdateDamage: isUpdateDamage ?? this.isUpdateDamage,
+      loadStatusUIState: loadStatusUiUpdate ?? this.loadStatusUIState
     );
   }
 
@@ -34,5 +38,6 @@ class DriverLoadDetailsState extends Equatable {
         uploadDamageUIState,
         damageListUIState,
         isUpdateDamage,
+        loadStatusUIState,
       ];
 }

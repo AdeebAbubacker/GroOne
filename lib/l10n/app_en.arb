@@ -787,6 +787,8 @@
   "failedToAddAddress": "Failed to add address",
   "failedToLoadVehicles": "Failed to load vehicles",
   "vehicleIsCurrentlyInactive": "Vehicle is currently inactive",
+  "vehicleIsCurrentlyInactive": "Vehicle is currently inactive",
+
   "verify": "Verify",
   "mobileOtpVerification": "Mobile OTP Verification",
   "loginSuccessfully": "Login Successfully",
