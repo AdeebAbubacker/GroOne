@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_in
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
+import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -764,7 +765,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                     _ActionButton(
                       label: 'Play route',
                       icon: Icons.play_arrow,
-                      onTap: () {},
+                      onTap: () {
+                        _showPlayRouteBottomSheet(context, widget.vehicle);
+                      },
                     ),
                     // const SizedBox(width: 12),
                     // _ActionButton(
@@ -1174,6 +1177,15 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
     if (battery == null) return 'N/A';
     return battery.toStringAsFixed(2) + 'V';
   }
+
+  void _showPlayRouteBottomSheet(BuildContext context, GpsCombinedVehicleData vehicle) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => PlayRouteBottomSheet(vehicle: vehicle),
+    );
+  }
 }
 
 // Info row widget for the info card
@@ -1442,9 +1454,182 @@ String _formatSat(int? sat) {
   return sat.toString();
 }
 
-String _formatMotion(bool? motion) {
-  if (motion == null) return '-';
-  return motion ? 'Moving' : 'Stopped';
+  String _formatMotion(bool? motion) {
+    if (motion == null) return '-';
+    return motion ? 'Moving' : 'Stopped';
+  }
+
+class PlayRouteBottomSheet extends StatelessWidget {
+  final GpsCombinedVehicleData vehicle;
+  
+  const PlayRouteBottomSheet({
+    super.key,
+    required this.vehicle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                const Text(
+                  'Play Route',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const Spacer(),
+                // Status indicator (green dot)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Route options
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                _RouteOption(
+                  icon: Icons.vpn_key,
+                  label: 'Ignition Path',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'ignition');
+                  },
+                ),
+                const Divider(height: 1, color: Colors.grey),
+                _RouteOption(
+                  icon: Icons.location_on,
+                  label: 'Daily Path',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'daily');
+                  },
+                ),
+                const Divider(height: 1, color: Colors.grey),
+                _RouteOption(
+                  icon: Icons.replay,
+                  label: 'Path Replay',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'replay');
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToPathReplay(BuildContext context, GpsCombinedVehicleData vehicle, String routeType) {
+    // Get current date for query parameters
+    final now = DateTime.now();
+    final startDate = now.subtract(const Duration(days: 1));
+    final endDate = now;
+
+    final Map<String, dynamic> queryParams = {
+      "start": startDate.toIso8601String(),
+      "end": endDate.toIso8601String(),
+      "timezone_offset": "0",
+      "inputs": {},
+      "device_ids": vehicle.deviceId,
+      "fwd_variable": 0.0,
+    };
+
+    // Navigate to path replay screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PathReplayScreen(
+          token: AppConstants.token ?? '',
+          queryParams: queryParams,
+          vehicleNumber: vehicle.vehicleNumber,
+        ),
+      ),
+    );
+  }
+}
+
+class _RouteOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _RouteOption({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.blue,
+              size: 24,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: Colors.black54,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class NearestVehicleDialog extends StatelessWidget {
