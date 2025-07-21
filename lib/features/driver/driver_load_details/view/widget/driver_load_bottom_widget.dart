@@ -122,7 +122,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           20.height,
                       15.height,
                           _buildLoadEntityWidget(
-                          
+                          commodities: widget.loadItem.data?.commodity!.name.toString() ?? '',
+                          weight: widget.loadItem.data?.weight!.value.toString() ?? '',
                           ),     
                      if ((widget.loadItem.data?.loadStatusId ?? 0) > 4)
                      Column(
@@ -417,7 +418,7 @@ Widget _buildHeading({required String text}) {
 }
 
 // Build Load Entity
-  Widget _buildLoadEntityWidget() {
+  Widget _buildLoadEntityWidget({required String commodities,required String weight}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -430,7 +431,7 @@ Widget _buildHeading({required String text}) {
           children: [
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
-              "gh",
+              commodities,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -452,7 +453,7 @@ Widget _buildHeading({required String text}) {
             ),
 
             Text(
-              "34 Ton",
+              "${weight} Ton",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
