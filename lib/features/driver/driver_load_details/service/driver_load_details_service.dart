@@ -73,6 +73,9 @@ class DriverLoadDetailsService {
     }
   }
 
+
+
+
     /// Get Damage List Service
   Future<Result<GetDamageListModel>> fetchDamageList(String loadId) async {
     try {

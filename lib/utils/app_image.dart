@@ -117,4 +117,5 @@ class SvgImages {
 class JpgImage {
   static const String _jpgImageBasePath = "assets/images/jpg/";
   final String noticeBoardBgImage = "${_jpgImageBasePath}noticeBoardBgImage.jpg";
+  final String driverImaged = "${_jpgImageBasePath}driver_vehicle.jpg";
 }

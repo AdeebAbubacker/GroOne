@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -64,9 +65,8 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
     BitmapDescriptor driverIcon = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(64, 64)),
-      AppIcons.png.driverIcon,
+      AppImage.jpg.driverImaged,
     );
-
 
     frameCallback(() async {
      if(addMarker){
@@ -193,7 +193,6 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           if((state.directionApiResponse?.data?.routes??[]).isNotEmpty){
             setMapMarkers(addMarker: false,points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points);
           }
-
         }
         return ValueListenableBuilder(
           valueListenable: _markers,

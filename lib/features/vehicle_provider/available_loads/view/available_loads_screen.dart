@@ -66,14 +66,11 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
         bottom: false,
         child:  Column(
           children: [
-
             // Search Bar
             Row(
               children: [
                 AppSearchBar(searchController: searchController).expand(),
-
                 15.width,
-
                 AppIconButton(
                   onPressed: (){
                     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());

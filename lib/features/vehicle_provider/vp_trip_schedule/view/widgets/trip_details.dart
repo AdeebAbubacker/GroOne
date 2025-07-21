@@ -190,7 +190,7 @@ class TripDetails extends StatelessWidget {
                   spacing: 12,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildPriceBreakDownWidget("Accepted Price",amount),
+                    _buildPriceBreakDownWidget(context.appText.acceptedPrice,amount),
                     // _buildPriceBreakDownWidget("Advance Amount","65,000"),
                     // _buildPriceBreakDownWidget("Balance Amount","8000"),
                   ],
