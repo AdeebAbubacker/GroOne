@@ -10,6 +10,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
@@ -29,6 +30,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
   bool isLoading = true;
   List<DistanceData> _weeklyDistance = [];
   bool _isWeeklyDistanceLoading = true;
+  Map<String, dynamic> _selectedVehicleDistanceData = {};
 
   @override
   void initState() {
@@ -38,7 +40,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
       final vehicles = cubit.state.filteredVehicles;
       if (vehicles.isNotEmpty) {
         selectedVehicleNumber ??= vehicles.first.vehicleNumber;
-        _loadWeeklyDistance(vehicles);
+        _loadDistanceDataForSelectedVehicle(vehicles);
       }
     });
   }
@@ -53,10 +55,16 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
 
   int getVehiclesInsideGeofence(List<GpsCombinedVehicleData> vehicles) {
     return vehicles.where((v) {
+      final geofenceIds = v.geofenceIds;
+
+      if (geofenceIds == null || geofenceIds.trim().isEmpty || geofenceIds.trim() == '[]') {
+        return false;
+      }
       try {
-        final ids = jsonDecode(v.geofenceIds ?? '[]');
-        return ids is List && ids.isNotEmpty;
+        final decoded = jsonDecode(geofenceIds);
+        return decoded is List && decoded.isNotEmpty;
       } catch (_) {
+        // Fallback: maybe it's already a List<String>
         return false;
       }
     }).length;
@@ -79,6 +87,34 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     });
   }
 
+  Future<void> _loadDistanceDataForSelectedVehicle(List<GpsCombinedVehicleData> vehicles) async {
+    if (selectedVehicleNumber == null || vehicles.isEmpty) return;
+
+    setState(() {
+      _isWeeklyDistanceLoading = true;
+    });
+
+    try {
+      final cubit = context.read<VehicleListCubit>();
+      final distanceData = await cubit.getDistanceDataForDashboard(
+        selectedVehicleNumber: selectedVehicleNumber,
+      );
+
+      final selectedVehicleData = distanceData['selectedVehicleData'] as Map<String, dynamic>;
+      
+      setState(() {
+        _selectedVehicleDistanceData = selectedVehicleData;
+        _weeklyDistance = selectedVehicleData['weekList'] ?? [];
+        _isWeeklyDistanceLoading = false;
+      });
+    } catch (e) {
+      print('Error loading distance data: $e');
+      setState(() {
+        _isWeeklyDistanceLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +133,9 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
             return Center(child: Text('${context.appText.error}: ${state.error}'));
           }
 
-          final vehicles = state.filteredVehicles;
+          final filteredVehicles = state.filteredVehicles;
+          final vehicles = filteredVehicles.where((vehicle) => vehicle.expired != true).toList();
+
 
           if (vehicles.isEmpty) {
             return Center(child: Text(context.appText.noVehiclesFound));
@@ -112,6 +150,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
             },
           );
 
+          final totalDistance = getTotalDistance(vehicles);
           final insideFenceCount = getVehiclesInsideGeofence(vehicles);
           final outsideFenceCount = state.statusCount.total - insideFenceCount;
 
@@ -124,7 +163,8 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                 20.height,
                 _buildStatusCircles(state),
                 20.height,
-                _buildTotalDistance(selectedVehicle),
+
+                _buildTotalDistance(totalDistance.toString()),
                 20.height,
                 _buildGraphSection(vehicles),
                 20.height,
@@ -289,7 +329,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     );
   }
 
-  Widget _buildTotalDistance(GpsCombinedVehicleData vehicle) {
+  Widget _buildTotalDistance(String total) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
@@ -304,10 +344,31 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
             '${context.appText.totalDistance} - ',
             style: AppTextStyle.textDarkGreyColor14w500,
           ),
-          Text(vehicle.odoReading ?? '0 Kms', style: AppTextStyle.h5),
+          Text(total, style: AppTextStyle.h5),
         ],
       ),
     );
+  }
+
+
+  double getTotalDistance(List<GpsCombinedVehicleData> vehicles) {
+    double totalDistance = 0.0;
+
+    for (var vehicle in vehicles) {
+      double prevOdometer = 0.0;
+      double currentTotalDistance = 0.0;
+      try {
+        prevOdometer = vehicle.attributes?.prevOdometer??0.0;
+        currentTotalDistance = double.tryParse(vehicle.totalDistance ?? '0') ?? 0.0;
+      } catch (e) {
+        debugPrint('Vehicle attr parsing error: $e');
+      }
+      totalDistance += (currentTotalDistance - prevOdometer) / 1000;
+      debugPrint('Added $totalDistance');
+    }
+    totalDistance = double.parse(totalDistance.toStringAsFixed(1));
+    debugPrint('🔴 $totalDistance');
+    return totalDistance;
   }
 
   Widget _buildGraphSection(List<GpsCombinedVehicleData> vehicles) {
@@ -326,7 +387,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
     }
 
     if (_weeklyDistance.isEmpty) {
-      return Center(child: Text(context.appText.noDistanceDataAvailable,style: AppTextStyle.h5,));
+      return Center(child: Text(context.appText.noDistanceDataAvailable, style: AppTextStyle.h5));
     }
 
     final graphPoints = _weeklyDistance
@@ -335,7 +396,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
         .map((entry) => FlSpot(entry.key.toDouble(), entry.value.distance))
         .toList();
 
-    // final xLabels = _weeklyDistance.map((e) => e.startTime).toList();
     final xLabels = _weeklyDistance.map((e) {
       try {
         DateFormat inputFormat = DateFormat('d/M');
@@ -345,8 +405,6 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
         return e.startTime; // fallback to original string if parsing fails
       }
     }).toList();
-
-
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -373,8 +431,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                   children: [
                     CircleAvatar(
                       radius: 15,
-                      backgroundColor:
-                      AppColors.primaryLightColor,
+                      backgroundColor: AppColors.primaryLightColor,
                       child: SvgPicture.asset(
                         AppIcons.svg.truck,
                         width: 20,
@@ -391,7 +448,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                 selectedVehicleNumber = newValue!;
                 _isWeeklyDistanceLoading = true;
               });
-              _loadWeeklyDistance(vehicles);
+              _loadDistanceDataForSelectedVehicle(vehicles);
             },
           ),
           25.height,
@@ -459,10 +516,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                       show: true, // show dots
                       getDotPainter: (spot, percent, barData, index) =>
                           FlDotCirclePainter(
-                            radius: 4,
-                            color: Colors.blue,
-                            strokeWidth: 0,
-                          ),
+                        radius: 4,
+                        color: Colors.blue,
+                        strokeWidth: 0,
+                      ),
                     ),
                     belowBarData: BarAreaData(show: false), // no shading below the line
                   ),
@@ -476,6 +533,10 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
   }
 
   Widget _buildBottomDistanceSummary(GpsCombinedVehicleData vehicle) {
+    // Get distance data for the selected vehicle
+    final monthlyDistance = _selectedVehicleDistanceData['monthlyDistance'] ?? 0.0;
+    final weeklyDistance = _selectedVehicleDistanceData['weeklyDistance'] ?? 0.0;
+    
     return Row(
       children: [
         // This Month Container
@@ -516,7 +577,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                         ),
                         5.height,
                         Text(
-                          vehicle.odoReading ?? '0 km',
+                          '$monthlyDistance',
                           style: AppTextStyle.h5
                         ),
                       ],
@@ -566,7 +627,7 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen> {
                         ),
                         5.height,
                         Text(
-                          vehicle.todayDistance ?? '0 km',
+                          '$weeklyDistance',
                           style: AppTextStyle.h5,
                         ),
                       ],

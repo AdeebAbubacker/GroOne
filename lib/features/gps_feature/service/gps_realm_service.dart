@@ -20,7 +20,9 @@ import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
+import '../models/gps_device_distance_model.dart';
 import '../models/gps_geofence_model.dart';
+import '../model/distance_report_realm_model.dart';
 
 class GpsRealmService {
   static const String _realmName = 'gps_vehicle_data.realm';
@@ -54,6 +56,7 @@ class GpsRealmService {
       final config = Configuration.local(
         [
           GpsCombinedVehicleRealmData.schema,
+          GpsDeviceAttributesRealm.schema,
           GpsLoginResponseRealmModel.schema,
           GpsUserDetailsRealmModel.schema,
           GpsUserConfigRealmModel.schema,
@@ -62,9 +65,10 @@ class GpsRealmService {
           GpsUserConfigurationRealmModel.schema,
           GpsGeofenceRealmModel.schema,
           GpsDistanceHistoryRealmModel.schema,
+          DistanceReportRealmModel.schema,
         ],
         path: realmPath,
-        schemaVersion: 4,
+        schemaVersion: 5,
       );
 
       _realm = Realm(config);
@@ -89,6 +93,7 @@ class GpsRealmService {
         final config = Configuration.local(
           [
             GpsCombinedVehicleRealmData.schema,
+            GpsDeviceAttributesRealm.schema,
             GpsLoginResponseRealmModel.schema,
             GpsUserDetailsRealmModel.schema,
             GpsUserConfigRealmModel.schema,
@@ -97,6 +102,7 @@ class GpsRealmService {
             GpsUserConfigurationRealmModel.schema,
             GpsGeofenceRealmModel.schema,
             GpsDistanceHistoryRealmModel.schema,
+            DistanceReportRealmModel.schema,
           ],
           path: realmPath,
           schemaVersion: 4,
@@ -716,6 +722,180 @@ class GpsRealmService {
     }
   }
 
+  // ==================== DISTANCE REPORT OPERATIONS ====================
+  
+  /// Save distance report data to Realm
+  Future<void> saveDistanceReportData(List<DeviceDistancePojo> distanceData) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing distance report data
+        _realm!.deleteAll<DistanceReportRealmModel>();
+
+        // Add new distance report data
+        for (final pojo in distanceData) {
+          final deviceId = pojo.deviceId.toString();
+          
+          // Get device name from vehicle data
+          String? deviceName;
+          final vehicleData = _vehicleData!.query('deviceId == \$0', [pojo.deviceId as Object]).firstOrNull;
+          if (vehicleData != null) {
+            deviceName = vehicleData.vehicleNumber ?? 'Unknown Device';
+          } else {
+            deviceName = 'Unknown Device';
+          }
+
+          if (pojo.nested != null) {
+            for (final nested in pojo.nested!) {
+              final unix = _parseUnix(nested.date);
+              final distance = nested.distance;
+
+              final model = DistanceReportRealmModel(
+                ObjectId(),
+                deviceId,
+                unix,
+                distance,
+                deviceName,
+              );
+
+              _realm!.add(model, update: true);
+            }
+          }
+        }
+      });
+      print("💾 Distance report data saved to Realm: ${distanceData.length} devices");
+    } catch (e) {
+      print("❌ Failed to save distance report data to Realm: $e");
+      throw Exception('Failed to save distance report data to Realm: $e');
+    }
+  }
+
+  /// Get all distance report data from Realm
+  Future<List<DistanceReportRealmModel>> getAllDistanceReportData() async {
+    await _ensureInitialized();
+    try {
+      return _realm!.all<DistanceReportRealmModel>().toList();
+    } catch (e) {
+      print("❌ Failed to read distance report data from Realm: $e");
+      throw Exception('Failed to read distance report data from Realm: $e');
+    }
+  }
+
+  /// Get distance report data by device ID
+  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(String deviceId) async {
+    await _ensureInitialized();
+    try {
+      return _realm!.query<DistanceReportRealmModel>(
+        'deviceId == \$0',
+        [deviceId],
+      ).toList();
+    } catch (e) {
+      print("❌ Failed to read distance report data by device ID from Realm: $e");
+      throw Exception('Failed to read distance report data by device ID from Realm: $e');
+    }
+  }
+
+  /// Get monthly distance for a device
+  String getMonthlyDistance(String deviceId) {
+    try {
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+      final fromMillis = firstDayOfMonth.millisecondsSinceEpoch;
+
+      final results = _realm!.query<DistanceReportRealmModel>(
+        'deviceId == \$0 AND dateTime >= \$1',
+        [deviceId, fromMillis],
+      );
+
+      double total = results.fold(0.0, (sum, e) => sum + (e.distance ?? 0));
+      return '${total.toStringAsFixed(2)} Km';
+    } catch (e) {
+      print("❌ Failed to get monthly distance: $e");
+      return '0.0';
+    }
+  }
+
+  /// Get weekly distance for a device
+  String getWeeklyDistance(String deviceId) {
+    try {
+      final fromMillis = DateTime.now()
+          .subtract(const Duration(days: 8))
+          .millisecondsSinceEpoch;
+
+      final results = _realm!.query<DistanceReportRealmModel>(
+        'deviceId == \$0 AND dateTime >= \$1',
+        [deviceId, fromMillis],
+      );
+
+      double total = results.fold(0.0, (sum, e) => sum + (e.distance ?? 0));
+      return '${total.toStringAsFixed(2)} Km';    } catch (e) {
+      print("❌ Failed to get weekly distance: $e");
+      return '0.0';
+    }
+  }
+
+  /// Get 7-day daily distance list for a device
+  List<DistanceData> getWeekDistanceList(String deviceId, String? deviceName) {
+    try {
+      final now = DateTime.now();
+      final startDate = now.subtract(const Duration(days: 6));
+      final startDateUnix = startDate.millisecondsSinceEpoch;
+
+      final results = _realm!.query<DistanceReportRealmModel>(
+        'deviceId == \$0 AND dateTime >= \$1',
+        [deviceId, startDateUnix],
+      );
+
+      final distanceMap = <String, double>{};
+
+      for (final entry in results) {
+        final date = DateTime.fromMillisecondsSinceEpoch(entry.dateTime);
+        final dateKey = '${date.day}/${date.month}';
+        distanceMap[dateKey] = (distanceMap[dateKey] ?? 0) + entry.distance;
+      }
+
+      // Fill missing dates with 0
+      final fullWeek = List.generate(7, (i) {
+        final date = startDate.add(Duration(days: i));
+        final key = '${date.day}/${date.month}';
+        return DistanceData(
+          startTime: key,
+          distance: distanceMap[key] ?? 0.0,
+        );
+      });
+
+      return fullWeek;
+    } catch (e) {
+      print("❌ Failed to get week distance list: $e");
+      return [];
+    }
+  }
+
+  /// Clear distance report data from Realm
+  Future<void> clearDistanceReportData() async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        _realm!.deleteAll<DistanceReportRealmModel>();
+      });
+      print("🗑️ Distance report data cleared from Realm");
+    } catch (e) {
+      print("❌ Failed to clear distance report data from Realm: $e");
+      throw Exception('Failed to clear distance report data from Realm: $e');
+    }
+  }
+
+  /// Helper method to parse Unix timestamp
+  int _parseUnix(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return date.millisecondsSinceEpoch;
+    } catch (e) {
+      print("❌ Failed to parse date: $dateString");
+      return DateTime.now().millisecondsSinceEpoch;
+    }
+  }
+
   // ==================== GENERAL OPERATIONS ====================
 
   /// Check if user is logged in (has valid login data)
@@ -773,6 +953,7 @@ class GpsRealmService {
         _realm!.deleteAll<GpsMobileConfigRealmModel>();
         _realm!.deleteAll<GpsUserConfigurationRealmModel>();
         _realm!.deleteAll<GpsGeofenceRealmModel>();
+        _realm!.deleteAll<DistanceReportRealmModel>();
       });
       print("🗑️ All GPS data cleared from Realm");
     } catch (e) {

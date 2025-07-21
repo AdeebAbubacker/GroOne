@@ -1,6 +1,7 @@
 import 'package:realm/realm.dart';
 
 import 'gps_combined_vehicle_model.dart';
+import 'gps_devices_expiry_model.dart';
 
 part 'gps_combined_vehicle_realm_model.realm.dart';
 
@@ -68,6 +69,15 @@ class _GpsCombinedVehicleRealmData {
   int? statusCode;
   String? batteryPercent;
   String? idleTime;
+  _GpsDeviceAttributesRealm? attributes;
+}
+
+@RealmModel()
+class _GpsDeviceAttributesRealm {
+  late int? prevHours;
+  late double? prevOdometer;
+  late String? resetDate;
+  late String? speedLimit;
 }
 
 extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
@@ -129,6 +139,7 @@ extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
     statusCode: statusCode,
     batteryPercent: batteryPercent,
     idleTime: idleTime,
+    attributes: attributes?.toDomain()
   );
 
   static GpsCombinedVehicleRealmData fromDomain(GpsCombinedVehicleData data) {
@@ -189,8 +200,27 @@ extension GpsCombinedVehicleRealmDataMapper on GpsCombinedVehicleRealmData {
       statusCode: data.statusCode,
       batteryPercent: data.batteryPercent,
       idleTime: data.idleTime,
+      attributes: data.attributes != null 
+          ? GpsDeviceAttributesRealm(
+              prevHours: data.attributes!.prevHours,
+              prevOdometer: data.attributes!.prevOdometer,
+              resetDate: data.attributes!.resetDate,
+              speedLimit: data.attributes!.speedLimit,
+            )
+          : null
     );
     obj.address = data.address;
     return obj;
   }
+}
+
+// Add extension for GpsDeviceAttributesRealm to convert to domain model
+extension GpsDeviceAttributesRealmMapper on GpsDeviceAttributesRealm {
+  GpsDeviceAttributes toDomain() => GpsDeviceAttributes(
+    prevHours: prevHours,
+    prevOdometer: prevOdometer,
+    resetDate: resetDate,
+    speedLimit: speedLimit,
+    additionalInfo: null, // Realm model doesn't have this field
+  );
 }

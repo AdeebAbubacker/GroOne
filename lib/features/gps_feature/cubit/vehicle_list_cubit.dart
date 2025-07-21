@@ -144,7 +144,8 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
           _setVehicleDataUIState(UIState.success(offlineData));
           _updateStatusCounts();
           _filterVehicles();
-          _hasLoadedData = true; // Mark as loaded to prevent future API calls
+          _hasLoadedData = true;
+          _fetchDistanceDataInBackground(loginResponse!.token!,_allVehicles);
           print(
             "✅ Vehicle data loaded from Realm: ${offlineData.length} vehicles",
           );
@@ -165,6 +166,8 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
         // Fetch addresses in background for vehicles that don't have them
         _fetchAddressesInBackground(result.value);
+        _fetchDistanceDataInBackground(loginResponse.token!,_allVehicles);
+
         print(
           "✅ Vehicle data fetched from API: ${result.value.length} vehicles",
         );
@@ -180,6 +183,10 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       print("❌ Error in loadVehicleData: $e");
     }
   }
+
+
+
+
 
   /// Load vehicle data from offline storage only
   Future<void> loadOfflineData() async {
@@ -358,6 +365,83 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         print("Background address fetch error: $e");
       }
     });
+  }
+
+  /// Fetch distance data in background
+  void _fetchDistanceDataInBackground(String token, List<GpsCombinedVehicleData> vehicles) {
+    // Run in background without blocking the UI
+    Future.microtask(() async {
+      try {
+        await _repository.fetchAndStoreDistanceData(token, vehicles);
+        print("✅ Distance data fetched and stored successfully");
+      } catch (e) {
+        // Silently handle errors in background
+        print("Background distance fetch error: $e");
+      }
+    });
+  }
+
+  /// Get distance data for dashboard for a specific vehicle
+  Future<Map<String, dynamic>> getDistanceDataForDashboard({String? selectedVehicleNumber}) async {
+    try {
+      final distanceData = await _repository.getAllDistanceReportData();
+      final deviceDistances = <String, Map<String, dynamic>>{};
+      
+      for (final data in distanceData) {
+        final deviceId = data.deviceId;
+        
+        if (!deviceDistances.containsKey(deviceId)) {
+          final monthlyDistance = _repository.getMonthlyDistance(deviceId);
+          final weeklyDistance = _repository.getWeeklyDistance(deviceId);
+          final weekList = _repository.getWeekDistanceList(deviceId, data.deviceName);
+          
+          deviceDistances[deviceId] = {
+            'deviceName': data.deviceName,
+            'monthlyDistance': monthlyDistance,
+            'weeklyDistance': weeklyDistance,
+            'weekList': weekList,
+          };
+        }
+      }
+      
+      // Get data for selected vehicle if provided
+      Map<String, dynamic> selectedVehicleData = {};
+      if (selectedVehicleNumber != null) {
+        // Find the vehicle in the current list
+        final selectedVehicle = _allVehicles.firstWhere(
+          (v) => v.vehicleNumber == selectedVehicleNumber,
+          orElse: () => _allVehicles.first,
+        );
+        
+        if (selectedVehicle.deviceId != null) {
+          final deviceId = selectedVehicle.deviceId.toString();
+          final monthlyDistance = _repository.getMonthlyDistance(deviceId);
+          final weeklyDistance = _repository.getWeeklyDistance(deviceId);
+          final weekList = _repository.getWeekDistanceList(deviceId, selectedVehicle.vehicleNumber);
+          
+          selectedVehicleData = {
+            'deviceId': deviceId,
+            'vehicleNumber': selectedVehicle.vehicleNumber,
+            'monthlyDistance': monthlyDistance,
+            'weeklyDistance': weeklyDistance,
+            'weekList': weekList,
+          };
+        }
+      }
+      
+      return {
+        'deviceDistances': deviceDistances,
+        'distanceData': distanceData,
+        'selectedVehicleData': selectedVehicleData,
+      };
+    } catch (e) {
+      print("❌ Error getting distance data for dashboard: $e");
+      return {
+        'deviceDistances': {},
+        'distanceData': [],
+        'selectedVehicleData': {},
+      };
+    }
   }
 }
 
