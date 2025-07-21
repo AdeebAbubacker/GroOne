@@ -86,7 +86,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                 ),
                 buildTopLocationWidget(loadItem!),
                 DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
-                buildFloatingSupportButton(),
+               // buildFloatingSupportButton(),
                 buildSimConsentStatus(loadItem),
               ],
             );
@@ -183,33 +183,33 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 
-  Widget buildFloatingSupportButton() {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final bottomWidgetMaxHeight = screenHeight * 0.45;
+  // Widget buildFloatingSupportButton() {
+  //   final screenHeight = MediaQuery.of(context).size.height;
+  //   final bottomWidgetMaxHeight = screenHeight * 0.45;
 
-    return Positioned(
-      right: 5,
-      bottom: bottomWidgetMaxHeight + 10,
-      child: IconButton(
-        onPressed: () {
-          commonSupportDialog(context);
-        },
-        icon: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: commonContainerDecoration(
-            shadow: true,
-            shadowColor: AppColors.secondaryButtonColor,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: SvgPicture.asset(
-            "assets/icons/support.svg", // replace with your actual icon
-            width: 25,
-            colorFilter: AppColors.svg(AppColors.primaryColor),
-          ),
-        ),
-      ),
-    );
-  }
+  //   return Positioned(
+  //     right: 5,
+  //     bottom: bottomWidgetMaxHeight + 10,
+  //     child: IconButton(
+  //       onPressed: () {
+  //         commonSupportDialog(context);
+  //       },
+  //       icon: Container(
+  //         padding: const EdgeInsets.all(4),
+  //         decoration: commonContainerDecoration(
+  //           shadow: true,
+  //           shadowColor: AppColors.secondaryButtonColor,
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //         child: SvgPicture.asset(
+  //           "assets/icons/support.svg", // replace with your actual icon
+  //           width: 25,
+  //           colorFilter: AppColors.svg(AppColors.primaryColor),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget buildSimConsentStatus(DriverLoadDetailsModel loadItem) {
     final screenHeight = MediaQuery.of(context).size.height;

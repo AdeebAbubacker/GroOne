@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
+import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
@@ -10,6 +12,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -38,6 +41,7 @@ class DriverLoadBottomWidget extends StatefulWidget {
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   @override
   Widget build(BuildContext context) {
+    print('load sstua ${widget.loadItem.data!.loadStatusId}');
         return Positioned(
       bottom: 0,
       left: 0,
@@ -98,10 +102,22 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             dropLocation:  widget.loadItem.data?.loadRoute?.dropLocation,
                           ).paddingSymmetric(horizontal: 15),
                           20.height,
-                     if(widget.loadItem.data!.loadStatusId > 2)
+                      15.height,
+                          _buildLoadEntityWidget(
+                          
+                          ),     
+                     if ((widget.loadItem.data?.loadStatusId ?? 0) > 4)
                      Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (widget.loadItem.data?.consignees != null && widget.loadItem.data!.consignees.isNotEmpty)
+                           _buildConsigneeDetail(
+                            context: context,
+                            email: widget.loadItem.data?.consignees.last.email ?? '',
+                            name: widget.loadItem.data?.consignees.last.name ?? '',
+                            phoneNo: widget.loadItem.data?.consignees.last.mobileNumber ?? '',
+                            ),
+                          20.height,
                       _buildAdableSectionHeader(
                           showAddButton:true,
                           context: context,
@@ -127,13 +143,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   );
                                 },
                               ),      
-                          _buildConsigneeDetail(
-                            context: context,
-                            email: widget.loadItem.data?.consignees.last.email,
-                            name: widget.loadItem.data?.consignees.last.name,
-                            phoneNo: widget.loadItem.data?.consignees.last.mobileNumber,
-                            ),
-                          20.height,
+                         20.height,
                           Text("Timeline",
                               style: AppTextStyle.h4,
                               ),
@@ -141,9 +151,14 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             DriverLoadTimelineWidget(
                             timelineList: widget.loadItem?.data?.timeline ?? [],
                             ),
-                     ],),     
+                           ],),     
 
-_buildBottomButtonWidget(context)
+                              DriverLoadHelper.loadStatusButtonWidget(
+                                statusId: 8,
+                                onPressed: () {},
+                              ).paddingOnly(top: 20),
+
+
                           
                             ],
                           ).paddingAll(16),
@@ -255,6 +270,76 @@ Widget _buildHeading({required String text}) {
   return Text(text, style: AppTextStyle.h4);
 }
 
+// Build Load Entity
+  Widget _buildLoadEntityWidget() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      spacing: 15,
+
+      children: [
+        Row(
+          spacing: 3,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
+            Text(
+              "gh",
+              style: AppTextStyle.bodyGreyColorW500.copyWith(
+                color: AppColors.veryLightGreyColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+
+        Row(
+          spacing: 3,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              AppIcons.svg.kgWeight,
+              height: 24,
+              width: 24,
+              colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+            ),
+
+            Text(
+              "34 Ton",
+              style: AppTextStyle.bodyGreyColorW500.copyWith(
+                color: AppColors.veryLightGreyColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+
+        Row(
+          spacing: 3,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              AppIcons.svg.locationDistance,
+              height: 24,
+              width: 24,
+            ),
+
+            Text(
+              "23 KM",
+              style: AppTextStyle.bodyGreyColorW500.copyWith(
+                color: AppColors.veryLightGreyColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ).paddingSymmetric(horizontal: 15);
+  }
+
 
 // From Vp Side
  Widget _buildBottomButtonWidget(BuildContext context){
@@ -268,20 +353,20 @@ Widget _buildHeading({required String text}) {
       children:   [
         ...[
       
-            AppButton(
-              title: "Support",
-             style: AppButtonStyle.outline.copyWith(
-               shape: WidgetStatePropertyAll(
-                 RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(8),
-                 ),
-               ),
-             ),
-             onPressed: () {
-               commonSupportDialog(context);
-             },
-             textStyle: TextStyle(fontSize: 14),
-           ).expand(),
+          //   AppButton(
+          //     title: "Support",
+          //    style: AppButtonStyle.outline.copyWith(
+          //      shape: WidgetStatePropertyAll(
+          //        RoundedRectangleBorder(
+          //          borderRadius: BorderRadius.circular(8),
+          //        ),
+          //      ),
+          //    ),
+          //    onPressed: () {
+          //      commonSupportDialog(context);
+          //    },
+          //    textStyle: TextStyle(fontSize: 14),
+          //  ).expand(),
      
            AppButton(
           
