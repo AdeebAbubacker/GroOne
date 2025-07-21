@@ -201,6 +201,7 @@ class Customer {
     required this.tempFlg,
     required this.status,
     required this.isLogin,
+    required this.blueIdFlg,
     required this.createdAt,
     required this.deletedAt,
     required this.kycType,
@@ -224,6 +225,7 @@ class Customer {
   final bool tempFlg;
   final int status;
   final bool isLogin;
+  final bool blueIdFlg;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final Type? kycType;
@@ -247,6 +249,7 @@ class Customer {
     bool? tempFlg,
     int? status,
     bool? isLogin,
+    bool? blueIdFlg,
     DateTime? createdAt,
     dynamic? deletedAt,
     Type? kycType,
@@ -270,6 +273,7 @@ class Customer {
       tempFlg: tempFlg ?? this.tempFlg,
       status: status ?? this.status,
       isLogin: isLogin ?? this.isLogin,
+      blueIdFlg: blueIdFlg ?? this.blueIdFlg,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
       kycType: kycType ?? this.kycType,
@@ -296,6 +300,7 @@ class Customer {
       tempFlg: json["tempFlg"] ?? false,
       status: json["status"] ?? 0,
       isLogin: json["isLogin"] ?? false,
+      blueIdFlg: json["blueIdFlg"] ?? false,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       kycType: json["kycType"] == null ? null : Type.fromJson(json["kycType"]),

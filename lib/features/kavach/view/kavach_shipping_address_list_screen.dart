@@ -53,6 +53,37 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator(),);
         }
 
+        if (state is KavachCheckoutShippingAddressError) {
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, color: Colors.red, size: 48),
+                      10.height,
+                      Text(
+                        'Failed to load addresses',
+                        style: AppTextStyle.h5,
+                      ),
+                      10.height,
+                      AppButton(
+                        onPressed: () {
+                          context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+                        },
+                        title: 'Retry',
+                        style: AppButtonStyle.outline,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
         if (state is KavachCheckoutShippingAddressSelected) {
           final addresses = state.addresses;
 
@@ -126,9 +157,30 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           );
         }
 
+        // Empty state or any other state
         return Column(
           children: [
-            addVehicleButton(context)
+            addVehicleButton(context),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_off, color: Colors.grey, size: 48),
+                    10.height,
+                    Text(
+                      'No addresses found',
+                      style: AppTextStyle.h5,
+                    ),
+                    5.height,
+                    Text(
+                      'Add your first shipping address',
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         );
       },

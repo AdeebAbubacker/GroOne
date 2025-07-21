@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_progress_bar.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -85,8 +86,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                       _buildLocationInfoWidget(widget.data.dropLocation),
                     ],
                   ),
-                  if(widget.data.loadStatus>2)
-                    VpMyLoadHelper.loadStatusWidget(widget.data.loadStatusValues!.name)
+                  if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
+                    VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context)
                   // LoadStatusLabel(
                   //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
                   //     loadStatus: widget.data.loadStatusValues,
@@ -98,6 +99,14 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+
+          if(widget.data.loadStatusDetails != null)...[
+            VpMyLoadUIHelper.simTrackingWidget(context: context, status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+
+            VpMyLoadUIHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
+          ],
+
+
           Row(
             children: [
               detailWidget(
@@ -118,7 +127,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 iconSvg: AppIcons.svg.package,
               ),
               detailWidget(
-                text: "${widget.data.consignmentWeight} Tonn",
+                text: "${widget.data.consignmentWeight} ${context.appText.tons}",
                 iconSvg: AppIcons.svg.weight,
               ),
             ],
@@ -138,7 +147,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 children: [
                   FittedBox(
                     child: Text(
-                      widget.data.loadStatusValues==LoadStatus.assigned ? "Trip Price": "Accepted Price",
+                      widget.data.loadStatusValues==LoadStatus.assigned ? context.appText.tripPrice : context.appText.acceptedPrice ,
                       style: AppTextStyle.textBlackColor18w400,
                       textAlign: TextAlign.center,
                     )
@@ -155,7 +164,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
             ),
           ),
           10.height,
-          _buildTrackingProgress(0.5,widget.data.loadStatusValues),
+
+
           //if(widget.showButton??true)
           Row(
             children: [
@@ -185,8 +195,10 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               //     : "Accept Load",
 
               // Action Button
-              VpMyLoadHelper.loadStatusButtonWidget(
-                  status: widget.data.loadStatusValues!.name,
+              if(widget.data.loadStatusDetails != null)
+              VpMyLoadUIHelper.loadStatusButtonWidget(
+                  context: context,
+                  status: widget.data.loadStatusDetails!.loadStatus,
                   onPressed: () {  }
               ).expand(),
 
@@ -234,19 +246,4 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
 
 
-  Widget _buildTrackingProgress(double progress,LoadStatus? loadStatus){
-    return Visibility(
-
-      visible:false,
-      // (loadStatus?.index??0)>LoadStatus.assigned.index && (loadStatus?.index??0) <=LoadStatus.inTransit.index ,
-      child: Column(
-        children: [
-          commonDivider(),
-          AppProgressBar(progress: progress),
-          8.height,
-          commonDivider(),
-        ],
-      ),
-    );
-  }
 }

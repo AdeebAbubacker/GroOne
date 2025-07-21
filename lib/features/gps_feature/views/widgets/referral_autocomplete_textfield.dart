@@ -54,10 +54,12 @@ class _ReferralAutoCompleteTextFieldState
     });
 
     try {
+      CustomLog.debug(this, "GPS Referral - Starting to fetch users...");
       final result = await _repository.fetchUsers();
       CustomLog.debug(this, "API result type: ${result.runtimeType}");
       
       if (result is Success<List<KavachUserModel>>) {
+        CustomLog.debug(this, "GPS Referral - Successfully fetched ${result.value.length} users");
         setState(() {
           allUsers = result.value;
           isLoading = false;

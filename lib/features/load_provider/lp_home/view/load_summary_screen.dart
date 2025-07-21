@@ -25,7 +25,6 @@ import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -100,16 +99,16 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
 
   Future<void> postLoadApiCall(BuildContext context) async {
     if (sendDateAndTimeInApi == null) {
-      ToastMessages.alert(message: "Expected Delivery Date is required");
+      ToastMessages.alert(message: context.appText.expectedDeliveryRateRequired);
       return;
     }
     if(handlingChargesTextController.text.isEmpty){
-      ToastMessages.alert(message: "Handling Charges is required");
+      ToastMessages.alert(message: context.appText.handlingChargeRequired);
       return;
     }
 
     if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
-      ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
+      ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
       return;
     }
 
@@ -145,7 +144,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
   PreferredSizeWidget buildAppBarWidget (BuildContext context) {
     return CommonAppBar(
       backgroundColor: AppColors.white,
-      title: "Post Load Summary",
+      title: context.appText.postLoadSummary,
       actions: [
 
         TextButton.icon(
@@ -175,7 +174,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
               child: Column(
                 children: [
-                  Text("Suggested Price", style: AppTextStyle.h3PrimaryColor),
+                  Text(context.appText.suggestedPrice, style: AppTextStyle.h3PrimaryColor),
                   5.height,
                   Text(
                     PriceHelper.formatINRRange(widget.price),
@@ -189,13 +188,13 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
             ),
 
             // Form-style details using TextFields
-            buildReadOnlyField("Loading Point", LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.pickupAddress, location: widget.pickupLocation)),
-            buildReadOnlyField("Unloading point", LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.destinationAddress, location: widget.destinationLocation)),
-            buildReadOnlyField("Vehicle type", widget.vehicleType),
-            buildReadOnlyField("Vehicle Length", widget.vehicleLength),
-            buildReadOnlyField("Consignment weight", "${widget.approxWeight} MT"),
-            buildReadOnlyField("Commodity", widget.category),
-            buildReadOnlyField("Pickup date & time", DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
+            buildReadOnlyField(context.appText.loadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.pickupAddress, location: widget.pickupLocation)),
+            buildReadOnlyField(context.appText.unLoadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.destinationAddress, location: widget.destinationLocation)),
+            buildReadOnlyField(context.appText.vehicleType, widget.vehicleType),
+            buildReadOnlyField(context.appText.vehicleLength, widget.vehicleLength),
+            buildReadOnlyField(context.appText.consignmentWeight, "${widget.approxWeight} MT"),
+            buildReadOnlyField(context.appText.commodity, widget.category),
+            buildReadOnlyField(context.appText.pickupDateAndTime, DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
 
             InkWell(
                 onTap: () async {
@@ -217,24 +216,23 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                   }
                   setState(() {});
                 },
-              child: buildReadOnlyField("Expected Delivery Date & Time" , dateAndTime ?? "Please Select Date & Time", fillColor: Colors.white, mandatoryStar: true)
+              child: buildReadOnlyField(context.appText.expectedDeliveryDateAndTime , dateAndTime ?? context.appText.pleaseSelectSDateAndTime, fillColor: Colors.white, mandatoryStar: true)
             ),
 
             AppTextField(
               controller: handlingChargesTextController,
-              hintText: "Enter Handling Charges",
-              labelText: "Handling Charges",
+              hintText: context.appText.enterHandlingCharges,
+              labelText: context.appText.handlingCharges,
               mandatoryStar: true,
               keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
               ],
               onChanged: (value){
-                debugPrint("Handling Charges of 10% : ${LpHomeHelper.calculateTenPercentOfAverage(widget.price)}");
 
                 if (handlingChargesTextController.text.isNotEmpty){
                   if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
-                    ToastMessages.alert(message: "Handling charges should be less than 10% of the average price");
+                    ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
                     return;
                   } else {
                     handlingChargesTextController.text = value;
@@ -244,13 +242,10 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
               },
             ),
 
-           // buildReadOnlyField("Handling Charges","Rs. ${calculateTenPercentOfAverage(widget.price)}", fillColor: Colors.white),
-
             // Notes Field
             AppTextField(
               controller: noteTextController,
-              labelText: "Notes/ Instructions",
-              hintText: "Handle with care",
+              labelText: context.appText.notesOrInstruction,
               maxLines: 2,
             ),
 
@@ -337,12 +332,12 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                 commonSupportDialog(context);
               },
               style: AppButtonStyle.outline,
-              title: "Support",
+              title: context.appText.support,
             ).expand(),
             15.width,
 
             AppButton(
-              title: "Post Load",
+              title: context.appText.postLoad,
               isLoading: isLoading,
               onPressed: isLoading ? () {} : () async {
                 await postLoadApiCall(context);

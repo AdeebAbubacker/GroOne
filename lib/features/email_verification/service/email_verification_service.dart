@@ -13,32 +13,13 @@ class EmailVerificationService {
   EmailVerificationService(this._apiService);
 
   /// Send Otp
-  Future<Result<SendEmailOtpModel>> fetchSendOtp(String email) async {
+  Future<Result<SendEmailOtpModel>> fetchSendOtp(String email, String customerId) async {
     try {
       final url = ApiUrls.sendEmailOtp;
-      final result = await _apiService.post(url, body: {"email": email});
+      final result = await _apiService.post(url, body: {"customerId": customerId, "emailId": email});
       if (result is Success) {
        final sendEmailOtpResponse=  SendEmailOtpModel.fromJson(result.value);
         return  Success(sendEmailOtpResponse) ;
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
-    }
-  }
-
-  /// Resend OTP
-  Future<Result<ResendEmailOtpModel>> fetchResendOtpData(String email) async {
-    try {
-      final url = ApiUrls.resendEmailOtp;
-      final result = await _apiService.post(url, body: {"email": email});
-      if (result is Success) {
-      final resentOtpResponse= ResendEmailOtpModel.fromJson(result.value);
-        return  Success(resentOtpResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {

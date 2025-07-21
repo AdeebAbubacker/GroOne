@@ -21,7 +21,7 @@ class CustomLog {
   static void error(Object instance, String message, Object? exception) {
     if(kDebugMode){
       _logger.e(
-          message = "[${instance.runtimeType.toString()}] $message}",
+          message = "[${instance.runtimeType.toString()}] $message",
           time: DateTime.now(),
           error: exception,
       );

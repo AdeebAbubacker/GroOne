@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "311939151127",
+    "project_id": "gro-fleet-c146a",
+    "storage_bucket": "gro-fleet-c146a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311939151127:android:ac0c05e9e1b39f97a37352",
+        "android_client_info": {
+          "package_name": "app.gro.fleet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBItdmf8CUHEXuuuXUZfpt3aaUn9Kz4yH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

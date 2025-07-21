@@ -123,14 +123,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Heading
-        Text("Email OTP Verification", style: AppTextStyle.h2W600),
+        Text(context.appText.emailOtpVerification, style: AppTextStyle.h2W600),
         20.height,
 
         // Email Content
         Wrap(
           spacing: 5,
           children: [
-            Text("Enter the code sent to", textAlign: TextAlign.start, style: AppTextStyle.body2),
+            Text(context.appText.enterOtpSendNumber, textAlign: TextAlign.start, style: AppTextStyle.body2),
             Text(widget.emailAddress, style: AppTextStyle.body2PrimaryColor),
           ],
         ),
@@ -161,7 +161,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
           onPressed: !isLoading && isCodeLengthValid ? () async {
-            final request = VerifyEmailOtpApiRequest(email: widget.emailAddress, otp: otpTextController.text, customerId: widget.userId);
+            final request = VerifyEmailOtpApiRequest(otp: int.parse(otpTextController.text), customerId: widget.userId);
             await  cubit.verifyOtp(request);
           } : (){},
         );
@@ -191,7 +191,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         return AppButton(
           style: resendButtonEnabled ?  AppButtonStyle.disableOutline : AppButtonStyle.outline,
           richTextWidget: !state.isResendButtonEnabled
-              ? Text((isLoading ? "Loading.." : context.appText.resend), style: resendButtonEnabled ? AppTextStyle.buttonDisableColorTextColor : AppTextStyle.buttonPrimaryColorTextColor)
+              ? Text((isLoading ? "${context.appText.loading}.." : context.appText.resend), style: resendButtonEnabled ? AppTextStyle.buttonDisableColorTextColor : AppTextStyle.buttonPrimaryColorTextColor)
               : RichText(
             text: TextSpan(
               children: [
@@ -202,7 +202,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               ],
             ),
           ),
-          onPressed: !state.isResendButtonEnabled ? () async => await cubit.resendOtp(widget.emailAddress) : (){},
+          onPressed: !state.isResendButtonEnabled ? () async => await cubit.sendOtp(widget.emailAddress, widget.userId) : (){},
         );
       },
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);

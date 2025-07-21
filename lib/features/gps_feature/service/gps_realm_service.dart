@@ -7,6 +7,8 @@ import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_combined_vehicle_realm_model.dart';
 import '../model/gps_device_fuel_model.dart';
 import '../model/gps_device_fuel_realm_model.dart';
+import '../model/gps_distance_data_model.dart';
+import '../model/gps_distance_history_realm_model.dart';
 import '../model/gps_geofence_realm_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_login_realm_model.dart';
@@ -18,6 +20,7 @@ import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
+import '../model/gps_vehicle_extra_info_realm_model.dart';
 import '../models/gps_geofence_model.dart';
 
 class GpsRealmService {
@@ -59,6 +62,8 @@ class GpsRealmService {
           GpsMobileConfigRealmModel.schema,
           GpsUserConfigurationRealmModel.schema,
           GpsGeofenceRealmModel.schema,
+          GpsDistanceHistoryRealmModel.schema,
+          GpsVehicleExtraInfoRealm.schema,
         ],
         path: realmPath,
         schemaVersion: 4,
@@ -93,6 +98,8 @@ class GpsRealmService {
             GpsMobileConfigRealmModel.schema,
             GpsUserConfigurationRealmModel.schema,
             GpsGeofenceRealmModel.schema,
+            GpsDistanceHistoryRealmModel.schema,
+            GpsVehicleExtraInfoRealm.schema,
           ],
           path: realmPath,
           schemaVersion: 4,
@@ -306,6 +313,41 @@ class GpsRealmService {
     } catch (e) {
       print("❌ Failed to read login response from Realm: $e");
       return null;
+    }
+  }
+
+  /// Save vehicle extra info data to Realm
+  Future<void> saveVehicleExtraInfo(
+    List<GpsVehicleExtraInfoRealm> extraInfoList,
+  ) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing extra info data
+        _realm!.deleteAll<GpsVehicleExtraInfoRealm>();
+
+        // Add new extra info data
+        for (final extraInfo in extraInfoList) {
+          _realm!.add(extraInfo);
+        }
+      });
+      print(
+        "💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records",
+      );
+    } catch (e) {
+      print("❌ Failed to save vehicle extra info to Realm: $e");
+      throw Exception('Failed to save vehicle extra info to Realm: $e');
+    }
+  }
+
+  /// Get all vehicle extra info from Realm
+  Future<List<GpsVehicleExtraInfoRealm>> getAllVehicleExtraInfo() async {
+    await _ensureInitialized();
+    try {
+      return _realm!.all<GpsVehicleExtraInfoRealm>().toList();
+    } catch (e) {
+      print("❌ Failed to read vehicle extra info from Realm: $e");
+      throw Exception('Failed to read vehicle extra info from Realm: $e');
     }
   }
 
@@ -776,6 +818,89 @@ class GpsRealmService {
       throw Exception('Failed to clear all data from Realm: $e');
     }
   }
+
+  Future<void> saveDistanceForToday(int deviceId, String vehicleNumber, double distance) async {
+    await _ensureInitialized();
+
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    final existing = _realm!.query<GpsDistanceHistoryRealmModel>(
+      r'deviceId == $0 AND date == $1',
+      [deviceId, today],
+    ).firstOrNull;
+
+    _realm!.write(() {
+      if (existing != null) {
+        existing.distance = distance;
+      } else {
+        _realm!.add(GpsDistanceHistoryRealmModel(
+          ObjectId(),
+          deviceId,
+          vehicleNumber,
+          distance,
+          today,
+        ));
+      }
+    });
+  }
+
+
+  Future<List<DistanceData>> getLast7DaysDistance(int deviceId) async {
+    await _ensureInitialized();
+
+    final start = DateTime.now().subtract(const Duration(days: 6));
+    final startDate = DateTime(start.year, start.month, start.day);
+
+    final results = _realm!.query<GpsDistanceHistoryRealmModel>(
+      r'deviceId == $0 AND date >= $1 SORT(date ASC)',
+      [deviceId, startDate],
+    );
+
+    return results.map((e) {
+      return DistanceData(
+        distance: e.distance,
+        startTime: '${e.date.day}/${e.date.month}',
+      );
+    }).toList();
+  }
+
+  Future<List<DistanceData>> getWeeklyDistanceGraph(int deviceId) async {
+    await _ensureInitialized();
+
+    final now = DateTime.now();
+    final fromDate = DateTime(now.year, now.month, now.day).subtract(Duration(days: 6));
+
+    final results = _realm!.query<GpsDistanceHistoryRealmModel>(
+      r'deviceId == $0 AND date >= $1',
+      [deviceId, fromDate],
+    );
+
+    final distanceMap = <String, double>{};
+
+    for (var entry in results) {
+      final dateKey = '${entry.date.day}/${entry.date.month}';
+      distanceMap[dateKey] = (distanceMap[dateKey] ?? 0) + entry.distance;
+    }
+
+    // Fill missing dates with 0
+    final fullWeek = List.generate(7, (i) {
+      final date = fromDate.add(Duration(days: i));
+      final key = '${date.day}/${date.month}';
+      return DistanceData(
+        startTime: key,
+        distance: distanceMap[key] ?? 0.0,
+      );
+    });
+
+    return fullWeek;
+  }
+
+
+
+
+
+
+
 
   /// Close the Realm instance
   void close() {

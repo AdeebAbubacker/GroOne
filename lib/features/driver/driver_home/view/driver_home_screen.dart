@@ -39,7 +39,7 @@ import 'package:intl/intl.dart';
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
 
-  const DriverHomeScreen({super.key, this.initialTabIndex = 1});
+  const DriverHomeScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<DriverHomeScreen> createState() => _DriverHomeScreenState();
@@ -62,7 +62,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
-  int selectedTabIndex = 1;
+  int selectedTabIndex = 0;
   TabController? _tabController;
   final tabLabels = [
      'All',

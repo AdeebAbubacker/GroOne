@@ -342,14 +342,31 @@ class EnDhanService {
       );
 
       if (result is Success) {
-        print('🔍 Upload API Response: ${result.value}');
-        print('🔍 Upload API Response Type: ${result.value.runtimeType}');
+        CustomLog.debug(this, "Upload API Response: ${result.value}");
+        CustomLog.debug(this, "Upload API Response Type: ${result.value.runtimeType}");
         
-        // Use the standard getResponseStatus method like other services
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => DocumentUploadResponse.fromJson(data),
-        );
+        try {
+          // Parse the response directly since the API returns the data structure directly
+          final responseData = result.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            CustomLog.debug(this, "Response URL: ${responseData['url']}");
+            
+            // The API response is directly the document upload data
+            final documentResponse = DocumentUploadResponse.fromJson(responseData);
+            CustomLog.debug(this, "Successfully parsed document upload response");
+            CustomLog.debug(this, "Document response success: ${documentResponse.success}");
+            CustomLog.debug(this, "Document response data URL: ${documentResponse.data?.url}");
+            return Success(documentResponse);
+          } else {
+            CustomLog.error(this, "Invalid upload response format - expected Map, got ${responseData.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse upload response", e);
+          return Error(DeserializationError());
+        }
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -866,6 +883,8 @@ class EnDhanService {
       // Construct URL with query parameters
       final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
 
+      CustomLog.debug(this, "EnDhan Fetch Users - URL: $uri");
+
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
@@ -885,7 +904,7 @@ class EnDhanService {
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch users", e);
+      CustomLog.error(this, "EnDhan Fetch Users - Exception: $e", e);
       return Error(DeserializationError());
     }
   }

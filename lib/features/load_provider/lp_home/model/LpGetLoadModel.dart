@@ -49,6 +49,7 @@ class LoadData {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.loadOnhold,
     required this.loadRoute,
     required this.truckType,
     required this.commodity,
@@ -78,6 +79,7 @@ class LoadData {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final bool loadOnhold;
   final LoadRoute? loadRoute;
   final TruckType? truckType;
   final Commodity? commodity;
@@ -107,6 +109,7 @@ class LoadData {
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
+    bool? loadOnhold,
     LoadRoute? loadRoute,
     TruckType? truckType,
     Commodity? commodity,
@@ -136,6 +139,7 @@ class LoadData {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      loadOnhold: loadOnhold ?? this.loadOnhold,
       loadRoute: loadRoute ?? this.loadRoute,
       truckType: truckType ?? this.truckType,
       commodity: commodity ?? this.commodity,
@@ -168,6 +172,7 @@ class LoadData {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      loadOnhold: json["loadOnhold"],
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
       commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),

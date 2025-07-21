@@ -22,13 +22,17 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
+        print('KavachCheckoutShippingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutShippingAddressEmpty());
       } else {
         // Don't auto-select the first address, let user choose
+        print('KavachCheckoutShippingAddressBloc: Emitting available state with ${result.value.length} addresses');
         emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
       }
     } else if (result is Error<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutShippingAddressError(result.type));
     }
   }

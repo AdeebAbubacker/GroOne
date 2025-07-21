@@ -582,6 +582,8 @@ class GpsOrderApiService {
       // Construct URL with query parameters
       final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
 
+      CustomLog.debug(this, "GPS Fetch Users - URL: $uri");
+
       final response = await _apiService.get(uri.toString());
 
       if (response is Success) {
@@ -601,7 +603,7 @@ class GpsOrderApiService {
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch users", e);
+      CustomLog.error(this, "GPS Fetch Users - Exception: $e", e);
       return Error(DeserializationError());
     }
   }

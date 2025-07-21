@@ -536,7 +536,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         state.cards
             .map(
               (card) => EnDhanCardDetailRequest(
-                vechileNo: card.vehicleNumber,
+                vechileNo: card.vehicleNumber.replaceAll(' ', ''),
                 mobileNo: (card.mobile != null && card.mobile.trim().isNotEmpty) ? card.mobile : null,
                 vehicleType: card.vehicleType ?? '',
                 vinNumber: card.vinNumber,
@@ -1330,11 +1330,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return false;
       }
       
-      // Check if vehicle number is verified
-      if (!state.verifiedVehicleNumbers.containsKey(i) || !state.verifiedVehicleNumbers[i]!) {
-        print('❌ Form validation failed: Card $i vehicle number not verified');
-        return false;
-      }
+      // Vehicle verification is no longer required
       
       // Mobile number is optional, so we don't check for it
     }

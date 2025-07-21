@@ -55,31 +55,14 @@ class EmailVerificationCubit extends BaseCubit<EmailVerificationState> {
   void _setSendOtpUIState(UIState<SendEmailOtpModel>? uiState){
     emit(state.copyWith(sendOtpState: uiState));
   }
-  Future<void> sendOtp(String email) async {
+  Future<void> sendOtp(String email, userId) async {
     _setSendOtpUIState(UIState.loading());
-    Result result = await _repository.getSendOtpData(email);
+    Result result = await _repository.getSendOtpData(email, userId);
     if (result is Success<SendEmailOtpModel>) {
       _setSendOtpUIState(UIState.success(result.value));
     }
     if (result is Error) {
       _setSendOtpUIState(UIState.error(result.type));
-    }
-  }
-
-
-
-  // Resend Otp Api Call
-  void _setResendOtpUIState(UIState<ResendEmailOtpModel>? uiState){
-    emit(state.copyWith(resendOtpState: uiState));
-  }
-  Future<void> resendOtp(String email) async {
-    _setResendOtpUIState(UIState.loading());
-    Result result = await _repository.getResendOtpData(email);
-    if (result is Success<ResendEmailOtpModel>) {
-      _setResendOtpUIState(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _setResendOtpUIState(UIState.error(result.type));
     }
   }
 
