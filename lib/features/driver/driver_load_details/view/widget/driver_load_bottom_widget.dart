@@ -29,6 +29,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -184,8 +185,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
 
 
                           if (widget.loadItem.data?.loadDocument != null &&
-    widget.loadItem.data!.loadDocument!.any((list) => list.isNotEmpty) &&
-    widget.loadItem.data!.loadStatusId != 5)
+                        widget.loadItem.data!.loadDocument!.any((list) => list.isNotEmpty) &&
+                        widget.loadItem.data!.loadStatusId != 5)
 
                       // Download Documents
                      ...[
@@ -259,6 +260,13 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                               final loadStatusState = state.loadStatusUIState;
 
                               if (loadStatusState is Success) {
+                                ToastMessages.success(message: "Load status updated successfully");
+                                widget.cubit.getLpLoadsById(
+                                  loadId: widget.loadItem.data?.loadId ?? '',
+                                );
+                              }
+                              if (loadStatusState is Error) {
+                                ToastMessages.success(message: "Failed to update load status");
                                 widget.cubit.getLpLoadsById(
                                   loadId: widget.loadItem.data?.loadId ?? '',
                                 );
@@ -308,7 +316,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
         if (url != null && url.isNotEmpty) {
           setState(() {
             uploadedFileList.add(url);
-            fileList.clear();
+            
           });
         }
       }
