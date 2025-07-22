@@ -75,7 +75,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
   });
 
   void disposeFunction() => frameCallback(() {
-    profileCubit.resetState();
+    profileCubit.resetLogoutUIState();
   });
 
 

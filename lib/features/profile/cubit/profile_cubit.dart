@@ -111,6 +111,12 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     ));
   }
 
+  void resetLogoutUIState(){
+    emit(state.copyWith(
+      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+    ));
+  }
+
 
 
 
