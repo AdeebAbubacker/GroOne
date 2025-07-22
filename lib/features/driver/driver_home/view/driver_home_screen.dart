@@ -65,7 +65,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 0;
   TabController? _tabController;
   final tabLabels = [
-     '  All  ',
+     'All Loads ',
      'Assigned',
      'Loading',
      'In Transit',
