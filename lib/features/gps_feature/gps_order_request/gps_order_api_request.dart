@@ -624,6 +624,8 @@ class GpsOrderRequest {
   final String orderReferencedBy;
   final double totalPrice;
   final int categoryId;
+  final int orderTypeId; // Added missing field
+  final int teamId; // Added teamId field
   final String shippingPersonIncharge;
   final String shippingPersonContactNo;
   final GpsCustomerInfo customerInfo;
@@ -640,6 +642,8 @@ class GpsOrderRequest {
     required this.orderReferencedBy,
     required this.totalPrice,
     required this.categoryId,
+    required this.orderTypeId, // Added to constructor
+    required this.teamId, // Added to constructor
     required this.shippingPersonIncharge,
     required this.shippingPersonContactNo,
     required this.customerInfo,
@@ -657,6 +661,8 @@ class GpsOrderRequest {
       "orderReferencedBy": orderReferencedBy,
       "totalPrice": totalPrice,
       "categoryId": categoryId,
+      "orderTypeId": orderTypeId, // Added to JSON
+      "teamId": teamId, // Added to JSON
       "shippingPersonIncharge": shippingPersonIncharge,
       "shippingPersonContactNo": shippingPersonContactNo,
       "customerInfo": customerInfo.toJson(),
