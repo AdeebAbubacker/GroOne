@@ -49,6 +49,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       _gpsProductsCubit = GpsProductsCubit(repository);
       _gpsProductsCubit.fetchGpsProducts();
     }
+    
+    // Clear search field when navigating to this screen
+    searchController.clear();
+    _gpsProductsCubit.searchProducts('');
   }
 
   @override
@@ -79,18 +83,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     }).toList();
   }
 
-  // Calculate total quantity
-  int get _totalQuantity {
-    return _gpsProductsCubit.state.quantities.values.fold<int>(0, (sum, qty) => sum + qty);
-  }
 
-  // Calculate total price
-  double get _totalPrice {
-    return _filteredProducts.fold<double>(0.0, (sum, product) {
-      final quantity = _gpsProductsCubit.state.quantities[product.id] ?? 0;
-      return sum + (product.price * quantity);
-    });
-  }
 
   // Get products that have quantities > 0
   List<KavachProduct> get _selectedProducts {
@@ -245,6 +238,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     if (result != null) {
       print('GPS Models: Received result from checkout: $result');
       
+      // Clear search text when returning from checkout (Add More or other navigation)
+      searchController.clear();
+      _gpsProductsCubit.searchProducts('');
+      
       // Update quantities based on result from checkout
       if (result is Map<String, dynamic>) {
         // Handle new format with quantities and vehicles
@@ -304,6 +301,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       _previousShippingSameAsBilling = null;
       _previousShippingPersonInCharge = null;
       _previousShippingPersonContactNo = null;
+      
+      // Clear search text when returning from checkout
+      searchController.clear();
+      _gpsProductsCubit.searchProducts('');
     }
   }
 
@@ -353,48 +354,59 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         ),
       ),
       // Bottom navigation with checkout button
-      bottomNavigationBar: _totalQuantity > 0
-          ? Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade300, width: 1.0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.transparent,
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, -2),
+      bottomNavigationBar: BlocBuilder<GpsProductsCubit, GpsProductsState>(
+        bloc: _gpsProductsCubit,
+        builder: (context, state) {
+          final totalQuantity = state.quantities.values.fold<int>(0, (sum, qty) => sum + qty);
+          final totalPrice = _filteredProducts.fold<double>(0.0, (sum, product) {
+            final quantity = state.quantities[product.id] ?? 0;
+            return sum + (product.price * quantity);
+          });
+          
+          return totalQuantity > 0
+              ? Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: Colors.grey.shade300, width: 1.0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.transparent,
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: SafeArea(
+              top: false,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "₹ ${NumberFormat("#,##,###").format(_totalPrice.toInt())}",
-                    style: AppTextStyle.h4,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "₹ ${NumberFormat("#,##,###").format(totalPrice.toInt())}",
+                        style: AppTextStyle.h4,
+                      ),
+                      Text(
+                        "$totalQuantity ${totalQuantity == 1 ? context.appText.item : context.appText.items}",
+                        style: AppTextStyle.bodyPrimaryColor,
+                      ),
+                    ],
                   ),
-                  Text(
-                    "$_totalQuantity ${_totalQuantity == 1 ? context.appText.item : context.appText.items}",
-                    style: AppTextStyle.bodyPrimaryColor,
-                  ),
+                  AppButton(
+                    title: context.appText.checkout.capitalize,
+                    onPressed: _onCheckoutPressed,
+                  ).withWidth(180),
                 ],
-              ),
-              AppButton(
-                title: context.appText.checkout.capitalize,
-                onPressed: _onCheckoutPressed,
-              ).withWidth(180),
-            ],
-          ).paddingSymmetric(horizontal: 20, vertical: 20),
-        ),
-      )
-          : const SizedBox.shrink(),
+              ).paddingSymmetric(horizontal: 20, vertical: 20),
+            ),
+          )
+              : const SizedBox.shrink();
+        },
+      ),
     );
   }
 }

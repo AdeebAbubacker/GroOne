@@ -5,7 +5,6 @@ class KavachOrderVehicle {
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
-    "deviceUniqueNumber": "DEV123456789"
   };
 }
 
@@ -39,8 +38,10 @@ class KavachOrderItem {
 class KavachOrderRequest {
   final String orderSource;
   final bool isOrderPaid;
-  final int orderTypeId;
   final String customerId;
+  final int createdEmpUserId;
+  final String? createdEmpId;
+  final String orderReferencedBy;
   final double totalPrice;
   final int categoryId;
   final String shippingPersonIncharge;
@@ -49,16 +50,14 @@ class KavachOrderRequest {
   final Map<String, dynamic> billingAddress;
   final Map<String, dynamic> shippingAddress;
   final List<KavachOrderItem> orders;
-  final int createdEmpUserId;
-  final String? createdEmpId;
-  final String orderReferencedBy;
-  final int teamId;
 
   KavachOrderRequest({
     required this.orderSource,
     required this.isOrderPaid,
-    required this.orderTypeId,
     required this.customerId,
+    required this.createdEmpUserId,
+    this.createdEmpId,
+    required this.orderReferencedBy,
     required this.totalPrice,
     required this.categoryId,
     required this.shippingPersonIncharge,
@@ -67,18 +66,15 @@ class KavachOrderRequest {
     required this.billingAddress,
     required this.shippingAddress,
     required this.orders,
-    required this.createdEmpUserId,
-    this.createdEmpId,
-    required this.orderReferencedBy,
-    required this.teamId,
   });
 
   Map<String, dynamic> toJson() {
     final json = {
       "orderSource": orderSource,
       "isOrderPaid": isOrderPaid,
-      "orderTypeId": orderTypeId,
       "customerId": customerId,
+      "createdEmpUserId": createdEmpUserId,
+      "orderReferencedBy": orderReferencedBy,
       "totalPrice": totalPrice,
       "categoryId": categoryId,
       "shippingPersonIncharge": shippingPersonIncharge,
@@ -87,9 +83,6 @@ class KavachOrderRequest {
       "billingAddress": billingAddress,
       "shippingAddress": shippingAddress,
       "orders": orders.map((o) => o.toJson()).toList(),
-      "createdEmpUserId": createdEmpUserId,
-      "orderReferencedBy": orderReferencedBy,
-      "teamId": teamId,
     };
     
     // Add createdEmpId only if it's not null
