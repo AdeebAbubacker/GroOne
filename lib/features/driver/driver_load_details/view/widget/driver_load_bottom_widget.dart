@@ -74,10 +74,9 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
   await widget.cubit
       .fupdateLoadStatus(customerId:userId.toString(),loadStatus: loadStatus,loadid: loadId)
       .then((value) {
-
-    // ✅ THIS is your driver detail refresh after status update
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.cubit.getDriverLoadsById(loadId:  loadId ?? "0");
+      widget.cubit.updatePODVisibilityBasedOnStatus(loadStatus);
     });
   });
 }
@@ -125,7 +124,6 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                   
                       // Truck Type Row
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -364,10 +362,10 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                               child: DriverLoadHelper.loadStatusButtonWidget(
                                 statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
-                                if (loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
-                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                                  return;
-                                }
+                                // if (loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
+                                //   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                                //   return;
+                                // }
     
                             
                               final customerId =
@@ -457,6 +455,10 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
  Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
 
     final tripDocumentList=state.tripDocumentList??[];
+    print("Trip Document List from state:");
+for (final doc in tripDocumentList) {
+  print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
+}
     return Column(
         children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
        index: index,
