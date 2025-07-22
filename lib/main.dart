@@ -4,11 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
-import 'package:gro_one_app/service/firebase_secondary_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'l10n/app_localizations.dart';
@@ -17,8 +15,6 @@ import 'multi_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
-  ///todo(Ajit, Ranjith) - getting error in IOS as it is not initialized properly
-  // await FirebaseService.initializeSecondaryApp();
   runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
 }
 
@@ -61,6 +57,7 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: L10n.all,
             theme: AppThemeStyle.appTheme,
             routerConfig: AppRoutes.router,
+
           ),
         );
       },

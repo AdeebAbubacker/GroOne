@@ -189,7 +189,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Send otp to e-sign memo
   Future<void> sendOtp({required String loadId}) async {
-    _setLoadUIState(UIState.loading());
+    _setSendOtpState(UIState.loading());
 
     Result result = await _repository.sendOtp(loadId: loadId);
 
@@ -207,7 +207,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Verify otp of e-sign memo
   Future<void> verifyOtp({required String otp, required String loadId}) async {
-    _setLoadUIState(UIState.loading());
+    _setVerifyOtpState(UIState.loading());
 
     Result result = await _repository.verifyOtp(otp: otp, loadId: loadId);
 

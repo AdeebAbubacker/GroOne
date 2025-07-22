@@ -12,7 +12,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class UploadFileAndImageBottomSheet extends StatefulWidget {
   final bool isMultipleSelectionFile;
-  const UploadFileAndImageBottomSheet({super.key,  this.isMultipleSelectionFile = true});
+  final List? allowedExtensions;
+  const UploadFileAndImageBottomSheet({super.key,  this.isMultipleSelectionFile = true, this.allowedExtensions});
 
   @override
   State<UploadFileAndImageBottomSheet> createState() => _UploadFileAndImageBottomSheetState();
@@ -60,15 +61,15 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
                 InkWell(
                   onTap: () async {
                     if (i == 0) {
-                      final result = await ImagePickerFrom.fromCamera();
+                      final result = await ImagePickerFrom.fromCamera(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (result != null) Navigator.of(context).pop(result);
                     } else if (i == 1) {
-                      final result = await ImagePickerFrom.fromGallery();
+                      final result = await ImagePickerFrom.fromGallery(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (result != null) Navigator.of(context).pop(result);
                     } else {
-                      final files = await pickMultipleFiles();
+                      final files = await pickMultipleFiles(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (files != null && files.isNotEmpty) {
                         Navigator.of(context).pop(files);

@@ -60,9 +60,9 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
-  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-
+   final vpHomeScreenBloc = locator<VpHomeBloc>();
+   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+   final lpHomeCubit = locator<LPHomeCubit>();
 
 
   final searchController = TextEditingController();
@@ -88,11 +88,13 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+    lpHomeBloc.getUserId();
+    await profileCubit.fetchUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-    profileCubit.fetchProfileDetail(instance: this);
-    lpHomeBloc.getUserId();
+    lpHomeCubit.setBluIDFlag();
     profileCubit.fetchCompanyTypeId();
+    await profileCubit.fetchProfileDetail(instance: this);
   });
 
 
@@ -118,8 +120,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       appBar: buildAppBarWidget(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
+          initFunction();
         },
         child: SafeArea(
           child: Column(
@@ -222,7 +223,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        frameCallback(() =>  profileCubit.fetchProfileDetail(instance: this));
+                        profileCubit.fetchProfileDetail(instance: this);
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
@@ -257,13 +258,13 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
           final blueIdFromStorage = await profileCubit.fetchBlueId();
-          bool popupShownFlag = await profileCubit.getHasShowBluePopup();
-
+          // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
+          final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
-          debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
+          // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
-          if (blueIdFromApi.isNotEmpty && popupShownFlag == true) {
+          if (blueIdFromApi.isNotEmpty && blueIdFlag) {
 
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
@@ -287,6 +288,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           final companyName = profileState.data?.customer?.companyName;
 
           CustomLog.debug(this, "Company Name: $companyName");
+          CustomLog.debug(this, "Is Kyc : ${customer.isKyc}");
 
           isKycValid = customer.isKyc.toInt();
 
@@ -352,7 +354,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                         ),
                       ),
                       child: Text(
-                        "View All",
+                        context.appText.viewAll,
                         style: AppTextStyle.h5WhiteColor,
                       ),
                     ),
@@ -425,7 +427,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
               AppDialog.show(
                 context,
                 child: SuccessDialogView(
-                  message: 'Load Accepted Successfully',
+                  message: context.appText.loadAcceptedSuccessfully,
                   afterDismiss: () {
                     if (context.mounted) Navigator.pop(context);
                   },

@@ -35,7 +35,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class VpLoadDetailsScreen extends StatefulWidget {
   final String? loadId;
-  const VpLoadDetailsScreen({super.key, required this.loadId});
+  final num? companyTypeId;
+
+  const VpLoadDetailsScreen({super.key, required this.loadId,this.companyTypeId});
 
   @override
   State<VpLoadDetailsScreen> createState() => _VpLoadDetailsScreenState();
@@ -47,6 +49,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   final homeCubit = locator<LPHomeCubit>();
   final vpHomeBloc = locator<VpHomeBloc>();
   bool _consentStatusCalled = false;
+
 
   /// Get Load Details
 
@@ -84,16 +87,19 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             return CircularProgressIndicator().center();
           }
           if (state.loadDetailsUIState?.status == Status.ERROR) {
-            return genericErrorWidget(
+            return VpHelper.withSliverRefresh(
+                () => getLoadDetails(),
+                child: genericErrorWidget(
               error: state.loadDetailsUIState?.errorType,
-            );
+            ));
           }
           if (state.loadDetailsUIState?.status == Status.SUCCESS) {
             final loads = state.loadDetailsUIState?.data;
             if (loads?.data == null) {
-              return genericErrorWidget(error: NotFoundError());
+              return VpHelper.withSliverRefresh(
+                      () => getLoadDetails(),
+                  child: genericErrorWidget(error: NotFoundError()));
             }
-
             return Stack(
               children: [
                 Positioned.fill(child: GoogleMapWidget(
@@ -125,7 +131,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
         listener: (context, state) {
           if (state.loadDetailsUIState?.status == Status.SUCCESS) {
             final loads = state.loadDetailsUIState?.data;
-
             if (loads?.data !=null) {
               if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
                 _consentStatusCalled = true;

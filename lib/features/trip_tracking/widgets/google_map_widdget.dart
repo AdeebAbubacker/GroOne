@@ -11,8 +11,10 @@ import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.d
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -64,18 +66,17 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
     BitmapDescriptor driverIcon = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(size: Size(64, 64)),
-      AppIcons.png.driverIcon,
+      AppImage.jpg.driverImaged,
     );
-
 
     frameCallback(() async {
      if(addMarker){
        _markers.value.add(
          Marker(
-           markerId: MarkerId('pickup'),
+           markerId: MarkerId(context.appText.pickup),
            position: pickupLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-           infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupLocation}'),
+           infoWindow: InfoWindow(title: '${context.appText.pickup}: ${widget.pickupLocation}'),
          ),
        );
        _markers.value.add(
@@ -83,7 +84,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            markerId: MarkerId('drop'),
            position: dropLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-           infoWindow: InfoWindow(title: 'Drop: ${widget.dropLocation}'),
+           infoWindow: InfoWindow(title: '${context.appText.drop}: ${widget.dropLocation}'),
          ),
        );
        double distanceInMeters = Geolocator.distanceBetween(
@@ -97,10 +98,10 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
          _markers.value.add(
            Marker(
-             markerId: MarkerId('driver'),
+             markerId: MarkerId(context.appText.driver),
              position: driverLatLng,
              icon: driverIcon,
-             infoWindow: const InfoWindow(title: 'Driver Location'),
+             infoWindow:  InfoWindow(title: context.appText.drivingLicense),
            ),
          );
        }
@@ -115,7 +116,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
        }
        _polylines.add(Polyline(
-         polylineId: PolylineId("route"),
+         polylineId: PolylineId(context.appText.route),
          color: AppColors.primaryColor.withOpacity(0.7),
          width: 5,
          points: _polylineCoordinates,
@@ -193,7 +194,6 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           if((state.directionApiResponse?.data?.routes??[]).isNotEmpty){
             setMapMarkers(addMarker: false,points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points);
           }
-
         }
         return ValueListenableBuilder(
           valueListenable: _markers,

@@ -67,18 +67,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
       final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+      final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
         visible: true
       );
+      final updateOtherDocument = currentList[uploadOtherDocumentIndex].copyWith(
+        visible: false
+      );
       currentList[podDocumentIndex] = updatedDocument;
+      currentList[uploadOtherDocumentIndex] = updateOtherDocument;
       emit(state.copyWith(tripDocumentList: currentList));
     }
   }
 
 
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
+    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {
@@ -339,7 +344,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
 
     final updatedDocument = currentDocument.copyWith(
@@ -347,8 +352,19 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       isLoading: !(currentDocument.isLoading ?? false),
     );
     currentList[index] = updatedDocument;
+
+    /// TODO:
+    /// This is for multiple documents
+
+    // if(loadDocument!=null && updatedDocument.fileType==DocumentFileType.uploadOtherDocument.name){
+    //   DocumentEntity updatedDocumentList=   addOthersDocumentUploadOption(currentList);
+    //   debugPrint("updatedDocumentList added");
+    //   currentList.add(updatedDocumentList);
+    // }
     emit(state.copyWith(tripDocumentList: currentList));
   }
+
+
 
   void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
@@ -361,6 +377,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     currentList[index] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
+
+
+  /// add option for add more other documents
+  DocumentEntity addOthersDocumentUploadOption(List<DocumentEntity> currentList){
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    final otherDocumentObj=currentList.firstWhere((element) => element.fileType==DocumentFileType.uploadOtherDocument.name);
+    final currentDocument = otherDocumentObj.copyWith(
+      loadDocument: null
+    );
+
+    return currentDocument;
+  }
+
+
+
 
 
   Future<CreateDocumentResponse?> createDocument(String title,
@@ -382,7 +413,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       ).then((value) {
         if (value is Success<CreateDocumentResponse>) {
           return value.value;
+        } else if(value is Error<CreateDocumentResponse>){
+          ToastMessages.error(message: getErrorMsg(
+              errorType: value.type
+          ));
         }
+
+
         return null;
       },);
     } catch (e) {
@@ -503,12 +540,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
+
     switch(loadStatus){
       case LoadStatus.assigned:
-        return memo!=null;
+        return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+      return driverConsent==1 &&   checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:

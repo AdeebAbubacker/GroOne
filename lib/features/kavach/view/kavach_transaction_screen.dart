@@ -76,7 +76,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
         controller: _tabController,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         indicator: const BoxDecoration(), // Remove default indicator
-        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+        labelPadding: const EdgeInsets.symmetric(horizontal:2),
         tabs: List.generate(4, (index) {
           final tabLabels = [
             context.appText.all,
@@ -89,7 +89,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen>
           return Tab(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primaryColor

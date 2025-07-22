@@ -88,6 +88,7 @@ final bool isConsentGiven = false;
                         ),
                       ],
                     ),
+                     5.height,
                    Container(
               decoration: commonContainerDecoration(
                 color: LpHomeHelper.getLoadStatusColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')
@@ -97,7 +98,7 @@ final bool isConsentGiven = false;
                 LpHomeHelper.getLoadTypeDisplayText(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? ''),
                 style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')),
               ).center().paddingAll(4),
-            ), 
+            ),     5.height,
                   ],
                 ).expand(),
               ],

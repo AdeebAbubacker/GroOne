@@ -30,10 +30,10 @@ class GpsShippingAddressInitial extends GpsShippingAddressState {}
 
 class GpsShippingAddressLoading extends GpsShippingAddressState {}
 
-class GpsShippingAddressLoaded extends GpsShippingAddressState {
+class GpsShippingAddressAvailable extends GpsShippingAddressState {
   final List<KavachAddressModel> addresses;
 
-  GpsShippingAddressLoaded(this.addresses);
+  GpsShippingAddressAvailable(this.addresses);
 }
 
 class GpsShippingAddressSelected extends GpsShippingAddressState {
@@ -83,7 +83,9 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
           final addresses = response.data!.rows!
               .map((gpsAddress) => gpsAddress.toKavachAddressModel())
               .toList();
-          emit(GpsShippingAddressLoaded(addresses));
+          // Don't automatically select - let user choose
+          CustomLog.debug(this, "GPS Shipping - Loaded ${addresses.length} addresses without auto-selection");
+          emit(GpsShippingAddressAvailable(addresses));
         } else {
           emit(GpsShippingAddressEmpty());
         }
@@ -100,9 +102,9 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
   void selectGpsShippingAddress(KavachAddressModel address) {
     // Get current addresses from state
     List<KavachAddressModel> addresses = [];
-    if (state is GpsShippingAddressLoaded) {
-      addresses = (state as GpsShippingAddressLoaded).addresses;
-      CustomLog.debug(this, "GPS Shipping - Selecting address from Loaded state with ${addresses.length} addresses");
+    if (state is GpsShippingAddressAvailable) {
+      addresses = (state as GpsShippingAddressAvailable).addresses;
+      CustomLog.debug(this, "GPS Shipping - Selecting address from Available state with ${addresses.length} addresses");
     } else if (state is GpsShippingAddressSelected) {
       addresses = (state as GpsShippingAddressSelected).addresses;
       CustomLog.debug(this, "GPS Shipping - Selecting address from Selected state with ${addresses.length} addresses");
@@ -113,8 +115,8 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
       CustomLog.debug(this, "GPS Shipping - No addresses available, fetching addresses first");
       fetchGpsShippingAddresses().then((_) {
         // After fetching, try to select the address again
-        if (state is GpsShippingAddressLoaded) {
-          final loadedAddresses = (state as GpsShippingAddressLoaded).addresses;
+        if (state is GpsShippingAddressAvailable) {
+          final loadedAddresses = (state as GpsShippingAddressAvailable).addresses;
           CustomLog.debug(this, "GPS Shipping - Fetched ${loadedAddresses.length} addresses, now selecting");
           emit(GpsShippingAddressSelected(selectedAddress: address, addresses: loadedAddresses));
         }
@@ -131,12 +133,12 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
   }
 
   void clearGpsShippingAddressSelection() {
-    // If we have loaded addresses, go back to loaded state without selection
+    // If we have selected addresses, go back to available state without selection
     if (state is GpsShippingAddressSelected) {
       final addresses = (state as GpsShippingAddressSelected).addresses;
-      emit(GpsShippingAddressLoaded(addresses));
+      emit(GpsShippingAddressAvailable(addresses));
     }
-    // If we're in loaded state, stay there (no selection)
+    // If we're in available state, stay there (no selection)
     // If we're in empty/error state, stay there
   }
 } 

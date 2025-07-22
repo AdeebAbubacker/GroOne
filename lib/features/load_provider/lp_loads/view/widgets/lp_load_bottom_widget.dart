@@ -21,6 +21,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trackin
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -31,6 +32,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -40,6 +42,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
+
+enum PaymentMethod { neft, online }
 
 class LpLoadBottomWidget extends StatefulWidget {
   final LoadData loadItem;
@@ -227,7 +231,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               5.height,
                               Row(
                                 children: [
-                                  Text(context.appText.driver, style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
+                                  Text("${context.appText.driver}: ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
                                   Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                 ],
                               ),
@@ -528,7 +532,28 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                       // Feedback and Remarks
                       if(widget.loadStatus.index >= LoadStatus.unloading.index)
-                      FeedbackWidget(loadId: widget.loadItem.loadId),
+                        ...[
+                          FeedbackWidget(loadId: widget.loadItem.loadId),
+                           if(widget.loadItem.loadApproval?.damageAndShortagesApproved == true)
+                             ...[
+                               15.height,
+                               Text(context.appText.damagesAndShortages, style: AppTextStyle.h4),
+                               15.height,
+                               AddedDamageWidget(
+                                 damageReport: widget.loadItem.damageShortage,
+
+                               ),
+                               15.height,
+                             ],
+                          if(widget.loadItem.loadApproval?.settlementApproved == true)
+                            ...[
+                              Text(context.appText.settlements, style: AppTextStyle.h4),
+                              15.height,
+                            ]
+
+
+                        ],
+
 
                       20.height
                     ],
@@ -690,66 +715,116 @@ final double payableAdvanceValue =
 
         // Action Button
           AppButton(
-            isLoading: isLoading,
-            title: 'context.appText.payAdvance',
+            title: context.appText.payAdvance,
             onPressed: () async {
-              
-             final isPayingBalance = paymentState == 3 || paymentState == 5;
-              final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
-            final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
- 
-              // Create Order
-              await lpLoadCubit.createOrder(
-                loadId: loadId,
-                createOrderidReuest: CreateOrderIdRequest(
-                      amount: paymentAmount,
-                type: 'online',
-                action: action,
-                      )
-                  );
+              PaymentMethod selectedMethod = PaymentMethod.online;
 
-              final createOrderState = lpLoadCubit.state.lpCreateOrder;
+              AppDialog.show(
+                context,
+                child: StatefulBuilder(
+                  builder: (context, setState) {
+                    return CommonDialogView(
+                      showYesNoButtonButtons: true,
+                      hideCloseButton: true,
+                      yesButtonLoading: isLoading,
+                      onClickYesButton: () async {
 
-              if (createOrderState?.status == Status.SUCCESS) {
-                final orderId = createOrderState?.data?.orderId;
-                if (orderId != null) {
-                  // Initiate Payment
-                  await lpLoadCubit.initaitepayment(
-                    initiatePaymentRequest: 
-                    InitiatePaymentRequest(
-                      orderId: orderId, 
-                      amount: paymentAmount,
-                      customerName: customerName, 
-                      customerEmail: customerEmail, 
-                      customerMobile: customerMobile, 
-                      customerCity: customerCity)
-                  );
 
-                  final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+                        final isPayingBalance = paymentState == 3 || paymentState == 5;
+                          final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
+                        final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
 
-                  if (addpaymentState?.status == Status.SUCCESS) {
-                          final result = await Navigator.of(context).push(
-                        commonRoute(
-                          PaymentsScreen(
-                            url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                          // Create Order
+                          await lpLoadCubit.createOrder(
                             loadId: loadId,
+                            createOrderidReuest: CreateOrderIdRequest(
+                                  amount: paymentAmount,
+                            type: 'online',
+                            action: action,
+                                  )
+                              );
+
+                          final createOrderState = lpLoadCubit.state.lpCreateOrder;
+
+                          if (createOrderState?.status == Status.SUCCESS) {
+                            // final orderId = createOrderState?.data?.orderId;
+                            final orderId = createOrderState?.data?.orderId;
+                            if (orderId != null) {
+                              // Initiate Payment
+                              await lpLoadCubit.initaitepayment(
+                                initiatePaymentRequest:
+                                InitiatePaymentRequest(
+                                  orderId: orderId,
+                                  amount: paymentAmount,
+                                  customerName: customerName,
+                                  customerEmail: customerEmail,
+                                  customerMobile: customerMobile,
+                                  customerCity: customerCity)
+                              );
+
+                              final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+
+                              if (addpaymentState?.status == Status.SUCCESS) {
+                                      final result = await Navigator.of(context).push(
+                                    commonRoute(
+                                      PaymentsScreen(
+                                        url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                                        loadId: loadId,
+                                      ),
+                                    ),
+                                  );
+
+                              if (result == true) {
+                                Navigator.pop(context);
+
+                                context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
+                              }
+                              } else {
+                                ToastMessages.error(message: context.appText.paymentFailed);
+                              }
+                            } else {
+                              ToastMessages.error(message: context.appText.orderIdNotFound);
+                            }
+                          } else {
+                            Navigator.pop(context);
+                            ToastMessages.error(message: context.appText.orderCreationFailed);
+                          }
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(context.appText.selectPaymentMethod, style: AppTextStyle.h3),
+                          10.height,
+                          RadioListTile<PaymentMethod>(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(context.appText.neft),
+                            value: PaymentMethod.neft,
+                            groupValue: selectedMethod,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedMethod = value!;
+                              });
+                            },
                           ),
-                        ),
-                      );
+                          RadioListTile<PaymentMethod>(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(context.appText.online),
+                            value: PaymentMethod.online,
+                            groupValue: selectedMethod,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedMethod = value!;
+                              });
+                            },
+                          ),
 
-                  if (result == true) {
-
-                    context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
-                  }
-                  } else {
-                    ToastMessages.error(message: context.appText.paymentFailed);
-                  }
-                } else {
-                  ToastMessages.error(message: context.appText.orderIdNotFound);
-                }
-              } else {
-                ToastMessages.error(message: context.appText.orderCreationFailed);
-              }
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
             },
             richTextWidget: Row(
                     mainAxisSize: MainAxisSize.min,

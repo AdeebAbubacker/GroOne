@@ -68,8 +68,8 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               12.height,
               _orderTimeline(context),
               12.height,
+               _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
-              _addressSection(order.billingAddress, context),
               12.height,
               _paymentSummary(context),
               12.height,
@@ -131,7 +131,12 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         ],
       ),
        25.height,
-          Text(context.appText.productDetails, style: AppTextStyle.h5),
+          Text(
+            order.lineItems.length == 1 
+                ? "Product Detail" 
+                : context.appText.productDetails, 
+            style: AppTextStyle.h5
+          ),
           8.height,
           ...order.lineItems.map((p) => _productItem(p, context)),
           const Divider(
@@ -350,7 +355,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               Text(context.appText.paymentSummary, style: AppTextStyle.h4),
               10.height,
               PriceRow(
-                "${context.appText.price} (${getTotalQuantity()} ${context.appText.items})",
+                "${context.appText.price} (${getTotalQuantity()} ${getTotalQuantity() == 1 ? 'item' : context.appText.items})",
                 '₹${KavachHelper.formatCurrency(order.price.toStringAsFixed(2))}',
               ),
               PriceRow(context.appText.gstKavach, '₹${KavachHelper.formatCurrency(order.totalGst.toStringAsFixed(2))}'),

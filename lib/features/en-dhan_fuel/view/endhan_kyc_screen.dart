@@ -76,7 +76,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
               message: context.appText.kycDocumentsUploadedSuccessfully,
               onContinue: () {
                     Navigator.of(context).pop();
-                   Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                   Navigator.pushReplacement(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
               },
             ),
           );
@@ -105,6 +105,21 @@ class _EndhanKycScreenContent extends StatelessWidget {
               TextPosition(offset: otpControllers[idx - 1].text.length),
             );
           });
+        });
+      }
+      // When the last digit (6th) is entered, keep focus but show visual feedback
+      else if (value.length == 1 && idx == 5) {
+        // Keep focus on the last field but add a small delay for visual feedback
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (context.mounted) {
+            // Add a subtle visual feedback by briefly changing focus
+            focusNodes[idx].unfocus();
+            Future.delayed(Duration(milliseconds: 50), () {
+              if (context.mounted) {
+                focusNodes[idx].requestFocus();
+              }
+            });
+          }
         });
       }
     }
@@ -391,6 +406,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
 
                       AppTextField(
+                        mandatoryStar: true,
                         hintText: context.appText.enterPanNumber,
                         onChanged: state.isPanVerified ? null : (value) {
                           cubit.setPan(value);
