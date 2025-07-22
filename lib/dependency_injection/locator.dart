@@ -570,6 +570,7 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => DriverLoadDetailsCubit(
+         locator<LoadDetailsRepository>(),
         locator<DriverLoadsDetailsRepository>()
       ),
     );
