@@ -1119,7 +1119,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     ),
                                     6.height,
                                     AppTextField(
-                                      hintText: 'AAAPA1234A',
+                                      hintText: 'MH12AB1234',
                                       controller: controllers['rcBook'],
                                       textCapitalization: TextCapitalization.characters,
                                       onChanged: (val) {

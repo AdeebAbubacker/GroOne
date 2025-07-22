@@ -127,7 +127,9 @@ class _OurValueAddedServicesWidgetState
                               // KYC done - show GPS home screen
                               Navigator.push(
                                 context,
-                                commonRoute(GpsHomeScreen()),
+                                //commonRoute(GpsHomeScreen()),
+                                commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                                
                               );
                             } else {
                               // KYC not done - show benefits screen
