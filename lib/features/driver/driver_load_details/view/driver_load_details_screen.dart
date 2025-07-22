@@ -39,7 +39,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   @override
   void initState() {
     super.initState();
-    context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
+    context.read<DriverLoadDetailsCubit>().getDriverLoadsById(loadId: widget.loadId);
   }
 
   @override
@@ -61,7 +61,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
             ToastMessages.success(message: "Load status updated successfully");
             // Already handled in Cubit: getLpLoadsById(...) is called
             // No further action needed if rebuild works properly
-            context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
+            context.read<DriverLoadDetailsCubit>().getDriverLoadsById(loadId: widget.loadId);
           } else if (loadStatusState is Error) {
             ToastMessages.error(message: "Failed to update load status");
           }
@@ -86,7 +86,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                     ),
                   ),
                   genericErrorWidget(
-                    onRefresh: () => context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId),
+                    onRefresh: () => context.read<DriverLoadDetailsCubit>().getDriverLoadsById(loadId: widget.loadId),
                   ).paddingTop(50),
                 ],
               );

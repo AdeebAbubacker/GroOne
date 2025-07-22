@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/model/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
@@ -35,8 +36,9 @@ part 'driver_load_details_state.dart';
 class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   final DriverLoadsDetailsRepository _repository;
   final LoadDetailsRepository _loadDetailsRepository;
+  final UserInformationRepository _userInformationRepository;
 
-  DriverLoadDetailsCubit(this._loadDetailsRepository, this._repository) : super(DriverLoadDetailsState(  tripDocumentList: documentTypeList));
+  DriverLoadDetailsCubit(this._loadDetailsRepository, this._repository,this._userInformationRepository) : super(DriverLoadDetailsState(  tripDocumentList: documentTypeList));
 
 
   // Updates the UI state related to loading LP loads by ID.
@@ -44,8 +46,8 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     emit(state.copyWith(lpLoadById: uiState,));
   }
 
-  // Fetches the LP loads filtered by the given [type].
-Future<void> getLpLoadsById({required String loadId}) async {
+  // Fetches the Driver loads filtered by the given [type].
+Future<void> getDriverLoadsById({required String loadId}) async {
   _setLoadByIdUIState(UIState.loading());
 
   Result result = await _repository.fetchDriversLoadById(loadId: loadId);
@@ -366,6 +368,15 @@ Future<void> getLpLoadsById({required String loadId}) async {
       default:
         return true;
     }
+  }
+
+  String? _userId;
+
+  String? get userId => _userId;
+
+  Future<String?> getUserId() async {
+    _userId = await _userInformationRepository.getUserID();
+    return _userId;
   }
 }
   

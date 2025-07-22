@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,14 +69,39 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   List<String> uploadedMaterialInvoices = [];
   final loadDetailsCubit = locator<LoadDetailsCubit>();
 
- 
+ void _handleLoadStatusUpdate(DriverLoadDetailsState state) {
+  final status = state.loadStatusUIState;
+
+  if (status is Success) {
+    ToastMessages.success(message: "Load status updated successfully");
+    widget.cubit.getDriverLoadsById(loadId: widget.loadItem.data?.loadId ?? '');
+  } else if (status is Error) {
+    ToastMessages.error(message: "Failed to update load status");
+  }
+}
+
+changeLoadStatus(BuildContext context, String? id, {required int loadStatus , required String loadId}) async {
+
+  String? userId = await widget.cubit.getUserId();
+  await widget.cubit
+      .fupdateLoadStatus(customerId:userId.toString(),loadStatus: loadStatus,loadid: loadId)
+      .then((value) {
+
+    // ✅ THIS is your driver detail refresh after status update
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.cubit.getDriverLoadsById(loadId:  id ?? "0");
+    });
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
        buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {
-        // TODO: implement listener
+        
+      _handleLoadStatusUpdate(state);
       },
       builder: (context, state) {
          DriverLoadDetailsModel? loadDetails;
@@ -333,7 +359,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                               ToastMessages.success(
                                 message: "Load status updated successfully",
                               );
-                              widget.cubit.getLpLoadsById(
+                              widget.cubit.getDriverLoadsById(
                                 loadId:   loads!.data!.loadId ?? '',
                               );
                             }
@@ -341,7 +367,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   ToastMessages.success(
                                     message: "Failed to update load status",
                                   );
-                                  widget.cubit.getLpLoadsById(
+                                  widget.cubit.getDriverLoadsById(
                                     loadId:   loads!.data!.loadId ?? '',
                                   );
                                 }
@@ -349,16 +375,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                               child: DriverLoadHelper.loadStatusButtonWidget(
                                 statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
-
-
-                                if (  loads!.data!.driverConsent == 0) {
-                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                                  return;
-                                }
-                                if (  loads!.data!.loadStatusId == 4 &&   loads!.data!.driverConsent == 0) {
-                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                                  return;
-                                }
+                                // if (  loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
+                                //   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                                //   return;
+                                // }
                                 final List<List<LoadDocument>> nestedDocuments =   loads!.data!.loadDocument ?? [];
                                 final allDocuments = nestedDocuments.expand((docList) => docList).toList();
                                 bool hasLorryReceipt = allDocuments.any(
