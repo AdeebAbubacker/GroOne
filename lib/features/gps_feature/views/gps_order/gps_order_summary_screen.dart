@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -67,6 +68,8 @@ class GpsOrderSummaryScreen extends StatefulWidget {
 
 class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   late final GpsOrderCubit gpsOrderCubit;
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
   GpsOrderSummaryResponse? orderSummary;
   bool isLoadingSummary = true;
 
@@ -139,6 +142,43 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       total += itemTotal + itemGst;
     }
     return total;
+  }
+
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "companyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "companyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "blueMembershipId": "BLUE123456"
+      };
+    }
   }
 
   @override
@@ -277,7 +317,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.vehicleDetails, style: AppTextStyle.h5),
+                  Text(
+                    widget.selectedVehicleNumbers.length == 1 
+                        ? "Vehicle Detail" 
+                        : context.appText.vehicleDetails,
+                    style: AppTextStyle.h5
+                  ),
                   SizedBox(height: 5),
                   Text(
                     widget.selectedVehicleNumbers.join(", "),
@@ -319,7 +364,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Center(child: CircularProgressIndicator()),
           ],
@@ -334,7 +384,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Text(
               'Failed to load order summary',
@@ -351,7 +406,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+          Text(
+            widget.products.length == 1 
+                ? "Product Detail" 
+                : context.appText.paymentDetails, 
+            style: AppTextStyle.h4
+          ),
           10.height,
           ...orderSummary!.data.summary.map((summaryItem) {
             return Column(
@@ -505,11 +565,14 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     try {
       final customerId = await gpsOrderCubit.getUserId() ?? '';
 
+      // Get real customer information
+      final customerInfoMap = await getCustomerInfo();
+      
       // Create customer info
       final customerInfo = GpsCustomerInfo(
-        companyName: "ABC Logistics Pvt Ltd",
-        contactNumber: "9876543210",
-        blueMembershipId: "BLUE123456",
+        companyName: customerInfoMap["companyName"] ?? "ABC Logistics Pvt Ltd",
+        contactNumber: customerInfoMap["contactNumber"] ?? "9876543210",
+        blueMembershipId: customerInfoMap["blueMembershipId"] ?? "BLUE123456",
       );
 
       // Create billing address

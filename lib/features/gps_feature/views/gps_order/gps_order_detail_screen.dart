@@ -133,7 +133,12 @@ class GpsOrderDetailScreen extends StatelessWidget {
             ],
           ),
           25.height,
-          Text(context.appText.productDetails, style: AppTextStyle.h5),
+          Text(
+            order.lineItems.length == 1 
+                ? "Product Detail" 
+                : context.appText.productDetails, 
+            style: AppTextStyle.h5
+          ),
           8.height,
           ...order.lineItems.map((p) => _productItem(p, context)),
           const Divider(
@@ -359,7 +364,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
               Text(context.appText.paymentSummary, style: AppTextStyle.h4),
               10.height,
               PriceRow(
-                "${context.appText.price} (${getTotalQuantity()} ${context.appText.items})",
+                "${context.appText.price} (${getTotalQuantity()} ${getTotalQuantity() == 1 ? 'item' : context.appText.items})",
                 '₹${formatCurrency(order.price)}',
               ),
               PriceRow(context.appText.gstKavach, '₹${formatCurrency(order.totalGst)}'),

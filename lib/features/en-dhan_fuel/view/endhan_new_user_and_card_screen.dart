@@ -506,6 +506,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               body: const Center(child: AppLoadingWidget()),
             );
+          
           },
         ),
       ),
@@ -564,6 +565,32 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             vehicleNumber.contains(searchLower) ||
             mobile.contains(searchLower);
       }).toList();
+
+      // Show "no data found" message if search returns no results
+      if (_searchText.isNotEmpty && filteredCards.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: AppColors.greyTextColor,
+              ),
+              16.height,
+              Text(
+                'No cards found',
+                style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
+              ),
+              8.height,
+              Text(
+                'No cards found for "$_searchText"',
+                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+              ),
+            ],
+          ),
+        );
+      }
 
       return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),

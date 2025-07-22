@@ -153,4 +153,22 @@ class Validator {
     return null;
   }
 
+  static String? rcBookNumberValidator(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    
+    final trimmedValue = value.trim().toUpperCase();
+    
+    // RC book number format: 5 letters + 4 digits + 1 letter
+    // Example: AAAPA1234A
+    final regex = RegExp(r'^[A-Z]{5}\d{4}[A-Z]$');
+    
+    if (!regex.hasMatch(trimmedValue)) {
+      return '$fieldName should be in format: AAAPA1234A (5 letters, 4 digits, 1 letter)';
+    }
+    
+    return null;
+  }
+
 }

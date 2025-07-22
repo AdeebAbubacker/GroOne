@@ -229,7 +229,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                                   isSelected
                                       ? AppColors.primaryColor
                                       : const Color(0xFFEFEFEF),
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(25),
                             ),
                             child: Text(
                               tabLabels[index],

@@ -83,7 +83,9 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
           final addresses = response.data!.rows!
               .map((gpsAddress) => gpsAddress.toKavachAddressModel())
               .toList();
-          emit(GpsShippingAddressLoaded(addresses));
+          // Automatically select the first address
+          CustomLog.debug(this, "GPS Shipping - Auto-selecting first address from ${addresses.length} addresses");
+          emit(GpsShippingAddressSelected(selectedAddress: addresses.first, addresses: addresses));
         } else {
           emit(GpsShippingAddressEmpty());
         }
