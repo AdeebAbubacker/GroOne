@@ -107,7 +107,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                 buildTopLocationWidget(loadItem!),
                 DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
                 buildFloatingWidget(context),
-                buildSimConsentWidget(loadItem),
+                buildSimConsentWidget(loadItem.data?.driverConsent ?? 0),
               ],
             );
           },
@@ -245,10 +245,10 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 
-    Widget buildSimConsentWidget(DriverLoadDetailsModel loadItem) {
-      final screenHeight = MediaQuery.of(context).size.height;
+    Widget buildSimConsentWidget(int driverConsent) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
-    final isTrackingAllowed = loadItem.data?.driverConsent == 1;
+    final isTrackingAllowed = driverConsent==1;
 
     return Positioned(
         left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
