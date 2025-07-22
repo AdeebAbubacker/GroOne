@@ -587,8 +587,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         createdEmpUserId = 52864; // This should be fetched based on referral code
       }
 
-      // Team ID is always 1 as per requirements
-      int teamId = 1;
+
 
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
@@ -673,8 +672,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       final request = GpsOrderRequest(
         orderSource: "MOBILE",
         isOrderPaid: true, // Always true as per documentation
-        orderTypeId: 1, // Default as 1
-        teamId: teamId,
         customerId: customerId,
         createdEmpUserId: createdEmpUserId,
         createdEmpId: createdEmpId, // Will be null if no referral code

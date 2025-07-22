@@ -372,16 +372,15 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               final request = KavachOrderRequest(
                 orderSource: "MOBILE",
                 isOrderPaid: true, // Always true as per documentation
-                orderTypeId: 1, // Default as 1
                 customerId: await kavachOrderBloc.getUserId()??'',
+                createdEmpUserId: createdEmpUserId,
+                createdEmpId: createdEmpId, // Will be null if no referral code
+                orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
                 totalPrice: totalAmount,
                 categoryId: 1, // Always 1 for Products
                 shippingPersonIncharge: widget.shippingPersonInCharge,
                 shippingPersonContactNo: widget.shippingPersonContactNo,
                 customerInfo: customerInfo,
-                createdEmpUserId: createdEmpUserId,
-                createdEmpId: createdEmpId, // Will be null if no referral code
-                orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
                 billingAddress: {
                   "addressLine1": widget.billingAddress.addressName,
                   "addressLine2": widget.billingAddress.addr1,
@@ -400,19 +399,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "country": widget.shippingAddress.country,
                   "gstId": widget.shippingAddress.gstin??""
                 },
-                // orders: widget.products.map((product) {
-                //   final quantity = widget.quantities[product.id]!;
-                //   final stock = widget.availableStocks[product.id] ?? 0;
-                //
-                //   return KavachOrderItem(
-                //     productServiceId: int.parse(product.id),
-                //     noOfProducts: quantity,
-                //     unitPrice: product.price,
-                //     totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
-                //     stockAvailable: stock,
-                //     vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
-                //   );
-                // }).toList(),
                 orders: widget.products.map((product) {
                   final quantity = widget.quantities[product.id]!;
                   final stock = widget.availableStocks[product.id] ?? 0;
@@ -427,8 +413,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
                   );
                 }).toList(),
-                teamId: 1,
-
               );
 
               if (kDebugMode) {

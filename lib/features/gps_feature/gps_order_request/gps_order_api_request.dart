@@ -533,7 +533,6 @@ class GpsOrderVehicle {
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
-    "deviceUniqueNumber": "DEV123456789"
   };
 }
 
@@ -619,8 +618,6 @@ class GpsOrderAddress {
 class GpsOrderRequest {
   final String orderSource;
   final bool isOrderPaid;
-  final int orderTypeId;
-  final int teamId;
   final String customerId;
   final int createdEmpUserId;
   final String? createdEmpId;
@@ -637,8 +634,6 @@ class GpsOrderRequest {
   GpsOrderRequest({
     required this.orderSource,
     required this.isOrderPaid,
-    required this.orderTypeId,
-    required this.teamId,
     required this.customerId,
     required this.createdEmpUserId,
     this.createdEmpId,
@@ -657,8 +652,6 @@ class GpsOrderRequest {
     final json = {
       "orderSource": orderSource,
       "isOrderPaid": isOrderPaid,
-      "orderTypeId": orderTypeId,
-      "teamId": teamId,
       "customerId": customerId,
       "createdEmpUserId": createdEmpUserId,
       "orderReferencedBy": orderReferencedBy,
@@ -682,7 +675,7 @@ class GpsOrderRequest {
 
   @override
   String toString() {
-    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, orderTypeId: $orderTypeId, teamId: $teamId, customerId: $customerId, createdEmpUserId: $createdEmpUserId, createdEmpId: $createdEmpId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
+    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, createdEmpId: $createdEmpId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
   }
 }
 
