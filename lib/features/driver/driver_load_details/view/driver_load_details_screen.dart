@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class DriverLoadsLocationDetailsScreen extends StatefulWidget {
   final String loadId;
@@ -50,7 +52,23 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+        child: 
+        BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+  listenWhen: (previous, current) => previous.loadStatusUIState != current.loadStatusUIState,
+  listener: (context, state) {
+    final loadStatusState = state.loadStatusUIState;
+    if (loadStatusState is Success) {
+      ToastMessages.success(message: "Load status updated successfully");
+      // Already handled in Cubit: getLpLoadsById(...) is called
+      // No further action needed if rebuild works properly
+      context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
+    } else if (loadStatusState is Error) {
+      ToastMessages.error(message: "Failed to update load status");
+    }
+  },
+  child:
+                
+         BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
           builder: (context, state) {
             final uiState = state.lpLoadById;
 
@@ -97,6 +115,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
           },
         ),
       ),
+      )
     );
   }
 

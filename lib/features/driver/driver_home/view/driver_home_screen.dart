@@ -370,7 +370,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                         driverLoadDetails: state.loads[index],
                    onClickAssignDriver: () {
         final currentStatus = state.loads[index].loadStatusId;
-            if (currentStatus < 7) {
+            if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
                   loadId: state.loads[index].loadId,  
@@ -385,7 +385,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
            final currentStatus = state.loads[index].loadStatusId;
-            if (currentStatus < 7) {
+            if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
                   loadId: state.loads[index].loadId,  
@@ -399,7 +399,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                           return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
             final currentStatus = state.loads[index].loadStatusId;
-            if (currentStatus < 7) {
+            if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
                   loadId: state.loads[index].loadId,  

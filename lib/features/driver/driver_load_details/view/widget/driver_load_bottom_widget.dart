@@ -279,7 +279,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 final loadId = widget.loadItem.data?.loadId ?? '';
                                 final currentStatus =   widget.loadItem.data?.loadStatusId ?? 4;
 
-                                if (currentStatus < 7) {
+                                if (currentStatus <= 7) {
                                   widget.cubit.fupdateLoadStatus(
                                     customerId: customerId,
                                     loadid: loadId,
@@ -297,6 +297,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
       ),
     );
   }
+
+
   Widget buildUploadDocumentWidget({
   required String title,
   required List<dynamic> fileList,
