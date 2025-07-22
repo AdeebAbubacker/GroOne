@@ -36,7 +36,6 @@ import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../models/gps_document_models.dart';
-import 'gps_order_benefits_and_order_list_screen.dart';
 
 class GpsOrderSummaryScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -201,52 +200,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             Navigator.of(context).pop();
           }
 
-          // Show success dialog
-          AppDialog.show(
-            context,
-            child: SuccessDialogView(
-              message: context.appText.orderPlacedSuccessfully,
-              onContinue: () async {
-                try {
-                  // Close the dialog first
-                  Navigator.of(context).pop();
-                  
-                  // Wait for dialog to close completely
-                  await Future.delayed(Duration(milliseconds: 500));
-                  
-                  if (context.mounted) {
-                    print('🔄 GPS Order Success: Attempting GoRouter navigation');
-                    print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
-                    
-                    // Use GoRouter navigation as before
-                    context.go(AppRouteName.gpsOrderBenefits);
-                    
-                    print('🔄 GPS Order Success: GoRouter navigation called successfully');
-                  } else {
-                    print('❌ GPS Order Success: Context not mounted after dialog close');
-                  }
-                } catch (e) {
-                  print('❌ GPS Order Success: Navigation error: $e');
-                  
-                  if (context.mounted) {
-                    try {
-                      // Fallback: Try GoRouter again with different approach
-                      print('🔄 GPS Order Success: Trying GoRouter fallback');
-                      context.go(AppRouteName.gpsOrderBenefits);
-                    } catch (goRouterError) {
-                      print('❌ GPS Order Success: GoRouter fallback also failed: $goRouterError');
-                      
-                      // Final fallback: Show error message
-                      ToastMessages.error(
-                        message: 'Navigation failed. Please try again.',
-                      );
-                    }
-                  }
-                }
-              },
-           
-            ),
-          );
+          // Show success dialog and handle navigation
+          _showSuccessDialogAndNavigate(context, context.appText.orderPlacedSuccessfully);
           // showSuccessDialog(
           //   context,
           //   text: 'Order placed successfully',
@@ -294,51 +249,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
           // Handle payment completion
           if (result == true) {
-            AppDialog.show(
-              context,
-              child: SuccessDialogView(
-                message: 'Order placed successfully',
-                 onContinue: () async {
-                try {
-                  // Close the dialog first
-                  Navigator.of(context).pop();
-                  
-                  // Wait for dialog to close completely
-                  await Future.delayed(Duration(milliseconds: 500));
-                  
-                  if (context.mounted) {
-                    print('🔄 GPS Order Success: Attempting GoRouter navigation');
-                    print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
-                    
-                    // Use GoRouter navigation as before
-                    context.go(AppRouteName.gpsOrderBenefits);
-                    
-                    print('🔄 GPS Order Success: GoRouter navigation called successfully');
-                  } else {
-                    print('❌ GPS Order Success: Context not mounted after dialog close');
-                  }
-                } catch (e) {
-                  print('❌ GPS Order Success: Navigation error: $e');
-                  
-                  if (context.mounted) {
-                    try {
-                      // Fallback: Try GoRouter again with different approach
-                      print('🔄 GPS Order Success: Trying GoRouter fallback');
-                      context.go(AppRouteName.gpsOrderBenefits);
-                    } catch (goRouterError) {
-                      print('❌ GPS Order Success: GoRouter fallback also failed: $goRouterError');
-                      
-                      // Final fallback: Show error message
-                      ToastMessages.error(
-                        message: 'Navigation failed. Please try again.',
-                      );
-                    }
-                  }
-                }
-              },
-           
-              ),
-            );
+            _showSuccessDialogAndNavigate(context, 'Order placed successfully');
           }
         } else if (state is GpsPaymentFailure) {
           // Dismiss loading dialog
@@ -811,7 +722,55 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     ).paddingSymmetric(vertical: 5);
   }
 
-   Widget _buildAddressCard(KavachAddressModel address) {
+   /// Show success dialog and handle navigation with proper context management
+  void _showSuccessDialogAndNavigate(BuildContext context, String message) {
+    // Store the current context before showing dialog
+    final currentContext = context;
+    
+    AppDialog.show(
+      currentContext,
+      child: SuccessDialogView(
+        message: message,
+        onContinue: () {
+          // Close the dialog first
+          Navigator.of(currentContext).pop();
+          
+          // Use a post-frame callback to ensure dialog is fully closed
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (currentContext.mounted) {
+              print('🔄 GPS Order Success: Attempting GoRouter navigation');
+              print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
+              
+              try {
+                // Use GoRouter navigation
+                GoRouter.of(currentContext).go(AppRouteName.gpsOrderBenefits);
+                print('🔄 GPS Order Success: GoRouter navigation called successfully');
+              } catch (e) {
+                print('❌ GPS Order Success: Navigation error: $e');
+                
+                // Fallback: Try with context.go
+                try {
+                  currentContext.go(AppRouteName.gpsOrderBenefits);
+                  print('🔄 GPS Order Success: Fallback navigation successful');
+                } catch (fallbackError) {
+                  print('❌ GPS Order Success: Fallback navigation also failed: $fallbackError');
+                  
+                  // Final fallback: Show error message
+                  ToastMessages.error(
+                    message: 'Navigation failed. Please try again.',
+                  );
+                }
+              }
+            } else {
+              print('❌ GPS Order Success: Context not mounted after dialog close');
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildAddressCard(KavachAddressModel address) {
     // Clean the addr1 to remove trailing comma
     String cleanAddr1 = address.addr1.trim();
     if (cleanAddr1.endsWith(',')) {
