@@ -22,6 +22,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/view/vp_pod_dispatch_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -107,7 +108,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
+                   
                       // Truck Type Row
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -347,6 +348,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           child: DriverLoadHelper.loadStatusButtonWidget(
                             statusId: widget.loadItem.data?.loadStatusId ?? 4,
                             onPressed: () {
+                              
+                            if (widget.loadItem.data?.driverConsent == 0) {
+                              ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                              return;
+                            }
                               final customerId =
                                   widget.loadItem.data?.customer?.customerId ??
                                   '';

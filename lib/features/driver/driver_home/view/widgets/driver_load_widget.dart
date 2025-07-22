@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../../utils/app_button.dart';
 import '../../../../../utils/app_button_style.dart';
@@ -72,20 +73,12 @@ final bool isConsentGiven = false;
                   children: [
                     Wrap(
                       children: [
-                        Text(
-                         widget.driverLoadDetails.loadRoute?.pickUpAddr ?? "",
-                          style: AppTextStyle.blackColor15w500,
-                          maxLines: 2,
-                        ),
+                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",),
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
                         ).paddingSymmetric(horizontal: 2),
-                        Text(
-                          widget.driverLoadDetails.loadRoute?.dropAddr ?? "",
-                          style: AppTextStyle.blackColor15w500,
-                          maxLines: 2,
-                        ),
+                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",)
                       ],
                     ),
                      5.height,
@@ -188,7 +181,13 @@ final bool isConsentGiven = false;
                 10.width,
               DriverLoadHelper.loadStatusButtonWidget(
                 statusId:widget.driverLoadDetails.loadStatusId,
-                 onPressed: widget.onClickAssignDriver ?? () {},
+                 onPressed: () {
+              if (widget.driverLoadDetails.driverConsent == 0) {
+                ToastMessages.error(message: "Cannot Start Trip , SIM consent not given");
+                return;
+              }
+              widget.onClickAssignDriver?.call();
+            },
               ).expand(),  
                
               ],
@@ -196,6 +195,15 @@ final bool isConsentGiven = false;
           ],
         ),
       ),
+    );
+  }
+
+    Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 1,
     );
   }
 

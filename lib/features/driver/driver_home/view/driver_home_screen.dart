@@ -172,23 +172,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         AppIcons.png.appIcon,
       ).paddingLeft(commonSafeAreaPadding),
       actions: [
-        // Profile
-        // Row(
-        //   children: [
-        //     10.width,
-        //     Container(
-        //       height: 40,
-        //       width: 40,
-        //       alignment: Alignment.center,
-        //       decoration: commonContainerDecoration(
-        //         borderRadius: BorderRadius.circular(100),
-        //         color: AppColors.greyIconBackgroundColor,
-        //       ),
-        //       child: Text(getInitialsFromName(this, name: 'dummy')),
-        //     ).onClick(() {}).paddingRight(commonSafeAreaPadding),
-        //   ],
-        // ),
-
 
             // Profile
         BlocConsumer<DriverProfileCubit, DriverProfileState>(
