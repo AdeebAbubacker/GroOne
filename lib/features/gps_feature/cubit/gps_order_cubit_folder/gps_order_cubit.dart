@@ -3,6 +3,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 // Events
@@ -18,6 +20,12 @@ class GetGpsOrderSummary extends GpsOrderEvent {
   final GpsOrderSummaryRequest request;
 
   GetGpsOrderSummary(this.request);
+}
+
+class InitiateGpsPayment extends GpsOrderEvent {
+  final KavachInitiatePaymentRequest request;
+
+  InitiateGpsPayment(this.request);
 }
 
 // States
@@ -51,6 +59,20 @@ class GpsOrderSummaryError extends GpsOrderState {
   final String message;
 
   GpsOrderSummaryError(this.message);
+}
+
+class GpsPaymentInitiating extends GpsOrderState {}
+
+class GpsPaymentSuccess extends GpsOrderState {
+  final OrderAddedSuccess paymentResponse;
+
+  GpsPaymentSuccess(this.paymentResponse);
+}
+
+class GpsPaymentFailure extends GpsOrderState {
+  final String message;
+
+  GpsPaymentFailure(this.message);
 }
 
 // Cubit
@@ -91,6 +113,23 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
       }
     } catch (e) {
       emit(GpsOrderSummaryError(e.toString()));
+    }
+  }
+
+  Future<void> initiatePayment(KavachInitiatePaymentRequest request) async {
+    emit(GpsPaymentInitiating());
+    try {
+      final result = await _repository.initiatePayment(request);
+      if (result is Success<OrderAddedSuccess>) {
+        emit(GpsPaymentSuccess(result.value));
+      } else if (result is Error<OrderAddedSuccess>) {
+        final errorMessage = result.type is ErrorWithMessage
+            ? (result.type as ErrorWithMessage).message
+            : 'Failed to initiate payment';
+        emit(GpsPaymentFailure(errorMessage));
+      }
+    } catch (e) {
+      emit(GpsPaymentFailure(e.toString()));
     }
   }
 

@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -33,6 +34,7 @@ import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
+import '../../../payments/view/payments_screen.dart';
 import '../../models/gps_document_models.dart';
 import 'gps_order_benefits_and_order_list_screen.dart';
 
@@ -185,7 +187,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   Widget build(BuildContext context) {
     return BlocListener<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
-      listener: (context, state) {
+      listener: (context, state) async {
         // Handle order creation states
         if (state is GpsOrderLoading) {
           showDialog(
@@ -264,6 +266,49 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           ToastMessages.error(
             message: "Failed to place order: ${state.message}",
           );
+        }
+
+        // Handle payment states
+        if (state is GpsPaymentInitiating) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is GpsPaymentSuccess) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          
+          // Navigate to payment screen
+          final result = await Navigator.of(context).push(
+            commonRoute(
+              PaymentsScreen(
+                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                loadId: "gps_order",
+              ),
+            ),
+          );
+
+          // Handle payment completion
+          if (result == true) {
+            AppDialog.show(
+              context,
+              child: SuccessDialogView(
+                message: 'Order placed successfully',
+                onContinue: () {
+                  context.go(AppRouteName.gpsOrderBenefits);
+                },
+              ),
+            );
+          }
+        } else if (state is GpsPaymentFailure) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
         }
 
         // Handle order summary states
@@ -496,7 +541,20 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           15.width,
           AppButton(
             onPressed: () async {
-              await _createGpsOrder();
+              // Get customer information
+              final customerInfo = await getCustomerInfo();
+
+              // Create payment request using the order ID from checkout
+              final paymentRequest = KavachInitiatePaymentRequest(
+                orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}", // This should be the actual order ID from the order creation
+                amount: totalAmount.toInt(),
+                customerName: customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+                customerEmail: "customer@example.com", // This should be fetched from user profile
+                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                customerCity: widget.billingAddress.city,
+              );
+
+              gpsOrderCubit.initiatePayment(paymentRequest);
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -716,27 +774,23 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     ).paddingSymmetric(vertical: 5);
   }
 
-  Widget _buildAddressCard(KavachAddressModel address) {
+   Widget _buildAddressCard(KavachAddressModel address) {
+    // Clean the addr1 to remove trailing comma
+    String cleanAddr1 = address.addr1.trim();
+    if (cleanAddr1.endsWith(',')) {
+      cleanAddr1 = cleanAddr1.substring(0, cleanAddr1.length - 1);
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
-        Text(address.addr1, style: AppTextStyle.textDarkGreyColor14w500),
-        Text(
-          "${address.city}, ${address.state}",
-          style: AppTextStyle.textDarkGreyColor14w500,
-        ),
-        Text(
-          "${address.country}- ${address.pincode}",
-          style: AppTextStyle.textDarkGreyColor14w500,
-        ),
+        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(cleanAddr1,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500),
         Visibility(
-          visible: address.gstin != null && address.gstin!.isNotEmpty,
-          child: Text(
-            "${context.appText.gstKavach} - ${address.gstin}",
-            style: AppTextStyle.textDarkGreyColor14w500,
-          ),
-        ),
+            visible: address.gstin!=null && address.gstin!.isNotEmpty,
+            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),
       ],
     );
   }

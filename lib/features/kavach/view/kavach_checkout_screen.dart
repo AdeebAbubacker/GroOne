@@ -8,7 +8,15 @@ import 'package:gro_one_app/features/kavach/view/kavach_billing_address_list_scr
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
+import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -79,6 +87,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       locator<KavachCheckoutShippingAddressBloc>();
   final kavachCheckoutBillingAddressBloc =
       locator<KavachCheckoutBillingAddressBloc>();
+  final kavachOrderBloc = locator<KavachOrderBloc>();
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
 
   late Map<String, int> _quantities;
   late List<KavachProduct> _products;
@@ -96,6 +107,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   KavachAddressModel? selectedShippingAddress;
   List<KavachAddressModel>? billingAddresses;
   List<KavachAddressModel>? shippingAddresses;
+  
+  // Store previous shipping address for restoration when checkbox is toggled
+  KavachAddressModel? _previousShippingAddress;
 
   void loadVehicleSelection() {
     for (var product in _products) {
@@ -148,6 +162,56 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         RestoreKavachShippingAddress(selectedShippingAddress!, shippingAddresses!),
       );
     }
+  }
+
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "CompanyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "BlueMembershipID": "BLUE123456"
+      };
+    }
+  }
+
+  // Get selected vehicles from all products
+  List<String> _getSelectedVehicles() {
+    final selectedVehicles = <String>[];
+    vehicleControllersPerProduct.forEach((productId, controllers) {
+      for (var controller in controllers) {
+        if (controller.text.trim().isNotEmpty) {
+          selectedVehicles.add(controller.text.trim());
+        }
+      }
+    });
+    return selectedVehicles;
   }
 
 
@@ -269,55 +333,144 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       if (state is KavachCheckoutShippingAddressSelected) {
         selectedShippingAddress = state.selectedAddress;
         shippingAddresses = state.addresses;
+        
+        // Update stored previous address when user manually selects a shipping address
+        if (!shippingSameAsBilling) {
+          _previousShippingAddress = state.selectedAddress;
+        }
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        centreTile: false,
-        title: context.appText.checkout,
-        leading : IconButton(
-            onPressed: () {
-              Navigator.of(context).pop({
-                'quantities': _quantities,
-                'vehicles': vehicleControllersPerProduct.map(
-                      (key, value) => MapEntry(
-                    key,
-                    value.map((controller) => controller.text.trim()).toList(),
+    return BlocListener<KavachOrderBloc, KavachOrderState>(
+      bloc: kavachOrderBloc,
+      listener: (context, state) async {
+        if (state is KavachOrderSubmitting) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is KavachOrderSuccess) {
+          print("KavachOrderSuccess triggered - Order ID: ${state.orderId}");
+          
+          // Dismiss loading dialog first
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          
+          // Wait a bit to ensure dialog is dismissed
+          await Future.delayed(Duration(milliseconds: 100));
+          
+          // Navigate to summary screen with order data
+          if (context.mounted) {
+            print("Navigating to KavachSummaryScreen");
+            Navigator.of(context).push(
+              commonRoute(
+                KavachSummaryScreen(
+                  products: _products,
+                  quantities: _quantities,
+                  availableStocks: _availableStocks,
+                  shippingAddress: _getCurrentShippingAddress(context)!,
+                  billingAddress: _getCurrentBillingAddress(context)!,
+                  selectedVehicleNumbers: _getSelectedVehicles(),
+                  shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+                  shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                  orderReferencedBy: referralCodeController.text.trim(),
+                  selectedVehiclePerProduct: vehicleControllersPerProduct.map(
+                    (key, value) => MapEntry(
+                      key,
+                      value.map((controller) => controller.text.trim()).toList(),
+                    ),
                   ),
+                  orderId: state.orderId, // Pass the order ID to summary screen
                 ),
-                'referralCode': referralCodeController.text.trim(),
-                'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
-                'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
-                'shippingSameAsBilling': shippingSameAsBilling,
-                'selectedBillingAddress': selectedBillingAddress,
-                'selectedShippingAddress': selectedShippingAddress,
-                'billingAddresses': billingAddresses,
-                'shippingAddresses': shippingAddresses,
-            });
-          },
-          icon: SvgPicture.asset(
-            AppIcons.svg.goBack,
-            colorFilter: AppColors.svg(Colors.black),
-          ),
-        ),
+              ),
+            );
+          }
+        } else if (state is KavachOrderFailure) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          ToastMessages.error(message: "Failed to place order: ${state.message}");
+        }
 
-        actions: [
-          AppIconButton(
-            onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+        if (state is KavachPaymentInitiating) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is KavachPaymentSuccess) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          
+          // Navigate to payment screen
+          Navigator.of(context).push(
+            commonRoute(
+              PaymentsScreen(
+                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                loadId: "kavach_order",
+              ),
+            ),
+          );
+        } else if (state is KavachPaymentFailure) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
+        }
+      },
+      child: Scaffold(
+        appBar: CommonAppBar(
+          centreTile: false,
+          title: context.appText.checkout,
+          leading : IconButton(
+              onPressed: () {
+                Navigator.of(context).pop({
+                  'quantities': _quantities,
+                  'vehicles': vehicleControllersPerProduct.map(
+                        (key, value) => MapEntry(
+                      key,
+                      value.map((controller) => controller.text.trim()).toList(),
+                    ),
+                  ),
+                  'referralCode': referralCodeController.text.trim(),
+                  'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+                  'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
+                  'shippingSameAsBilling': shippingSameAsBilling,
+                  'selectedBillingAddress': selectedBillingAddress,
+                  'selectedShippingAddress': selectedShippingAddress,
+                  'billingAddresses': billingAddresses,
+                  'shippingAddresses': shippingAddresses,
+              });
             },
-            icon: AppIcons.svg.filledSupport,
-            iconColor: AppColors.primaryButtonColor,
+            icon: SvgPicture.asset(
+              AppIcons.svg.goBack,
+              colorFilter: AppColors.svg(Colors.black),
+            ),
           ),
-          5.width,
-        ],
+
+          actions: [
+            AppIconButton(
+              onPressed: () {
+                Navigator.push(context, commonRoute(KavachSupportScreen()));
+              },
+              icon: AppIcons.svg.filledSupport,
+              iconColor: AppColors.primaryButtonColor,
+            ),
+            5.width,
+          ],
+        ),
+        bottomNavigationBar: buildPlaceOrderButtonWidget(),
+        body: buildBodyWidget(context),
       ),
-      bottomNavigationBar: buildPlaceOrderButtonWidget(),
-      body: buildBodyWidget(context),
     );
   }
 
@@ -952,20 +1105,11 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   Widget buildPlaceOrderButtonWidget() {
     return AppButton(
       title: context.appText.placeOrder,
-      onPressed: () {
+      onPressed: () async {
         final shippingState =
             context.read<KavachCheckoutShippingAddressBloc>().state;
         final billingState =
             context.read<KavachCheckoutBillingAddressBloc>().state;
-        final selectedVehicles = <String>[];
-
-        vehicleControllersPerProduct.forEach((productId, controllers) {
-          for (var controller in controllers) {
-            if (controller.text.trim().isNotEmpty) {
-              selectedVehicles.add(controller.text.trim());
-            }
-          }
-        });
 
         if (!formKeyCheckout.currentState!.validate()) return;
 
@@ -1013,32 +1157,80 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           return;
         }
 
-        // If all validations pass, proceed to summary screen
+        // If all validations pass, create order
         if (shippingState is KavachCheckoutShippingAddressSelected &&
             billingState is KavachCheckoutBillingAddressSelected) {
-          Navigator.of(context).push(
-            commonRoute(
-              KavachSummaryScreen(
-                products: _products,
-                quantities: _quantities,
-                availableStocks: _availableStocks,
-                shippingAddress: shippingState.selectedAddress,
-                billingAddress: billingState.selectedAddress,
-                selectedVehicleNumbers: selectedVehicles,
-                shippingPersonContactNo:
-                    shippingPersonContactNoController.text.trim(),
-                shippingPersonInCharge:
-                    shippingPersonInChargeController.text.trim(),
-                orderReferencedBy: referralCodeController.text.trim(),
-                selectedVehiclePerProduct: vehicleControllersPerProduct.map(
-                  (key, value) => MapEntry(
-                    key,
-                    value.map((controller) => controller.text.trim()).toList(),
-                  ),
-                ),
-              ),
-            ),
+          
+          // Calculate total amount
+          double totalAmount = 0.0;
+          for (var product in _products) {
+            int qty = _quantities[product.id] ?? 0;
+            double itemTotal = product.price * qty;
+            totalAmount += itemTotal + (itemTotal * (product.gstPerc / 100));
+          }
+
+          // Get customer information
+          final customerInfo = await getCustomerInfo();
+
+          // Determine if referral code is provided and extract employee details
+          String? createdEmpId;
+          int createdEmpUserId = 1234; // Default value
+          
+          if (referralCodeController.text.trim().isNotEmpty) {
+            createdEmpId = referralCodeController.text.trim();
+            createdEmpUserId = 52864; // This should be fetched based on referral code
+          }
+
+          final request = KavachOrderRequest(
+            orderSource: "MOBILE",
+            isOrderPaid: false, // Set to false since payment will be handled separately
+            customerId: await kavachOrderBloc.getUserId() ?? '',
+            createdEmpUserId: createdEmpUserId,
+            createdEmpId: createdEmpId,
+            orderReferencedBy: referralCodeController.text.trim().isNotEmpty ? referralCodeController.text.trim() : "DIRECT",
+            totalPrice: totalAmount,
+            categoryId: 1,
+            orderTypeId: 1,
+            teamId: 1,
+            shippingPersonIncharge: shippingPersonInChargeController.text.trim(),
+            shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+            customerInfo: customerInfo,
+            billingAddress: {
+              "addressLine1": billingState.selectedAddress.addressName,
+              "addressLine2": billingState.selectedAddress.addr1,
+              "city": billingState.selectedAddress.city,
+              "state": billingState.selectedAddress.state,
+              "postalCode": billingState.selectedAddress.pincode,
+              "country": billingState.selectedAddress.country,
+              "gstId": billingState.selectedAddress.gstin ?? "",
+            },
+            shippingAddress: {
+              "addressLine1": shippingState.selectedAddress.addressName,
+              "addressLine2": shippingState.selectedAddress.addr1,
+              "city": shippingState.selectedAddress.city,
+              "state": shippingState.selectedAddress.state,
+              "postalCode": shippingState.selectedAddress.pincode,
+              "country": shippingState.selectedAddress.country,
+              "gstId": shippingState.selectedAddress.gstin ?? ""
+            },
+            orders: _products.map((product) {
+              final quantity = _quantities[product.id]!;
+              final stock = _availableStocks[product.id] ?? 0;
+              final vehicleControllers = vehicleControllersPerProduct[product.id] ?? [];
+
+              return KavachOrderItem(
+                productServiceId: int.parse(product.id),
+                noOfProducts: quantity,
+                unitPrice: product.price,
+                totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
+                stockAvailable: stock,
+                vehicleNumbers: vehicleControllers.map((controller) => KavachOrderVehicle(vehicleNumber: controller.text.trim())).toList(),
+              );
+            }).toList(),
           );
+
+          print("Submitting Kavach order...");
+          kavachOrderBloc.add(KavachSubmitOrder(request));
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);
         }
@@ -1049,15 +1241,16 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   Widget checkBoxSameAsShipping() {
     return AppCheckBox(
       onChanged: (checked) {
-        setState(() {
-          shippingSameAsBilling = checked ?? false;
-        });
-
         final shippingBloc = context.read<KavachCheckoutShippingAddressBloc>();
-        final billingState =
-            context.read<KavachCheckoutBillingAddressBloc>().state;
+        final billingState = context.read<KavachCheckoutBillingAddressBloc>().state;
+        final shippingState = shippingBloc.state;
 
-        if (shippingSameAsBilling) {
+        if (checked == true) {
+          // User is checking the box - store current shipping address and copy billing
+          if (shippingState is KavachCheckoutShippingAddressSelected) {
+            _previousShippingAddress = shippingState.selectedAddress;
+          }
+          
           if (billingState is KavachCheckoutBillingAddressSelected) {
             shippingBloc.add(
               SelectKavachShippingAddress(billingState.selectedAddress),
@@ -1066,11 +1259,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             ToastMessages.alert(
               message: context.appText.pleaseSelectBillingFirst,
             );
+            return; // Don't update state if billing not selected
           }
         } else {
-          shippingBloc.add(ClearKavachShippingAddress());
-          shippingBloc.add(FetchKavachShippingAddresses());
+          // User is unchecking the box - restore previous shipping address if available
+          if (_previousShippingAddress != null) {
+            shippingBloc.add(
+              SelectKavachShippingAddress(_previousShippingAddress!),
+            );
+          } else {
+            // If no previous address, just clear the selection
+            shippingBloc.add(ClearKavachShippingAddress());
+            shippingBloc.add(FetchKavachShippingAddresses());
+          }
         }
+
+        setState(() {
+          shippingSameAsBilling = checked ?? false;
+        });
       },
       value: shippingSameAsBilling,
       title: context.appText.sameAsBillingAddress,
@@ -1157,7 +1363,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                   ),
                 ],
               ),
-              Text(address.fullAddress, style: AppTextStyle.blackColor14w400),
+              Text(address.addr1, style: AppTextStyle.blackColor14w400),
+              Text("${address.city}, ${address.state}", style: AppTextStyle.blackColor14w400),
+              Text("${address.country}- ${address.pincode}", style: AppTextStyle.blackColor14w400),
               Visibility(
                 visible: address.gstin != null && address.gstin!.isNotEmpty,
                 child: Text(
