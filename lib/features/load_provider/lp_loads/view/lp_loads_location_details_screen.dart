@@ -281,17 +281,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     4.height,
                     if (status == LoadStatus.kycPending || status == LoadStatus.matching)
                       Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
-                    if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
-                      Row(
-                        children: [
-                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                          4.width,
-                          Text(
-                            context.appText.advanceUnpaid,
-                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
-                          ),
-                        ],
-                      )
+                    // if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
+                    //   Row(
+                    //     children: [
+                    //       const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                    //       4.width,
+                    //       Text(
+                    //         context.appText.advanceUnpaid,
+                    //         style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                    //       ),
+                    //     ],
+                    //   )
                   ],
                 ),
               ],
