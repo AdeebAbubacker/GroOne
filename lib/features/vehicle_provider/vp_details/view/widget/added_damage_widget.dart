@@ -14,7 +14,8 @@ import '../../../../../utils/app_icons.dart';
 
 class AddedDamageWidget extends StatelessWidget {
   final List<DamageReport>? damageReport;
-  const AddedDamageWidget({super.key,this.damageReport});
+  final bool isFileView;
+  const AddedDamageWidget({super.key,this.damageReport, this.isFileView = true});
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +89,7 @@ class AddedDamageWidget extends StatelessWidget {
                   Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
                   Text(description, style: AppTextStyle.body4GreyColor),
                   5.height,
+                  if(isFileView)
                   InkWell(
                     onTap: (){
                       Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));

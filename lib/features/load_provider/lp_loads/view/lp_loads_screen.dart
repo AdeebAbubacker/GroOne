@@ -311,6 +311,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
+      scrolledUnderElevation: 0,
       leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         // Notification

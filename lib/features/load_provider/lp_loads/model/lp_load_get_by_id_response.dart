@@ -1,3 +1,6 @@
+import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+
 class LoadGetByIdResponse {
   LoadGetByIdResponse({
     required this.message,
@@ -61,7 +64,9 @@ class LoadData {
     required this.consigneeDetails,
     required this.loadDocument,
     required this.trackingDetails,
+    required this.damageShortage,
     required this.timeline,
+    required this.loadApproval,
     required this.customer,
     required this.vpCustomer,
     required this.weight,
@@ -101,8 +106,10 @@ class LoadData {
   final LoadMemoDetails? loadMemoDetails;
   final ConsigneeDetails? consigneeDetails;
   final List<LoadDocumentData> loadDocument;
+  final LoadApproval? loadApproval;
   final TrackingDetails? trackingDetails;
   final List<Timeline> timeline;
+  final List<DamageReport>? damageShortage;
   final Customer? customer;
   final Customer? vpCustomer;
   final Weight? weight;
@@ -142,7 +149,9 @@ class LoadData {
     ConsigneeDetails? consigneeDetails,
     List<LoadDocumentData>? loadDocument,
     TrackingDetails? trackingDetails,
+    LoadApproval? loadApproval,
     List<Timeline>? timeline,
+    List<DamageReport>? damageShortage,
     Customer? customer,
     Customer? vpCustomer,
     Weight? weight,
@@ -183,6 +192,8 @@ class LoadData {
       loadDocument: loadDocument ?? this.loadDocument,
       trackingDetails: trackingDetails ?? this.trackingDetails,
       timeline: timeline ?? this.timeline,
+      loadApproval: loadApproval ?? this.loadApproval,
+      damageShortage: damageShortage ?? this.damageShortage,
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
       weight: weight ?? this.weight,
@@ -226,7 +237,9 @@ class LoadData {
       consigneeDetails: json["consigneeDetails"] == null ? null : ConsigneeDetails.fromJson(json["consigneeDetails"]),
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocumentData>.from(json["loadDocument"]!.map((x) => LoadDocumentData.fromJson(x))),
       trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
+      loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
+      damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),

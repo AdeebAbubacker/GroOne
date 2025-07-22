@@ -63,6 +63,7 @@ class Data {
         required this.loadSettlement,
         required this.podDispatch,
         required this.loadApproval,
+        required this.driverTrackingModel,
         required this.damageShortage,
         required this.customer,
         required this.vpCustomer,
@@ -106,6 +107,7 @@ class Data {
     final dynamic loadSettlement;
     final dynamic podDispatch;
     final LoadApproval? loadApproval;
+    final DriverTrackingModel? driverTrackingModel;
     final List<DamageShortage> damageShortage;
     final Customer? customer;
     final dynamic vpCustomer;
@@ -149,6 +151,7 @@ class Data {
         dynamic? loadSettlement,
         dynamic? podDispatch,
         LoadApproval? loadApproval,
+        DriverTrackingModel? driverTrackingModel,
         List<DamageShortage>? damageShortage,
         Customer? customer,
         dynamic? vpCustomer,
@@ -192,6 +195,7 @@ class Data {
             loadSettlement: loadSettlement ?? this.loadSettlement,
             podDispatch: podDispatch ?? this.podDispatch,
             loadApproval: loadApproval ?? this.loadApproval,
+            driverTrackingModel: driverTrackingModel ?? this.driverTrackingModel,
             damageShortage: damageShortage ?? this.damageShortage,
             customer: customer ?? this.customer,
             vpCustomer: vpCustomer ?? this.vpCustomer,
@@ -238,6 +242,8 @@ class Data {
             loadSettlement: json["loadSettlement"],
             podDispatch: json["podDispatch"],
             loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
+            driverTrackingModel: json["trackingDetails"] == null ? null : DriverTrackingModel.fromJson(json["trackingDetails"]),
+
             damageShortage: json["damageShortage"] == null ? [] : List<DamageShortage>.from(json["damageShortage"]!.map((x) => DamageShortage.fromJson(x))),
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
             vpCustomer: json["vpCustomer"],
@@ -1666,6 +1672,130 @@ class Weight {
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+
+class DriverTrackingModel {
+    DriverTrackingModel({
+        required this.uuid,
+        required this.shipperId,
+        required this.supplierId,
+        required this.tripId,
+        required this.trackMode,
+        required this.tripStatus,
+        required this.currentLat,
+        required this.currentLong,
+        required this.currentAddress,
+        required this.originLat,
+        required this.originLong,
+        required this.destinationLat,
+        required this.destinationLong,
+        required this.intugineId,
+        required this.driverName,
+        required this.driverNumber,
+        required this.truckNumber,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.lastTrackDt,
+        required this.flaggedTrip,
+    });
+
+    final String uuid;
+    final String shipperId;
+    final String supplierId;
+    final String tripId;
+    final String trackMode;
+    final String tripStatus;
+    final double currentLat;
+    final double currentLong;
+    final String currentAddress;
+    final double originLat;
+    final double originLong;
+    final double destinationLat;
+    final double destinationLong;
+    final String intugineId;
+    final String driverName;
+    final String driverNumber;
+    final String truckNumber;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic lastTrackDt;
+    final bool flaggedTrip;
+
+    DriverTrackingModel copyWith({
+        String? uuid,
+        String? shipperId,
+        String? supplierId,
+        String? tripId,
+        String? trackMode,
+        String? tripStatus,
+        double? currentLat,
+        double? currentLong,
+        String? currentAddress,
+        double? originLat,
+        double? originLong,
+        double? destinationLat,
+        double? destinationLong,
+        String? intugineId,
+        String? driverName,
+        String? driverNumber,
+        String? truckNumber,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? lastTrackDt,
+        bool? flaggedTrip,
+    }) {
+        return DriverTrackingModel(
+            uuid: uuid ?? this.uuid,
+            shipperId: shipperId ?? this.shipperId,
+            supplierId: supplierId ?? this.supplierId,
+            tripId: tripId ?? this.tripId,
+            trackMode: trackMode ?? this.trackMode,
+            tripStatus: tripStatus ?? this.tripStatus,
+            currentLat: currentLat ?? this.currentLat,
+            currentLong: currentLong ?? this.currentLong,
+            currentAddress: currentAddress ?? this.currentAddress,
+            originLat: originLat ?? this.originLat,
+            originLong: originLong ?? this.originLong,
+            destinationLat: destinationLat ?? this.destinationLat,
+            destinationLong: destinationLong ?? this.destinationLong,
+            intugineId: intugineId ?? this.intugineId,
+            driverName: driverName ?? this.driverName,
+            driverNumber: driverNumber ?? this.driverNumber,
+            truckNumber: truckNumber ?? this.truckNumber,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            lastTrackDt: lastTrackDt ?? this.lastTrackDt,
+            flaggedTrip: flaggedTrip ?? this.flaggedTrip,
+        );
+    }
+
+    factory DriverTrackingModel.fromJson(Map<String, dynamic> json){ 
+        return DriverTrackingModel(
+            uuid: json["uuid"] ?? "",
+            shipperId: json["shipperId"] ?? "",
+            supplierId: json["supplierId"] ?? "",
+            tripId: json["tripId"] ?? "",
+            trackMode: json["trackMode"] ?? "",
+            tripStatus: json["tripStatus"] ?? "",
+            currentLat: json["currentLat"] ?? 0.0,
+            currentLong: json["currentLong"] ?? 0.0,
+            currentAddress: json["currentAddress"] ?? "",
+            originLat: json["originLat"] ?? 0.0,
+            originLong: json["originLong"] ?? 0.0,
+            destinationLat: json["destinationLat"] ?? 0.0,
+            destinationLong: json["destinationLong"] ?? 0.0,
+            intugineId: json["intugineId"] ?? "",
+            driverName: json["driverName"] ?? "",
+            driverNumber: json["driverNumber"] ?? "",
+            truckNumber: json["truckNumber"] ?? "",
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            lastTrackDt: json["lastTrackDt"],
+            flaggedTrip: json["flaggedTrip"] ?? false,
         );
     }
 
