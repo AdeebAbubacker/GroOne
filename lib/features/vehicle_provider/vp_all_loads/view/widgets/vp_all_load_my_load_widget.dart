@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_progress_bar.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
@@ -23,6 +30,7 @@ import '../../../../../utils/app_text_style.dart';
 import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
 import '../../../../../utils/constant_variables.dart';
+
 
 class VpAllLoadMyLoadWidget extends StatefulWidget {
   const VpAllLoadMyLoadWidget({
@@ -41,6 +49,11 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
 }
 
 class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
+
+  final loadDetailsCubit= locator<LoadDetailsCubit>();
+  final vpHomeBloc= locator<VpHomeBloc>();
+
+
   @override
   Widget build(BuildContext context) {
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
@@ -101,9 +114,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
           if(widget.data.loadStatusDetails != null)...[
-            VpMyLoadUIHelper.simTrackingWidget(context: context, status: widget.data.loadStatusDetails!.loadStatus, driverConsent: 0),
+            VpMyLoadUIHelper.simTrackingWidget(context: context, status: widget.data.loadStatusDetails!.loadStatus, driverConsent:  widget.data.driverConsent??0),
 
-            VpMyLoadUIHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
+            // VpMyLoadUIHelper.progressTrackingWidget(status: widget.data.loadStatusDetails!.loadStatus, progress: 0.3),
           ],
 
 
@@ -192,8 +205,12 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 if(widget.data.loadStatusDetails != null)
                 VpMyLoadHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
+                    enable:  true,
+                    // widget.data.loadStatusValues==LoadStatus.loading && widget.data.driverConsent==1 ,
                     context: context,
-                    onPressed: () {  }
+                    onPressed: () {
+                      _handleOnTap(widget.data.loadStatusDetails,widget.data.loadStatusValues,widget.data.id,widget.data.loadStatus.toInt());
+                    }
                 ).expand(),
 
 
@@ -226,6 +243,22 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
       style: AppTextStyle.blackColor15w500,
       maxLines: 2,
     );
+  }
+
+  _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
+     String? userId = await vpHomeBloc.getUserId();
+      if((loadStatusValues?.index??0)>LoadStatus.assigned.index){
+        loadDetailsCubit.changedLoadStatus(
+            id??"0",
+            customerId: userId??"",
+            loadStatus:(loadStatusId??0)+1
+        );
+        return;
+      }
+
+      Navigator.push(context, commonRoute(VpLoadDetailsScreen(
+        loadId: id,
+      )));
   }
 
 

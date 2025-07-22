@@ -155,7 +155,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
 
           Row(
             children: [
-
               Column(
                 children: [
                   detailWidget(

@@ -76,6 +76,7 @@ class VpRecentLoadData {
     required this.vpMaxRate,
     required this.loadStatusDetails,
     required this.loadStatusValues,
+    required this.driverConsent,
 
   });
 
@@ -124,8 +125,9 @@ class VpRecentLoadData {
   final TruckType? truckType;
   final Customer? customer;
   final CustomerDetail? customerDetail;
+  final int? driverConsent;
 
-  final LoadStatusDetails? loadStatusDetails;
+  final LoadStatusDetailsResponse? loadStatusDetails;
 
   VpRecentLoadData copyWith({
     String? id,
@@ -140,7 +142,7 @@ class VpRecentLoadData {
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
-    LoadStatusDetails? loadStatusDetails,
+    LoadStatusDetailsResponse? loadStatusDetails,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
@@ -172,6 +174,7 @@ class VpRecentLoadData {
 
   }) {
     return VpRecentLoadData(
+      driverConsent:  driverConsent??this.driverConsent,
       loadStatusValues: loadStatusValues??this.loadStatusValues,
       loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
       id: id ?? this.id,
@@ -220,8 +223,9 @@ class VpRecentLoadData {
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+      driverConsent: json['driverConsent'],
       loadStatusValues: getLoadStatus(json['loadStatusId']),
-      loadStatusDetails:LoadStatusDetails.fromJson(json['loadStatusDetails']) ,
+      loadStatusDetails:LoadStatusDetailsResponse.fromJson(json['loadStatusDetails']) ,
       vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
       vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",

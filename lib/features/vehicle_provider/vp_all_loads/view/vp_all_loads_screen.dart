@@ -62,7 +62,7 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
     super.initState();
     vpLoadBloc = locator<VpLoadBloc>();
     _tabController = TabController(
-      length: 4,
+      length: 9,
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
@@ -119,7 +119,6 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
           children: [
             20.height,
 
-            // Tab Bar
             Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
@@ -135,12 +134,17 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                 padding: EdgeInsets.zero,
                 indicator: const BoxDecoration(),
                 splashFactory: NoSplash.splashFactory,
-                tabs: List.generate(4, (index) {
+                tabs: List.generate(9, (index) {
                   final tabLabels = [
                     context.appText.availableLoads,
                     context.appText.myLoads,
                     context.appText.confirmed,
                     context.appText.assigned,
+                    context.appText.loading,
+                    context.appText.inTransit,
+                    context.appText.unloading,
+                    context.appText.podDispatch,
+                    context.appText.completed,
                   ];
                   final isSelected = _tabController.index == index;
                   return Tab(
@@ -199,6 +203,11 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                     },
                     child: buildTab(),
                   ),
+                  buildTab(),
+                  buildTab(),
+                  buildTab(),
+                  buildTab(),
+                  buildTab(),
                   buildTab(),
                   buildTab(),
                   buildTab(),
