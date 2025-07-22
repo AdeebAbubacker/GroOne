@@ -93,11 +93,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     lpHomeBloc.getUserId();
     await profileCubit.fetchUserId();
     profileCubit.fetchCompanyTypeId();
-    print("Vp Home ${profileCubit.userId}");
-    if(profileCubit.userId != null && profileCubit.userId!.isNotEmpty){
-      profileCubit.fetchProfileDetail(instance: this);
-    }
-
+    profileCubit.fetchProfileDetail(instance: this);
   });
 
 
@@ -123,10 +119,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       appBar: buildAppBarWidget(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
-          await profileCubit.fetchProfileDetail();
-
+          initFunction();
         },
         child: SafeArea(
           child: Column(
@@ -229,9 +222,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        if(profileCubit.userId != null && profileCubit.userId!.isNotEmpty){
-                          profileCubit.fetchProfileDetail(instance: this);
-                        }
+                        profileCubit.fetchProfileDetail(instance: this);
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
