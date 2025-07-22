@@ -38,11 +38,13 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
     required this.data,
     required this.onClickAssignDriver,
      this.showButton=true,
+     this.onBack,
   });
 
   final VpRecentLoadData data;
   final bool? showButton;
   final void Function()? onClickAssignDriver;
+  final void Function()? onBack;
 
   @override
   State<VpAllLoadMyLoadWidget> createState() => _VpAllLoadMyLoadWidgetState();
@@ -100,7 +102,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                     ],
                   ),
                   if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
-                    VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context)
+                    VpMyLoadUIHelper.loadStatusWidget(
+
+                        widget.data.loadStatusDetails!.loadStatus, context)
                   // LoadStatusLabel(
                   //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
                   //     loadStatus: widget.data.loadStatusValues,
@@ -179,7 +183,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           10.height,
 
 
-          //if(widget.showButton??true)
+          if(widget.data.loadUnHold==false)
           Row(
             children: [
 
@@ -256,7 +260,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
      String? userId = await vpHomeBloc.getUserId();
-      if((loadStatusValues?.index??0)>LoadStatus.assigned.index){
+      if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed){
         loadDetailsCubit.changedLoadStatus(
             id??"0",
             customerId: userId??"",
@@ -265,9 +269,11 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
         return;
       }
 
-      Navigator.push(context, commonRoute(VpLoadDetailsScreen(
+     await Navigator.push(context, commonRoute(VpLoadDetailsScreen(
         loadId: id,
-      )));
+      ))).then((value) {
+        widget.onBack!();
+     },);
   }
 
 

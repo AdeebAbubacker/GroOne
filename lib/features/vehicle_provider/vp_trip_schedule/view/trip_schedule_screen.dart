@@ -99,18 +99,14 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           bloc: vpHomeScreenBloc,
           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
-              if(vehicleDetail.isEmpty){
-                setState(() {
-                  vehicleDetail = state.vehicleListResponse.data;
-                });
-              }
+              setState(() {
+                vehicleDetail = state.vehicleListResponse.data;
+              });
             }
             if (state is VpDriverListSuccess) {
-             if(driverDetails.isEmpty){
               setState(() {
                 driverDetails = state.driverListResponse.data;
               });
-            }
             }
           },
           child: BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
