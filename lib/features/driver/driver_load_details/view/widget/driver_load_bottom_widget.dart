@@ -199,7 +199,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   docDateTime: doc.createdAt!,
                                   docUrl: doc.documentDetails?.originalFilename ?? '',
                                   downloadKey: doc.loadDocumentId ?? '',
-                                  docId: doc.documentId ??'',
+                                  docId: doc.documentId ?? '',
                                 ),
                                 10.height,
                               ],

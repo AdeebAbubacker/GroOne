@@ -96,7 +96,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
-
+ WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
  _tabController!.addListener(() {
   if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
     setState(() {
@@ -105,12 +105,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     });
   }
 });
-
-
-
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _tabScrollController.jumpTo(50);
-  });
 
   _loadDataByTab(index: widget.initialTabIndex);
 });
@@ -257,30 +251,34 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     return Container(
       height: 40,
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
-      child: TabBar(
-        controller: _tabController!,
-        isScrollable: true,
-        physics: const ClampingScrollPhysics(),
-        indicator: const BoxDecoration(),
-        dividerHeight: 0,
-       tabs: List.generate(tabLabels.length, (index) {
-        final isSelected = selectedTabIndex == index;
-        return Tab(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: commonContainerDecoration(
-              color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              tabLabels[index],
-              style: AppTextStyle.body3.copyWith(
-                color: isSelected ? AppColors.white : AppColors.black,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: _tabScrollController,
+        child: TabBar(
+          controller: _tabController!,
+          isScrollable: true,
+          physics: const ClampingScrollPhysics(),
+          indicator: const BoxDecoration(),
+          dividerHeight: 0,
+         tabs: List.generate(tabLabels.length, (index) {
+          final isSelected = selectedTabIndex == index;
+          return Tab(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: commonContainerDecoration(
+                color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                tabLabels[index],
+                style: AppTextStyle.body3.copyWith(
+                  color: isSelected ? AppColors.white : AppColors.black,
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+        ),
       ),
     ).paddingOnly(top: 15, right: 15, left: 15);
   }
