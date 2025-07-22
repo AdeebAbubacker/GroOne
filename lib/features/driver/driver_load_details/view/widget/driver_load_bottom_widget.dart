@@ -197,9 +197,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 TripDocuments(
                                   docName: doc.documentDetails?.title ?? '',
                                   docDateTime: doc.createdAt!,
-                                  docUrl: doc.documentDetails?.filePath ?? '',
-                                  downloadKey: doc.loadDocumentId,
-                                  docId: doc.documentId,
+                                  docUrl: doc.documentDetails?.originalFilename ?? '',
+                                  downloadKey: doc.loadDocumentId ?? '',
+                                  docId: doc.documentId ??'',
                                 ),
                                 10.height,
                               ],
