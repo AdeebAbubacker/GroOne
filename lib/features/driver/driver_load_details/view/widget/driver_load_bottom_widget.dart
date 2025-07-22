@@ -336,23 +336,48 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 loadId: widget.loadItem.data?.loadId ?? '',
                               );
                             }
-                            if (loadStatusState is Error) {
-                              ToastMessages.success(
-                                message: "Failed to update load status",
-                              );
-                              widget.cubit.getLpLoadsById(
-                                loadId: widget.loadItem.data?.loadId ?? '',
-                              );
-                            }
-                          },
-                          child: DriverLoadHelper.loadStatusButtonWidget(
-                            statusId: widget.loadItem.data?.loadStatusId ?? 4,
-                            onPressed: () {
-                              
-                            if (widget.loadItem.data?.driverConsent == 0) {
-                              ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                              return;
-                            }
+                                if (loadStatusState is Error) {
+                                  ToastMessages.success(
+                                    message: "Failed to update load status",
+                                  );
+                                  widget.cubit.getLpLoadsById(
+                                    loadId: widget.loadItem.data?.loadId ?? '',
+                                  );
+                                }
+                              },
+                              child: DriverLoadHelper.loadStatusButtonWidget(
+                                statusId: widget.loadItem.data?.loadStatusId ?? 4,
+                                onPressed: () {
+
+
+                                if (widget.loadItem.data?.driverConsent == 0) {
+                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                                  return;
+                                }
+                                if (widget.loadItem.data?.loadStatusId == 4 && widget.loadItem.data?.driverConsent == 0) {
+                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                                  return;
+                                }
+                                final List<List<LoadDocument>> nestedDocuments = widget.loadItem.data?.loadDocument ?? [];
+                                final allDocuments = nestedDocuments.expand((docList) => docList).toList();
+                                bool hasLorryReceipt = allDocuments.any(
+                                              (doc) => doc.documentDetails?.documentType == 'LORRY_RECEIPT',
+                                            );
+                                            bool hasEWayBill = allDocuments.any(
+                                              (doc) => doc.documentDetails?.documentType == 'E_WAY_BILL',
+                                            );
+                                            bool hasMaterialInvoice = allDocuments.any(
+                                              (doc) => doc.documentDetails?.documentType == 'MATERIAL_INVOICE',
+                                            );
+
+                                            // Add your condition to validate all documents are uploaded
+                                            if (widget.loadItem.data?.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
+                                              ToastMessages.error(
+                                                message: "Please upload all required Trip Documents: Lorry Receipt, E-Way Bill, and Material Invoice.",
+                                              );
+                                              return;
+                                            }        
+                            
                               final customerId =
                                   widget.loadItem.data?.customer?.customerId ??
                                   '';
