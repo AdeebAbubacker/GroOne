@@ -18,7 +18,7 @@ class VpMyLoadUIHelper {
 
   // Showing Status View
   static Widget loadStatusWidget(String status, BuildContext context) {
-    debugPrint("Status : $status");
+
     Widget ui({required String text ,required Color textColor, required Color backgroundColor}) {
       return Container(
         decoration: commonContainerDecoration(
@@ -47,6 +47,8 @@ class VpMyLoadUIHelper {
         return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
       case "Completed":
         return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
+      // case "loadOnHold":
+      //   return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
       default:
         return Container();
     }

@@ -79,6 +79,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
       children: [
 

@@ -403,6 +403,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           'selectedShippingAddress': selectedShippingAddress,
                           'billingAddresses': billingAddresses,
                           'shippingAddresses': shippingAddresses,
+                          'clearSearch': true, // Add flag to clear search
                         });
                         syncVehicleControllersWithProducts();
                         loadVehicleSelection();
@@ -767,11 +768,30 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           hintText: context.appText.personInCharge,
                           isMandatoryMark: true,
                         ),
-                        validator:
-                            (value) => Validator.fieldRequired(
-                              value,
-                              fieldName: context.appText.personInCharge,
-                            ),
+                        maxLength: 50,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                        ],
+                        validator: (value) {
+                          // First check if field is required
+                          final requiredValidation = Validator.fieldRequired(
+                            value,
+                            fieldName: context.appText.personInCharge,
+                          );
+                          if (requiredValidation != null) {
+                            return requiredValidation;
+                          }
+                          
+                          // Check if contains only alphabets and spaces
+                          if (value != null && value.isNotEmpty) {
+                            final alphabetsOnly = RegExp(r'^[a-zA-Z\s]+$');
+                            if (!alphabetsOnly.hasMatch(value)) {
+                              return '${context.appText.personInCharge} should contain only alphabets';
+                            }
+                          }
+                          
+                          return null;
+                        },
                       ),
                       10.height,
                       AppTextField(

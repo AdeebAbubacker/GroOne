@@ -95,7 +95,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     return [
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
       VpAllLoadsScreen(initialTabIndex: vpAllLoadsInitialTabIndex),
-       Center(child: Text(context.appText.support)),
+      Center(child: Text(context.appText.support)),
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }
@@ -119,8 +119,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       },
       builder: (context, state) {
         int? role = profileCubit.userRole;
-
-        debugPrint("Role : $role");
 
         if ((role != null && role == 3)) {
           _pages.add(VpHomeScreen(onViewAllOrSeeMore: changeTab));

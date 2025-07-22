@@ -533,7 +533,6 @@ class GpsOrderVehicle {
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
-    "deviceUniqueNumber": "DEV123456789"
   };
 }
 
@@ -621,6 +620,7 @@ class GpsOrderRequest {
   final bool isOrderPaid;
   final String customerId;
   final int createdEmpUserId;
+  final String? createdEmpId;
   final String orderReferencedBy;
   final double totalPrice;
   final int categoryId;
@@ -636,6 +636,7 @@ class GpsOrderRequest {
     required this.isOrderPaid,
     required this.customerId,
     required this.createdEmpUserId,
+    this.createdEmpId,
     required this.orderReferencedBy,
     required this.totalPrice,
     required this.categoryId,
@@ -647,27 +648,38 @@ class GpsOrderRequest {
     required this.orders,
   });
 
-  Map<String, dynamic> toJson() => {
-    "orderSource": orderSource,
-    "isOrderPaid": isOrderPaid,
-    "customerId": customerId,
-    "createdEmpUserId": createdEmpUserId,
-    "orderReferencedBy": orderReferencedBy,
-    "totalPrice": totalPrice,
-    "categoryId": categoryId,
-    "shippingPersonIncharge": shippingPersonIncharge,
-    "shippingPersonContactNo": shippingPersonContactNo,
-    "customerInfo": customerInfo.toJson(),
-    "billingAddress": billingAddress.toJson(),
-    "shippingAddress": shippingAddress.toJson(),
-    "orders": orders.map((o) => o.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() {
+    final json = {
+      "orderSource": orderSource,
+      "isOrderPaid": isOrderPaid,
+      "customerId": customerId,
+      "createdEmpUserId": createdEmpUserId,
+      "orderReferencedBy": orderReferencedBy,
+      "totalPrice": totalPrice,
+      "categoryId": categoryId,
+      "shippingPersonIncharge": shippingPersonIncharge,
+      "shippingPersonContactNo": shippingPersonContactNo,
+      "customerInfo": customerInfo.toJson(),
+      "billingAddress": billingAddress.toJson(),
+      "shippingAddress": shippingAddress.toJson(),
+      "orders": orders.map((o) => o.toJson()).toList(),
+    };
+    
+    // Add createdEmpId only if it's not null
+    if (createdEmpId != null) {
+      json["createdEmpId"] = createdEmpId!;
+    }
+    
+    return json;
+  }
 
   @override
   String toString() {
-    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
+    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, createdEmpId: $createdEmpId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
   }
 }
+
+
 
 // ==================== GPS Order Summary API ====================
 

@@ -661,4 +661,5 @@ class GpsOrderApiService {
       return Error(DeserializationError());
     }
   }
+
 }

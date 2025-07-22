@@ -26,9 +26,15 @@ import '../bloc/kavach_order_bloc/kavach_order_event.dart';
 import '../bloc/kavach_order_bloc/kavach_order_state.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import '../helper/kavach_helper.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_product_model.dart';
+import '../../profile/cubit/profile_cubit.dart';
+import '../../login/repository/user_information_repository.dart';
 import 'kavach_support_screen.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
@@ -64,6 +70,8 @@ class KavachSummaryScreen extends StatefulWidget {
 
 class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   final kavachOrderBloc = locator<KavachOrderBloc>();
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
 
   double get totalPrice {
     double total = 0.0;
@@ -88,6 +96,43 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return totalPrice + totalGst;
   }
 
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "CompanyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "BlueMembershipID": "BLUE123456"
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
@@ -110,6 +155,20 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             subheading: ''
           );
           Future.delayed(Duration(seconds: 3),() {
+            // Clear address blocs before navigating back
+            try {
+              // Clear billing address bloc
+              final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+              billingBloc.add(ClearKavachBillingAddress());
+              
+              // Clear shipping address bloc
+              final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+              shippingBloc.add(ClearKavachShippingAddress());
+            } catch (e) {
+              // Handle any errors if blocs are not available
+              print('Error clearing address blocs: $e');
+            }
+            
             Navigator.of(context).popUntil((route) {
               if (route.settings.name == 'KavachOrderListScreen') {
                 if (route.navigator != null && route.navigator!.context.mounted) {
@@ -161,7 +220,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.appText.vehicleDetails,
+                    widget.selectedVehicleNumbers.length == 1 
+                        ? "Vehicle Detail" 
+                        : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
                   SizedBox(height: 5),
@@ -173,7 +234,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               ),
             ),
 
-            15.height,
+            //15.height,
             Container(
               padding: EdgeInsets.all(10),
               decoration: commonContainerDecoration(),
@@ -181,13 +242,14 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
-                  10.height,
-                  _buildAddressCard(widget.shippingAddress),
-                  15.height,
+                 
                   Text(context.appText.billingAddress, style: AppTextStyle.h5,),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
+                  15.height,
+                    Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
+                  10.height,
+                  _buildAddressCard(widget.shippingAddress),
                 ],
               ),
             ),
@@ -205,7 +267,12 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+          Text(
+            widget.products.length == 1 
+                ? "Product Detail" 
+                : context.appText.paymentDetails, 
+            style: AppTextStyle.h4
+          ),
           10.height,
           ...widget.products.map((product) {
             final qty = widget.quantities[product.id] ?? 0;
@@ -287,21 +354,33 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           15.width,
           AppButton(
             onPressed: () async {
+              // Determine if referral code is provided and extract employee details
+              String? createdEmpId;
+              int createdEmpUserId = 1234; // Default value
+              
+              if (widget.orderReferencedBy.isNotEmpty) {
+                // If referral code is provided, use it as createdEmpId
+                createdEmpId = widget.orderReferencedBy;
+                // For now, using a default user ID. In a real implementation, 
+                // you would fetch the employee details from the referral code
+                createdEmpUserId = 52864; // This should be fetched based on referral code
+              }
+
+              // Get real customer information
+              final customerInfo = await getCustomerInfo();
+
               final request = KavachOrderRequest(
                 orderSource: "MOBILE",
-                isOrderPaid: false,
+                isOrderPaid: true, // Always true as per documentation
                 customerId: await kavachOrderBloc.getUserId()??'',
+                createdEmpUserId: createdEmpUserId,
+                createdEmpId: createdEmpId, // Will be null if no referral code
+                orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
                 totalPrice: totalAmount,
-                categoryId: 1,
+                categoryId: 1, // Always 1 for Products
                 shippingPersonIncharge: widget.shippingPersonInCharge,
                 shippingPersonContactNo: widget.shippingPersonContactNo,
-                customerInfo: {
-                  "CompanyName": "ABC Logistics Pvt Ltd",
-                  "contactNumber": "9876543210",
-                  "BlueMembershipID": "BLUE123456"
-                },
-                createdEmpUserId: 1234,
-                orderReferencedBy: widget.orderReferencedBy,
+                customerInfo: customerInfo,
                 billingAddress: {
                   "addressLine1": widget.billingAddress.addressName,
                   "addressLine2": widget.billingAddress.addr1,
@@ -320,19 +399,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   "country": widget.shippingAddress.country,
                   "gstId": widget.shippingAddress.gstin??""
                 },
-                // orders: widget.products.map((product) {
-                //   final quantity = widget.quantities[product.id]!;
-                //   final stock = widget.availableStocks[product.id] ?? 0;
-                //
-                //   return KavachOrderItem(
-                //     productServiceId: int.parse(product.id),
-                //     noOfProducts: quantity,
-                //     unitPrice: product.price,
-                //     totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
-                //     stockAvailable: stock,
-                //     vehicleNumbers: widget.selectedVehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
-                //   );
-                // }).toList(),
                 orders: widget.products.map((product) {
                   final quantity = widget.quantities[product.id]!;
                   final stock = widget.availableStocks[product.id] ?? 0;
@@ -347,7 +413,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
                   );
                 }).toList(),
-
               );
 
               if (kDebugMode) {

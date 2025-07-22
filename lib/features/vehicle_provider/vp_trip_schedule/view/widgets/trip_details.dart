@@ -15,12 +15,11 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/validator.dart';
-import 'package:intl/number_symbols_data.dart';
+
 
 import '../../../../../utils/app_dropdown.dart' show AppDropdown;
 import '../../../../../utils/common_widgets.dart' show commonInputDecoration;
-import '../../../../../utils/constant_variables.dart';
+
 
 class TripDetails extends StatelessWidget {
   const TripDetails({super.key});

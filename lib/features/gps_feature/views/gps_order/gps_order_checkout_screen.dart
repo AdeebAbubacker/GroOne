@@ -142,15 +142,15 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
 
     // Initialize address cubits with state preservation
 
-    // Only fetch billing addresses if not already loaded or selected
-    if (gpsBillingAddressCubit.state is! GpsBillingAddressLoaded &&
+    // Only fetch billing addresses if not already available or selected
+    if (gpsBillingAddressCubit.state is! GpsBillingAddressAvailable &&
         gpsBillingAddressCubit.state is! GpsBillingAddressSelected &&
         gpsBillingAddressCubit.state is! GpsBillingAddressLoading) {
       gpsBillingAddressCubit.fetchGpsBillingAddresses();
     }
 
-    // Only fetch shipping addresses if not already loaded or selected
-    if (gpsShippingAddressCubit.state is! GpsShippingAddressLoaded &&
+    // Only fetch shipping addresses if not already available or selected
+    if (gpsShippingAddressCubit.state is! GpsShippingAddressAvailable &&
         gpsShippingAddressCubit.state is! GpsShippingAddressSelected &&
         gpsShippingAddressCubit.state is! GpsShippingAddressLoading) {
       gpsShippingAddressCubit.fetchGpsShippingAddresses();
@@ -172,13 +172,11 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
 
   /// Handle navigation back from address screens
   void _handleAddressScreenReturn() {
-    // Add a small delay to ensure the address was added
-    Future.delayed(Duration(milliseconds: 300), () {
-      if (mounted) {
-        gpsBillingAddressCubit.fetchGpsBillingAddresses();
-        gpsShippingAddressCubit.fetchGpsShippingAddresses();
-      }
-    });
+    // Refresh addresses immediately when returning from address screens
+    if (mounted) {
+      gpsBillingAddressCubit.fetchGpsBillingAddresses();
+      gpsShippingAddressCubit.fetchGpsShippingAddresses();
+    }
   }
 
   @override
@@ -489,7 +487,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       billingAddressCubit: gpsBillingAddressCubit,
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    // Refresh addresses after returning from billing address screen
+                                    _handleAddressScreenReturn();
+                                  });
                                 },
                                 title: context.appText.billingAddress,
                               );
@@ -506,16 +507,51 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     color: AppColors.chevronGreyColor,
                                   ),
                                 ),
-                                onTextFieldTap: () async {
-                                  await commonBottomSheetWithBGBlur(
+                                onTextFieldTap: () {
+                                  commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen: GpsBillingAddressListScreen(
                                       billingAddressCubit: gpsBillingAddressCubit,
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
-                                  );
-                                  // Refresh addresses after returning from billing address screen
-                                  _handleAddressScreenReturn();
+                                  ).then((result) {
+                                    // Handle the returned address
+                                    if (result != null && result is KavachAddressModel) {
+                                      // The address was selected and returned
+                                      gpsBillingAddressCubit.selectGpsBillingAddress(result);
+                                    }
+                                    // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                  });
+                                },
+                              );
+                            }
+                            if (state is GpsBillingAddressAvailable) {
+                              return AppTextField(
+                                readOnly: true,
+                                autofocus: false,
+                                labelText: context.appText.billingAddress,
+                                mandatoryStar: true,
+                                decoration: kavachInputDecoration(
+                                  suffixIcon: Icon(
+                                    Icons.chevron_right,
+                                    color: AppColors.chevronGreyColor,
+                                  ),
+                                ),
+                                onTextFieldTap: () {
+                                  commonBottomSheetWithBGBlur(
+                                    context: context,
+                                    screen: GpsBillingAddressListScreen(
+                                      billingAddressCubit: gpsBillingAddressCubit,
+                                      selectedShippingAddress: _getCurrentShippingAddress(),
+                                    ),
+                                  ).then((result) {
+                                    // Handle the returned address
+                                    if (result != null && result is KavachAddressModel) {
+                                      // The address was selected and returned
+                                      gpsBillingAddressCubit.selectGpsBillingAddress(result);
+                                    }
+                                    // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                  });
                                 },
                               );
                             }
@@ -569,7 +605,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                           billingAddressCubit: gpsBillingAddressCubit,
                                           selectedShippingAddress: _getCurrentShippingAddress(),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        // Handle the returned address
+                                        if (result != null && result is KavachAddressModel) {
+                                          // The address was selected and returned
+                                          gpsBillingAddressCubit.selectGpsBillingAddress(result);
+                                        }
+                                        // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                      });
                                     },
                                   ),
                                 ],
@@ -599,7 +642,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                         billingAddressCubit: gpsBillingAddressCubit,
                                         selectedShippingAddress: _getCurrentShippingAddress(),
                                       ),
-                                    );
+                                    ).then((result) {
+                                      // Handle the returned address
+                                      if (result != null && result is KavachAddressModel) {
+                                        // The address was selected and returned
+                                        gpsBillingAddressCubit.selectGpsBillingAddress(result);
+                                      }
+                                      // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                    });
                                   },
                                 ),
                               ],
@@ -639,15 +689,22 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     visible: shippingSameAsBilling == false,
                                     child: addressWidget(
                                       address: address,
-                                      onChangeTap: () {
-                                        commonBottomSheetWithBGBlur(
-                                          context: context,
-                                          screen: GpsShippingAddressListScreen(
-                                            shippingAddressCubit: gpsShippingAddressCubit,
-                                            selectedBillingAddress: _getCurrentBillingAddress(),
-                                          ),
-                                        );
-                                      },
+                                                                          onChangeTap: () {
+                                      commonBottomSheetWithBGBlur(
+                                        context: context,
+                                        screen: GpsShippingAddressListScreen(
+                                          shippingAddressCubit: gpsShippingAddressCubit,
+                                          selectedBillingAddress: _getCurrentBillingAddress(),
+                                        ),
+                                      ).then((result) {
+                                        // Handle the returned address
+                                        if (result != null && result is KavachAddressModel) {
+                                          // The address was selected and returned
+                                          gpsShippingAddressCubit.selectGpsShippingAddress(result);
+                                        }
+                                        // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                      });
+                                    },
                                       title: context.appText.shippingAddress,
                                     ),
                                   ),
@@ -693,7 +750,65 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                             shippingAddressCubit: gpsShippingAddressCubit,
                                             selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
-                                        );
+                                        ).then((result) {
+                                          // Handle the returned address
+                                          if (result != null && result is KavachAddressModel) {
+                                            // The address was selected and returned
+                                            gpsShippingAddressCubit.selectGpsShippingAddress(result);
+                                          }
+                                          // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  checkBoxSameAsShipping(),
+                                ],
+                              );
+                            }
+                            if (state is GpsShippingAddressAvailable) {
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        context.appText.shippingAddress,
+                                        style: AppTextStyle.textFiled,
+                                      ).paddingLeft(3),
+                                      Text(
+                                        " *",
+                                        style: AppTextStyle.textFiled.copyWith(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  5.height,
+                                  Visibility(
+                                    visible: shippingSameAsBilling == false,
+                                    child: AppTextField(
+                                      readOnly: true,
+                                      autofocus: false,
+                                      decoration: kavachInputDecoration(
+                                        suffixIcon: Icon(
+                                          Icons.chevron_right,
+                                          color: AppColors.chevronGreyColor,
+                                        ),
+                                      ),
+                                      onTextFieldTap: () {
+                                        commonBottomSheetWithBGBlur(
+                                          context: context,
+                                          screen: GpsShippingAddressListScreen(
+                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                            selectedBillingAddress: _getCurrentBillingAddress(),
+                                          ),
+                                        ).then((result) {
+                                          // Handle the returned address
+                                          if (result != null && result is KavachAddressModel) {
+                                            // The address was selected and returned
+                                            gpsShippingAddressCubit.selectGpsShippingAddress(result);
+                                          }
+                                          // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                        });
                                       },
                                     ),
                                   ),
@@ -777,7 +892,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                             shippingAddressCubit: gpsShippingAddressCubit,
                                             selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
-                                        );
+                                        ).then((result) {
+                                          // Handle the returned address
+                                          if (result != null && result is KavachAddressModel) {
+                                            // The address was selected and returned
+                                            gpsShippingAddressCubit.selectGpsShippingAddress(result);
+                                          }
+                                          // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                        });
                                       },
                                     ),
                                   ),
@@ -823,7 +945,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                           shippingAddressCubit: gpsShippingAddressCubit,
                                           selectedBillingAddress: _getCurrentBillingAddress(),
                                         ),
-                                      );
+                                      ).then((result) {
+                                        // Handle the returned address
+                                        if (result != null && result is KavachAddressModel) {
+                                          // The address was selected and returned
+                                          gpsShippingAddressCubit.selectGpsShippingAddress(result);
+                                        }
+                                        // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                      });
                                     },
                                   ),
                                 ),
@@ -837,7 +966,30 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                       AppTextField(
                         controller: shippingPersonInChargeController,
                         decoration: kavachInputDecoration(hintText: context.appText.personInCharge,isMandatoryMark: true),
-                        validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.personInCharge),
+                        maxLength: 50,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                        ],
+                        validator: (value) {
+                          // First check if field is required
+                          final requiredValidation = Validator.fieldRequired(
+                            value,
+                            fieldName: context.appText.personInCharge,
+                          );
+                          if (requiredValidation != null) {
+                            return requiredValidation;
+                          }
+                          
+                          // Check if contains only alphabets and spaces
+                          if (value != null && value.isNotEmpty) {
+                            final alphabetsOnly = RegExp(r'^[a-zA-Z\s]+$');
+                            if (!alphabetsOnly.hasMatch(value)) {
+                              return '${context.appText.personInCharge} should contain only alphabets';
+                            }
+                          }
+                          
+                          return null;
+                        },
                       ),
                       10.height,
                       AppTextField(

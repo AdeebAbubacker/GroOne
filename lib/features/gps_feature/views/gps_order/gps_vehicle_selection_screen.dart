@@ -312,6 +312,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
   final licenseNumberController = TextEditingController();
   final capacityController = TextEditingController();
   bool isVerified = false;
+  bool showValidationErrors = false;
 
   List<Map<String, dynamic>> vehicleDocList = [];
   final MultiSelectController<String> acceptableCommoditiesController = MultiSelectController<String>();
@@ -394,6 +395,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       mandatoryStar: true,
                       maxLength: 15,
                       labelText: context.appText.truckNumber,
+                      textCapitalization: TextCapitalization.characters,
                       validator: (value) => Validator.validateVehicleNumber(
                         value,
                         fieldName: context.appText.truckNumber,
@@ -443,6 +445,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   mandatoryStar: true,
                   maxLength: 20,
                   labelText: context.appText.truckMakeAndModel,
+                  textCapitalization: TextCapitalization.characters,
                   validator: (value) => Validator.noSpecialCharacters(
                     value,
                     fieldName: context.appText.truckMakeAndModel,
@@ -456,6 +459,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
+                  textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')), // Allow letters, digits, and hyphens only
                   ],
@@ -603,6 +607,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         validator: (value) => value == null || value.isEmpty
                             ? context.appText.pleaseSelectCommodity
                             : null,
+                        showValidationError: showValidationErrors,
                       );
                     } else if (state.commodities.status == Status.ERROR) {
                       return Text('Error: ${state.commodities.errorType}');
@@ -636,6 +641,9 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                     20.width,
                     AppButton(
                       onPressed: () async {
+                        setState(() {
+                          showValidationErrors = true;
+                        });
                         if (!formKey.currentState!.validate()) return;
                         if (vehicleDocList.isEmpty) {
                           ToastMessages.alert(
