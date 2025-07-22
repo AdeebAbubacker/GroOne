@@ -77,6 +77,7 @@ class VpRecentLoadData {
     required this.loadStatusDetails,
     required this.loadStatusValues,
     required this.driverConsent,
+    required this.loadUnHold,
 
   });
 
@@ -126,6 +127,7 @@ class VpRecentLoadData {
   final Customer? customer;
   final CustomerDetail? customerDetail;
   final int? driverConsent;
+  final bool? loadUnHold;
 
   final LoadStatusDetailsResponse? loadStatusDetails;
 
@@ -170,10 +172,12 @@ class VpRecentLoadData {
      String? vpRate,
      String? vpMaxRate,
     LoadStatus? loadStatusValues,
+    bool? loadUnHold
 
 
   }) {
     return VpRecentLoadData(
+      loadUnHold: loadUnHold ?? this.loadUnHold,
       driverConsent:  driverConsent??this.driverConsent,
       loadStatusValues: loadStatusValues??this.loadStatusValues,
       loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
@@ -223,6 +227,7 @@ class VpRecentLoadData {
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+      loadUnHold: json['loadOnhold'],
       driverConsent: json['driverConsent'],
       loadStatusValues: getLoadStatus(json['loadStatusId']),
       loadStatusDetails:LoadStatusDetailsResponse.fromJson(json['loadStatusDetails']) ,
