@@ -110,7 +110,7 @@ class Data {
     final dynamic podDispatch;
     final LoadApproval? loadApproval;
     final DriverTrackingModel? driverTrackingModel;
-    final List<DamageShortage> damageShortage;
+    final List<DamageReport> damageShortage;
     final Customer? customer;
     final dynamic vpCustomer;
     final Weight? weight;
@@ -154,7 +154,7 @@ class Data {
         dynamic? podDispatch,
         LoadApproval? loadApproval,
         DriverTrackingModel? driverTrackingModel,
-        List<DamageShortage>? damageShortage,
+        List<DamageReport>? damageShortage,
         Customer? customer,
         dynamic? vpCustomer,
         Weight? weight,
@@ -246,7 +246,7 @@ class Data {
             loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
             driverTrackingModel: json["trackingDetails"] == null ? null : DriverTrackingModel.fromJson(json["trackingDetails"]),
 
-            damageShortage: json["damageShortage"] == null ? [] : List<DamageShortage>.from(json["damageShortage"]!.map((x) => DamageShortage.fromJson(x))),
+            damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
             vpCustomer: json["vpCustomer"],
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
@@ -800,78 +800,80 @@ class KycDocs {
 
 }
 
-class DamageShortage {
-    DamageShortage({
-        required this.damageId,
-        required this.vehicleId,
-        required this.loadId,
-        required this.itemName,
-        required this.quantity,
-        required this.status,
-        required this.image,
-        required this.description,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
-    });
+// class DamageShortage {
+//     DamageShortage({
+//         required this.damageId,
+//         required this.vehicleId,
+//         required this.loadId,
+//         required this.itemName,
+//         required this.quantity,
+//         required this.status,
+//         required this.image,
+//         required this.description,
+//         required this.createdAt,
+//         required this.updatedAt,
+//         required this.deletedAt,
+//     });
 
-    final String damageId;
-    final String vehicleId;
-    final String loadId;
-    final String itemName;
-    final int quantity;
-    final int status;
-    final List<String> image;
-    final String description;
-    final DateTime? createdAt;
-    final dynamic updatedAt;
-    final dynamic deletedAt;
+//     final String damageId;
+//     final String vehicleId;
+//     final String loadId;
+//     final String itemName;
+//     final int quantity;
+//     final int status;
+//     final List<String> image;
+//     final String description;
+//     final DateTime? createdAt;
+//     final dynamic updatedAt;
+//     final dynamic deletedAt;
 
-    DamageShortage copyWith({
-        String? damageId,
-        String? vehicleId,
-        String? loadId,
-        String? itemName,
-        int? quantity,
-        int? status,
-        List<String>? image,
-        String? description,
-        DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
-    }) {
-        return DamageShortage(
-            damageId: damageId ?? this.damageId,
-            vehicleId: vehicleId ?? this.vehicleId,
-            loadId: loadId ?? this.loadId,
-            itemName: itemName ?? this.itemName,
-            quantity: quantity ?? this.quantity,
-            status: status ?? this.status,
-            image: image ?? this.image,
-            description: description ?? this.description,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
-        );
-    }
+//     DamageShortage copyWith({
+//         String? damageId,
+//         String? vehicleId,
+//         String? loadId,
+//         String? itemName,
+//         int? quantity,
+//         int? status,
+//         List<String>? image,
+//         String? description,
+//         DateTime? createdAt,
+//         dynamic? updatedAt,
+//         dynamic? deletedAt,
+//     }) {
+//         return DamageShortage(
+//             damageId: damageId ?? this.damageId,
+//             vehicleId: vehicleId ?? this.vehicleId,
+//             loadId: loadId ?? this.loadId,
+//             itemName: itemName ?? this.itemName,
+//             quantity: quantity ?? this.quantity,
+//             status: status ?? this.status,
+//             image: image ?? this.image,
+//             description: description ?? this.description,
+//             createdAt: createdAt ?? this.createdAt,
+//             updatedAt: updatedAt ?? this.updatedAt,
+//             deletedAt: deletedAt ?? this.deletedAt,
+//         );
+//     }
 
-    factory DamageShortage.fromJson(Map<String, dynamic> json){ 
-        return DamageShortage(
-            damageId: json["damageId"] ?? "",
-            vehicleId: json["vehicleId"] ?? "",
-            loadId: json["loadId"] ?? "",
-            itemName: json["itemName"] ?? "",
-            quantity: json["quantity"] ?? 0,
-            status: json["status"] ?? 0,
-            image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
-            description: json["description"] ?? "",
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: json["updatedAt"],
-            deletedAt: json["deletedAt"],
-        );
-    }
+//     factory DamageShortage.fromJson(Map<String, dynamic> json){ 
+//         return DamageShortage(
+//             damageId: json["damageId"] ?? "",
+//             vehicleId: json["vehicleId"] ?? "",
+//             loadId: json["loadId"] ?? "",
+//             itemName: json["itemName"] ?? "",
+//             quantity: json["quantity"] ?? 0,
+//             status: json["status"] ?? 0,
+//             image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
+//             description: json["description"] ?? "",
+//             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+//             updatedAt: json["updatedAt"],
+//             deletedAt: json["deletedAt"],
+//         );
+//     }
 
-}
+// }
+
+
 
 class LoadApproval {
     LoadApproval({

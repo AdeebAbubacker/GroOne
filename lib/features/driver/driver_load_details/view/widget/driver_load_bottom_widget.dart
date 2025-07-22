@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -67,7 +68,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   final loadDetailsCubit = locator<LoadDetailsCubit>();
   @override
   Widget build(BuildContext context) {
-    print('load sstua ${widget.loadItem.data!.loadStatusId}');
     return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
        buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {
@@ -274,6 +274,16 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       );
                                     },
                                   ),
+                                   Visibility(
+                                  visible:(loadDetails?.data?.damageShortage??[]).isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      20.height,
+                                      AddedDamageWidget(
+                                        damageReport: loadDetails?.data?.damageShortage,
+                                      ),
+                                    ],
+                                  )),
                                   20.height,
                                   _buildAdableSectionHeader(
                                     context: context,
