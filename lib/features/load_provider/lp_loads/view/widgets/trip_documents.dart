@@ -35,19 +35,23 @@ class TripDocuments extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LpLoadCubit, LpLoadState>(
       builder: (context, state) {
-        final isDownloaded = state.downloadedFiles[downloadKey] ?? false;
+        final cubit = context.read<LpLoadCubit>();
+        final isFileLoading = state.downloadingKey == downloadKey;
         return InkWell(
           onTap: () async {
-            await context.read<LpLoadCubit>().getDocumentById(docId: docId);
+            cubit.setDownloadingKey(downloadKey);
+            await cubit.getDocumentById(docId: docId);
 
-            final uiState = context.read<LpLoadCubit>().state.lpDocumentById;
+            final uiState = cubit.state.lpDocumentById;
 
             if (uiState?.status == Status.LOADING) {
             } else if (uiState?.status == Status.SUCCESS) {
-              await context.read<LpLoadCubit>().downloadAndOpenDocument(downloadKey, uiState?.data?.filePath ?? '');
+              await cubit.downloadAndOpenDocument(downloadKey, uiState?.data?.filePath ?? '');
+
             } else if (uiState?.status == Status.ERROR) {
               final errorType = uiState?.errorType;
               ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+              cubit.setDownloadingKey('');
               return;
             }
           },
@@ -92,12 +96,9 @@ class TripDocuments extends StatelessWidget {
                   ],
                 ).expand(),
 
-                if (!isDownloaded)
-                  SvgPicture.asset(
-                    AppIcons.svg.download,
-                    colorFilter: AppColors.svg(AppColors.primaryColor),
-                  ),
-
+                isFileLoading
+                    ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : SvgPicture.asset(AppIcons.svg.download, colorFilter: AppColors.svg(AppColors.primaryColor)),
               ],
             ),
           ),

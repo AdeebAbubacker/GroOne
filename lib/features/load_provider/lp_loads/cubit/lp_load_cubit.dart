@@ -28,6 +28,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -493,19 +495,23 @@ Future<void> createOrder({
     final file = File(filePath);
 
     try {
+      final dio = Dio();
       if (await file.exists()) {
-        await OpenFilex.open(filePath);
-        markDocumentAsDownloaded(downloadKey);
-      } else {
-        final dio = Dio();
-        await dio.download(docUrl, filePath);
-        markDocumentAsDownloaded(downloadKey);
-        await OpenFilex.open(filePath);
+        await file.delete();
       }
+      await dio.download(docUrl, filePath);
+      setDownloadingKey('');
+      await OpenFilex.open(filePath);
     } catch (e) {
-      ToastMessages.error(message: 'Failed to download the document ');
+      setDownloadingKey('');
+      ToastMessages.error(message: appContext.appText.failedToDownloadDocuments);
     }
   }
+
+  void setDownloadingKey(String? key) {
+    emit(state.copyWith(downloadingKey: key));
+  }
+
 
 }
 

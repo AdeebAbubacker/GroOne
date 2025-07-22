@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,12 +61,23 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     super.initState();
   }
 
+  Future<BitmapDescriptor> getResizedBitmapDescriptor(String assetPath) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final codec = await instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: 100,
+    );
+    final frame = await codec.getNextFrame();
+    final ByteData? resizedImage = await frame.image.toByteData(format: ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(resizedImage!.buffer.asUint8List());
+  }
+
+
   void setMapMarkers({bool addMarker=true,String? points}) async {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong??"0,0");
     final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong??"0,0");
 
-    BitmapDescriptor driverIcon = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(64, 64)),
+    BitmapDescriptor driverIcon = await getResizedBitmapDescriptor(
       AppImage.jpg.driverImaged,
     );
 
@@ -81,7 +93,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
        );
        _markers.value.add(
          Marker(
-           markerId: MarkerId('drop'),
+           markerId: MarkerId(context.appText.drop),
            position: dropLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
            infoWindow: InfoWindow(title: '${context.appText.drop}: ${widget.dropLocation}'),
@@ -93,7 +105,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          dropLatLng.latitude,
          dropLatLng.longitude,
        );
-       // 🚛 Driver marker (if valid)
+       // Driver marker (if valid)
        if (widget.driverLat != null && widget.driverLong != null) {
          final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
          _markers.value.add(
@@ -101,7 +113,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
              markerId: MarkerId(context.appText.driver),
              position: driverLatLng,
              icon: driverIcon,
-             infoWindow:  InfoWindow(title: context.appText.drivingLicense),
+             infoWindow:  InfoWindow(title: context.appText.driverLocation),
            ),
          );
        }
@@ -111,16 +123,62 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            pickUpLat: pickupLatLng.latitude.toString(),pickUpLong:  pickupLatLng.longitude.toString());
      }else{
        _polylineCoordinates.clear();
-       List<PointLatLng> result = PolylinePoints().decodePolyline(points??"");
+       List<PointLatLng> result = PolylinePoints().decodePolyline(points ?? "");
        for (var point in result) {
          _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
        }
-       _polylines.add(Polyline(
-         polylineId: PolylineId(context.appText.route),
-         color: AppColors.primaryColor.withOpacity(0.7),
-         width: 5,
-         points: _polylineCoordinates,
-       ));
+
+       // If driver position is available, split polyline
+       if (widget.driverLat != null && widget.driverLong != null) {
+         final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
+
+
+         int closestIndex = 0;
+         double minDistance = double.infinity;
+
+         for (int i = 0; i < _polylineCoordinates.length; i++) {
+           final p = _polylineCoordinates[i];
+           double distance = Geolocator.distanceBetween(
+             driverLatLng.latitude,
+             driverLatLng.longitude,
+             p.latitude,
+             p.longitude,
+           );
+           if (distance < minDistance) {
+             minDistance = distance;
+             closestIndex = i;
+           }
+         }
+
+         final List<LatLng> greenSegment = _polylineCoordinates.sublist(0, closestIndex + 1);
+         final List<LatLng> blueSegment = _polylineCoordinates.sublist(closestIndex);
+
+         _polylines.clear();
+
+         _polylines.add(Polyline(
+           polylineId: PolylineId(context.appText.completed),
+           color: Colors.green,
+           width: 5,
+           points: greenSegment,
+         ));
+
+         _polylines.add(Polyline(
+           polylineId: PolylineId(context.appText.remainingDistance),
+           color: AppColors.primaryColor.withOpacity(0.7),
+           width: 5,
+           points: blueSegment,
+         ));
+
+       } else {
+         _polylines.clear();
+         _polylines.add(Polyline(
+           polylineId: PolylineId(context.appText.route),
+           color: AppColors.primaryColor.withOpacity(0.7),
+           width: 5,
+           points: _polylineCoordinates,
+         ));
+       }
+
 
      }
 
