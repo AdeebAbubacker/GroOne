@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -78,11 +79,14 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if(widget.data.assignStatus==3)
-                Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
+                  VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context),
+                //(widget.data.loadStatusDetails?.loadStatus??"", style: AppTextStyle.bodyPurpleColor),
                 if(widget.data.assignStatus==4)
-                  Text('Assigned', style: AppTextStyle.bodyPurpleColor.copyWith(
-                    color: AppColors.activeDarkGreenColor
-                  ))
+                  VpMyLoadUIHelper.loadStatusWidget(widget.data.loadStatusDetails!.loadStatus, context),
+
+                // Text(widget.data.loadStatusDetails?.loadStatus??"", style: AppTextStyle.bodyPurpleColor.copyWith(
+                //     color: AppColors.activeDarkGreenColor
+                //   ))
               ],
             ),
           ),
@@ -210,7 +214,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               children: [
                 FittedBox(
                   child: Text(
-                    "Accepted Price",
+                    context.appText.acceptedPrice,
                     style: AppTextStyle.textBlackColor18w400,
                     textAlign: TextAlign.center,
                   ),
@@ -258,7 +262,7 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
               AppButton(
                 buttonHeight: 40,
                 onPressed: widget.onClickAssignDriver ?? () {},
-                title: "Assign Driver",
+                title: context.appText.assignDriver,
                     // widget.data.assignStatus == 2
                     //     ?
                     //     : "Start Trip",

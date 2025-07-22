@@ -14,9 +14,10 @@ class Validator {
     return null;
   }
 
+
   /// Field Required
   static String? fieldRequired(String? value, {String? fieldName}){
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       if(fieldName != null){
         return '$fieldName is required';
       }else{
@@ -25,6 +26,7 @@ class Validator {
     }
     return null;
   }
+
 
   /// Password
   static String? password(String? value){
@@ -37,35 +39,31 @@ class Validator {
     return null;
   }
 
+
+  /// Phone
   static String? phone(String? value) {
     const int requiredLength = 10;
-
     if (value == null || value.isEmpty) {
       return 'Please enter mobile number';
     }
-
     // Allow only digits
     final isDigitsOnly = RegExp(r'^\d{10}$');
     if (!isDigitsOnly.hasMatch(value)) {
       return 'Please enter a valid 10-digit mobile number';
     }
-
     // Starts with 0
     if (value.startsWith('0')) {
       return 'Mobile number cannot start with 0';
     }
-
     // Disallow repeated digits like 0000000000, 1111111111, etc.
     if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
       return 'Mobile number cannot have all same digits';
     }
-
     return null;
   }
 
 
-
-
+  /// Country Code
   static String? countryCode(String? value) {
     String pattern = r'^\+\d{1,3}$';  // Pattern for '+' followed by 1 to 3 digits
     RegExp regExp = RegExp(pattern);
@@ -77,6 +75,9 @@ class Validator {
     }
     return null;
   }
+
+
+  /// Pincode
   static String? pincode(String? value) {
     String pattern = r'^[1-9][0-9]{5}$'; // Reject all 0s, allow 6 digits
     RegExp regExp = RegExp(pattern);
@@ -90,6 +91,7 @@ class Validator {
   }
 
 
+  /// No Special Characters
   static String? noSpecialCharacters(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
@@ -101,6 +103,8 @@ class Validator {
     return null;
   }
 
+
+  /// Positive Number
   static String? positiveNumber(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
@@ -112,6 +116,8 @@ class Validator {
     return null;
   }
 
+
+  /// Alphabets Only
   static String? alphabetsOnly(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
@@ -123,34 +129,51 @@ class Validator {
     return null;
   }
 
+
+
+  /// License Number
   static String? licenseNumberValidator(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
-
     // Format: 2 letters + hyphen + 13 digits (total 16 characters)
     // Example: DL-1420110012345
     final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
-
     if (!regex.hasMatch(value.trim().toUpperCase())) {
       return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
     }
-
     return null;
   }
 
+
+  /// Vehicle Number
   static String? validateVehicleNumber(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
-
     // Indian vehicle number pattern (no spaces, no hyphens)
     final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
-
     if (!regex.hasMatch(value.trim().toUpperCase())) {
       return '$fieldName is invalid. Example: MH12AB1234';
     }
     return null;
   }
+
+
+  /// RC Book Number
+  static String? rcBookNumberValidator(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    final trimmedValue = value.trim().toUpperCase();
+    // RC book number format: 5 letters + 4 digits + 1 letter
+    // Example: AAAPA1234A
+    final regex = RegExp(r'^[A-Z]{5}\d{4}[A-Z]$');
+    if (!regex.hasMatch(trimmedValue)) {
+      return '$fieldName should be in format: AAAPA1234A (5 letters, 4 digits, 1 letter)';
+    }
+    return null;
+  }
+
 
 }
