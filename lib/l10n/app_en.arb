@@ -956,7 +956,8 @@
   "receivedOn":"Received on",
   "balancePayout":"Balance payout",
   "pending":"Pending",
-  "completed":"Completed"
+  "completed":"Completed",
+  "loadOnHold":"loadOnHold"
 
 
 
