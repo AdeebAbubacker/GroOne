@@ -27,10 +27,12 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
 class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
+  final Function() onBack;
 
   const VpAllLoadAvailableLoadWidget({
     super.key,
     required this.data,
+    required this.onBack,
   });
 
   @override
@@ -49,10 +51,12 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
     return GestureDetector(
-      onTap: () {
-        context.push(AppRouteName.loadDetailsScreen,extra: {
+      onTap: () async {
+       await context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
-        });
+        }).then((value) {
+         widget.onBack();
+       },);
         },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),

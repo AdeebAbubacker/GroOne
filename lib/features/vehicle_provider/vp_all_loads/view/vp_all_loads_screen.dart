@@ -261,38 +261,47 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                 itemBuilder: (context, index) {
                   if (_tabController.index == 0) {
                     return VpAllLoadAvailableLoadWidget(
+                      onBack: () =>  _onPullToRefresh(),
                         data: state.loads[index]
                     ).paddingSymmetric(vertical: 7);
                   } else if (_tabController.index == 1) {
                     return GestureDetector(
-                      onTap: () {
-                        context.push(AppRouteName.loadDetailsScreen,extra: {
+                      onTap: () async {
+                      await  context.push(AppRouteName.loadDetailsScreen,extra: {
                           "loadId":state.loads[index].id
-                        });
+                        }).then((value) {
+                        _onPullToRefresh();
+                        },);
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
-                        onClickAssignDriver: () {
-                          context.push(AppRouteName.loadDetailsScreen,extra: {
+                        onClickAssignDriver: () async {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {
                             "loadId":state.loads[index].id
-                          });
+                          }).then((value) {
+                           _onPullToRefresh();
+                          },);
                         },
                       ).paddingSymmetric(vertical: 7),
                     );
                   } else {
                     return GestureDetector(
-                      onTap: () {
-                        context.push(AppRouteName.loadDetailsScreen,extra: {
+                      onTap: () async {
+                        await context.push(AppRouteName.loadDetailsScreen,extra: {
                           "loadId":state.loads[index].id
-                        });
+                        }).then((value) {
+                          _onPullToRefresh();
+                        },);
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
                         showButton: _tabController.index!=3,
-                        onClickAssignDriver: () {
-                          context.push(AppRouteName.loadDetailsScreen,extra: {
+                        onClickAssignDriver: () async {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {
                             "loadId":state.loads[index].id
-                          });
+                          }).then((value) {
+                           _onPullToRefresh();
+                         },);
                         },
                       ).paddingSymmetric(vertical: 7),
                     );

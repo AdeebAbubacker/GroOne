@@ -541,7 +541,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                15.height,
                                AddedDamageWidget(
                                  damageReport: widget.loadItem.damageShortage,
-                                 isFileView: false,
+
                                ),
                                15.height,
                              ],

@@ -55,7 +55,7 @@ class VpMyLoadHelper {
   static Widget loadStatusButtonWidget({
 
     required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context,bool? enable=true}) {
-
+    print("button enabled status ${enable}");
     switch (status) {
       case "Confirmed":
         return AppButton(
@@ -80,12 +80,10 @@ class VpMyLoadHelper {
           innerColor: Colors.transparent,
           outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
 
-
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
           text: context.appText.swipeToCompleteLoading,
-
           textStyle: AppTextStyle.button.copyWith(
               color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
           onSubmit: (){

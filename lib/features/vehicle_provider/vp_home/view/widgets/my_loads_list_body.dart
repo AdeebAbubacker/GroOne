@@ -45,7 +45,6 @@ class _MyLoadsListBodyState extends State<MyLoadsListBody> {
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
-
     return Container(
       padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
       decoration: commonContainerDecoration(

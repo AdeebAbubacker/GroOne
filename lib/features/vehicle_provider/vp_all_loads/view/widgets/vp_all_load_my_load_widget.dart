@@ -203,9 +203,18 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
               // Action Button
                 if(widget.data.loadStatusDetails != null)
+                  ///TODO:
+                  ///Add document list once it get from api
                 VpMyLoadHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
-                    enable:  true,
+                    enable:  loadDetailsCubit.isNextProcessButtonEnabled(
+                      loadStatus: widget.data.loadStatusValues ,
+                      driverConsent: widget.data.driverConsent??0,
+                      documentEntity:[] ,
+                      memo: null,
+                      checkMemo: false
+                    ),
+
                     // widget.data.loadStatusValues==LoadStatus.loading && widget.data.driverConsent==1 ,
                     context: context,
                     onPressed: () {
