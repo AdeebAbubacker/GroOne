@@ -54,21 +54,19 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
       body: SafeArea(
         child: 
         BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
-  listenWhen: (previous, current) => previous.loadStatusUIState != current.loadStatusUIState,
-  listener: (context, state) {
-    final loadStatusState = state.loadStatusUIState;
-    if (loadStatusState is Success) {
-      ToastMessages.success(message: "Load status updated successfully");
-      // Already handled in Cubit: getLpLoadsById(...) is called
-      // No further action needed if rebuild works properly
-      context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
-    } else if (loadStatusState is Error) {
-      ToastMessages.error(message: "Failed to update load status");
-    }
-  },
-  child:
-                
-         BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+        listenWhen: (previous, current) => previous.loadStatusUIState != current.loadStatusUIState,
+        listener: (context, state) {
+          final loadStatusState = state.loadStatusUIState;
+          if (loadStatusState is Success) {
+            ToastMessages.success(message: "Load status updated successfully");
+            // Already handled in Cubit: getLpLoadsById(...) is called
+            // No further action needed if rebuild works properly
+            context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
+          } else if (loadStatusState is Error) {
+            ToastMessages.error(message: "Failed to update load status");
+          }
+        },
+        child: BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
           builder: (context, state) {
             final uiState = state.lpLoadById;
 

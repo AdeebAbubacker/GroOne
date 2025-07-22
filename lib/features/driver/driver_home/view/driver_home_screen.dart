@@ -65,7 +65,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 0;
   TabController? _tabController;
   final tabLabels = [
-     'All',
+     '  All  ',
      'Assigned',
      'Loading',
      'In Transit',
@@ -139,7 +139,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     int? loadStatus;
   if (index > 0) {  
   loadStatus = index + 3; 
-   print('my index is ------- ${loadStatus}');
+   
 } else{
    loadStatus = null;
 }

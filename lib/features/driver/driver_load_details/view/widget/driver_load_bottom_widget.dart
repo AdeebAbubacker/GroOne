@@ -32,12 +32,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
-
 import '../../../../../data/ui_state/status.dart';
 import '../../../../load_provider/lp_home/helper/lp_home_helper.dart';
-
-
-
 
 
 class DriverLoadBottomWidget extends StatefulWidget {
@@ -253,7 +249,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             timelineList: widget.loadItem?.data?.timeline ?? [],
                             ),
                            ],),     
-
+                      if(widget.loadItem.data?.loadStatusId !=8)
                       BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
                             bloc: widget.cubit,
                             listener: (context, state) {
