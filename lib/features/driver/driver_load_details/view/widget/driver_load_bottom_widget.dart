@@ -423,7 +423,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
  Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
 
     final tripDocumentList=state.tripDocumentList??[];
-    print("trip document list ${tripDocumentList.length}");
     return Column(
         children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
        index: index,
