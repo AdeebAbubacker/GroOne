@@ -910,5 +910,19 @@
   "overSpeedCalibration": "ओवरस्पीड कैलिब्रेशन",
   "connectAndShare": "कनेक्ट और शेयर करें",
   "editVehicleInfo": "वाहन जानकारी संपादित करें",
-  "parking": "Parking"
+  "parking": "पार्किंग ",
+  "parkingModeSchedulerTitle": "पार्किंग मोड अनुसूचक",
+  "parkingModeSchedulerDescription": "पार्किंग मोड अनुसूचक चयनित दिनों और समय अंतराल में स्वतः सक्रिय हो जाएगा।",
+  "scheduleActive": "अनुसूचक सक्रिय है",
+  "daysOfWeek": "सप्ताह के दिन",
+  "timeRange": "समय सीमा",
+  "startTime": "प्रारंभ समय",
+  "endTime": "समाप्ति समय",
+  "errorInvalidTime": "प्रारंभ समय समाप्ति समय से पहले होना चाहिए",
+  "successScheduleUpdated": "अनुसूचक सफलतापूर्वक अपडेट किया गया",
+  "parkingMode": "पार्किंग मोड",
+  "refresh": "रीफ़्रेश करें",
+  "searchVehicle": "वाहन खोजें",
+  "notificationTypesTitle": "सूचनाओं के प्रकार",
+  "notificationToggleError": "सूचनाओं के प्रकार लोड करने में विफल"
 }

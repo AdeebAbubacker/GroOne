@@ -850,5 +850,18 @@
   "fromFile" : "File",
   "selectImageFrom" : "Select image from?",
   "blueMemberShipIdSuccess" : "Blue membership ID generated Successfully",
-  "startExploringPremiumLoad" : "Start exploring premium load options today"
+  "startExploringPremiumLoad" : "Start exploring premium load options today",
+  "parkingModeSchedulerTitle": "Parking Mode Scheduler",
+  "parkingModeSchedulerDescription": "The Parking Mode Scheduler will automatically activate the parking mode on the selected days of the week and between the selected time interval.",
+  "scheduleActive": "Schedule Active",
+  "daysOfWeek": "Days of Week",
+  "timeRange": "Time Range",
+  "startTime": "Start Time",
+  "endTime": "End Time",
+  "errorInvalidTime": "Start time must be before end time",
+  "successScheduleUpdated": "Schedule updated successfully",
+  "parkingMode": "Parking Mode",
+  "searchVehicle": "Search Vehicle",
+  "notificationTypesTitle": "Types of Notification",
+  "notificationToggleError": "Failed to load notification types"
 }

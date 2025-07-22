@@ -949,5 +949,19 @@
   "points": "புள்ளிகள்",
   "notifications": "அறிவிப்புகள்",
   "noNotificationsAvailable": "அறிவிப்புகள் எதுவும் இல்லை",
-  "parking": "Parking"
+  "parking": "பார்க்கிங்",
+  "parkingModeSchedulerTitle": "பார்கிங் முறை அட்டவணையாளர்",
+  "parkingModeSchedulerDescription": "தேர்ந்தெடுக்கப்பட்ட நாட்களிலும் நேர இடைவெளியிலும் பார்கிங் முறை தானாக செயல்படுத்தப்படும்.",
+  "scheduleActive": "அட்டவணை செயலில் உள்ளது",
+  "daysOfWeek": "வாரத்தின் நாட்கள்",
+  "timeRange": "நேர வரம்பு",
+  "startTime": "தொடக்க நேரம்",
+  "endTime": "முடிவு நேரம்",
+  "errorInvalidTime": "தொடக்க நேரம் முடிவிற்கு முந்தியதாக இருக்க வேண்டும்",
+  "successScheduleUpdated": "அட்டவணை வெற்றிகரமாக புதுப்பிக்கப்பட்டது",
+  "parkingMode": "பார்கிங் முறை",
+  "refresh": "புதுப்பி",
+  "searchVehicle": "வாகனத்தை தேடுக",
+  "notificationTypesTitle": "அறிவிப்புகள் வகைகள்",
+  "notificationToggleError": "அறிவிப்பு வகைகளை ஏற்ற முடியவில்லை"
 }

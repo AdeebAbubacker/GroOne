@@ -1,13 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_parking_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import '../../../../data/model/result.dart';
+import '../../cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
+
 
 class GpsParkingModeScheduler extends StatefulWidget {
-  const GpsParkingModeScheduler({super.key});
+  final GpsParkingModeModel gpsParkingModeModel;
+
+  const GpsParkingModeScheduler({super.key, required this.gpsParkingModeModel});
 
   @override
   State<GpsParkingModeScheduler> createState() =>
@@ -17,7 +26,9 @@ class GpsParkingModeScheduler extends StatefulWidget {
 class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
   bool scheduleActive = true;
   List<String> days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  String selectedDay = 'Tue';
+
+  // String selectedDay = 'Tue';
+  List<String> selectedDays = [];
 
   TimeOfDay startTime = const TimeOfDay(hour: 20, minute: 0);
   TimeOfDay endTime = const TimeOfDay(hour: 20, minute: 0);
@@ -39,17 +50,17 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Parking Mode Scheduler', style: AppTextStyle.h5PrimaryColor),
+          Text(context.appText.parkingModeSchedulerTitle, style: AppTextStyle.h5PrimaryColor),
           8.height,
           Text(
-            'The Parking Mode Scheduler will automatically activate the parking mode on the selected days of the week and between the selected time interval.',
+            context.appText.parkingModeSchedulerDescription,
             style: AppTextStyle.bodyGreyColor,
           ),
           15.height,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Schedule Active", style: AppTextStyle.h5,),
+              Text(context.appText.scheduleActive, style: AppTextStyle.h5),
               Switch(
                 value: scheduleActive,
                 activeColor: Colors.white,
@@ -59,14 +70,14 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
             ],
           ),
           15.height,
-          Text('Days of Week', style: AppTextStyle.h5),
+          Text(context.appText.daysOfWeek, style: AppTextStyle.h5),
           10.height,
           Wrap(
             spacing: 5,
             runSpacing: 5,
             children:
                 days.map((day) {
-                  final isSelected = selectedDay == day;
+                  final isSelected = selectedDays.contains(day);
                   return ChoiceChip(
                     label: Text(
                       day,
@@ -82,13 +93,21 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                     showCheckmark: false,
-                    onSelected: (_) => setState(() => selectedDay = day),
+                    onSelected: (_) {
+                      setState(() {
+                        if (isSelected) {
+                          selectedDays.remove(day);
+                        } else {
+                          selectedDays.add(day);
+                        }
+                      });
+                    },
                   );
                 }).toList(),
           ),
 
           15.height,
-          Text('Time Range', style: AppTextStyle.h5),
+          Text(context.appText.timeRange, style: AppTextStyle.h5),
           10.height,
           Container(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -104,7 +123,7 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text('Start Time', style: AppTextStyle.h5),
+                          Text(context.appText.startTime, style: AppTextStyle.h5),
                           30.height,
                           SizedBox(
                             height: 100,
@@ -125,7 +144,7 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text('End Time', style: AppTextStyle.h5),
+                          Text(context.appText.endTime, style: AppTextStyle.h5),
                           30.height,
                           SizedBox(
                             height: 100,
@@ -154,12 +173,42 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
               Expanded(
                 child: AppButton(
                   onPressed: () => Navigator.pop(context),
-                  title: "Cancel",
+                  title: context.appText.cancel,
                   style: AppButtonStyle.outline,
                 ),
               ),
               10.width,
-              Expanded(child: AppButton(onPressed: () {}, title: "Save")),
+              Expanded(
+                child: AppButton(
+                  onPressed: () async {
+                    // Time validation
+                    if (_startTime.isAfter(_endTime) || _startTime.isAtSameMomentAs(_endTime)) {
+                      ToastMessages.error(message: context.appText.errorInvalidTime);
+                      return;
+                    }
+
+                    final cubit = context.read<GpsParkingModeCubit>();
+                    final result = await cubit.updateParkingSchedule(
+                      id: widget.gpsParkingModeModel.id,
+                      deviceId: widget.gpsParkingModeModel.deviceId,
+                      parkingSchedule: scheduleActive,
+                      parkingScheduleStartUtc: _formatTimeUtc(_startTime),
+                      parkingScheduleEndUtc: _formatTimeUtc(_endTime),
+                      parkingScheduleDays: selectedDays,
+                    );
+                    if (result is Success) {
+                      Navigator.pop(context);
+                      ToastMessages.success(
+                        message: context.appText.successScheduleUpdated,
+                      );
+                    } else if (result is Error) {
+                      final message = result.type.getText(context);
+                      ToastMessages.error(message: message);
+                    }
+                  },
+                  title: context.appText.save,
+                ),
+              ),
             ],
           ),
           20.height,
@@ -184,4 +233,8 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
       ),
     );
   }
+}
+
+String _formatTimeUtc(DateTime time) {
+  return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
 }

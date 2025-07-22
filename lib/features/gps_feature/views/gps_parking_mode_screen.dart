@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../dependency_injection/locator.dart';
@@ -44,13 +45,13 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
-        title: "Parking Mode",
+        title: context.appText.parkingMode,
         centreTile: false,
         actions: [
           TextButton.icon(
             onPressed: () => context.read<VehicleListCubit>().refreshData(),
             icon: const Icon(Icons.refresh, color: Colors.blue),
-            label: Text("Refresh", style: AppTextStyle.primaryColor12w400),
+            label: Text(context.appText.refresh, style: AppTextStyle.primaryColor12w400),
           ),
           AppIconButton(
             onPressed: () {
@@ -90,7 +91,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: AppTextField(
               decoration: commonInputDecoration(
-                hintText: "Search Vehicle",
+                hintText: context.appText.searchVehicle,
                 suffixIcon: const Icon(Icons.search),
               ),
               onChanged: (value) {
@@ -100,39 +101,6 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
               controller: searchController,
             ),
           ),
-          // BlocBuilder<VehicleListCubit, VehicleListState>(
-          //   builder: (context, state) {
-          //     if (state.isLoading) {
-          //       return const Center(child: CircularProgressIndicator());
-          //     }
-          //
-          //     final vehicles = state.filteredVehicles;
-          //
-          //     if (vehicles.isEmpty) {
-          //       return Center(
-          //         child: Text("No vehicles found", style: AppTextStyle.h6),
-          //       );
-          //     }
-          //
-          //     return Expanded(
-          //       child: ListView.separated(
-          //         padding: const EdgeInsets.symmetric(
-          //           horizontal: 12,
-          //           vertical: 8,
-          //         ),
-          //         itemCount: vehicles.length,
-          //         separatorBuilder: (_, __) => 10.height,
-          //         itemBuilder: (context, index) {
-          //           final vehicle = vehicles[index];
-          //           return _buildVehicleTile(
-          //             context,
-          //             vehicle.vehicleNumber ?? '',
-          //           );
-          //         },
-          //       ),
-          //     );
-          //   },
-          // ),
           BlocBuilder<GpsParkingModeCubit, GpsParkingModeState>(
             builder: (context, parkingState) {
               if (parkingState is GpsParkingModeLoading) {
@@ -233,7 +201,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
                       top: Radius.circular(20),
                     ),
                   ),
-                  builder: (_) => const GpsParkingModeScheduler(),
+                  builder: (_) =>  GpsParkingModeScheduler(gpsParkingModeModel: parkingEntry,),
                 );
               },
             ),

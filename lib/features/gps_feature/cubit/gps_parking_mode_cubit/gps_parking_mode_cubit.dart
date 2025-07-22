@@ -98,5 +98,24 @@ class GpsParkingModeCubit extends Cubit<GpsParkingModeState> {
     }
   }
 
+  Future<Result<void>> updateParkingSchedule({
+    required int id,
+    required int deviceId,
+    required bool parkingSchedule,
+    required String parkingScheduleStartUtc,
+    required String parkingScheduleEndUtc,
+    required List<String> parkingScheduleDays,
+  }) async {
+    return await _repository.updateParkingModeSchedule(
+      id: id,
+      deviceId: deviceId,
+      parkingSchedule: parkingSchedule,
+      parkingScheduleStartUtc: parkingScheduleStartUtc,
+      parkingScheduleEndUtc: parkingScheduleEndUtc,
+      parkingScheduleDays: parkingScheduleDays,
+    );
+  }
+
+
 
 }

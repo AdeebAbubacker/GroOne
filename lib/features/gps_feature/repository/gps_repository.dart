@@ -150,5 +150,40 @@ class GpsRepository {
     );
   }
 
+  Future<Result<void>> updateParkingModeSchedule({
+    required int id,
+    required int deviceId,
+    required bool parkingSchedule,
+    required String parkingScheduleStartUtc,
+    required String parkingScheduleEndUtc,
+    required List<String> parkingScheduleDays,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return Error(GenericError());
+
+    return await _service.updateParkingModeSchedule(
+      id: id,
+      deviceId: deviceId,
+      parkingSchedule: parkingSchedule,
+      parkingScheduleStartUtc: parkingScheduleStartUtc,
+      parkingScheduleEndUtc: parkingScheduleEndUtc,
+      parkingScheduleDays: parkingScheduleDays,
+      token: token,
+    );
+  }
+
+  Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus() async {
+    final token = await _getToken();
+    if (token == null) return Error(GenericError());
+    return await _service.fetchDeprecatedNotificationStatus(token);
+  }
+
+  Future<Result<void>> updateDeprecatedNotificationStatus(Map<String, dynamic> payload) async {
+    final token = await _getToken();
+    if (token == null) return Error(GenericError());
+    return await _service.updateDeprecatedNotificationStatus(payload, token);
+  }
+
+
 
 }

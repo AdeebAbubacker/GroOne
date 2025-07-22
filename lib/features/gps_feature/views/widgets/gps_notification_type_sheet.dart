@@ -1,10 +1,12 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import '../../cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import '../../cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_state.dart';
+
 
 class GpsNotificationTypesSheet extends StatefulWidget {
   const GpsNotificationTypesSheet({super.key});
@@ -14,32 +16,47 @@ class GpsNotificationTypesSheet extends StatefulWidget {
 }
 
 class _GpsNotificationTypesSheetState extends State<GpsNotificationTypesSheet> {
-  final Map<String, bool> notifications = {
-    "Ignition On": true,
-    "Ignition Off": true,
-    "Geo-fence Enter": true,
-    "Geo-fence Exit": true,
-    "Device Over-speed": true,
-    "Low Battery": true,
-    "Power-Cut": false,
-    "Power Restored": false,
-    "Vibration": true,
-    "SOS": true,
-    "AC/Door On": true,
-    "AC/Door Off": true,
-    "Tow": true,
-  };
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<GpsNotificationTypesSheetCubit>().fetchNotificationToggles();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<GpsNotificationTypesSheetCubit, GpsNotificationTypesSheetState>(
+      builder: (context, state) {
+        Map<String, bool> toggles = {};
+        bool isLoading = false;
+        String? error;
+
+        if (state is GpsNotificationTypesLoading) {
+          isLoading = true;
+        } else if (state is GpsNotificationTypesLoaded) {
+          toggles = state.toggles;
+        } else if (state is GpsNotificationTypesError) {
+          error = state.message;
+        }
+
+        return buildSheet(context, toggles, isLoading, error);
+      },
+    );
+  }
+
+  Widget buildSheet(
+      BuildContext context,
+      Map<String, bool> notifications,
+      bool isLoading,
+      String? error,
+      ) {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.8,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -48,22 +65,23 @@ class _GpsNotificationTypesSheetState extends State<GpsNotificationTypesSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               20.height,
-              Text(
-                "Types of Notification",
-                style: AppTextStyle.h4,
-              ).paddingLeft(15),
+              Text(context.appText.notificationTypesTitle, style: AppTextStyle.h4).paddingLeft(15),
               8.height,
               Expanded(
-                child: ListView(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : error != null
+                    ? Center(child: Text(context.appText.notificationToggleError))
+                    : ListView(
                   controller: scrollController,
                   children: notifications.entries.map((entry) {
                     return SwitchListTile(
-                      title: Text(entry.key,style: AppTextStyle.h5,),
+                      title: Text(entry.key, style: AppTextStyle.h5),
                       value: entry.value,
                       onChanged: (val) {
-                        setState(() {
-                          notifications[entry.key] = val;
-                        });
+                        context
+                            .read<GpsNotificationTypesSheetCubit>()
+                            .updateToggle(entry.key, val);
                       },
                     );
                   }).toList(),
