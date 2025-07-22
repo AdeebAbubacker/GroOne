@@ -320,7 +320,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.verifyPan(apiRequest);
     if(!context.mounted) return;
     if (kycCubit.state.panState?.status == Status.SUCCESS) {
-      ToastMessages.success(message:  context.appText.tanVerifiedSuccessfully);
+      ToastMessages.success(message:  context.appText.panVerifiedSuccessfully);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
       ToastMessages.alert(message: context.appText.invalidTANNumber);
@@ -965,7 +965,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 multiFilesList: gstDoc,
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING,
-                hideDeleteButton: verified
+                hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf'],
             ),
           ],
         );
