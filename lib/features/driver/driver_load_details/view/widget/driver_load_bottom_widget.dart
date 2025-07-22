@@ -333,7 +333,8 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                             ),
                           ],
                         ),
-                      if (  loads!.data!.loadStatusId != 8)
+                        20.height,
+                      if (loads!.data!.loadStatusId != 8)
                         BlocListener<
                           DriverLoadDetailsCubit,
                           DriverLoadDetailsState
