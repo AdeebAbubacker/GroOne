@@ -89,7 +89,7 @@ Widget buildUploadedDocPreviewItem({
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              isFileAvailable ? fileTitle : context.appText.fileNotFound,
+              isFileAvailable ? fileTitle==context.appText.pod ? context.appText.profOfDelivery:fileTitle: context.appText.fileNotFound,
               style: AppTextStyle.body.copyWith(
                 fontWeight: FontWeight.w400,
                 fontSize: 12,

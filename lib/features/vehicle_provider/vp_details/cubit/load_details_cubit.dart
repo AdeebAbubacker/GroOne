@@ -29,6 +29,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -533,7 +534,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     try {
       DocumentEntity? document = documentEntity.firstWhere((element) =>
       element.loadDocument == null && element.visible==true);
-      return document == null;
+      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
     } catch (e) {
       return true;
     }
@@ -541,16 +542,61 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
  bool isNextProcessButtonEnabled({required List<
      DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
-
     switch(loadStatus){
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return driverConsent==1 &&   checkIsDocumentUploaded(documentEntity);
+      return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }
   }
+
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+
+      case LoadStatus.loading:
+      return  checkLoadingDocumentAddedOrNot(documentList,true);
+
+      case LoadStatus.unloading:
+        return checkLoadingDocumentAddedOrNot(documentList,false);
+      default:
+        return true;
+    }
+
+
+  }
+  bool checkLoadingDocumentAddedOrNot(List<LoadDocument> loadDocumentList,bool? checkPod){
+    List<String> requiredDocument= (checkPod??false)   ?  [
+      navigatorKey.currentState?.context.appText.lorryReceipt??"",
+      navigatorKey.currentState?.context.appText.ewayBill??"",
+      navigatorKey.currentState?.context.appText.materialInvoice??"",
+
+    ]:[
+      navigatorKey.currentState?.context.appText.pod??""
+    ];
+
+    bool isAdded=false;
+    for(var item in requiredDocument){
+      print("item is ${item}");
+      try{
+        loadDocumentList.firstWhere((element) => element.documentDetails?.documentType==item);
+        isAdded=true;
+        print("added");
+      }catch(e){
+        print("not added");
+        return false;
+      }
+    }
+    return isAdded;
+
+  }
+
+
+
+
+
+
 }

@@ -26,7 +26,6 @@ class VpHomeService {
       final result = await _apiService.get(
 
           "${ApiUrls.getAllVpLoads}/vp/load",queryParams: {
-            "type":2,
             'customerId':userID},forceRefresh: true);
 
       if (result is Success) {

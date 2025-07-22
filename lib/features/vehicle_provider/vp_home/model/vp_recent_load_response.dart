@@ -37,6 +37,7 @@ class VpRecentLoadResponse {
 class VpRecentLoadData {
   VpRecentLoadData({
     required this.id,
+    required this.loadDocument,
     required this.loadId,
     required this.laneId,
     required this.rateId,
@@ -128,6 +129,7 @@ class VpRecentLoadData {
   final CustomerDetail? customerDetail;
   final int? driverConsent;
   final bool? loadUnHold;
+  final List<LoadDocument>? loadDocument;
 
   final LoadStatusDetailsResponse? loadStatusDetails;
 
@@ -172,11 +174,13 @@ class VpRecentLoadData {
      String? vpRate,
      String? vpMaxRate,
     LoadStatus? loadStatusValues,
-    bool? loadUnHold
+    bool? loadUnHold,
+    List<LoadDocument>? loadDocument,
 
 
   }) {
     return VpRecentLoadData(
+      loadDocument: loadDocument??this.loadDocument,
       loadUnHold: loadUnHold ?? this.loadUnHold,
       driverConsent:  driverConsent??this.driverConsent,
       loadStatusValues: loadStatusValues??this.loadStatusValues,
@@ -227,6 +231,7 @@ class VpRecentLoadData {
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+      loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       loadUnHold: json['loadOnhold'],
       driverConsent: json['driverConsent'],
       loadStatusValues: getLoadStatus(json['loadStatusId']),

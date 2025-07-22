@@ -957,7 +957,8 @@
   "balancePayout":"Balance payout",
   "pending":"Pending",
   "completed":"Completed",
-  "loadOnHold":"loadOnHold"
+  "loadOnHold":"loadOnHold",
+  "profOfDelivery":"Proof of delivery"
 
 
 
