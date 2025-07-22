@@ -178,7 +178,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                       title: "Submit",
                       isLoading: isLoading,
                       style: AppButtonStyle.primary,
-                      onPressed: isLoading ? (){} : ()=>createAndSubmitSettlements()
+                      onPressed: isLoading ? (){} : ()=> createAndSubmitSettlements()
                   );
                 },
               ),

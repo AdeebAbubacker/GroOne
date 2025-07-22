@@ -36,18 +36,12 @@ class ApiService {
      // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
 
-
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-        print("🔐 Authorization header set: 'Bearer $refreshToken'");
-        CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
       } else {
-        print("🔐 No valid token found - proceeding without authorization");
-        CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
         CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
-      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
 
@@ -108,12 +102,12 @@ class ApiService {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    final headers = customHeaders ?? await _getHeaders();
 
     CustomLog.debug(
       this,
       "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
     );
-    final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -152,9 +146,11 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
     CustomLog.debug(
       this,
-      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader",
     );
     try {
       if (!HasInternetConnection.isInternet) {
