@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -69,18 +67,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   List<String> uploadedMaterialInvoices = [];
   final loadDetailsCubit = locator<LoadDetailsCubit>();
 
- void _handleLoadStatusUpdate(DriverLoadDetailsState state) {
-  final status = state.loadStatusUIState;
 
-  if (status is Success) {
-    ToastMessages.success(message: "Load status updated successfully");
-    widget.cubit.getDriverLoadsById(loadId: widget.loadItem.data?.loadId ?? '');
-  } else if (status is Error) {
-    ToastMessages.error(message: "Failed to update load status");
-  }
-}
-
-changeLoadStatus(BuildContext context, String? id, {required int loadStatus , required String loadId}) async {
+changeLoadStatus(BuildContext context, {required int loadStatus , required String loadId}) async {
 
   String? userId = await widget.cubit.getUserId();
   await widget.cubit
@@ -89,7 +77,7 @@ changeLoadStatus(BuildContext context, String? id, {required int loadStatus , re
 
     // ✅ THIS is your driver detail refresh after status update
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.cubit.getDriverLoadsById(loadId:  id ?? "0");
+      widget.cubit.getDriverLoadsById(loadId:  loadId ?? "0");
     });
   });
 }
@@ -101,7 +89,7 @@ changeLoadStatus(BuildContext context, String? id, {required int loadStatus , re
        buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {
         
-      _handleLoadStatusUpdate(state);
+    
       },
       builder: (context, state) {
          DriverLoadDetailsModel? loadDetails;
@@ -379,25 +367,25 @@ changeLoadStatus(BuildContext context, String? id, {required int loadStatus , re
                                 //   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
                                 //   return;
                                 // }
-                                final List<List<LoadDocument>> nestedDocuments =   loads!.data!.loadDocument ?? [];
-                                final allDocuments = nestedDocuments.expand((docList) => docList).toList();
-                                bool hasLorryReceipt = allDocuments.any(
-                                              (doc) => doc.documentDetails?.documentType == 'LORRY_RECEIPT',
-                                            );
-                                            bool hasEWayBill = allDocuments.any(
-                                              (doc) => doc.documentDetails?.documentType == 'E_WAY_BILL',
-                                            );
-                                            bool hasMaterialInvoice = allDocuments.any(
-                                              (doc) => doc.documentDetails?.documentType == 'MATERIAL_INVOICE',
-                                            );
+                                // final List<List<LoadDocument>> nestedDocuments =   loads!.data!.loadDocument ?? [];
+                                // final allDocuments = nestedDocuments.expand((docList) => docList).toList();
+                                // bool hasLorryReceipt = allDocuments.any(
+                                //               (doc) => doc.documentDetails?.documentType == 'LORRY_RECEIPT',
+                                //             );
+                                //             bool hasEWayBill = allDocuments.any(
+                                //               (doc) => doc.documentDetails?.documentType == 'E_WAY_BILL',
+                                //             );
+                                //             bool hasMaterialInvoice = allDocuments.any(
+                                //               (doc) => doc.documentDetails?.documentType == 'MATERIAL_INVOICE',
+                                //             );
 
-                                            // Add your condition to validate all documents are uploaded
-                                            if (  loads!.data!.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
-                                              ToastMessages.error(
-                                                message: "Please upload all required Trip Documents: Lorry Receipt, E-Way Bill, and Material Invoice.",
-                                              );
-                                              return;
-                                            }        
+                                //             // Add your condition to validate all documents are uploaded
+                                //             if (  loads!.data!.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
+                                //               ToastMessages.error(
+                                //                 message: "Please upload all required Trip Documents: Lorry Receipt, E-Way Bill, and Material Invoice.",
+                                //               );
+                                //               return;
+                                //           }        
                             
                               final customerId =
                                     loads!.data!.customer?.customerId ??
@@ -407,11 +395,12 @@ changeLoadStatus(BuildContext context, String? id, {required int loadStatus , re
                                     loads!.data!.loadStatusId ?? 4;
 
                               if (currentStatus <= 7) {
-                                widget.cubit.fupdateLoadStatus(
-                                  customerId: customerId,
-                                  loadid: loadId,
-                                  loadStatus: currentStatus + 1,
-                                );
+                                changeLoadStatus(context, loadStatus: currentStatus + 1, loadId: loadId);
+                                // widget.cubit.fupdateLoadStatus(
+                                //   customerId: customerId,
+                                //   loadid: loadId,
+                                //   loadStatus: currentStatus + 1,
+                                // );
                               }
                             },
                           ).paddingOnly(top: 5),
