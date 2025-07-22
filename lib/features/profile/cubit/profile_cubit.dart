@@ -64,12 +64,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userId;
   }
 
+
   // Fetch Profile Detail Api Call
   void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
     emit(state.copyWith(profileDetailUIState: uiState));
   }
   Future<void> fetchProfileDetail({Object? instance}) async {
-    CustomLog.debug(instance ?? this, "Profile Detail Api Call");
+    userId = await _repo.getUserId();
+    CustomLog.debug(instance ?? this, "Profile Detail Api Call : UserId $userId");
+    if (userId == null) {
+      return;
+    }
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<ProfileDetailModel>) {
@@ -95,6 +100,21 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
     }
+  }
+
+
+  // Reset State
+  void resetState(){
+    emit(state.copyWith(
+      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+      profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
+    ));
+  }
+
+  void resetLogoutUIState(){
+    emit(state.copyWith(
+      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+    ));
   }
 
 

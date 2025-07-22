@@ -241,7 +241,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.LOADING) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                 ),
@@ -255,7 +255,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 state.cardsState?.status == Status.LOADING) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                 ),
@@ -267,7 +267,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.ERROR) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -298,7 +298,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 state.cardsState?.status == Status.ERROR) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -327,7 +327,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -352,7 +352,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 (state.cardsState?.data?.data?.document ?? []).isEmpty) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -500,7 +500,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             // Show loading while waiting for KYC check
             return Scaffold(
               appBar: CommonAppBar(
-                title: context.appText.fuelCard,
+                title: Text(context.appText.fuelCard),
                 centreTile: false,
                 onLeadingTap: () => _safeNavigateBack(context),
               ),

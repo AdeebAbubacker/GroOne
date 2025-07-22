@@ -432,7 +432,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                       ),
                     ),
                     Text(
-                      "₹${KavachHelper.formatCurrency((summaryItem.unitPrice * summaryItem.quantity).toStringAsFixed(2))}",
+                      "₹${KavachHelper.formatCurrency((summaryItem.unitPrice * summaryItem.quantity))}",
                       style: AppTextStyle.blackColor15w500,
                     ),
                   ],
@@ -459,7 +459,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount)}",),
                 15.height,
               ],
             );
@@ -575,6 +575,20 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         blueMembershipId: customerInfoMap["blueMembershipId"] ?? "BLUE123456",
       );
 
+      // Determine if referral code is provided and extract employee details
+      String? createdEmpId;
+      int createdEmpUserId = 1234; // Default value
+      
+      if (widget.orderReferencedBy.isNotEmpty) {
+        // If referral code is provided, use it as createdEmpId
+        createdEmpId = widget.orderReferencedBy;
+        // For now, using a default user ID. In a real implementation, 
+        // you would fetch the employee details from the referral code
+        createdEmpUserId = 52864; // This should be fetched based on referral code
+      }
+
+
+
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
       print(
@@ -657,14 +671,17 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Create the order request
       final request = GpsOrderRequest(
         orderSource: "MOBILE",
-        isOrderPaid: false,
+        isOrderPaid: true, // Always true as per documentation
         customerId: customerId,
-        createdEmpUserId: 1234,
-        orderReferencedBy: widget.orderReferencedBy,
+        createdEmpUserId: createdEmpUserId,
+        createdEmpId: createdEmpId, // Will be null if no referral code
+        orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
         totalPrice:
             orderSummary?.data.grandTotal ??
             _fallbackTotalAmount, // Use the API's grandTotal or fallback
         categoryId: 1,
+        orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
+        teamId: 1, // Added teamId as requested
         shippingPersonIncharge: widget.shippingPersonInCharge,
         shippingPersonContactNo: widget.shippingPersonContactNo,
         customerInfo: customerInfo,

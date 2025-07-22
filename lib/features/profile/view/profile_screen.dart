@@ -74,20 +74,28 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
-  void disposeFunction() => frameCallback(() {});
+  void disposeFunction() => frameCallback(() {
+    profileCubit.resetLogoutUIState();
+  });
 
 
-  void logoutDialogPopUp(BuildContext context, bool isLoading) {
+  void logoutDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
-      child: CommonDialogView(
-        yesButtonText: context.appText.logOut,
-        noButtonText: context.appText.cancel,
-        showYesNoButtonButtons: true,
-        hideCloseButton: true,
-        onClickYesButton: ()=> profileCubit.logout(),
-        yesButtonLoading: isLoading,
-        child: LogOutDialogueUi(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        bloc: profileCubit,
+        builder: (context, state) {
+          final isLoading = state.logoutUIState?.status == Status.LOADING;
+          return CommonDialogView(
+            yesButtonText: context.appText.logOut,
+            noButtonText: context.appText.cancel,
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            onClickYesButton: ()=> !isLoading ? profileCubit.logout() : (){},
+            yesButtonLoading: isLoading,
+            child: LogOutDialogueUi(),
+          );
+        }
       ),
     );
   }
@@ -273,6 +281,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
               if (status == Status.SUCCESS) {
                 LpBottomNavigation.selectedIndexNotifier.value = 0;
+                disposeFunction();
                 context.pushReplacement(AppRouteName.chooseLanguage);
               }
 
@@ -282,10 +291,11 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               }
             },
             builder: (context, state) {
+              final status = state.logoutUIState?.status;
               return ProfileMyAccountTile(
                 imageString: AppImage.svg.logOut,
                 text: context.appText.logOut,
-                onTap: () => logoutDialogPopUp(context, state.logoutUIState?.status == Status.LOADING),
+                onTap: () => logoutDialogPopUp(context),
                 showArrow: false,
               );
             },

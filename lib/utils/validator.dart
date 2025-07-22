@@ -160,12 +160,12 @@ class Validator {
     
     final trimmedValue = value.trim().toUpperCase();
     
-    // RC book number format: 5 letters + 4 digits + 1 letter
-    // Example: AAAPA1234A
-    final regex = RegExp(r'^[A-Z]{5}\d{4}[A-Z]$');
+    // RC book number format: 2 letters (State code) + 2 digits (RTO code) + 1 or 2 letters (Series) + 4 digits (Vehicle number)
+    // Examples: MH12AB1234, DL01Z1234, KA02ABC1234
+    final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
     
     if (!regex.hasMatch(trimmedValue)) {
-      return '$fieldName should be in format: AAAPA1234A (5 letters, 4 digits, 1 letter)';
+      return '$fieldName should be in format: XX12AB1234 (2 letters, 2 digits, 1-2 letters, 4 digits)';
     }
     
     return null;

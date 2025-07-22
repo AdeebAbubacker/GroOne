@@ -79,6 +79,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
       children: [
 
@@ -118,36 +119,31 @@ class _CommonDialogViewState extends State<CommonDialogView> {
 
         // Buttons
         if(widget.showYesNoButtonButtons!)
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // No Button
-                AppButton(
-                  buttonHeight: commonButtonHeight2,
-                  style: AppButtonStyle.outline,
-                  title: widget.noButtonText ?? context.appText.no,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ).expand(),
-                16.width,
+            // No Button
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              style: AppButtonStyle.outline,
+              title: widget.noButtonText ?? context.appText.no,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ).expand(),
+            16.width,
 
-                // Yes Button
-                AppButton(
-                  buttonHeight: commonButtonHeight2,
-                  isLoading: widget.yesButtonLoading,
-                  onPressed: widget.onClickYesButton ?? (){},
-                  title: widget.yesButtonText ?? context.appText.yes,
-                ).expand(),
+            // Yes Button
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              isLoading: widget.yesButtonLoading,
+              onPressed: widget.onClickYesButton ?? (){},
+              title: widget.yesButtonText ?? context.appText.yes,
+            ).expand(),
 
-              ],
-            ),
-            10.height
           ],
         ),
       ],
-    );
+    ).paddingOnly(bottom: 5, left: 5, right: 5);
   }
 }

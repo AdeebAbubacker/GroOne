@@ -89,6 +89,7 @@ class _GpsAddAddressBottomSheetState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppTextField(
+                  mandatoryStar: true,
                   controller: customerNameController,
                   labelText: context.appText.addressName,
                   maxLength: 50,
@@ -99,6 +100,7 @@ class _GpsAddAddressBottomSheetState
                 ),
                 10.height,
                 AppTextField(
+                  mandatoryStar: true,
                   controller: addressController,
                   labelText: context.appText.address,
                   inputFormatters: [
@@ -109,6 +111,7 @@ class _GpsAddAddressBottomSheetState
                 ),
                 10.height,
                 AppTextField(
+                  mandatoryStar: true,
                   controller: cityController,
                   labelText: context.appText.city,
                   maxLength: 20,
@@ -119,6 +122,7 @@ class _GpsAddAddressBottomSheetState
                 ),
                 10.height,
                 AppTextField(
+                  mandatoryStar: true,
                   controller: stateController,
                   labelText: context.appText.state,
                   maxLength: 20,
@@ -129,6 +133,7 @@ class _GpsAddAddressBottomSheetState
                 ),
                 10.height,
                 AppTextField(
+                  mandatoryStar: true,
                   controller: pinCodeController,
                   labelText: context.appText.pinCode,
                   keyboardType: TextInputType.number,
