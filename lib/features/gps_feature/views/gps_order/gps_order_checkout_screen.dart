@@ -185,8 +185,24 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh addresses when screen becomes visible again, but preserve selections
-    _refreshAddressesPreservingSelections();
+    // Only refresh addresses if they are in initial or error states
+    // Don't refresh if they are already loaded or selected
+    _refreshAddressesIfNeeded();
+  }
+
+  /// Refresh addresses if they are in error state or empty
+  void _refreshAddressesIfNeeded() {
+    // Refresh billing addresses if in error state or empty
+    if (gpsBillingAddressCubit.state is GpsBillingAddressError ||
+        gpsBillingAddressCubit.state is GpsBillingAddressEmpty) {
+      gpsBillingAddressCubit.fetchGpsBillingAddresses();
+    }
+
+    // Refresh shipping addresses if in error state or empty
+    if (gpsShippingAddressCubit.state is GpsShippingAddressError ||
+        gpsShippingAddressCubit.state is GpsShippingAddressEmpty) {
+      gpsShippingAddressCubit.fetchGpsShippingAddresses();
+    }
   }
 
   /// Refresh addresses while preserving current selections
@@ -262,8 +278,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      // App became visible again, refresh addresses while preserving selections
-      _refreshAddressesPreservingSelections();
+      // App became visible again, only refresh if needed
+      _refreshAddressesIfNeeded();
     }
   }
 

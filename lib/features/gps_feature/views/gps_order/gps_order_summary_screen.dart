@@ -244,6 +244,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   }
                 }
               },
+           
             ),
           );
           // showSuccessDialog(
@@ -297,9 +298,45 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               context,
               child: SuccessDialogView(
                 message: 'Order placed successfully',
-                onContinue: () {
-                  context.go(AppRouteName.gpsOrderBenefits);
-                },
+                 onContinue: () async {
+                try {
+                  // Close the dialog first
+                  Navigator.of(context).pop();
+                  
+                  // Wait for dialog to close completely
+                  await Future.delayed(Duration(milliseconds: 500));
+                  
+                  if (context.mounted) {
+                    print('🔄 GPS Order Success: Attempting GoRouter navigation');
+                    print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
+                    
+                    // Use GoRouter navigation as before
+                    context.go(AppRouteName.gpsOrderBenefits);
+                    
+                    print('🔄 GPS Order Success: GoRouter navigation called successfully');
+                  } else {
+                    print('❌ GPS Order Success: Context not mounted after dialog close');
+                  }
+                } catch (e) {
+                  print('❌ GPS Order Success: Navigation error: $e');
+                  
+                  if (context.mounted) {
+                    try {
+                      // Fallback: Try GoRouter again with different approach
+                      print('🔄 GPS Order Success: Trying GoRouter fallback');
+                      context.go(AppRouteName.gpsOrderBenefits);
+                    } catch (goRouterError) {
+                      print('❌ GPS Order Success: GoRouter fallback also failed: $goRouterError');
+                      
+                      // Final fallback: Show error message
+                      ToastMessages.error(
+                        message: 'Navigation failed. Please try again.',
+                      );
+                    }
+                  }
+                }
+              },
+           
               ),
             );
           }

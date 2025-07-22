@@ -13,7 +13,7 @@ import '../../../../utils/common_widgets.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import 'gps_add_address_bottom_sheet.dart';
 
-class GpsBillingAddressListScreen extends StatelessWidget {
+class GpsBillingAddressListScreen extends StatefulWidget {
   final GpsBillingAddressCubit billingAddressCubit;
   final KavachAddressModel? selectedShippingAddress;
   
@@ -24,9 +24,47 @@ class GpsBillingAddressListScreen extends StatelessWidget {
   });
 
   @override
+  State<GpsBillingAddressListScreen> createState() => _GpsBillingAddressListScreenState();
+}
+
+class _GpsBillingAddressListScreenState extends State<GpsBillingAddressListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh billing addresses when the screen opens, but preserve selection
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshAddressesPreservingSelection();
+    });
+  }
+
+  /// Refresh addresses while preserving the currently selected address
+  void _refreshAddressesPreservingSelection() {
+    final currentState = widget.billingAddressCubit.state;
+    KavachAddressModel? selectedAddress;
+    
+    // Store the currently selected address
+    if (currentState is GpsBillingAddressSelected) {
+      selectedAddress = currentState.selectedAddress;
+    }
+    
+    // Refresh addresses
+    widget.billingAddressCubit.fetchGpsBillingAddresses().then((_) {
+      // After refresh, restore the selection if there was one
+      if (selectedAddress != null && mounted) {
+        // Add a small delay to ensure the fetch is complete
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (mounted) {
+            widget.billingAddressCubit.selectGpsBillingAddress(selectedAddress!);
+          }
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: billingAddressCubit,
+      value: widget.billingAddressCubit,
       child: AppBottomSheetBody(
         title: context.appText.billingAddress,
         hideDivider: false,
@@ -47,7 +85,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
           ),
         );
         // After adding address, refetch the billing addresses immediately
-        billingAddressCubit.fetchGpsBillingAddresses();
+        widget.billingAddressCubit.fetchGpsBillingAddresses();
       },
       title: context.appText.addNewAddress,
       style: AppButtonStyle.outline,
@@ -79,7 +117,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                       10.height,
                       AppButton(
                         onPressed: () {
-                          billingAddressCubit.fetchGpsBillingAddresses();
+                          widget.billingAddressCubit.fetchGpsBillingAddresses();
                         },
                         title: 'Retry',
                         style: AppButtonStyle.outline,
@@ -94,8 +132,8 @@ class GpsBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressSelected) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
+          final filteredAddresses = widget.selectedShippingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != widget.selectedShippingAddress!.uniqueId).toList()
               : state.addresses;
 
           return Column(
@@ -115,7 +153,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                             ),
                             5.height,
                             Text(
-                              selectedShippingAddress != null 
+                              widget.selectedShippingAddress != null 
                                   ? 'All addresses are already selected for shipping'
                                   : 'Add your first billing address',
                               style: AppTextStyle.bodyGreyColor,
@@ -137,7 +175,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
               20.height,
               AppButton(
                 onPressed: () {
-                  final selectedAddress = billingAddressCubit.state;
+                  final selectedAddress = widget.billingAddressCubit.state;
                   if (selectedAddress is GpsBillingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
@@ -154,8 +192,8 @@ class GpsBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressAvailable) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
+          final filteredAddresses = widget.selectedShippingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != widget.selectedShippingAddress!.uniqueId).toList()
               : state.addresses;
 
           return Column(
@@ -175,7 +213,7 @@ class GpsBillingAddressListScreen extends StatelessWidget {
                             ),
                             5.height,
                             Text(
-                              selectedShippingAddress != null 
+                              widget.selectedShippingAddress != null 
                                   ? 'All addresses are already selected for shipping'
                                   : 'Add your first billing address',
                               style: AppTextStyle.bodyGreyColor,
