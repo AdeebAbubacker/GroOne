@@ -182,10 +182,6 @@ final bool isConsentGiven = false;
               DriverLoadHelper.loadStatusButtonWidget(
                 statusId:widget.driverLoadDetails.loadStatusId,
                  onPressed: () {
-              if (widget.driverLoadDetails.driverConsent == 0) {
-                ToastMessages.error(message: "Cannot Start Trip , SIM consent not given");
-                return;
-              }
               widget.onClickAssignDriver?.call();
             },
               ).expand(),  

@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -351,7 +352,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                         driverLoadDetails: state.loads[index],
                    onClickAssignDriver: () {
         final currentStatus = state.loads[index].loadStatusId;
-            if (currentStatus <= 7) {
+         if (currentStatus == 8) {
+              Navigator.push(
+                context,
+                commonRoute(
+                DriverLoadsLocationDetailsScreen(
+                    loadId: state.loads[index].loadId,
+                  ),
+                ),
+              );
+            } else if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
                   loadId: state.loads[index].loadId,  
@@ -366,6 +376,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
            final currentStatus = state.loads[index].loadStatusId;
+           if (currentStatus == 8) {
+              Navigator.push(
+                context,
+                commonRoute(
+                DriverLoadsLocationDetailsScreen(
+                    loadId: state.loads[index].loadId,
+                  ),
+                ),
+              );
+            }
             if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
@@ -380,6 +400,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                           return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
             final currentStatus = state.loads[index].loadStatusId;
+            if (currentStatus == 8) {
+              Navigator.push(
+                context,
+                commonRoute(
+                DriverLoadsLocationDetailsScreen(
+                    loadId: state.loads[index].loadId,
+                  ),
+                ),
+              );
+            }
             if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(

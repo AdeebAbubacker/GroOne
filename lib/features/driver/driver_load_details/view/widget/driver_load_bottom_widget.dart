@@ -67,6 +67,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   List<dynamic> materialInvoiceFiles = [];
   List<String> uploadedMaterialInvoices = [];
   final loadDetailsCubit = locator<LoadDetailsCubit>();
+
+ 
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
@@ -122,7 +125,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (widget.loadItem.data!.loadStatusId <
+                              if (loads!.data!.loadStatusId <
                                   LoadStatus.assigned.index) ...[
                                 Text(
                                   context.appText.requested,
@@ -132,7 +135,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 ),
                                 4.height,
                                 Text(
-                                  '${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}',
+                                  '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
                                   style: AppTextStyle.body1.copyWith(
                                     fontSize: 14,
                                     color: AppColors.black,
@@ -166,7 +169,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                     ),
                                     8.width,
                                     Text(
-                                      '${widget.loadItem.data?.truckType?.type ?? ''} - ${widget.loadItem.data?.truckType?.subType ?? ''}',
+                                      '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
                                       style: AppTextStyle.body3.copyWith(
                                         color: AppColors.greyIconColor,
                                       ),
@@ -184,25 +187,25 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                      
                       DriverSourceDestinationWidget(
                         pickUpLocation:
-                            widget.loadItem.data?.loadRoute?.pickUpLocation,
+                            loads!.data!.loadRoute?.pickUpLocation,
                         dropLocation:
-                            widget.loadItem.data?.loadRoute?.dropLocation,
+                            loads!.data!.loadRoute?.dropLocation,
                       ),
                       20.height,
                       15.height,
                       _buildLoadEntityWidget(
                         commodities:
-                            widget.loadItem.data?.commodity!.name.toString() ??
+                            loads!.data!.commodity!.name.toString() ??
                             '',
                         weight:
-                            widget.loadItem.data?.weight!.value.toString() ??
+                            loads!.data!.weight!.value.toString() ??
                             '',
                       ),
-                      if ((widget.loadItem.data?.loadStatusId ?? 0) > 4)
+                      if ((loads!.data!.loadStatusId ?? 0) > 4)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (widget.loadItem.data?.consignees != null &&
+                            if (loads!.data!.consignees != null &&
                                 widget.loadItem.data!.consignees.isNotEmpty)
                               _buildConsigneeDetail(
                                 context: context,
@@ -269,19 +272,19 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                     ?.scheduleTripDetails
                                                     ?.vehicleId,
                                             loadId:
-                                                widget.loadItem.data?.loadId,
+                                                loads!.data!.loadId,
                                           ),
                                         ),
                                       );
                                     },
                                   ),
                                    Visibility(
-                                  visible:(loadDetails?.data?.damageShortage??[]).isNotEmpty,
+                                  visible:(loads!.data!.damageShortage??[]).isNotEmpty,
                                   child: Column(
                                     children: [
                                       20.height,
                                       AddedDamageWidget(
-                                        damageReport: loadDetails?.data?.damageShortage,
+                                        damageReport: loads!.data!.damageShortage,
                                       ),
                                     ],
                                   )),
@@ -296,13 +299,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                         commonRoute(
                                           DriverSettlementsScreen(
                                             vehicleID:
-                                                widget
-                                                    .loadItem
-                                                    .data
+                                                loads!.data!
                                                     ?.scheduleTripDetails
                                                     ?.vehicleId,
                                             loadId:
-                                                widget.loadItem.data?.loadId,
+                                                  loads!.data!.loadId,
                                           ),
                                         ),
                                       );
@@ -315,11 +316,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             20.height,
                             DriverLoadTimelineWidget(
                               timelineList:
-                                  widget.loadItem?.data?.timeline ?? [],
+                                  loads!.data!.timeline ?? [],
                             ),
                           ],
                         ),
-                      if (widget.loadItem.data?.loadStatusId != 8)
+                      if (  loads!.data!.loadStatusId != 8)
                         BlocListener<
                           DriverLoadDetailsCubit,
                           DriverLoadDetailsState
@@ -333,7 +334,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 message: "Load status updated successfully",
                               );
                               widget.cubit.getLpLoadsById(
-                                loadId: widget.loadItem.data?.loadId ?? '',
+                                loadId:   loads!.data!.loadId ?? '',
                               );
                             }
                                 if (loadStatusState is Error) {
@@ -341,24 +342,24 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                     message: "Failed to update load status",
                                   );
                                   widget.cubit.getLpLoadsById(
-                                    loadId: widget.loadItem.data?.loadId ?? '',
+                                    loadId:   loads!.data!.loadId ?? '',
                                   );
                                 }
                               },
                               child: DriverLoadHelper.loadStatusButtonWidget(
-                                statusId: widget.loadItem.data?.loadStatusId ?? 4,
+                                statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
 
 
-                                if (widget.loadItem.data?.driverConsent == 0) {
+                                if (  loads!.data!.driverConsent == 0) {
                                   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
                                   return;
                                 }
-                                if (widget.loadItem.data?.loadStatusId == 4 && widget.loadItem.data?.driverConsent == 0) {
+                                if (  loads!.data!.loadStatusId == 4 &&   loads!.data!.driverConsent == 0) {
                                   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
                                   return;
                                 }
-                                final List<List<LoadDocument>> nestedDocuments = widget.loadItem.data?.loadDocument ?? [];
+                                final List<List<LoadDocument>> nestedDocuments =   loads!.data!.loadDocument ?? [];
                                 final allDocuments = nestedDocuments.expand((docList) => docList).toList();
                                 bool hasLorryReceipt = allDocuments.any(
                                               (doc) => doc.documentDetails?.documentType == 'LORRY_RECEIPT',
@@ -371,7 +372,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             );
 
                                             // Add your condition to validate all documents are uploaded
-                                            if (widget.loadItem.data?.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
+                                            if (  loads!.data!.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
                                               ToastMessages.error(
                                                 message: "Please upload all required Trip Documents: Lorry Receipt, E-Way Bill, and Material Invoice.",
                                               );
@@ -379,11 +380,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             }        
                             
                               final customerId =
-                                  widget.loadItem.data?.customer?.customerId ??
+                                    loads!.data!.customer?.customerId ??
                                   '';
-                              final loadId = widget.loadItem.data?.loadId ?? '';
+                              final loadId =   loads!.data!.loadId ?? '';
                               final currentStatus =
-                                  widget.loadItem.data?.loadStatusId ?? 4;
+                                    loads!.data!.loadStatusId ?? 4;
 
                               if (currentStatus <= 7) {
                                 widget.cubit.fupdateLoadStatus(
