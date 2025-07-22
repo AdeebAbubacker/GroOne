@@ -1,28 +1,24 @@
 import 'package:dio/dio.dart';
 
 import '../../../data/network/api_service.dart';
-import '../../../data/model/result.dart';
-import '../constants/app_constants.dart';
 import '../model/path_positions_pojo.dart';
+import '../model/trip_path_model.dart';
 
 class PathReplayService {
   final ApiService _apiService;
 
-
-
   PathReplayService(this._apiService);
 
-  Future<List<Data>> getPathReplay(String token, Map<String, dynamic> queryParams) async {
+  Future<List<Data>> getPathReplay(
+    String token,
+    Map<String, dynamic> queryParams,
+  ) async {
     Dio dio = Dio();
 
     final response = await dio.get(
       "https://api.letsgro.co/api/v1/auth/reports/position",
       queryParameters: queryParams,
-      options: Options(
-        headers: {
-          "Authorization": AppConstants.token,
-        },
-      ),
+      options: Options(headers: {"Authorization": token}),
     );
 
     if (response.statusCode == 200) {
@@ -36,10 +32,34 @@ class PathReplayService {
         throw Exception("Failed to fetch path replay data");
       }
     } else {
-      print(response.statusCode);
-      print(response.statusMessage);
       throw Exception("API returned error: ${response.statusMessage}");
     }
   }
 
+  Future<List<TripPath>> getTripPath(String token, int deviceId) async {
+    Dio dio = Dio();
+
+    final response = await dio.get(
+      "https://api.letsgro.co/api/v1/auth/reports/last_trip_position_records",
+      queryParameters: {"device_id": deviceId},
+      options: Options(headers: {"Authorization": token}),
+    );
+
+    if (response.statusCode == 200) {
+      try {
+        final Map<String, dynamic> responseBody = response.data;
+        final List<dynamic> data = responseBody['data'];
+
+        return data.map((e) => TripPath.fromJson(e)).toList();
+      } catch (e, stackTrace) {
+        print("Trip Path Parsing Error: $e");
+        print("Stack trace: $stackTrace");
+        throw Exception("Failed to fetch trip path data: $e");
+      }
+    } else {
+      throw Exception(
+        "Trip Path API returned error: ${response.statusMessage}",
+      );
+    }
+  }
 }

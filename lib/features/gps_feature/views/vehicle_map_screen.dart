@@ -7,25 +7,25 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
-import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
-import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/app_share_helper.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
   bool _isClosed = false;
-  
+
   SelectedVehicleCubit() : super(null);
-  
+
   @override
   Future<void> close() {
     _isClosed = true;
@@ -37,7 +37,7 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
     _isClosed = false;
     emit(null);
   }
-  
+
   void select(GpsCombinedVehicleData? vehicle) {
     if (!_isClosed) {
       emit(vehicle);
@@ -391,7 +391,8 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        (vehicle.vehicleNumber ?? '-').formatVehicleNumberForDisplay,
+                        (vehicle.vehicleNumber ?? '-')
+                            .formatVehicleNumberForDisplay,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -787,58 +788,86 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           lastUpdate: widget.vehicle.lastUpdate,
                           deviceId: widget.vehicle.deviceId,
                           token: AppConstants.token,
-                          onLiveLocationShare: (token, deviceId, vehicleNumber, isLiveLocation, hours) async {
+                          onLiveLocationShare: (
+                            token,
+                            deviceId,
+                            vehicleNumber,
+                            isLiveLocation,
+                            hours,
+                          ) async {
                             try {
-                              final repository = locator<GpsVehicleExtraInfoRepository>();
-                              final result = await repository.shareVehicleLocation(
-                                token: token,
-                                deviceId: deviceId,
-                                vehicleNumber: vehicleNumber,
-                                isLiveLocation: isLiveLocation,
-                                hours: hours,
-                                location: widget.vehicle.location ?? '',
-                                lastUpdate: widget.vehicle.lastUpdate,
-                              );
+                              final repository =
+                                  locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository
+                                  .shareVehicleLocation(
+                                    token: token,
+                                    deviceId: deviceId,
+                                    vehicleNumber: vehicleNumber,
+                                    isLiveLocation: isLiveLocation,
+                                    hours: hours,
+                                    location: widget.vehicle.location ?? '',
+                                    lastUpdate: widget.vehicle.lastUpdate,
+                                  );
                               if (context.mounted) {
                                 if (result is Success<String>) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+                                    SnackBar(
+                                      content: Text(result.value),
+                                      backgroundColor: Colors.green,
+                                    ),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+                                    const SnackBar(
+                                      content: Text('Multiple sharing failed'),
+                                      backgroundColor: Colors.red,
+                                    ),
                                   );
                                 }
                               }
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+                                  const SnackBar(
+                                    content: Text('Multiple sharing failed'),
+                                    backgroundColor: Colors.red,
+                                  ),
                                 );
                               }
                             }
                           },
-                          onCurrentLocationShare: (vehicleNumber, location, lastUpdate) async {
+                          onCurrentLocationShare: (
+                            vehicleNumber,
+                            location,
+                            lastUpdate,
+                          ) async {
                             try {
-                              final repository = locator<GpsVehicleExtraInfoRepository>();
-                              final result = await repository.shareVehicleLocation(
-                                token: AppConstants.token ?? '',
-                                deviceId: widget.vehicle.deviceId!,
-                                vehicleNumber: vehicleNumber,
-                                isLiveLocation: false,
-                                hours: 0,
-                                location: location,
-                                lastUpdate: lastUpdate,
-                              );
+                              final repository =
+                                  locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository
+                                  .shareVehicleLocation(
+                                    token: AppConstants.token ?? '',
+                                    deviceId: widget.vehicle.deviceId!,
+                                    vehicleNumber: vehicleNumber,
+                                    isLiveLocation: false,
+                                    hours: 0,
+                                    location: location,
+                                    lastUpdate: lastUpdate,
+                                  );
                               if (context.mounted) {
                                 if (result is Success<String>) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+                                    SnackBar(
+                                      content: Text(result.value),
+                                      backgroundColor: Colors.green,
+                                    ),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('No location data available for sharing'),
+                                      content: Text(
+                                        'No location data available for sharing',
+                                      ),
                                       backgroundColor: Colors.orange,
                                       duration: Duration(seconds: 2),
                                     ),
@@ -849,7 +878,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('No location data available for sharing'),
+                                    content: Text(
+                                      'No location data available for sharing',
+                                    ),
                                     backgroundColor: Colors.orange,
                                     duration: Duration(seconds: 2),
                                   ),
@@ -1178,7 +1209,10 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
     return battery.toStringAsFixed(2) + 'V';
   }
 
-  void _showPlayRouteBottomSheet(BuildContext context, GpsCombinedVehicleData vehicle) {
+  void _showPlayRouteBottomSheet(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1454,18 +1488,15 @@ String _formatSat(int? sat) {
   return sat.toString();
 }
 
-  String _formatMotion(bool? motion) {
-    if (motion == null) return '-';
-    return motion ? 'Moving' : 'Stopped';
-  }
+String _formatMotion(bool? motion) {
+  if (motion == null) return '-';
+  return motion ? 'Moving' : 'Stopped';
+}
 
 class PlayRouteBottomSheet extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
-  
-  const PlayRouteBottomSheet({
-    super.key,
-    required this.vehicle,
-  });
+
+  const PlayRouteBottomSheet({super.key, required this.vehicle});
 
   @override
   Widget build(BuildContext context) {
@@ -1556,15 +1587,50 @@ class PlayRouteBottomSheet extends StatelessWidget {
     );
   }
 
-  void _navigateToPathReplay(BuildContext context, GpsCombinedVehicleData vehicle, String routeType) {
+  void _navigateToPathReplay(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+  ) {
     // Get current date for query parameters
     final now = DateTime.now();
-    final startDate = now.subtract(const Duration(days: 1));
-    final endDate = now;
+    DateTime startDate;
+    DateTime endDate;
+
+    // Set different date ranges based on route type
+    switch (routeType) {
+      case 'ignition':
+        // For ignition path, get data from last ignition on time or last 24 hours
+        if (vehicle.lastIgnitionOnFixTime != null &&
+            vehicle.lastIgnitionOnFixTime!.isNotEmpty) {
+          try {
+            startDate = DateTime.parse(vehicle.lastIgnitionOnFixTime!);
+            endDate = now;
+          } catch (e) {
+            startDate = now.subtract(const Duration(days: 1));
+            endDate = now;
+          }
+        } else {
+          startDate = now.subtract(const Duration(days: 1));
+          endDate = now;
+        }
+        break;
+      case 'daily':
+        // For daily path, get today's data
+        startDate = DateTime(now.year, now.month, now.day);
+        endDate = now;
+        break;
+      case 'replay':
+      default:
+        // For path replay, get last 7 days of data
+        startDate = now.subtract(const Duration(days: 7));
+        endDate = now;
+        break;
+    }
 
     final Map<String, dynamic> queryParams = {
-      "start": startDate.toIso8601String(),
-      "end": endDate.toIso8601String(),
+      "start": startDate.toUtc().toIso8601String(),
+      "end": endDate.toUtc().toIso8601String(),
       "timezone_offset": "0",
       "inputs": {},
       "device_ids": vehicle.deviceId,
@@ -1575,11 +1641,13 @@ class PlayRouteBottomSheet extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => PathReplayScreen(
-          token: AppConstants.token ?? '',
-          queryParams: queryParams,
-          vehicleNumber: vehicle.vehicleNumber,
-        ),
+        builder:
+            (_) => PathReplayScreen(
+              token: AppConstants.token ?? '',
+              queryParams: queryParams,
+              vehicleNumber: vehicle.vehicleNumber,
+              routeType: routeType,
+            ),
       ),
     );
   }
@@ -1604,11 +1672,7 @@ class _RouteOption extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: Colors.blue,
-              size: 24,
-            ),
+            Icon(icon, color: Colors.blue, size: 24),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -1620,11 +1684,7 @@ class _RouteOption extends StatelessWidget {
                 ),
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.black54,
-              size: 20,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.black54, size: 20),
           ],
         ),
       ),
