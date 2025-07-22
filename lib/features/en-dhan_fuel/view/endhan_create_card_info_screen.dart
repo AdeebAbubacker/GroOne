@@ -26,6 +26,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
@@ -509,9 +510,13 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         }
 
         // Validate RC book (used as RC number)
-        if (controllers['rcBook']?.text?.trim().isEmpty ?? true) {
+        final rcBookValidation = Validator.rcBookNumberValidator(
+          controllers['rcBook']?.text,
+          fieldName: context.appText.rcBook,
+        );
+        if (rcBookValidation != null) {
           isValid = false;
-          errorMessage = '${context.appText.rcBookRequired} for ${context.appText.card} ${i + 1}';
+          errorMessage = '$rcBookValidation for ${context.appText.card} ${i + 1}';
           break;
         }
 
@@ -1116,18 +1121,16 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                     AppTextField(
                                       hintText: 'AAAPA1234A',
                                       controller: controllers['rcBook'],
+                                      textCapitalization: TextCapitalization.characters,
                                       onChanged: (val) {
                                         card['rcBook'] = val;
                                         // Sync with cubit state immediately
                                         _syncCardFieldWithCubit(index, 'rcBook', val);
                                       },
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return context.appText.rcBookRequired;
-                                        }
-                                        return null;
-                                      },
+                                      validator: (value) => Validator.rcBookNumberValidator(
+                                        value,
+                                        fieldName: context.appText.rcBook,
+                                      ),
                                     ),
 
 

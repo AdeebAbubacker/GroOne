@@ -126,7 +126,6 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
               child: TabBar(
                 controller: _tabController,
                 isScrollable: true,
-                physics: const NeverScrollableScrollPhysics(),
                 dividerHeight: 0,
                 tabAlignment: TabAlignment.center,
                 indicatorPadding: EdgeInsets.zero,

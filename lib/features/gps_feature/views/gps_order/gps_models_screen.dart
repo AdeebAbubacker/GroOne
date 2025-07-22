@@ -381,7 +381,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                     style: AppTextStyle.h4,
                   ),
                   Text(
-                    "$_totalQuantity ${context.appText.items}",
+                    "$_totalQuantity ${_totalQuantity == 1 ? context.appText.item : context.appText.items}",
                     style: AppTextStyle.bodyPrimaryColor,
                   ),
                 ],

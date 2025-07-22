@@ -17,7 +17,7 @@ import 'multi_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeApp();
-  await FirebaseService.initializeSecondaryApp();
+  //await FirebaseService.initializeSecondaryApp();
   runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
 }
 

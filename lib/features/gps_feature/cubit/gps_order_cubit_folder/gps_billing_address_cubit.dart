@@ -84,7 +84,9 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
           final addresses = response.data!.rows!
               .map((gpsAddress) => gpsAddress.toKavachAddressModel())
               .toList();
-          emit(GpsBillingAddressLoaded(addresses));
+          // Automatically select the first address
+          CustomLog.debug(this, "GPS Billing - Auto-selecting first address from ${addresses.length} addresses");
+          emit(GpsBillingAddressSelected(selectedAddress: addresses.first, addresses: addresses));
         } else {
           emit(GpsBillingAddressEmpty());
         }
