@@ -231,7 +231,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               5.height,
                               Row(
                                 children: [
-                                  Text(context.appText.driver, style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
+                                  Text("${context.appText.driver}: ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
                                   Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                 ],
                               ),
