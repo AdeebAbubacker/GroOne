@@ -1,5 +1,7 @@
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 
+import '../../vp-helper/vp_helper.dart';
+
 class LoadDetailModel {
   LoadDetailModel({
     required this.message,
@@ -71,6 +73,7 @@ class LoadDetailModelData {
     required this.loadMemo,
     required this.trackingDetails,
     required this.loadOnHold,
+    required this.loadStatusValue,
 
   });
 
@@ -99,7 +102,7 @@ class LoadDetailModelData {
   final DataCommodity? commodity;
   final DataTruckType? truckType;
   final LoadRoute? loadRoute;
-  final LoadStatusDetails? loadStatusDetails;
+  final LoadStatusDetailsResponse? loadStatusDetails;
   final LoadPrice? loadPrice;
   final ScheduleTripDetails? scheduleTripDetails;
   final Consignee? consignee;
@@ -115,6 +118,7 @@ class LoadDetailModelData {
   final dynamic loadMemo;
   final TrackingDetails? trackingDetails;
   final bool? loadOnHold;
+  final LoadStatus? loadStatusValue;
 
 
   LoadDetailModelData copyWith({
@@ -144,7 +148,7 @@ class LoadDetailModelData {
     DataCommodity? commodity,
     DataTruckType? truckType,
     LoadRoute? loadRoute,
-    LoadStatusDetails? loadStatusDetails,
+    LoadStatusDetailsResponse? loadStatusDetails,
     LoadPrice? loadPrice,
     ScheduleTripDetails? scheduleTripDetails,
     Consignee? consignee,
@@ -159,10 +163,12 @@ class LoadDetailModelData {
     int? driverConsent,
     dynamic loadMemo,
     TrackingDetails? trackingDetails,
+    LoadStatus? loadStatusValue,
 
   }) {
     return LoadDetailModelData(
 
+loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadOnHold: loadOnHold??this.loadOnHold,
       trackingDetails: trackingDetails?? this.trackingDetails,
       loadMemo: loadMemo?? this.loadMemo,
@@ -215,6 +221,7 @@ class LoadDetailModelData {
       consigneeDetails=json["consignees"];
     }
     return LoadDetailModelData(
+     loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],
       loadMemo:json['loadMemo'],
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
@@ -246,7 +253,7 @@ class LoadDetailModelData {
       commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : DataTruckType.fromJson(json["truckType"]),
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
-      loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
+      loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetailsResponse.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
       consignee: (consigneeDetails??[]).isEmpty ? null : Consignee.fromJson(consigneeDetails?[0]),
@@ -774,8 +781,8 @@ class LoadRoute {
 
 }
 
-class LoadStatusDetails {
-  LoadStatusDetails({
+class LoadStatusDetailsResponse {
+  LoadStatusDetailsResponse({
     required this.id,
     required this.loadStatus,
     required this.status,
@@ -791,7 +798,7 @@ class LoadStatusDetails {
   final DateTime? updatedAt;
   final dynamic deletedAt;
 
-  LoadStatusDetails copyWith({
+  LoadStatusDetailsResponse copyWith({
     int? id,
     String? loadStatus,
     int? status,
@@ -799,7 +806,7 @@ class LoadStatusDetails {
     DateTime? updatedAt,
     dynamic? deletedAt,
   }) {
-    return LoadStatusDetails(
+    return LoadStatusDetailsResponse(
       id: id ?? this.id,
       loadStatus: loadStatus ?? this.loadStatus,
       status: status ?? this.status,
@@ -809,8 +816,8 @@ class LoadStatusDetails {
     );
   }
 
-  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
-    return LoadStatusDetails(
+  factory LoadStatusDetailsResponse.fromJson(Map<String, dynamic> json){
+    return LoadStatusDetailsResponse(
       id: json["id"] ?? 0,
       loadStatus: json["loadStatus"] ?? "",
       status: json["status"] ?? 0,

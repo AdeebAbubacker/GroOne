@@ -213,7 +213,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                             screen: KycPendingDialogue(
                               onPressed: () {
                                 context.pop();
-                                CustomLog.debug(this, 'Recent Load Company Id : ${widget.companyTypeId}');
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {

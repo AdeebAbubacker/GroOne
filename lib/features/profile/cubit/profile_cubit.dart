@@ -56,6 +56,14 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userRole;
   }
 
+  // Get User Id
+  String? userId;
+  Future<String?> fetchUserId() async {
+    userId = await _repo.getUserId();
+    CustomLog.debug(this, "User Id : $userId");
+    return userId;
+  }
+
   // Fetch Profile Detail Api Call
   void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
     emit(state.copyWith(profileDetailUIState: uiState));
