@@ -257,8 +257,9 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                               10.height,
 
                               buildAttachmentView(
-                              context,
-                              widget.loadItem?.data?.loadId,state,
+                              context,                         
+                              widget.loadItem?.data?.loadId,
+                              state,
                               widget.cubit,
                             ),
                              ],
@@ -363,29 +364,11 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                               child: DriverLoadHelper.loadStatusButtonWidget(
                                 statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
-                                // if (  loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
-                                //   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                                //   return;
-                                // }
-                                // final List<List<LoadDocument>> nestedDocuments =   loads!.data!.loadDocument ?? [];
-                                // final allDocuments = nestedDocuments.expand((docList) => docList).toList();
-                                // bool hasLorryReceipt = allDocuments.any(
-                                //               (doc) => doc.documentDetails?.documentType == 'LORRY_RECEIPT',
-                                //             );
-                                //             bool hasEWayBill = allDocuments.any(
-                                //               (doc) => doc.documentDetails?.documentType == 'E_WAY_BILL',
-                                //             );
-                                //             bool hasMaterialInvoice = allDocuments.any(
-                                //               (doc) => doc.documentDetails?.documentType == 'MATERIAL_INVOICE',
-                                //             );
-
-                                //             // Add your condition to validate all documents are uploaded
-                                //             if (  loads!.data!.loadStatusId == 5 && !hasLorryReceipt || !hasEWayBill || !hasMaterialInvoice) {
-                                //               ToastMessages.error(
-                                //                 message: "Please upload all required Trip Documents: Lorry Receipt, E-Way Bill, and Material Invoice.",
-                                //               );
-                                //               return;
-                                //           }        
+                                if (loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
+                                  ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
+                                  return;
+                                }
+    
                             
                               final customerId =
                                     loads!.data!.customer?.customerId ??

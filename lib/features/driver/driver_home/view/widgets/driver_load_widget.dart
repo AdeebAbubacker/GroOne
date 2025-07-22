@@ -104,6 +104,7 @@ final bool isConsentGiven = false;
           //  progressBarWidget(progressValue: 0.5,),
           //  commonDivider(),
       
+        if(widget.driverLoadDetails.loadStatusId > 4)
          widget.driverLoadDetails.driverConsent == 0  
           ? Column(
               children: [
@@ -127,6 +128,8 @@ final bool isConsentGiven = false;
                 commonDivider(),
               ],
             ),
+           
+           
             Row(
               children: [
                 detailWidget(
@@ -182,6 +185,26 @@ final bool isConsentGiven = false;
               DriverLoadHelper.loadStatusButtonWidget(
                 statusId:widget.driverLoadDetails.loadStatusId,
                  onPressed: () {
+                  if (widget.driverLoadDetails.loadStatusId == 5) {
+      final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+      final allDocumentsUploaded = widget.driverLoadDetails.loadDocument
+              ?.every((doc) => doc.isEmpty == true) ??
+          false;
+ 
+
+      if ( !allDocumentsUploaded) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Please ensure all mandatory fields are uploaded (Consent, Documents, Memo)',
+              style: AppTextStyle.body.copyWith(color: Colors.white),
+            ),
+            backgroundColor: AppColors.iconRed,
+          ),
+        );
+        return;
+      }
+    }
               widget.onClickAssignDriver?.call();
             },
               ).expand(),  
