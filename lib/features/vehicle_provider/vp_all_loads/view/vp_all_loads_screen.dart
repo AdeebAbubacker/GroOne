@@ -274,6 +274,9 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
+                        onBack: () {
+                          _onPullToRefresh();
+                        },
                         onClickAssignDriver: () async {
                          await context.push(AppRouteName.loadDetailsScreen,extra: {
                             "loadId":state.loads[index].id
@@ -295,6 +298,9 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
                         showButton: _tabController.index!=3,
+                        onBack: () {
+                          _onPullToRefresh();
+                        },
                         onClickAssignDriver: () async {
                          await context.push(AppRouteName.loadDetailsScreen,extra: {
                             "loadId":state.loads[index].id

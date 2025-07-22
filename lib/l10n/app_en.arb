@@ -939,7 +939,27 @@
   "swipeToUnLoad":"Swipe to unload",
   "podDispatchedDetails":"POD Dispatch Detail",
   "viewDetails":"View Detail",
-  "uploadOtherDocuments":"Upload Other documents"
+  "uploadOtherDocuments":"Upload Other documents",
+  "pickup":"pickup",
+  "drop":"drop",
+  "driver":"driver",
+  "driverLocation":"Driver Location",
+  "route":"route",
+  "paymentInformation":"Payment Information",
+  "tripCost":"Trip Cost",
+  "advancedPayment":"Advance payment",
+  "completed":"Completed",
+  "pending":"Pending",
+  "advancedReceived":"Advance Received",
+  "transactionID":"Transaction ID",
+  "paymentMode":"Payment mode",
+  "receivedOn":"Received on",
+  "balancePayout":"Balance payout",
+  "pending":"Pending",
+  "completed":"Completed"
+
+
+
 
 
 

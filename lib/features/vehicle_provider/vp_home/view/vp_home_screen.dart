@@ -61,8 +61,8 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
    final profileCubit = locator<ProfileCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
    final vpHomeScreenBloc = locator<VpHomeBloc>();
-  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-
+   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+   final lpHomeCubit = locator<LPHomeCubit>();
 
 
   final searchController = TextEditingController();
@@ -91,13 +91,11 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     lpHomeBloc.getUserId();
-    await profileCubit.fetchUserId();
-    profileCubit.fetchCompanyTypeId();
-    print("Vp Home ${profileCubit.userId}");
-    if(profileCubit.userId != null && profileCubit.userId!.isNotEmpty){
-      profileCubit.fetchProfileDetail(instance: this);
-    }
 
+    await profileCubit.fetchUserId();
+    lpHomeCubit.setBluIDFlag();
+    profileCubit.fetchCompanyTypeId();
+    profileCubit.fetchProfileDetail(instance: this);
   });
 
 
@@ -123,10 +121,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
       appBar: buildAppBarWidget(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
-          await profileCubit.fetchProfileDetail();
-
+          initFunction();
         },
         child: SafeArea(
           child: Column(
@@ -229,9 +224,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        if(profileCubit.userId != null && profileCubit.userId!.isNotEmpty){
-                          profileCubit.fetchProfileDetail(instance: this);
-                        }
+                        profileCubit.fetchProfileDetail(instance: this);
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
@@ -266,13 +259,13 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
           final blueIdFromStorage = await profileCubit.fetchBlueId();
-          bool popupShownFlag = await profileCubit.getHasShowBluePopup();
-
+          // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
+          final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
-          debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
+          // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
-          if (blueIdFromApi.isNotEmpty && popupShownFlag == true) {
+          if (blueIdFromApi.isNotEmpty && blueIdFlag) {
 
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
