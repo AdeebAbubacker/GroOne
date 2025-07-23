@@ -8,9 +8,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -22,9 +22,10 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
   void select(GpsCombinedVehicleData? vehicle) => emit(vehicle);
 }
 
-class VehicleMapScreen extends StatefulWidget {
+class VehicleMapScreen extends StatelessWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
+
   const VehicleMapScreen({
     super.key,
     required this.vehicles,
@@ -32,13 +33,25 @@ class VehicleMapScreen extends StatefulWidget {
   });
 
   @override
-  State<VehicleMapScreen> createState() => _VehicleMapScreenState();
+  Widget build(BuildContext context) {
+    return GpsScreenLifecycleWrapper(
+      screenType: GpsScreenType.map,
+      child: _VehicleMapContent(
+        vehicles: vehicles,
+        initialSelectedVehicle: initialSelectedVehicle,
+      ),
+    );
+  }
 }
 
-class _VehicleMapScreenState extends State<VehicleMapScreen>
-    with GpsRefreshMixin {
-  @override
-  GpsScreenType get screenType => GpsScreenType.map;
+class _VehicleMapContent extends StatelessWidget {
+  final List<GpsCombinedVehicleData> vehicles;
+  final GpsCombinedVehicleData? initialSelectedVehicle;
+
+  const _VehicleMapContent({
+    required this.vehicles,
+    this.initialSelectedVehicle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +60,14 @@ class _VehicleMapScreenState extends State<VehicleMapScreen>
       providers: [
         BlocProvider.value(value: locator<VehicleListCubit>()),
         BlocProvider<SelectedVehicleCubit>(
-          create:
-              (_) =>
-                  SelectedVehicleCubit()..select(widget.initialSelectedVehicle),
+          create: (_) => SelectedVehicleCubit()..select(initialSelectedVehicle),
         ),
       ],
       child: BlocBuilder<SelectedVehicleCubit, GpsCombinedVehicleData?>(
         builder: (context, selectedVehicle) {
-          final isSingleVehicle = widget.vehicles.length == 1;
+          final isSingleVehicle = vehicles.length == 1;
           final markers = <Marker>{};
-          for (final vehicle in widget.vehicles) {
+          for (final vehicle in vehicles) {
             final loc = vehicle.location;
             if (loc != null && loc.contains(',')) {
               final parts = loc.split(',');
@@ -264,7 +275,7 @@ class _VehicleMapScreenState extends State<VehicleMapScreen>
                         GpsCombinedVehicleData? nearestVehicle;
                         double? nearestDistance;
 
-                        for (final vehicle in widget.vehicles) {
+                        for (final vehicle in vehicles) {
                           if (vehicle.location != null &&
                               vehicle.location!.contains(',')) {
                             final parts = vehicle.location!.split(',');
@@ -368,7 +379,8 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        (vehicle.vehicleNumber ?? '-').formatVehicleNumberForDisplay,
+                        (vehicle.vehicleNumber ?? '-')
+                            .formatVehicleNumberForDisplay,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,

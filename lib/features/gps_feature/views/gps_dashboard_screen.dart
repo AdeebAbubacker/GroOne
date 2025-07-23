@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
-import 'package:gro_one_app/features/gps_feature/service/gps_realm_service.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -19,122 +18,65 @@ import 'package:intl/intl.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
 import '../constants/app_constants.dart';
-import '../model/gps_distance_data_model.dart';
 
-class GpsDashboardScreen extends StatefulWidget {
+class GpsDashboardScreen extends StatelessWidget {
   const GpsDashboardScreen({super.key});
 
   @override
-  State<GpsDashboardScreen> createState() => _GpsDashboardScreenState();
+  Widget build(BuildContext context) {
+    return GpsScreenLifecycleWrapper(
+      screenType: GpsScreenType.other,
+      child: _GpsDashboardContent(),
+    );
+  }
 }
 
-class _GpsDashboardScreenState extends State<GpsDashboardScreen>
-    with GpsRefreshMixin {
-  @override
-  GpsScreenType get screenType => GpsScreenType.other;
-
-  String? selectedVehicleNumber;
-  bool isLoading = true;
-  List<DistanceData> _weeklyDistance = [];
-  bool _isWeeklyDistanceLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final cubit = context.read<VehicleListCubit>();
-      final vehicles = cubit.state.filteredVehicles;
-      if (vehicles.isNotEmpty) {
-        selectedVehicleNumber ??= vehicles.first.vehicleNumber;
-        _loadWeeklyDistance(vehicles);
-      }
-
-      if (!cubit.hasLoadedData) {
-        cubit.loadVehicleData(isLoadAgain: true);
-      } else if (cubit.state.selectedVehicleNumber == null &&
-          cubit.state.filteredVehicles.isNotEmpty) {
-        // Fallback initialization if somehow the vehicle wasn't selected during data load
-        final activeVehicles =
-            cubit.state.filteredVehicles
-                .where((vehicle) => vehicle.expired != true)
-                .toList();
-        if (activeVehicles.isNotEmpty) {
-          cubit.setSelectedVehicle(activeVehicles.first.vehicleNumber ?? '');
-        }
-      }
-    });
-  }
-
-  static double _getMaxY(List<FlSpot> points) {
-    final maxY = points
-        .map((e) => e.y)
-        .fold(0.0, (prev, y) => y > prev ? y : prev);
-    return (maxY + 5).ceilToDouble(); // Add padding and round up
-  }
-
-  static int getVehiclesInsideGeofence(List<GpsCombinedVehicleData> vehicles) {
-    return vehicles.where((v) {
-      final geofenceIds = v.geofenceIds;
-
-      if (geofenceIds == null ||
-          geofenceIds.trim().isEmpty ||
-          geofenceIds.trim() == '[]') {
-        return false;
-      }
-      try {
-        final decoded = jsonDecode(geofenceIds);
-        return decoded is List && decoded.isNotEmpty;
-      } catch (_) {
-        // Fallback: maybe it's already a List<String>
-        return false;
-      }
-    }).length;
-  }
-
-  Future<void> _loadWeeklyDistance(
-    List<GpsCombinedVehicleData> vehicles,
-  ) async {
-    if (selectedVehicleNumber == null || vehicles.isEmpty) return;
-
-    final vehicle = vehicles.firstWhere(
-      (v) => v.vehicleNumber == selectedVehicleNumber,
-      orElse: () => vehicles.first,
-    );
-
-    if (vehicle.deviceId == null) return;
-
-    final result = await GpsRealmService().getWeeklyDistanceGraph(
-      vehicle.deviceId!,
-    );
-    setState(() {
-      _weeklyDistance = result;
-      _isWeeklyDistanceLoading = false;
-    });
-  }
-
+class _GpsDashboardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(
-        title: context.appText.dashboard,
-        backgroundColor: Colors.white,
-        elevation: 1,
-        centreTile: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed:
-                () => context.read<VehicleListCubit>().refreshDashboardData(),
-          ),
-        ],
-      ),
-      body: BlocBuilder<VehicleListCubit, VehicleListState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state.error != null) {
-            return Center(
+    return BlocBuilder<VehicleListCubit, VehicleListState>(
+      builder: (context, state) {
+        // Initialize data if needed
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final cubit = context.read<VehicleListCubit>();
+          if (!cubit.hasLoadedData) {
+            cubit.loadVehicleData(isLoadAgain: true);
+          } else if (cubit.state.selectedVehicleNumber == null &&
+              cubit.state.filteredVehicles.isNotEmpty) {
+            // Fallback initialization if somehow the vehicle wasn't selected during data load
+            final activeVehicles =
+                cubit.state.filteredVehicles
+                    .where((vehicle) => vehicle.expired != true)
+                    .toList();
+            if (activeVehicles.isNotEmpty) {
+              cubit.setSelectedVehicle(
+                activeVehicles.first.vehicleNumber ?? '',
+              );
+            }
+          }
+        });
+
+        if (state.isLoading) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundColor,
+            appBar: CommonAppBar(
+              title: context.appText.dashboard,
+              backgroundColor: Colors.white,
+              elevation: 1,
+              centreTile: false,
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state.error != null) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundColor,
+            appBar: CommonAppBar(
+              title: context.appText.dashboard,
+              backgroundColor: Colors.white,
+              elevation: 1,
+              centreTile: false,
+            ),
+            body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -146,32 +88,57 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen>
                   ),
                 ],
               ),
-            );
-          }
-
-          final filteredVehicles = state.filteredVehicles;
-          final vehicles =
-              filteredVehicles
-                  .where((vehicle) => vehicle.expired != true)
-                  .toList();
-
-          if (vehicles.isEmpty) {
-            return Center(child: Text(context.appText.noVehiclesFound));
-          }
-
-          final selectedVehicle = vehicles.firstWhere(
-            (v) => v.vehicleNumber == state.selectedVehicleNumber,
-            orElse: () => vehicles.first,
+            ),
           );
+        }
 
-          final totalDistance = getTotalDistance(vehicles);
-          final insideFenceCount = getVehiclesInsideGeofence(vehicles);
-          final outsideFenceCount = state.statusCount.total - insideFenceCount;
+        final filteredVehicles = state.filteredVehicles;
+        final vehicles =
+            filteredVehicles
+                .where((vehicle) => vehicle.expired != true)
+                .toList();
 
-          return RefreshIndicator(
-            onRefresh:
-                () async =>
-                    context.read<VehicleListCubit>().refreshDashboardData(),
+        if (vehicles.isEmpty) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundColor,
+            appBar: CommonAppBar(
+              title: context.appText.dashboard,
+              backgroundColor: Colors.white,
+              elevation: 1,
+              centreTile: false,
+            ),
+            body: Center(child: Text(context.appText.noVehiclesFound)),
+          );
+        }
+
+        final totalDistance = getTotalDistance(vehicles);
+        final insideFenceCount = getVehiclesInsideGeofence(vehicles);
+        final outsideFenceCount = state.statusCount.total - insideFenceCount;
+
+        return Scaffold(
+          backgroundColor: AppColors.backgroundColor,
+          appBar: CommonAppBar(
+            title: context.appText.dashboard,
+            backgroundColor: Colors.white,
+            elevation: 1,
+            centreTile: false,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () {
+                  // Use the new GPS lifecycle extension
+                  context.gpsManualRefresh();
+                  context.read<VehicleListCubit>().refreshDashboardData();
+                },
+              ),
+            ],
+          ),
+          body: RefreshIndicator(
+            onRefresh: () async {
+              // Use the new GPS lifecycle extension
+              await context.gpsManualRefresh();
+              return context.read<VehicleListCubit>().refreshDashboardData();
+            },
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppConstants.defaultPadding),
               physics: const AlwaysScrollableScrollPhysics(),
@@ -195,9 +162,9 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen>
                 ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -401,13 +368,11 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen>
         currentTotalDistance =
             double.tryParse(vehicle.totalDistance ?? '0') ?? 0.0;
       } catch (e) {
-        debugPrint('Vehicle attr parsing error: $e');
+        // Vehicle attribute parsing error - continue with default values
       }
       totalDistance += (currentTotalDistance - prevOdometer) / 1000;
-      debugPrint('Added $totalDistance');
     }
     totalDistance = double.parse(totalDistance.toStringAsFixed(1));
-    debugPrint(' $totalDistance');
     return totalDistance;
   }
 
@@ -809,20 +774,29 @@ class _GpsDashboardScreenState extends State<GpsDashboardScreen>
     );
   }
 
-  // static int getVehiclesInsideGeofence(List<GpsCombinedVehicleData> vehicles) {
-  //   return vehicles.where((v) {
-  //     final geofenceIds = v.geofenceIds;
+  static double _getMaxY(List<FlSpot> points) {
+    final maxY = points
+        .map((e) => e.y)
+        .fold(0.0, (prev, y) => y > prev ? y : prev);
+    return (maxY + 5).ceilToDouble(); // Add padding and round up
+  }
 
-  //     if (geofenceIds == null || geofenceIds.trim().isEmpty || geofenceIds.trim() == '[]') {
-  //       return false;
-  //     }
-  //     try {
-  //       final decoded = jsonDecode(geofenceIds);
-  //       return decoded is List && decoded.isNotEmpty;
-  //     } catch (_) {
-  //       // Fallback: maybe it's already a List<String>
-  //       return false;
-  //     }
-  //   }).length;
-  // }
+  static int getVehiclesInsideGeofence(List<GpsCombinedVehicleData> vehicles) {
+    return vehicles.where((v) {
+      final geofenceIds = v.geofenceIds;
+
+      if (geofenceIds == null ||
+          geofenceIds.trim().isEmpty ||
+          geofenceIds.trim() == '[]') {
+        return false;
+      }
+      try {
+        final decoded = jsonDecode(geofenceIds);
+        return decoded is List && decoded.isNotEmpty;
+      } catch (_) {
+        // Fallback: maybe it's already a List<String>
+        return false;
+      }
+    }).length;
+  }
 }
