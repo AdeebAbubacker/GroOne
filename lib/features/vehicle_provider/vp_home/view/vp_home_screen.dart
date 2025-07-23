@@ -14,6 +14,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomple
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
@@ -377,19 +379,26 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                   separatorBuilder: (context, index) => 20.height,
                   itemBuilder: (context, index) {
                     final data = state.vpMyLoadResponse.data[index];
-                    return MyLoadsListBody(
-                      data: data,
-                      onClickAssignDriver: () {
-                        final isKycDone = VpVariables.isKycVerified;
-                        final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-                        if (isKycDone) {
-                          context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
-                        } else if (companyId == 2 || companyId == 1) {
-                          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                        } else {
-                          Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                        }
+                    return GestureDetector(
+                      onTap: () async {
+                        await  context.push(AppRouteName.loadDetailsScreen,extra: {
+                          "loadId":data.id
+                        });
                       },
+                      child: VpAllLoadMyLoadWidget(
+                        data: data,
+                        onClickAssignDriver: () {
+                          final isKycDone = VpVariables.isKycVerified;
+                          final companyId = int.parse(profileCubit.companyTypeId ?? "0");
+                          if (isKycDone) {
+                            context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
+                          } else if (companyId == 2 || companyId == 1) {
+                            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                          } else {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                          }
+                        },
+                      ),
                     );
                   },
                 ),

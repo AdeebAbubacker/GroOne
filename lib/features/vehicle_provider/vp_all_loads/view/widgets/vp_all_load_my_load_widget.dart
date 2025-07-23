@@ -103,7 +103,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ),
                   if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
                     VpMyLoadUIHelper.loadStatusWidget(
-
+                        (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
                         widget.data.loadStatusDetails!.loadStatus, context)
                   // LoadStatusLabel(
                   //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
@@ -211,12 +211,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ///Add document list once it get from api
                 VpMyLoadHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
-                    enable:  loadDetailsCubit.isNextProcessButtonEnabled(
+                    enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
-                      driverConsent: widget.data.driverConsent??0,
-                      documentEntity:[] ,
-                      memo: null,
-                      checkMemo: false
+                      documentList: widget.data.loadDocument??[]
                     ),
 
                     // widget.data.loadStatusValues==LoadStatus.loading && widget.data.driverConsent==1 ,

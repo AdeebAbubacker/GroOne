@@ -420,6 +420,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                       value: e.id,
                       label: "${e.type} ${e.subType}",
                     )).toList(),
+
                     onSelectionChange: (selected) {
                       if (selected.isNotEmpty) {
                         selectedTruckTypeList = selected; // already List<int>
