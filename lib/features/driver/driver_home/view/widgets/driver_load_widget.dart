@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/model/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -138,7 +139,7 @@ void _validateButtonStateOnInit() {
         },));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: commonContainerDecoration(
           borderColor: AppColors.primaryColor,
           borderWidth: 1,
@@ -167,7 +168,7 @@ void _validateButtonStateOnInit() {
                 5.width,
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Wrap(
                       children: [
@@ -179,17 +180,11 @@ void _validateButtonStateOnInit() {
                         _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",)
                       ],
                     ),
-                     5.height,
-                   Container(
-              decoration: commonContainerDecoration(
-                color: LpHomeHelper.getLoadStatusColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')
-              ),
-              width: 100,
-              child: Text(
-                LpHomeHelper.getLoadTypeDisplayText(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? ''),
-                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(widget.driverLoadDetails.loadStatusDetails?.loadStatus.toString() ?? '')),
-              ).center().paddingAll(4),
-            ),     5.height,
+               if(widget.driverLoadDetails.loadStatusId > 4 && widget.driverLoadDetails.loadStatusId != null)
+                    DriverLoadHelper.loadStatusWidget(
+                        (widget.driverLoadDetails.loadOnhold??false) ? context.appText.loadOnHold:
+                        widget.driverLoadDetails.loadStatusDetails!.loadStatus, context)      
+
                   ],
                 ).expand(),
               ],

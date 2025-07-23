@@ -397,51 +397,26 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                    //Check for sim consent and trip doc
                                 if (loads.data?.loadStatusId == 5) {
                                   final isConsentGiven = loads.data?.driverConsent == 1;
-                                final nestedDocuments = loads.data?.loadDocument ?? [];
-                                final documents = nestedDocuments.expand((list) => list).toList();
-                                const requiredDocs = [
-                                  'lorry receipt',
-                                  'eway bill',
-                                  'material invoice',
-                                ];
-                              final uploadedTypes = documents
-                                  .where((doc) => doc.status == 1)
-                                  .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
-                                  .toSet();
-
-                                final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
-
-                                if (!allRequiredDocsUploaded) {
+                                final tripDocumentList = state.tripDocumentList ?? [];
+                                if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
                                   ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                                   return;
                                 }
-
-
-                                if (!isConsentGiven) {
+                               if (!isConsentGiven) {
                                   ToastMessages.error(message: 'Please ensure SIM consent is given');
 
                                   return;
                                 }
                               }
 
-                        // Check for Pod Doc
+                            // Check for Pod Doc
                             if (loads.data?.loadStatusId == 6) {
-                            final nestedDocuments = loads.data?.loadDocument ?? [];
-                            final documents = nestedDocuments.expand((list) => list).toList();
-
-                            final podDocExists = documents.any((doc) =>
-                                (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
-                                doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
-                                doc.status == 1);
-
-                            if (!podDocExists) {
-                              ToastMessages.error(message: 'Please upload POD document');
-                              return;
-                            }
+                                final tripDocumentList = state.tripDocumentList ?? [];
+                                if (!widget.cubit.isPODUploaded(tripDocumentList)) {
+                                  ToastMessages.error(message: 'Please upload POD document');
+                                  return;
+                                }
                           }
-
-    
-                            
                               final customerId =
                                     loads!.data!.customer?.customerId ??
                                   '';
@@ -451,11 +426,6 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
 
                               if (currentStatus <= 7) {
                                 changeLoadStatus(context, loadStatus: currentStatus + 1, loadId: loadId);
-                                // widget.cubit.fupdateLoadStatus(
-                                //   customerId: customerId,
-                                //   loadid: loadId,
-                                //   loadStatus: currentStatus + 1,
-                                // );
                               }
                             },
                           ).paddingSymmetric(horizontal: 15),
