@@ -30,7 +30,13 @@ class DriverLoadWidget extends StatefulWidget {
 }
 
 class _DriverLoadWidgetState extends State<DriverLoadWidget> {
-final bool isConsentGiven = false;
+@override
+void initState() {
+  super.initState();
+  _validateButtonStateOnInit();
+}
+bool _isButtonEnabled = true; 
+
  // Button Status
   bool _shouldEnableButton(DriverLoadDetails? load) {
   if (load == null) return false;
@@ -76,7 +82,52 @@ final bool isConsentGiven = false;
   // Default case for other statuses
   return true;
 }
-  
+
+//Button Status on init
+void _validateButtonStateOnInit() {
+  final statusId = widget.driverLoadDetails.loadStatusId;
+
+  if (statusId == 5) {
+    final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+    final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
+
+    final uploadedTypes = documents
+        .where((doc) => doc.status == 1)
+        .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+        .toSet();
+
+    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+    setState(() {
+      _isButtonEnabled = isSimConsentGiven && allRequiredDocsUploaded;
+    });
+    return;
+  }
+
+  if (statusId == 6) {
+    final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    final podDocExists = documents.any((doc) =>
+        (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+         doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+        doc.status == 1);
+
+    setState(() {
+      _isButtonEnabled = podDocExists;
+    });
+    return;
+  }
+
+  setState(() {
+    _isButtonEnabled = true;
+  });
+}
+
+ 
   
   @override
   Widget build(BuildContext context) {
@@ -230,7 +281,7 @@ final bool isConsentGiven = false;
                 ),
                 10.width,
                 DriverLoadHelper.loadStatusButtonWidget(
-                     enable: true,
+                     enable: _isButtonEnabled,
                       statusId: widget.driverLoadDetails.loadStatusId,
                       onPressed: () {
                         //Check for sim consent and trip doc
@@ -251,10 +302,16 @@ final bool isConsentGiven = false;
                         final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
                           if (!allRequiredDocsUploaded) {
+                            setState(() {
+                                _isButtonEnabled = false;
+                              });
                             ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                             return;
                           }
                           if (!isConsentGiven) {
+                            setState(() {
+                                _isButtonEnabled = false;
+                              });
                              ToastMessages.error(message: 'Please ensure SIM consent is given');
                             return;
                           }
@@ -271,10 +328,16 @@ final bool isConsentGiven = false;
                                 doc.status == 1);
 
                             if (!podDocExists) {
+                              setState(() {
+                                _isButtonEnabled = true;
+                              });
                               ToastMessages.error(message:  'Please upload POD document');
                               return;
                             }
                           }
+                          setState(() {
+                                _isButtonEnabled = true;
+                              });
                         widget.onClickAssignDriver?.call();
                       },
                     ).expand(),

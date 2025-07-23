@@ -417,12 +417,12 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 }
 
 
-                          if (!isConsentGiven) {
-                            ToastMessages.error(message: 'Please ensure SIM consent is given');
+                                if (!isConsentGiven) {
+                                  ToastMessages.error(message: 'Please ensure SIM consent is given');
 
-                            return;
-                          }
-                        }
+                                  return;
+                                }
+                              }
 
                         // Check for Pod Doc
                             if (loads.data?.loadStatusId == 6) {
