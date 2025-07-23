@@ -46,6 +46,7 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
     if (loginResult is Success<GpsLoginResponseModel>) {
       _authToken = loginResult.value.token;
       AppConstants.token = _authToken;
+      AppConstants.token = _authToken!;
       _setLoginUIState(UIState.success(loginResult.value));
 
       // Store login response in Realm

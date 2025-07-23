@@ -74,7 +74,7 @@ class LpMyAccount extends StatelessWidget {
 
                 buildDetailWidget(
                   text1: context.appText.kycStatus,
-                  text2: customerDetail?.isKyc == 3 ? "Verified" : "Un-Verified",
+                  text2: customerDetail?.isKyc == 3 ? context.appText.verified : context.appText.unVerified,
                 ),
 
                 dividerWidget(),
@@ -84,21 +84,21 @@ class LpMyAccount extends StatelessWidget {
 
               // Bank Details
               if(bankDetails == null)...[
-                headingText(text: 'Bank Details'),
+                headingText(text: context.appText.bankDetails),
                 buildDetailWidget(
-                  text1: 'Account no.',
+                  text1: context.appText.accountNumber,
                   text2: checkUserDetails(bankDetails?.bankAccount),
                 ),
                 buildDetailWidget(
-                  text1: 'Bank Name',
+                  text1: context.appText.bankName,
                   text2: checkUserDetails(bankDetails?.bankName),
                 ),
                 buildDetailWidget(
-                  text1: 'Branch Name',
+                  text1: context.appText.branchName,
                   text2: checkUserDetails(bankDetails?.branchName),
                 ),
                 buildDetailWidget(
-                  text1: 'IFSC code',
+                  text1: context.appText.ifscCode,
                   text2: checkUserDetails(bankDetails?.ifscCode),
                 ),
                 dividerWidget(),

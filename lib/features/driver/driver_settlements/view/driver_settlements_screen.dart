@@ -99,7 +99,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
               AppTextField(
                 controller: noOfDays,
                 labelText: context.appText.noOfDays,
-                hintText: "Days",
+                hintText:  context.appText.days,
                 keyboardType: TextInputType.number,
 
                 validator: (value) => Validator.fieldRequired(value),
@@ -175,10 +175,10 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
                 builder: (context, state) {
                   final isLoading = state.createDamageUIState?.status == Status.LOADING;
                   return AppButton(
-                      title: "Submit",
+                      title: context.appText.submit,
                       isLoading: isLoading,
                       style: AppButtonStyle.primary,
-                      onPressed: isLoading ? (){} : ()=>createAndSubmitSettlements()
+                      onPressed: isLoading ? (){} : ()=> createAndSubmitSettlements()
                   );
                 },
               ),
@@ -205,8 +205,8 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        heading: "Your settlement details has been recorded.",
-        message: "We have notified the concerned team.",
+        heading: context.appText.settlementRecordedSuccessfully,
+        message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
           },

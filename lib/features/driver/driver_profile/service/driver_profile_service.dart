@@ -18,8 +18,8 @@ class DriverProfileService {
   Future<Result<DriverProfileDetailsModel>> getDriverProfileDetails() async {
     try {
     final userId = await _userInformationRepository.getUserID();
-     // final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
-     final url = "https://gro-devapi.letsgro.co/customer/api/v1/drivers/id/${userId ?? ""}";  
+    final url = "${ApiUrls.driverProfile}${userId ?? ""}";
+
      if (userId == null || userId.isEmpty) {
     return Error(InvalidInputError());
   }

@@ -520,6 +520,12 @@ class GpsAddress {
   final String? gstin;
   final String? addressType;
   final bool isDefault;
+  
+  // Store original components for better conversion
+  final String addr;
+  final String city;
+  final String state;
+  final String pincode;
 
   const GpsAddress({
     required this.id,
@@ -528,6 +534,10 @@ class GpsAddress {
     this.gstin,
     this.addressType,
     this.isDefault = false,
+    required this.addr,
+    required this.city,
+    required this.state,
+    required this.pincode,
   });
 
   factory GpsAddress.fromJson(Map<String, dynamic> json) {
@@ -552,6 +562,10 @@ class GpsAddress {
       gstin: gstin,
       addressType: addrType,
       isDefault: isDefault,
+      addr: addr,
+      city: city,
+      state: state,
+      pincode: pincode,
     );
   }
 
@@ -563,6 +577,10 @@ class GpsAddress {
       'gstin': gstin,
       'addressType': addressType,
       'isDefault': isDefault,
+      'addr': addr,
+      'city': city,
+      'state': state,
+      'pincode': pincode,
     };
   }
 
@@ -574,13 +592,13 @@ class GpsAddress {
       mobileNumber: '',
       customerId: 851,
       addressName: addressName,
-      addr1: fullAddress,
+      addr1: addr.isNotEmpty ? addr : 'Street Address', // Use stored addr component
       addr2: '',
-      city: '',
-      state: '',
+      city: city.isNotEmpty ? city : 'City', // Use stored city component
+      state: state.isNotEmpty ? state : 'State', // Use stored state component
       country: 'India',
       gstin: gstin,
-      pincode: '',
+      pincode: pincode.isNotEmpty ? pincode : '000000', // Use stored pincode component
       addrType: int.tryParse(addressType ?? '1') ?? 1,
       status: 1,
       createdAt: DateTime.now(),
