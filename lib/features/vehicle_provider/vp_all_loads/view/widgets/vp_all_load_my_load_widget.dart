@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_load_ui_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -209,15 +208,13 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 if(widget.data.loadStatusDetails != null)
                   ///TODO:
                   ///Add document list once it get from api
-                VpMyLoadHelper.loadStatusButtonWidget(
+                  VpMyLoadUIHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
                     enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
                       documentList: widget.data.loadDocument??[]
                     ),
-
-                    // widget.data.loadStatusValues==LoadStatus.loading && widget.data.driverConsent==1 ,
-                    context: context,
+                      context: context,
                     onPressed: () {
                       _handleOnTap(widget.data.loadStatusDetails,widget.data.loadStatusValues,widget.data.id,widget.data.loadStatus.toInt());
                     }
@@ -258,11 +255,12 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
      String? userId = await vpHomeBloc.getUserId();
       if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed){
-        loadDetailsCubit.changedLoadStatus(
+       await loadDetailsCubit.changedLoadStatus(
             id??"0",
             customerId: userId??"",
             loadStatus:(loadStatusId??0)+1
         );
+        widget.onBack!();
         return;
       }
 

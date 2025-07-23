@@ -57,28 +57,66 @@ class VpMyLoadUIHelper {
   }
 
   // Showing Status Button
-  static Widget loadStatusButtonWidget({required BuildContext context, required String status, bool isLoading = false, required void Function() onPressed}) {
+  static Widget loadStatusButtonWidget({
+    required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context,bool? enable=true}) {
     switch (status) {
       case "Confirmed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: context.appText.confirmed,
+          title:context.appText.assignDriver,
         );
       case "Assigned":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: context.appText.startTrip,
+          title:context.appText.startTrip ,
         );
       case "Loading":
-        return _swipeButtonWidget(context: context, status: 'Loading', onPressed: onPressed);
+        return  SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+          outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: context.appText.swipeToCompleteLoading,
+          textStyle: AppTextStyle.button.copyWith(
+              color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+          onSubmit: (){
+            onPressed.call();
+            return;
+          },
+        );
+
       case "Unloading":
-        return _swipeButtonWidget(context: context, status: 'Unloading', onPressed: onPressed);
+        return SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+          outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: context.appText.swipeToCompleteUnLoading,
+
+          textStyle: AppTextStyle.button.copyWith(
+              color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+          onSubmit: (){
+            onPressed.call();
+            return;
+          },
+        );
       case "In Transit":
         return SlideAction(
+          enabled: enable??true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
@@ -87,7 +125,7 @@ class VpMyLoadUIHelper {
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteUnloading,
+          text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
           onSubmit: (){
             onPressed.call();
@@ -95,24 +133,23 @@ class VpMyLoadUIHelper {
         );
       case "POD Dispatch":
         return AppButton(
+
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "POD Dispatch Detail",
+          title: context.appText.podDispatchedDetails,
         );
       case "Completed":
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: context.appText.view,
+          title: context.appText.viewDetails,
         );
       default:
         return Container();
     }
   }
-
-
   // Sim Tracking Status View
   static Widget simTrackingWidget({required BuildContext context, required String status, int driverConsent = 0}) {
     Widget ui({required String text ,required Color textColor}) {
@@ -139,55 +176,6 @@ class VpMyLoadUIHelper {
     }
   }
 
-
-  // Swipe button View
-  static Widget _swipeButtonWidget({required BuildContext context, required String status, int driverConsent = 0, required void Function() onPressed}) {
-    switch (status) {
-      case "Loading":
-      case "Unloading":
-      if (driverConsent == 1){
-        return SlideAction(
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-          outerColor:  AppColors.lightPrimaryColor3,
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteUnloading,
-          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-          onSubmit: (){
-            onPressed.call();
-            return;
-          },
-        );
-      } else if (driverConsent == 0){
-        return IgnorePointer(
-          ignoring: true,
-          child: SlideAction(
-            borderRadius: commonButtonRadius,
-            elevation: 0,
-            height: commonButtonHeight2,
-            innerColor: Colors.transparent,
-            outerColor:  AppColors.greyIconBackgroundColor,
-            sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon, colorFilter: AppColors.svg(AppColors.greyIconColor)).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-            sliderRotate: false,
-            sliderButtonYOffset: -30,
-            text: context.appText.swipeToCompleteLoading,
-            textStyle: AppTextStyle.button.copyWith(color: AppColors.greyTextColor),
-            onSubmit: (){
-              return;
-            },
-          ),
-        );;
-      } else {
-        return Container();
-      }
-      default:
-        return Container();
-    }
-  }
 
 
   // Progress Tracking Status View
