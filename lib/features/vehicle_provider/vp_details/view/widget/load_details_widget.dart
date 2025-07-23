@@ -290,7 +290,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   if(loadDetails?.loadOnHold==false)
                   _buildBottomButtonWidget(loadDetails, state, context),
                 ],
-              ),
+              ).paddingTop(15),
             ),
           );
         }
@@ -437,22 +437,22 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
-        if(loadStatusID>4 && paymentEntity!=null)
-        ...[
-          5.height,
-          _buildLoadProviderAdvancePaymentCardViewOnly(
-            context: context,
-            agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
-            paymentStatus: 1,
-            advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
-            agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
-            balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
-            onViewTap: () {
-              showPaymentView(context, paymentEntity);
-            },
-            // tripPrice: "1000",
-          ),
-        ]
+        // if(loadStatusID>4 && paymentEntity!=null)
+        // ...[
+        //   5.height,
+        //   _buildLoadProviderAdvancePaymentCardViewOnly(
+        //     context: context,
+        //     agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
+        //     paymentStatus: 1,
+        //     advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
+        //     agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
+        //     balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
+        //     onViewTap: () {
+        //       showPaymentView(context, paymentEntity);
+        //     },
+        //     // tripPrice: "1000",
+        //   ),
+        // ]
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -556,7 +556,6 @@ class LoadDetailsWidget extends StatelessWidget {
            AppButton(
              isLoading:state.vpLoadStatus?.status==Status.LOADING,
              title:state.loadStatus==LoadStatus.completed ? context.appText.viewTripSettlement:
-
              state.loadStatus==LoadStatus.accepted
                  ? context.appText.assignDriver
                  : context.appText.acceptLoad,
@@ -617,7 +616,7 @@ class LoadDetailsWidget extends StatelessWidget {
             isAdvanceCompleted: true,
             isBalancePending: false,
             onProceed: () {},
-            paymentMode: "NEFT",
+            paymentMode: paymentEntity?.paymentType,
             receivedOn:formatDateTimeKavach(paymentEntity?.paymentDate?.toString()??DateTime.now().toString()),
             transactionId: "467898765432",
             tripCost:PriceHelper.formatINR(paymentEntity?.agreedPrice??""),
@@ -699,31 +698,31 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
         ),
 
       12.height,
-      if (paymentStatus != 4)
-        Align(
-          alignment: Alignment.center,
-          child: GestureDetector(
-            onTap: onViewTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.appText.view,
-                  style: AppTextStyle.body.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 25,
-                  color: AppColors.black,
-                ),
-              ],
-            ),
-          ),
-        ),
+      // if (paymentStatus != 4)
+      //   Align(
+      //     alignment: Alignment.center,
+      //     child: GestureDetector(
+      //       onTap: onViewTap,
+      //       child: Row(
+      //         mainAxisSize: MainAxisSize.min,
+      //         children: [
+      //           Text(
+      //             context.appText.view,
+      //             style: AppTextStyle.body.copyWith(
+      //               fontSize: 12,
+      //               fontWeight: FontWeight.w400,
+      //               color: AppColors.primaryColor,
+      //             ),
+      //           ),
+      //           const Icon(
+      //             Icons.chevron_right,
+      //             size: 25,
+      //             color: AppColors.black,
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
     ],
   );
 }

@@ -5,7 +5,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
+import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -22,17 +35,6 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
-import '../bloc/kavach_order_bloc/kavach_order_event.dart';
-import '../bloc/kavach_order_bloc/kavach_order_state.dart';
-import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
-import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
-import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
-import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
-import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
-import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
-import '../helper/kavach_helper.dart';
-import '../model/kavach_address_model.dart';
-import '../model/kavach_product_model.dart';
 import '../../profile/cubit/profile_cubit.dart';
 import '../../login/repository/user_information_repository.dart';
 import 'kavach_support_screen.dart';
@@ -48,6 +50,7 @@ class KavachSummaryScreen extends StatefulWidget {
   final String shippingPersonContactNo;
   final String orderReferencedBy;
   final Map<String, List<String>> selectedVehiclePerProduct;
+  final String? orderId; // Add orderId parameter
 
 
   const KavachSummaryScreen({
@@ -62,6 +65,7 @@ class KavachSummaryScreen extends StatefulWidget {
     required this.shippingPersonContactNo,
     required this.orderReferencedBy,
     required this.selectedVehiclePerProduct,
+    this.orderId, // Make it optional
   });
 
   @override
@@ -137,8 +141,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   Widget build(BuildContext context) {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
       bloc: kavachOrderBloc,
-      listener: (context, state) {
-        if (state is KavachOrderSubmitting) {
+      listener: (context, state) async {
+        if (state is KavachPaymentInitiating) {
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -148,41 +152,52 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           if (Navigator.canPop(context)) Navigator.of(context).pop();
         }
 
-        if (state is KavachOrderSuccess) {
-          showSuccessDialog(
-            context,
-            text: 'Order placed successfully',
-            subheading: ''
+        if (state is KavachPaymentSuccess) {
+          // Navigate to payment screen
+          final result = await Navigator.of(context).push(
+            commonRoute(
+              PaymentsScreen(
+                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                loadId: "kavach_order",
+              ),
+            ),
           );
-          Future.delayed(Duration(seconds: 3),() {
-            // Clear address blocs before navigating back
-            try {
-              // Clear billing address bloc
-              final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
-              billingBloc.add(ClearKavachBillingAddress());
-              
-              // Clear shipping address bloc
-              final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
-              shippingBloc.add(ClearKavachShippingAddress());
-            } catch (e) {
-              // Handle any errors if blocs are not available
-              print('Error clearing address blocs: $e');
-            }
-            
-            Navigator.of(context).popUntil((route) {
-              if (route.settings.name == 'KavachOrderListScreen') {
-                if (route.navigator != null && route.navigator!.context.mounted) {
-                  BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
-                }
-                return true; // Pop until this route
-              }
-              return false;
-            });
-          },);
 
-          // Pop until KavachBenefitsScreen
-        } else if (state is KavachOrderFailure) {
-          ToastMessages.error(message: "Failed to place order: ${state.message}");
+          // Handle payment completion
+          if (result == true) {
+            showSuccessDialog(
+              context,
+              text: 'Order placed successfully',
+              subheading: ''
+            );
+            Future.delayed(Duration(seconds: 3),() {
+              // Clear address blocs before navigating back
+              try {
+                // Clear billing address bloc
+                final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                billingBloc.add(ClearKavachBillingAddress());
+                
+                // Clear shipping address bloc
+                final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+                shippingBloc.add(ClearKavachShippingAddress());
+              } catch (e) {
+                // Handle any errors if blocs are not available
+                print('Error clearing address blocs: $e');
+              }
+              
+              Navigator.of(context).popUntil((route) {
+                if (route.settings.name == 'KavachOrderListScreen') {
+                  if (route.navigator != null && route.navigator!.context.mounted) {
+                    BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
+                  }
+                  return true; // Pop until this route
+                }
+                return false;
+              });
+            },);
+          }
+        } else if (state is KavachPaymentFailure) {
+          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
         }
       },
       child: Scaffold(
@@ -354,73 +369,20 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           15.width,
           AppButton(
             onPressed: () async {
-              // Determine if referral code is provided and extract employee details
-              String? createdEmpId;
-              int createdEmpUserId = 1234; // Default value
-              
-              if (widget.orderReferencedBy.isNotEmpty) {
-                // If referral code is provided, use it as createdEmpId
-                createdEmpId = widget.orderReferencedBy;
-                // For now, using a default user ID. In a real implementation, 
-                // you would fetch the employee details from the referral code
-                createdEmpUserId = 52864; // This should be fetched based on referral code
-              }
-
-              // Get real customer information
+              // Get customer information
               final customerInfo = await getCustomerInfo();
 
-              final request = KavachOrderRequest(
-                orderSource: "MOBILE",
-                isOrderPaid: true, // Always true as per documentation
-                customerId: await kavachOrderBloc.getUserId()??'',
-                createdEmpUserId: createdEmpUserId,
-                createdEmpId: createdEmpId, // Will be null if no referral code
-                orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
-                totalPrice: totalAmount,
-                categoryId: 1, // Always 1 for Products
-                orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
-                teamId: 1, // Added teamId as requested
-                shippingPersonIncharge: widget.shippingPersonInCharge,
-                shippingPersonContactNo: widget.shippingPersonContactNo,
-                customerInfo: customerInfo,
-                billingAddress: {
-                  "addressLine1": widget.billingAddress.addressName,
-                  "addressLine2": widget.billingAddress.addr1,
-                  "city": widget.billingAddress.city,
-                  "state": widget.billingAddress.state,
-                  "postalCode": widget.billingAddress.pincode,
-                  "country": widget.billingAddress.country,
-                  "gstId": widget.billingAddress.gstin??"",
-                },
-                shippingAddress: {
-                  "addressLine1": widget.shippingAddress.addressName,
-                  "addressLine2": widget.shippingAddress.addr1,
-                  "city": widget.shippingAddress.city,
-                  "state": widget.shippingAddress.state,
-                  "postalCode": widget.shippingAddress.pincode,
-                  "country": widget.shippingAddress.country,
-                  "gstId": widget.shippingAddress.gstin??""
-                },
-                orders: widget.products.map((product) {
-                  final quantity = widget.quantities[product.id]!;
-                  final stock = widget.availableStocks[product.id] ?? 0;
-                  final vehicleNumbers = widget.selectedVehiclePerProduct[product.id] ?? [];
-
-                  return KavachOrderItem(
-                    productServiceId: int.parse(product.id),
-                    noOfProducts: quantity,
-                    unitPrice: product.price,
-                    totalPrice: product.price * quantity * (1 + (product.gstPerc / 100)),
-                    stockAvailable: stock,
-                    vehicleNumbers: vehicleNumbers.map((v) => KavachOrderVehicle(vehicleNumber: v)).toList(),
-                  );
-                }).toList(),
+              // Create payment request using the order ID from checkout
+              final paymentRequest = KavachInitiatePaymentRequest(
+                orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                amount: totalAmount.toInt(),
+                customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
+                customerEmail: "customer@example.com", // This should be fetched from user profile
+                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                customerCity: widget.billingAddress.city,
               );
 
-              if (kDebugMode) {
-                log(jsonEncode(request));
-              }
-              kavachOrderBloc.add(KavachSubmitOrder(request));
+              kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -431,13 +393,19 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   }
 
   Widget _buildAddressCard(KavachAddressModel address) {
+    // Clean the addr1 to remove trailing comma
+    String cleanAddr1 = address.addr1.trim();
+    if (cleanAddr1.endsWith(',')) {
+      cleanAddr1 = cleanAddr1.substring(0, cleanAddr1.length - 1);
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text(address.addr1,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(cleanAddr1,style: AppTextStyle.textDarkGreyColor14w500,),
         Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500),
         Visibility(
             visible: address.gstin!=null && address.gstin!.isNotEmpty,
             child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),

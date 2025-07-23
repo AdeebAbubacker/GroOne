@@ -99,7 +99,7 @@ class VpMyLoadHelper {
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-          outerColor:  AppColors.lightPrimaryColor3,
+          outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,

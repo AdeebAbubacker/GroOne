@@ -25,10 +25,12 @@ class VpMyLoadUIHelper {
           color: backgroundColor,
           borderRadius: BorderRadius.circular(100),
         ),
-        child: Text(
-          text.capitalize,
-          style: AppTextStyle.body.copyWith(color: textColor),
-        ).paddingSymmetric(horizontal: 10, vertical: 3),
+        child: FittedBox(
+          child: Text(
+            text.capitalize,
+            style: AppTextStyle.body.copyWith(color: textColor),
+          ).paddingSymmetric(horizontal: 10, vertical: 3),
+        ),
       );
     }
 
@@ -47,8 +49,8 @@ class VpMyLoadUIHelper {
         return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
       case "Completed":
         return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
-      // case "loadOnHold":
-      //   return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
+      case "loadOnHold":
+        return ui(text: context.appText.unloadingHeld, textColor: Colors.white, backgroundColor: AppColors.iconRed);
       default:
         return Container();
     }

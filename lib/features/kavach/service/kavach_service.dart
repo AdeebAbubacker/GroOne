@@ -10,6 +10,7 @@ import '../../../utils/custom_log.dart';
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../api_request/kavach_add_address_api_request.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
+import '../api_request/kavach_payment_api_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
 import '../model/kavach_order_list_model.dart';
@@ -20,6 +21,7 @@ import '../model/kavach_vehicle_document_upload_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 
 class KavachService {
   final ApiService _apiService;
@@ -310,6 +312,27 @@ class KavachService {
       }
     } catch (e) {
       CustomLog.error(this, "Failed to create order", e);
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Initiates payment for Kavach order
+  Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
+    try {
+      final response = await _apiService.post(
+        ApiUrls.kavachPayment,
+        body: request.toJson(),
+      );
+      if (response is Success) {
+        final data = response.value;
+        final result = OrderAddedSuccess.fromJson(data);
+        CustomLog.debug(this, "Payment initiated successfully");
+        return Success(result);
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }
   }
