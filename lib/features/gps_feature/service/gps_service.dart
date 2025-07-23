@@ -462,6 +462,29 @@ class GpsService {
     }
   }
 
+  Future<Result<void>> updateNotificationToggle(
+      Map<String, dynamic> payload,
+      String token,
+      ) async {
+    try {
+      final response = await _apiService.post(
+        ApiUrls.gpsUpdateNotificationToggle(163), // replace with user-specific ID if needed
+        body: payload,
+        customHeaders: {'Authorization': token},
+      );
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(response.value, (_) => null);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "updateNotificationToggle failed", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 
 
 

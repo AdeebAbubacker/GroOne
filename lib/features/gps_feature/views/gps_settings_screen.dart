@@ -1,7 +1,7 @@
-import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_show_hide_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/widgets/gps_notification_type_sheet.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -14,6 +14,8 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
+import '../helper/gps_helper.dart';
+import '../service/notification_settings_service.dart';
 import 'gps_notification_screen.dart';
 
 class GpsSettingsScreen extends StatelessWidget {
@@ -131,53 +133,26 @@ class GpsSettingsScreen extends StatelessWidget {
                   ),
                   onTap: () async {
                     if (Theme.of(context).platform == TargetPlatform.android) {
-                      final intent = AndroidIntent(
-                        action: 'android.intent.action.RINGTONE_PICKER',
-                        package: 'com.android.settings',
-                      );
-                      await intent.launch();
+                      final hasPermission = await GpsHelper.checkNotificationPermission();
+                      if (!hasPermission) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Please enable notification permission to change tone")),
+                        );
+                        return;
+                      }
+
+                      final uri = await RingtonePicker.pickRingtone();
+                      if (uri != null) {
+                        print("Selected ringtone URI: $uri");
+                        // Save or use the URI
+                      }
+
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Notification tone can only be changed on Android')),
                       );
                     }
                   },
-                ),
-                ListTile(
-                  title: Row(
-                    children: [
-                      Expanded(child: Text("Alert Volume",style: AppTextStyle.h5,)),
-                      Expanded(child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(Icons.play_arrow, size: 20,color: AppColors.primaryColor,),
-                          5.width,
-                          Flexible(child: Text("Medium",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
-                        ],
-                      )),
-                      5.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
-                    ],
-                  ),
-                  // onTap: () {
-                  //   showAlertVolumeSheet(context, alertVolume, (selected) {
-                  //     alertVolume = selected;
-                  //     // Also persist this using SharedPreferences or any local storage if needed
-                  //   });
-                  // },
-                  onTap: () async {
-                    if (Theme.of(context).platform == TargetPlatform.android) {
-                      final intent = AndroidIntent(
-                        action: 'android.settings.SOUND_SETTINGS',
-                      );
-                      await intent.launch();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('This feature is only available on Android.')),
-                      );
-                    }
-                  },
-
                 ),
                 ListTile(
                   title: Row(
@@ -217,6 +192,7 @@ class GpsSettingsScreen extends StatelessWidget {
                   title: Text("Show/Hide Geofence",style: AppTextStyle.h5,),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
+                    Navigator.push(context, commonRoute(GpsShowHideGeofenceScreen()));
                   },
                 ),
                 SwitchListTile(
@@ -229,38 +205,38 @@ class GpsSettingsScreen extends StatelessWidget {
                   value: true,
                   onChanged: (val) {},
                 ),
-                ListTile(
-                  title: Row(
-                    children: [
-                      Expanded(child: Text("Stop Duration Report",style: AppTextStyle.h5,)),
-                      Expanded(child: Text("5 Mins",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
-                      5.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
-                    ],
-                  ),
-                  onTap: () {},
-                ),
+                // ListTile(
+                //   title: Row(
+                //     children: [
+                //       Expanded(child: Text("Stop Duration Report",style: AppTextStyle.h5,)),
+                //       Expanded(child: Text("5 Mins",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
+                //       5.width,
+                //       Icon(Icons.arrow_forward_ios, size: 16)
+                //     ],
+                //   ),
+                //   onTap: () {},
+                // ),
               ],
             ),
           ),
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            decoration: commonContainerDecoration(),
-            child: Column(
-              children: [
-                SwitchListTile(
-                  title: Text("Require Password For Immobilization",style: AppTextStyle.h5,),
-                  value: true,
-                  onChanged: (val) {},
-                ),
-                SwitchListTile(
-                  title: Text("Show Selected Vehicle On App Restart",style: AppTextStyle.h5),
-                  value: true,
-                  onChanged: (val) {},
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   margin: EdgeInsets.symmetric(vertical: 10),
+          //   decoration: commonContainerDecoration(),
+          //   child: Column(
+          //     children: [
+          //       SwitchListTile(
+          //         title: Text("Require Password For Immobilization",style: AppTextStyle.h5,),
+          //         value: true,
+          //         onChanged: (val) {},
+          //       ),
+          //       SwitchListTile(
+          //         title: Text("Show Selected Vehicle On App Restart",style: AppTextStyle.h5),
+          //         value: true,
+          //         onChanged: (val) {},
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             decoration: commonContainerDecoration(),

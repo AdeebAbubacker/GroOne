@@ -143,6 +143,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
   Future<void> refreshData() async {
     debugPrint("🔄 GpsGeofenceCubit.refreshData() called");
     _hasLoadedData = false; // Reset the guard flag
-    await loadGeofences(forceRefresh: true);
+    await loadGeofences();
   }
 }

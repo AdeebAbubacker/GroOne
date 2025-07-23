@@ -185,5 +185,23 @@ class GpsRepository {
   }
 
 
+  Future<Result<void>> updateNotificationToggle({
+    required String deviceToken,
+    required Map<String, dynamic> deviceDetails,
+    required String deviceType,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return Error(GenericError());
+
+    final payload = {
+      "device_token": deviceToken,
+      "device_details": deviceDetails,
+      "device_type": deviceType,
+    };
+
+    return await _service.updateNotificationToggle(payload, token);
+  }
+
+
 
 }
