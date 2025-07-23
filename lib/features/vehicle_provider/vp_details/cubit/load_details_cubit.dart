@@ -276,7 +276,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if (result is Success<UploadDamageFileModel>) {
       /// We need to call here
       /// create document
-      createDocument(title, documentTypeId, uploadImage);
+      // createDocument(title, documentTypeId, uploadImage);
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
