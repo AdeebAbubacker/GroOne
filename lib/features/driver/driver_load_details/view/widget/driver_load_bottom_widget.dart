@@ -633,7 +633,7 @@ Widget _buildConsigneeDetail({
       // Email Id
       _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
     ],
-  );
+  ).paddingSymmetric(horizontal: 15);
 }
 
 // Detail Widget

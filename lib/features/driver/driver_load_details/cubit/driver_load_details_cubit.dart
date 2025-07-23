@@ -349,7 +349,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, int? loadStatus}) {
     switch(loadStatus){
       case LoadStatus.assigned:
         return memo!=null;

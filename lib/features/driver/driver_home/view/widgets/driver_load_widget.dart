@@ -138,7 +138,7 @@ void _validateButtonStateOnInit() {
         },));
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         decoration: commonContainerDecoration(
           borderColor: AppColors.primaryColor,
           borderWidth: 1,
@@ -220,7 +220,7 @@ void _validateButtonStateOnInit() {
                 Text(
                   "Driver consent given",
                   style: AppTextStyle.textBlackColor16w400.copyWith(
-                    color: AppColors.iconRed,
+                    color: AppColors.textGreen,
                   ),
                 ),
                 commonDivider(),
