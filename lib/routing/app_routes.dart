@@ -31,6 +31,7 @@ import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../dependency_injection/locator.dart';
 import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
+import '../features/fastag/views/fastag_new_user_and_list_screen.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
@@ -53,7 +54,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.buyFastag,
         builder: (BuildContext context, GoRouterState state) {
-          return BuyFasTagScreen();
+          return FastagNewUserAndListScreen();
         },
       ),
 

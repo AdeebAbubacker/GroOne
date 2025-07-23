@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/fast_tag/fast_tag_screen.dart';
 // import 'package:gro_one_app/features/gps/view/gps_order_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
@@ -13,8 +14,10 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../dependency_injection/locator.dart';
+import '../../routing/app_route_name.dart';
 import '../../utils/app_route.dart';
 import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
+import '../fastag/views/fastag_new_user_and_list_screen.dart';
 import '../gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import '../gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import '../gps_feature/views/gps_home_screen.dart';
@@ -172,8 +175,8 @@ class _OurValueAddedServicesWidgetState
                       title: "Fast tag",
                       imageString: AppImage.png.buyFastTag,
                       onClick: () {
-                        //context.push(AppRouteName.buyFastag);
-                        Navigator.push(context, commonRoute(FastTagScreen()));
+                       // context.push(AppRouteName.buyFastag);
+                        Navigator.push(context, commonRoute(FastagNewUserAndListScreen()));
                       },
                     ),
                     15.width,
