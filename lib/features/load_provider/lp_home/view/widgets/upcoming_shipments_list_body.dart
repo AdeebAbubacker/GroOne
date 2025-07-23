@@ -129,18 +129,8 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                     5.height,
 
                     // Matching Timer
-                    if (status == LoadStatus.matching)
-                      Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                      )
-
-                    else if (status == LoadStatus.kycPending)
-                      if(widget.loadData.customer?.customer?.kycPendingDate != null)
-                        Text(
-                          _countDown,
-                          style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        )
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor))
                   ],
                 ) : SizedBox()
             ),

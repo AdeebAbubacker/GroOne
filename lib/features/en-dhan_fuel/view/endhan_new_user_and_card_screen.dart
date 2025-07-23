@@ -15,6 +15,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -36,6 +37,7 @@ import '../../../utils/common_dialog_view/common_dialog_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'endhan_kyc_screen.dart';
+import 'endhan_transaction_screen.dart';
 
 class EndhanNewUserAndCardScreen extends StatefulWidget {
   const EndhanNewUserAndCardScreen({super.key});
@@ -167,7 +169,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             20.height,
             // Main heading
             Text(
-              'Card Already Added',
+              context.appText.cardAlreadyAdded,
               style: AppTextStyle.h4.copyWith(
                 color: const Color(0xFFE67E22),
                 fontWeight: FontWeight.bold,
@@ -177,7 +179,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             12.height,
             // Supporting message
             Text(
-              'You have already added a fuel card.',
+              context.appText.addYourFirstFuelCard,
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.greyTextColor,
               ),
@@ -188,7 +190,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
         onTapSingleButton: () {
           Navigator.of(context).pop();
         },
-        onSingleButtonText: 'OK',
+        onSingleButtonText: context.appText.ok,
       ),
     );
   }
@@ -211,8 +213,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (!mounted) return;
 
             // If KYC documents exist, fetch cards and balance
-            if (state.kycCheckState?.status == Status.SUCCESS &&
-                state.hasKycDocuments &&
+            if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments &&
                 !_hasAttemptedCardsFetch &&
                 state.cardsState?.status != Status.LOADING &&
                 state.cardsState?.status != Status.SUCCESS) {
@@ -240,7 +241,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.LOADING) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                 ),
@@ -254,7 +255,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 state.cardsState?.status == Status.LOADING) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                 ),
@@ -266,7 +267,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.ERROR) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -297,7 +298,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 state.cardsState?.status == Status.ERROR) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -326,7 +327,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -344,14 +345,14 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               );
             }
 
-            // Show benefits screen if KYC documents exist but no cards found
+           // Show benefits screen if KYC documents exist but no cards found
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 state.hasKycDocuments &&
                 state.cardsState?.status == Status.SUCCESS &&
                 (state.cardsState?.data?.data?.document ?? []).isEmpty) {
               return Scaffold(
                 appBar: CommonAppBar(
-                  title: context.appText.fuelCard,
+                  title: Text(context.appText.fuelCard),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -377,7 +378,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
-                  title: Text("eN-Dhan Card",style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
+                  title: Text(context.appText.enDhanCard,style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
@@ -391,7 +392,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                         } else {
                           // Navigate to create card screen if no cards exist
                           Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
-                        }
+                       }
                       },
                       icon: Icon(Icons.add, color: Colors.white),
                       style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -421,7 +422,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'My Cards (ID: HPCL ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                                    '${context.appText.myCards} (${context.appText.idHpcl} ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
                                     style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   // Show balance if available
@@ -431,7 +432,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                       child: Row(
                                         children: [
                                           Text(
-                                            'Balance: ',
+                                            '${context.appText.balance}: ',
                                             style: AppTextStyle.body3.copyWith(
                                               color: AppColors.greyTextColor,
                                             ),
@@ -455,11 +456,11 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
 
                               InkWell(
                                 onTap: (){
-                                  Navigator.push(context,commonRoute(KavachTransactionsScreen()));
+                                  Navigator.push(context,commonRoute(EndhanTransactionScreen()));
                                 },
                                 child:
                                 Row(children: [
-                                  Text("Transactions",
+                                  Text(context.appText.transactions,
                                     style: TextStyle(
                                       color: AppColors.primaryColor,
                                     ),),
@@ -474,7 +475,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                       12.height,
                       AppSearchBar(
                         searchController: _searchController,
-                        hintText: 'Search',
+                        hintText: context.appText.search,
                         onChanged: (val) {
                           setState(() {
                             _searchText = val;
@@ -499,12 +500,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             // Show loading while waiting for KYC check
             return Scaffold(
               appBar: CommonAppBar(
-                title: context.appText.fuelCard,
+                title: Text(context.appText.fuelCard),
                 centreTile: false,
                 onLeadingTap: () => _safeNavigateBack(context),
               ),
               body: const Center(child: AppLoadingWidget()),
             );
+          
           },
         ),
       ),
@@ -539,12 +541,12 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               16.height,
               Text(
-                'No fuel cards found',
+                context.appText.noFuelCardsFound,
                 style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
               ),
               8.height,
               Text(
-                'Add your first fuel card to get started',
+                context.appText.addYourFirstFuelCard,
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
               ),
             ],
@@ -564,6 +566,32 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             mobile.contains(searchLower);
       }).toList();
 
+      // Show "no data found" message if search returns no results
+      if (_searchText.isNotEmpty && filteredCards.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 64,
+                color: AppColors.greyTextColor,
+              ),
+              16.height,
+              Text(
+                'No cards found',
+                style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
+              ),
+              8.height,
+              Text(
+                'No cards found for "$_searchText"',
+                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+              ),
+            ],
+          ),
+        );
+      }
+
       return ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         itemCount: filteredCards.length,
@@ -573,7 +601,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final cardMap = {
             'cardNumber':card.cardNumber ?? '',
             // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
-            'vehicleNumber': card.vehicleNumber ?? '',
+            'vehicleNumber': (card.vehicleNumber ?? '').formatVehicleNumberForDisplay,
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it
             'image': AppImage.png.endhanCard,
@@ -617,7 +645,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
             child: AppButton(
-                title: "Buy New Fuel Card",
+                title: context.appText.buyNewFuelCard,
                 onPressed: (){
                   if (showKycScreen) {
                     // Navigate to KYC screen if user doesn't have KYC documents

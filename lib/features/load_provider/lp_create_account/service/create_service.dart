@@ -27,7 +27,6 @@ class LpCreateService {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -50,7 +49,6 @@ Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
       return Error(GenericError());
     }
   } catch (e) {
-    CustomLog.error(this, AppString.error.deserializationError, e);
     return Error(DeserializationError());
   }
 }

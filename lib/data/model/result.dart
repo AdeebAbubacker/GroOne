@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 abstract class Result<T> {
   const Result();
@@ -50,14 +52,18 @@ class ErrorWithMessage extends ErrorType {
 class TokenExpiredError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.tokenExpireError.capitalize;
+    return context.appText.tokenExpireError.capitalize;
   }
 }
 
 class InvalidTokenError extends ErrorType {
+  final String? message;
+
+  InvalidTokenError({this.message});
+
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.invalidTokenError.capitalize;
+    return message ?? '';
   }
 }
 
@@ -70,7 +76,7 @@ class BadRequestError extends ErrorType {
     if(message != null){
       return message!;
     } else {
-      return AppString.errorType.badRequestError.capitalize;
+      return context.appText.badRequestError.capitalize;
     }
   }
 
@@ -90,10 +96,7 @@ class InternalServerError extends ErrorType {
   
   @override
   String getText(BuildContext context) {
-    if(message != null){
-      return message!;
-    }
-    return AppString.errorType.internalServerError.capitalize;
+    return message ?? '';
   }
 
   factory InternalServerError.fromApiResponse(Map<String, dynamic> response) {
@@ -104,9 +107,13 @@ class InternalServerError extends ErrorType {
 }
 
 class ConflictError extends ErrorType {
+  final String? message;
+
+  ConflictError({this.message});
+
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.conflictError.capitalize;
+    return message ?? '';
   }
 }
 
@@ -119,7 +126,7 @@ class NotFoundError extends ErrorType {
     if(message != null){
       return message!;
     }
-    return AppString.errorType.notFound.capitalize;
+    return context.appText.notFound.capitalize ?? '';
   }
 
   factory NotFoundError.fromApiResponse(Map<String, dynamic> response) {
@@ -138,7 +145,7 @@ class UnauthenticatedError extends ErrorType {
     if(message != null){
       return message!;
     }
-    return AppString.errorType.unauthenticatedError.capitalize;
+    return context.appText.unauthenticatedError.capitalize;
   }
 
   factory UnauthenticatedError.fromApiResponse(Map<String, dynamic> response) {
@@ -151,62 +158,69 @@ class UnauthenticatedError extends ErrorType {
 class NetworkTimeoutError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.timeOutError.capitalize;
+    return context.appText.timeOutError.capitalize;
   }
 }
 
 class RequestCancelledError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.requestCancelledError.capitalize;
+    return context.appText.requestCancelledError.capitalize;
   }
 }
 
 class DeserializationError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.deserializationError.capitalize;
+    return context.appText.deserializationError.capitalize;
   }
 }
 
 class ResponseStatusFailed extends ErrorType {
+  final String? message;
+
+  ResponseStatusFailed({this.message});
+
   @override
-  String getText(BuildContext context) {
-    return AppString.errorType.responseStatusFail.capitalize;
+  String getText([BuildContext? context]) {
+    if (message != null && message!.isNotEmpty) return message!;
+    final ctx = context ?? appContext; // fallback
+    return ctx.appText.responseStatusFail; // or ctx.appText.conflictError
   }
 }
+
 
 class SerializationError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.serializationError.capitalize;
+    return context.appText.serializationError.capitalize;
   }
 }
 
 class GenericError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.genericError.capitalize;
+    return context.appText.genericError;
   }
 }
 
 class LoginAttemptError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.loginAttemptError.capitalize;
+    return context.appText.loginAttemptError.capitalize;
   }
 }
 
 class InternetNetworkError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.networkError.capitalize;
+    return context.appText.networkError.capitalize;
   }
 }
 
 class InvalidInputError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return AppString.errorType.invalidInput.capitalize;
+    return context.appText.invalidInput.capitalize;
   }
 }

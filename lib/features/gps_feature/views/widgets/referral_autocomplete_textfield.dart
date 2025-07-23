@@ -216,26 +216,7 @@ class _ReferralAutoCompleteTextFieldState
                   : null,
             ),
           ),
-          if (hasError) ...[
-            SizedBox(height: 4),
-            Text(
-              errorMessage,
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 12,
-              ),
-            ),
-            SizedBox(height: 4),
-            TextButton(
-              onPressed: _loadUsers,
-              child: Text('Retry'),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-          ],
+        
         ],
       ),
     );

@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 
 import '../../../../../utils/app_icons.dart';
@@ -41,12 +42,12 @@ class DocumentWidgetView extends StatelessWidget {
       onClickDeleteIcon: () {
         loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.loadDocumentId??"",index);
       },
-         onClickDownload: () {
+        onClickDownload: () {
          loadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
       },
        isLoading: documentEntity?.isLoading??false,
         documentEntity: documentEntity!,
-        loadDocument: documentEntity!.loadDocument!)
+        loadDocument: documentEntity!.loadDocument!).paddingTop(15)
         : Visibility(
       visible: documentEntity?.visible??true,
           child: GestureDetector(
@@ -99,6 +100,8 @@ class DocumentWidgetView extends StatelessWidget {
                 ),
               ),
             ),
+          ).paddingTop(
+            10
           ),
         );
   }

@@ -25,12 +25,13 @@ class VpCreationService {
         final data = UserModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
+
+        print("result in fetchVpCreationData ${result.type}");
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -54,7 +55,6 @@ class VpCreationService {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -73,7 +73,6 @@ class VpCreationService {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -97,7 +96,6 @@ class VpCreationService {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -121,7 +119,6 @@ class VpCreationService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }

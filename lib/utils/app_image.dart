@@ -112,9 +112,12 @@ class SvgImages {
 
 
   final String blueTick = "${_svgImageBasePath}blue_tick.svg";
+  final String switchLp = "${_svgImageBasePath}switch_lp.svg";
+  final String switchVp= "${_svgImageBasePath}switch_vp.svg";
 }
 
 class JpgImage {
   static const String _jpgImageBasePath = "assets/images/jpg/";
   final String noticeBoardBgImage = "${_jpgImageBasePath}noticeBoardBgImage.jpg";
+  final String driverImaged = "${_jpgImageBasePath}driver_vehicle.jpg";
 }

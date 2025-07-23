@@ -88,7 +88,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 enabledBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 disabledBorder: InputBorder.none,
-                hintText: widget.hintText ?? "Search...",
+                hintText: widget.hintText ?? "Search",
                 hintStyle: AppTextStyle.bodyGreyColor.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500, fontSize: 16),
                 isCollapsed: true,
                 isDense: true,

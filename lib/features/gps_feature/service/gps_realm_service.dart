@@ -21,6 +21,7 @@ import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
 import '../models/gps_device_distance_model.dart';
+import '../model/gps_vehicle_extra_info_realm_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../model/distance_report_realm_model.dart';
 
@@ -65,6 +66,7 @@ class GpsRealmService {
           GpsUserConfigurationRealmModel.schema,
           GpsGeofenceRealmModel.schema,
           GpsDistanceHistoryRealmModel.schema,
+          GpsVehicleExtraInfoRealm.schema,
           DistanceReportRealmModel.schema,
         ],
         path: realmPath,
@@ -103,6 +105,7 @@ class GpsRealmService {
             GpsGeofenceRealmModel.schema,
             GpsDistanceHistoryRealmModel.schema,
             DistanceReportRealmModel.schema,
+            GpsVehicleExtraInfoRealm.schema,
           ],
           path: realmPath,
           schemaVersion: 4,
@@ -316,6 +319,41 @@ class GpsRealmService {
     } catch (e) {
       print("❌ Failed to read login response from Realm: $e");
       return null;
+    }
+  }
+
+  /// Save vehicle extra info data to Realm
+  Future<void> saveVehicleExtraInfo(
+    List<GpsVehicleExtraInfoRealm> extraInfoList,
+  ) async {
+    await _ensureInitialized();
+    try {
+      _realm!.write(() {
+        // Clear existing extra info data
+        _realm!.deleteAll<GpsVehicleExtraInfoRealm>();
+
+        // Add new extra info data
+        for (final extraInfo in extraInfoList) {
+          _realm!.add(extraInfo);
+        }
+      });
+      print(
+        "💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records",
+      );
+    } catch (e) {
+      print("❌ Failed to save vehicle extra info to Realm: $e");
+      throw Exception('Failed to save vehicle extra info to Realm: $e');
+    }
+  }
+
+  /// Get all vehicle extra info from Realm
+  Future<List<GpsVehicleExtraInfoRealm>> getAllVehicleExtraInfo() async {
+    await _ensureInitialized();
+    try {
+      return _realm!.all<GpsVehicleExtraInfoRealm>().toList();
+    } catch (e) {
+      print("❌ Failed to read vehicle extra info from Realm: $e");
+      throw Exception('Failed to read vehicle extra info from Realm: $e');
     }
   }
 
@@ -723,7 +761,7 @@ class GpsRealmService {
   }
 
   // ==================== DISTANCE REPORT OPERATIONS ====================
-  
+
   /// Save distance report data to Realm
   Future<void> saveDistanceReportData(List<DeviceDistancePojo> distanceData) async {
     await _ensureInitialized();
@@ -735,7 +773,7 @@ class GpsRealmService {
         // Add new distance report data
         for (final pojo in distanceData) {
           final deviceId = pojo.deviceId.toString();
-          
+
           // Get device name from vehicle data
           String? deviceName;
           final vehicleData = _vehicleData!.query('deviceId == \$0', [pojo.deviceId as Object]).firstOrNull;

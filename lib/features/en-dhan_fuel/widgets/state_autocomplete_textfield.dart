@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 class StateAutoCompleteTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -63,7 +64,7 @@ class _StateAutoCompleteTextFieldState
     } catch (e) {
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load states';
+        errorMessage = context.appText.failedToLoadStates;
         isLoading = false;
       });
     }
@@ -211,7 +212,7 @@ class _StateAutoCompleteTextFieldState
             SizedBox(height: 4),
             TextButton(
               onPressed: _loadStates,
-              child: Text('Retry'),
+              child: Text(context.appText.retry),
             ),
           ],
         ],

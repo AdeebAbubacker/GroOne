@@ -1,3 +1,6 @@
+import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+
 class VpMyLoadResponse {
   VpMyLoadResponse({
     required this.success,
@@ -7,144 +10,144 @@ class VpMyLoadResponse {
 
   final bool success;
   final String message;
-  final List<VpLoadsList> data;
+  final List<VpRecentLoadData> data;
 
   factory VpMyLoadResponse.fromJson(Map<String, dynamic> json){
     return VpMyLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VpLoadsList>.from(json["data"]['data']!.map((x) => VpLoadsList.fromJson(x))),
+      data: json["data"] == null ? [] : List<VpRecentLoadData>.from(json["data"]['data']!.map((x) => VpRecentLoadData.fromJson(x))),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
-  };
+
 
 }
 
-class VpLoadsList {
-  VpLoadsList({
-    required this.id,
-    required this.customerId,
-    required this.commodityId,
-    required this.truckTypeId,
-    required this.pickUpAddr,
-    required this.assignStatus,
-    required this.pickUpLatlon,
-    required this.dropAddr,
-    required this.dropLatlon,
-    required this.dueDate,
-    required this.consignmentWeight,
-    required this.notes,
-    required this.rate,
-    required this.status,
-    required this.createdAt,
-    required this.deletedAt,
-    required this.truckType,
-    required this.commodity,
-    required this.customer,
-    required this.customerDetail,
-    required this.loadId,
-    required this.pickUpWholeAddr,
-    required this.dropWholeAddr,
-    required this.vpRate,
-    required this.vpMaxRate,
-  });
-
-
-  /// regarding rate master
-  final String? pickUpWholeAddr;
-  final String? dropWholeAddr;
-  final String? vpRate;
-  final String? vpMaxRate;
-
-
-
-
-  final String id;
-  final dynamic customerId;
-  final num commodityId;
-  final num truckTypeId;
-  final String pickUpAddr;
-  final num assignStatus;
-  final String pickUpLatlon;
-  final String dropAddr;
-  final String dropLatlon;
-  final DateTime? dueDate;
-  final num consignmentWeight;
-  final String notes;
-  final String rate;
-  final num status;
-  final String? loadId;
-  final DateTime? createdAt;
-  final dynamic deletedAt;
-  final TruckType? truckType;
-  final Commodity? commodity;
-  final Customer? customer;
-  final CustomerDetail? customerDetail;
-
-  factory VpLoadsList.fromJson(Map<String, dynamic> json){
-
-    return VpLoadsList(
-      vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
-      vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
-      dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
-      pickUpWholeAddr: json['loadRoute']!=null  ? json['loadRoute']['pickUpWholeAddr']?.toString()??"":"",
-      pickUpAddr: json['loadRoute']!=null ? json['loadRoute']["pickUpAddr"] ?? "":"",
-      pickUpLatlon:  json['loadRoute']!=null ? json['loadRoute']["pickUpLatlon"] ?? "":"",
-      dropAddr: json['loadRoute']!=null  ? json['loadRoute']["dropAddr"] ?? "":"",
-      dropLatlon:  json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
-
-
-      loadId: json['loadSeriesId']??"",
-      id: json["loadId"] ?? 0,
-      customerId: json["customerId"] ?? 0,
-      commodityId: json["commodityId"] ?? 0,
-      truckTypeId: json["truckTypeId"] ?? 0,
-
-      assignStatus: json["loadStatusId"] ?? 0,
-
-      dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight:  json['weightage']!=null ?json['weightage']['value'] :0,
-      notes: json["notes"] ?? "",
-      rate: json["rate"] ?? "",
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
-      truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
-      commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-      customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "customerId": customerId,
-    "commodityId": commodityId,
-    "truckTypeId": truckTypeId,
-    "pickUpAddr": pickUpAddr,
-    "assignStatus": assignStatus,
-    "pickUpLatlon": pickUpLatlon,
-    "dropAddr": dropAddr,
-    "dropLatlon": dropLatlon,
-    "dueDate": dueDate?.toIso8601String(),
-    "consignmentWeight": consignmentWeight,
-    "notes": notes,
-    "rate": rate,
-    "status": status,
-    "createdAt": createdAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-    "truckType": truckType?.toJson(),
-    "commodity": commodity?.toJson(),
-    "customer": customer?.toJson(),
-    "customerDetail": customerDetail?.toJson(),
-  };
-
-}
+// class VpLoadsList {
+//   VpLoadsList({
+//     required this.id,
+//     required this.customerId,
+//     required this.commodityId,
+//     required this.truckTypeId,
+//     required this.pickUpAddr,
+//     required this.assignStatus,
+//     required this.pickUpLatlon,
+//     required this.dropAddr,
+//     required this.dropLatlon,
+//     required this.dueDate,
+//     required this.consignmentWeight,
+//     required this.notes,
+//     required this.rate,
+//     required this.status,
+//     required this.createdAt,
+//     required this.deletedAt,
+//     required this.truckType,
+//     required this.commodity,
+//     required this.customer,
+//     required this.customerDetail,
+//     required this.loadId,
+//     required this.pickUpWholeAddr,
+//     required this.dropWholeAddr,
+//     required this.vpRate,
+//     required this.vpMaxRate,
+//     required this.loadStatusDetails,
+//   });
+//
+//
+//   /// regarding rate master
+//   final String? pickUpWholeAddr;
+//   final String? dropWholeAddr;
+//   final String? vpRate;
+//   final String? vpMaxRate;
+//
+//
+//
+//
+//   final String id;
+//   final dynamic customerId;
+//   final num commodityId;
+//   final num truckTypeId;
+//   final String pickUpAddr;
+//   final num assignStatus;
+//   final String pickUpLatlon;
+//   final String dropAddr;
+//   final String dropLatlon;
+//   final DateTime? dueDate;
+//   final num consignmentWeight;
+//   final String notes;
+//   final String rate;
+//   final num status;
+//   final String? loadId;
+//   final DateTime? createdAt;
+//   final dynamic deletedAt;
+//   final TruckType? truckType;
+//   final Commodity? commodity;
+//   final Customer? customer;
+//   final CustomerDetail? customerDetail;
+//
+//   final LoadStatusDetails? loadStatusDetails;
+//
+//   factory VpLoadsList.fromJson(Map<String, dynamic> json){
+//
+//     return VpLoadsList(
+//       loadStatusDetails: json['loadStatusDetails']!=null ? LoadStatusDetails.fromJson(json['loadStatusDetails']):null,
+//       vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
+//       vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
+//       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
+//       pickUpWholeAddr: json['loadRoute']!=null  ? json['loadRoute']['pickUpWholeAddr']?.toString()??"":"",
+//       pickUpAddr: json['loadRoute']!=null ? json['loadRoute']["pickUpAddr"] ?? "":"",
+//       pickUpLatlon:  json['loadRoute']!=null ? json['loadRoute']["pickUpLatlon"] ?? "":"",
+//       dropAddr: json['loadRoute']!=null  ? json['loadRoute']["dropAddr"] ?? "":"",
+//       dropLatlon:  json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
+//
+//
+//       loadId: json['loadSeriesId']??"",
+//       id: json["loadId"] ?? 0,
+//       customerId: json["customerId"] ?? 0,
+//       commodityId: json["commodityId"] ?? 0,
+//       truckTypeId: json["truckTypeId"] ?? 0,
+//
+//       assignStatus: json["loadStatusId"] ?? 0,
+//
+//       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
+//       consignmentWeight:  json['weightage']!=null ?json['weightage']['value'] :0,
+//       notes: json["notes"] ?? "",
+//       rate: json["rate"] ?? "",
+//       status: json["status"] ?? 0,
+//       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+//       deletedAt: json["deletedAt"],
+//       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
+//       commodity: json["commodity"] == null ? null : Commodity.fromJson(json["commodity"]),
+//       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+//       customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() => {
+//     "id": id,
+//     "customerId": customerId,
+//     "commodityId": commodityId,
+//     "truckTypeId": truckTypeId,
+//     "pickUpAddr": pickUpAddr,
+//     "assignStatus": assignStatus,
+//     "pickUpLatlon": pickUpLatlon,
+//     "dropAddr": dropAddr,
+//     "dropLatlon": dropLatlon,
+//     "dueDate": dueDate?.toIso8601String(),
+//     "consignmentWeight": consignmentWeight,
+//     "notes": notes,
+//     "rate": rate,
+//     "status": status,
+//     "createdAt": createdAt?.toIso8601String(),
+//     "deletedAt": deletedAt,
+//     "truckType": truckType?.toJson(),
+//     "commodity": commodity?.toJson(),
+//     "customer": customer?.toJson(),
+//     "customerDetail": customerDetail?.toJson(),
+//   };
+//
+// }
 
 class Commodity {
   Commodity({

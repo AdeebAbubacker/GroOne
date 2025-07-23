@@ -34,20 +34,14 @@ class ApiService {
     };
     try {
      // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
-      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
-
+      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
 
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-        print("🔐 Authorization header set: 'Bearer $refreshToken'");
-        CustomLog.debug(this, "🔐 Authorization header set: 'Bearer $refreshToken'");
       } else {
-        print("🔐 No valid token found - proceeding without authorization");
-        CustomLog.debug(this, "🔐 No valid token found - proceeding without authorization");
         CustomLog.debug(this, "Authorization token : $refreshToken");
       }
     } catch (e) {
-      print("❌ Error getting authentication token: $e");
       CustomLog.error(this, "Error getting authentication token", e);
     }
 
@@ -108,12 +102,12 @@ class ApiService {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    final headers = customHeaders ?? await _getHeaders();
 
     CustomLog.debug(
       this,
       "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
     );
-    final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -152,9 +146,11 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
     CustomLog.debug(
       this,
-      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader",
     );
     try {
       if (!HasInternetConnection.isInternet) {
@@ -354,11 +350,14 @@ class ApiService {
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
-        return Error(ConflictError());
+        final msg = response?.data?['message'];
+        return Error(ConflictError(message: msg));
       case 498:
-        return Error(InvalidTokenError());
+        final msg = response?.data?['message'];
+        return Error(InvalidTokenError(message: msg));
       case 500:
-        return Error(InternalServerError());
+        final msg = response?.data?['message'];
+        return Error(InternalServerError(message: msg));
       default:
         log("Unexpected status code: ${response?.statusCode}");
         return Error(GenericError());
@@ -368,7 +367,7 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
       CustomLog.debug(
         this,
         "Cleared invalid token due to 401 Unauthorized error",

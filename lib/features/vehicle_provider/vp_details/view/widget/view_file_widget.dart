@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -12,7 +13,7 @@ class ViewFileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "File", isCrossLeadingIcon: true),
+      appBar: CommonAppBar(title: context.appText.file, isCrossLeadingIcon: true),
       body: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding, vertical: 20),
         shrinkWrap: true,

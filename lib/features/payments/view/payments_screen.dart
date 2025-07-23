@@ -41,8 +41,7 @@ class PaymentsScreenState extends State<PaymentsScreen> {
   Widget build(BuildContext context) {
     return  WillPopScope(
     onWillPop: () async {
-      // Call Cubit here
-     Navigator.pop(context, true); // return true on back
+     Navigator.pop(context, true);
   return false;
     },
     child: Scaffold(
@@ -60,7 +59,7 @@ class PaymentsScreenState extends State<PaymentsScreen> {
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       leading: IconButton(onPressed: () {
-         Navigator.pop(context, true); // return true on back
+         Navigator.pop(context, true); 
       }, icon: Icon(Icons.arrow_back)),
       centreTile: true,
       title: 'Make payment',

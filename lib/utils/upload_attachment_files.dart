@@ -28,6 +28,7 @@ class UploadAttachmentFiles extends StatefulWidget {
   final String? title;
   final Function? thenUploadFileToSever;
   final void Function(int)? onDelete;
+  final List? allowedExtensions;
   const UploadAttachmentFiles({super.key,
     required this.multiFilesList,
     this.isSingleFile = false,
@@ -36,6 +37,7 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.isLoading = false,
     this.hideDeleteButton = false,
     this.onDelete,
+    this.allowedExtensions,
   });
 
   @override
@@ -65,8 +67,8 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
               children: [
 
                 if (widget.title != null)...[
-                  Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-                  Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+                  Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+                  Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
                   10.height,
                 ],
 
@@ -86,7 +88,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                         return GestureDetector(
                           onTap: !isFile ? () {
                             commonHideKeyboard(context);
-                            commonBottomSheetWithBGBlur(context: context, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
+                            commonBottomSheetWithBGBlur(context: context, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile, allowedExtensions: widget.allowedExtensions)).then((value) {
                               if (value != null) {
                                 isFile = true;
                                 widget.multiFilesList.add(value);
@@ -111,12 +113,12 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                             child: Container(
                               height: documentHeight,
                               alignment: Alignment.center,
-                              child: isFile ? Text(AppString.label.loading, style: AppTextStyle.body) : Center(
+                              child: isFile ? Text(context.appText.loading, style: AppTextStyle.body) : Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(AppString.label.addMore, style: AppTextStyle.textFiled),
+                                    Text(context.appText.addMore, style: AppTextStyle.textFiled),
                                     10.width,
                                     SvgPicture.asset(AppIcons.svg.documentUpload, width: 20, colorFilter: AppColors.svg(AppColors.iconColor)),
                                   ],
@@ -198,15 +200,15 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
           children: [
 
             if (widget.title != null)...[
-              Text(widget.title ?? AppString.label.attachment, style: AppTextStyle.textFiled),
-              Text(AppString.label.docSupport, style: AppTextStyle.body4GreyColor),
+              Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+              Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
               10.height,
             ],
 
             GestureDetector(
               onTap: !isFile ? () {
                 commonHideKeyboard(context);
-                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile)).then((value) {
+                commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile, allowedExtensions: widget.allowedExtensions)).then((value) {
                   debugPrint("First Time : $value");
                   isFile = true;
                   if (value != null) {
@@ -238,7 +240,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                   color: AppColors.textFieldFillColor,
                   alignment: Alignment.center,
                   child: isFile
-                      ? Text(AppString.label.loading, style: AppTextStyle.body2)
+                      ? Text(context.appText.loading, style: AppTextStyle.body2)
                       :  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,

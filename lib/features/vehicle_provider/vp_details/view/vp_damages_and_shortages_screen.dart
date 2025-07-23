@@ -108,16 +108,16 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   // Create Damage Api call
   void createDamageAndShortageApiCall() {
     if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
       if (uploadedDamageFileList.isEmpty) {
-        ToastMessages.alert(message: "Please upload Product Photo");
+        ToastMessages.alert(message: context.appText.uploadProductPhoto);
         return;
       }
       if(int.parse(quantityTextController.text) == 0){
-        ToastMessages.alert(message: "You can't add 0 quantity");
+        ToastMessages.alert(message: context.appText.emptyQuantityValidation);
         return;
       }
 
@@ -138,16 +138,16 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   // Update Api call
   Future<void> updateDamageAndShortageApiCall(String damageId) async {
     if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
       if (updateDamageFileList.isEmpty) {
-        ToastMessages.alert(message: "Please upload Product Photo");
+        ToastMessages.alert(message: context.appText.uploadProductPhoto);
         return;
       }
       if(int.parse(quantityTextController.text) == 0){
-        ToastMessages.alert(message: "You can't add 0 quantity");
+        ToastMessages.alert(message: context.appText.emptyQuantityValidation);
         return;
       }
 
@@ -166,8 +166,8 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        heading: "Your damage has been recorded.",
-        message: "We have notified the concerned team.",
+        heading: context.appText.damageRecordedSuccessfully,
+        message: context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
           cubit.fetchDamageList(widget.loadId ?? "");
@@ -188,7 +188,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           final status = state.deleteDamageUIState?.status;
 
           return CommonDialogView(
-            message: "Are you sure you want to delete this damage?",
+            message: context.appText.sureToDeleteDamage,
             messageTextStyle: AppTextStyle.body2,
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -236,7 +236,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                         cubit.setIsUpdateDamage(false);
                         clearValues();
                         },
-                      child: Text("Cancel Edit"),
+                      child: Text(context.appText.cancelEdit),
                     );
                   } else {
                     return Container();
@@ -371,7 +371,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           cubit.setIsUpdateDamage(false);
           clearValues();
           initFunction();
-          ToastMessages.success(message: "Damage Updated Successfully");
+          ToastMessages.success(message: context.appText.damageUpdatesSuccessfully);
         }
         if (status == Status.ERROR) {
           final error = state.updateDamageUIState?.errorType;
@@ -471,7 +471,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         debugPrint("Multi File List : ${multiFilesList.length}");
         debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
-          title: "Product Photo",
+          title: context.appText.productPhoto,
           multiFilesList: multiFilesList,
           isMultipleSelectionFile: false,
           isSingleFile: false,
@@ -529,7 +529,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                       final status = state.deleteDamageUIState?.status;
                       if (status == Status.SUCCESS) {
                         cubit.resetDeleteDamageUIState();
-                        ToastMessages.success(message: "Damage deleted successfully");
+                        ToastMessages.success(message:context.appText.damageDeletedSuccessfully);
                       }
                       if (status == Status.ERROR) {
                         final error = state.deleteDamageUIState?.errorType;
@@ -626,7 +626,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                     onTap: (){
                       Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
                     },
-                    child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
+                    child: Text(context.appText.viewFiles, style: AppTextStyle.body3PrimaryColor),
                   ),
                 ],
               ),

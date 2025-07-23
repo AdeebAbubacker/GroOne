@@ -123,7 +123,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 return Stack(
                   children: [
                     Positioned(top: 20,left: 0,child: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context))),
-                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId)).paddingTop(50),
+                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId), error: uiState.errorType).paddingTop(50),
                   ],
                 );
               }
@@ -279,32 +279,19 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       ),
                     ),
                     4.height,
-                    if (status == LoadStatus.kycPending)
-                      if(loadItem.customer?.kycPendingDate != null)
-                        Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5),
-                    if (status == LoadStatus.matching)
-                        Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5) ,
-                    if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
-                      Row(
-                        children: [
-                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                          4.width,
-                          Text(
-                            context.appText.advanceUnpaid,
-                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
-                          ),
-                        ],
-                      )
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
+                    // if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
+                    //   Row(
+                    //     children: [
+                    //       const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                    //       4.width,
+                    //       Text(
+                    //         context.appText.advanceUnpaid,
+                    //         style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                    //       ),
+                    //     ],
+                    //   )
                   ],
                 ),
               ],

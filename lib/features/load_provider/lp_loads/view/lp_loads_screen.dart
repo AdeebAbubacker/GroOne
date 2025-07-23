@@ -3,6 +3,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
@@ -310,6 +311,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
+      scrolledUnderElevation: 0,
       leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         // Notification
@@ -397,10 +399,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType);
+        }
+
         final loadList = uiState.data?.data ?? [];
 
         if (loadList.isEmpty) {
-          return Center(child: Text(context.appText.noLoadFound));
+          return genericErrorWidget(error: NotFoundError());
         }
 
         return NotificationListener<ScrollNotification>(

@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_re
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_models_screen.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -30,7 +31,9 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/common_functions.dart';
 import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
+import '../../../kavach/view/kavach_order_details_screen.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
+import 'gps_order_detail_screen.dart';
 import 'gps_transaction_screen.dart';
 import 'gps_upload_document_screen.dart';
 
@@ -223,20 +226,20 @@ class _GpsOrderBenefitsAndOrderListScreenState
               );
             }
 
-            // Show benefits screen if no KYC documents found
+            // Scenario 1: KYC not done or no documents - Show benefits screen
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 (state.hasKycDocuments == false || state.kycData == null)) {
-              print('🔍 GPS KYC Check: Showing benefits screen');
+              print('🔍 GPS KYC Check: Scenario 1 - KYC not done, showing benefits screen');
               print('  - hasKycDocuments: ${state.hasKycDocuments}');
               print('  - kycData: ${state.kycData}');
-              return _buildBenefitsScreen(context);
+              return _buildBenefitsScreen(context, navigateToUploadDocument: true);
             }
 
-            // Show order list if KYC documents exist
+            // Scenario 2 & 3: KYC done and has documents - Check order list
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 state.hasKycDocuments == true &&
                 state.kycData != null) {
-              print('🔍 GPS KYC Check: Showing order list');
+              print('🔍 GPS KYC Check: KYC done, checking order list');
               print('  - hasKycDocuments: ${state.hasKycDocuments}');
               print('  - kycData: ${state.kycData}');
               return _buildOrderListScreen(context);
@@ -260,7 +263,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
   }
 
   // Build benefits screen with GPS title and support icon only
-  Widget _buildBenefitsScreen(BuildContext context) {
+  Widget _buildBenefitsScreen(BuildContext context, {bool navigateToUploadDocument = false}) {
     return Scaffold(
       backgroundColor: AppColors.blackishWhite,
       appBar: CommonAppBar(
@@ -279,103 +282,212 @@ class _GpsOrderBenefitsAndOrderListScreenState
           4.width,
         ],
       ),
-      body: gpsBenifitsWidget(context),
+      body: gpsBenifitsWidget(context, navigateToUploadDocument: navigateToUploadDocument),
     );
   }
 
-  // Build order list screen with GPS Model title and all icons
+  // Build order list screen with dynamic title based on content
   Widget _buildOrderListScreen(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.blackishWhite,
-      appBar: CommonAppBar(
-        title: Text("GPS Model", style: AppTextStyle.appBar),
-        centreTile: false,
-        isLeading: true,
-        onLeadingTap: _handleBackNavigation,
-        actions: [
-          AppIconButton(
-            onPressed: () {
-              Navigator.of(context).push(commonRoute(GpsModelsScreen()));
-            },
-            icon: Icon(Icons.add, color: Colors.white),
-            style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-          ),
-          4.width,
-          AppIconButton(
-            onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
-            },
-            icon: AppIcons.svg.filledSupport,
-            iconColor: AppColors.primaryButtonColor,
-          ),
-          4.width,
-          AppIconButton(
-            key: menuKey,
-            onPressed: () async {
-              final RenderBox button =
-                  menuKey.currentContext!.findRenderObject() as RenderBox;
-              final RenderBox overlay =
-                  Overlay.of(context).context.findRenderObject() as RenderBox;
-              final Offset position = button.localToGlobal(
-                Offset.zero,
-                ancestor: overlay,
-              );
-
-              final selected = await showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(
-                  position.dx - 100,
-                  position.dy,
-                  position.dx,
-                  overlay.size.height - position.dy,
-                ),
-                items: [
-                  PopupMenuItem(
-                    value: 'transaction',
-                    child: Row(
-                      children: [
-                        Icon(Icons.receipt_long, color: Colors.black),
-                        SizedBox(width: 10),
-                        Text('Transaction'),
-                      ],
-                    ),
-                  ),
-                ],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                color: Colors.white,
-              );
-
-              if (selected == 'transaction') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => GpsTransactionScreen()),
+    return BlocProvider.value(
+      value: GpsOrderListCubit(locator<GpsOrderApiRepository>())..resetCubit(),
+      child: BlocConsumer<GpsOrderListCubit, GpsOrderListState>(
+        key: ValueKey(
+          'gps_order_list_${DateTime.now().millisecondsSinceEpoch}',
+        ),
+        listener: (context, state) {
+          if (state is GpsOrderListError) {
+            // Handle error if needed
+            print('GPS Order List Error: ${state.message}');
+          }
+        },
+        builder: (context, state) {
+          // Initialize order list on first build
+          if (state is GpsOrderListInitial && customerId != null) {
+            Future.microtask(() {
+              if (mounted) {
+                context.read<GpsOrderListCubit>().getOrderList(
+                  customerId: customerId!,
                 );
               }
-            },
-            icon: Icons.more_vert,
-            iconColor: AppColors.primaryButtonColor,
-          ),
-          4.width,
-        ],
+            });
+          }
+
+          // Show loading while fetching orders
+          if (state is GpsOrderListLoading) {
+            return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
+              appBar: CommonAppBar(
+                title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                centreTile: false,
+                isLeading: true,
+                onLeadingTap: _handleBackNavigation,
+              ),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          // Show error state
+          if (state is GpsOrderListError) {
+            return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
+              appBar: CommonAppBar(
+                title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                centreTile: false,
+                isLeading: true,
+                onLeadingTap: _handleBackNavigation,
+              ),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(context.appText.failedToLoadOrders, style: AppTextStyle.h5),
+                    Text(state.message, style: AppTextStyle.body3),
+                    20.height,
+                    AppButton(
+                      title: context.appText.retry,
+                      onPressed: () {
+                        if (customerId != null) {
+                          context.read<GpsOrderListCubit>().getOrderList(
+                            customerId: customerId!,
+                          );
+                        }
+                      },
+                      style: AppButtonStyle.primary,
+                    ).paddingSymmetric(horizontal: 40),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Show orders list or benefits based on order count
+          if (state is GpsOrderListLoaded) {
+            if (state.orderList.data.rows.isEmpty) {
+              // Scenario 2: KYC done but no orders - show benefits screen with GPS title
+              print('🔍 GPS Order List: No orders found, showing benefits screen');
+              return Scaffold(
+                backgroundColor: AppColors.blackishWhite,
+                appBar: CommonAppBar(
+                  title: Text(context.appText.gps, style: AppTextStyle.appBar),
+                  centreTile: false,
+                  isLeading: true,
+                  onLeadingTap: _handleBackNavigation,
+                  actions: [
+                    AppIconButton(
+                      onPressed: () {
+                        Navigator.push(context, commonRoute(KavachSupportScreen()));
+                      },
+                      icon: AppIcons.svg.filledSupport,
+                      iconColor: AppColors.primaryButtonColor,
+                    ),
+                    4.width,
+                  ],
+                ),
+                body: gpsBenifitsWidget(context, navigateToUploadDocument: false),
+              );
+            } else {
+              // Scenario 3: KYC done and has orders - show order list with GPS Model title
+              print('🔍 GPS Order List: Orders found, showing order list');
+              return Scaffold(
+                backgroundColor: AppColors.blackishWhite,
+                appBar: CommonAppBar(
+                  title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                  centreTile: false,
+                  isLeading: true,
+                  onLeadingTap: _handleBackNavigation,
+                  actions: [
+                    AppIconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(commonRoute(GpsModelsScreen()));
+                      },
+                      icon: Icon(Icons.add, color: Colors.white),
+                      style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                    ),
+                    4.width,
+                    AppIconButton(
+                      onPressed: () {
+                        Navigator.push(context, commonRoute(KavachSupportScreen()));
+                      },
+                      icon: AppIcons.svg.filledSupport,
+                      iconColor: AppColors.primaryButtonColor,
+                    ),
+                    4.width,
+                    AppIconButton(
+                      key: menuKey,
+                      onPressed: () async {
+                        final RenderBox button =
+                            menuKey.currentContext!.findRenderObject() as RenderBox;
+                        final RenderBox overlay =
+                            Overlay.of(context).context.findRenderObject() as RenderBox;
+                        final Offset position = button.localToGlobal(
+                          Offset.zero,
+                          ancestor: overlay,
+                        );
+
+                        final selected = await showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(
+                            position.dx - 100,
+                            position.dy,
+                            position.dx,
+                            overlay.size.height - position.dy,
+                          ),
+                          items: [
+                            PopupMenuItem(
+                              value: 'transaction',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.receipt_long, color: Colors.black),
+                                  SizedBox(width: 10),
+                                  Text(context.appText.transaction),
+                                ],
+                              ),
+                            ),
+                          ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          color: Colors.white,
+                        );
+
+                        if (selected == 'transaction') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => GpsTransactionScreen()),
+                          );
+                        }
+                      },
+                      icon: Icons.more_vert,
+                      iconColor: AppColors.primaryButtonColor,
+                    ),
+                    4.width,
+                  ],
+                ),
+                body: GpsOrderListWithTabs(orders: state.orderList.data.rows),
+              );
+            }
+          }
+
+          // Default loading state
+          return Scaffold(
+            backgroundColor: AppColors.blackishWhite,
+            appBar: CommonAppBar(
+              title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+              centreTile: false,
+              isLeading: true,
+              onLeadingTap: _handleBackNavigation,
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        },
       ),
-      body: gpsOrderListWidget(context),
     );
   }
 
-  // Build benefits content
-  Widget _buildBenefitsContent(BuildContext context) {
-    return gpsBenifitsWidget(context);
-  }
 
-  // Build order list content
-  Widget _buildOrderListContent(BuildContext context) {
-    return gpsOrderListWidget(context);
-  }
 
   // --- Benefits Section (unchanged) ---
-  Widget gpsBenifitsWidget(BuildContext context) {
+  Widget gpsBenifitsWidget(BuildContext context, {bool navigateToUploadDocument = false}) {
     return Column(
       children: [
         Expanded(
@@ -394,8 +506,13 @@ class _GpsOrderBenefitsAndOrderListScreenState
         AppButton(
           title: context.appText.buyNewGps,
           onPressed: () {
-            Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
-            // Navigator.push(context,commonRoute(GpsModelsScreen()));
+            if (navigateToUploadDocument) {
+              // Scenario 1: KYC not done - navigate to upload document
+              Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
+            } else {
+              // Scenario 2: KYC done but no orders - navigate to GPS model screen
+              Navigator.push(context, commonRoute(GpsModelsScreen()));
+            }
           },
         ).paddingOnly(bottom: 30, left: 15, right: 15, top: 10),
       ],
@@ -452,7 +569,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.gpsBenefitGps, style: AppTextStyle.body1),
+        Text(context.appText.gpsBenefitsGps, style: AppTextStyle.body1),
         20.height,
         innerUIWidget(
           icon: AppIcons.png.cardPayment,
@@ -483,73 +600,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
     );
   }
 
-  // --- Order List Section (using real API data) ---
-  Widget gpsOrderListWidget(BuildContext context) {
-    return BlocProvider.value(
-      value: GpsOrderListCubit(locator<GpsOrderApiRepository>())..resetCubit(),
-      child: BlocConsumer<GpsOrderListCubit, GpsOrderListState>(
-        key: ValueKey(
-          'gps_order_list_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-        listener: (context, state) {
-          if (state is GpsOrderListError) {
-            // Handle error if needed
-            print('GPS Order List Error: ${state.message}');
-          }
-        },
-        builder: (context, state) {
-          // Initialize order list on first build
-          if (state is GpsOrderListInitial && customerId != null) {
-            Future.microtask(() {
-              if (mounted) {
-                context.read<GpsOrderListCubit>().getOrderList(
-                  customerId: customerId!,
-                );
-              }
-            });
-          }
 
-          // Show loading while fetching orders
-          if (state is GpsOrderListLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // Show error state
-          if (state is GpsOrderListError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Failed to load orders', style: AppTextStyle.h5),
-                  Text(state.message, style: AppTextStyle.body3),
-                  20.height,
-                  AppButton(
-                    title: 'Retry',
-                    onPressed: () {
-                      if (customerId != null) {
-                        context.read<GpsOrderListCubit>().getOrderList(
-                          customerId: customerId!,
-                        );
-                      }
-                    },
-                    style: AppButtonStyle.primary,
-                  ).paddingSymmetric(horizontal: 40),
-                ],
-              ),
-            );
-          }
-
-          // Show orders list
-          if (state is GpsOrderListLoaded) {
-            return GpsOrderListWithTabs(orders: state.orderList.data.rows);
-          }
-
-          // Default loading state
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
-    );
-  }
 }
 
 // Separate widget for order list with tabs to avoid full screen refresh
@@ -568,11 +619,11 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
   @override
   Widget build(BuildContext context) {
     final tabLabels = [
-      'All',
-      'Order Placed',
-      'Dispatched',
-      'Delivered',
-      'Installed',
+      context.appText.all,
+      context.appText.orderPlaced,
+      context.appText.dispatched,
+      context.appText.delivered,
+      context.appText.installed,
     ];
 
     // Filter orders based on selected tab
@@ -593,7 +644,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
               final isSelected = selectedTab == index;
               return Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 4,
+                  horizontal: 8,
                   vertical: 12,
                 ),
                 child: GestureDetector(
@@ -608,7 +659,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                           isSelected
                               ? AppColors.primaryColor
                               : const Color(0xFFEFEFEF),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       tabLabels[index],
@@ -627,7 +678,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
           child:
               filteredOrders.isEmpty
                   ? Center(
-                    child: Text('No orders found', style: AppTextStyle.h5),
+                    child: Text(context.appText.noOrdersFound, style: AppTextStyle.h5),
                   )
                   : ListView.separated(
                     padding: const EdgeInsets.symmetric(
@@ -654,7 +705,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                             Row(
                               children: [
                                 Text(
-                                  'Order ID: ${order.orderUniqueId}',
+                                  '${context.appText.orderId}: ${order.orderUniqueId}',
                                   style: AppTextStyle.h4PrimaryColor.copyWith(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
@@ -688,7 +739,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                                   style: AppTextStyle.textGreyColor14w300,
                                 ).expand(),
                                 Text(
-                                  '₹${order.totalPrice.toStringAsFixed(0)}',
+                                  '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(0))}',
                                   style: AppTextStyle.h4,
                                 ),
                               ],
@@ -697,15 +748,17 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                             Row(
                               children: [
                                 InkWell(
-                                  onTap: () {}, // TODO: Add details navigation
+                                  onTap: () {
+                                    Navigator.of(context).push(commonRoute(GpsOrderDetailScreen(order: order,)));
+                                  }, 
                                   child: Text(
-                                    'View Details',
+                                    context.appText.viewDetails,
                                     style: AppTextStyle.primaryColor16w400,
                                   ),
                                 ),
                                 15.width,
                                 Text(
-                                  'Purchased on ${formatDateTimeKavach(order.orderDate)}',
+                                  '${context.appText.purchasedOn} ${formatDateTimeKavach(order.orderDate)}',
                                   style: AppTextStyle.textGreyColor14w300,
                                   maxLines: 1,
                                 ).expand(),

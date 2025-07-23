@@ -16,11 +16,14 @@ class VpLoadService {
     int? limit
 
   }) async {
+    print("type is ${type}");
     try {
       final response = await _apiService.get(
-        '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&type=$type&search=$search',
+        '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&search=$search',
         queryParams: {
-          "limit":limit??10
+          "limit":limit??10,
+        if(type!=2) "type":type
+
         },
         forceRefresh: forceRefresh,
       );

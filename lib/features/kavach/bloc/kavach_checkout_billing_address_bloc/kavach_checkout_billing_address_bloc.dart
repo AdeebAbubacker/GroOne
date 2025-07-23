@@ -19,6 +19,12 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   }
 
   Future<void> _onFetchBillingAddresses(FetchKavachBillingAddresses event, Emitter<KavachCheckoutBillingAddressState> emit) async {
+    // Store the currently selected address before fetching
+    KavachAddressModel? currentlySelectedAddress;
+    if (state is KavachCheckoutBillingAddressSelected) {
+      currentlySelectedAddress = (state as KavachCheckoutBillingAddressSelected).selectedAddress;
+    }
+    
     emit(KavachCheckoutBillingAddressLoading());
     final result = await repository.fetchAddresses();
 
@@ -28,9 +34,26 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
         print('KavachCheckoutBillingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutBillingAddressEmpty());
       } else {
-        // Don't auto-select the first address, let user choose
-        print('KavachCheckoutBillingAddressBloc: Emitting available state with ${result.value.length} addresses');
-        emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
+        // Check if the previously selected address still exists in the new list
+        if (currentlySelectedAddress != null) {
+          final addressExists = result.value.any((address) => address.uniqueId == currentlySelectedAddress!.uniqueId);
+          if (addressExists) {
+            // Restore the previously selected address
+            print('KavachCheckoutBillingAddressBloc: Restoring previously selected address');
+            emit(KavachCheckoutBillingAddressSelected(
+              selectedAddress: currentlySelectedAddress,
+              addresses: result.value,
+            ));
+          } else {
+            // Previously selected address no longer exists, show available state
+            print('KavachCheckoutBillingAddressBloc: Previously selected address no longer exists, emitting available state');
+            emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
+          }
+        } else {
+          // No previously selected address, show available state without auto-selection
+          print('KavachCheckoutBillingAddressBloc: No previously selected address, showing available state without auto-selection');
+          emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
+        }
       }
     } else if (result is Error<List<KavachAddressModel>>) {
       print('KavachCheckoutBillingAddressBloc: Error fetching addresses: ${result.type}');

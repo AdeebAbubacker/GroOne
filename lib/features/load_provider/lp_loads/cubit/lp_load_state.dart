@@ -24,6 +24,7 @@ class LpLoadState extends Equatable {
   final Advance? selectedAdvance;
   final int? selectedPercentageId;
   final String? locationDistance;
+  final String? downloadingKey;
   final bool? isFeedbackAdded;
   final Map<String, bool> downloadedFiles;
 
@@ -53,6 +54,7 @@ class LpLoadState extends Equatable {
     this.selectedAdvance,
     this.selectedPercentageId,
     this.locationDistance,
+    this.downloadingKey,
     this.isFeedbackAdded = false,
     this.downloadedFiles = const {},
 
@@ -82,6 +84,7 @@ class LpLoadState extends Equatable {
     Advance? selectedAdvance,
     int? selectedPercentageId,
     String? locationDistance,
+    String? downloadingKey,
     bool? isFeedbackAdded,
     Map<String, bool>? downloadedFiles,
   }) {
@@ -107,6 +110,7 @@ class LpLoadState extends Equatable {
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
       locationDistance: locationDistance ?? this.locationDistance,
+      downloadingKey: downloadingKey ?? this.downloadingKey,
       lpAddCustomerPaymentOption: lpAddCustomerPaymentOption ?? this.lpAddCustomerPaymentOption,
       lpCreateOrder: lpCreateOrder ?? this.lpCreateOrder,
       isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
@@ -137,6 +141,7 @@ class LpLoadState extends Equatable {
     selectedPercentageId,
     selectedAdvance,
     locationDistance,
+    downloadingKey,
     lpAddCustomerPaymentOption,
     lpCreateOrder,
     isFeedbackAdded,

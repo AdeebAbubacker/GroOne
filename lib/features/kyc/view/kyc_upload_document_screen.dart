@@ -30,6 +30,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
@@ -319,7 +320,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
     await kycCubit.verifyPan(apiRequest);
     if(!context.mounted) return;
     if (kycCubit.state.panState?.status == Status.SUCCESS) {
-      ToastMessages.success(message:  context.appText.tanVerifiedSuccessfully);
+      ToastMessages.success(message:  context.appText.panVerifiedSuccessfully);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
       ToastMessages.alert(message: context.appText.invalidTANNumber);
@@ -609,71 +610,79 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                   }
                                 },
                                 builder: (context, state) {
-                                  final status = state.stateUIState?.status;
-                                  if (status == Status.SUCCESS && state.stateUIState?.data != null && state.stateUIState!.data!.isNotEmpty) {
-                                    List<StateModelList> stateList = state.stateUIState!.data!;
-                                    return Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(" State", style: AppTextStyle.body3),
-                                            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                          ],
-                                        ),
-                                        6.height,
-                                        DropdownSearch<String>(
-                                          validator: (value) => Validator.fieldRequired(value),
-                                          key: dropDownStateKey,
-                                          items: (filter, infiniteScrollProps) => stateList
-                                              .where((element) => element.name.toLowerCase().contains(filter.toLowerCase()))
-                                              .map((e) => e.name)
-                                              .toList(),
-                                          popupProps: PopupProps.modalBottomSheet(
-                                            fit: FlexFit.loose,
-                                             showSearchBox: true,
-                                            constraints: BoxConstraints(
-                                              maxHeight: MediaQuery.of(context).size.height * 0.8,
-                                            ),
-                                          ),
-                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
-                                          selectedItem: selectedState,
-                                          onChanged: (value) {
-                                            selectedState = value;
-                                            selectedCity = null;
-                                            if (value != null) {
-                                              kycCubit.fetchCityList(value);
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(context.appText.state.toString().capitalizeFirst, style: AppTextStyle.body3),
+                                          Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                                        ],
+                                      ),
+                                      6.height,
+                                      DropdownSearch<String>(
+                                        validator: (value) => Validator.fieldRequired(value),
+                                        key: dropDownStateKey,
+                                        items: (String filter, _) async {
+                                          final localList = kycCubit.state.stateUIState?.data ?? [];
+
+                                          final localMatches = localList
+                                              .where((e) => e.name.toLowerCase().contains(filter.toLowerCase()))
+                                              .toList();
+
+                                          if (localMatches.isNotEmpty || filter.trim().isEmpty) {
+                                            return localMatches.map((e) => e.name).toList();
+                                          } else {
+                                            final result = await kycCubit.getFilteredStateList(filter: filter);
+                                            if (result is Success<StateModel>) {
+                                              final remoteList = result.value.data;
+                                              return remoteList.map((e) => e.name).toList();
+                                            } else {
+                                              return [];
                                             }
-                                          },
+                                          }
+                                        },
+                                        popupProps: PopupProps.modalBottomSheet(
+                                          fit: FlexFit.loose,
+                                          showSearchBox: true,
+                                          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                                          emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noStateFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                                          loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
                                         ),
-                                      ],
-                                    );
-                                  }
-                                  return 0.height; // Return empty if no data
+                                        decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
+                                        selectedItem: selectedState,
+                                        onChanged: (value) {
+                                          selectedState = value;
+                                          selectedCity = null;
+                                          if (value != null) {
+                                            kycCubit.fetchCityList(value);
+                                          }
+                                        },
+                                      ),
+
+                                    ],
+                                  );
                                 },
                               ),
                               20.height,
 
-
                               // CITY DROPDOWN
-                              BlocConsumer<KycCubit, KycState>(
-                                bloc: kycCubit,
-                                listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
-                                listener:  (context, state)  {
-                                  final status = state.cityUIState?.status;
-                                  if (status == Status.ERROR) {
-                                    final error = state.cityUIState?.errorType;
-                                    ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-                                  }
-                                },
-                                builder: (context, state) {
-                                  final status = state.cityUIState?.status;
-                                  if (status == Status.SUCCESS && state.cityUIState?.data != null && state.cityUIState!.data!.isNotEmpty) {
-                                    List<CityModelList> cityList = state.cityUIState!.data!;
+                              if (selectedState != null)
+                                BlocConsumer<KycCubit, KycState>(
+                                  bloc: kycCubit,
+                                  listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
+                                  listener: (context, state) {
+                                    final status = state.cityUIState?.status;
+                                    if (status == Status.ERROR) {
+                                      final error = state.cityUIState?.errorType;
+                                      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                                    }
+                                  },
+                                  builder: (context, state) {
                                     return Column(
                                       children: [
                                         Row(
                                           children: [
-                                            Text(" City", style: AppTextStyle.body3),
+                                            Text(context.appText.city.toString().capitalizeFirst, style: AppTextStyle.body3),
                                             Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
                                           ],
                                         ),
@@ -681,18 +690,34 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                         DropdownSearch<String>(
                                           validator: (value) => Validator.fieldRequired(value),
                                           key: dropDownCityKey,
-                                          items: (filter, infiniteScrollProps) => selectedState != null
-                                              ? cityList
-                                              .where((element) => element.city.toLowerCase().contains(filter.toLowerCase()))
-                                              .map((e) => e.city)
-                                              .toList()
-                                              : [],
+                                          items: (String filter, _) async {
+                                            final localList = kycCubit.state.cityUIState?.data ?? [];
+
+                                            final localMatches = localList
+                                                .where((e) => e.city.toLowerCase().contains(filter.toLowerCase()))
+                                                .toList();
+
+                                            if (localMatches.isNotEmpty || filter.trim().isEmpty) {
+                                              return localMatches.map((e) => e.city).toList();
+                                            } else {
+                                              final result = await kycCubit.getFilteredCityList(stateName: selectedState!, filter: filter);
+                                              if (result is Success<CityModel>) {
+                                                final remoteList = result.value.data;
+                                                return remoteList.map((e) => e.city).toList();
+                                              } else {
+                                                return [];
+                                              }
+                                            }
+                                          },
                                           popupProps: PopupProps.modalBottomSheet(
                                             fit: FlexFit.loose,
                                             showSearchBox: true,
-                                            constraints: BoxConstraints(maxHeight: 400),
+                                            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                                            emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noCityFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                                            loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
                                           ),
-                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: "Select City")),
+                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectCity),
+                                          ),
                                           selectedItem: selectedCity,
                                           onChanged: (value) {
                                             selectedCity = value;
@@ -701,10 +726,10 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                                         20.height
                                       ],
                                     );
-                                  }
-                                  return 0.height; // Return empty if no data
-                                },
-                              ),
+                                  },
+                                )
+                              else
+                                0.height,
 
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
@@ -783,7 +808,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                       ),
                     ),
                     30.height,
-
                   ],
                 );
               },
@@ -941,7 +965,8 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
                 multiFilesList: gstDoc,
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING,
-                hideDeleteButton: verified
+                hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf'],
             ),
           ],
         );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
@@ -160,22 +161,29 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             ),
           ),
           30.height,
-          AppButton(
-            style:
-                (otpController.text.length == 4)
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+            bloc: lpLoadLocator,
+            builder: (context, state) {
+
+              final bool isLoading = state.lpLoadMemoVerifyOtp?.status == Status.LOADING;
+
+              return AppButton(
+                isLoading: lpLoadLocator.state.lpLoadMemoVerifyOtp?.status == Status.LOADING,
+                onPressed: () async {
+                  if (!isLoading && otpController.text.length == 4) {
+                    await lpLoadLocator.verifyOtp(
+                      otp: otpController.text,
+                      loadId: widget.loadId,
+                    );
+                    final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
+                    handleOtpVerification(uiState);
+                  }
+                },
+                title: context.appText.verifyOtp,
+                style: (otpController.text.length == 4)
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-            title: context.appText.verifyOtp,
-
-            onPressed: () async {
-              if (otpController.text.length == 4) {
-                await lpLoadLocator.verifyOtp(
-                  otp: otpController.text,
-                  loadId: widget.loadId,
-                );
-                final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
-                handleOtpVerification(uiState);
-              }
+              );
             },
           ),
           20.height,

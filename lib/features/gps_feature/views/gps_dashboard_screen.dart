@@ -1,10 +1,13 @@
 import 'dart:convert';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/mixins/gps_refresh_mixin.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -12,19 +15,40 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:intl/intl.dart';
+
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
 import '../constants/app_constants.dart';
 import '../model/gps_distance_data_model.dart';
 
-class GpsDashboardScreen extends StatelessWidget {
+class GpsDashboardScreen extends StatefulWidget {
   const GpsDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Ensure Cubit is loaded and initialized
+  State<GpsDashboardScreen> createState() => _GpsDashboardScreenState();
+}
+
+class _GpsDashboardScreenState extends State<GpsDashboardScreen>
+    with GpsRefreshMixin {
+  @override
+  GpsScreenType get screenType => GpsScreenType.other;
+
+  String? selectedVehicleNumber;
+  bool isLoading = true;
+  List<DistanceData> _weeklyDistance = [];
+  bool _isWeeklyDistanceLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<VehicleListCubit>();
+      final vehicles = cubit.state.filteredVehicles;
+      if (vehicles.isNotEmpty) {
+        selectedVehicleNumber ??= vehicles.first.vehicleNumber;
+        _loadWeeklyDistance(vehicles);
+      }
+
       if (!cubit.hasLoadedData) {
         cubit.loadVehicleData(isLoadAgain: true);
       } else if (cubit.state.selectedVehicleNumber == null && cubit.state.filteredVehicles.isNotEmpty) {
@@ -33,9 +57,49 @@ class GpsDashboardScreen extends StatelessWidget {
         if (activeVehicles.isNotEmpty) {
           cubit.setSelectedVehicle(activeVehicles.first.vehicleNumber ?? '');
         }
+    });
+  }
+
+  double _getMaxY(List<FlSpot> points) {
+    final maxY = points
+        .map((e) => e.y)
+        .fold(0.0, (prev, y) => y > prev ? y : prev);
+    return (maxY + 5).ceilToDouble(); // Add padding and round up
+  }
+
+  int getVehiclesInsideGeofence(List<GpsCombinedVehicleData> vehicles) {
+    return vehicles.where((v) {
+      try {
+        final ids = jsonDecode(v.geofenceIds ?? '[]');
+        return ids is List && ids.isNotEmpty;
+      } catch (_) {
+        return false;
       }
+    }).length;
+  }
+
+  Future<void> _loadWeeklyDistance(
+    List<GpsCombinedVehicleData> vehicles,
+  ) async {
+    if (selectedVehicleNumber == null || vehicles.isEmpty) return;
+
+    final vehicle = vehicles.firstWhere(
+      (v) => v.vehicleNumber == selectedVehicleNumber,
+      orElse: () => vehicles.first,
+    );
+
+    if (vehicle.deviceId == null) return;
+
+    final result = await GpsRealmService().getWeeklyDistanceGraph(
+      vehicle.deviceId!,
+    );
+    setState(() {
+      _weeklyDistance = result;
+      _isWeeklyDistanceLoading = false;
     });
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
@@ -312,7 +376,7 @@ class GpsDashboardScreen extends StatelessWidget {
     // Ensure we have a valid selected vehicle number from the available vehicles
     final currentSelectedVehicle = state.selectedVehicleNumber;
     final validSelectedVehicle = (currentSelectedVehicle != null && vehicleNumbers.contains(currentSelectedVehicle))
-        ? currentSelectedVehicle 
+        ? currentSelectedVehicle
         : vehicleNumbers.isNotEmpty ? vehicleNumbers.first : null;
 
     if(state.selectedVehicleNumber == vehicleNumbers.first){context.read<VehicleListCubit>().setSelectedVehicle(vehicleNumbers.first);}
@@ -366,6 +430,10 @@ class GpsDashboardScreen extends StatelessWidget {
           ],
         ),
       );
+    }
+
+    if (_isWeeklyDistanceLoading) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (state.weeklyDistance.isEmpty) {
@@ -523,8 +591,12 @@ class GpsDashboardScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 borderData: FlBorderData(
                   show: false, // remove chart borders
@@ -541,14 +613,16 @@ class GpsDashboardScreen extends StatelessWidget {
                     barWidth: 3,
                     dotData: FlDotData(
                       show: true, // show dots
-                      getDotPainter: (spot, percent, barData, index) =>
-                          FlDotCirclePainter(
-                        radius: 4,
-                        color: Colors.blue,
-                        strokeWidth: 0,
-                      ),
+                      getDotPainter:
+                          (spot, percent, barData, index) => FlDotCirclePainter(
+                            radius: 4,
+                            color: Colors.blue,
+                            strokeWidth: 0,
+                          ),
                     ),
-                    belowBarData: BarAreaData(show: false), // no shading below the line
+                    belowBarData: BarAreaData(
+                      show: false,
+                    ), // no shading below the line
                   ),
                 ],
               ),

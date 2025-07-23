@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -11,7 +12,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class UploadFileAndImageBottomSheet extends StatefulWidget {
   final bool isMultipleSelectionFile;
-  const UploadFileAndImageBottomSheet({super.key,  this.isMultipleSelectionFile = true});
+  final List? allowedExtensions;
+  const UploadFileAndImageBottomSheet({super.key,  this.isMultipleSelectionFile = true, this.allowedExtensions});
 
   @override
   State<UploadFileAndImageBottomSheet> createState() => _UploadFileAndImageBottomSheetState();
@@ -25,14 +27,15 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
     AppIcons.svg.folder, // Add this in your AppIcons.svg
   ];
 
-  final List<String> labels = [
-    AppString.label.fromCamera,
-    AppString.label.fromGallery,
-    AppString.label.fromFile,
-  ];
+  
 
   @override
   Widget build(BuildContext context) {
+    final List<String> labels = [
+      context.appText.fromCamera,
+      context.appText.fromGallery,
+      context.appText.fromFile,
+    ];
     if (!widget.isMultipleSelectionFile) {
       icons.removeLast();
       labels.removeLast();
@@ -47,7 +50,7 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppString.label.selectImageFrom, style: AppTextStyle.appBar),
+              Text(context.appText.selectImageFrom, style: AppTextStyle.appBar),
               IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.clear_rounded))
             ],
           ),
@@ -58,15 +61,15 @@ class _UploadFileAndImageBottomSheetState extends State<UploadFileAndImageBottom
                 InkWell(
                   onTap: () async {
                     if (i == 0) {
-                      final result = await ImagePickerFrom.fromCamera();
+                      final result = await ImagePickerFrom.fromCamera(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (result != null) Navigator.of(context).pop(result);
                     } else if (i == 1) {
-                      final result = await ImagePickerFrom.fromGallery();
+                      final result = await ImagePickerFrom.fromGallery(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (result != null) Navigator.of(context).pop(result);
                     } else {
-                      final files = await pickMultipleFiles();
+                      final files = await pickMultipleFiles(allowedExtensions: widget.allowedExtensions);
                       if(!context.mounted) return;
                       if (files != null && files.isNotEmpty) {
                         Navigator.of(context).pop(files);
