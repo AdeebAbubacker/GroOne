@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -39,7 +40,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Payment Information", style: AppTextStyle.h3w500.copyWith(
+          Text(context.appText.paymentInformation, style: AppTextStyle.h3w500.copyWith(
             color: Color(0xff050505)
           )),
           16.height,
@@ -51,7 +52,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Trip Cost", style:AppTextStyle.h3w500.copyWith(
+                Text(context.appText.tripCost, style:AppTextStyle.h3w500.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.w100,
                   color: AppColors.textBlackColor
@@ -61,7 +62,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
             ).paddingAll(12),
           ),
           16.height,
-          Text("Advance payment (80%)", style:AppTextStyle.h4w500.copyWith(
+          Text("${context.appText.advancedPayment} (80%)", style:AppTextStyle.h4w500.copyWith(
             color: AppColors.darkDividerColor,
             fontSize: 16,
             fontWeight: FontWeight.w400
@@ -83,7 +84,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  (isAdvanceCompleted??false) ? "Completed" : "Pending",
+                  (isAdvanceCompleted??false) ? context.appText.completed : context.appText.pending,
                   style: AppTextStyle.h3w500.copyWith(
                          fontSize: 12,
                          fontWeight: FontWeight.w100,
@@ -102,20 +103,20 @@ class PaymentInformationDialogView  extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow("Advance Received (80%)", advanceAmount.toString()),
-                _buildInfoRow("Transaction ID", transactionId, ),
-                _buildInfoRow("Payment mode", paymentMode),
-                _buildInfoRow("Received on", receivedOn),
+                _buildInfoRow("${context.appText.advancedReceived} (80%)", advanceAmount.toString()),
+                _buildInfoRow(context.appText.transactionID, transactionId, ),
+                _buildInfoRow(context.appText.paymentMode, paymentMode),
+                _buildInfoRow(context.appText.receivedOn, receivedOn),
               ],
             ).paddingAll(12)
           ),
           16.height,
-          Text("Balance payout", style: TextStyle(color: Colors.black54)),
+          Text(context.appText.balancePayout, style: TextStyle(color: Colors.black54)),
           10.height,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("₹${balancePayout.toString()}", style: AppTextStyle.h3w500.copyWith(
+              Text("${balancePayout.toString()}", style: AppTextStyle.h3w500.copyWith(
                   fontSize: 20,
                   fontWeight: FontWeight.w700
               )),
@@ -125,7 +126,7 @@ class PaymentInformationDialogView  extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  (isBalancePending??false) ? "Pending" : "Completed",
+                  (isBalancePending??false) ? context.appText.pending : context.appText.completed,
                   style: TextStyle(color: (isBalancePending??false) ? AppColors.textRed: AppColors.greenColor),
                 ).paddingSymmetric(horizontal: 12, vertical: 4),),
             ],
@@ -153,17 +154,14 @@ Widget _buildInfoRow(String? title, String? value, {bool isLink = false}) {
               )).expand(),
         ],
       ).expand(),
-      Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          value??"",
-          style: TextStyle(
-            color: AppColors.primaryColor,
-            fontWeight: FontWeight.w400,
-            decoration: isLink ? TextDecoration.underline : TextDecoration.none,
-          ),
-        ).expand(),
-      ),
+      Text(
+        value??"",
+        style: TextStyle(
+          color: AppColors.primaryColor,
+          fontWeight: FontWeight.w400,
+          decoration: isLink ? TextDecoration.underline : TextDecoration.none,
+        ),
+      ).expand(),
     ],
   ).paddingSymmetric(vertical: 5);
 }

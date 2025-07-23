@@ -1,14 +1,17 @@
-import 'dart:async';
+ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -17,8 +20,10 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class DriverLoadsLocationDetailsScreen extends StatefulWidget {
   final String loadId;
@@ -33,12 +38,22 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   Timer? _ticker;
   String _countDown = "--:--:--";
   bool _simConsentCalled = false;
-
+   final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
   @override
   void initState() {
     super.initState();
-    context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId);
+    getLoadDetails();
   }
+
+Future<void> getLoadDetails() async {
+  await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
+
+  final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
+
+  if (statusId != null) {
+    driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
+  }
+}
 
   @override
   void dispose() {
@@ -46,18 +61,24 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+        child: 
+        BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+         bloc: driverLoadDetailsCubit,
+          listener: (context, state) {
+            
+          },
           builder: (context, state) {
             final uiState = state.lpLoadById;
-
+        
             if (uiState == null || uiState.status == Status.LOADING) {
               return const Center(child: CircularProgressIndicator());
             }
-
+        
             if (uiState.status == Status.ERROR) {
               return Stack(
                 children: [
@@ -70,14 +91,33 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                     ),
                   ),
                   genericErrorWidget(
-                    onRefresh: () => context.read<DriverLoadDetailsCubit>().getLpLoadsById(loadId: widget.loadId),
+                    onRefresh: () => context.read<DriverLoadDetailsCubit>().getDriverLoadsById(loadId: widget.loadId),
                   ).paddingTop(50),
                 ],
               );
             }
-
+            if (uiState.status == Status.SUCCESS) {
             final loadItem = uiState.data;
-
+              if (loadItem?.data == null) {
+                        return Stack(
+                            children: [
+                              Positioned(
+                                top: 20,
+                                left: 0,
+                                child: IconButton(
+                                  icon: const Icon(Icons.arrow_back),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                              ),
+                              genericErrorWidget(
+                                onRefresh: () => context.read<DriverLoadDetailsCubit>().getDriverLoadsById(loadId: widget.loadId),
+                              ).paddingTop(50),
+                            ],
+                          );
+                        }
+                        
+           
+        
             return Stack(
               children: [
                 GoogleMapWidget(
@@ -89,14 +129,16 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   driverLong: 23,
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
                 buildFloatingWidget(context),
-                buildSimConsentWidget(loadItem),
+                buildSimConsentWidget(loadItem.data?.driverConsent ?? 0),
               ],
             );
-          },
+            }
+            return genericErrorWidget(error: GenericError());
+          }
         ),
-      ),
+      )
     );
   }
 
@@ -181,18 +223,6 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
                   ],
                 ).expand(),
                  DriverLoadHelper.driverStatusWidget(loadItem.data?.loadStatusId.toString()),
-                //  Container(
-                //   decoration: commonContainerDecoration(
-                //     color: LpHomeHelper.getLoadStatusColor('3')
-                //   ),
-                //   width: 100,
-                //   child: Text(
-                //     LpHomeHelper.getLoadTypeDisplayText(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? ''),
-                //     style: AppTextStyle.body3.copyWith(
-                //       color: LpHomeHelper.getLoadStatusTextColor(loadItem.data?.loadStatusDetails?.loadStatus.toString() ?? '')
-                //     ),
-                //   ).center().paddingAll(4),
-                // ), 
                 ],
             )
           ],
@@ -240,10 +270,10 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 
-    Widget buildSimConsentWidget(DriverLoadDetailsModel loadItem) {
-      final screenHeight = MediaQuery.of(context).size.height;
+    Widget buildSimConsentWidget(int driverConsent) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
-    final isTrackingAllowed = loadItem.data?.driverConsent == 1;
+    final isTrackingAllowed = driverConsent==1;
 
     return Positioned(
         left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(

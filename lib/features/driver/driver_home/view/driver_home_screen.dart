@@ -6,6 +6,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -65,7 +67,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 0;
   TabController? _tabController;
   final tabLabels = [
-     'All',
+     'All Loads ',
      'Assigned',
      'Loading',
      'In Transit',
@@ -96,7 +98,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
-
+ WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
  _tabController!.addListener(() {
   if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
     setState(() {
@@ -105,12 +107,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     });
   }
 });
-
-
-
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _tabScrollController.jumpTo(50);
-  });
 
   _loadDataByTab(index: widget.initialTabIndex);
 });
@@ -139,7 +135,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     int? loadStatus;
   if (index > 0) {  
   loadStatus = index + 3; 
-   print('my index is ------- ${loadStatus}');
+   
 } else{
    loadStatus = null;
 }
@@ -178,23 +174,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         AppIcons.png.appIcon,
       ).paddingLeft(commonSafeAreaPadding),
       actions: [
-        // Profile
-        // Row(
-        //   children: [
-        //     10.width,
-        //     Container(
-        //       height: 40,
-        //       width: 40,
-        //       alignment: Alignment.center,
-        //       decoration: commonContainerDecoration(
-        //         borderRadius: BorderRadius.circular(100),
-        //         color: AppColors.greyIconBackgroundColor,
-        //       ),
-        //       child: Text(getInitialsFromName(this, name: 'dummy')),
-        //     ).onClick(() {}).paddingRight(commonSafeAreaPadding),
-        //   ],
-        // ),
-
 
             // Profile
         BlocConsumer<DriverProfileCubit, DriverProfileState>(
@@ -248,6 +227,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
+ 
+
+
   /// Tab Bar
   Widget buildTabBarWidget() {
     if (_tabController == null) {
@@ -257,30 +239,34 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     return Container(
       height: 40,
       decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
-      child: TabBar(
-        controller: _tabController!,
-        isScrollable: true,
-        physics: const ClampingScrollPhysics(),
-        indicator: const BoxDecoration(),
-        dividerHeight: 0,
-       tabs: List.generate(tabLabels.length, (index) {
-        final isSelected = selectedTabIndex == index;
-        return Tab(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: commonContainerDecoration(
-              color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              tabLabels[index],
-              style: AppTextStyle.body3.copyWith(
-                color: isSelected ? AppColors.white : AppColors.black,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: _tabScrollController,
+        child: TabBar(
+          controller: _tabController!,
+          isScrollable: true,
+          physics: const ClampingScrollPhysics(),
+          indicator: const BoxDecoration(),
+          dividerHeight: 0,
+         tabs: List.generate(tabLabels.length, (index) {
+          final isSelected = selectedTabIndex == index;
+          return Tab(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: commonContainerDecoration(
+                color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                tabLabels[index],
+                style: AppTextStyle.body3.copyWith(
+                  color: isSelected ? AppColors.white : AppColors.black,
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+        ),
       ),
     ).paddingOnly(top: 15, right: 15, left: 15);
   }
@@ -333,24 +319,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-  Widget buildDriverLoadTab(int tabIndex) {
-        return RefreshIndicator(
-    onRefresh: () async {
-      _loadDataByTab(index: tabIndex, forceRefresh: true);
-    },
+        Widget buildDriverLoadTab(int tabIndex) {
+              return RefreshIndicator(
+          onRefresh: () async {
+            _loadDataByTab(index: tabIndex, forceRefresh: true);
+          },
           child: BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
             bloc: driverLoadBloc,
             listener: (context, state) {
                 if (state is DriverLoadStatusChanged) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Driver load status updated successfully")),
-          );
+                  ToastMessages.success(message: "Load status updated successfully");
           _loadDataByTab(index: tabIndex, forceRefresh: true);
                 } else if (state is DriverLoadStatusChangeFailed) {
                 _loadDataByTab(index: tabIndex, forceRefresh: true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to update driver load status")),
-          );
+                  ToastMessages.error(message: "Failed to update load status");
+        
                 }
               },
             builder: (context, state) {
@@ -372,41 +355,70 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     return DriverLoadWidget(
                         driverLoadDetails: state.loads[index],
                    onClickAssignDriver: () {
-          context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,          
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
-                  },
-                ).paddingSymmetric(vertical: 7);
+                  final currentStatus = state.loads[index].loadStatusId;
+                  if (currentStatus == 8) {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                          DriverLoadsLocationDetailsScreen(
+                              loadId: state.loads[index].loadId,
+                            ),
+                          ),
+                        );
+                      } else if (currentStatus <= 7) {
+                        context.read<DriverLoadsBloc>().add(
+                          ChangeDriverLoadStatus(
+                            loadId: state.loads[index].loadId,  
+                            loadStatus: currentStatus +1 ,         
+                            customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                          ),
+                        );}
+                            },
+                          ).paddingSymmetric(vertical: 7);
               
                       case 1:
                       return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-          context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,         
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
+                    final currentStatus = state.loads[index].loadStatusId;
+                    if (currentStatus == 8) {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                          DriverLoadsLocationDetailsScreen(
+                              loadId: state.loads[index].loadId,
+                            ),
+                          ),
+                        );
+                        }
+            if (currentStatus <= 7) {
+              context.read<DriverLoadsBloc>().add(
+                ChangeDriverLoadStatus(
+                  loadId: state.loads[index].loadId,  
+                  loadStatus: currentStatus +1 ,         
+                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                ),
+              );}
                   },
                 ).paddingSymmetric(vertical: 7);
                       default:
-                          return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                          return   DriverLoadWidget( 
+                            driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-                    context.read<DriverLoadsBloc>().add(
-              ChangeDriverLoadStatus(
-                loadId: state.loads[index].loadId,  
-                loadStatus: state.loads[index].loadStatusId +1,         
-                customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-              ),);
+                  final currentStatus = state.loads[index].loadStatusId;
+                  if (currentStatus == 8) {
+                    Navigator.push(
+                      context,
+                      commonRoute(
+                      DriverLoadsLocationDetailsScreen(
+                          loadId: state.loads[index].loadId,
+                        ),
+                      ),
+                    );
+                  }
                   },
                 ).paddingSymmetric(vertical: 7);
                     }
                   },
-          
-                  
                 );
               } else if (state is DriverLoadsError) { 
                 return Center(child: Text(state.message));
@@ -416,6 +428,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             },
           ),
         );
-      }
+      }    
 }
 

@@ -9,6 +9,8 @@ import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -661,4 +663,30 @@ class GpsOrderApiService {
       return Error(DeserializationError());
     }
   }
+
+  /// Initiate GPS Payment
+  Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
+    try {
+      final url = ApiUrls.lppayment;
+      CustomLog.debug(this, "GPS Payment URL: $url");
+      CustomLog.debug(this, "GPS Payment Request: ${request.toJson()}");
+      
+      final result = await _apiService.post(url, body: request.toJson());
+
+      if (result is Success) {
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => OrderAddedSuccess.fromJson(data),
+        );
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to initiate GPS payment", e);
+      return Error(DeserializationError());
+    }
+  }
+
 }

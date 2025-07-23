@@ -29,6 +29,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -67,18 +68,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
       final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+      final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
         visible: true
       );
+      final updateOtherDocument = currentList[uploadOtherDocumentIndex].copyWith(
+        visible: false
+      );
       currentList[podDocumentIndex] = updatedDocument;
+      currentList[uploadOtherDocumentIndex] = updateOtherDocument;
       emit(state.copyWith(tripDocumentList: currentList));
     }
   }
 
 
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
+    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {
@@ -339,16 +345,29 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
+
+    print("document id in upload function ${loadDocument?.documentDetails?.documentId}");
 
     final updatedDocument = currentDocument.copyWith(
       loadDocument: currentDocument.loadDocument ?? loadDocument,
       isLoading: !(currentDocument.isLoading ?? false),
     );
     currentList[index] = updatedDocument;
+
+    /// TODO:
+    /// This is for multiple documents
+
+    // if(loadDocument!=null && updatedDocument.fileType==DocumentFileType.uploadOtherDocument.name){
+    //   DocumentEntity updatedDocumentList=   addOthersDocumentUploadOption(currentList);
+    //   debugPrint("updatedDocumentList added");
+    //   currentList.add(updatedDocumentList);
+    // }
     emit(state.copyWith(tripDocumentList: currentList));
   }
+
+
 
   void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
@@ -361,6 +380,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     currentList[index] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
+
+
+  /// add option for add more other documents
+  DocumentEntity addOthersDocumentUploadOption(List<DocumentEntity> currentList){
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    final otherDocumentObj=currentList.firstWhere((element) => element.fileType==DocumentFileType.uploadOtherDocument.name);
+    final currentDocument = otherDocumentObj.copyWith(
+      loadDocument: null
+    );
+
+    return currentDocument;
+  }
+
+
+
 
 
   Future<CreateDocumentResponse?> createDocument(String title,
@@ -382,7 +416,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       ).then((value) {
         if (value is Success<CreateDocumentResponse>) {
           return value.value;
+        } else if(value is Error<CreateDocumentResponse>){
+          ToastMessages.error(message: getErrorMsg(
+              errorType: value.type
+          ));
         }
+
+
         return null;
       },);
     } catch (e) {
@@ -411,19 +451,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
+      print("documentId is $documentId");
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
+          print("downloading done");
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {
+          print("downloading error");
           uploadLoadingStatus(index, null);
         }
       },);
     } catch (e) {
+      print("downloading error $e");
       uploadLoadingStatus(index, null);
       return null;
     }
@@ -496,23 +540,69 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     try {
       DocumentEntity? document = documentEntity.firstWhere((element) =>
       element.loadDocument == null && element.visible==true);
-      return document == null;
+      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
     } catch (e) {
       return true;
     }
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
     switch(loadStatus){
       case LoadStatus.assigned:
-        return memo!=null;
+        return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+      return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }
   }
+
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+
+      case LoadStatus.loading:
+      return  checkLoadingDocumentAddedOrNot(documentList,true);
+
+      case LoadStatus.unloading:
+        return checkLoadingDocumentAddedOrNot(documentList,false);
+      default:
+        return true;
+    }
+
+
+  }
+  bool checkLoadingDocumentAddedOrNot(List<LoadDocument> loadDocumentList,bool? checkPod){
+    List<String> requiredDocument= (checkPod??false)   ?  [
+      navigatorKey.currentState?.context.appText.lorryReceipt??"",
+      navigatorKey.currentState?.context.appText.ewayBill??"",
+      navigatorKey.currentState?.context.appText.materialInvoice??"",
+
+    ]:[
+      navigatorKey.currentState?.context.appText.pod??""
+    ];
+
+    bool isAdded=false;
+    for(var item in requiredDocument){
+      print("item is ${item}");
+      try{
+        loadDocumentList.firstWhere((element) => element.documentDetails?.documentType==item);
+        isAdded=true;
+        print("added");
+      }catch(e){
+        print("not added");
+        return false;
+      }
+    }
+    return isAdded;
+
+  }
+
+
+
+
+
+
 }

@@ -37,6 +37,7 @@ class VpRecentLoadResponse {
 class VpRecentLoadData {
   VpRecentLoadData({
     required this.id,
+    required this.loadDocument,
     required this.loadId,
     required this.laneId,
     required this.rateId,
@@ -76,6 +77,8 @@ class VpRecentLoadData {
     required this.vpMaxRate,
     required this.loadStatusDetails,
     required this.loadStatusValues,
+    required this.driverConsent,
+    required this.loadUnHold,
 
   });
 
@@ -124,8 +127,11 @@ class VpRecentLoadData {
   final TruckType? truckType;
   final Customer? customer;
   final CustomerDetail? customerDetail;
+  final int? driverConsent;
+  final bool? loadUnHold;
+  final List<LoadDocument>? loadDocument;
 
-  final LoadStatusDetails? loadStatusDetails;
+  final LoadStatusDetailsResponse? loadStatusDetails;
 
   VpRecentLoadData copyWith({
     String? id,
@@ -140,7 +146,7 @@ class VpRecentLoadData {
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
-    LoadStatusDetails? loadStatusDetails,
+    LoadStatusDetailsResponse? loadStatusDetails,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
@@ -168,10 +174,15 @@ class VpRecentLoadData {
      String? vpRate,
      String? vpMaxRate,
     LoadStatus? loadStatusValues,
+    bool? loadUnHold,
+    List<LoadDocument>? loadDocument,
 
 
   }) {
     return VpRecentLoadData(
+      loadDocument: loadDocument??this.loadDocument,
+      loadUnHold: loadUnHold ?? this.loadUnHold,
+      driverConsent:  driverConsent??this.driverConsent,
       loadStatusValues: loadStatusValues??this.loadStatusValues,
       loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
       id: id ?? this.id,
@@ -220,8 +231,11 @@ class VpRecentLoadData {
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+      loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
+      loadUnHold: json['loadOnhold'],
+      driverConsent: json['driverConsent'],
       loadStatusValues: getLoadStatus(json['loadStatusId']),
-      loadStatusDetails:LoadStatusDetails.fromJson(json['loadStatusDetails']) ,
+      loadStatusDetails:LoadStatusDetailsResponse.fromJson(json['loadStatusDetails']) ,
       vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
       vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
@@ -241,7 +255,7 @@ class VpRecentLoadData {
       dropLocation: json['loadRoute']!=null ? json['loadRoute']["dropLocation"] ?? "":"",
       dropLatlon: json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
-      consignmentWeight: json['weight']!=null ?json['weight']['value'] :0,
+      consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,

@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/model/driver_loa
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -72,6 +73,9 @@ class DriverLoadDetailsService {
     }
   }
 
+
+
+
     /// Get Damage List Service
   Future<Result<GetDamageListModel>> fetchDamageList(String loadId) async {
     try {
@@ -90,6 +94,32 @@ class DriverLoadDetailsService {
       return Error(DeserializationError());
     }
   }
+  Future<Result<VpLoadAcceptModel>> changeLoadStatus({
+  required String? userId,
+  required String loadId,
+  required int? loadStatus,
+}) async {
+  try {
+ final statusUpdateUrl=ApiUrls.updateLoadStatus;
+      final result = await _apiService.put(
+        queryParams: {
+          "loadStatus":loadStatus
+        },
+          '$statusUpdateUrl/$userId/$loadId');
+    if (result is Success) {
+      final changeLoadStatusResponse = VpLoadAcceptModel.fromJson(result.value);
+      return Success(changeLoadStatusResponse);
+    } else if (result is Error) {
+      return Error(result.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (e) {
+    CustomLog.error(this, AppString.error.deserializationError, e);
+    return Error(DeserializationError());
+  }
+}
+
 
 }
 

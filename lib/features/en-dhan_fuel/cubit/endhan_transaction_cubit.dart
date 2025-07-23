@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/endhan_transaction_model.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/service/endhan_transaction_service.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:intl/intl.dart';
@@ -40,9 +40,15 @@ class EndhanTransactionError extends EndhanTransactionState {
   EndhanTransactionError(this.message);
 }
 
+class EndhanTransactionDateRangeError extends EndhanTransactionState {
+  final String message;
+
+  EndhanTransactionDateRangeError(this.message);
+}
+
 // Cubit
 class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
-  final EndhanTransactionService _service;
+  final EnDhanService _service;
   final UserInformationRepository _userRepository;
   bool _isClosed = false;
 
@@ -72,6 +78,18 @@ class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
     }
     
     try {
+      // Validate date range - maximum 7 days
+      final difference = toDate.difference(fromDate).inDays;
+      if (difference > 7) {
+        CustomLog.debug(this, "Date range exceeds 7 days: $difference days");
+        if (!isClosed) {
+          emit(EndhanTransactionDateRangeError(
+            'Date range cannot exceed 7 days. Please select a smaller date range.'
+          ));
+        }
+        return;
+      }
+
       // Get customer ID
       final customerId = await _userRepository.getUserID();
       CustomLog.debug(this, "Customer ID: $customerId");
@@ -90,7 +108,7 @@ class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
       final fromDateStr = DateFormat('yyyyMMdd').format(fromDate);
       final toDateStr = DateFormat('yyyyMMdd').format(toDate);
 
-      CustomLog.debug(this, "Fetching transactions from $fromDateStr to $toDateStr for customer: $customerId");
+      CustomLog.debug(this, "Fetching transactions from $fromDateStr to $toDateStr for customer: $customerId (${difference + 1} days)");
 
       final result = await _service.getTransactions(
         customerId: customerId,

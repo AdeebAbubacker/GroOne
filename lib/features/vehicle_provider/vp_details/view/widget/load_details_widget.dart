@@ -92,13 +92,12 @@ class LoadDetailsWidget extends StatelessWidget {
     await cubit
         .changedLoadStatus(id ?? "0", customerId: userId, loadStatus: loadStatus?? 3)
         .then((value) {
-
           if (cubit.state.loadStatus == LoadStatus.accepted &&
               cubit.state.vpLoadStatus?.status == Status.SUCCESS) {
             AppDialog.show(
               navigatorKey.currentState!.context,
               child: SuccessDialogView(
-                message: 'Load Accepted Successfully',
+                message: context.appText.loadAcceptedSuccessfully,
                 afterDismiss: () {
                   if (navigatorKey.currentState?.canPop() ?? false) {
                     navigatorKey.currentState?.pop();
@@ -157,17 +156,21 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  SingleChildScrollView(
+                  RefreshIndicator(
+                      onRefresh: () async{
+                       return getLoadDetails(loadDetails?.loadId??"");
+                      },
+                      child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildRequestWidget(
                             (state.loadStatus == LoadStatus.accepted),
                             loadDetails,
-                            state.loadStatus,
+                            state.loadStatus,context
                           ),
                           10.height,
-                          _simTrackingConsent(loadDetails?.driverConsent==0 &&  ((state.loadStatusId??0) >4)),
+                          _simTrackingConsent(loadDetails?.driverConsent==0 &&  ((state.loadStatusId??0) >4),context),
                           Divider(color: Color(0xffE1E1E1), thickness: 3),
                           12.height,
                           if(((state.loadStatusId??0) >4))
@@ -188,7 +191,6 @@ class LoadDetailsWidget extends StatelessWidget {
                               ),
                               20.height,
                             ],
-
                           SourceDestinationWidget(
                             pickUpLocation: loadDetails?.loadRoute?.pickUpLocation,
                             dropLocation:  loadDetails?.loadRoute?.dropLocation,
@@ -208,6 +210,7 @@ class LoadDetailsWidget extends StatelessWidget {
                           _buildLoadEntityWidget(
                             loadDetails,
                             state.locationDistance,
+                            context
                           ),
                           if ((state.loadStatusId??0) >4)
                             ...[
@@ -223,7 +226,7 @@ class LoadDetailsWidget extends StatelessWidget {
                             ),
                             20.height,
                             Text(
-                              "Trip Documents",
+                              context.appText.tripDocument,
                               style: AppTextStyle.h4,
                             ).paddingSymmetric(horizontal: 15),
                             15.height,
@@ -235,7 +238,7 @@ class LoadDetailsWidget extends StatelessWidget {
                               _buildAdableSectionHeader(
                                 showAddButton:state.loadStatus!= LoadStatus.completed,
                                 context: context,
-                                title: 'Damages and Shortages',
+                                title: context.appText.damageAndShortage,
                                 onAdd: () {
                                   Navigator.push(
                                     context,
@@ -257,7 +260,7 @@ class LoadDetailsWidget extends StatelessWidget {
                               _buildAdableSectionHeader(
                                 context: context,
                                 showAddButton: state.loadStatus!= LoadStatus.completed,
-                                title: 'Settlements',
+                                title: context.appText.settlement,
                                 onAdd: () {
                                   Navigator.push(
                                     context,
@@ -273,7 +276,7 @@ class LoadDetailsWidget extends StatelessWidget {
                           20.height,
                           if ((state.loadStatusId??0) >=4) ...[
                             Text(
-                              "Timeline",
+                              context.appText.timeLine,
                               style: AppTextStyle.h4,
                             ).paddingSymmetric(horizontal: 15),
                             20.height,
@@ -283,7 +286,7 @@ class LoadDetailsWidget extends StatelessWidget {
                           ],
                         ],
                       ),
-                    ).expand(),
+                    )).expand(),
                   if(loadDetails?.loadOnHold==false)
                   _buildBottomButtonWidget(loadDetails, state, context),
                 ],
@@ -299,10 +302,10 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   /// DriverSimTrackingConsent
-  Widget _simTrackingConsent(bool visible){
+  Widget _simTrackingConsent(bool visible,BuildContext context){
     return Visibility(
         visible: visible,
-        child: Center(child: Text("No SIM tracking consent from driver",style: AppTextStyle.h3w500.copyWith(
+        child: Center(child: Text(context.appText.noSimTracking,style: AppTextStyle.h3w500.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w100,
           color: AppColors.iconRed
@@ -312,7 +315,7 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   /// Build Request Widget
-  Widget _buildRequestWidget(bool isAccepted,LoadDetailModelData? loadDetails,LoadStatus? loadStatus) {
+  Widget _buildRequestWidget(bool isAccepted,LoadDetailModelData? loadDetails,LoadStatus? loadStatus,BuildContext context) {
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -328,13 +331,13 @@ class LoadDetailsWidget extends StatelessWidget {
               if((loadDetails?.loadStatusId??0)>=4)
                 _buildAssignedTruckDetails(loadDetails?.scheduleTripDetails?.vehicle,loadDetails?.truckType)
               else
-              Text("Requested", style: AppTextStyle.body1GreyColor.copyWith(
+              Text(context.appText.requested, style: AppTextStyle.body1GreyColor.copyWith(
                   fontWeight: FontWeight.w400,
                   fontSize: 12,
                   color:Color(0xff979797)
               )),
               if((loadDetails?.loadStatusId??0)>=4)
-                  _buildAssignedDriverDetails(loadDetails?.scheduleTripDetails?.driver)
+                  _buildAssignedDriverDetails(loadDetails?.scheduleTripDetails?.driver,context)
                 else
                   Text(
                 "${loadDetails?.truckType?.type} - ${loadDetails?.truckType?.subType}",
@@ -381,10 +384,10 @@ class LoadDetailsWidget extends StatelessWidget {
 
 
   /// show trip assigned driver details
-  Widget _buildAssignedDriverDetails(Driver? driver){
+  Widget _buildAssignedDriverDetails(Driver? driver,BuildContext context){
     return Row(
       children: [
-        Text("Driver:",style: AppTextStyle.body3.copyWith(
+        Text("${context.appText.driver}:",style: AppTextStyle.body3.copyWith(
           color: AppColors.thinLightGray
         ),),
         Text(" ${driver?.name.capitalizeFirst}",style: AppTextStyle.h3w500.copyWith(
@@ -424,7 +427,7 @@ class LoadDetailsWidget extends StatelessWidget {
                     ? MainAxisAlignment.spaceBetween
                     : MainAxisAlignment.spaceAround,
             children: [
-              Text(isAccepted ? "Trip Price" : "Quoted price",style: AppTextStyle.body2.copyWith(
+              Text(isAccepted ? context.appText.tripPrice : context.appText.quotedPrice,style: AppTextStyle.body2.copyWith(
                 fontWeight: FontWeight.w400,
                 color: AppColors.textBlackColor,
               ),),
@@ -434,28 +437,28 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
-        if(loadStatusID>4 && paymentEntity!=null)
-        ...[
-          5.height,
-          _buildLoadProviderAdvancePaymentCardViewOnly(
-            context: context,
-            agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
-            paymentStatus: 1,
-            advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
-            agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
-            balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
-            onViewTap: () {
-              showPaymentView(context, paymentEntity);
-            },
-            tripPrice: "1000",
-          ),
-        ]
+        // if(loadStatusID>4 && paymentEntity!=null)
+        // ...[
+        //   5.height,
+        //   _buildLoadProviderAdvancePaymentCardViewOnly(
+        //     context: context,
+        //     agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
+        //     paymentStatus: 1,
+        //     advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
+        //     agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
+        //     balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
+        //     onViewTap: () {
+        //       showPaymentView(context, paymentEntity);
+        //     },
+        //     // tripPrice: "1000",
+        //   ),
+        // ]
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
   }
 
-  Widget _buildLoadEntityWidget(LoadDetailModelData? loadDetails,String?locationDistance ) {
+  Widget _buildLoadEntityWidget(LoadDetailModelData? loadDetails,String?locationDistance ,BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -511,7 +514,7 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
 
             Text(
-              "$locationDistance KM",
+              "$locationDistance ${context.appText.km}",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -536,7 +539,7 @@ class LoadDetailsWidget extends StatelessWidget {
         ...[
            if(state.loadStatus==LoadStatus.matching)
             AppButton(
-              title: "Support",
+              title: context.appText.support,
              style: AppButtonStyle.outline.copyWith(
                shape: WidgetStatePropertyAll(
                  RoundedRectangleBorder(
@@ -552,11 +555,10 @@ class LoadDetailsWidget extends StatelessWidget {
            if(state.loadStatus==LoadStatus.matching || state.loadStatus==LoadStatus.accepted || state.loadStatus==LoadStatus.completed )
            AppButton(
              isLoading:state.vpLoadStatus?.status==Status.LOADING,
-             title:state.loadStatus==LoadStatus.completed ? "View Trip Settlement":
-
+             title:state.loadStatus==LoadStatus.completed ? context.appText.viewTripSettlement:
              state.loadStatus==LoadStatus.accepted
-                 ? "Assign Driver"
-                 : "Accept Load",
+                 ? context.appText.assignDriver
+                 : context.appText.acceptLoad,
              style: AppButtonStyle.primary.copyWith(
                shape: WidgetStatePropertyAll(
                  RoundedRectangleBorder(
@@ -566,8 +568,6 @@ class LoadDetailsWidget extends StatelessWidget {
              ),
              onPressed:   () async {
                if(state.loadStatus==LoadStatus.completed){
-
-                 /// will work pod dispatched
                  return;
                }
                changeLoadStatus(context, loadDetails?.loadId.toString());
@@ -616,13 +616,13 @@ class LoadDetailsWidget extends StatelessWidget {
             isAdvanceCompleted: true,
             isBalancePending: false,
             onProceed: () {},
-            paymentMode: "NEFT",
+            paymentMode: paymentEntity?.paymentType,
             receivedOn:formatDateTimeKavach(paymentEntity?.paymentDate?.toString()??DateTime.now().toString()),
             transactionId: "467898765432",
             tripCost:PriceHelper.formatINR(paymentEntity?.agreedPrice??""),
 
           ),
-          buttonText: "Proceed",
+          buttonText: context.appText.processed,
         );
       },
     );
@@ -631,8 +631,7 @@ class LoadDetailsWidget extends StatelessWidget {
   Widget buildAttachmentView(BuildContext context,String? loadId,LoadDetailsState state){
     final tripDocumentList=state.tripDocumentList??[];
     return Column(
-     spacing: 15,
-     children: List.generate(tripDocumentList.length, (index) => DocumentWidgetView(
+        children: List.generate(tripDocumentList.length, (index) => DocumentWidgetView(
        index: index,
        loadDetailsCubit: cubit,
      hintText: tripDocumentList[index].title,
@@ -652,7 +651,7 @@ class LoadDetailsWidget extends StatelessWidget {
 //Payment View only
 Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   required BuildContext context,
-  String? tripPrice,
+  // String? tripPrice,
   String? agreedPrice,
   required String agreedAdvance,
   String? advancePayment,
@@ -699,31 +698,31 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
         ),
 
       12.height,
-      if (paymentStatus != 4)
-        Align(
-          alignment: Alignment.center,
-          child: GestureDetector(
-            onTap: onViewTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.appText.view,
-                  style: AppTextStyle.body.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 25,
-                  color: AppColors.black,
-                ),
-              ],
-            ),
-          ),
-        ),
+      // if (paymentStatus != 4)
+      //   Align(
+      //     alignment: Alignment.center,
+      //     child: GestureDetector(
+      //       onTap: onViewTap,
+      //       child: Row(
+      //         mainAxisSize: MainAxisSize.min,
+      //         children: [
+      //           Text(
+      //             context.appText.view,
+      //             style: AppTextStyle.body.copyWith(
+      //               fontSize: 12,
+      //               fontWeight: FontWeight.w400,
+      //               color: AppColors.primaryColor,
+      //             ),
+      //           ),
+      //           const Icon(
+      //             Icons.chevron_right,
+      //             size: 25,
+      //             color: AppColors.black,
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
     ],
   );
 }

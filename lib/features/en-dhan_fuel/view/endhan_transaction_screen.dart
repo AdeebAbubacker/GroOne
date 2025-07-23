@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -11,10 +10,11 @@ import '../../../../utils/app_button.dart';
 import '../../../../utils/app_button_style.dart';
 import '../../../../utils/app_text_field.dart';
 import '../../../../utils/common_widgets.dart';
+import '../../../../utils/common_dialog_view/common_dialog_view.dart';
+import '../../../../utils/app_dialog.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../../utils/extensions/int_extensions.dart';
 import '../cubit/endhan_transaction_cubit.dart';
-import '../model/endhan_transaction_model.dart';
 
 class EndhanTransactionScreen extends StatelessWidget {
   const EndhanTransactionScreen({super.key});
@@ -47,9 +47,9 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
     super.initState();
     _cubit = context.read<EndhanTransactionCubit>();
     
-    // Set default date range to last 30 days
+    // Set default date range to last 7 days
     toDate = DateTime.now();
-    fromDate = toDate!.subtract(const Duration(days: 30));
+    fromDate = toDate!.subtract(const Duration(days: 6));
     _updateDateControllers();
     
     // Fetch initial transactions after frame is built
@@ -69,9 +69,80 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
     }
   }
 
+  void _showDateRangeErrorDialog(BuildContext context) {
+    AppDialog.show(
+      context,
+      dismissible: true,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        child: Column(
+          children: [
+            // Orange circular icon with warning triangle
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE67E22), // Orange color
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFE67E22).withOpacity(0.3),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.calendar_today,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            20.height,
+            // Main heading
+            Text(
+              'Date Range Too Large',
+              style: AppTextStyle.h4.copyWith(
+                color: const Color(0xFFE67E22),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            12.height,
+            // Supporting message
+            Text(
+              'The selected date range exceeds the maximum limit of 7 days. Please select a smaller date range.',
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.greyTextColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        onTapSingleButton: () {
+          Navigator.of(context).pop();
+        },
+        onSingleButtonText: 'OK',
+      ),
+    );
+  }
+
   void _fetchTransactions() {
+    print('🔄 _fetchTransactions called');
     if (fromDate != null && toDate != null && mounted) {
+      // Double-check date range before fetching
+      final difference = toDate!.difference(fromDate!).inDays;
+      
+      if (difference > 7) {
+        // Show alert popup
+        _showDateRangeErrorDialog(context);
+        return;
+      }
+      
+      print('✅ Calling cubit.fetchTransactions');
       _cubit.fetchTransactions(fromDate: fromDate!, toDate: toDate!);
+    } else {
+      print('❌ Cannot fetch: fromDate=$fromDate, toDate=$toDate, mounted=$mounted');
     }
   }
 
@@ -83,6 +154,31 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
       lastDate: DateTime.now(),
     );
     if (picked != null) {
+      // Check if the selected date would create a range exceeding 7 days
+      bool wouldExceedLimit = false;
+      DateTime? tempFromDate = fromDate;
+      DateTime? tempToDate = toDate;
+      
+      if (isFromDate) {
+        tempFromDate = picked;
+        if (tempToDate != null && tempToDate.difference(picked).inDays > 7) {
+          wouldExceedLimit = true;
+        }
+      } else {
+        tempToDate = picked;
+        if (tempFromDate != null && picked.difference(tempFromDate).inDays > 7) {
+          wouldExceedLimit = true;
+        }
+      }
+      
+      if (wouldExceedLimit) {
+        // Show alert popup
+        if (mounted) {
+          _showDateRangeErrorDialog(context);
+        }
+        return; // Don't update the dates
+      }
+      
       setState(() {
         if (isFromDate) {
           fromDate = picked;
@@ -141,44 +237,73 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                 color: AppColors.white,
                 borderRadius: BorderRadius.zero,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Column(
                 children: [
-                  // From Date
-                  Expanded(
-                    child: AppTextField(
-                      controller: fromDateController,
-                      readOnly: true,
-                      labelText: context.appText.fromDate,
-                      decoration: kavachInputDecoration(
-                        // suffixIcon: Icon(
-                        //   Icons.calendar_today,
-                        //   color: AppColors.chevronGreyColor,
-                        //   size: 20,
-                        // ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // From Date
+                      Expanded(
+                        child: AppTextField(
+                          controller: fromDateController,
+                          readOnly: true,
+                          labelText: context.appText.fromDate,
+                          decoration: kavachInputDecoration(
+                            // suffixIcon: Icon(
+                            //   Icons.calendar_today,
+                            //   color: AppColors.chevronGreyColor,
+                            //   size: 20,
+                            // ),
+                          ),
+                          onTextFieldTap: () => _selectDate(context, true),
+                        ),
                       ),
-                      onTextFieldTap: () => _selectDate(context, true),
-                    ),
+                      10.width,
+                      // To Date
+                      Expanded(
+                        child: AppTextField(
+                          controller: toDateController,
+                          readOnly: true,
+                          labelText: context.appText.toDate,
+                          onTextFieldTap: () => _selectDate(context, false),
+                        ),
+                      ),
+                      10.width,
+                      // Apply Button
+                      SizedBox(
+                        width: 100,
+                        child: ElevatedButton(
+                          onPressed: _fetchTransactions,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(context.appText.apply),
+                        ),
+                      ),
+                    ],
                   ),
-                  10.width,
-                  // To Date
-                  Expanded(
-                    child: AppTextField(
-                      controller: toDateController,
-                      readOnly: true,
-                      labelText: context.appText.toDate,
-                      onTextFieldTap: () => _selectDate(context, false),
-                    ),
-                  ),
-                  10.width,
-                  // Apply Button
-                  SizedBox(
-                    width: 100,
-                    child: AppButton(
-                      title: context.appText.apply,
-                      onPressed: _fetchTransactions,
-                      style: AppButtonStyle.primary,
-                    ),
+                  8.height,
+                  // Helper text for date range limit
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      5.width,
+                      Text(
+                        'Maximum date range: 7 days',
+                        style: AppTextStyle.textGreyColor14w300.copyWith(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -191,7 +316,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                 builder: (context, state) {
                   if (state is EndhanTransactionLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is EndhanTransactionError) {
+                                    } else if (state is EndhanTransactionError) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -199,15 +324,55 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           Icon(Icons.error, color: Colors.red, size: 48),
                           10.height,
                            Text(
-                            'No transactions found',
-                            style: AppTextStyle.h5,
-                          ),
+                             'No transactions found',
+                             style: AppTextStyle.h5,
+                           ),
                           10.height,
                          Padding(
                           padding: EdgeInsets.symmetric(horizontal: 40),
                           child: AppButton(onPressed: _fetchTransactions, 
                           title: 'Retry', 
                           style: AppButtonStyle.outline,),),
+                        ],
+                      ),
+                    );
+                  } else if (state is EndhanTransactionDateRangeError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_today, color: Colors.orange, size: 48),
+                          10.height,
+                          Text(
+                            'Date Range Too Large',
+                            style: AppTextStyle.h5,
+                          ),
+                          5.height,
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              state.message,
+                              style: AppTextStyle.bodyGreyColor,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          15.height,
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40),
+                            child: AppButton(
+                              onPressed: () {
+                                // Reset to last 7 days
+                                setState(() {
+                                  toDate = DateTime.now();
+                                  fromDate = toDate!.subtract(const Duration(days: 6));
+                                  _updateDateControllers();
+                                });
+                                _fetchTransactions();
+                              },
+                              title: 'Set to Last 7 Days',
+                              style: AppButtonStyle.primary,
+                            ),
+                          ),
                         ],
                       ),
                     );

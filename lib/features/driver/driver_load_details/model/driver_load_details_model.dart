@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+
 class DriverLoadDetailsModel {
     DriverLoadDetailsModel({
         required this.message,
@@ -63,6 +65,7 @@ class Data {
         required this.loadSettlement,
         required this.podDispatch,
         required this.loadApproval,
+        required this.driverTrackingModel,
         required this.damageShortage,
         required this.customer,
         required this.vpCustomer,
@@ -102,11 +105,12 @@ class Data {
     final LoadPrice? loadPrice;
     final ScheduleTripDetails? scheduleTripDetails;
     final LoadMemo? loadMemo;
-    List<List<LoadDocumentData>>? loadDocument;
+    List<List<LoadDocument>>? loadDocument;
     final dynamic loadSettlement;
     final dynamic podDispatch;
     final LoadApproval? loadApproval;
-    final List<DamageShortage> damageShortage;
+    final DriverTrackingModel? driverTrackingModel;
+    final List<DamageReport> damageShortage;
     final Customer? customer;
     final dynamic vpCustomer;
     final Weight? weight;
@@ -145,11 +149,12 @@ class Data {
         LoadPrice? loadPrice,
         ScheduleTripDetails? scheduleTripDetails,
         LoadMemo? loadMemo,
-       List<List<LoadDocumentData>>? loadDocument,
+       List<List<LoadDocument>>? loadDocument,
         dynamic? loadSettlement,
         dynamic? podDispatch,
         LoadApproval? loadApproval,
-        List<DamageShortage>? damageShortage,
+        DriverTrackingModel? driverTrackingModel,
+        List<DamageReport>? damageShortage,
         Customer? customer,
         dynamic? vpCustomer,
         Weight? weight,
@@ -192,6 +197,7 @@ class Data {
             loadSettlement: loadSettlement ?? this.loadSettlement,
             podDispatch: podDispatch ?? this.podDispatch,
             loadApproval: loadApproval ?? this.loadApproval,
+            driverTrackingModel: driverTrackingModel ?? this.driverTrackingModel,
             damageShortage: damageShortage ?? this.damageShortage,
             customer: customer ?? this.customer,
             vpCustomer: vpCustomer ?? this.vpCustomer,
@@ -234,11 +240,13 @@ class Data {
             loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
             scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
             loadMemo: json["loadMemo"] == null ? null : LoadMemo.fromJson(json["loadMemo"]),
-           loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocumentData>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocumentData>.from(x!.map((x) => LoadDocumentData.fromJson(x))))),
+           loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocument>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocument>.from(x!.map((x) => LoadDocument.fromJson(x))))),
             loadSettlement: json["loadSettlement"],
             podDispatch: json["podDispatch"],
             loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
-            damageShortage: json["damageShortage"] == null ? [] : List<DamageShortage>.from(json["damageShortage"]!.map((x) => DamageShortage.fromJson(x))),
+            driverTrackingModel: json["trackingDetails"] == null ? null : DriverTrackingModel.fromJson(json["trackingDetails"]),
+
+            damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
             vpCustomer: json["vpCustomer"],
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
@@ -792,78 +800,80 @@ class KycDocs {
 
 }
 
-class DamageShortage {
-    DamageShortage({
-        required this.damageId,
-        required this.vehicleId,
-        required this.loadId,
-        required this.itemName,
-        required this.quantity,
-        required this.status,
-        required this.image,
-        required this.description,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
-    });
+// class DamageShortage {
+//     DamageShortage({
+//         required this.damageId,
+//         required this.vehicleId,
+//         required this.loadId,
+//         required this.itemName,
+//         required this.quantity,
+//         required this.status,
+//         required this.image,
+//         required this.description,
+//         required this.createdAt,
+//         required this.updatedAt,
+//         required this.deletedAt,
+//     });
 
-    final String damageId;
-    final String vehicleId;
-    final String loadId;
-    final String itemName;
-    final int quantity;
-    final int status;
-    final List<String> image;
-    final String description;
-    final DateTime? createdAt;
-    final dynamic updatedAt;
-    final dynamic deletedAt;
+//     final String damageId;
+//     final String vehicleId;
+//     final String loadId;
+//     final String itemName;
+//     final int quantity;
+//     final int status;
+//     final List<String> image;
+//     final String description;
+//     final DateTime? createdAt;
+//     final dynamic updatedAt;
+//     final dynamic deletedAt;
 
-    DamageShortage copyWith({
-        String? damageId,
-        String? vehicleId,
-        String? loadId,
-        String? itemName,
-        int? quantity,
-        int? status,
-        List<String>? image,
-        String? description,
-        DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
-    }) {
-        return DamageShortage(
-            damageId: damageId ?? this.damageId,
-            vehicleId: vehicleId ?? this.vehicleId,
-            loadId: loadId ?? this.loadId,
-            itemName: itemName ?? this.itemName,
-            quantity: quantity ?? this.quantity,
-            status: status ?? this.status,
-            image: image ?? this.image,
-            description: description ?? this.description,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
-        );
-    }
+//     DamageShortage copyWith({
+//         String? damageId,
+//         String? vehicleId,
+//         String? loadId,
+//         String? itemName,
+//         int? quantity,
+//         int? status,
+//         List<String>? image,
+//         String? description,
+//         DateTime? createdAt,
+//         dynamic? updatedAt,
+//         dynamic? deletedAt,
+//     }) {
+//         return DamageShortage(
+//             damageId: damageId ?? this.damageId,
+//             vehicleId: vehicleId ?? this.vehicleId,
+//             loadId: loadId ?? this.loadId,
+//             itemName: itemName ?? this.itemName,
+//             quantity: quantity ?? this.quantity,
+//             status: status ?? this.status,
+//             image: image ?? this.image,
+//             description: description ?? this.description,
+//             createdAt: createdAt ?? this.createdAt,
+//             updatedAt: updatedAt ?? this.updatedAt,
+//             deletedAt: deletedAt ?? this.deletedAt,
+//         );
+//     }
 
-    factory DamageShortage.fromJson(Map<String, dynamic> json){ 
-        return DamageShortage(
-            damageId: json["damageId"] ?? "",
-            vehicleId: json["vehicleId"] ?? "",
-            loadId: json["loadId"] ?? "",
-            itemName: json["itemName"] ?? "",
-            quantity: json["quantity"] ?? 0,
-            status: json["status"] ?? 0,
-            image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
-            description: json["description"] ?? "",
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: json["updatedAt"],
-            deletedAt: json["deletedAt"],
-        );
-    }
+//     factory DamageShortage.fromJson(Map<String, dynamic> json){ 
+//         return DamageShortage(
+//             damageId: json["damageId"] ?? "",
+//             vehicleId: json["vehicleId"] ?? "",
+//             loadId: json["loadId"] ?? "",
+//             itemName: json["itemName"] ?? "",
+//             quantity: json["quantity"] ?? 0,
+//             status: json["status"] ?? 0,
+//             image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
+//             description: json["description"] ?? "",
+//             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+//             updatedAt: json["updatedAt"],
+//             deletedAt: json["deletedAt"],
+//         );
+//     }
 
-}
+// }
+
+
 
 class LoadApproval {
     LoadApproval({
@@ -940,118 +950,121 @@ class LoadApproval {
             deletedAt: json["deletedAt"],
         );
     }
-
-}
-class LoadDocumentData {
-  LoadDocumentData({
-    required this.loadDocumentId,
-    required this.loadId,
-    required this.documentId,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-    required this.documentDetails,
-    required this.documentError,
-  });
-
-  final String loadDocumentId;
-  final String loadId;
-  final String documentId;
-  final int status;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final dynamic deletedAt;
-  final DocumentDetails? documentDetails;
-  final String documentError;
-
-  LoadDocumentData copyWith({
-    String? loadDocumentId,
-    String? loadId,
-    String? documentId,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic? deletedAt,
-    DocumentDetails? documentDetails,
-    String? documentError,
-  }) {
-    return LoadDocumentData(
-      loadDocumentId: loadDocumentId ?? this.loadDocumentId,
-      loadId: loadId ?? this.loadId,
-      documentId: documentId ?? this.documentId,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      documentDetails: documentDetails ?? this.documentDetails,
-      documentError: documentError ?? this.documentError,
-    );
-  }
-
-  factory LoadDocumentData.fromJson(Map<String, dynamic> json){
-    return LoadDocumentData(
-      loadDocumentId: json["loadDocumentId"] ?? "",
-      loadId: json["loadId"] ?? "",
-      documentId: json["documentId"] ?? "",
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-      deletedAt: json["deletedAt"],
-      documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
-      documentError: json["documentError"] ?? "",
-    );
-  }
-
 }
 
-class DocumentDetails {
-  DocumentDetails({
-    required this.documentId,
-    required this.title,
-    required this.documentType,
-    required this.fileSize,
-    required this.filePath,
-    required this.originalFilename,
-  });
 
-  final String documentId;
-  final String title;
-  final String documentType;
-  final String fileSize;
-  final String filePath;
-  final String originalFilename;
+// class LoadDocumentData {
+//   LoadDocumentData({
+//     required this.loadDocumentId,
+//     required this.loadId,
+//     required this.documentId,
+//     required this.status,
+//     required this.createdAt,
+//     required this.updatedAt,
+//     required this.deletedAt,
+//     required this.documentDetails,
+//     required this.documentError,
+//   });
 
-  DocumentDetails copyWith({
-    String? documentId,
-    String? title,
-    String? documentType,
-    String? fileSize,
-    String? filePath,
-    String? originalFilename,
-  }) {
-    return DocumentDetails(
-      documentId: documentId ?? this.documentId,
-      title: title ?? this.title,
-      documentType: documentType ?? this.documentType,
-      fileSize: fileSize ?? this.fileSize,
-      filePath: filePath ?? this.filePath,
-      originalFilename: originalFilename ?? this.originalFilename,
-    );
-  }
+//   final String loadDocumentId;
+//   final String loadId;
+//   final String documentId;
+//   final int status;
+//   final DateTime? createdAt;
+//   final DateTime? updatedAt;
+//   final dynamic deletedAt;
+//   final DocumentDetails? documentDetails;
+//   final String documentError;
 
-  factory DocumentDetails.fromJson(Map<String, dynamic> json){
-    return DocumentDetails(
-      documentId: json["documentId"] ?? "",
-      title: json["title"] ?? "",
-      documentType: json["documentType"] ?? "",
-      fileSize: json["fileSize"] ?? "",
-      filePath: json["filePath"] ?? "",
-      originalFilename: json["originalFilename"] ?? "",
-    );
-  }
+//   LoadDocumentData copyWith({
+//     String? loadDocumentId,
+//     String? loadId,
+//     String? documentId,
+//     int? status,
+//     DateTime? createdAt,
+//     DateTime? updatedAt,
+//     dynamic? deletedAt,
+//     DocumentDetails? documentDetails,
+//     String? documentError,
+//   }) {
+//     return LoadDocumentData(
+//       loadDocumentId: loadDocumentId ?? this.loadDocumentId,
+//       loadId: loadId ?? this.loadId,
+//       documentId: documentId ?? this.documentId,
+//       status: status ?? this.status,
+//       createdAt: createdAt ?? this.createdAt,
+//       updatedAt: updatedAt ?? this.updatedAt,
+//       deletedAt: deletedAt ?? this.deletedAt,
+//       documentDetails: documentDetails ?? this.documentDetails,
+//       documentError: documentError ?? this.documentError,
+//     );
+//   }
 
-}
+//   factory LoadDocumentData.fromJson(Map<String, dynamic> json){
+//     return LoadDocumentData(
+//       loadDocumentId: json["loadDocumentId"] ?? "",
+//       loadId: json["loadId"] ?? "",
+//       documentId: json["documentId"] ?? "",
+//       status: json["status"] ?? 0,
+//       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+//       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+//       deletedAt: json["deletedAt"],
+//       documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
+//       documentError: json["documentError"] ?? "",
+//     );
+//   }
+
+// }
+
+
+
+// class DocumentDetails {
+//   DocumentDetails({
+//     required this.documentId,
+//     required this.title,
+//     required this.documentType,
+//     required this.fileSize,
+//     required this.filePath,
+//     required this.originalFilename,
+//   });
+
+//   final String documentId;
+//   final String title;
+//   final String documentType;
+//   final String fileSize;
+//   final String filePath;
+//   final String originalFilename;
+
+//   DocumentDetails copyWith({
+//     String? documentId,
+//     String? title,
+//     String? documentType,
+//     String? fileSize,
+//     String? filePath,
+//     String? originalFilename,
+//   }) {
+//     return DocumentDetails(
+//       documentId: documentId ?? this.documentId,
+//       title: title ?? this.title,
+//       documentType: documentType ?? this.documentType,
+//       fileSize: fileSize ?? this.fileSize,
+//       filePath: filePath ?? this.filePath,
+//       originalFilename: originalFilename ?? this.originalFilename,
+//     );
+//   }
+
+//   factory DocumentDetails.fromJson(Map<String, dynamic> json){
+//     return DocumentDetails(
+//       documentId: json["documentId"] ?? "",
+//       title: json["title"] ?? "",
+//       documentType: json["documentType"] ?? "",
+//       fileSize: json["fileSize"] ?? "",
+//       filePath: json["filePath"] ?? "",
+//       originalFilename: json["originalFilename"] ?? "",
+//     );
+//   }
+
+// }
 
 class LoadMemo {
     LoadMemo({
@@ -1666,6 +1679,130 @@ class Weight {
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+
+class DriverTrackingModel {
+    DriverTrackingModel({
+        required this.uuid,
+        required this.shipperId,
+        required this.supplierId,
+        required this.tripId,
+        required this.trackMode,
+        required this.tripStatus,
+        required this.currentLat,
+        required this.currentLong,
+        required this.currentAddress,
+        required this.originLat,
+        required this.originLong,
+        required this.destinationLat,
+        required this.destinationLong,
+        required this.intugineId,
+        required this.driverName,
+        required this.driverNumber,
+        required this.truckNumber,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.lastTrackDt,
+        required this.flaggedTrip,
+    });
+
+    final String uuid;
+    final String shipperId;
+    final String supplierId;
+    final String tripId;
+    final String trackMode;
+    final String tripStatus;
+    final double currentLat;
+    final double currentLong;
+    final String currentAddress;
+    final double originLat;
+    final double originLong;
+    final double destinationLat;
+    final double destinationLong;
+    final String intugineId;
+    final String driverName;
+    final String driverNumber;
+    final String truckNumber;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic lastTrackDt;
+    final bool flaggedTrip;
+
+    DriverTrackingModel copyWith({
+        String? uuid,
+        String? shipperId,
+        String? supplierId,
+        String? tripId,
+        String? trackMode,
+        String? tripStatus,
+        double? currentLat,
+        double? currentLong,
+        String? currentAddress,
+        double? originLat,
+        double? originLong,
+        double? destinationLat,
+        double? destinationLong,
+        String? intugineId,
+        String? driverName,
+        String? driverNumber,
+        String? truckNumber,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? lastTrackDt,
+        bool? flaggedTrip,
+    }) {
+        return DriverTrackingModel(
+            uuid: uuid ?? this.uuid,
+            shipperId: shipperId ?? this.shipperId,
+            supplierId: supplierId ?? this.supplierId,
+            tripId: tripId ?? this.tripId,
+            trackMode: trackMode ?? this.trackMode,
+            tripStatus: tripStatus ?? this.tripStatus,
+            currentLat: currentLat ?? this.currentLat,
+            currentLong: currentLong ?? this.currentLong,
+            currentAddress: currentAddress ?? this.currentAddress,
+            originLat: originLat ?? this.originLat,
+            originLong: originLong ?? this.originLong,
+            destinationLat: destinationLat ?? this.destinationLat,
+            destinationLong: destinationLong ?? this.destinationLong,
+            intugineId: intugineId ?? this.intugineId,
+            driverName: driverName ?? this.driverName,
+            driverNumber: driverNumber ?? this.driverNumber,
+            truckNumber: truckNumber ?? this.truckNumber,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            lastTrackDt: lastTrackDt ?? this.lastTrackDt,
+            flaggedTrip: flaggedTrip ?? this.flaggedTrip,
+        );
+    }
+
+    factory DriverTrackingModel.fromJson(Map<String, dynamic> json){ 
+        return DriverTrackingModel(
+            uuid: json["uuid"] ?? "",
+            shipperId: json["shipperId"] ?? "",
+            supplierId: json["supplierId"] ?? "",
+            tripId: json["tripId"] ?? "",
+            trackMode: json["trackMode"] ?? "",
+            tripStatus: json["tripStatus"] ?? "",
+            currentLat: json["currentLat"] ?? 0.0,
+            currentLong: json["currentLong"] ?? 0.0,
+            currentAddress: json["currentAddress"] ?? "",
+            originLat: json["originLat"] ?? 0.0,
+            originLong: json["originLong"] ?? 0.0,
+            destinationLat: json["destinationLat"] ?? 0.0,
+            destinationLong: json["destinationLong"] ?? 0.0,
+            intugineId: json["intugineId"] ?? "",
+            driverName: json["driverName"] ?? "",
+            driverNumber: json["driverNumber"] ?? "",
+            truckNumber: json["truckNumber"] ?? "",
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            lastTrackDt: json["lastTrackDt"],
+            flaggedTrip: json["flaggedTrip"] ?? false,
         );
     }
 

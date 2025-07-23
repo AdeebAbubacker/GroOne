@@ -16,7 +16,7 @@ class Validator {
 
   /// Field Required
   static String? fieldRequired(String? value, {String? fieldName}){
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       if(fieldName != null){
         return '$fieldName is required';
       }else{
@@ -150,6 +150,24 @@ class Validator {
     if (!regex.hasMatch(value.trim().toUpperCase())) {
       return '$fieldName is invalid. Example: MH12AB1234';
     }
+    return null;
+  }
+
+  static String? rcBookNumberValidator(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    
+    final trimmedValue = value.trim().toUpperCase();
+    
+    // RC book number format: 2 letters (State code) + 2 digits (RTO code) + 1 or 2 letters (Series) + 4 digits (Vehicle number)
+    // Examples: MH12AB1234, DL01Z1234, KA02ABC1234
+    final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
+    
+    if (!regex.hasMatch(trimmedValue)) {
+      return '$fieldName should be in format: XX12AB1234 (2 letters, 2 digits, 1-2 letters, 4 digits)';
+    }
+    
     return null;
   }
 

@@ -228,7 +228,7 @@ class ImagePickerFrom {
   static ImagePicker picker = ImagePicker();
 
   // From Camera
-  static Future<T?> fromCamera<T>() async {
+  static Future<T?> fromCamera<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromCamera = await picker.pickImage(
       source: ImageSource.camera,
@@ -246,7 +246,7 @@ class ImagePickerFrom {
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(fileImage)) {
+      if (_imageConstraint(fileImage, allowedExtensions: allowedExtensions)) {
         imageFile = data;
       }
     }
@@ -254,7 +254,7 @@ class ImagePickerFrom {
   }
 
   // From Gallery
-  static Future<T?> fromGallery<T>() async {
+  static Future<T?> fromGallery<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromGallery = await picker.pickImage(
       source: ImageSource.gallery,
@@ -272,7 +272,7 @@ class ImagePickerFrom {
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(fileImage)) {
+      if (_imageConstraint(fileImage, allowedExtensions: allowedExtensions)) {
         imageFile = data;
       }
     }
@@ -280,16 +280,19 @@ class ImagePickerFrom {
   }
 
   // Image Constraint
-  static bool _imageConstraint(File image) {
-    if (![
+  static bool _imageConstraint(File image, {List? allowedExtensions}) {
+    final extension = image.path.split('.').last.toLowerCase();
+
+    final defaultAllowed = [
       'jpg',
       'jpeg',
       'png',
-      'PNG',
       'heif',
-      'HEIF',
+      'heic',
       'pdf',
-    ].contains(image.path.split('.').last.toString())) {
+    ];
+
+    if (!(allowedExtensions ?? defaultAllowed).contains(extension)) {
       ToastMessages.alert(message: appContext.appText.imageSupport);
       return false;
     }
@@ -302,7 +305,7 @@ class ImagePickerFrom {
 }
 
 /// Multiple File Picker
-Future<Map?> pickMultipleFiles<T>() async {
+Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
   try {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -315,7 +318,7 @@ Future<Map?> pickMultipleFiles<T>() async {
       return null;
     }
 
-    final allowedExtensions = <String>{
+    final defaultAllowedExtensions = <String>{
       "jpg",
       "jpeg",
       "gif",
@@ -339,13 +342,17 @@ Future<Map?> pickMultipleFiles<T>() async {
       "mp3",
     };
 
+    final extensionSet = allowedExtensions != null
+        ? allowedExtensions.map((e) => e.toLowerCase()).toSet()
+        : defaultAllowedExtensions;
+
     var validFiles = {};
 
     for (final file in result.files) {
       final extension = file.extension?.toLowerCase() ?? '';
       final path = file.path;
 
-      if (!allowedExtensions.contains(extension)) {
+      if (!extensionSet.contains(extension)) {
         ToastMessages.alert(message: "Invalid file format: ${file.name}");
         return null;
       }
@@ -559,7 +566,7 @@ void commonSupportDialog(BuildContext context) {
       message: "Contact our Customer support agent",
       onSingleButtonText: "Call",
       onTapSingleButton: () async {
-        await callRedirect("180012304567");
+        await callRedirect("1800 208 8800");
       },
       child: SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
     ),

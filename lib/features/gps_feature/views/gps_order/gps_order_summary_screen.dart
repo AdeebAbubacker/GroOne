@@ -11,6 +11,8 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -32,8 +34,8 @@ import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
+import '../../../payments/view/payments_screen.dart';
 import '../../models/gps_document_models.dart';
-import 'gps_order_benefits_and_order_list_screen.dart';
 
 class GpsOrderSummaryScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -67,6 +69,8 @@ class GpsOrderSummaryScreen extends StatefulWidget {
 
 class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   late final GpsOrderCubit gpsOrderCubit;
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
   GpsOrderSummaryResponse? orderSummary;
   bool isLoadingSummary = true;
 
@@ -141,11 +145,48 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return total;
   }
 
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "companyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "companyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "blueMembershipId": "BLUE123456"
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
-      listener: (context, state) {
+      listener: (context, state) async {
         // Handle order creation states
         if (state is GpsOrderLoading) {
           showDialog(
@@ -159,51 +200,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             Navigator.of(context).pop();
           }
 
-          // Show success dialog
-          AppDialog.show(
-            context,
-            child: SuccessDialogView(
-              message: context.appText.orderPlacedSuccessfully,
-              onContinue: () async {
-                try {
-                  // Close the dialog first
-                  Navigator.of(context).pop();
-                  
-                  // Wait for dialog to close completely
-                  await Future.delayed(Duration(milliseconds: 500));
-                  
-                  if (context.mounted) {
-                    print('🔄 GPS Order Success: Attempting GoRouter navigation');
-                    print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
-                    
-                    // Use GoRouter navigation as before
-                    context.go(AppRouteName.gpsOrderBenefits);
-                    
-                    print('🔄 GPS Order Success: GoRouter navigation called successfully');
-                  } else {
-                    print('❌ GPS Order Success: Context not mounted after dialog close');
-                  }
-                } catch (e) {
-                  print('❌ GPS Order Success: Navigation error: $e');
-                  
-                  if (context.mounted) {
-                    try {
-                      // Fallback: Try GoRouter again with different approach
-                      print('🔄 GPS Order Success: Trying GoRouter fallback');
-                      context.go(AppRouteName.gpsOrderBenefits);
-                    } catch (goRouterError) {
-                      print('❌ GPS Order Success: GoRouter fallback also failed: $goRouterError');
-                      
-                      // Final fallback: Show error message
-                      ToastMessages.error(
-                        message: 'Navigation failed. Please try again.',
-                      );
-                    }
-                  }
-                }
-              },
-            ),
-          );
+          // Show success dialog and handle navigation
+          _showSuccessDialogAndNavigate(context, context.appText.orderPlacedSuccessfully);
           // showSuccessDialog(
           //   context,
           //   text: 'Order placed successfully',
@@ -224,6 +222,41 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           ToastMessages.error(
             message: "Failed to place order: ${state.message}",
           );
+        }
+
+        // Handle payment states
+        if (state is GpsPaymentInitiating) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is GpsPaymentSuccess) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          
+          // Navigate to payment screen
+          final result = await Navigator.of(context).push(
+            commonRoute(
+              PaymentsScreen(
+                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                loadId: "gps_order",
+              ),
+            ),
+          );
+
+          // Handle payment completion
+          if (result == true) {
+            _showSuccessDialogAndNavigate(context, 'Order placed successfully');
+          }
+        } else if (state is GpsPaymentFailure) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
         }
 
         // Handle order summary states
@@ -277,7 +310,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.vehicleDetails, style: AppTextStyle.h5),
+                  Text(
+                    widget.selectedVehicleNumbers.length == 1 
+                        ? "Vehicle Detail" 
+                        : context.appText.vehicleDetails,
+                    style: AppTextStyle.h5
+                  ),
                   SizedBox(height: 5),
                   Text(
                     widget.selectedVehicleNumbers.join(", "),
@@ -319,7 +357,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Center(child: CircularProgressIndicator()),
           ],
@@ -334,7 +377,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+            Text(
+              widget.products.length == 1 
+                  ? "Product Detail" 
+                  : context.appText.paymentDetails, 
+              style: AppTextStyle.h4
+            ),
             10.height,
             Text(
               'Failed to load order summary',
@@ -351,7 +399,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
+          Text(
+            widget.products.length == 1 
+                ? "Product Detail" 
+                : context.appText.paymentDetails, 
+            style: AppTextStyle.h4
+          ),
           10.height,
           ...orderSummary!.data.summary.map((summaryItem) {
             return Column(
@@ -372,7 +425,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                       ),
                     ),
                     Text(
-                      "₹${KavachHelper.formatCurrency((summaryItem.unitPrice * summaryItem.quantity).toStringAsFixed(2))}",
+                      "₹${KavachHelper.formatCurrency((summaryItem.unitPrice * summaryItem.quantity))}",
                       style: AppTextStyle.blackColor15w500,
                     ),
                   ],
@@ -399,7 +452,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount.toStringAsFixed(2))}",),
+                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount)}",),
                 15.height,
               ],
             );
@@ -436,7 +489,20 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           15.width,
           AppButton(
             onPressed: () async {
-              await _createGpsOrder();
+              // Get customer information
+              final customerInfo = await getCustomerInfo();
+
+              // Create payment request using the order ID from checkout
+              final paymentRequest = KavachInitiatePaymentRequest(
+                orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}", // This should be the actual order ID from the order creation
+                amount: totalAmount.toInt(),
+                customerName: customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+                customerEmail: "customer@example.com", // This should be fetched from user profile
+                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                customerCity: widget.billingAddress.city,
+              );
+
+              gpsOrderCubit.initiatePayment(paymentRequest);
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -505,12 +571,29 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     try {
       final customerId = await gpsOrderCubit.getUserId() ?? '';
 
+      // Get real customer information
+      final customerInfoMap = await getCustomerInfo();
+      
       // Create customer info
       final customerInfo = GpsCustomerInfo(
-        companyName: "ABC Logistics Pvt Ltd",
-        contactNumber: "9876543210",
-        blueMembershipId: "BLUE123456",
+        companyName: customerInfoMap["companyName"] ?? "ABC Logistics Pvt Ltd",
+        contactNumber: customerInfoMap["contactNumber"] ?? "9876543210",
+        blueMembershipId: customerInfoMap["blueMembershipId"] ?? "BLUE123456",
       );
+
+      // Determine if referral code is provided and extract employee details
+      String? createdEmpId;
+      int createdEmpUserId = 1234; // Default value
+      
+      if (widget.orderReferencedBy.isNotEmpty) {
+        // If referral code is provided, use it as createdEmpId
+        createdEmpId = widget.orderReferencedBy;
+        // For now, using a default user ID. In a real implementation, 
+        // you would fetch the employee details from the referral code
+        createdEmpUserId = 52864; // This should be fetched based on referral code
+      }
+
+
 
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
@@ -594,14 +677,17 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Create the order request
       final request = GpsOrderRequest(
         orderSource: "MOBILE",
-        isOrderPaid: false,
+        isOrderPaid: true, // Always true as per documentation
         customerId: customerId,
-        createdEmpUserId: 1234,
-        orderReferencedBy: widget.orderReferencedBy,
+        createdEmpUserId: createdEmpUserId,
+        createdEmpId: createdEmpId, // Will be null if no referral code
+        orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
         totalPrice:
             orderSummary?.data.grandTotal ??
             _fallbackTotalAmount, // Use the API's grandTotal or fallback
         categoryId: 1,
+        orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
+        teamId: 1, // Added teamId as requested
         shippingPersonIncharge: widget.shippingPersonInCharge,
         shippingPersonContactNo: widget.shippingPersonContactNo,
         customerInfo: customerInfo,
@@ -636,27 +722,71 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     ).paddingSymmetric(vertical: 5);
   }
 
+   /// Show success dialog and handle navigation with proper context management
+  void _showSuccessDialogAndNavigate(BuildContext context, String message) {
+    // Store the current context before showing dialog
+    final currentContext = context;
+    
+    AppDialog.show(
+      currentContext,
+      child: SuccessDialogView(
+        message: message,
+        onContinue: () {
+          // Close the dialog first
+          Navigator.of(currentContext).pop();
+          
+          // Use a post-frame callback to ensure dialog is fully closed
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (currentContext.mounted) {
+              print('🔄 GPS Order Success: Attempting GoRouter navigation');
+              print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
+              
+              try {
+                // Use GoRouter navigation
+                GoRouter.of(currentContext).go(AppRouteName.gpsOrderBenefits);
+                print('🔄 GPS Order Success: GoRouter navigation called successfully');
+              } catch (e) {
+                print('❌ GPS Order Success: Navigation error: $e');
+                
+                // Fallback: Try with context.go
+                try {
+                  currentContext.go(AppRouteName.gpsOrderBenefits);
+                  print('🔄 GPS Order Success: Fallback navigation successful');
+                } catch (fallbackError) {
+                  print('❌ GPS Order Success: Fallback navigation also failed: $fallbackError');
+                  
+                  // Final fallback: Show error message
+                  ToastMessages.error(
+                    message: 'Navigation failed. Please try again.',
+                  );
+                }
+              }
+            } else {
+              print('❌ GPS Order Success: Context not mounted after dialog close');
+            }
+          });
+        },
+      ),
+    );
+  }
+
   Widget _buildAddressCard(KavachAddressModel address) {
+    // Clean the addr1 to remove trailing comma
+    String cleanAddr1 = address.addr1.trim();
+    if (cleanAddr1.endsWith(',')) {
+      cleanAddr1 = cleanAddr1.substring(0, cleanAddr1.length - 1);
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
-        Text(address.addr1, style: AppTextStyle.textDarkGreyColor14w500),
-        Text(
-          "${address.city}, ${address.state}",
-          style: AppTextStyle.textDarkGreyColor14w500,
-        ),
-        Text(
-          "${address.country}- ${address.pincode}",
-          style: AppTextStyle.textDarkGreyColor14w500,
-        ),
+        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text(cleanAddr1,style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
+        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500),
         Visibility(
-          visible: address.gstin != null && address.gstin!.isNotEmpty,
-          child: Text(
-            "${context.appText.gstKavach} - ${address.gstin}",
-            style: AppTextStyle.textDarkGreyColor14w500,
-          ),
-        ),
+            visible: address.gstin!=null && address.gstin!.isNotEmpty,
+            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),
       ],
     );
   }

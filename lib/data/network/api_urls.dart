@@ -6,6 +6,12 @@ class ApiUrls {
   /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
+  /// Map Key
+  static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
+
+
+
+
   /// Path
   static String get _path => "/api";
   static String get _load => "/load";
@@ -18,8 +24,8 @@ class ApiUrls {
   static String get _customer => "/customer";
   static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
-  static String get _verification => "https://gro-devapi.letsgro.co/external/api/v1/verification";
-  static String get _kucDocUpload => "https://gro-devapi.letsgro.co/external/api/v1/verification";
+  static String get _verification => "$_fetchUrl/external/api/v1/verification";
+  static String get _kucDocUpload => "$_fetchUrl/external/api/v1/verification";
   static String get _fleet => "/fleet";
   static String get _credit => "/credit";
   static String get _vendor => "/vendor";
@@ -72,9 +78,9 @@ class ApiUrls {
 
   /// Kyc
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
-  static final String  aadhaarSendOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "https://gro-devapi.letsgro.co/external/api/v1/verification/aadhaar/verify-otp";
-  static final String  panVerification = "https://gro-devapi.letsgro.co/external/api/v1/verification/pan";
+  static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
+  static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
+  static final String  panVerification = "$_verification/pan";
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
@@ -115,7 +121,7 @@ class ApiUrls {
   static final String  loadCommodity = "$_loadBaseUrl/commodities";
   static final String  loadTruckType = "$_loadBaseUrl/truck-types";
   static final String  truckType = "$loadTruckType/distinct/types";
-  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/by-lane-truck-type";
+  static final String  getRateDiscoveryPrice = "$baseUrl$_rateDiscovery$_path$_v1/rate-discovery/fetch-rate";
   static final String  getRecentRoute = "$baseUrl$_loadDiscovery$_path$_v1$_load/distinct-source-destination";
   static final String getWeight = "$_baseUrl$_rateDiscovery$_path$_v1/weightage";
   static final String  createLoad = "$_baseUrl$_load$_path$_v1/loads";
@@ -142,43 +148,44 @@ class ApiUrls {
   static String  kavachVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/add";
   static String  kavachFetchCommodities = "$_baseUrl$_load$_path$_v1/commodities";
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/address";
-  static String  kavachTruckType = "$_baseUrl$_load$_path$_v1/truck-types/distinct/types";
-  static String  kavachTruckSubType = "$_baseUrl$_load$_path$_v1/truck-types/sub-types";
+  static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
+  static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
   static String  kavachVehicleVerification = "$verification/vehicle";
+  static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
+  //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
 
   /// En-Dhan
-  //static final String enDhanKycUpload = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
-  static final String enDhanKycUpload = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument";
- // static final String enDhanKycCheck = "$_baseUrl$_vendor$_path$_v1/dtplus/customerDocument";
-  static String enDhanKycCheck(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
+  static final String enDhanKycUpload = "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument";
+  static String enDhanKycCheck(String customerId) => "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
 
   // En-Dhan Card APIs
-  static String enDhanCards(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/card/$customerId";
-  static String enDhanCardBalance(String customerId) => "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/cardBalance/$customerId";
+  static String enDhanCards(String customerId) => "$_fetchUrl$_vendor$_path$_v1/dtplus/card/$customerId";
+  static String enDhanCardBalance(String customerId) => "$_fetchUrl$_vendor$_path$_v1/dtplus/cardBalance/$customerId";
 
   // En-Dhan Customer Creation and Master Data APIs
-  static final String enDhanCreateCustomer = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/createCustomer";
-  static final String enDhanStates = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/state";
-  static final String enDhanDistricts = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/district/";
-  static final String enDhanZonal = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/zonal";
-  static final String enDhanRegional = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/regional/";
-  static final String enDhanVehicleTypes = "https://gro-devapi.letsgro.co$_vendor$_path$_v1/dtplus/vehicleType";
+  static final String enDhanCreateCustomer = "$_fetchUrl$_vendor$_path$_v1/dtplus/createCustomer";
+  static final String enDhanStates = "$_fetchUrl$_vendor$_path$_v1/dtplus/state";
+  static final String enDhanDistricts = "$_fetchUrl$_vendor$_path$_v1/dtplus/district/";
+  static final String enDhanZonal = "$_fetchUrl$_vendor$_path$_v1/dtplus/zonal";
+  static final String enDhanRegional = "$_fetchUrl$_vendor$_path$_v1/dtplus/regional/";
+  static final String enDhanVehicleTypes = "$_fetchUrl$_vendor$_path$_v1/dtplus/vehicleType";
+  static final String enDhanTransaction = "$_fetchUrl$_vendor$_path$_v1/dtplus/getTransaction";
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;
-  static String gpsKycCheck(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
-  static String gpsKycUpload(String customerId) => "https://gro-devapi.letsgro.co/customer/api/v1/kyc/$customerId";
-  static final String gpsProductList = "https://gro-devapi.letsgro.co$_fleet$_path$_v1/product/list";
-  static final String gpsAddressList = "https://gro-devapi.letsgro.co$_customer$_path$_v1/address";
+  static String gpsKycCheck(String customerId) => "$_fetchUrl/customer/api/v1/kyc/$customerId";
+  static String gpsKycUpload(String customerId) => "$_fetchUrl/customer/api/v1/kyc/$customerId";
+  static final String gpsProductList = "$_fetchUrl$_fleet$_path$_v1/product/list";
+  static final String gpsAddressList = "$_fetchUrl$_customer$_path$_v1/address";
   static final String gpsCreateOrder = "$_baseUrl$_fleet$_path$_v1/orders/create";
   static final String gpsOrderSummary = "$_baseUrl$_fleet$_path$_v1/orders/order-summary";
   static final String gpsCustomerOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
 
   // Document Upload API
-  static final String documentUpload = "https://gro-devapi.letsgro.co/document/api/v1/upload";
+  static final String documentUpload = "$_fetchUrl/document/api/v1/upload";
 
   // User Management API
-  static final String getAllUsers = "https://gro-devapi.letsgro.co/user/api/v1/users/allUsers";
+  static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
 
   /// Google Map
   static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
@@ -189,8 +196,11 @@ class ApiUrls {
  /// Driver
  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
- static const String driverLoadById = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/";
- 
+ static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
+
+
+
+
 
   /// GPS Tracking
   static const String _gpsBase = "https://api.letsgro.co/api/v1/auth";

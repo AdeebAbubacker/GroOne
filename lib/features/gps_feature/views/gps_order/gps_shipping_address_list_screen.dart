@@ -13,7 +13,7 @@ import '../../../../utils/common_widgets.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import 'gps_add_address_bottom_sheet.dart';
 
-class GpsShippingAddressListScreen extends StatelessWidget {
+class GpsShippingAddressListScreen extends StatefulWidget {
   final GpsShippingAddressCubit shippingAddressCubit;
   final KavachAddressModel? selectedBillingAddress;
   
@@ -24,12 +24,53 @@ class GpsShippingAddressListScreen extends StatelessWidget {
   });
 
   @override
+  State<GpsShippingAddressListScreen> createState() => _GpsShippingAddressListScreenState();
+}
+
+class _GpsShippingAddressListScreenState extends State<GpsShippingAddressListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh shipping addresses when the screen opens, but preserve selection
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshAddressesPreservingSelection();
+    });
+  }
+
+  /// Refresh addresses while preserving the currently selected address
+  void _refreshAddressesPreservingSelection() {
+    final currentState = widget.shippingAddressCubit.state;
+    KavachAddressModel? selectedAddress;
+    
+    // Store the currently selected address
+    if (currentState is GpsShippingAddressSelected) {
+      selectedAddress = currentState.selectedAddress;
+    }
+    
+    // Refresh addresses
+    widget.shippingAddressCubit.fetchGpsShippingAddresses().then((_) {
+      // After refresh, restore the selection if there was one
+      if (selectedAddress != null && mounted) {
+        // Add a small delay to ensure the fetch is complete
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (mounted) {
+            widget.shippingAddressCubit.selectGpsShippingAddress(selectedAddress!);
+          }
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
-      title: context.appText.shippingAddress,
-      body: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.5,
-         child: _buildBody(context: context)),
+    return BlocProvider.value(
+      value: widget.shippingAddressCubit,
+      child: AppBottomSheetBody(
+        title: context.appText.shippingAddress,
+        body: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: _buildBody(context: context)),
+      ),
     );
   }
 
@@ -42,9 +83,8 @@ class GpsShippingAddressListScreen extends StatelessWidget {
             title: context.appText.shippingAddress,
           ),
         );
-        // After adding address, wait a bit and then refetch the shipping addresses
-        await Future.delayed(Duration(milliseconds: 500));
-        shippingAddressCubit.fetchGpsShippingAddresses();
+        // After adding address, refetch the shipping addresses immediately
+        widget.shippingAddressCubit.fetchGpsShippingAddresses();
       },
       title: context.appText.addNewAddress,
       style: AppButtonStyle.outline,
@@ -53,7 +93,6 @@ class GpsShippingAddressListScreen extends StatelessWidget {
 
   Widget _buildBody({required BuildContext context}) {
     return BlocBuilder<GpsShippingAddressCubit, GpsShippingAddressState>(
-      bloc: shippingAddressCubit,
       builder: (context, state) {
         if (state is GpsShippingAddressLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -77,7 +116,7 @@ class GpsShippingAddressListScreen extends StatelessWidget {
                       10.height,
                       AppButton(
                         onPressed: () {
-                          shippingAddressCubit.fetchGpsShippingAddresses();
+                          widget.shippingAddressCubit.fetchGpsShippingAddresses();
                         },
                         title: 'Retry',
                         style: AppButtonStyle.outline,
@@ -90,85 +129,123 @@ class GpsShippingAddressListScreen extends StatelessWidget {
           );
         }
 
-        if (state is GpsShippingAddressLoaded || state is GpsShippingAddressSelected) {
-          final addresses = state is GpsShippingAddressLoaded 
-              ? (state as GpsShippingAddressLoaded).addresses
-              : (state as GpsShippingAddressSelected).addresses;
-
+        if (state is GpsShippingAddressSelected) {
           // Filter out the selected billing address from shipping address list
-          final filteredAddresses = selectedBillingAddress != null 
-              ? addresses.where((address) => address.uniqueId != selectedBillingAddress!.uniqueId).toList()
-              : addresses;
-
-          // Check if addresses list is null or empty
-          if (filteredAddresses.isEmpty) {
-            return Column(
-              children: [
-                addVehicleButton(context),
-                Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.location_off, color: Colors.grey, size: 48),
-                        10.height,
-                        Text(
-                          'No available shipping addresses',
-                          style: AppTextStyle.h5,
-                        ),
-                        5.height,
-                        Text(
-                          selectedBillingAddress != null 
-                              ? 'All addresses are already selected for billing'
-                              : 'Add your first shipping address',
-                          style: AppTextStyle.bodyGreyColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }
+          final filteredAddresses = widget.selectedBillingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != widget.selectedBillingAddress!.uniqueId).toList()
+              : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shrinkWrap: true,
-                  itemCount: filteredAddresses.length,
-                  separatorBuilder: (context, index) => 10.height,
-                  itemBuilder: (context, index) {
-                    final address = filteredAddresses[index];
-                    return AddressListItem(
-                      address: address,
-                      shippingAddressCubit: shippingAddressCubit,
-                    );
-                  },
-                ),
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available shipping addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              widget.selectedBillingAddress != null 
+                                  ? 'All addresses are already selected for billing'
+                                  : 'Add your first shipping address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
               ),
-              10.height,
+              20.height,
               AppButton(
                 onPressed: () {
-                  final selectedAddress = shippingAddressCubit.state;
+                  final selectedAddress = widget.shippingAddressCubit.state;
                   if (selectedAddress is GpsShippingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
-                    // Show message that user must select an address first
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Please select an address first'),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
+                    // Handle if nothing is selected (optional)
                   }
                 },
                 title: context.appText.deliverHere,
                 style: AppButtonStyle.primary,
               ),
-              
+              20.height,
+            ],
+          );
+        }
+
+        if (state is GpsShippingAddressAvailable) {
+          // Filter out the selected billing address from shipping address list
+          final filteredAddresses = widget.selectedBillingAddress != null 
+              ? state.addresses.where((address) => address.uniqueId != widget.selectedBillingAddress!.uniqueId).toList()
+              : state.addresses;
+
+          return Column(
+            children: [
+              addVehicleButton(context),
+              Expanded(
+                child: filteredAddresses.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.location_off, color: Colors.grey, size: 48),
+                            10.height,
+                            Text(
+                              'No available shipping addresses',
+                              style: AppTextStyle.h5,
+                            ),
+                            5.height,
+                            Text(
+                              widget.selectedBillingAddress != null 
+                                  ? 'All addresses are already selected for billing'
+                                  : 'Add your first shipping address',
+                              style: AppTextStyle.bodyGreyColor,
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shrinkWrap: true,
+                        itemCount: filteredAddresses.length,
+                        separatorBuilder: (context, index) => 10.height,
+                        itemBuilder: (context, index) {
+                          final address = filteredAddresses[index];
+                          return AddressListItem(address: address);
+                        },
+                      ),
+              ),
+              20.height,
+              AppButton(
+                onPressed: () {
+                  // Show message that user must select an address first
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please select an address first'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
+                title: context.appText.deliverHere,
+                style: AppButtonStyle.primary,
+              ),
+              20.height,
             ],
           );
         }
@@ -206,23 +283,20 @@ class GpsShippingAddressListScreen extends StatelessWidget {
 
 class AddressListItem extends StatelessWidget {
   final KavachAddressModel address;
-  final GpsShippingAddressCubit shippingAddressCubit;
 
-  const AddressListItem({
-    super.key, 
-    required this.address,
-    required this.shippingAddressCubit,
-  });
+  const AddressListItem({super.key, required this.address});
 
   @override
   Widget build(BuildContext context) {
-    final selectedAddress = shippingAddressCubit.state is GpsShippingAddressSelected 
-        ? (shippingAddressCubit.state as GpsShippingAddressSelected).selectedAddress 
-        : null;
+    final selectedAddress = context.select((GpsShippingAddressCubit cubit) {
+      final state = cubit.state;
+      if (state is GpsShippingAddressSelected) return state.selectedAddress;
+      return null;
+    });
 
     return GestureDetector(
       onTap: () {
-        shippingAddressCubit.selectGpsShippingAddress(address);
+        context.read<GpsShippingAddressCubit>().selectGpsShippingAddress(address);
       },
       child: Container(
         padding: const EdgeInsets.all(8),
@@ -233,7 +307,7 @@ class AddressListItem extends StatelessWidget {
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                shippingAddressCubit.selectGpsShippingAddress(address);
+                context.read<GpsShippingAddressCubit>().selectGpsShippingAddress(address);
               },
             ),
             Expanded(

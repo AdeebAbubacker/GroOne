@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -13,6 +14,11 @@ import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bo
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 class LpBottomNavigation extends StatefulWidget {
@@ -50,7 +56,23 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     int? role = profileCubit.userRole;
 
     if (index == 3 && (role != null && role == 3)) {
-      context.go(AppRouteName.vpBottomNavigationBar);
+      AppDialog.show(context, child: CommonDialogView(
+        showYesNoButtonButtons: true,
+        noButtonText: context.appText.cancel,
+        yesButtonText: context.appText.switchText,
+        child: Column(
+          children: [
+            SvgPicture.asset(AppImage.svg.switchVp),
+            Text(context.appText.switchToVp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
+            10.height,
+            Text(context.appText.switchToVpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
+            10.height,
+          ],
+        ),
+        onClickYesButton: () {
+          context.go(AppRouteName.vpBottomNavigationBar);
+        },
+      ));
     } else {
       LpBottomNavigation.selectedIndexNotifier.value = index;
     }

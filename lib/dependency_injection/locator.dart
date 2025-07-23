@@ -22,7 +22,7 @@ import 'package:gro_one_app/features/email_verification/service/email_verificati
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/service/endhan_transaction_service.dart';
+
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/endhan_transaction_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
@@ -192,9 +192,7 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
-    locator.registerLazySingleton(
-      () => EndhanTransactionService(locator<ApiService>()),
-    );
+
     locator.registerLazySingleton(
       () => TermsAndConditionsService(locator<ApiService>()),
     );
@@ -530,7 +528,7 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EndhanTransactionCubit(
-        locator<EndhanTransactionService>(),
+        locator<EnDhanService>(),
         locator<UserInformationRepository>(),
       ),
     );
@@ -573,7 +571,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => DriverLoadDetailsCubit(
-        locator<DriverLoadsDetailsRepository>()
+         locator<LoadDetailsRepository>(),
+        locator<DriverLoadsDetailsRepository>(),
+        locator<UserInformationRepository>(),
       ),
     );
     // Register GpsVehicleCubit
