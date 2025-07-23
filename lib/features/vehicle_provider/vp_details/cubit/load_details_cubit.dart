@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -185,13 +186,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // Submit Settlement Api Call
-  void _setSettlementUIState(UIState<DamageModel>? uiState){
+  void _setSettlementUIState(UIState<SettlementApiResponse>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
-    if (result is Success<DamageModel>) {
+    if (result is Success<SettlementApiResponse>) {
       _setSettlementUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -273,6 +274,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
     if (result is Success<UploadDamageFileModel>) {
+      /// We need to call here
+      /// create document
+      createDocument(title, documentTypeId, uploadImage);
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -313,6 +317,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
             uploadLoadingStatus(index, null);
           }
         },);
+
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);
@@ -347,9 +352,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
     List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
-
-    print("document id in upload function ${loadDocument?.documentDetails?.documentId}");
-
     final updatedDocument = currentDocument.copyWith(
       loadDocument: currentDocument.loadDocument ?? loadDocument,
       isLoading: !(currentDocument.isLoading ?? false),
@@ -439,6 +441,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           loadId: loadId
       ).then((value) {
         if (value is Success<LoadDocument>) {
+
           return value.value;
         }
         return null;
@@ -451,23 +454,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
-      print("documentId is $documentId");
+
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
-          print("downloading done");
+
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {
-          print("downloading error");
           uploadLoadingStatus(index, null);
         }
       },);
     } catch (e) {
-      print("downloading error $e");
       uploadLoadingStatus(index, null);
       return null;
     }
@@ -490,7 +491,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   void resetSettlementUIState() {
-    emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
+    emit(state.copyWith(settlementUIState: resetUIState<SettlementApiResponse>(
         state.settlementUIState)));
   }
 
@@ -567,6 +568,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       return  checkLoadingDocumentAddedOrNot(documentList,true);
 
       case LoadStatus.unloading:
+        bool isPodAdded=checkLoadingDocumentAddedOrNot(documentList,false);
+        print("isPodAdded $isPodAdded");
         return checkLoadingDocumentAddedOrNot(documentList,false);
       default:
         return true;

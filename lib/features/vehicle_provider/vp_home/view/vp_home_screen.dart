@@ -383,10 +383,15 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                       onTap: () async {
                         await  context.push(AppRouteName.loadDetailsScreen,extra: {
                           "loadId":data.id
-                        });
+                        }).then((value) {
+                          vpHomeScreenBloc.add(VpMyLoadListRequested());
+                        },);
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: data,
+                        onBack: (){
+                          vpHomeScreenBloc.add(VpMyLoadListRequested());
+                        },
                         onClickAssignDriver: () {
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");

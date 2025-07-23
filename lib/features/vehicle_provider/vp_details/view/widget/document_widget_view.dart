@@ -43,7 +43,7 @@ class DocumentWidgetView extends StatelessWidget {
         loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.loadDocumentId??"",index);
       },
         onClickDownload: () {
-         loadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
+         loadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentId??"", index);
       },
        isLoading: documentEntity?.isLoading??false,
         documentEntity: documentEntity!,

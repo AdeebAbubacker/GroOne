@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -148,12 +149,12 @@ class VpDetailsService{
 
 
   /// Submit Settlement Service
-  Future<Result<DamageModel>> submitSettlement(SettlementApiRequest request) async {
+  Future<Result<SettlementApiResponse>> submitSettlement(SettlementApiRequest request) async {
     try {
       final url = ApiUrls.submitSettlement;
-      final result = await _apiService.put(url, body: request.toJson());
+      final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        final data= DamageModel.fromJson(result.value);
+        final data= SettlementApiResponse.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);

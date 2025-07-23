@@ -57,16 +57,19 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   List<dynamic> multiFilesList = [];
   List<String> uploadedDamageFileList = [];
   List<String> updateDamageFileList = [];
+  bool isDamageAdded=false;
 
  final TextEditingController itemNameTextController = TextEditingController();
  final TextEditingController quantityTextController = TextEditingController();
  final TextEditingController descriptionTextController = TextEditingController();
 
 
+
   @override
   void initState() {
-    // TODO: implement initState
+
     initFunction();
+
     super.initState();
   }
 
@@ -130,7 +133,9 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           image: uploadedDamageFileList
 
       );
+
       cubit.createDamage(request);
+      isDamageAdded=true;
     }
   }
 
@@ -207,7 +212,6 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                   ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                 }
               }
-              debugPrint("Status-- : ${status}");
               if(!context.mounted) return;
               frameCallback((){
                 Navigator.of(context).pop();
@@ -225,6 +229,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
+        onLeadingTap: () => Navigator.pop(context,isDamageAdded),
           title: context.appText.damagesAndShortages,
           actions: [
             BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
@@ -468,8 +473,6 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
       },
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
-        debugPrint("Multi File List : ${multiFilesList.length}");
-        debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
           title: context.appText.productPhoto,
           multiFilesList: multiFilesList,
