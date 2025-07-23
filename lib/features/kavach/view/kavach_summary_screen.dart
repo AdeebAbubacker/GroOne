@@ -378,6 +378,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
                 totalPrice: totalAmount,
                 categoryId: 1, // Always 1 for Products
+                orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
+                teamId: 1, // Added teamId as requested
                 shippingPersonIncharge: widget.shippingPersonInCharge,
                 shippingPersonContactNo: widget.shippingPersonContactNo,
                 customerInfo: customerInfo,

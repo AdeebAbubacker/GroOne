@@ -65,15 +65,11 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
       final matchingStartDate = widget.loadItem.matchingStartDate;
       if (matchingStartDate != null) {
         _countDown = LpHomeHelper.getMatchingTime(matchingStartDate);
-      } else {
-        _countDown = "--:--:--";
       }
     } else if (status == LoadStatus.kycPending) {
       final kycPendingDate = widget.loadItem.customer?.kycPendingDate;
       if (kycPendingDate != null) {
         _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toString());
-      } else {
-        _countDown = "--:--:--";
       }
     } else {
       _countDown = "--:--:--";

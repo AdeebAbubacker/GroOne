@@ -88,14 +88,13 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+    lpHomeBloc.getUserId();
+    await profileCubit.fetchUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-    lpHomeBloc.getUserId();
-
-    await profileCubit.fetchUserId();
     lpHomeCubit.setBluIDFlag();
     profileCubit.fetchCompanyTypeId();
-    profileCubit.fetchProfileDetail(instance: this);
+    await profileCubit.fetchProfileDetail(instance: this);
   });
 
 

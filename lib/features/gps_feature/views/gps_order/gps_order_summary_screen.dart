@@ -680,6 +680,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             orderSummary?.data.grandTotal ??
             _fallbackTotalAmount, // Use the API's grandTotal or fallback
         categoryId: 1,
+        orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
+        teamId: 1, // Added teamId as requested
         shippingPersonIncharge: widget.shippingPersonInCharge,
         shippingPersonContactNo: widget.shippingPersonContactNo,
         customerInfo: customerInfo,
