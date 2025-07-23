@@ -182,34 +182,59 @@ final bool isConsentGiven = false;
                   ),
                 ),
                 10.width,
-              DriverLoadHelper.loadStatusButtonWidget(
-                statusId:widget.driverLoadDetails.loadStatusId,
-                 onPressed: () {
-                  if (widget.driverLoadDetails.loadStatusId == 5) {
-      final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
-      final allDocumentsUploaded = widget.driverLoadDetails.loadDocument
-              ?.every((doc) => doc.isEmpty == true) ??
-          false;
- 
+                DriverLoadHelper.loadStatusButtonWidget(
+                      enable: true,
+                      statusId: widget.driverLoadDetails.loadStatusId,
+                      onPressed: () {
+                        //Check for sim consent and trip doc
+                        if (widget.driverLoadDetails.loadStatusId == 5) {
+                          final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+                         final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+                        final documents = nestedDocuments.expand((list) => list).toList();
+                        const requiredDocs = [
+                          'lorry receipt',
+                          'eway bill',
+                          'material invoice',
+                        ];
+                        final uploadedTypes = documents
+                            .where((doc) => doc.status == 1)
+                            .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+                            .toSet();
 
-      if ( !allDocumentsUploaded) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Please ensure all mandatory fields are uploaded (Consent, Documents, Memo)',
-              style: AppTextStyle.body.copyWith(color: Colors.white),
-            ),
-            backgroundColor: AppColors.iconRed,
-          ),
-        );
-        return;
-      }
-    }
-              widget.onClickAssignDriver?.call();
-            },
-              ).expand(),  
-               
-              ],
+                        final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+                        if (!allRequiredDocsUploaded) {
+                          ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                          return;
+                        }
+
+
+                          if (!isConsentGiven) {
+                             ToastMessages.error(message: 'Please ensure SIM consent is given');
+                            return;
+                          }
+                        }
+                        
+                        // Check for Pod Doc
+                            if (widget.driverLoadDetails?.loadStatusId == 6) {
+                            final nestedDocuments = widget.driverLoadDetails?.loadDocument ?? [];
+                            final documents = nestedDocuments.expand((list) => list).toList();
+
+                            final podDocExists = documents.any((doc) =>
+                                (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+                                doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+                                doc.status == 1);
+
+                            if (!podDocExists) {
+                              ToastMessages.error(message:  'Please upload POD document');
+                              return;
+                            }
+                          }
+                        widget.onClickAssignDriver?.call();
+                      },
+                    ).expand(),
+
+         ],
             ),
           ],
         ),

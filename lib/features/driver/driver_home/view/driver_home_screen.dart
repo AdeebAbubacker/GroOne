@@ -397,7 +397,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   },
                 ).paddingSymmetric(vertical: 7);
                       default:
-                          return   DriverLoadWidget( driverLoadDetails: state.loads[index],
+                          return   DriverLoadWidget( 
+                            
+                            driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
             final currentStatus = state.loads[index].loadStatusId;
             if (currentStatus == 8) {

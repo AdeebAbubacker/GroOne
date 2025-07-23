@@ -57,6 +57,18 @@ class DriverLoadBottomWidget extends StatefulWidget {
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
+
+  @override
+void initState() {
+  super.initState();
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final currentStatus = widget.loadItem.data?.loadStatusId;
+   
+    widget.cubit.updatePODVisibilityBasedOnStatus(currentStatus);
+  });
+}
+
   List<dynamic> lorryReceiptFiles = [];
   List<String> uploadedLorryReceipts = [];
 
@@ -85,6 +97,7 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+      bloc: widget.cubit,
        buildWhen: (previous, current) => current!=previous,
       listener: (context, state) {
         
@@ -124,12 +137,13 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      20.height,
                       // Truck Type Row
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(
-                            AppImage.png.truck,
+                            AppImage.png.dummyTruckLoad,
                             width: 57,
                             height: 42,
                           ),
@@ -193,16 +207,17 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                             ],
                           ),
                         ],
-                      ),
+                      ).paddingSymmetric(horizontal: 15),
 
                       20.height,
-                     
+                      Divider(color: Color(0xffE1E1E1), thickness: 3),
+                      20.height,
                       DriverSourceDestinationWidget(
                         pickUpLocation:
                             loads!.data!.loadRoute?.pickUpLocation,
                         dropLocation:
                             loads!.data!.loadRoute?.dropLocation,
-                      ),
+                      ).paddingSymmetric(horizontal: 15),
                       20.height,
                       15.height,
                       _buildLoadEntityWidget(
@@ -251,8 +266,11 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                             
                             if (widget.loadItem.data!.loadStatusId > 4) ...[
                               20.height,
-                              Text('Trip Documents', style: AppTextStyle.h4),
-                              10.height,
+                               Text(
+                              context.appText.tripDocument,
+                              style: AppTextStyle.h4,
+                            ).paddingSymmetric(horizontal: 15),
+                            15.height,
 
                               buildAttachmentView(
                               context,                         
@@ -272,7 +290,7 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                   _buildAdableSectionHeader(
                                     showAddButton: true,
                                     context: context,
-                                    title: 'Damages and Shortages',
+                                    title:  context.appText.damageAndShortage,
                                     onAdd: () {
                                       Navigator.push(
                                         context,
@@ -300,7 +318,7 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                         damageReport: loads!.data!.damageShortage,
                                       ),
                                     ],
-                                  )),
+                                  ).paddingSymmetric(horizontal: 20)),
                                   20.height,
                                   _buildAdableSectionHeader(
                                     context: context,
@@ -325,16 +343,19 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 ],
                               ),
                             20.height,
-                            Text("Timeline", style: AppTextStyle.h4),
+                            Text(
+                              context.appText.timeLine,
+                              style: AppTextStyle.h4,
+                            ).paddingSymmetric(horizontal: 15),
                             20.height,
                             DriverLoadTimelineWidget(
                               timelineList:
                                   loads!.data!.timeline ?? [],
-                            ),
+                            ).paddingSymmetric(horizontal: 15),
                           ],
                         ),
                         20.height,
-                      if (loads!.data!.loadStatusId != 8)
+                      if (loads!.data!.loadStatusId != 8 || loads!.data!.loadOnhold == false)
                         BlocListener<
                           DriverLoadDetailsCubit,
                           DriverLoadDetailsState
@@ -361,12 +382,78 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 }
                               },
                               child: DriverLoadHelper.loadStatusButtonWidget(
+                                enable:_shouldEnableButton(loads),
                                 statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
-                                // if (loads!.data!.loadStatusId == 5 &&   loads!.data!.driverConsent == 0) {
-                                //   ToastMessages.error(message: "Cannot Update Status, SIM consent not given");
-                                //   return;
-                                // }
+                                   //Check for sim consent and trip doc
+                                if (loads.data?.loadStatusId == 5) {
+                                  final isConsentGiven = loads.data?.driverConsent == 1;
+                                final nestedDocuments = loads.data?.loadDocument ?? [];
+                                final documents = nestedDocuments.expand((list) => list).toList();
+                                const requiredDocs = [
+                                  'lorry receipt',
+                                  'eway bill',
+                                  'material invoice',
+                                ];
+                              final uploadedTypes = documents
+                                  .where((doc) => doc.status == 1)
+                                  .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+                                  .toSet();
+
+                                final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+                                if (!allRequiredDocsUploaded) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                                        style: AppTextStyle.body.copyWith(color: Colors.white),
+                                      ),
+                                      backgroundColor: AppColors.iconRed,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+
+                          if (!isConsentGiven) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please ensure SIM consent is given',
+                                  style: AppTextStyle.body.copyWith(color: Colors.white),
+                                ),
+                                backgroundColor: AppColors.iconRed,
+                              ),
+                            );
+                            return;
+                          }
+                        }
+
+                        // Check for Pod Doc
+                            if (loads.data?.loadStatusId == 6) {
+                            final nestedDocuments = loads.data?.loadDocument ?? [];
+                            final documents = nestedDocuments.expand((list) => list).toList();
+
+                            final podDocExists = documents.any((doc) =>
+                                (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+                                doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+                                doc.status == 1);
+
+                            if (!podDocExists) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Please upload POD document',
+                                    style: AppTextStyle.body.copyWith(color: Colors.white),
+                                  ),
+                                  backgroundColor: AppColors.iconRed,
+                                ),
+                              );
+                              return;
+                            }
+                          }
+
     
                             
                               final customerId =
@@ -385,13 +472,13 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 // );
                               }
                             },
-                          ).paddingOnly(top: 5),
+                          ).paddingSymmetric(horizontal: 15),
                         ),
                     ],
-                  ).paddingAll(16),
+                  ),
                 ).expand(),
               ],
-            ),
+             ).paddingTop(15),
           ),
         );
     
@@ -399,7 +486,55 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
         } return genericErrorWidget(error: GenericError());
           },
     );
+    
   }
+
+
+bool _shouldEnableButton(DriverLoadDetailsModel? load) {
+  if (load == null) return false;
+
+  final currentStatus = load.data?.loadStatusId ?? 0;
+
+  // For status 5: Consent + Required documents
+  if (currentStatus == 5) {
+    final isConsentGiven =load.data?.driverConsent == 1;
+
+    final nestedDocuments = load.data?.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    const requiredDocs = [
+      'lorry receipt',
+      'eway bill',
+      'material invoice',
+    ];
+
+    final uploadedTypes = documents
+        .where((doc) => doc.status == 1)
+        .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+        .toSet();
+
+    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+    return isConsentGiven && allRequiredDocsUploaded;
+  }
+
+  // For status 6: POD document uploaded
+  if (currentStatus == 6) {
+    final nestedDocuments = load.data?.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    final podDocExists = documents.any((doc) =>
+        (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+         doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+        doc.status == 1);
+
+    return podDocExists;
+  }
+
+  // Default case for other statuses
+  return true;
+}
+
 
   Widget buildUploadDocumentWidget({
     required String title,
@@ -474,7 +609,7 @@ for (final doc in tripDocumentList) {
            index
        );
      },
-   )));
+   ).paddingSymmetric(horizontal: 15)));
   }
 
 }
@@ -567,7 +702,7 @@ Widget _buildAdableSectionHeader({
 
 // Heading
 Widget _buildHeading({required String text}) {
-  return Text(text, style: AppTextStyle.h4);
+  return Text(text, style: AppTextStyle.h4).paddingSymmetric(horizontal: 15);
 }
 
 // Build Load Entity
@@ -640,57 +775,73 @@ Widget _buildLoadEntityWidget({
         ],
       ),
     ],
-  );
+  ).paddingSymmetric(horizontal: 15);
 }
 
 // From Vp Side
-Widget _buildBottomButtonWidget(BuildContext context) {
-  return Container(
-    decoration: commonContainerDecoration(color: Colors.white, blurRadius: 30),
-    child: Row(
+Widget _buildBottomButtonWidget(BuildContext context,DriverLoadDetailsState driverLoadDetailsState, DriverLoadDetailsModel driverLoadDetailsModel) {
+   
+   int loadstatus = 1;
+   return  Container(
+      decoration: commonContainerDecoration(
+          color: Colors.white,
+          blurRadius: 30,
+        
+      ), child: Row(
       spacing: 10,
-      children: [
+      children:   [
         ...[
-          //   AppButton(
-          //     title: "Support",
-          //    style: AppButtonStyle.outline.copyWith(
-          //      shape: WidgetStatePropertyAll(
-          //        RoundedRectangleBorder(
-          //          borderRadius: BorderRadius.circular(8),
-          //        ),
-          //      ),
-          //    ),
-          //    onPressed: () {
-          //      commonSupportDialog(context);
-          //    },
-          //    textStyle: TextStyle(fontSize: 14),
-          //  ).expand(),
-          AppButton(
-            title: "View Trip Settlement",
+           if(loadstatus == 2)
+            AppButton(
+              title: context.appText.support,
+             style: AppButtonStyle.outline.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed: () {
+               commonSupportDialog(context);
+             },
+             textStyle: TextStyle(fontSize: 14),
+           ).expand(),
+           if(loadstatus == 2)
+           AppButton(
+             isLoading:false,
+             title:'f',
+             style: AppButtonStyle.primary.copyWith(
+               shape: WidgetStatePropertyAll(
+                 RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+               ),
+             ),
+             onPressed:   () async {
+          
+             },
+             textStyle: TextStyle(
+               fontSize: 14,
+               color: AppColors.white,
+             ),
+           ).expand(),
+          if (loadstatus == 6)
+            SizedBox(
+              height: 60,
+              width: MediaQuery.of(context).size.width * 0.90,
+              child: CustomSwipeButton(
+                padding: 0,
+                price: 0,
+                loadId: "",
 
-            style: AppButtonStyle.primary.copyWith(
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                text:' gf',
+                onSubmit: () {
+                 
+                },
               ),
             ),
-            onPressed: () async {},
-            textStyle: TextStyle(fontSize: 14, color: AppColors.white),
-          ).expand(),
-
-          SizedBox(
-            height: 60,
-            width: MediaQuery.of(context).size.width * 0.90,
-            child: CustomSwipeButton(
-              padding: 0,
-              price: 0,
-              loadId: "",
-
-              text: "Matching",
-              onSubmit: () {},
-            ),
-          ),
         ],
       ],
-    ),
-  );
+    ).paddingSymmetric(horizontal: 15, vertical: 12),
+    );
 }

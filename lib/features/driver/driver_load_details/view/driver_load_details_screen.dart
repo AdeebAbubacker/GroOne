@@ -45,9 +45,15 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
     getLoadDetails();
   }
 
-getLoadDetails() {
-    frameCallback(() => driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId));
+Future<void> getLoadDetails() async {
+  await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
+
+  final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
+
+  if (statusId != null) {
+    driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
   }
+}
 
   @override
   void dispose() {
@@ -55,12 +61,7 @@ getLoadDetails() {
     super.dispose();
   }
 
-  //  if (loadStatusState is Success) {
-  //           ToastMessages.success(message: "Load status updated successfully");
-  
-  //         } else if (loadStatusState is Error) {
-  //           ToastMessages.error(message: "Failed to update load status");
-  //         }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

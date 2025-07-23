@@ -290,7 +290,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   if(loadDetails?.loadOnHold==false)
                   _buildBottomButtonWidget(loadDetails, state, context),
                 ],
-              ).paddingTop(15),
+              ),
             ),
           );
         }
