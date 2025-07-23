@@ -31,13 +31,27 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+    splits {
+        abi {
+            isEnable = true
+            isUniversalApk = false
+            reset()
+            include("armeabi-v7a", "arm64-v8a")
         }
     }
+
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
     dependencies {
         implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
         implementation("com.google.android.gms:play-services-auth:20.7.0")
