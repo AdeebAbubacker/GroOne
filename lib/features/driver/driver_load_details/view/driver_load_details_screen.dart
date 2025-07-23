@@ -46,13 +46,16 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 Future<void> getLoadDetails() async {
-  await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
+  frameCallback(() async{
+      await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
 
   final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
 
   if (statusId != null) {
     driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
   }
+  },);
+
 }
 
   @override
@@ -76,7 +79,7 @@ Future<void> getLoadDetails() async {
             final uiState = state.lpLoadById;
         
             if (uiState == null || uiState.status == Status.LOADING) {
-              return const Center(child: CircularProgressIndicator());
+              return CircularProgressIndicator().center();
             }
         
             if (uiState.status == Status.ERROR) {
@@ -129,7 +132,7 @@ Future<void> getLoadDetails() async {
                   driverLong: 23,
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: driverLoadDetailsCubit,),
                 buildFloatingWidget(context),
                 buildSimConsentWidget(loadItem.data?.driverConsent ?? 0),
               ],

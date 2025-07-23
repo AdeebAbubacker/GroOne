@@ -54,6 +54,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
   if (result is Success<DriverLoadDetailsModel>) {
     _setLoadByIdUIState(UIState.success(result.value)); 
+    setTripDocuments(result.value.data!.loadDocument!.first);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
   }
