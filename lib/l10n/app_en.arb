@@ -958,11 +958,11 @@
   "pending":"Pending",
   "completed":"Completed",
   "loadOnHold":"loadOnHold",
-  "profOfDelivery":"Proof of delivery"
+  "profOfDelivery":"Proof of delivery",
 
 
 
-  "completed":"Completed",
+
   "failedToDownloadDocuments":"Failed to download the document"
 
 

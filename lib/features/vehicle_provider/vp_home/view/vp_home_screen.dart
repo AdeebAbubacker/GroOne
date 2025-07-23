@@ -379,19 +379,26 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
                   separatorBuilder: (context, index) => 20.height,
                   itemBuilder: (context, index) {
                     final data = state.vpMyLoadResponse.data[index];
-                    return VpAllLoadMyLoadWidget(
-                      data: data,
-                      onClickAssignDriver: () {
-                        final isKycDone = VpVariables.isKycVerified;
-                        final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-                        if (isKycDone) {
-                          context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
-                        } else if (companyId == 2 || companyId == 1) {
-                          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                        } else {
-                          Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                        }
+                    return GestureDetector(
+                      onTap: () async {
+                        await  context.push(AppRouteName.loadDetailsScreen,extra: {
+                          "loadId":data.id
+                        });
                       },
+                      child: VpAllLoadMyLoadWidget(
+                        data: data,
+                        onClickAssignDriver: () {
+                          final isKycDone = VpVariables.isKycVerified;
+                          final companyId = int.parse(profileCubit.companyTypeId ?? "0");
+                          if (isKycDone) {
+                            context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
+                          } else if (companyId == 2 || companyId == 1) {
+                            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                          } else {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                          }
+                        },
+                      ),
                     );
                   },
                 ),

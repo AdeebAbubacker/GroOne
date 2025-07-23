@@ -348,6 +348,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
 
+    print("document id in upload function ${loadDocument?.documentDetails?.documentId}");
+
     final updatedDocument = currentDocument.copyWith(
       loadDocument: currentDocument.loadDocument ?? loadDocument,
       isLoading: !(currentDocument.isLoading ?? false),
@@ -449,19 +451,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
+      print("documentId is $documentId");
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
+          print("downloading done");
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {
+          print("downloading error");
           uploadLoadingStatus(index, null);
         }
       },);
     } catch (e) {
+      print("downloading error $e");
       uploadLoadingStatus(index, null);
       return null;
     }
