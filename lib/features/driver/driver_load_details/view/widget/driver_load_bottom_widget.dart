@@ -137,6 +137,14 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      10.height,
+                      if(loads!.data!.driverConsent == 0 && loads!.data!.loadStatusId > 4)
+                      Center(
+                        child: Text("No SIM tracking consent from driver",
+                                    style: AppTextStyle.textBlackColor16w400.copyWith(
+                                    color: AppColors.iconRed,
+                                    ),),
+                      ),
                       20.height,
                       // Truck Type Row
                       Row(
