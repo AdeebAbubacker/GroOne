@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -13,6 +14,8 @@ import 'package:gro_one_app/features/load_provider/lp_create_account/api_request
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -46,7 +49,7 @@ class LpCreateAccount extends StatefulWidget {
   State<LpCreateAccount> createState() => _LpCreateAccountState();
 }
 
-class _LpCreateAccountState extends State<LpCreateAccount> {
+class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
   final _formKey = GlobalKey<FormState>();
 
@@ -351,6 +354,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
   Widget buildSubmitButtonWidget() {
     return BlocConsumer<LpCreateAccountCubit, LpCreateAccountState>(
       bloc: lpCreateCubit,
+      listenWhen: (previous, current) => previous.createAccountUIState?.status != current.createAccountUIState?.status,
       listener: (context, state) {
         final status = state.createAccountUIState?.status;
 
@@ -370,7 +374,7 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
         return AppButton(
           title: context.appText.continueText,
           isLoading: isLoading,
-          onPressed: isLoading ? (){} : () {
+          onPressed: isLoading ? (){} : () async {
             if (_formKey.currentState!.validate()) {
               if(!verifyEmailCubit.state.isVerifiedEmail && !kDebugMode){
                 ToastMessages.alert(message: context.appText.verifyEmail);
@@ -385,7 +389,13 @@ class _LpCreateAccountState extends State<LpCreateAccount> {
                 email: emailTextController.text,
                 roleId: int.parse(widget.roleId)
               );
-              lpCreateCubit.createAccount(apiRequest);
+
+              await lpCreateCubit.createAccount(apiRequest);
+
+              if (status == Status.SUCCESS) {
+                analyticsHelper.logEvent(AnalyticEventName.ONBOARD_LP_FORM_SUBMITTED, apiRequest.toJson());
+              }
+
             }
           },
         );

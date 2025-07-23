@@ -27,11 +27,13 @@ class CommonDialogView extends StatefulWidget {
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
   final GestureTapCallback? onClickYesButton;
+  final GestureTapCallback? onClickNoButton;
   final CrossAxisAlignment? crossAxisAlignment;
   const CommonDialogView({
     super.key,
     this.child,
     this.onClickYesButton,
+    this.onClickNoButton,
     this.showYesNoButtonButtons = false,
     this.yesButtonText,
     this.noButtonText,
@@ -127,7 +129,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
               buttonHeight: commonButtonHeight2,
               style: AppButtonStyle.outline,
               title: widget.noButtonText ?? context.appText.no,
-              onPressed: () {
+              onPressed:  widget.onClickNoButton ?? () {
                 Navigator.pop(context);
               },
             ).expand(),

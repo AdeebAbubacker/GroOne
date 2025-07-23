@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -271,7 +272,27 @@ class _GpsHomeContent extends StatelessWidget {
         context.appText.immobilise,
         Icons.flash_off_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          final Map<String, dynamic> queryParams = {
+            "start": "2025-07-02T18:30:00.000Z", // convertedDateFrom
+            "end": "2025-07-03T18:29:00.000Z", // convertedDateTo
+            "timezone_offset": "0", // "0" for UTC
+            "inputs": {}, // empty map
+            "device_ids": 44, // Example device ID as list
+            "fwd_variable": 0.0, // Same as Java
+          };
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (_) => PathReplayScreen(
+                    token: AppConstants.token ?? '',
+                    queryParams: queryParams,
+                  ),
+            ),
+          );
+        },
       ),
       _MenuItem(
         context.appText.vehicleShareUpdate,
