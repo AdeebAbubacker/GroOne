@@ -319,11 +319,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-  Widget buildDriverLoadTab(int tabIndex) {
-        return RefreshIndicator(
-    onRefresh: () async {
-      _loadDataByTab(index: tabIndex, forceRefresh: true);
-    },
+        Widget buildDriverLoadTab(int tabIndex) {
+              return RefreshIndicator(
+          onRefresh: () async {
+            _loadDataByTab(index: tabIndex, forceRefresh: true);
+          },
           child: BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
             bloc: driverLoadBloc,
             listener: (context, state) {
@@ -355,41 +355,41 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     return DriverLoadWidget(
                         driverLoadDetails: state.loads[index],
                    onClickAssignDriver: () {
-        final currentStatus = state.loads[index].loadStatusId;
-         if (currentStatus == 8) {
-              Navigator.push(
-                context,
-                commonRoute(
-                DriverLoadsLocationDetailsScreen(
-                    loadId: state.loads[index].loadId,
-                  ),
-                ),
-              );
-            } else if (currentStatus <= 7) {
-              context.read<DriverLoadsBloc>().add(
-                ChangeDriverLoadStatus(
-                  loadId: state.loads[index].loadId,  
-                  loadStatus: currentStatus +1 ,         
-                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                ),
-              );}
-                  },
-                ).paddingSymmetric(vertical: 7);
+                  final currentStatus = state.loads[index].loadStatusId;
+                  if (currentStatus == 8) {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                          DriverLoadsLocationDetailsScreen(
+                              loadId: state.loads[index].loadId,
+                            ),
+                          ),
+                        );
+                      } else if (currentStatus <= 7) {
+                        context.read<DriverLoadsBloc>().add(
+                          ChangeDriverLoadStatus(
+                            loadId: state.loads[index].loadId,  
+                            loadStatus: currentStatus +1 ,         
+                            customerId: state.loads[index].vpCustomer?.customerId ?? '', 
+                          ),
+                        );}
+                            },
+                          ).paddingSymmetric(vertical: 7);
               
                       case 1:
                       return   DriverLoadWidget( driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-           final currentStatus = state.loads[index].loadStatusId;
-           if (currentStatus == 8) {
-              Navigator.push(
-                context,
-                commonRoute(
-                DriverLoadsLocationDetailsScreen(
-                    loadId: state.loads[index].loadId,
-                  ),
-                ),
-              );
-            }
+                    final currentStatus = state.loads[index].loadStatusId;
+                    if (currentStatus == 8) {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                          DriverLoadsLocationDetailsScreen(
+                              loadId: state.loads[index].loadId,
+                            ),
+                          ),
+                        );
+                        }
             if (currentStatus <= 7) {
               context.read<DriverLoadsBloc>().add(
                 ChangeDriverLoadStatus(
@@ -402,34 +402,23 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 ).paddingSymmetric(vertical: 7);
                       default:
                           return   DriverLoadWidget( 
-                            
                             driverLoadDetails: state.loads[index],
                   onClickAssignDriver: () {
-            final currentStatus = state.loads[index].loadStatusId;
-            if (currentStatus == 8) {
-              Navigator.push(
-                context,
-                commonRoute(
-                DriverLoadsLocationDetailsScreen(
-                    loadId: state.loads[index].loadId,
-                  ),
-                ),
-              );
-            }
-            if (currentStatus <= 7) {
-              context.read<DriverLoadsBloc>().add(
-                ChangeDriverLoadStatus(
-                  loadId: state.loads[index].loadId,  
-                  loadStatus: currentStatus +1 ,         
-                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                ),
-              );}
+                  final currentStatus = state.loads[index].loadStatusId;
+                  if (currentStatus == 8) {
+                    Navigator.push(
+                      context,
+                      commonRoute(
+                      DriverLoadsLocationDetailsScreen(
+                          loadId: state.loads[index].loadId,
+                        ),
+                      ),
+                    );
+                  }
                   },
                 ).paddingSymmetric(vertical: 7);
                     }
                   },
-          
-                  
                 );
               } else if (state is DriverLoadsError) { 
                 return Center(child: Text(state.message));
