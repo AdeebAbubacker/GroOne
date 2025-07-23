@@ -76,6 +76,8 @@ final bool isConsentGiven = false;
   // Default case for other statuses
   return true;
 }
+  
+  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -228,7 +230,7 @@ final bool isConsentGiven = false;
                 ),
                 10.width,
                 DriverLoadHelper.loadStatusButtonWidget(
-                     enable:_shouldEnableButton(widget.driverLoadDetails),
+                     enable: true,
                       statusId: widget.driverLoadDetails.loadStatusId,
                       onPressed: () {
                         //Check for sim consent and trip doc

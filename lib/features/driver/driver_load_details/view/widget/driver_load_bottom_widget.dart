@@ -382,7 +382,8 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 }
                               },
                               child: DriverLoadHelper.loadStatusButtonWidget(
-                                enable:_shouldEnableButton(loads),
+                                // enable:_shouldEnableButton(loads),
+                                enable: true,
                                 statusId:   loads!.data!.loadStatusId ?? 4,
                                 onPressed: () {
                                    //Check for sim consent and trip doc
@@ -403,31 +404,16 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
                                 if (!allRequiredDocsUploaded) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
-                                        style: AppTextStyle.body.copyWith(color: Colors.white),
-                                      ),
-                                      backgroundColor: AppColors.iconRed,
-                                    ),
-                                  );
+                                  ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                                   return;
                                 }
 
 
-                          if (!isConsentGiven) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Please ensure SIM consent is given',
-                                  style: AppTextStyle.body.copyWith(color: Colors.white),
-                                ),
-                                backgroundColor: AppColors.iconRed,
-                              ),
-                            );
-                            return;
-                          }
+                          // if (!isConsentGiven) {
+                          //   ToastMessages.error(message: 'Please ensure SIM consent is given');
+
+                          //   return;
+                          // }
                         }
 
                         // Check for Pod Doc
@@ -441,15 +427,7 @@ changeLoadStatus(BuildContext context, {required int loadStatus , required Strin
                                 doc.status == 1);
 
                             if (!podDocExists) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please upload POD document',
-                                    style: AppTextStyle.body.copyWith(color: Colors.white),
-                                  ),
-                                  backgroundColor: AppColors.iconRed,
-                                ),
-                              );
+                              ToastMessages.error(message: 'Please upload POD document');
                               return;
                             }
                           }
