@@ -8,7 +8,7 @@ import 'package:gro_one_app/service/firebase_secondary_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
+
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'l10n/app_localizations.dart';

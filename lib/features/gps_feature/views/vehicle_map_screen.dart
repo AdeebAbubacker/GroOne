@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/app_share_helper.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
@@ -471,9 +473,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                 Icon(Icons.battery_full, color: Colors.blue, size: 18),
                 const SizedBox(width: 2),
                 Text(
-                  vehicle.networkSignal != null
-                      ? '${vehicle.networkSignal}%'
-                      : '-',
+                  _formatNetworkSignal(vehicle.networkSignal),
                   style: TextStyle(
                     color: Colors.blue,
                     fontWeight: FontWeight.bold,
@@ -487,7 +487,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    vehicle.statusDuration ?? '-',
+                    _formatStatusDuration(vehicle.statusDuration),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -505,50 +505,98 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
   }
 
   Color _getStatusColor(String? status) {
-    switch (status?.toUpperCase()) {
+    if (status == null) return Colors.grey;
+
+    final statusUpper = status.toUpperCase();
+    switch (statusUpper) {
       case 'IGNITION_ON':
       case 'ACTIVE':
+      case 'RUNNING':
+      case 'ON':
         return Colors.green;
       case 'IGNITION_OFF':
       case 'OFF':
+      case 'INACTIVE':
+      case 'STOPPED':
         return Colors.red;
       case 'IDLE':
+      case 'PARKED':
         return Colors.orange;
-      case 'INACTIVE':
-        return Colors.grey;
+      case 'MAINTENANCE':
+      case 'SERVICE':
+        return Colors.purple;
+      case 'ERROR':
+      case 'FAULT':
+        return Colors.red;
       default:
+        // Try to determine color from status string
+        final statusLower = status.toLowerCase();
+        if (statusLower.contains('on') ||
+            statusLower.contains('active') ||
+            statusLower.contains('running')) {
+          return Colors.green;
+        } else if (statusLower.contains('off') ||
+            statusLower.contains('inactive') ||
+            statusLower.contains('stopped')) {
+          return Colors.red;
+        } else if (statusLower.contains('idle') ||
+            statusLower.contains('parked')) {
+          return Colors.orange;
+        }
         return Colors.grey;
     }
   }
 
   String _getIgnitionStatus(String? ignition, String? status) {
     if (ignition != null) {
-      final ignitionLower = ignition.toLowerCase();
+      final ignitionLower = ignition.toLowerCase().trim();
       if (ignitionLower == 'on' ||
           ignitionLower == '1' ||
-          ignitionLower == 'true') {
+          ignitionLower == 'true' ||
+          ignitionLower == 'yes' ||
+          ignitionLower == 'running') {
         return 'ON';
       } else if (ignitionLower == 'off' ||
           ignitionLower == '0' ||
-          ignitionLower == 'false') {
+          ignitionLower == 'false' ||
+          ignitionLower == 'no' ||
+          ignitionLower == 'stopped') {
         return 'OFF';
       }
     }
 
     // Fallback to status field
-    switch (status?.toUpperCase()) {
-      case 'IGNITION_ON':
-      case 'ACTIVE':
-        return 'ON';
-      case 'IGNITION_OFF':
-      case 'OFF':
-      case 'INACTIVE':
-        return 'OFF';
-      case 'IDLE':
-        return 'IDLE';
-      default:
-        return '-';
+    if (status != null) {
+      final statusUpper = status.toUpperCase();
+      switch (statusUpper) {
+        case 'IGNITION_ON':
+        case 'ACTIVE':
+        case 'RUNNING':
+        case 'ON':
+          return 'ON';
+        case 'IGNITION_OFF':
+        case 'OFF':
+        case 'INACTIVE':
+        case 'STOPPED':
+          return 'OFF';
+        case 'IDLE':
+        case 'PARKED':
+          return 'IDLE';
+        default:
+          // Try to extract ignition info from status string
+          final statusLower = status.toLowerCase();
+          if (statusLower.contains('on') || statusLower.contains('active')) {
+            return 'ON';
+          } else if (statusLower.contains('off') ||
+              statusLower.contains('inactive')) {
+            return 'OFF';
+          } else if (statusLower.contains('idle')) {
+            return 'IDLE';
+          }
+      }
     }
+
+    return '-';
   }
 
   Color _getIgnitionColor(String? ignition, String? status) {
@@ -563,6 +611,55 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  String _formatNetworkSignal(int? networkSignal) {
+    if (networkSignal == null) return '-';
+
+    // Network signal is typically 0-5 or 0-100
+    if (networkSignal >= 0 && networkSignal <= 5) {
+      // Convert 0-5 scale to percentage
+      final percentage = (networkSignal / 5 * 100).round();
+      return '${percentage}%';
+    } else if (networkSignal >= 0 && networkSignal <= 100) {
+      return '${networkSignal}%';
+    } else {
+      return '${networkSignal}';
+    }
+  }
+
+  String _formatStatusDuration(String? statusDuration) {
+    if (statusDuration == null || statusDuration.isEmpty) return '-';
+
+    // If it's already in a readable format, return as is
+    if (statusDuration.contains('ago') ||
+        statusDuration.contains('h') ||
+        statusDuration.contains('m') ||
+        statusDuration.contains('d')) {
+      return statusDuration;
+    }
+
+    // Try to parse as timestamp and convert to relative time
+    try {
+      final timestamp = int.tryParse(statusDuration);
+      if (timestamp != null) {
+        final lastUpdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final now = DateTime.now();
+        final difference = now.difference(lastUpdate);
+
+        if (difference.inMinutes < 60) {
+          return '${difference.inMinutes}m ago';
+        } else if (difference.inHours < 24) {
+          return '${difference.inHours}h ago';
+        } else {
+          return '${difference.inDays}d ago';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+
+    return statusDuration;
   }
 }
 
@@ -610,6 +707,11 @@ class _VehicleBottomCard extends StatefulWidget {
 
 class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   bool _expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -686,7 +788,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               Icon(Icons.circle, color: Colors.green, size: 16),
                               const SizedBox(width: 4),
                               const Text(
-                                'Moving Time',
+                                'Today Distance',
                                 style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600,
@@ -704,7 +806,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            widget.vehicle.statusDuration ?? '-',
+                            _formatStatusDuration(
+                              widget.vehicle.statusDuration,
+                            ),
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 12,
@@ -895,7 +999,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                     _ActionButton(
                       label: 'Call driver',
                       icon: Icons.phone,
-                      onTap: () {},
+                      onTap: () {
+                        _callDriver(context, widget.vehicle);
+                      },
                     ),
                   ],
                 ),
@@ -1042,12 +1148,10 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           Expanded(
                             child: _StatusIconText(
-                              icon: Icons.agriculture,
+                              icon: Icons.battery_charging_full,
                               iconColor: Colors.green,
                               label: 'Vehicle Btt',
-                              value: _formatBatteryPercent(
-                                widget.vehicle.batteryPercent,
-                              ),
+                              value: _getVehicleBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -1072,7 +1176,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.electric_car,
                               iconColor: Colors.green,
                               label: 'GPS Btt',
-                              value: _formatGPSBattery(widget.vehicle.extBatt),
+                              value: _getGPSBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -1094,7 +1198,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   String _formatOdoReading(String? odoReading) {
     if (odoReading == null || odoReading.isEmpty) return '-';
     try {
-      final odo = double.tryParse(odoReading);
+      // Remove any non-numeric characters except decimal point
+      final cleanOdo = odoReading.replaceAll(RegExp(r'[^\d.]'), '');
+      final odo = double.tryParse(cleanOdo);
       if (odo != null) {
         return '${odo.toStringAsFixed(0)} km';
       }
@@ -1107,7 +1213,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   String _formatDistance(String? distance) {
     if (distance == null || distance.isEmpty) return '-';
     try {
-      final dist = double.tryParse(distance);
+      // Remove any non-numeric characters except decimal point
+      final cleanDistance = distance.replaceAll(RegExp(r'[^\d.]'), '');
+      final dist = double.tryParse(cleanDistance);
       if (dist != null) {
         return '${dist.toStringAsFixed(1)} km';
       }
@@ -1119,8 +1227,19 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
 
   String _formatIdleCount(String? idleTime) {
     if (idleTime == null || idleTime.isEmpty) return '-';
-    // Try to extract count from idle time if it contains count information
-    // For now, return a default value since we don't have idle count in the API
+    // Since we don't have idle count in the API, we'll calculate it from idle time
+    try {
+      final idleSeconds = int.tryParse(idleTime);
+      if (idleSeconds != null && idleSeconds > 0) {
+        // If idle time is more than 5 minutes, consider it as an idle event
+        if (idleSeconds > 300) {
+          // 5 minutes = 300 seconds
+          return '1';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return default
+    }
     return '0';
   }
 
@@ -1148,50 +1267,236 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
 
   String _formatSpeed(String? speed) {
     if (speed == null || speed.isEmpty) return 'N/A';
-    return '$speed Km/h';
+    try {
+      final speedValue = double.tryParse(speed);
+      if (speedValue != null) {
+        return '${speedValue.toStringAsFixed(1)} km/h';
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return '$speed km/h';
   }
 
   String _getImmobilizerStatus(String? alarm) {
-    if (alarm == null || alarm.isEmpty) return 'N/A';
-    return alarm.toUpperCase();
+    // Try to extract alarm from posAttr if direct field is null
+    if ((alarm == null || alarm.isEmpty) &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('alarm')) {
+          final alarmValue = posAttrMap['alarm'];
+          alarm = alarmValue?.toString();
+        } else if (posAttrMap.containsKey('event')) {
+          final eventValue = posAttrMap['event'];
+          alarm = eventValue?.toString();
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (alarm == null || alarm.isEmpty) return '-';
+
+    final alarmLower = alarm.toLowerCase().trim();
+
+    if (alarmLower == 'on' ||
+        alarmLower == '1' ||
+        alarmLower == 'true' ||
+        alarmLower == 'yes' ||
+        alarmLower == 'active') {
+      return 'ON';
+    } else if (alarmLower == 'off' ||
+        alarmLower == '0' ||
+        alarmLower == 'false' ||
+        alarmLower == 'no' ||
+        alarmLower == 'inactive') {
+      return 'OFF';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(alarmLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'ON' : 'OFF';
+    }
+    // If it contains keywords, try to determine status
+    if (alarmLower.contains('on') || alarmLower.contains('active')) {
+      return 'ON';
+    } else if (alarmLower.contains('off') || alarmLower.contains('inactive')) {
+      return 'OFF';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return alarm.length > 10 ? '${alarm.substring(0, 10)}...' : alarm;
   }
 
   String _getDoorStatus(String? deviceStatus) {
-    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
-    return deviceStatus.toUpperCase();
+    // Try to extract door status from posAttr if direct field doesn't contain door info
+    if (deviceStatus != null &&
+        deviceStatus.isNotEmpty &&
+        !deviceStatus.toLowerCase().contains('door') &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('io68')) {
+          final ioValue = posAttrMap['io68'];
+          // io68 might indicate door status
+          if (ioValue != null) {
+            final ioNum = int.tryParse(ioValue.toString());
+            if (ioNum != null) {
+              return ioNum > 0 ? 'OPEN' : 'CLOSED';
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (deviceStatus == null || deviceStatus.isEmpty) return '-';
+
+    final statusLower = deviceStatus.toLowerCase().trim();
+
+    if (statusLower.contains('door') || statusLower.contains('open')) {
+      return 'OPEN';
+    } else if (statusLower.contains('closed') || statusLower.contains('shut')) {
+      return 'CLOSED';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(statusLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'OPEN' : 'CLOSED';
+    }
+    // If it contains keywords, try to determine status
+    if (statusLower.contains('open') || statusLower.contains('1')) {
+      return 'OPEN';
+    } else if (statusLower.contains('closed') || statusLower.contains('0')) {
+      return 'CLOSED';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return deviceStatus.length > 10
+        ? '${deviceStatus.substring(0, 10)}...'
+        : deviceStatus;
   }
 
   String _formatTemperature(String? tmp) {
-    if (tmp == null || tmp.isEmpty) return 'N/A';
+    if (tmp == null || tmp.isEmpty) return '-';
+
+    // Check if it's a timestamp (ISO format)
+    if (tmp.contains('T') && tmp.contains('+')) {
+      try {
+        final dateTime = DateTime.parse(tmp);
+        // Extract temperature from posAttr if available
+        if (widget.vehicle.posAttr != null &&
+            widget.vehicle.posAttr!.isNotEmpty) {
+          try {
+            final posAttrMap =
+                jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+            if (posAttrMap.containsKey('tmp')) {
+              final tempValue = posAttrMap['tmp'];
+              if (tempValue != null) {
+                final temp = double.tryParse(tempValue.toString());
+                if (temp != null) {
+                  return '${temp.toStringAsFixed(1)}°C';
+                }
+              }
+            }
+          } catch (e) {
+            // JSON parsing failed
+          }
+        }
+        // If no temperature in posAttr, show the timestamp
+        return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+      } catch (e) {
+        // Timestamp parsing failed
+      }
+    }
+
+    // Try to parse as temperature
     try {
-      final temp = double.tryParse(tmp);
+      // Remove any non-numeric characters except decimal point and minus
+      final cleanTemp = tmp.replaceAll(RegExp(r'[^\d.-]'), '');
+      final temp = double.tryParse(cleanTemp);
       if (temp != null) {
         return '${temp.toStringAsFixed(1)}°C';
       }
     } catch (e) {
       // If parsing fails, return the original value
     }
-    return '$tmp°C';
+
+    // If the original value doesn't contain temperature units, add them
+    if (tmp.contains('°') || tmp.contains('C') || tmp.contains('F')) {
+      return tmp;
+    }
+
+    // If all else fails, show the raw value (truncated if too long)
+    return tmp.length > 10 ? '${tmp.substring(0, 10)}...' : tmp;
   }
 
   String _getGeofenceStatus(String? geofenceIds) {
-    if (geofenceIds == null || geofenceIds.isEmpty) return 'N/A';
-    // If geofenceIds is present, it means the vehicle is outside a geofence
-    // This is a simplified logic - in a real app, you'd check against specific geofence definitions
-    return 'Outside';
+    if (geofenceIds == null || geofenceIds.isEmpty) return '-';
+    final cleanGeofence = geofenceIds.trim();
+
+    // Handle empty array
+    if (cleanGeofence == '[]' || cleanGeofence == 'null') {
+      return 'Outside';
+    }
+
+    // If geofenceIds is "0", null, or empty, it means outside
+    if (cleanGeofence == '0' ||
+        cleanGeofence.isEmpty ||
+        cleanGeofence.toLowerCase() == 'none') {
+      return 'Outside';
+    } else {
+      return 'Inside';
+    }
   }
 
   String _getParkingStatus(String? valid) {
-    if (valid == null || valid.isEmpty) return 'N/A';
-    return valid == '1' ? 'Parked' : 'Moving';
+    if (valid == null || valid.isEmpty) return '-';
+    final validLower = valid.toLowerCase().trim();
+
+    if (validLower == '1' ||
+        validLower == 'true' ||
+        validLower == 'parked' ||
+        validLower == 'yes' ||
+        validLower == 'stop') {
+      return 'Parked';
+    } else if (validLower == '0' ||
+        validLower == 'false' ||
+        validLower == 'moving' ||
+        validLower == 'no' ||
+        validLower == 'run') {
+      return 'Moving';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(validLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'Parked' : 'Moving';
+    }
+    // If it contains keywords, try to determine status
+    if (validLower.contains('park') || validLower.contains('stop')) {
+      return 'Parked';
+    } else if (validLower.contains('move') || validLower.contains('run')) {
+      return 'Moving';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return valid.length > 10 ? '${valid.substring(0, 10)}...' : valid;
   }
 
   String _formatBatteryPercent(String? batteryPercent) {
-    if (batteryPercent == null || batteryPercent.isEmpty) return 'N/A';
+    if (batteryPercent == null || batteryPercent.isEmpty) return '-';
     try {
-      final battery = double.tryParse(batteryPercent);
+      // Remove any non-numeric characters except decimal point
+      final cleanBattery = batteryPercent.replaceAll(RegExp(r'[^\d.]'), '');
+      final battery = double.tryParse(cleanBattery);
       if (battery != null && battery >= 0 && battery <= 100) {
-        return battery.toInt().toString();
+        return '${battery.toInt()}%';
+      } else if (battery != null && battery > 100) {
+        // If battery value is greater than 100, it might be in volts
+        return '${battery.toStringAsFixed(1)}V';
       }
     } catch (e) {
       // If parsing fails, return the original value
@@ -1200,13 +1505,249 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   }
 
   String _getACStatus(String? deviceStatus) {
-    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
-    return 'OFF';
+    // Try to extract AC status from posAttr if direct field doesn't contain AC info
+    if (deviceStatus != null &&
+        deviceStatus.isNotEmpty &&
+        !deviceStatus.toLowerCase().contains('ac') &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        // Look for AC-related fields in the JSON
+        if (posAttrMap.containsKey('ac')) {
+          final acValue = posAttrMap['ac'];
+          if (acValue != null) {
+            final acNum = int.tryParse(acValue.toString());
+            if (acNum != null) {
+              return acNum > 0 ? 'ON' : 'OFF';
+            }
+          }
+        }
+        // Check ignition status as AC might be related
+        if (posAttrMap.containsKey('ignition')) {
+          final ignitionValue = posAttrMap['ignition'];
+          if (ignitionValue != null) {
+            if (ignitionValue.toString().toLowerCase() == 'true') {
+              return 'ON'; // AC might be on when ignition is on
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (deviceStatus == null || deviceStatus.isEmpty) return '-';
+
+    final statusLower = deviceStatus.toLowerCase().trim();
+
+    if (statusLower.contains('ac') || statusLower.contains('air')) {
+      if (statusLower.contains('on') ||
+          statusLower.contains('1') ||
+          statusLower.contains('yes')) {
+        return 'ON';
+      } else if (statusLower.contains('off') ||
+          statusLower.contains('0') ||
+          statusLower.contains('no')) {
+        return 'OFF';
+      }
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(statusLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'ON' : 'OFF';
+    }
+    // If it contains keywords, try to determine status
+    if (statusLower.contains('on') || statusLower.contains('1')) {
+      return 'ON';
+    } else if (statusLower.contains('off') || statusLower.contains('0')) {
+      return 'OFF';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return deviceStatus.length > 10
+        ? '${deviceStatus.substring(0, 10)}...'
+        : deviceStatus;
   }
 
   String _formatGPSBattery(double? battery) {
-    if (battery == null) return 'N/A';
-    return battery.toStringAsFixed(2) + 'V';
+    if (battery == null) return '-';
+    // GPS battery is typically in volts (3.3V - 4.2V for Li-ion)
+    if (battery >= 0 && battery <= 10) {
+      return '${battery.toStringAsFixed(2)}V';
+    } else if (battery > 10 && battery <= 100) {
+      // If it's a percentage
+      return '${battery.toInt()}%';
+    } else if (battery > 100 && battery <= 5000) {
+      // High value, might be in millivolts
+      return '${(battery / 1000).toStringAsFixed(2)}V';
+    }
+    return '${battery.toStringAsFixed(2)}V';
+  }
+
+  String _getGPSBatteryDisplay() {
+    // Try direct field first
+    if (widget.vehicle.extBatt != null) {
+      return _formatGPSBattery(widget.vehicle.extBatt);
+    }
+
+    // Try to extract from posAttr if available
+    if (widget.vehicle.posAttr != null && widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('extBatt')) {
+          final extBattValue = posAttrMap['extBatt'];
+          if (extBattValue != null) {
+            final extBatt = double.tryParse(extBattValue.toString());
+            if (extBatt != null) {
+              return _formatGPSBattery(extBatt);
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    return '-';
+  }
+
+  String _formatVehicleBattery(double? battery) {
+    if (battery == null) return '-';
+
+    // Vehicle battery is typically in volts (12V for car battery, 24V for truck battery)
+    if (battery >= 0 && battery <= 30) {
+      // Likely voltage (12V or 24V system)
+      return '${battery.toStringAsFixed(1)}V';
+    } else if (battery > 30 && battery <= 100) {
+      // Likely percentage
+      return '${battery.toInt()}%';
+    } else if (battery > 100 && battery <= 15000) {
+      // Very high value, might be in millivolts (typical range for vehicle batteries)
+      return '${(battery / 1000).toStringAsFixed(1)}V';
+    } else if (battery > 15000) {
+      // Extremely high value, might be in microvolts or wrong unit
+      return '${(battery / 1000000).toStringAsFixed(2)}V';
+    }
+
+    return '${battery.toStringAsFixed(1)}V';
+  }
+
+  String _getVehicleBatteryDisplay() {
+    // Try multiple data sources for vehicle battery
+    if (widget.vehicle.battery != null) {
+      return _formatVehicleBattery(widget.vehicle.battery);
+    }
+
+    // Try to extract from batteryPercent (which is actually JSON)
+    if (widget.vehicle.batteryPercent != null &&
+        widget.vehicle.batteryPercent!.isNotEmpty) {
+      try {
+        final batteryPercentMap =
+            jsonDecode(widget.vehicle.batteryPercent!) as Map<String, dynamic>;
+        if (batteryPercentMap.containsKey('battery')) {
+          final batteryValue = batteryPercentMap['battery'];
+          if (batteryValue != null) {
+            final battery = double.tryParse(batteryValue.toString());
+            if (battery != null) {
+              return _formatVehicleBattery(battery);
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback to string parsing
+        return _formatBatteryPercent(widget.vehicle.batteryPercent);
+      }
+    }
+
+    // Try to extract from posAttr if available
+    if (widget.vehicle.posAttr != null && widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('battery')) {
+          final batteryValue = posAttrMap['battery'];
+          if (batteryValue != null) {
+            final battery = double.tryParse(batteryValue.toString());
+            if (battery != null) {
+              return _formatVehicleBattery(battery);
+            }
+          }
+        }
+      } catch (e) {
+        // Try alternative parsing methods
+        return _parseBatteryFromString(widget.vehicle.posAttr!);
+      }
+    }
+
+    return '-';
+  }
+
+  String _parseBatteryFromString(String posAttr) {
+    // Try to find battery patterns in the string
+    final patterns = [
+      RegExp(r'battery[:\s]*(\d+\.?\d*)', caseSensitive: false),
+      RegExp(r'batt[:\s]*(\d+\.?\d*)', caseSensitive: false),
+      RegExp(r'(\d+\.?\d*)[vV]', caseSensitive: false), // voltage pattern
+      RegExp(r'(\d+\.?\d*)%', caseSensitive: false), // percentage pattern
+    ];
+
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(posAttr);
+      if (match != null) {
+        final value = double.tryParse(match.group(1)!);
+        if (value != null) {
+          return _formatVehicleBattery(value);
+        }
+      }
+    }
+
+    // If no patterns match, try to extract any number that could be battery
+    final numbers = RegExp(r'(\d+\.?\d*)').allMatches(posAttr);
+    for (final match in numbers) {
+      final value = double.tryParse(match.group(1)!);
+      if (value != null && value > 0 && value < 50) {
+        // Likely voltage range
+        return _formatVehicleBattery(value);
+      }
+    }
+
+    return '-';
+  }
+
+  String _formatStatusDuration(String? statusDuration) {
+    if (statusDuration == null || statusDuration.isEmpty) return '-';
+
+    // If it's already in a readable format, return as is
+    if (statusDuration.contains('ago') ||
+        statusDuration.contains('h') ||
+        statusDuration.contains('m') ||
+        statusDuration.contains('d')) {
+      return statusDuration;
+    }
+
+    // Try to parse as timestamp and convert to relative time
+    try {
+      final timestamp = int.tryParse(statusDuration);
+      if (timestamp != null) {
+        final lastUpdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final now = DateTime.now();
+        final difference = now.difference(lastUpdate);
+
+        if (difference.inMinutes < 60) {
+          return '${difference.inMinutes}m ago';
+        } else if (difference.inHours < 24) {
+          return '${difference.inHours}h ago';
+        } else {
+          return '${difference.inDays}d ago';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+
+    return statusDuration;
   }
 
   void _showPlayRouteBottomSheet(
@@ -1219,6 +1760,59 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
       isScrollControlled: true,
       builder: (context) => PlayRouteBottomSheet(vehicle: vehicle),
     );
+  }
+
+  void _callDriver(BuildContext context, GpsCombinedVehicleData vehicle) async {
+    final phoneNumber = vehicle.phone;
+
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Driver phone number not available'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Clean the phone number (remove spaces, dashes, etc.)
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+    // Add country code if not present (assuming India +91)
+    final phoneWithCountryCode =
+        cleanPhoneNumber.startsWith('+')
+            ? cleanPhoneNumber
+            : cleanPhoneNumber.startsWith('91')
+            ? '+$cleanPhoneNumber'
+            : '+91$cleanPhoneNumber';
+
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneWithCountryCode);
+
+    try {
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Could not launch dialer for $phoneWithCountryCode',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error launching dialer: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -1437,15 +2031,44 @@ String formatDuration(dynamic rawIdleTime) {
 
   // Try to parse if it's a string number
   if (rawIdleTime is String) {
-    totalSeconds = int.tryParse(rawIdleTime) ?? 0;
+    // Handle different time formats
+    final cleanTime = rawIdleTime.trim();
+
+    // Check if it's already in a readable format (e.g., "2h 30m")
+    if (cleanTime.contains('h') ||
+        cleanTime.contains('hr') ||
+        cleanTime.contains('hour')) {
+      return cleanTime;
+    }
+
+    // Check if it's in HH:MM:SS format
+    if (cleanTime.contains(':')) {
+      final parts = cleanTime.split(':');
+      if (parts.length == 3) {
+        final hours = int.tryParse(parts[0]) ?? 0;
+        final minutes = int.tryParse(parts[1]) ?? 0;
+        final seconds = int.tryParse(parts[2]) ?? 0;
+        totalSeconds = hours * 3600 + minutes * 60 + seconds;
+      } else if (parts.length == 2) {
+        final minutes = int.tryParse(parts[0]) ?? 0;
+        final seconds = int.tryParse(parts[1]) ?? 0;
+        totalSeconds = minutes * 60 + seconds;
+      }
+    } else {
+      // Try to parse as a simple number
+      totalSeconds = int.tryParse(cleanTime) ?? 0;
+    }
   } else if (rawIdleTime is int) {
     totalSeconds = rawIdleTime;
+  } else if (rawIdleTime is double) {
+    totalSeconds = rawIdleTime.toInt();
   }
 
-  // If the value is in minutes (and not seconds), convert to seconds
-  // This is a crude check; adjust as needed for your data
-  if (totalSeconds < 100000 && totalSeconds > 0) {
-    totalSeconds *= 60;
+  // If the value is very small (less than 1000), it might be in minutes
+  // If it's between 1000-100000, it might be in seconds
+  // If it's very large, it might already be in seconds
+  if (totalSeconds > 0 && totalSeconds < 1000) {
+    totalSeconds *= 60; // Convert minutes to seconds
   }
 
   final duration = Duration(seconds: totalSeconds);
@@ -1453,13 +2076,13 @@ String formatDuration(dynamic rawIdleTime) {
   final minutes = duration.inMinutes % 60;
 
   if (hours > 0 && minutes > 0) {
-    return '${hours}hrs ${minutes} mins';
+    return '${hours}h ${minutes}m';
   } else if (hours > 0) {
-    return '${hours}hrs';
+    return '${hours}h';
   } else if (minutes > 0) {
-    return '${minutes} mins';
+    return '${minutes}m';
   } else {
-    return '0 min';
+    return '0m';
   }
 }
 
