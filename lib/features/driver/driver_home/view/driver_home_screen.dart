@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
@@ -226,6 +227,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
+ 
+
+
   /// Tab Bar
   Widget buildTabBarWidget() {
     if (_tabController == null) {
@@ -435,6 +439,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             },
           ),
         );
-      }
+      }    
 }
 

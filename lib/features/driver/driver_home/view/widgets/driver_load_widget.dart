@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
@@ -30,7 +31,51 @@ class DriverLoadWidget extends StatefulWidget {
 
 class _DriverLoadWidgetState extends State<DriverLoadWidget> {
 final bool isConsentGiven = false;
+ // Button Status
+  bool _shouldEnableButton(DriverLoadDetails? load) {
+  if (load == null) return false;
 
+  final currentStatus = load?.loadStatusId ?? 0;
+
+  // For status 5: Consent + Required documents
+  if (currentStatus == 5) {
+    final isConsentGiven =load?.driverConsent == 1;
+
+    final nestedDocuments = load?.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    const requiredDocs = [
+      'lorry receipt',
+      'eway bill',
+      'material invoice',
+    ];
+
+    final uploadedTypes = documents
+        .where((doc) => doc.status == 1)
+        .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+        .toSet();
+
+    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+    return isConsentGiven && allRequiredDocsUploaded;
+  }
+
+  // For status 6: POD document uploaded
+  if (currentStatus == 6) {
+    final nestedDocuments = load?.loadDocument ?? [];
+    final documents = nestedDocuments.expand((list) => list).toList();
+
+    final podDocExists = documents.any((doc) =>
+        (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+         doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+        doc.status == 1);
+
+    return podDocExists;
+  }
+
+  // Default case for other statuses
+  return true;
+}
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -183,7 +228,7 @@ final bool isConsentGiven = false;
                 ),
                 10.width,
                 DriverLoadHelper.loadStatusButtonWidget(
-                      enable: true,
+                     enable:_shouldEnableButton(widget.driverLoadDetails),
                       statusId: widget.driverLoadDetails.loadStatusId,
                       onPressed: () {
                         //Check for sim consent and trip doc
@@ -203,12 +248,10 @@ final bool isConsentGiven = false;
 
                         final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
-                        if (!allRequiredDocsUploaded) {
-                          ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                          return;
-                        }
-
-
+                          if (!allRequiredDocsUploaded) {
+                            ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                            return;
+                          }
                           if (!isConsentGiven) {
                              ToastMessages.error(message: 'Please ensure SIM consent is given');
                             return;
