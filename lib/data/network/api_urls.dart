@@ -151,6 +151,7 @@ class ApiUrls {
   static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
   static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
   static String  kavachVehicleVerification = "$verification/vehicle";
+  static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
 
   /// En-Dhan

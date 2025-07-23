@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/service/kavach_service.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
@@ -22,6 +23,7 @@ import '../model/kavach_user_model.dart';
 import '../model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_masters_model.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 
 class KavachRepository {
   final KavachService _service;
@@ -108,6 +110,16 @@ class KavachRepository {
       return await _service.createOrder(request);
     } catch (e) {
       CustomLog.error(this, "Failed to create order in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Initiates payment for Kavach order
+  Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
+    try {
+      return await _service.initiatePayment(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to initiate payment in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
