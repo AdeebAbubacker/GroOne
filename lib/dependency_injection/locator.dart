@@ -104,7 +104,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/repository/pod_dispatch_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/service/pod_dispatch_service.dart';
-import 'package:gro_one_app/service/analytics_service.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -212,7 +212,9 @@ void initLocator() {
       () => DriverLoadService(locator<ApiService>()),
     );
 
-    locator.registerLazySingleton(() => DriverLoadDetailsService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => DriverLoadDetailsService(locator<ApiService>()),
+    );
 
     locator.registerLazySingleton(
       () => DriverProfileService(
@@ -222,7 +224,6 @@ void initLocator() {
         locator<AuthRepository>(),
       ),
     );
-
 
     // Register GpsOrderApiRequest for GPS features
     locator.registerLazySingleton(
@@ -351,9 +352,14 @@ void initLocator() {
     );
 
     locator.registerLazySingleton(
-      () => DriverLoadsDetailsRepository(locator<DriverLoadDetailsService>(), locator<UserInformationRepository>(), locator<SecuredSharedPreferences>(),));
+      () => DriverLoadsDetailsRepository(
+        locator<DriverLoadDetailsService>(),
+        locator<UserInformationRepository>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
 
-     locator.registerLazySingleton(
+    locator.registerLazySingleton(
       () => DriverProfileRepository(
         locator<DriverProfileService>(),
         locator<AuthRepository>(),
@@ -571,7 +577,7 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => DriverLoadDetailsCubit(
-         locator<LoadDetailsRepository>(),
+        locator<LoadDetailsRepository>(),
         locator<DriverLoadsDetailsRepository>(),
         locator<UserInformationRepository>(),
       ),
@@ -619,7 +625,7 @@ void initLocator() {
     locator.registerLazySingleton(
       () => PodDispatchCubit(locator<PodDispatchRepository>()),
     );
-     locator.registerLazySingleton(
+    locator.registerLazySingleton(
       () => DriverProfileCubit(locator<DriverProfileRepository>()),
     );
     // Initialize GPS services after all dependencies are registered

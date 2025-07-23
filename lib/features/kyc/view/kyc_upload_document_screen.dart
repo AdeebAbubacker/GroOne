@@ -3,6 +3,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -15,6 +16,7 @@ import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -51,7 +53,7 @@ class KycUploadDocumentScreen extends StatefulWidget {
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
 }
 
-class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
+class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final dropDownStateKey = GlobalKey<DropdownSearchState>();
@@ -77,7 +79,6 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   final FocusNode tanFocusNode = FocusNode();
   final FocusNode panFocusNode = FocusNode();
 
-
   List<dynamic> gstDoc = [];
   List<dynamic> panDoc = [];
   List<dynamic> tanDoc = [];
@@ -91,6 +92,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
   String? selectedCity;
 
   dynamic companyId;
+  dynamic kycUserInfo;
 
 
 
@@ -415,6 +417,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         state: selectedState,
         city: selectedCity,
       );
+      kycUserInfo = kycRequest.toJson();
       kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
     }
   }
@@ -429,6 +432,7 @@ class _KycUploadDocumentScreenState extends State<KycUploadDocumentScreen> {
         message: context.appText.kycSubmittedForVerification,
         heading: context.appText.willGetBackToYouWithin48Hours,
         onContinue: (){
+          analyticsHelper.logEvent(AnalyticEventName.KYC_FORM_SUBMITTED, kycUserInfo);
           Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
           kycCubit.resetState();

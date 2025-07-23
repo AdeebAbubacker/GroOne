@@ -26,6 +26,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_lo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -56,7 +57,7 @@ class VpHomeScreen extends StatefulWidget {
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
-class _VpHomeScreenState extends State<VpHomeScreen> {
+class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
   // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
@@ -103,6 +104,17 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
   void disposeFunction() => frameCallback(() {
 
   });
+
+  // Store Kyc Status Event
+  void logKycStatusEvent(int kycFlag){
+    if (kycFlag == 1) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+    } else if (kycFlag == 2) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+    } else if (kycFlag == 3) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+    }
+  }
 
 
    // Blue Membership Dialog
@@ -293,7 +305,7 @@ class _VpHomeScreenState extends State<VpHomeScreen> {
           CustomLog.debug(this, "Is Kyc : ${customer.isKyc}");
 
           isKycValid = customer.isKyc.toInt();
-
+          logKycStatusEvent(customer.isKyc.toInt());
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
