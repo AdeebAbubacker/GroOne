@@ -568,7 +568,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => DriverLoadDetailsCubit(
-        locator<DriverLoadsDetailsRepository>()
+         locator<LoadDetailsRepository>(),
+        locator<DriverLoadsDetailsRepository>(),
+        locator<UserInformationRepository>(),
       ),
     );
     // Register GpsVehicleCubit

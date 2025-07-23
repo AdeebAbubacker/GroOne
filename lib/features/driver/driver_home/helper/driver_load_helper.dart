@@ -52,15 +52,9 @@ class DriverLoadHelper {
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
+    bool? enable=true
   }) {
     switch (statusId) {
-      case 3:
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: "Assign Driver",
-        );
       case 4:
         return AppButton(
           buttonHeight: commonButtonHeight2,
@@ -68,21 +62,25 @@ class DriverLoadHelper {
           isLoading: isLoading,
           title: "Start Trip",
         );
-      case 5:
-        return
-        SlideAction(
+     
+
+     case 5:
+        return SlideAction(
+          enabled: enable??true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-          outerColor: AppColors.lightPrimaryColor3,
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon)
-              .cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to Complete Loading",
-          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-       onSubmit: isLoading
+           text: "Swipe to Complete Loading",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
     ? () async {}
     : () async {
         onPressed();
@@ -90,19 +88,22 @@ class DriverLoadHelper {
 
         );
 
-      case 6:
+        case 6:
         return SlideAction(
+          enabled: enable??true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-          outerColor: AppColors.lightPrimaryColor3,
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon)
-              .cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to unload",
-          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
+          text:  "Swipe to unload",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
     ? () async {}
     : () async {
@@ -112,18 +113,21 @@ class DriverLoadHelper {
         );
       case 7:
         return SlideAction(
+          enabled: enable??true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-          outerColor: AppColors.lightPrimaryColor3,
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon)
-              .cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
           sliderRotate: false,
           sliderButtonYOffset: -30,
           text: "Swipe to complete trip",
-          textStyle: AppTextStyle.button.copyWith(color: AppColors.primaryColor),
-          onSubmit: isLoading
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
     ? () async {}
     : () async {
         onPressed();

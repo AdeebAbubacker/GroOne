@@ -53,6 +53,11 @@ class DriverProfileRepository {
       return Error(GenericError());
     }
   }
+  /// Get Show Blue
+  Future<String?> getUserId() async {
+    return await _userInformationRepository.getUserID();
+  }
+
 }
 
 
