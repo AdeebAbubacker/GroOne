@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -12,13 +13,40 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  static final AndroidNotificationChannel _channel = AndroidNotificationChannel(
+  static final AndroidNotificationChannel _highAlertsChannel = AndroidNotificationChannel(
     'high_alerts',
     'High Alert Notifications',
-    description: 'Used for important notifications',
+    description: 'Used for important notifications like SOS, Power Cut, etc.',
     importance: Importance.max,
     playSound: true,
-    sound: RawResourceAndroidNotificationSound('alert_sound'),
+    sound: RawResourceAndroidNotificationSound('sos_sound'),
+  );
+
+  static final AndroidNotificationChannel _parkingAlertsChannel = AndroidNotificationChannel(
+    'parking_alerts',
+    'Parking Alert Notifications',
+    description: 'Used for parking and spy mode notifications',
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound('spymode_sound'),
+  );
+
+  static final AndroidNotificationChannel _callAlertsChannel = AndroidNotificationChannel(
+    'call_alerts',
+    'Call Alert Notifications',
+    description: 'Used for call and unauthorized parking notifications',
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound('agora_call'),
+  );
+
+  static final AndroidNotificationChannel _powerCutChannel = AndroidNotificationChannel(
+    'powercut_alerts',
+    'Power Cut Notifications',
+    description: 'Used for power cut notifications',
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound('powercut'),
   );
 
   late GlobalKey<NavigatorState> navigatorKey;
@@ -26,23 +54,55 @@ class NotificationService {
   Future<void> init(GlobalKey<NavigatorState> key) async {
     navigatorKey = key;
 
-    // Create notification channel (Android)
+    // Android: Create notification channels
     if (Platform.isAndroid) {
-      await _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(_channel);
+      final androidImplementation = _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+      await androidImplementation?.createNotificationChannel(_highAlertsChannel);
+      await androidImplementation?.createNotificationChannel(_parkingAlertsChannel);
+      await androidImplementation?.createNotificationChannel(_callAlertsChannel);
+      await androidImplementation?.createNotificationChannel(_powerCutChannel);
     }
 
-    // Initialize settings
-    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const InitializationSettings initSettings = InitializationSettings(android: androidSettings);
+    // iOS: Request notification permissions
+    if (Platform.isIOS) {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+
+    // Initialization settings for Android and iOS
+    const AndroidInitializationSettings androidSettings =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      // onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
+    );
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
     await _flutterLocalNotificationsPlugin.initialize(initSettings);
 
-    // Foreground messages
+    // Foreground notifications
     FirebaseMessaging.onMessage.listen(_handleMessage);
 
-    // Notification tap handling (background/terminated)
+    // Background/terminated notification tap
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  /// iOS (below version 10) local notification tap
+  static void _onDidReceiveLocalNotification(
+      int id, String? title, String? body, String? payload) {
+    // Optionally handle this case
   }
 
   /// Called from main() for background/terminated messages
@@ -54,81 +114,169 @@ class NotificationService {
   Future<void> _handleMessage(RemoteMessage message, {bool showPopup = true}) async {
     final data = message.data;
     final eventType = data['eventType'] ?? 'unknown';
+    final mode = data['mode'] ?? 'normal';
 
-    // 🔽 Read title and body from the RemoteMessage
     final notification = message.notification;
-    final title ='🚨 Alert ${notification?.title}';
+    final title = '🚨 ${notification?.title ?? ''}';
     final body = notification?.body ?? 'You have a new notification';
 
-    // 🔽 Optional: Choose custom sound based on eventType
-    final eventConfig = _getEventConfig(eventType);
-    final sound = eventConfig['sound'] ?? RawResourceAndroidNotificationSound('alert_sound');
+    // Event-based configuration
+    final eventConfig = _getEventConfig(eventType, mode);
+    final channelId = eventConfig['channelId'] ?? _highAlertsChannel.id;
+    final channelName = eventConfig['channelName'] ?? _highAlertsChannel.name;
+    final androidSound = eventConfig['sound'] ??RawResourceAndroidNotificationSound('sos_sound');
+    final iosSound = eventConfig['iosSound'];
 
-    // 🔔 Show local notification
-    _flutterLocalNotificationsPlugin.show(
+    // Show local notification
+    await _flutterLocalNotificationsPlugin.show(
       0,
       title,
       body,
       NotificationDetails(
         android: AndroidNotificationDetails(
-          _channel.id,
-          _channel.name,
-          channelDescription: _channel.description,
+          channelId,
+          channelName,
+          channelDescription: eventConfig['description'],
           importance: Importance.max,
           priority: Priority.high,
-          sound: sound,
+          sound: androidSound,
+        ),
+        iOS: DarwinNotificationDetails(
+          sound: iosSound,
         ),
       ),
     );
 
-    // 💬 Show popup only in foreground
+    // Show popup if app is in foreground
     if (showPopup && navigatorKey.currentContext != null) {
       showDialog(
         context: navigatorKey.currentContext!,
-        builder: (context) => AlertDialog(
-          title: Text(title),
-          content: Text(body),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("OK"),
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              width: 280,
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.taxi_alert,color: Colors.red,size: 50,),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      body,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 6),
+                      backgroundColor: AppColors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'DISMISS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       );
     }
   }
 
-  /// Optional: Use eventType to assign custom sound
-  Map<String, dynamic> _getEventConfig(String eventType) {
-    switch (eventType) {
+  /// Event-based sound and channel configuration matching Android implementation
+  Map<String, dynamic> _getEventConfig(String eventType, String mode) {
+    switch (eventType.toLowerCase()) {
       case 'sos':
         return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
+          'channelId': _highAlertsChannel.id,
+          'channelName': _highAlertsChannel.name,
+          'description': 'SOS emergency alerts',
+          'sound': RawResourceAndroidNotificationSound('sos_sound'),
+          'iosSound': 'sos_sound.aiff',
         };
-      case 'unauthorized_parking':
-        return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
-        };
+
+      case 'powercut':
       case 'power_cut':
         return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
+          'channelId': _powerCutChannel.id,
+          'channelName': _powerCutChannel.name,
+          'description': 'Power cut alerts',
+          'sound': RawResourceAndroidNotificationSound('powercut'),
+          'iosSound': 'powercut.aiff',
         };
-      case 'battery_low':
+
+      case 'unauthorized_parking':
+      case 'unauthorised_parking':
         return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
+          'channelId': _callAlertsChannel.id,
+          'channelName': _callAlertsChannel.name,
+          'description': 'Unauthorized parking calls',
+          'sound': RawResourceAndroidNotificationSound('agora_call'),
+          'iosSound': 'agora_call.aiff',
         };
+
+      case 'parking':
+      case 'tow':
+        return {
+          'channelId': _parkingAlertsChannel.id,
+          'channelName': _parkingAlertsChannel.name,
+          'description': 'Parking and tow alerts',
+          'sound': RawResourceAndroidNotificationSound('spymode_sound'),
+          'iosSound': 'spymode_sound.aiff',
+        };
+
       case 'gps_disconnected':
-        return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
-        };
       case 'engine_on':
-        return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
-        };
       default:
+      // Check mode for special cases
+        if (mode.toLowerCase() == 'owl' ||
+            mode.toLowerCase() == 'parking' ||
+            mode.toLowerCase() == 'alarm') {
+          return {
+            'channelId': _parkingAlertsChannel.id,
+            'channelName': _parkingAlertsChannel.name,
+            'description': 'Spy mode alerts',
+            'sound': RawResourceAndroidNotificationSound('spymode_sound'),
+            'iosSound': 'spymode_sound.aiff',
+          };
+        }
+
+        // Default case
         return {
-          'sound': RawResourceAndroidNotificationSound('alert_sound'),
+          'channelId': _highAlertsChannel.id,
+          'channelName': _highAlertsChannel.name,
+          'description': 'General alerts',
+          'sound': RawResourceAndroidNotificationSound('sos_sound'),
+          'iosSound': 'sos_sound.aiff',
         };
     }
   }
