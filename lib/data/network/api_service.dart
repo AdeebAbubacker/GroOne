@@ -221,7 +221,7 @@ class ApiService {
 
   // Delete
   Future<Result<dynamic>> delete(String url) async {
-    CustomLog.debug(this, "Method: Delete, URL: $url");
+    CustomLog.debug(this, "Method: Delete, \nURL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());

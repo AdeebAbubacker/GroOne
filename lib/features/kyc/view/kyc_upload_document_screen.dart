@@ -7,11 +7,14 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
@@ -86,8 +89,12 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   List<dynamic> tdsDocLink = [];
   List<dynamic> tds = [];
 
-  String uploadLink = "";
-
+  String? uploadLink;
+  String? gstDocId;
+  String? panDocId;
+  String? tdsDocId;
+  String? tanDocId;
+  String? cancelledChequeDocId;
   String? selectedState;
   String? selectedCity;
 
@@ -191,13 +198,12 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadGSTDocUIState?.data;
       final url = data?.url ?? '';
-
       if (url.isNotEmpty) {
-        multiFilesList.first['path'] = url;
+         gstDoc.first['path'] = url;
         return Success(true);
       }
     }
-    if (status != null && status == Status.ERROR) {
+    if (status == Status.ERROR) {
       final errorType = kycCubit.state.uploadGSTDocUIState?.errorType;
       ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
     }
@@ -212,9 +218,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadPanDocUIState?.data;
       final url = data?.url ?? '';
-
       if (url.isNotEmpty) {
-        multiFilesList.first['path'] = url;
+        panDoc.first['path'] = url;
         return Success(true);
       }
     }
@@ -274,10 +279,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     final status = kycCubit.state.uploadCancelledUIState?.status;
     if (status != null &&  status == Status.SUCCESS) {
       final data = kycCubit.state.uploadCancelledUIState?.data;
-      final url = data?.data?.url ?? '';
-
+      final url = data?.url ?? '';
       if (url.isNotEmpty) {
-        multiFilesList.first['path'] = url;
+        checkDocLink.first['path'] = url;
         return Success(true);
       }
     }
@@ -420,6 +424,21 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       kycUserInfo = kycRequest.toJson();
       kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
     }
+  }
+
+
+  // Create Document Api Call
+  Future<Result<bool>> createDocumentApiCall(CreateDocumentApiRequest request) async {
+    await kycCubit.createDocument(request);
+    final status = kycCubit.state.createDocumentUIState?.status;
+    if (status == Status.SUCCESS) {
+      return Success(true);
+    }
+    if (status == Status.ERROR) {
+      final error = kycCubit.state.createDocumentUIState?.errorType;
+      return Error(error ?? GenericError());
+    }
+    return Error(GenericError());
   }
 
 
@@ -823,12 +842,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
 
-  // Upload TDS
+  // Upload Cancelled Check
   Widget buildCancelledCheckWidget(){
-    return BlocConsumer<KycCubit, KycState>(
+    return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
-      buildWhen: (previous, current) =>  previous.uploadCancelledUIState != current.uploadCancelledUIState,
-      listener: (context, state) {},
         builder: (context, state) {
           final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
           if(kycCubit.userRole != null && kycCubit.userRole == 2) {
@@ -838,7 +855,33 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               isSingleFile: true,
               isLoading: cancelledCheckUploadState == Status.LOADING,
               thenUploadFileToSever: () async {
-                await uploadGSTDocumentApiCall(checkDocLink);
+                final Result result = await uploadCancelledChequeDocumentApiCall(checkDocLink);
+                if(result is Success) {
+                  if(kycCubit.state.uploadCancelledUIState?.status == Status.SUCCESS){
+                    final data = kycCubit.state.uploadCancelledUIState?.data;
+                    if(data != null &&  checkDocLink.isNotEmpty){
+                      final apiRequest = CreateDocumentApiRequest(
+                        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.cheque),
+                        title : KycHelper.getMeta(KycDocType.cheque).title,
+                        description : KycHelper.getMeta(KycDocType.cheque).description,
+                        originalFilename : data.originalName,
+                        filePath : data.filePath,
+                        fileSize : data.size,
+                        mimeType : KycHelper.getMimeTypeFromExtension(checkDocLink.first['extension']),
+                        fileExtension : checkDocLink.first['extension'],
+                      );
+                      createDocumentApiCall(apiRequest);
+                    }
+                  }
+                }
+              },
+              onDelete: (index) async {
+                if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
+                  await kycCubit.deleteDocument(kycCubit.state.createDocumentUIState!.data!.data!.documentId);
+                  if(kycCubit.state.deleteDocumentUIState?.status == Status.SUCCESS){
+                    checkDocLink.removeAt(index);
+                  }
+                }
               },
             );
           } else {
@@ -849,13 +892,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
 
-  // Upload Cancelled Check
+  // Upload Tds
   Widget buildTDSCertificationWidget(){
-    return  BlocConsumer<KycCubit, KycState>(
+    return  BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
-      buildWhen: (previous, current) =>  previous.uploadTDSDocUIState != current.uploadTDSDocUIState,
-      listener: (context, state) {},
-        builder: (context, state) {
+      builder: (context, state) {
           final tdsUploadState = state.uploadTDSDocUIState?.status;
           if(kycCubit.userRole != null && kycCubit.userRole == 2) {
             return UploadAttachmentFiles(
@@ -864,7 +905,25 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               isSingleFile: true,
               isLoading: tdsUploadState == Status.LOADING,
               thenUploadFileToSever: () async {
-                await uploadGSTDocumentApiCall(tdsDocLink);
+                final Result result = await uploadTdsDocumentApiCall(tdsDocLink);
+                if(result is Success) {
+                  if(kycCubit.state.uploadTDSDocUIState?.status == Status.SUCCESS){
+                    final data = kycCubit.state.uploadTDSDocUIState?.data;
+                    if(data != null &&  tdsDocLink.isNotEmpty){
+                      final apiRequest = CreateDocumentApiRequest(
+                        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.tds),
+                        title : KycHelper.getMeta(KycDocType.tds).title,
+                        description : KycHelper.getMeta(KycDocType.tds).description,
+                        originalFilename : data.originalName,
+                        filePath : data.filePath,
+                        fileSize : data.size,
+                        mimeType : KycHelper.getMimeTypeFromExtension(tdsDocLink.first['extension']),
+                        fileExtension : tdsDocLink.first['extension'],
+                      );
+                      createDocumentApiCall(apiRequest);
+                    }
+                  }
+                }
               },
             );
           } else {
@@ -920,9 +979,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget(){
-    return BlocConsumer<KycCubit, KycState>(
+    return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
-      listener: (context, state) {},
       builder: (context, state) {
         bool verified = state.verifiedGst != null && state.verifiedGst!;
         return Column(
@@ -939,26 +997,20 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 rightText: "GSTIN",
                 controller: gstInTextController,
                 suffixOnTap:  state.verifiedGst != null && state.verifiedGst! ? (){} : () async {
-
                   if(gstInTextController.text.isEmpty){
                     ToastMessages.alert(message: context.appText.pleaseEnterGSTINNumber);
                     return;
                   }
-
                   if (!isValidGSTIN(gstInTextController.text)) {
                     ToastMessages.alert(message: context.appText.pleaseEnterAValidGSTINNumber);
                     return;
                   }
-
-                  if (gstDoc.isNotEmpty) {
-                    final Result result = await uploadGSTDocumentApiCall(gstDoc);
-                    if(result is Success) {
-                      if(!context.mounted) return;
-                      await verifyGstApiCall(gstInTextController.text, context);
-                    }
-                  }  else {
-                    ToastMessages.alert(message: context.appText.verified);
+                  if (gstDoc.isEmpty) {
+                    ToastMessages.alert(message: context.appText.uploadGSTDocument);
+                    return;
                   }
+                  if(!context.mounted) return;
+                  await verifyGstApiCall(gstInTextController.text, context);
                 }
             ),
             10.height,
@@ -970,7 +1022,39 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadGSTDocUIState?.status == Status.LOADING,
                 hideDeleteButton: verified,
-                allowedExtensions: ['jpg', 'png', 'heic', 'pdf'],
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
+                thenUploadFileToSever: () async {
+                  final Result result = await uploadGSTDocumentApiCall(gstDoc);
+                  if(result is Success) {
+                    final gstData = kycCubit.state.uploadGSTDocUIState?.data;
+                    if(gstData != null &&  gstDoc.isNotEmpty){
+                      final apiRequest =  CreateDocumentApiRequest(
+                        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.gstin),
+                        title : KycHelper.getMeta(KycDocType.gstin).title,
+                        description : KycHelper.getMeta(KycDocType.gstin).description,
+                        originalFilename : gstData.originalName,
+                        filePath : gstData.filePath,
+                        fileSize : gstData.size,
+                        mimeType : KycHelper.getMimeTypeFromExtension(gstDoc.first['extension']),
+                        fileExtension : gstDoc.first['extension'],
+                      );
+                       await createDocumentApiCall(apiRequest);
+                       if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+                        if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
+                          gstDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+                        }
+                      }
+                    }
+                  }
+                },
+              onDelete: (index) async {
+                 if(gstDocId == null){
+                   ToastMessages.alert(message: "Something went wrong, while delete this document");
+                   return;
+                 }
+                 await kycCubit.deleteDocument(gstDocId ?? "");
+                 gstDoc.removeAt(index);
+              },
             ),
           ],
         );
@@ -981,12 +1065,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // TAN Text Field & Upload TAN
   Widget _buildTanWidget(){
-    return BlocConsumer<KycCubit, KycState>(
+    return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
-        listener: (context, state) {},
         builder: (context, state) {
           bool verified = state.verifiedTan != null && state.verifiedTan!;
-        return Column(
+          return Column(
           children: [
             // Enter TAN number
             buildTextFieldWithLabelWidget(
@@ -1000,27 +1083,20 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 rightText: "TAN",
                 controller: tanTextController,
                 suffixOnTap: () async {
-
                   if(tanTextController.text.isEmpty){
                     ToastMessages.alert(message: context.appText.pleaseEnterTAN);
                     return;
                   }
-
+                  if(tanDoc.isEmpty){
+                    ToastMessages.alert(message: context.appText.uploadTANDocument);
+                    return;
+                  }
                   if (!isValidTAN(tanTextController.text)) {
                     ToastMessages.alert(message: context.appText.pleaseEnterAValidTANNumber);
                     return;
                   }
-
-
-                  if (tanTextController.text.isNotEmpty && tanDoc.isNotEmpty) {
-                    final Result result = await uploadTanDocumentApiCall(tanDoc);
-                    if(result is Success) {
-                      if(!context.mounted) return;
-                      await verifyTANApiCall(tanTextController.text, context);
-                    }
-                  } else {
-                    ToastMessages.alert(message: context.appText.pleaseEnterTANAndUploadDocument);
-                  }
+                  if(!context.mounted) return;
+                  await verifyTANApiCall(tanTextController.text, context);
                 }
             ),
             10.height,
@@ -1032,6 +1108,40 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               isSingleFile: true,
               isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
               hideDeleteButton: verified,
+              thenUploadFileToSever: () async {
+                final Result result = await uploadTanDocumentApiCall(tanDoc);
+                if(result is Success) {
+                  if(kycCubit.state.uploadTanDocUIState?.status == Status.SUCCESS){
+                    final data = kycCubit.state.uploadTanDocUIState?.data;
+                    if(data != null &&  tanDoc.isNotEmpty){
+                      final apiRequest = CreateDocumentApiRequest(
+                        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.tan),
+                        title : KycHelper.getMeta(KycDocType.tan).title,
+                        description : KycHelper.getMeta(KycDocType.tan).description,
+                        originalFilename : data.originalName,
+                        filePath : data.filePath,
+                        fileSize : data.size,
+                        mimeType : KycHelper.getMimeTypeFromExtension(tanDoc.first['extension']),
+                        fileExtension : tanDoc.first['extension'],
+                      );
+                      await createDocumentApiCall(apiRequest);
+                      if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+                        if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
+                          tanDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              onDelete: (index) async {
+                if(tanDocId == null){
+                  ToastMessages.alert(message: "Something went wrong, while delete this document");
+                  return;
+                }
+                await kycCubit.deleteDocument(tanDocId ?? "");
+                tanDoc.removeAt(index);
+              },
             ),
 
           ],
@@ -1043,12 +1153,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // PAN Text Field & Upload PAN
   Widget _buildPanWidget(){
-    return BlocConsumer<KycCubit, KycState>(
+    return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
-        listener: (context, state) {},
         builder: (context, state) {
           bool verified = state.verifiedPan != null && state.verifiedPan!;
-        return Column(
+          return Column(
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
@@ -1070,15 +1179,12 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                     ToastMessages.alert(message: context.appText.pleaseEnterAValidPAN);
                     return;
                   }
-                  if (panTextController.text.isNotEmpty && panDoc.isNotEmpty) {
-                    final Result result = await uploadGSTDocumentApiCall(panDoc);
-                    if(result is Success) {
-                      if(!context.mounted) return;
-                      await verifyPANApiCall(panTextController.text, context);
-                    }
-                  } else {
-                    ToastMessages.alert(message: context.appText.pleaseEnterPANAndUploadDocument);
+                  if(panDoc.isEmpty){
+                    ToastMessages.alert(message: context.appText.uploadPANDocument);
+                    return;
                   }
+                  if(!context.mounted) return;
+                  await verifyPANApiCall(panTextController.text, context);
                 }
             ),
             10.height,
@@ -1090,6 +1196,27 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               isSingleFile: true,
               isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
               hideDeleteButton: verified,
+              thenUploadFileToSever: () async {
+                final Result result = await uploadPanDocumentApiCall(panDoc);
+                if(result is Success) {
+                  if(kycCubit.state.uploadPanDocUIState?.status == Status.SUCCESS){
+                    final data = kycCubit.state.uploadPanDocUIState?.data;
+                    if(data != null &&  panDoc.isNotEmpty){
+                      final apiRequest = CreateDocumentApiRequest(
+                        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.pan),
+                        title : KycHelper.getMeta(KycDocType.pan).title,
+                        description : KycHelper.getMeta(KycDocType.pan).description,
+                        originalFilename : data.originalName,
+                        filePath : data.filePath,
+                        fileSize : data.size,
+                        mimeType : KycHelper.getMimeTypeFromExtension(panDoc.first['extension']),
+                        fileExtension : panDoc.first['extension'],
+                      );
+                      createDocumentApiCall(apiRequest);
+                    }
+                  }
+                }
+              },
             ),
           ],
         );
