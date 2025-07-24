@@ -82,7 +82,6 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      // onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
     );
 
     const InitializationSettings initSettings = InitializationSettings(
@@ -99,12 +98,6 @@ class NotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
   }
 
-  /// iOS (below version 10) local notification tap
-  static void _onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) {
-    // Optionally handle this case
-  }
-
   /// Called from main() for background/terminated messages
   static Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
     await _instance._handleMessage(message, showPopup: false);
@@ -117,14 +110,14 @@ class NotificationService {
     final mode = data['mode'] ?? 'normal';
 
     final notification = message.notification;
-    final title = '🚨 ${notification?.title ?? ''}';
+    final title = '🚨 Alert ${notification?.title ?? ''}';
     final body = notification?.body ?? 'You have a new notification';
 
     // Event-based configuration
     final eventConfig = _getEventConfig(eventType, mode);
     final channelId = eventConfig['channelId'] ?? _highAlertsChannel.id;
     final channelName = eventConfig['channelName'] ?? _highAlertsChannel.name;
-    final androidSound = eventConfig['sound'] ??RawResourceAndroidNotificationSound('sos_sound');
+    final androidSound = eventConfig['sound'] ?? _highAlertsChannel.sound;
     final iosSound = eventConfig['iosSound'];
 
     // Show local notification
@@ -164,7 +157,7 @@ class NotificationService {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.taxi_alert,color: Colors.red,size: 50,),
+                  Icon(Icons.warning_amber,color: Colors.red,size: 80,),
                   const SizedBox(height: 16),
                   Text(
                     title,
@@ -189,7 +182,7 @@ class NotificationService {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 6),
-                      backgroundColor: AppColors.red,
+                      backgroundColor: AppColors.primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -197,9 +190,10 @@ class NotificationService {
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text(
                       'DISMISS',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
+                      style:  TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          letterSpacing: 1
                       ),
                     ),
                   ),
