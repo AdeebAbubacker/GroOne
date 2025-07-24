@@ -270,16 +270,18 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
+
   Future<void> uploadDamageFile(File file) async {
+
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
+
     if (result is Success<UploadDamageFileModel>) {
-      /// We need to call here
-      /// create document
-      // createDocument(title, documentTypeId, uploadImage);
+
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
+
       _setUploadDamageFileUIState(UIState.error(result.type));
     }
   }
@@ -423,8 +425,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               errorType: value.type
           ));
         }
-
-
         return null;
       },);
     } catch (e) {

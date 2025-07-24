@@ -10,6 +10,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/dam
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -57,6 +59,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
   List<dynamic> multiFilesList = [];
   List<String> uploadedDamageFileList = [];
   List<String> updateDamageFileList = [];
+  Set<String> damageDocumentIds={};
   bool isDamageAdded=false;
 
  final TextEditingController itemNameTextController = TextEditingController();
@@ -67,9 +70,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
   @override
   void initState() {
-
     initFunction();
-
     super.initState();
   }
 
@@ -130,8 +131,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           itemName: itemNameTextController.text,
           quantity: int.parse(quantityTextController.text),
           description: descriptionTextController.text,
-          image: uploadedDamageFileList
-
+          image: damageDocumentIds.toList()
       );
 
       cubit.createDamage(request);
@@ -160,12 +160,19 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         itemName: itemNameTextController.text,
         quantity: int.parse(quantityTextController.text),
         description: descriptionTextController.text,
-        image: updateDamageFileList,
+        image: damageDocumentIds.toList(),
       );
       await cubit.updateDamage(apiRequest, damageId);
     }
   }
 
+  Future<void> callCreateDocument(UploadDamageFileModel damageFileData)async{
+    final damageEntity=damageDocumentEntity;
+   final createDocumentResponse= await cubit.createDocument(damageEntity.title??"", damageEntity.documentTypeId??0, damageFileData);
+   if(createDocumentResponse!=null){
+     damageDocumentIds.add(createDocumentResponse.documentId??"");
+   }
+  }
 
   void showSuccessDialog(BuildContext context) => frameCallback(() {
     AppDialog.show(
@@ -460,6 +467,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
             uploadedDamageFileList.add(state.uploadDamageUIState!.data!.url);
             updateDamageFileList.add(state.uploadDamageUIState!.data!.url);
             CustomLog.debug(this, "File List : ${uploadedDamageFileList.length}");
+            callCreateDocument(state.uploadDamageUIState!.data!);
             cubit.resetUploadDamageFileUIState();
           }
         }
@@ -469,8 +477,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           multiFilesList.clear();
           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
-
-      },
+        },
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
         return UploadAttachmentFiles(

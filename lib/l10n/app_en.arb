@@ -962,7 +962,10 @@
 
 
 
-  "failedToDownloadDocuments":"Failed to download the document"
+
+  "failedToDownloadDocuments":"Failed to download the document",
+  "proofOfDelivery":"Proof of Delivery",
+  "damagesAndShortageDocument":"Damages and Shortages"
 
 
 
