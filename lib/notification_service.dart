@@ -99,6 +99,7 @@ class NotificationService {
   }
 
   /// Called from main() for background/terminated messages
+  @pragma('vm:entry-point')
   static Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
     await _instance._handleMessage(message, showPopup: false);
   }
