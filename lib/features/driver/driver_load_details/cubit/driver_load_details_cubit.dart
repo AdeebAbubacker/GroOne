@@ -400,7 +400,13 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 }
 
 
-
+bool isMemoUploaded(DriverLoadDetailsModel? load) {
+  final currentStatus = load?.data?.loadStatusId ?? 0;
+  if (currentStatus == 4) {
+    return load?.data?.loadMemo != null;
+  }
+  return true; 
+}
 
   String? _userId;
 

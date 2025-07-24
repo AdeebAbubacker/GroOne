@@ -111,9 +111,12 @@ void initState() {
       required int? loadStatus,
       required int driverConsent,
       required List<DocumentEntity>? tripDocumentList,
+       required bool isMemoUploaded,
     }) {
       if (loadStatus == null) return false;
-
+if (loadStatus == 4) {
+    return isMemoUploaded; // Only return true if memo is uploaded
+  }
       if (loadStatus == 5) {
      // if (driverConsent != 1) return false;
       if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
@@ -456,6 +459,7 @@ void initState() {
                               price: 0,
                               loadId: loads.data!.loadId.toString(),
                               enable: isChangeStatusButtonEnabled(
+                                isMemoUploaded: loads.data?.loadMemo != null,
                                 loadStatus: loads.data?.loadStatusId,
                                 driverConsent: loads.data?.driverConsent ?? 0,
                                 tripDocumentList: state.tripDocumentList,

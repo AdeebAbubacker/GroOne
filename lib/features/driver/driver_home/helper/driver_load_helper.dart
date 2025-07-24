@@ -179,12 +179,23 @@ static  String getBottomButtonTitle(int statusId){
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
-    bool? enable=true
+    bool? enable=true,
+    bool isMemoSigned = false,
   }) {
     switch (statusId) {
       case 4:
+      if (!isMemoSigned) {
+        // 🟡 Memo not signed → Show View Detail button
+        return AppButton(
+          buttonHeight: commonButtonHeight2,
+          onPressed: isLoading ? () {} : onPressed,
+          isLoading: isLoading,
+          title: "Start Trip",
+        );
+      } else{
+            
       return SlideAction(
-          enabled: enable??true,
+          enabled: true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
@@ -205,7 +216,7 @@ static  String getBottomButtonTitle(int statusId){
       },
 
         );
-
+  }
      
 
      case 5:
@@ -245,7 +256,7 @@ static  String getBottomButtonTitle(int statusId){
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to start unloading",
+          text:  "Swipe to Unload",
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
