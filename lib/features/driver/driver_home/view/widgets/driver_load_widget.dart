@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
@@ -7,6 +9,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -135,9 +138,21 @@ void _validateButtonStateOnInit() {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return DriverLoadsLocationDetailsScreen(loadId: widget.driverLoadDetails.loadId,);
-        },));
+        Navigator.push(
+              context,
+              commonRoute(
+                DriverLoadsLocationDetailsScreen(loadId: widget.driverLoadDetails.loadId),
+                isForward: true,
+              ),
+            ).then((value) {
+                      if (mounted) {
+                        context.read<DriverLoadsBloc>().add(
+                          FetchDriverLoads(
+                            forceRefresh: true,
+                          ),
+                        );
+                      }
+        });
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
