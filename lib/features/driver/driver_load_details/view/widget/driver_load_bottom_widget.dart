@@ -35,6 +35,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
@@ -58,7 +59,19 @@ class DriverLoadBottomWidget extends StatefulWidget {
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
+final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
+Future<void> getLoadDetails() async {
+  frameCallback(() async{
+      await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadItem.data?.loadId ?? '');
 
+  final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
+
+  if (statusId != null) {
+    driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
+  }
+  },);
+
+}
   @override
 void initState() {
   super.initState();
@@ -102,11 +115,11 @@ void initState() {
       if (loadStatus == null) return false;
 
       if (loadStatus == 5) {
-      if (driverConsent != 1) return false;
+     // if (driverConsent != 1) return false;
       if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
-      if (loadStatus == 6) {
+      if (loadStatus == 7) {
         if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
       }
 
@@ -272,11 +285,7 @@ void initState() {
                                 loads!.data!.weight!.value.toString() ??
                                 '',
                           ),
-                          if ((loads!.data!.loadStatusId ?? 0) > 4)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (loads!.data!.consignees != null &&
+                           if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(
                                     context: context,
@@ -306,8 +315,10 @@ void initState() {
                                         '',
                                   ),
                                 20.height,
-                    
-                                
+                          if ((loads!.data!.loadStatusId ?? 0) > 4)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 if (widget.loadItem.data!.loadStatusId > 4) ...[
                                   20.height,
                                    Text(
@@ -326,7 +337,7 @@ void initState() {
                                 20.height,
                     
                            
-                                if (widget.loadItem.data!.loadStatusId > 5)
+                                if (widget.loadItem.data!.loadStatusId > 6)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -337,9 +348,9 @@ void initState() {
                                         title:  context.appText.damageAndShortage,
                                         onAdd: () {
                                           Navigator.push(
-                                            context,
-                                            commonRoute(
-                                              DriverDamagesAndShortagesScreen(
+                                          context,
+                                          commonRoute(
+                                            DriverDamagesAndShortagesScreen(
                                                 vehicleId:
                                                     widget
                                                         .loadItem
@@ -349,9 +360,14 @@ void initState() {
                                                 loadId:
                                                     loads!.data!.loadId,
                                               ),
+                                              isForward: true,
                                             ),
-                                          );
-                                        },
+                                          ).then((value) {
+                                                    if (mounted) {
+                                                      getLoadDetails();
+                                                    }
+                                      });                                 
+                                        }     
                                       ),
                                        Visibility(
                                       visible:(loads!.data!.damageShortage??[]).isNotEmpty,
@@ -392,13 +408,14 @@ void initState() {
                                   style: AppTextStyle.h4,
                                 ).paddingSymmetric(horizontal: 15),
                                 20.height,
-                                DriverLoadTimelineWidget(
+                               
+                              ],
+                            ),
+                          
+                             DriverLoadTimelineWidget(
                                   timelineList:
                                       loads!.data!.timeline ?? [],
                                 ).paddingSymmetric(horizontal: 15),
-                              ],
-                            ),
-                            20.height,
                       ],
                       ),
                     ),
@@ -446,14 +463,14 @@ void initState() {
                                       ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                                       return;
                                     }
-                                   if (!isConsentGiven) {
-                                      ToastMessages.error(message: 'Please ensure SIM consent is given');   
-                                      return;
-                                    }
+                                  //  if (!isConsentGiven) {
+                                  //     ToastMessages.error(message: 'Please ensure SIM consent is given');   
+                                  //     return;
+                                  //   }
                                   }
                     
                                 // Check for Pod Doc
-                                if (loads.data?.loadStatusId == 6) {
+                                if (loads.data?.loadStatusId == 7) {
                                     final tripDocumentList = state.tripDocumentList ?? [];
                                     if (!widget.cubit.isPODUploaded(tripDocumentList)) {
                                       ToastMessages.error(message: 'Please upload POD document');
@@ -515,8 +532,8 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     return isConsentGiven && allRequiredDocsUploaded;
   }
 
-  // For status 6: POD document uploaded
-  if (currentStatus == 6) {
+  // For status 7: POD document uploaded
+  if (currentStatus == 7) {
     final nestedDocuments = load.data?.loadDocument ?? [];
     final documents = nestedDocuments.expand((list) => list).toList();
 

@@ -62,12 +62,29 @@ class DriverLoadHelper {
   }) {
     switch (statusId) {
       case 4:
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: "Start Trip",
+      return SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+           text: "Swipe to Start Trip",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
         );
+
      
 
      case 5:
@@ -107,7 +124,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to unload",
+          text:  "Swipe to start unloading",
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -130,7 +147,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete trip",
+          text: "Swipe to complete unloading",
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -138,7 +155,6 @@ class DriverLoadHelper {
     : () async {
         onPressed();
       },
-
         );
       case 8:
         return AppButton(

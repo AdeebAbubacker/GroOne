@@ -368,7 +368,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
       // Check if POD (TypeId = 8) exists
       final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 8);
-      if (podIndex != -1 && status != null && status > 5) {
+      if (podIndex != -1 && status != null && status > 6) {
         final updatedDoc = currentList[podIndex].copyWith(visible: true);
         currentList[podIndex] = updatedDoc;
         emit(state.copyWith(tripDocumentList: currentList));
