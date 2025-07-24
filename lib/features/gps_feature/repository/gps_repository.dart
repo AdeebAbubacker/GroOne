@@ -41,12 +41,28 @@ class GpsRepository {
     }
   }
 
-  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(String deviceId) async {
+  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(
+    String deviceId,
+  ) async {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
+
+      // Get user ID dynamically
+      final userIdResult = await _service.getUserId(token);
+      if (userIdResult is Error) {
+        CustomLog.error(this, "Failed to get user ID", null);
+        return Error((userIdResult as Error).type);
+      }
+
+      final userId = (userIdResult as Success<int?>).value?.toString();
+      if (userId == null) {
+        CustomLog.error(this, "No user ID available", null);
+        return Error(GenericError());
+      }
+
       return await _service.fetchGeofencesForVehicle(
-        userId: '163',
+        userId: userId,
         deviceId: deviceId,
         token: token,
       );
@@ -56,7 +72,11 @@ class GpsRepository {
     }
   }
 
-  Future<Result<void>> linkUnlinkGeofenceDevice(String deviceId, String geofenceId, bool link) async {
+  Future<Result<void>> linkUnlinkGeofenceDevice(
+    String deviceId,
+    String geofenceId,
+    bool link,
+  ) async {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
@@ -82,7 +102,9 @@ class GpsRepository {
   }
 
   /// Get Verify Location data from repository
-  Future<Result<VerifyLocationModel>> getVerifyLocationData(VerifyLocationApiRequest request) async {
+  Future<Result<VerifyLocationModel>> getVerifyLocationData(
+    VerifyLocationApiRequest request,
+  ) async {
     try {
       return await _service.fetchVerifyLocationData(request);
     } catch (e) {
@@ -95,14 +117,24 @@ class GpsRepository {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
-      return await _service.fetchNotifications(
-        token: token,
-        userId: '163',
-      );
+
+      // Get user ID dynamically
+      final userIdResult = await _service.getUserId(token);
+      if (userIdResult is Error) {
+        CustomLog.error(this, "Failed to get user ID", null);
+        return Error((userIdResult as Error).type);
+      }
+
+      final userId = (userIdResult as Success<int?>).value?.toString();
+      if (userId == null) {
+        CustomLog.error(this, "No user ID available", null);
+        return Error(GenericError());
+      }
+
+      return await _service.fetchNotifications(token: token, userId: userId);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
 }
