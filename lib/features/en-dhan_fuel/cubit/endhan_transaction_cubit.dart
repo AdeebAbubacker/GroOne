@@ -50,16 +50,32 @@ class EndhanTransactionDateRangeError extends EndhanTransactionState {
 class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
   final EnDhanService _service;
   final UserInformationRepository _userRepository;
+  bool _isClosed = false;
 
   EndhanTransactionCubit(this._service, this._userRepository) 
       : super(EndhanTransactionInitial());
+
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(EndhanTransactionInitial());
+  }
 
   Future<void> fetchTransactions({
     required DateTime fromDate,
     required DateTime toDate,
   }) async {
-    if (isClosed) return;
-    emit(EndhanTransactionLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(EndhanTransactionLoading());
+    }
     
     try {
       // Validate date range - maximum 7 days
@@ -78,9 +94,13 @@ class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
       final customerId = await _userRepository.getUserID();
       CustomLog.debug(this, "Customer ID: $customerId");
       
+      if (_isClosed) return;
+      
       if (customerId == null || customerId.isEmpty) {
         // Show empty state instead of error
-        emit(EndhanTransactionEmpty());
+        if (!_isClosed) {
+          emit(EndhanTransactionEmpty());
+        }
         return;
       }
 
@@ -96,25 +116,37 @@ class EndhanTransactionCubit extends Cubit<EndhanTransactionState> {
         toDate: toDateStr,
       );
 
+      if (_isClosed) return;
+
       if (result is Success<EndhanTransactionResponse>) {
         final response = result.value;
         if (response.transactions?.isNotEmpty ?? false) {
-          if (!isClosed) emit(EndhanTransactionLoaded(response.transactions!));
+          if (!_isClosed) {
+            emit(EndhanTransactionLoaded(response.transactions!));
+          }
         } else {
-          if (!isClosed) emit(EndhanTransactionEmpty());
+          if (!_isClosed) {
+            emit(EndhanTransactionEmpty());
+          }
         }
       } else if (result is Error<EndhanTransactionResponse>) {
         // Show empty state instead of error
-        if (!isClosed) emit(EndhanTransactionEmpty());
+        if (!_isClosed) {
+          emit(EndhanTransactionEmpty());
+        }
       }
     } catch (e) {
       CustomLog.error(this, "Error in fetchTransactions", e);
       // Show empty state instead of error
-      if (!isClosed) emit(EndhanTransactionEmpty());
+      if (!_isClosed) {
+        emit(EndhanTransactionEmpty());
+      }
     }
   }
 
   void resetState() {
-    emit(EndhanTransactionInitial());
+    if (!_isClosed) {
+      emit(EndhanTransactionInitial());
+    }
   }
 } 

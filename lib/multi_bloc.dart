@@ -30,6 +30,7 @@ import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
 import 'features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import 'features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
+import 'features/gps_feature/cubit/path_replay_cubit.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
@@ -90,6 +91,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
         BlocProvider<PodDispatchCubit>(create: (_) => locator<PodDispatchCubit>()),
         BlocProvider<GpsGeofenceCubit>(create: (_) => locator<GpsGeofenceCubit>()),
+        BlocProvider<PathReplayCubit>(create: (_) => locator<PathReplayCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsGeofenceMapCubit>(create: (_) => locator<GpsGeofenceMapCubit>()),

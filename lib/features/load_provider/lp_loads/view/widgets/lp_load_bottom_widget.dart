@@ -486,7 +486,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                   }
                                 }
                                 if (isUpdateConsignee) {
-                                  final existingConsignee = consignees[0];
+                                  // final existingConsignee = consignees[0];
                                       lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
                               
                                  } else {
@@ -499,6 +499,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 final String? validation = Validator.email(email);
                                 if (validation != null) {
                                   ToastMessages.alert(message: validation);
+                                  return;
+                                }
+                                final String? phoneValidation = Validator.phone(phone);
+                                if (phoneValidation != null) {
+                                  ToastMessages.alert(message: phoneValidation);
                                   return;
                                 }
                                  lpLoadLocator.addConsignee(addConsigneeReq: AddConsigneeApiRequest(email: email,name: name,loadId: loadId,mobileNumber: phone,));                              
@@ -1019,6 +1024,9 @@ Widget _buildConsigneeDetail({
               labelText: context.appText.name,
               hintText: context.appText.fullNameHint,
               mandatoryStar:  isUpdateConsignee ? false : true,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              ],
             ),
             20.height,
             AppTextField(

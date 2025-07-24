@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
@@ -12,6 +13,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -36,7 +38,7 @@ class EnterAadhaarNumberBottomSheet extends StatefulWidget {
   State<EnterAadhaarNumberBottomSheet> createState() => _EnterAadhaarNumberBottomSheetState();
 }
 
-class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottomSheet> {
+class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBottomSheet> {
 
   final formKey = GlobalKey<FormState>();
 
@@ -100,6 +102,7 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
         final verifyState = state.aadhaarVerifyOtpState;
         if (verifyState?.status == Status.SUCCESS) {
           showOtpFieldAadhaarNotifier.value = false;
+          analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_SUCCESS, {"aadhaarNumber" : aadhaarNumberTextController.text});
           context.pop();
           Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text))).then((v) {
             if(v != null && v == true){
@@ -111,7 +114,8 @@ class _EnterAadhaarNumberBottomSheetState extends State<EnterAadhaarNumberBottom
         }
 
         if (otpState?.status == Status.ERROR) {
-          ToastMessages.error(message: getErrorMsg(errorType: otpState!.errorType!));
+          analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED, {"message" : getErrorMsg(errorType: otpState!.errorType!)});
+          ToastMessages.error(message: getErrorMsg(errorType: otpState.errorType!));
         }
       },
       builder: (context, state) {

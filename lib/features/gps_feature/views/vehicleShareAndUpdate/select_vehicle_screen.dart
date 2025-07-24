@@ -14,6 +14,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/app_share_helper.dart';
 
 import '../../../../routing/app_route_name.dart';
 import '../../../../utils/app_button.dart';
@@ -402,12 +403,82 @@ class VehicleCard extends StatelessWidget {
   }
 
   void _showShareBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    AppShareHelper.showVehicleShareWidget(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return ShareBottomSheet(vehicle: vehicle);
+      vehicleNumber: vehicle.vehicleNumber ?? '',
+      location: vehicle.location,
+      lastUpdate: vehicle.lastUpdate,
+      deviceId: vehicle.deviceId,
+      token: AppConstants.token,
+      onLiveLocationShare: (token, deviceId, vehicleNumber, isLiveLocation, hours) async {
+        try {
+          final repository = locator<GpsVehicleExtraInfoRepository>();
+          final result = await repository.shareVehicleLocation(
+            token: token,
+            deviceId: deviceId,
+            vehicleNumber: vehicleNumber,
+            isLiveLocation: isLiveLocation,
+            hours: hours,
+            location: vehicle.location ?? '',
+            lastUpdate: vehicle.lastUpdate,
+          );
+          if (context.mounted) {
+            if (result is Success<String>) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+              );
+            }
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+            );
+          }
+        }
+      },
+      onCurrentLocationShare: (vehicleNumber, location, lastUpdate) async {
+        try {
+          final repository = locator<GpsVehicleExtraInfoRepository>();
+          final result = await repository.shareVehicleLocation(
+            token: AppConstants.token ?? '',
+            deviceId: vehicle.deviceId!,
+            vehicleNumber: vehicleNumber,
+            isLiveLocation: false,
+            hours: 0,
+            location: location,
+            lastUpdate: lastUpdate,
+          );
+          if (context.mounted) {
+            if (result is Success<String>) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(result.value), backgroundColor: Colors.green),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('No location data available for sharing'),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No location data available for sharing'),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        }
       },
     );
   }
@@ -461,247 +532,5 @@ class VehicleCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class ShareBottomSheet extends StatefulWidget {
-  final GpsCombinedVehicleData vehicle;
-
-  const ShareBottomSheet({super.key, required this.vehicle});
-
-  @override
-  State<ShareBottomSheet> createState() => _ShareBottomSheetState();
-}
-
-class _ShareBottomSheetState extends State<ShareBottomSheet> {
-  bool isLiveLocation = true;
-  final TextEditingController _hoursController = TextEditingController();
-  String? _errorText;
-
-  @override
-  Widget build(BuildContext context) {
-    final radius = const Radius.circular(20);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(topLeft: radius, topRight: radius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildToggleButton(context, true, 'Live'),
-                const SizedBox(width: 8),
-                _buildToggleButton(context, false, 'Current'),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text('Hours', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _hoursController,
-              keyboardType: TextInputType.number,
-              enabled: isLiveLocation,
-              decoration: InputDecoration(
-                hintText: 'Enter Hours',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                errorText: _errorText,
-              ),
-              onChanged: (_) {
-                if (_errorText != null) {
-                  setState(() {
-                    _errorText = null;
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.primaryColor,
-                      side: BorderSide(color: AppColors.primaryColor, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => _handleShare(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Share',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToggleButton(BuildContext context, bool value, String label) {
-    final bool selected = isLiveLocation == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          isLiveLocation = value;
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primaryColor : Colors.white,
-          border: Border.all(color: AppColors.primaryColor, width: 1.5),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12, top: 6, bottom: 6),
-            child: Text(
-              label,
-              style: TextStyle(
-                color: selected ? Colors.white : AppColors.primaryColor,
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _handleShare(BuildContext context) {
-    if (isLiveLocation) {
-      final text = _hoursController.text.trim();
-      if (text.isEmpty) {
-        setState(() {
-          _errorText = 'Hours field cannot be empty';
-        });
-        return;
-      }
-      final hours = int.tryParse(text);
-      Navigator.of(context).pop();
-      _handleLiveLocationSharing(context, hours!);
-    } else {
-      Navigator.of(context).pop();
-      _shareCurrentLocation(context);
-    }
-  }
-
-  void _handleLiveLocationSharing(BuildContext context, int hours) async {
-    try {
-      final String? bearerToken = AppConstants.token;
-      if (bearerToken == null || bearerToken.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Authentication token not found'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
-      final repository = locator<GpsVehicleExtraInfoRepository>();
-      final result = await repository.shareVehicleLocation(
-        token: bearerToken,
-        deviceId: widget.vehicle.deviceId!,
-        vehicleNumber: widget.vehicle.vehicleNumber ?? '',
-        isLiveLocation: true,
-        hours: hours,
-        location: widget.vehicle.location ?? '',
-        lastUpdate: widget.vehicle.lastUpdate,
-      );
-      if (context.mounted) {
-        if (result is Success<String>) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(result.value), backgroundColor: Colors.green));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
-
-  void _shareCurrentLocation(BuildContext context) async {
-    try {
-      final repository = locator<GpsVehicleExtraInfoRepository>();
-      final result = await repository.shareVehicleLocation(
-        token: AppConstants.token ?? '',
-        deviceId: widget.vehicle.deviceId!,
-        vehicleNumber: widget.vehicle.vehicleNumber ?? '',
-        isLiveLocation: false,
-        hours: 0,
-        location: widget.vehicle.location ?? '',
-        lastUpdate: widget.vehicle.lastUpdate,
-      );
-      if (context.mounted) {
-        if (result is Success<String>) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(result.value), backgroundColor: Colors.green));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No location data available for sharing'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No location data available for sharing'),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    }
   }
 }

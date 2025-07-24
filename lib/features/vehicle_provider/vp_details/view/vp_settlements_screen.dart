@@ -160,20 +160,20 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                 bloc: vpDetailsCubit,
-                listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
+                listenWhen: (previous, current) =>  previous.settlementUIState?.status != current.settlementUIState?.status,
                 listener: (context, state) async {
-                  final status = state.createDamageUIState?.status;
+                  final status = state.settlementUIState?.status;
                   if (status == Status.SUCCESS) {
                     clearValues();
                     showSuccessDialog(context);
                   }
                   if (status == Status.ERROR) {
-                    final error = state.createDamageUIState?.errorType;
+                    final error = state.settlementUIState?.errorType;
                     ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                   }
                 },
                 builder: (context, state) {
-                  final isLoading = state.createDamageUIState?.status == Status.LOADING;
+                  final isLoading = state.settlementUIState?.status == Status.LOADING;
                   return AppButton(
                       title: context.appText.submit,
                       isLoading: isLoading,

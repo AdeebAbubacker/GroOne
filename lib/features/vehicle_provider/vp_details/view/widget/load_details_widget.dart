@@ -239,11 +239,16 @@ class LoadDetailsWidget extends StatelessWidget {
                                 showAddButton:state.loadStatus!= LoadStatus.completed,
                                 context: context,
                                 title: context.appText.damageAndShortage,
-                                onAdd: () {
-                                  Navigator.push(
+                                onAdd: () async {
+                                 await Navigator.push(
                                     context,
                                     commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.scheduleTripDetails?.vehicleId, loadId: loadDetails?.loadId,)),
-                                  );
+                                  ).then((value) {
+                                    if(value){
+                                      getLoadDetails(loadDetails?.loadId??"");
+                                    }
+
+                                  },);
                                 },
                               ),
                               Visibility(

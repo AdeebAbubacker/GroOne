@@ -8,7 +8,6 @@ class AppString {
 
 class AppLabelText {
   final String english = 'English';
-
   final String hindi = 'Hindi';
   final String hindi2 = 'हिन्दी';
   final String tamil2 = 'தமிழ்';
@@ -38,6 +37,4 @@ class PreferenceKey {
   final String isFirstTimeLoad = "isFirstTimeLoad";
   final String hasBlueIdPopupShown = "hasBlueIdPopupShown";
   final String firstPostedLoadId = "first_posted_load_id";
-
-
 }
