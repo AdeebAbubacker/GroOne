@@ -242,7 +242,7 @@ void initState() {
                                             widget
                                                     .loadItem
                                                     .data
-                                                    ?.driverTrackingModel
+                                                    ?.trackingDetails
                                                     ?.truckNumber ??
                                                 'TN AY 3467',
                                             style: AppTextStyle.body3.copyWith(
@@ -523,7 +523,7 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     final isConsentGiven =load.data?.driverConsent == 1;
 
     final nestedDocuments = load.data?.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
     const requiredDocs = [
       'lorry receipt',
@@ -531,7 +531,7 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
       'material invoice',
     ];
 
-    final uploadedTypes = documents
+    final uploadedTypes = nestedDocuments
         .where((doc) => doc.status == 1)
         .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
         .toSet();
@@ -544,9 +544,9 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
   // For status 7: POD document uploaded
   if (currentStatus == 7) {
     final nestedDocuments = load.data?.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
-    final podDocExists = documents.any((doc) =>
+    final podDocExists = nestedDocuments.any((doc) =>
         (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
          doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
         doc.status == 1);

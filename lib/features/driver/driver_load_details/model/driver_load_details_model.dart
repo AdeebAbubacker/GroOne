@@ -65,8 +65,8 @@ class Data {
         required this.loadSettlement,
         required this.podDispatch,
         required this.loadApproval,
-        required this.driverTrackingModel,
         required this.damageShortage,
+        required this.trackingDetails,
         required this.customer,
         required this.vpCustomer,
         required this.weight,
@@ -83,7 +83,7 @@ class Data {
     final DateTime? pickUpDateTime;
     final int truckTypeId;
     final int consignmentWeight;
-    final dynamic notes;
+    final String notes;
     final int loadStatusId;
     final DateTime? expectedDeliveryDateTime;
     final int isAgreed;
@@ -105,16 +105,16 @@ class Data {
     final LoadPrice? loadPrice;
     final ScheduleTripDetails? scheduleTripDetails;
     final LoadMemo? loadMemo;
-    List<List<LoadDocument>>? loadDocument;
+    final List<LoadDocument> loadDocument;
     final dynamic loadSettlement;
     final dynamic podDispatch;
-    final LoadApproval? loadApproval;
-    final DriverTrackingModel? driverTrackingModel;
-    final List<DamageReport> damageShortage;
+    final dynamic loadApproval;
+    final dynamic damageShortage;
+    final TrackingDetails? trackingDetails;
     final Customer? customer;
-    final dynamic vpCustomer;
+    final Customer? vpCustomer;
     final Weight? weight;
-    final List<Consignee> consignees;
+    final List<dynamic> consignees;
     final List<Timeline> timeline;
 
     Data copyWith({
@@ -127,7 +127,7 @@ class Data {
         DateTime? pickUpDateTime,
         int? truckTypeId,
         int? consignmentWeight,
-        dynamic? notes,
+        String? notes,
         int? loadStatusId,
         DateTime? expectedDeliveryDateTime,
         int? isAgreed,
@@ -149,16 +149,16 @@ class Data {
         LoadPrice? loadPrice,
         ScheduleTripDetails? scheduleTripDetails,
         LoadMemo? loadMemo,
-       List<List<LoadDocument>>? loadDocument,
+        List<LoadDocument>? loadDocument,
         dynamic? loadSettlement,
         dynamic? podDispatch,
-        LoadApproval? loadApproval,
-        DriverTrackingModel? driverTrackingModel,
-        List<DamageReport>? damageShortage,
+        dynamic? loadApproval,
+        dynamic? damageShortage,
+        TrackingDetails? trackingDetails,
         Customer? customer,
-        dynamic? vpCustomer,
+        Customer? vpCustomer,
         Weight? weight,
-        List<Consignee>? consignees,
+        List<dynamic>? consignees,
         List<Timeline>? timeline,
     }) {
         return Data(
@@ -197,8 +197,8 @@ class Data {
             loadSettlement: loadSettlement ?? this.loadSettlement,
             podDispatch: podDispatch ?? this.podDispatch,
             loadApproval: loadApproval ?? this.loadApproval,
-            driverTrackingModel: driverTrackingModel ?? this.driverTrackingModel,
             damageShortage: damageShortage ?? this.damageShortage,
+            trackingDetails: trackingDetails ?? this.trackingDetails,
             customer: customer ?? this.customer,
             vpCustomer: vpCustomer ?? this.vpCustomer,
             weight: weight ?? this.weight,
@@ -218,7 +218,7 @@ class Data {
             pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
             truckTypeId: json["truckTypeId"] ?? 0,
             consignmentWeight: json["consignmentWeight"] ?? 0,
-            notes: json["notes"],
+            notes: json["notes"] ?? "",
             loadStatusId: json["loadStatusId"] ?? 0,
             expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
             isAgreed: json["isAgreed"] ?? 0,
@@ -240,17 +240,16 @@ class Data {
             loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
             scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
             loadMemo: json["loadMemo"] == null ? null : LoadMemo.fromJson(json["loadMemo"]),
-           loadDocument: json["loadDocument"] == null ? [] : List<List<LoadDocument>>.from(json["loadDocument"]!.map((x) => x == null ? [] : List<LoadDocument>.from(x!.map((x) => LoadDocument.fromJson(x))))),
+            loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) => LoadDocument.fromJson(x))),
             loadSettlement: json["loadSettlement"],
             podDispatch: json["podDispatch"],
-            loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
-            driverTrackingModel: json["trackingDetails"] == null ? null : DriverTrackingModel.fromJson(json["trackingDetails"]),
-
-            damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
+            loadApproval: json["loadApproval"],
+            damageShortage: json["damageShortage"],
+            trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-            vpCustomer: json["vpCustomer"],
+            vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
-            consignees: json["consignees"] == null ? [] : List<Consignee>.from(json["consignees"]!.map((x) => Consignee.fromJson(x))),
+            consignees: json["consignees"] == null ? [] : List<dynamic>.from(json["consignees"]!.map((x) => x)),
             timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
         );
     }
@@ -310,49 +309,6 @@ class DataCommodity {
 
 }
 
-class Consignee {
-    Consignee({
-        required this.id,
-        required this.name,
-        required this.email,
-        required this.mobileNumber,
-        required this.loadId,
-    });
-
-    final String id;
-    final String name;
-    final String email;
-    final String mobileNumber;
-    final String loadId;
-
-    Consignee copyWith({
-        String? id,
-        String? name,
-        String? email,
-        String? mobileNumber,
-        String? loadId,
-    }) {
-        return Consignee(
-            id: id ?? this.id,
-            name: name ?? this.name,
-            email: email ?? this.email,
-            mobileNumber: mobileNumber ?? this.mobileNumber,
-            loadId: loadId ?? this.loadId,
-        );
-    }
-
-    factory Consignee.fromJson(Map<String, dynamic> json){ 
-        return Consignee(
-            id: json["id"] ?? "",
-            name: json["name"] ?? "",
-            email: json["email"] ?? "",
-            mobileNumber: json["mobileNumber"] ?? "",
-            loadId: json["loadId"] ?? "",
-        );
-    }
-
-}
-
 class Customer {
     Customer({
         required this.customerId,
@@ -376,12 +332,15 @@ class Customer {
         required this.blueIdFlg,
         required this.kycPendingDate,
         required this.kycVerificationDate,
+        required this.accessToken,
+        required this.refreshToken,
         required this.createdAt,
         required this.deletedAt,
         required this.kycType,
         required this.companyType,
         required this.customerAddress,
         required this.kycDocs,
+        required this.vehicle,
     });
 
     final String customerId;
@@ -397,7 +356,7 @@ class Customer {
     final dynamic ememoOtp;
     final String otpAttempt;
     final int isKyc;
-    final dynamic preferredLanes;
+    final List<int> preferredLanes;
     final int roleId;
     final bool tempFlg;
     final int status;
@@ -405,12 +364,15 @@ class Customer {
     final bool blueIdFlg;
     final DateTime? kycPendingDate;
     final DateTime? kycVerificationDate;
+    final dynamic accessToken;
+    final dynamic refreshToken;
     final DateTime? createdAt;
     final dynamic deletedAt;
     final Type? kycType;
     final Type? companyType;
     final CustomerAddress? customerAddress;
     final KycDocs? kycDocs;
+    final List<Vehicle> vehicle;
 
     Customer copyWith({
         String? customerId,
@@ -426,7 +388,7 @@ class Customer {
         dynamic? ememoOtp,
         String? otpAttempt,
         int? isKyc,
-        dynamic? preferredLanes,
+        List<int>? preferredLanes,
         int? roleId,
         bool? tempFlg,
         int? status,
@@ -434,12 +396,15 @@ class Customer {
         bool? blueIdFlg,
         DateTime? kycPendingDate,
         DateTime? kycVerificationDate,
+        dynamic? accessToken,
+        dynamic? refreshToken,
         DateTime? createdAt,
         dynamic? deletedAt,
         Type? kycType,
         Type? companyType,
         CustomerAddress? customerAddress,
         KycDocs? kycDocs,
+        List<Vehicle>? vehicle,
     }) {
         return Customer(
             customerId: customerId ?? this.customerId,
@@ -463,12 +428,15 @@ class Customer {
             blueIdFlg: blueIdFlg ?? this.blueIdFlg,
             kycPendingDate: kycPendingDate ?? this.kycPendingDate,
             kycVerificationDate: kycVerificationDate ?? this.kycVerificationDate,
+            accessToken: accessToken ?? this.accessToken,
+            refreshToken: refreshToken ?? this.refreshToken,
             createdAt: createdAt ?? this.createdAt,
             deletedAt: deletedAt ?? this.deletedAt,
             kycType: kycType ?? this.kycType,
             companyType: companyType ?? this.companyType,
             customerAddress: customerAddress ?? this.customerAddress,
             kycDocs: kycDocs ?? this.kycDocs,
+            vehicle: vehicle ?? this.vehicle,
         );
     }
 
@@ -487,7 +455,7 @@ class Customer {
             ememoOtp: json["ememo_otp"],
             otpAttempt: json["otpAttempt"] ?? "",
             isKyc: json["isKyc"] ?? 0,
-            preferredLanes: json["preferredLanes"],
+            preferredLanes: json["preferredLanes"] == null ? [] : List<int>.from(json["preferredLanes"]!.map((x) => x)),
             roleId: json["roleId"] ?? 0,
             tempFlg: json["tempFlg"] ?? false,
             status: json["status"] ?? 0,
@@ -495,12 +463,15 @@ class Customer {
             blueIdFlg: json["blueIdFlg"] ?? false,
             kycPendingDate: DateTime.tryParse(json["kycPendingDate"] ?? ""),
             kycVerificationDate: DateTime.tryParse(json["kycVerificationDate"] ?? ""),
+            accessToken: json["accessToken"],
+            refreshToken: json["refreshToken"],
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
             kycType: json["kycType"] == null ? null : Type.fromJson(json["kycType"]),
             companyType: json["companyType"] == null ? null : Type.fromJson(json["companyType"]),
             customerAddress: json["customerAddress"] == null ? null : CustomerAddress.fromJson(json["customerAddress"]),
             kycDocs: json["kycDocs"] == null ? null : KycDocs.fromJson(json["kycDocs"]),
+            vehicle: json["vehicle"] == null ? [] : List<Vehicle>.from(json["vehicle"]!.map((x) => Vehicle.fromJson(x))),
         );
     }
 
@@ -800,271 +771,117 @@ class KycDocs {
 
 }
 
-// class DamageShortage {
-//     DamageShortage({
-//         required this.damageId,
-//         required this.vehicleId,
-//         required this.loadId,
-//         required this.itemName,
-//         required this.quantity,
-//         required this.status,
-//         required this.image,
-//         required this.description,
-//         required this.createdAt,
-//         required this.updatedAt,
-//         required this.deletedAt,
-//     });
-
-//     final String damageId;
-//     final String vehicleId;
-//     final String loadId;
-//     final String itemName;
-//     final int quantity;
-//     final int status;
-//     final List<String> image;
-//     final String description;
-//     final DateTime? createdAt;
-//     final dynamic updatedAt;
-//     final dynamic deletedAt;
-
-//     DamageShortage copyWith({
-//         String? damageId,
-//         String? vehicleId,
-//         String? loadId,
-//         String? itemName,
-//         int? quantity,
-//         int? status,
-//         List<String>? image,
-//         String? description,
-//         DateTime? createdAt,
-//         dynamic? updatedAt,
-//         dynamic? deletedAt,
-//     }) {
-//         return DamageShortage(
-//             damageId: damageId ?? this.damageId,
-//             vehicleId: vehicleId ?? this.vehicleId,
-//             loadId: loadId ?? this.loadId,
-//             itemName: itemName ?? this.itemName,
-//             quantity: quantity ?? this.quantity,
-//             status: status ?? this.status,
-//             image: image ?? this.image,
-//             description: description ?? this.description,
-//             createdAt: createdAt ?? this.createdAt,
-//             updatedAt: updatedAt ?? this.updatedAt,
-//             deletedAt: deletedAt ?? this.deletedAt,
-//         );
-//     }
-
-//     factory DamageShortage.fromJson(Map<String, dynamic> json){ 
-//         return DamageShortage(
-//             damageId: json["damageId"] ?? "",
-//             vehicleId: json["vehicleId"] ?? "",
-//             loadId: json["loadId"] ?? "",
-//             itemName: json["itemName"] ?? "",
-//             quantity: json["quantity"] ?? 0,
-//             status: json["status"] ?? 0,
-//             image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
-//             description: json["description"] ?? "",
-//             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-//             updatedAt: json["updatedAt"],
-//             deletedAt: json["deletedAt"],
-//         );
-//     }
-
-// }
-
-
-
-class LoadApproval {
-    LoadApproval({
-        required this.id,
-        required this.loadId,
-        required this.rejectionReason,
-        required this.documentApproved,
-        required this.damageAndShortagesApproved,
-        required this.settlementApproved,
-        required this.paymentApproved,
-        required this.podApproved,
-        required this.approvedBy,
+class Vehicle {
+    Vehicle({
+        required this.vpVehiclesId,
+        required this.customerId,
+        required this.truckType,
+        required this.ownedTrucks,
+        required this.attachedTrucks,
+        required this.preferredLanes,
+        required this.status,
         required this.createdAt,
         required this.updatedAt,
         required this.deletedAt,
     });
 
-    final String id;
-    final String loadId;
-    final dynamic rejectionReason;
-    final bool documentApproved;
-    final dynamic damageAndShortagesApproved;
-    final dynamic settlementApproved;
-    final dynamic paymentApproved;
-    final dynamic podApproved;
-    final String approvedBy;
+    final String vpVehiclesId;
+    final String customerId;
+    final List<int> truckType;
+    final int ownedTrucks;
+    final int attachedTrucks;
+    final List<int> preferredLanes;
+    final int status;
     final DateTime? createdAt;
     final DateTime? updatedAt;
     final dynamic deletedAt;
 
-    LoadApproval copyWith({
-        String? id,
-        String? loadId,
-        dynamic? rejectionReason,
-        bool? documentApproved,
-        dynamic? damageAndShortagesApproved,
-        dynamic? settlementApproved,
-        dynamic? paymentApproved,
-        dynamic? podApproved,
-        String? approvedBy,
+    Vehicle copyWith({
+        String? vpVehiclesId,
+        String? customerId,
+        List<int>? truckType,
+        int? ownedTrucks,
+        int? attachedTrucks,
+        List<int>? preferredLanes,
+        int? status,
         DateTime? createdAt,
         DateTime? updatedAt,
         dynamic? deletedAt,
     }) {
-        return LoadApproval(
-            id: id ?? this.id,
-            loadId: loadId ?? this.loadId,
-            rejectionReason: rejectionReason ?? this.rejectionReason,
-            documentApproved: documentApproved ?? this.documentApproved,
-            damageAndShortagesApproved: damageAndShortagesApproved ?? this.damageAndShortagesApproved,
-            settlementApproved: settlementApproved ?? this.settlementApproved,
-            paymentApproved: paymentApproved ?? this.paymentApproved,
-            podApproved: podApproved ?? this.podApproved,
-            approvedBy: approvedBy ?? this.approvedBy,
+        return Vehicle(
+            vpVehiclesId: vpVehiclesId ?? this.vpVehiclesId,
+            customerId: customerId ?? this.customerId,
+            truckType: truckType ?? this.truckType,
+            ownedTrucks: ownedTrucks ?? this.ownedTrucks,
+            attachedTrucks: attachedTrucks ?? this.attachedTrucks,
+            preferredLanes: preferredLanes ?? this.preferredLanes,
+            status: status ?? this.status,
             createdAt: createdAt ?? this.createdAt,
             updatedAt: updatedAt ?? this.updatedAt,
             deletedAt: deletedAt ?? this.deletedAt,
         );
     }
 
-    factory LoadApproval.fromJson(Map<String, dynamic> json){ 
-        return LoadApproval(
-            id: json["id"] ?? "",
-            loadId: json["loadId"] ?? "",
-            rejectionReason: json["rejectionReason"],
-            documentApproved: json["documentApproved"] ?? false,
-            damageAndShortagesApproved: json["damageAndShortagesApproved"],
-            settlementApproved: json["settlementApproved"],
-            paymentApproved: json["paymentApproved"],
-            podApproved: json["podApproved"],
-            approvedBy: json["approvedBy"] ?? "",
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-            deletedAt: json["deletedAt"],
+    factory Vehicle.fromJson(Map<String, dynamic> json){ 
+        return Vehicle(
+            vpVehiclesId: json["vp_vehicles_id"] ?? "",
+            customerId: json["customer_id"] ?? "",
+            truckType: json["truckType"] == null ? [] : List<int>.from(json["truckType"]!.map((x) => x)),
+            ownedTrucks: json["ownedTrucks"] ?? 0,
+            attachedTrucks: json["attachedTrucks"] ?? 0,
+            preferredLanes: json["preferredLanes"] == null ? [] : List<int>.from(json["preferredLanes"]!.map((x) => x)),
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["created_at"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),
+            deletedAt: json["deleted_at"],
         );
     }
+
 }
 
 
-// class LoadDocumentData {
-//   LoadDocumentData({
-//     required this.loadDocumentId,
-//     required this.loadId,
-//     required this.documentId,
-//     required this.status,
-//     required this.createdAt,
-//     required this.updatedAt,
-//     required this.deletedAt,
-//     required this.documentDetails,
-//     required this.documentError,
-//   });
+class DocumentDetails {
+    DocumentDetails({
+        required this.documentId,
+        required this.title,
+        required this.documentType,
+        required this.fileSize,
+        required this.originalFilename,
+    });
 
-//   final String loadDocumentId;
-//   final String loadId;
-//   final String documentId;
-//   final int status;
-//   final DateTime? createdAt;
-//   final DateTime? updatedAt;
-//   final dynamic deletedAt;
-//   final DocumentDetails? documentDetails;
-//   final String documentError;
+    final String documentId;
+    final String title;
+    final String documentType;
+    final String fileSize;
+    final String originalFilename;
 
-//   LoadDocumentData copyWith({
-//     String? loadDocumentId,
-//     String? loadId,
-//     String? documentId,
-//     int? status,
-//     DateTime? createdAt,
-//     DateTime? updatedAt,
-//     dynamic? deletedAt,
-//     DocumentDetails? documentDetails,
-//     String? documentError,
-//   }) {
-//     return LoadDocumentData(
-//       loadDocumentId: loadDocumentId ?? this.loadDocumentId,
-//       loadId: loadId ?? this.loadId,
-//       documentId: documentId ?? this.documentId,
-//       status: status ?? this.status,
-//       createdAt: createdAt ?? this.createdAt,
-//       updatedAt: updatedAt ?? this.updatedAt,
-//       deletedAt: deletedAt ?? this.deletedAt,
-//       documentDetails: documentDetails ?? this.documentDetails,
-//       documentError: documentError ?? this.documentError,
-//     );
-//   }
+    DocumentDetails copyWith({
+        String? documentId,
+        String? title,
+        String? documentType,
+        String? fileSize,
+        String? originalFilename,
+    }) {
+        return DocumentDetails(
+            documentId: documentId ?? this.documentId,
+            title: title ?? this.title,
+            documentType: documentType ?? this.documentType,
+            fileSize: fileSize ?? this.fileSize,
+            originalFilename: originalFilename ?? this.originalFilename,
+        );
+    }
 
-//   factory LoadDocumentData.fromJson(Map<String, dynamic> json){
-//     return LoadDocumentData(
-//       loadDocumentId: json["loadDocumentId"] ?? "",
-//       loadId: json["loadId"] ?? "",
-//       documentId: json["documentId"] ?? "",
-//       status: json["status"] ?? 0,
-//       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-//       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-//       deletedAt: json["deletedAt"],
-//       documentDetails: json["documentDetails"] == null ? null : DocumentDetails.fromJson(json["documentDetails"]),
-//       documentError: json["documentError"] ?? "",
-//     );
-//   }
+    factory DocumentDetails.fromJson(Map<String, dynamic> json){ 
+        return DocumentDetails(
+            documentId: json["documentId"] ?? "",
+            title: json["title"] ?? "",
+            documentType: json["documentType"] ?? "",
+            fileSize: json["fileSize"] ?? "",
+            originalFilename: json["originalFilename"] ?? "",
+        );
+    }
 
-// }
-
-
-
-// class DocumentDetails {
-//   DocumentDetails({
-//     required this.documentId,
-//     required this.title,
-//     required this.documentType,
-//     required this.fileSize,
-//     required this.filePath,
-//     required this.originalFilename,
-//   });
-
-//   final String documentId;
-//   final String title;
-//   final String documentType;
-//   final String fileSize;
-//   final String filePath;
-//   final String originalFilename;
-
-//   DocumentDetails copyWith({
-//     String? documentId,
-//     String? title,
-//     String? documentType,
-//     String? fileSize,
-//     String? filePath,
-//     String? originalFilename,
-//   }) {
-//     return DocumentDetails(
-//       documentId: documentId ?? this.documentId,
-//       title: title ?? this.title,
-//       documentType: documentType ?? this.documentType,
-//       fileSize: fileSize ?? this.fileSize,
-//       filePath: filePath ?? this.filePath,
-//       originalFilename: originalFilename ?? this.originalFilename,
-//     );
-//   }
-
-//   factory DocumentDetails.fromJson(Map<String, dynamic> json){
-//     return DocumentDetails(
-//       documentId: json["documentId"] ?? "",
-//       title: json["title"] ?? "",
-//       documentType: json["documentType"] ?? "",
-//       fileSize: json["fileSize"] ?? "",
-//       filePath: json["filePath"] ?? "",
-//       originalFilename: json["originalFilename"] ?? "",
-//     );
-//   }
-
-// }
+}
 
 class LoadMemo {
     LoadMemo({
@@ -1578,6 +1395,129 @@ class TimelineTruckType {
 
 }
 
+class TrackingDetails {
+    TrackingDetails({
+        required this.uuid,
+        required this.shipperId,
+        required this.supplierId,
+        required this.tripId,
+        required this.trackMode,
+        required this.tripStatus,
+        required this.currentLat,
+        required this.currentLong,
+        required this.currentAddress,
+        required this.originLat,
+        required this.originLong,
+        required this.destinationLat,
+        required this.destinationLong,
+        required this.intugineId,
+        required this.driverName,
+        required this.driverNumber,
+        required this.truckNumber,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.lastTrackDt,
+        required this.flaggedTrip,
+    });
+
+    final String uuid;
+    final String shipperId;
+    final String supplierId;
+    final String tripId;
+    final String trackMode;
+    final String tripStatus;
+    final double currentLat;
+    final double currentLong;
+    final dynamic currentAddress;
+    final double originLat;
+    final double originLong;
+    final double destinationLat;
+    final double destinationLong;
+    final String intugineId;
+    final String driverName;
+    final String driverNumber;
+    final String truckNumber;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final DateTime? lastTrackDt;
+    final bool flaggedTrip;
+
+    TrackingDetails copyWith({
+        String? uuid,
+        String? shipperId,
+        String? supplierId,
+        String? tripId,
+        String? trackMode,
+        String? tripStatus,
+        double? currentLat,
+        double? currentLong,
+        dynamic? currentAddress,
+        double? originLat,
+        double? originLong,
+        double? destinationLat,
+        double? destinationLong,
+        String? intugineId,
+        String? driverName,
+        String? driverNumber,
+        String? truckNumber,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        DateTime? lastTrackDt,
+        bool? flaggedTrip,
+    }) {
+        return TrackingDetails(
+            uuid: uuid ?? this.uuid,
+            shipperId: shipperId ?? this.shipperId,
+            supplierId: supplierId ?? this.supplierId,
+            tripId: tripId ?? this.tripId,
+            trackMode: trackMode ?? this.trackMode,
+            tripStatus: tripStatus ?? this.tripStatus,
+            currentLat: currentLat ?? this.currentLat,
+            currentLong: currentLong ?? this.currentLong,
+            currentAddress: currentAddress ?? this.currentAddress,
+            originLat: originLat ?? this.originLat,
+            originLong: originLong ?? this.originLong,
+            destinationLat: destinationLat ?? this.destinationLat,
+            destinationLong: destinationLong ?? this.destinationLong,
+            intugineId: intugineId ?? this.intugineId,
+            driverName: driverName ?? this.driverName,
+            driverNumber: driverNumber ?? this.driverNumber,
+            truckNumber: truckNumber ?? this.truckNumber,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            lastTrackDt: lastTrackDt ?? this.lastTrackDt,
+            flaggedTrip: flaggedTrip ?? this.flaggedTrip,
+        );
+    }
+
+    factory TrackingDetails.fromJson(Map<String, dynamic> json){ 
+        return TrackingDetails(
+            uuid: json["uuid"] ?? "",
+            shipperId: json["shipperId"] ?? "",
+            supplierId: json["supplierId"] ?? "",
+            tripId: json["tripId"] ?? "",
+            trackMode: json["trackMode"] ?? "",
+            tripStatus: json["tripStatus"] ?? "",
+            currentLat: json["currentLat"] ?? 0.0,
+            currentLong: json["currentLong"] ?? 0.0,
+            currentAddress: json["currentAddress"],
+            originLat: json["originLat"] ?? 0.0,
+            originLong: json["originLong"] ?? 0.0,
+            destinationLat: json["destinationLat"] ?? 0.0,
+            destinationLong: json["destinationLong"] ?? 0.0,
+            intugineId: json["intugineId"] ?? "",
+            driverName: json["driverName"] ?? "",
+            driverNumber: json["driverNumber"] ?? "",
+            truckNumber: json["truckNumber"] ?? "",
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            lastTrackDt: DateTime.tryParse(json["lastTrackDt"] ?? ""),
+            flaggedTrip: json["flaggedTrip"] ?? false,
+        );
+    }
+
+}
+
 class DataTruckType {
     DataTruckType({
         required this.id,
@@ -1679,130 +1619,6 @@ class Weight {
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
-        );
-    }
-
-}
-
-
-class DriverTrackingModel {
-    DriverTrackingModel({
-        required this.uuid,
-        required this.shipperId,
-        required this.supplierId,
-        required this.tripId,
-        required this.trackMode,
-        required this.tripStatus,
-        required this.currentLat,
-        required this.currentLong,
-        required this.currentAddress,
-        required this.originLat,
-        required this.originLong,
-        required this.destinationLat,
-        required this.destinationLong,
-        required this.intugineId,
-        required this.driverName,
-        required this.driverNumber,
-        required this.truckNumber,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.lastTrackDt,
-        required this.flaggedTrip,
-    });
-
-    final String uuid;
-    final String shipperId;
-    final String supplierId;
-    final String tripId;
-    final String trackMode;
-    final String tripStatus;
-    final double currentLat;
-    final double currentLong;
-    final String currentAddress;
-    final double originLat;
-    final double originLong;
-    final double destinationLat;
-    final double destinationLong;
-    final String intugineId;
-    final String driverName;
-    final String driverNumber;
-    final String truckNumber;
-    final DateTime? createdAt;
-    final DateTime? updatedAt;
-    final dynamic lastTrackDt;
-    final bool flaggedTrip;
-
-    DriverTrackingModel copyWith({
-        String? uuid,
-        String? shipperId,
-        String? supplierId,
-        String? tripId,
-        String? trackMode,
-        String? tripStatus,
-        double? currentLat,
-        double? currentLong,
-        String? currentAddress,
-        double? originLat,
-        double? originLong,
-        double? destinationLat,
-        double? destinationLong,
-        String? intugineId,
-        String? driverName,
-        String? driverNumber,
-        String? truckNumber,
-        DateTime? createdAt,
-        DateTime? updatedAt,
-        dynamic? lastTrackDt,
-        bool? flaggedTrip,
-    }) {
-        return DriverTrackingModel(
-            uuid: uuid ?? this.uuid,
-            shipperId: shipperId ?? this.shipperId,
-            supplierId: supplierId ?? this.supplierId,
-            tripId: tripId ?? this.tripId,
-            trackMode: trackMode ?? this.trackMode,
-            tripStatus: tripStatus ?? this.tripStatus,
-            currentLat: currentLat ?? this.currentLat,
-            currentLong: currentLong ?? this.currentLong,
-            currentAddress: currentAddress ?? this.currentAddress,
-            originLat: originLat ?? this.originLat,
-            originLong: originLong ?? this.originLong,
-            destinationLat: destinationLat ?? this.destinationLat,
-            destinationLong: destinationLong ?? this.destinationLong,
-            intugineId: intugineId ?? this.intugineId,
-            driverName: driverName ?? this.driverName,
-            driverNumber: driverNumber ?? this.driverNumber,
-            truckNumber: truckNumber ?? this.truckNumber,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            lastTrackDt: lastTrackDt ?? this.lastTrackDt,
-            flaggedTrip: flaggedTrip ?? this.flaggedTrip,
-        );
-    }
-
-    factory DriverTrackingModel.fromJson(Map<String, dynamic> json){ 
-        return DriverTrackingModel(
-            uuid: json["uuid"] ?? "",
-            shipperId: json["shipperId"] ?? "",
-            supplierId: json["supplierId"] ?? "",
-            tripId: json["tripId"] ?? "",
-            trackMode: json["trackMode"] ?? "",
-            tripStatus: json["tripStatus"] ?? "",
-            currentLat: json["currentLat"] ?? 0.0,
-            currentLong: json["currentLong"] ?? 0.0,
-            currentAddress: json["currentAddress"] ?? "",
-            originLat: json["originLat"] ?? 0.0,
-            originLong: json["originLong"] ?? 0.0,
-            destinationLat: json["destinationLat"] ?? 0.0,
-            destinationLong: json["destinationLong"] ?? 0.0,
-            intugineId: json["intugineId"] ?? "",
-            driverName: json["driverName"] ?? "",
-            driverNumber: json["driverNumber"] ?? "",
-            truckNumber: json["truckNumber"] ?? "",
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-            lastTrackDt: json["lastTrackDt"],
-            flaggedTrip: json["flaggedTrip"] ?? false,
         );
     }
 
