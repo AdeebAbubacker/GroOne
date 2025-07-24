@@ -35,6 +35,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
@@ -58,7 +59,19 @@ class DriverLoadBottomWidget extends StatefulWidget {
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
+final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
+Future<void> getLoadDetails() async {
+  frameCallback(() async{
+      await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadItem.data?.loadId ?? '');
 
+  final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
+
+  if (statusId != null) {
+    driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
+  }
+  },);
+
+}
   @override
 void initState() {
   super.initState();
@@ -98,15 +111,18 @@ void initState() {
       required int? loadStatus,
       required int driverConsent,
       required List<DocumentEntity>? tripDocumentList,
+       required bool isMemoUploaded,
     }) {
       if (loadStatus == null) return false;
-
+if (loadStatus == 4) {
+    return isMemoUploaded; // Only return true if memo is uploaded
+  }
       if (loadStatus == 5) {
-      if (driverConsent != 1) return false;
+     // if (driverConsent != 1) return false;
       if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
-      if (loadStatus == 6) {
+      if (loadStatus == 7) {
         if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
       }
 
@@ -229,7 +245,7 @@ void initState() {
                                             widget
                                                     .loadItem
                                                     .data
-                                                    ?.driverTrackingModel
+                                                    ?.trackingDetails
                                                     ?.truckNumber ??
                                                 'TN AY 3467',
                                             style: AppTextStyle.body3.copyWith(
@@ -272,11 +288,7 @@ void initState() {
                                 loads!.data!.weight!.value.toString() ??
                                 '',
                           ),
-                          if ((loads!.data!.loadStatusId ?? 0) > 4)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (loads!.data!.consignees != null &&
+                           if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(
                                     context: context,
@@ -306,8 +318,10 @@ void initState() {
                                         '',
                                   ),
                                 20.height,
-                    
-                                
+                          if ((loads!.data!.loadStatusId ?? 0) > 4)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 if (widget.loadItem.data!.loadStatusId > 4) ...[
                                   20.height,
                                    Text(
@@ -326,7 +340,7 @@ void initState() {
                                 20.height,
                     
                            
-                                if (widget.loadItem.data!.loadStatusId > 5)
+                                if (widget.loadItem.data!.loadStatusId > 6)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -337,9 +351,9 @@ void initState() {
                                         title:  context.appText.damageAndShortage,
                                         onAdd: () {
                                           Navigator.push(
-                                            context,
-                                            commonRoute(
-                                              DriverDamagesAndShortagesScreen(
+                                          context,
+                                          commonRoute(
+                                            DriverDamagesAndShortagesScreen(
                                                 vehicleId:
                                                     widget
                                                         .loadItem
@@ -349,9 +363,14 @@ void initState() {
                                                 loadId:
                                                     loads!.data!.loadId,
                                               ),
+                                              isForward: true,
                                             ),
-                                          );
-                                        },
+                                          ).then((value) {
+                                                    if (mounted) {
+                                                      getLoadDetails();
+                                                    }
+                                      });                                 
+                                        }     
                                       ),
                                        Visibility(
                                       visible:(loads!.data!.damageShortage??[]).isNotEmpty,
@@ -387,18 +406,19 @@ void initState() {
                                     ],
                                   ),
                                 20.height,
-                                Text(
+                               
+                               
+                              ],
+                            ),
+                              Text(
                                   context.appText.timeLine,
                                   style: AppTextStyle.h4,
                                 ).paddingSymmetric(horizontal: 15),
                                 20.height,
-                                DriverLoadTimelineWidget(
+                             DriverLoadTimelineWidget(
                                   timelineList:
                                       loads!.data!.timeline ?? [],
                                 ).paddingSymmetric(horizontal: 15),
-                              ],
-                            ),
-                            20.height,
                       ],
                       ),
                     ),
@@ -430,15 +450,23 @@ void initState() {
                                       );
                                     }
                                   },
-                                  child: DriverLoadHelper.loadStatusButtonWidget(
-                                   enable: isChangeStatusButtonEnabled(
-                                      loadStatus: loads!.data?.loadStatusId,
-                                      driverConsent: loads!.data?.driverConsent ?? 0,
-                                      tripDocumentList: state.tripDocumentList,
-                                    ),
-                                    statusId:   loads!.data!.loadStatusId ?? 4,
-                                    onPressed: () {
-                                       //Check for sim consent and trip doc
+                                  child:                          
+                              SizedBox(
+                            height: 60,
+                            width: MediaQuery.of(context).size.width * 0.90,
+                            child: CustomSwipeButton(
+                              padding: 0,
+                              price: 0,
+                              loadId: loads.data!.loadId.toString(),
+                              enable: isChangeStatusButtonEnabled(
+                                isMemoUploaded: loads.data?.loadMemo != null,
+                                loadStatus: loads.data?.loadStatusId,
+                                driverConsent: loads.data?.driverConsent ?? 0,
+                                tripDocumentList: state.tripDocumentList,
+                              ),
+                              text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId), 
+                              onSubmit: () {
+                              //Check for sim consent and trip doc
                                     if (loads.data?.loadStatusId == 5) {
                                       final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
@@ -446,14 +474,14 @@ void initState() {
                                       ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                                       return;
                                     }
-                                   if (!isConsentGiven) {
-                                      ToastMessages.error(message: 'Please ensure SIM consent is given');   
-                                      return;
-                                    }
+                                  //  if (!isConsentGiven) {
+                                  //     ToastMessages.error(message: 'Please ensure SIM consent is given');   
+                                  //     return;
+                                  //   }
                                   }
                     
                                 // Check for Pod Doc
-                                if (loads.data?.loadStatusId == 6) {
+                                if (loads.data?.loadStatusId == 7) {
                                     final tripDocumentList = state.tripDocumentList ?? [];
                                     if (!widget.cubit.isPODUploaded(tripDocumentList)) {
                                       ToastMessages.error(message: 'Please upload POD document');
@@ -470,8 +498,10 @@ void initState() {
                                   if (currentStatus <= 7) {
                                     changeLoadStatus(context, loadStatus: currentStatus + 1, loadId: loadId);
                                   }
-                                },
-                              ).paddingSymmetric(horizontal: 15),
+                                },                             
+                            ),
+                          ),
+                          
                             ),
                        
               ],
@@ -497,7 +527,7 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     final isConsentGiven =load.data?.driverConsent == 1;
 
     final nestedDocuments = load.data?.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
     const requiredDocs = [
       'lorry receipt',
@@ -505,7 +535,7 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
       'material invoice',
     ];
 
-    final uploadedTypes = documents
+    final uploadedTypes = nestedDocuments
         .where((doc) => doc.status == 1)
         .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
         .toSet();
@@ -515,12 +545,12 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     return isConsentGiven && allRequiredDocsUploaded;
   }
 
-  // For status 6: POD document uploaded
-  if (currentStatus == 6) {
+  // For status 7: POD document uploaded
+  if (currentStatus == 7) {
     final nestedDocuments = load.data?.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
-    final podDocExists = documents.any((doc) =>
+    final podDocExists = nestedDocuments.any((doc) =>
         (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
          doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
         doc.status == 1);
