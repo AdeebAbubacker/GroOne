@@ -49,7 +49,7 @@ bool _shouldEnableButton(DriverLoadDetails? load) {
   final currentStatus = load.loadStatusId ?? 0;
 
   if (currentStatus == 5) {
-    final isConsentGiven = load.driverConsent == 1;
+   // final isConsentGiven = load.driverConsent == 1;
 
     final nestedDocuments = load.loadDocument ?? [];
     final documents = nestedDocuments.expand((list) => list).toList();
@@ -64,7 +64,7 @@ bool _shouldEnableButton(DriverLoadDetails? load) {
 
     final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
-    return isConsentGiven && allRequiredDocsUploaded;
+    return  allRequiredDocsUploaded;
   }
 
   if (currentStatus == 6) {
@@ -92,7 +92,7 @@ void _validateButtonStateOnInit() {
   final documents = nestedDocuments.expand((list) => list).toList();
 
   if (statusId == 5) {
-    final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+    //final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
 
     // Required document types for status 5 (Loading)
     const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
@@ -106,7 +106,7 @@ void _validateButtonStateOnInit() {
     final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
     setState(() {
-      _isButtonEnabled = isSimConsentGiven && allRequiredDocsUploaded;
+      _isButtonEnabled =  allRequiredDocsUploaded;
     });
     return;
   }
@@ -291,13 +291,13 @@ void _validateButtonStateOnInit() {
                   ),
                 ),
                 10.width,
-                DriverLoadHelper.loadStatusButtonWidget(
+                DriverLoadHelper.homeloadStatusButtonWidget(
                      enable: _isButtonEnabled,
                       statusId: widget.driverLoadDetails.loadStatusId,
                       onPressed: () {
                         //Check for sim consent and trip doc
                         if (widget.driverLoadDetails.loadStatusId == 5) {
-                          final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+                          //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
                          final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
                         final documents = nestedDocuments.expand((list) => list).toList();
                         const requiredDocs = [
@@ -319,13 +319,13 @@ void _validateButtonStateOnInit() {
                             ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                             return;
                           }
-                          if (!isConsentGiven) {
-                            setState(() {
-                                _isButtonEnabled = false;
-                              });
-                             ToastMessages.error(message: 'Please ensure SIM consent is given');
-                            return;
-                          }
+                          // if (!isConsentGiven) {
+                          //   setState(() {
+                          //       _isButtonEnabled = false;
+                          //     });
+                          //    ToastMessages.error(message: 'Please ensure SIM consent is given');
+                          //   return;
+                          // }
                         }
                         
                         // Check for Pod Doc
@@ -353,6 +353,8 @@ void _validateButtonStateOnInit() {
                       },
                     ).expand(),
 
+        
+        
          ],
             ),
           ],

@@ -403,15 +403,15 @@ void initState() {
                                     ],
                                   ),
                                 20.height,
-                                Text(
+                               
+                               
+                              ],
+                            ),
+                              Text(
                                   context.appText.timeLine,
                                   style: AppTextStyle.h4,
                                 ).paddingSymmetric(horizontal: 15),
                                 20.height,
-                               
-                              ],
-                            ),
-                          
                              DriverLoadTimelineWidget(
                                   timelineList:
                                       loads!.data!.timeline ?? [],
@@ -447,15 +447,22 @@ void initState() {
                                       );
                                     }
                                   },
-                                  child: DriverLoadHelper.loadStatusButtonWidget(
-                                   enable: isChangeStatusButtonEnabled(
-                                      loadStatus: loads!.data?.loadStatusId,
-                                      driverConsent: loads!.data?.driverConsent ?? 0,
-                                      tripDocumentList: state.tripDocumentList,
-                                    ),
-                                    statusId:   loads!.data!.loadStatusId ?? 4,
-                                    onPressed: () {
-                                       //Check for sim consent and trip doc
+                                  child:                          
+                              SizedBox(
+                            height: 60,
+                            width: MediaQuery.of(context).size.width * 0.90,
+                            child: CustomSwipeButton(
+                              padding: 0,
+                              price: 0,
+                              loadId: loads.data!.loadId.toString(),
+                              enable: isChangeStatusButtonEnabled(
+                                loadStatus: loads.data?.loadStatusId,
+                                driverConsent: loads.data?.driverConsent ?? 0,
+                                tripDocumentList: state.tripDocumentList,
+                              ),
+                              text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId), 
+                              onSubmit: () {
+                           //Check for sim consent and trip doc
                                     if (loads.data?.loadStatusId == 5) {
                                       final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
@@ -487,8 +494,10 @@ void initState() {
                                   if (currentStatus <= 7) {
                                     changeLoadStatus(context, loadStatus: currentStatus + 1, loadId: loadId);
                                   }
-                                },
-                              ).paddingSymmetric(horizontal: 15),
+                                },                             
+                            ),
+                          ),
+                          
                             ),
                        
               ],
