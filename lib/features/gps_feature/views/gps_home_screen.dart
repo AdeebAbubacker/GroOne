@@ -267,38 +267,6 @@ class _GpsHomeContent extends StatelessWidget {
         },
       ),
       _MenuItem(
-        context.appText.foi,
-        Icons.my_location_outlined,
-        AppConstants.primaryColor,
-        () {},
-      ),
-      _MenuItem(
-        context.appText.immobilise,
-        Icons.flash_off_outlined,
-        AppConstants.primaryColor,
-        () {
-          final Map<String, dynamic> queryParams = {
-            "start": "2025-07-02T18:30:00.000Z", // convertedDateFrom
-            "end": "2025-07-03T18:29:00.000Z", // convertedDateTo
-            "timezone_offset": "0", // "0" for UTC
-            "inputs": {}, // empty map
-            "device_ids": 44, // Example device ID as list
-            "fwd_variable": 0.0, // Same as Java
-          };
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => PathReplayScreen(
-                    token: AppConstants.token ?? '',
-                    queryParams: queryParams,
-                  ),
-            ),
-          );
-        },
-      ),
-      _MenuItem(
         context.appText.vehicleShareUpdate,
         Icons.share_outlined,
         AppConstants.primaryColor,
