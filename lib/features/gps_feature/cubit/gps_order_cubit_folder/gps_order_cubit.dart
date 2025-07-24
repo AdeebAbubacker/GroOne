@@ -3,6 +3,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 // Events
@@ -18,6 +20,12 @@ class GetGpsOrderSummary extends GpsOrderEvent {
   final GpsOrderSummaryRequest request;
 
   GetGpsOrderSummary(this.request);
+}
+
+class InitiateGpsPayment extends GpsOrderEvent {
+  final KavachInitiatePaymentRequest request;
+
+  InitiateGpsPayment(this.request);
 }
 
 // States
@@ -53,44 +61,116 @@ class GpsOrderSummaryError extends GpsOrderState {
   GpsOrderSummaryError(this.message);
 }
 
+class GpsPaymentInitiating extends GpsOrderState {}
+
+class GpsPaymentSuccess extends GpsOrderState {
+  final OrderAddedSuccess paymentResponse;
+
+  GpsPaymentSuccess(this.paymentResponse);
+}
+
+class GpsPaymentFailure extends GpsOrderState {
+  final String message;
+
+  GpsPaymentFailure(this.message);
+}
+
 // Cubit
 class GpsOrderCubit extends Cubit<GpsOrderState> {
   final GpsOrderApiRepository _repository;
   final UserInformationRepository _userRepository;
+  bool _isClosed = false;
 
   GpsOrderCubit(this._repository, this._userRepository) : super(GpsOrderInitial());
 
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(GpsOrderInitial());
+  }
+
   Future<void> createOrder(GpsOrderRequest request) async {
-    emit(GpsOrderLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(GpsOrderLoading());
+    }
+    
     try {
       final result = await _repository.createGpsOrder(request);
+      
+      if (_isClosed) return;
+      
       if (result is Success) {
-        emit(GpsOrderSuccess('Order created successfully'));
+        if (!_isClosed) {
+          emit(GpsOrderSuccess('Order created successfully'));
+        }
       } else if (result is Error) {
         final errorMessage = result.type is ErrorWithMessage
             ? (result.type as ErrorWithMessage).message
             : 'Failed to create order';
-        emit(GpsOrderError(errorMessage));
+        if (!_isClosed) {
+          emit(GpsOrderError(errorMessage));
+        }
       }
     } catch (e) {
-      emit(GpsOrderError(e.toString()));
+      if (!_isClosed) {
+        emit(GpsOrderError(e.toString()));
+      }
     }
   }
 
   Future<void> getOrderSummary(GpsOrderSummaryRequest request) async {
-    emit(GpsOrderSummaryLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(GpsOrderSummaryLoading());
+    }
+    
     try {
       final result = await _repository.getGpsOrderSummary(request);
+      
+      if (_isClosed) return;
+      
       if (result is Success<GpsOrderSummaryResponse>) {
-        emit(GpsOrderSummaryLoaded(result.value));
+        if (!_isClosed) {
+          emit(GpsOrderSummaryLoaded(result.value));
+        }
       } else if (result is Error<GpsOrderSummaryResponse>) {
         final errorMessage = result.type is ErrorWithMessage
             ? (result.type as ErrorWithMessage).message
             : 'Failed to get order summary';
-        emit(GpsOrderSummaryError(errorMessage));
+        if (!_isClosed) {
+          emit(GpsOrderSummaryError(errorMessage));
+        }
       }
     } catch (e) {
-      emit(GpsOrderSummaryError(e.toString()));
+      if (!_isClosed) {
+        emit(GpsOrderSummaryError(e.toString()));
+      }
+    }
+  }
+
+  Future<void> initiatePayment(KavachInitiatePaymentRequest request) async {
+    emit(GpsPaymentInitiating());
+    try {
+      final result = await _repository.initiatePayment(request);
+      if (result is Success<OrderAddedSuccess>) {
+        emit(GpsPaymentSuccess(result.value));
+      } else if (result is Error<OrderAddedSuccess>) {
+        final errorMessage = result.type is ErrorWithMessage
+            ? (result.type as ErrorWithMessage).message
+            : 'Failed to initiate payment';
+        emit(GpsPaymentFailure(errorMessage));
+      }
+    } catch (e) {
+      emit(GpsPaymentFailure(e.toString()));
     }
   }
 

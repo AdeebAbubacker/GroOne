@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -38,6 +39,7 @@ import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -67,7 +69,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
   State<HomeScreenLoadProvider> createState() => _HomeScreenLoadProviderState();
 }
 
-class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
+class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -188,17 +190,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     return checkAllField;
   }
 
-  Future<void> fetchRateDiscovery() async {
 
+  // Fetch Rate Discovery
+  Future<void> fetchRateDiscovery() async {
     if (!isFormValid()) {
       return;
     }
-
     if (lpHomeCubit.state.laneId == null){
       ToastMessages.error(message: context.appText.landIdNull);
       return;
     }
-
     final req = RateDiscoveryApiRequest(
       laneId: lpHomeCubit.state.laneId.toString(),
       truckTypeId: truckTypeId ?? "",
@@ -219,23 +220,26 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     setState(() {});
   }
 
+
   // Load Post Api Call
   Future<void> postLoad(BuildContext context) async {
-
-
     // 3 Complete KYC | 2 In Progress kyc | 1 Pending Kyc
     if (isKycValid == 1) {
       kycBottomSheet(context);
       return;
     }
-
     if (isKycValid == 2) {
       String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
       if (firstPostedLoadId != null) {
-        AppDialog.show(context, child: KycInProgressDialogue(onPressed: () {
-          Navigator.pop(context);
-        }));
+        if(!context.mounted) return;
+        AppDialog.show(
+            context,
+            child: KycInProgressDialogue(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+            ),
+        );
         return;
       }
     }
@@ -266,6 +270,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
 
     // Pass Data in to next page
+    if(!context.mounted) return;
     Navigator.push(context, commonRoute(LoadSummaryScreen(
       apiRequest: request,
       pickupAddress:  lpHomeCubit.state.pickup?.data?.address ?? "",
@@ -319,6 +324,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   });
 
 
+  //
   void navigateToLPSelectAddressScreen(state) {
     Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
         title: context.appText.pickupPoint,
@@ -331,13 +337,25 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     });
   }
 
+
   void navigateToRecentRouteScreen() {
-    Navigator.of(context).push(createRoute(RecentRouteScreen()))
-        .then((onValue) async {
+    Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue) async {
       if (onValue != null && onValue == true) {
         await fetchRateDiscovery();
       }
     });
+  }
+
+
+  // Store Kyc Status Event
+  void logKycStatusEvent(int kycFlag){
+    if (kycFlag == 1) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+    } else if (kycFlag == 2) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+    } else if (kycFlag == 3) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+    }
   }
 
 
@@ -537,7 +555,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           final companyId = profileState.data?.customer?.companyTypeId;
 
           isKycValid = customer.isKyc.toInt();
-
+          logKycStatusEvent(customer.isKyc.toInt());
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {

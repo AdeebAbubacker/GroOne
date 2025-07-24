@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_mo
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
@@ -19,7 +20,7 @@ class LoadDetailsState extends Equatable {
   final UIState<VpLoadAcceptModel>? vpLoadStatus;
   final UIState<DirectionResponse>? directionApiResponse;
   final UIState<ScheduleTripResponse>? scheduleTripResponse;
-  final UIState<DamageModel>? settlementUIState;
+  final UIState<SettlementApiResponse>? settlementUIState;
   final UIState<DamageModel>? createDamageUIState;
   final UIState<UpdateDamageModel>? updateDamageUIState;
   final UIState<DeleteDamageModel>? deleteDamageUIState;
@@ -63,7 +64,7 @@ class LoadDetailsState extends Equatable {
     UIState<DirectionResponse>? directionApiResponse,
     UIState<LoadDetailModel>? loadDetailsUIState,
     UIState<ScheduleTripResponse>? scheduleTripResponse,
-    UIState<DamageModel>? settlementUIState,
+    UIState<SettlementApiResponse>? settlementUIState,
     UIState<DamageModel>? createDamageUIState,
     UIState<UpdateDamageModel>? updateDamageUIState,
     UIState<DeleteDamageModel>? deleteDamageUIState,

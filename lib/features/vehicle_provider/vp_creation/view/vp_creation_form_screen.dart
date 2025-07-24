@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -15,6 +16,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -51,7 +53,7 @@ class VpCreationFormScreen extends StatefulWidget {
   State<VpCreationFormScreen> createState() => _VpCreationFormScreenState();
 }
 
-class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
+class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -124,7 +126,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
 
 
   // Vp Creation Api call
-  void vpCreationApiCall() {
+  Future<void> vpCreationApiCall(VpCreateAccountState state) async {
     if (formKey.currentState!.validate()) {
       if (uploadedRcFile == null) {
         ToastMessages.alert(message: context.appText.rcDocumentRequiredError);
@@ -156,7 +158,11 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         uploadRc: uploadedRcFile,
         roleId: widget.roleId,
       );
-      vpCreationCubit.createAccount(request, widget.id);
+      await vpCreationCubit.createAccount(request, widget.id);
+
+      if (state.createAccountUIState?.status == Status.SUCCESS) {
+        analyticsHelper.logEvent(AnalyticEventName.ONBOARD_VP_FORM_SUBMITTED, request.toJson());
+      }
     }
   }
 
@@ -420,6 +426,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
                       value: e.id,
                       label: "${e.type} ${e.subType}",
                     )).toList(),
+
                     onSelectionChange: (selected) {
                       if (selected.isNotEmpty) {
                         selectedTruckTypeList = selected; // already List<int>
@@ -596,7 +603,7 @@ class _VpCreationFormScreenState extends State<VpCreationFormScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? (){} : () => vpCreationApiCall(),
+          onPressed: isLoading ? (){} : () async => await vpCreationApiCall(state),
         );
       },
     ).bottomNavigationPadding();

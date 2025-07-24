@@ -151,6 +151,7 @@ class ApiUrls {
   static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
   static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
   static String  kavachVehicleVerification = "$verification/vehicle";
+  static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
 
   /// En-Dhan
@@ -195,7 +196,10 @@ class ApiUrls {
  /// Driver
  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
- static const String driverLoadById = "https://gro-devapi.letsgro.co/load-discovery/api/v1/load/driver/";
+ static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
+
+
+
 
 
   /// GPS Tracking

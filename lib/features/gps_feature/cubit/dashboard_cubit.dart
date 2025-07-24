@@ -22,12 +22,30 @@ class DashboardState {
 }
 
 class DashboardCubit extends Cubit<DashboardState> {
+  bool _isClosed = false;
+
   DashboardCubit() : super(DashboardState()) {
     _loadInitialData();
   }
 
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(DashboardState());
+  }
+
   void _loadInitialData() {
-    emit(state.copyWith(isLoading: true));
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(state.copyWith(isLoading: true));
+    }
 
     // Mock data - replace with actual API call later
     final mockData = VehicleDataResponse(
@@ -43,10 +61,14 @@ class DashboardCubit extends Cubit<DashboardState> {
       vehicleNumber: 'RTX42C7098',
     );
 
-    emit(state.copyWith(vehicleData: mockData, isLoading: false));
+    if (!_isClosed) {
+      emit(state.copyWith(vehicleData: mockData, isLoading: false));
+    }
   }
 
   void refreshData() {
-    _loadInitialData();
+    if (!_isClosed) {
+      _loadInitialData();
+    }
   }
 }

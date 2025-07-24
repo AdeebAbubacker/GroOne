@@ -15,14 +15,25 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
   final DriverProfileRepository _repo;
   DriverProfileCubit(this._repo): super(DriverProfileState());
 
-  
+  // Get User Id
+  String? userId;
+  Future<String?> fetchUserId() async {
+    userId = await _repo.getUserId();
+    CustomLog.debug(this, "User Id : $userId");
+    return userId;
+  }
 
 
   // Fetch Profile Detail Api Call
   void _setProfileDetailUIState(UIState<DriverProfileDetailsModel>? uiState){
     emit(state.copyWith(profileDetailUIState: uiState));
   }
-  Future<void> fetchProfileDetail() async {
+  Future<void> fetchProfileDetail({Object? instance}) async {
+    userId = await _repo.getUserId();
+    CustomLog.debug(instance ?? this, "Profile Detail Api Call : UserId $userId");
+    if (userId == null) {
+      return;
+    }
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<DriverProfileDetailsModel>) {

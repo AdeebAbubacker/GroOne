@@ -5,6 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
+import '../../../profile/cubit/profile_cubit.dart';
+import '../../../login/repository/user_information_repository.dart';
+import '../../gps_order_request/gps_order_api_request.dart';
+import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -24,7 +28,6 @@ import '../../../../utils/constant_variables.dart';
 import '../../../../utils/validator.dart';
 import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
-import '../../../../features/login/repository/user_information_repository.dart';
 import '../../models/gps_document_models.dart';
 import '../../gps_order_repo/gps_order_api_repository.dart';
 import 'gps_billing_address_list_screen.dart';
@@ -64,6 +67,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   Map<String, List<bool>> vehicleVerificationStatusPerProduct = {}; // Track verification status
   late final GpsShippingAddressCubit gpsShippingAddressCubit;
   late final GpsBillingAddressCubit gpsBillingAddressCubit;
+  late final GpsOrderCubit gpsOrderCubit;
+  final profileCubit = locator<ProfileCubit>();
+  final userInfoRepo = locator<UserInformationRepository>();
 
   late Map<String, int> _quantities;
   late List<GpsProduct> _products;
@@ -73,6 +79,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   TextEditingController shippingPersonInChargeController = TextEditingController();
   TextEditingController shippingPersonContactNoController = TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
+  
+  // Store previous shipping address for restoration
+  KavachAddressModel? _previousShippingAddress;
 
   @override
   void initState() {
@@ -108,12 +117,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     try {
       gpsShippingAddressCubit = locator<GpsShippingAddressCubit>();
       gpsBillingAddressCubit = locator<GpsBillingAddressCubit>();
+      gpsOrderCubit = locator<GpsOrderCubit>();
     } catch (e) {
       // Fallback: create new instances directly
       final repository = locator<GpsOrderApiRepository>();
       final userRepository = locator<UserInformationRepository>();
       gpsShippingAddressCubit = GpsShippingAddressCubit(repository, userRepository);
       gpsBillingAddressCubit = GpsBillingAddressCubit(repository, userRepository);
+      gpsOrderCubit = GpsOrderCubit(repository, userRepository);
     }
 
     // Initialize vehicle controllers with previous selection if available
@@ -161,23 +172,93 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
       _checkAndRestoreAddressStates();
       _clearAddressSelectionsIfFreshOrder();
     });
+    
+    // Listen to shipping address changes to update stored previous address
+    gpsShippingAddressCubit.stream.listen((state) {
+      if (state is GpsShippingAddressSelected && !shippingSameAsBilling) {
+        // Update stored previous address when user manually selects a shipping address
+        _previousShippingAddress = state.selectedAddress;
+      }
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh addresses when screen becomes visible again
+    // Only refresh addresses if they are in initial or error states
+    // Don't refresh if they are already loaded or selected
     _refreshAddressesIfNeeded();
   }
 
-  /// Handle navigation back from address screens
-  void _handleAddressScreenReturn() {
-    // Refresh addresses immediately when returning from address screens
-    if (mounted) {
+  /// Refresh addresses if they are in error state or empty
+  void _refreshAddressesIfNeeded() {
+    // Refresh billing addresses if in error state or empty
+    if (gpsBillingAddressCubit.state is GpsBillingAddressError ||
+        gpsBillingAddressCubit.state is GpsBillingAddressEmpty) {
       gpsBillingAddressCubit.fetchGpsBillingAddresses();
+    }
+
+    // Refresh shipping addresses if in error state or empty
+    if (gpsShippingAddressCubit.state is GpsShippingAddressError ||
+        gpsShippingAddressCubit.state is GpsShippingAddressEmpty) {
       gpsShippingAddressCubit.fetchGpsShippingAddresses();
     }
   }
+
+  /// Refresh addresses while preserving current selections
+  void _refreshAddressesPreservingSelections() {
+    if (!mounted) return;
+    
+    final billingState = gpsBillingAddressCubit.state;
+    final shippingState = gpsShippingAddressCubit.state;
+    
+    // Store current selections
+    KavachAddressModel? currentBillingSelection;
+    KavachAddressModel? currentShippingSelection;
+    
+    if (billingState is GpsBillingAddressSelected) {
+      currentBillingSelection = billingState.selectedAddress;
+    }
+    
+    if (shippingState is GpsShippingAddressSelected) {
+      currentShippingSelection = shippingState.selectedAddress;
+    }
+    
+    // Only refresh if not already loading
+    if (billingState is! GpsBillingAddressLoading) {
+      print('🔄 GPS Checkout: Refreshing billing addresses while preserving selection');
+      gpsBillingAddressCubit.fetchGpsBillingAddresses().then((_) {
+        // Restore billing selection if it was previously selected
+        if (currentBillingSelection != null && mounted) {
+          // Add a small delay to ensure the fetch is complete
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (mounted) {
+              gpsBillingAddressCubit.selectGpsBillingAddress(currentBillingSelection!);
+            }
+          });
+        }
+      });
+    }
+    
+    if (shippingState is! GpsShippingAddressLoading) {
+      print('🔄 GPS Checkout: Refreshing shipping addresses while preserving selection');
+      gpsShippingAddressCubit.fetchGpsShippingAddresses().then((_) {
+        // Restore shipping selection if it was previously selected
+        if (currentShippingSelection != null && mounted) {
+          // Add a small delay to ensure the fetch is complete
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (mounted) {
+              gpsShippingAddressCubit.selectGpsShippingAddress(currentShippingSelection!);
+            }
+          });
+        }
+      });
+    }
+  }
+
+
+
+
 
   @override
   void dispose() {
@@ -197,7 +278,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      // App became visible again, refresh addresses if needed
+      // App became visible again, only refresh if needed
       _refreshAddressesIfNeeded();
     }
   }
@@ -216,20 +297,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     }
   }
 
-  /// Refresh addresses if they are in error state or empty
-  void _refreshAddressesIfNeeded() {
-    // Refresh billing addresses if in error state or empty
-    if (gpsBillingAddressCubit.state is GpsBillingAddressError ||
-        gpsBillingAddressCubit.state is GpsBillingAddressEmpty) {
-      gpsBillingAddressCubit.fetchGpsBillingAddresses();
-    }
 
-    // Refresh shipping addresses if in error state or empty
-    if (gpsShippingAddressCubit.state is GpsShippingAddressError ||
-        gpsShippingAddressCubit.state is GpsShippingAddressEmpty) {
-      gpsShippingAddressCubit.fetchGpsShippingAddresses();
-    }
-  }
 
   /// Clear address selections if this is a fresh order (no previous data)
   void _clearAddressSelectionsIfFreshOrder() {
@@ -331,9 +399,138 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     return false;
   }
 
+  // Get customer information from profile or session
+  Future<Map<String, String>> getCustomerInfo() async {
+    try {
+      // First try to get from session storage
+      String? companyName = await userInfoRepo.getUsername();
+      String? contactNumber = await userInfoRepo.getUserMobileNumber();
+      String? blueId = await userInfoRepo.getBlueID();
+      
+      // If session data is not available, fetch from profile
+      if (companyName == null || companyName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+        
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          contactNumber = customer.mobileNumber;
+          blueId = customer.blueId?.toString() ?? "";
+        }
+      }
+      
+      // Fallback to hardcoded values if still not available
+      return {
+        "companyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+      };
+    } catch (e) {
+      // Return hardcoded values as fallback
+      return {
+        "companyName": "ABC Logistics Pvt Ltd",
+        "contactNumber": "9876543210",
+        "blueMembershipId": "BLUE123456"
+      };
+    }
+  }
+
+  // Helper function to parse address and extract city, state, postal code
+  Map<String, String> _parseAddress(String addressString) {
+    // Default values
+    String city = '';
+    String state = '';
+    String postalCode = '';
+
+    try {
+      // Split by commas and clean up
+      List<String> parts = addressString.split(',').map((part) => part.trim()).toList();
+
+      if (parts.length >= 3) {
+        // Try to extract postal code from the last part (format: "Country - PostalCode")
+        String lastPart = parts.last;
+        if (lastPart.contains('-')) {
+          List<String> countryPostal = lastPart.split('-').map((part) => part.trim()).toList();
+          if (countryPostal.length >= 2) {
+            postalCode = countryPostal.last;
+          }
+        }
+
+        // Extract city and state from middle parts
+        if (parts.length >= 4) {
+          if (parts.length >= 5) {
+            city = parts[parts.length - 3]; // Third from last
+            state = parts[parts.length - 2]; // Second from last
+          } else {
+            city = parts[1]; // Second part
+            state = parts[2]; // Third part
+          }
+        } else if (parts.length >= 3) {
+          state = parts[1];
+        }
+      }
+    } catch (e) {
+      print('Error parsing address: $e');
+    }
+
+    return {'city': city, 'state': state, 'postalCode': postalCode};
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<GpsOrderCubit, GpsOrderState>(
+      bloc: gpsOrderCubit,
+      listener: (context, state) async {
+        if (state is GpsOrderLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        } else if (state is GpsOrderSuccess) {
+          // Dismiss loading dialog first
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          
+          // Wait a bit to ensure dialog is dismissed
+          await Future.delayed(Duration(milliseconds: 100));
+          
+          // Navigate to summary screen with order data
+          if (context.mounted) {
+            print("Navigating to GpsOrderSummaryScreen");
+            Navigator.of(context).push(
+              commonRoute(
+                GpsOrderSummaryScreen(
+                  products: _products,
+                  quantities: _quantities,
+                  availableStocks: _availableStocks,
+                  shippingAddress: _getCurrentShippingAddress()!,
+                  billingAddress: _getCurrentBillingAddress()!,
+                  selectedVehicleNumbers: _getSelectedVehicles(),
+                  shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+                  shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                  orderReferencedBy: referralCodeController.text.trim(),
+                  selectedVehiclePerProduct: vehicleControllersPerProduct.map(
+                    (key, value) => MapEntry(
+                      key,
+                      value.map((controller) => controller.text.trim()).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+        } else if (state is GpsOrderError) {
+          // Dismiss loading dialog
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+          ToastMessages.error(message: "Failed to place order: ${state.message}");
+        }
+      },
+      child: Scaffold(
       appBar: CommonAppBar(
         centreTile: false,
         title: context.appText.checkout,
@@ -369,7 +566,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
       ),
       bottomNavigationBar: buildPlaceOrderButtonWidget(),
       body: buildBodyWidget(context),
-    );
+    )
+  );
   }
 
   Widget buildBodyWidget(BuildContext context) {
@@ -488,8 +686,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   ).then((_) {
-                                    // Refresh addresses after returning from billing address screen
-                                    _handleAddressScreenReturn();
+                                    // No refresh needed - addresses will be refreshed when screen becomes visible
                                   });
                                 },
                                 title: context.appText.billingAddress,
@@ -520,7 +717,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       // The address was selected and returned
                                       gpsBillingAddressCubit.selectGpsBillingAddress(result);
                                     }
-                                    // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                    // No refresh needed - addresses will be refreshed when screen becomes visible
                                   });
                                 },
                               );
@@ -550,7 +747,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       // The address was selected and returned
                                       gpsBillingAddressCubit.selectGpsBillingAddress(result);
                                     }
-                                    // Don't refresh addresses if no address was selected (user just closed the sheet)
+                                    // No refresh needed - addresses will be refreshed when screen becomes visible
                                   });
                                 },
                               );
@@ -1127,7 +1324,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   Widget buildPlaceOrderButtonWidget() {
     return AppButton(
       title: context.appText.placeOrder,
-      onPressed: () {
+      onPressed: () async {
         final shippingState = gpsShippingAddressCubit.state;
         final billingState = gpsBillingAddressCubit.state;
         final selectedVehicles = <String>[];
@@ -1196,30 +1393,115 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
           return;
         }
 
-        // If all validations pass, proceed to summary screen
+        // If all validations pass, create order
         if (shippingState is GpsShippingAddressSelected &&
             billingState is GpsBillingAddressSelected) {
-          Navigator.of(context).push(
-            commonRoute(
-              GpsOrderSummaryScreen(
-                products: _products,
-                quantities: _quantities,
-                availableStocks: _availableStocks,
-                shippingAddress: shippingState.selectedAddress,
-                billingAddress: billingState.selectedAddress,
-                selectedVehicleNumbers: selectedVehicles,
-                shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
-                shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
-                orderReferencedBy: referralCodeController.text.trim(),
-                selectedVehiclePerProduct: vehicleControllersPerProduct.map(
-                      (key, value) => MapEntry(
-                    key,
-                    value.map((controller) => controller.text.trim()).toList(),
-                  ),
-                ),
-              ),
-            ),
+          
+          // Calculate total amount
+          double totalAmount = 0.0;
+          for (var product in _products) {
+            int qty = _quantities[product.id] ?? 0;
+            double price = double.tryParse(product.price) ?? 0.0;
+            double itemTotal = price * qty;
+            totalAmount += itemTotal + (itemTotal * (18.0 / 100)); // 18% GST
+          }
+
+          // Get customer information
+          final customerInfo = await getCustomerInfo();
+
+          // Determine if referral code is provided and extract employee details
+          String? createdEmpId;
+          int createdEmpUserId = 1234; // Default value
+          
+          if (referralCodeController.text.trim().isNotEmpty) {
+            createdEmpId = referralCodeController.text.trim();
+            createdEmpUserId = 52864; // This should be fetched based on referral code
+          }
+
+          // Create billing address
+          final billingAddressParts = _parseAddress(billingState.selectedAddress.addr1);
+          final billingAddress = GpsOrderAddress(
+            addressLine1: billingState.selectedAddress.addressName,
+            addressLine2: billingState.selectedAddress.addr1,
+            city: billingState.selectedAddress.city.isNotEmpty
+                ? billingState.selectedAddress.city
+                : billingAddressParts['city']!,
+            state: billingState.selectedAddress.state.isNotEmpty
+                ? billingState.selectedAddress.state
+                : billingAddressParts['state']!,
+            postalCode: billingState.selectedAddress.pincode.isNotEmpty
+                ? billingState.selectedAddress.pincode
+                : billingAddressParts['postalCode']!,
+            country: billingState.selectedAddress.country,
+            gstId: billingState.selectedAddress.gstin ?? "",
           );
+
+          // Create shipping address
+          final shippingAddressParts = _parseAddress(shippingState.selectedAddress.addr1);
+          final shippingAddress = GpsOrderAddress(
+            addressLine1: shippingState.selectedAddress.addressName,
+            addressLine2: shippingState.selectedAddress.addr1,
+            city: shippingState.selectedAddress.city.isNotEmpty
+                ? shippingState.selectedAddress.city
+                : shippingAddressParts['city']!,
+            state: shippingState.selectedAddress.state.isNotEmpty
+                ? shippingState.selectedAddress.state
+                : shippingAddressParts['state']!,
+            postalCode: shippingState.selectedAddress.pincode.isNotEmpty
+                ? shippingState.selectedAddress.pincode
+                : shippingAddressParts['postalCode']!,
+            country: shippingState.selectedAddress.country,
+            gstId: shippingState.selectedAddress.gstin ?? "",
+          );
+
+          // Create order items
+          final orders = _products.map((product) {
+            final quantity = _quantities[product.id]!;
+            final stock = _availableStocks[product.id] ?? 0;
+            final vehicleControllers = vehicleControllersPerProduct[product.id] ?? [];
+            final price = double.tryParse(product.price) ?? 0.0;
+            final itemTotal = price * quantity;
+            final itemGst = itemTotal * (18.0 / 100);
+            final totalWithGst = itemTotal + itemGst;
+
+            return GpsOrderItem(
+              productServiceId: int.parse(product.id),
+              noOfProducts: quantity,
+              unitPrice: price,
+              totalPrice: totalWithGst,
+              stockAvailable: stock,
+              vehicleNumbers: vehicleControllers.map((controller) => GpsOrderVehicle(vehicleNumber: controller.text.trim())).toList(),
+            );
+          }).toList();
+
+          // Create customer info
+          final customerInfoObj = GpsCustomerInfo(
+            companyName: customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+            contactNumber: customerInfo["contactNumber"] ?? "9876543210",
+            blueMembershipId: customerInfo["blueMembershipId"] ?? "BLUE123456",
+          );
+
+          final request = GpsOrderRequest(
+            orderSource: "MOBILE",
+            isOrderPaid: false, // Set to false since payment will be handled separately
+            customerId: await gpsOrderCubit.getUserId() ?? '',
+            createdEmpUserId: createdEmpUserId,
+            createdEmpId: createdEmpId,
+            orderReferencedBy: referralCodeController.text.trim().isNotEmpty ? referralCodeController.text.trim() : "DIRECT",
+            totalPrice: totalAmount,
+            categoryId: 1,
+            orderTypeId: 1,
+            teamId: 1,
+            shippingPersonIncharge: shippingPersonInChargeController.text.trim(),
+            shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+            customerInfo: customerInfoObj,
+            billingAddress: billingAddress,
+            shippingAddress: shippingAddress,
+            orders: orders,
+          );
+
+          print("Submitting GPS order...");
+          gpsOrderCubit.createOrder(request);
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);
         }
@@ -1230,24 +1512,36 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
   Widget checkBoxSameAsShipping() {
     return AppCheckBox(
       onChanged: (checked) {
-        setState(() {
-          shippingSameAsBilling = checked ?? false;
-        });
-
         final billingState = gpsBillingAddressCubit.state;
+        final shippingState = gpsShippingAddressCubit.state;
 
-        if (shippingSameAsBilling) {
+        if (checked == true) {
+          // User is checking the box - store current shipping address and copy billing
+          if (shippingState is GpsShippingAddressSelected) {
+            _previousShippingAddress = shippingState.selectedAddress;
+          }
+          
           if (billingState is GpsBillingAddressSelected) {
             gpsShippingAddressCubit.selectGpsShippingAddress(billingState.selectedAddress);
           } else {
             ToastMessages.alert(
               message: context.appText.pleaseSelectBillingFirst,
             );
+            return; // Don't update state if billing not selected
           }
         } else {
-          gpsShippingAddressCubit.clearGpsShippingAddressSelection();
-          // No need to fetch again if addresses are already loaded
+          // User is unchecking the box - restore previous shipping address if available
+          if (_previousShippingAddress != null) {
+            gpsShippingAddressCubit.selectGpsShippingAddress(_previousShippingAddress!);
+          } else {
+            // If no previous address, just clear the selection
+            gpsShippingAddressCubit.clearGpsShippingAddressSelection();
+          }
         }
+
+        setState(() {
+          shippingSameAsBilling = checked ?? false;
+        });
       },
       value: shippingSameAsBilling,
       title: context.appText.sameAsBillingAddress,
@@ -1340,7 +1634,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                   ),
                 ],
               ),
-              Text(address.fullAddress, style: AppTextStyle.blackColor14w400),
+              Text(address.addr1, style: AppTextStyle.blackColor14w400),
+              Text("${address.city}, ${address.state}", style: AppTextStyle.blackColor14w400),
+              Text("${address.country}- ${address.pincode}", style: AppTextStyle.blackColor14w400),
               Visibility(
                 visible: address.gstin != null && address.gstin!.isNotEmpty,
                 child: Text(
@@ -1353,6 +1649,19 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
         ),
       ],
     );
+  }
+
+  // Get selected vehicles from all products
+  List<String> _getSelectedVehicles() {
+    final selectedVehicles = <String>[];
+    vehicleControllersPerProduct.forEach((productId, controllers) {
+      for (var controller in controllers) {
+        if (controller.text.trim().isNotEmpty) {
+          selectedVehicles.add(controller.text.trim());
+        }
+      }
+    });
+    return selectedVehicles;
   }
 
 }

@@ -16,6 +16,7 @@ class DocumentEntity {
   bool? isLoading;
   bool? deleteLoading;
 
+
   DocumentEntity({
     this.title,
     this.fileType,
@@ -47,7 +48,6 @@ class DocumentEntity {
       documentType: documentType ?? this.documentType,
       loadDocument: clearLoadData? null: loadDocument ?? this.loadDocument,
       isLoading: isLoading ?? this.isLoading,
-
     );
   }
 }
@@ -84,6 +84,7 @@ List<DocumentEntity> documentTypeList=[
   ),
 
   DocumentEntity(
+
     documentTypeId: 309,
     fileType: DocumentFileType.uploadOtherDocument.name,
     title:navigatorKey.currentState?.context.appText.uploadOtherDocuments,

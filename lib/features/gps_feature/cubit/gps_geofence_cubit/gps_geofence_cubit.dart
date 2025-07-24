@@ -14,25 +14,45 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
   final GpsRepository _repository;
   final GpsLoginRepository _loginRepository;
   bool _hasLoadedData = false; // Guard against repeated API calls
+  bool _isClosed = false;
 
   GpsGeofenceCubit(this._repository, this._loginRepository)
     : super(GpsGeofenceInitial());
 
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(GpsGeofenceInitial());
+  }
 
   Future<void> loadGeofences({bool forceRefresh = false}) async {
+    if (_isClosed) return;
+    
     if (_hasLoadedData && state is GpsGeofenceLoaded && !forceRefresh) {
       debugPrint("📍 GpsGeofenceCubit.loadGeofences() - Skipping due to cache");
       return;
     }
 
-    emit(GpsGeofenceLoading());
+    if (!_isClosed) {
+      emit(GpsGeofenceLoading());
+    }
 
     try {
       if (!forceRefresh) {
         final storedGeofences = await _loginRepository.getStoredGeofences();
+        if (_isClosed) return;
+        
         if (storedGeofences.isNotEmpty) {
           debugPrint("📱 Loaded from Realm: ${storedGeofences.length}");
-          emit(GpsGeofenceLoaded(storedGeofences));
+          if (!_isClosed) {
+            emit(GpsGeofenceLoaded(storedGeofences));
+          }
           _hasLoadedData = true;
           return;
         }
@@ -40,29 +60,42 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
       debugPrint("🌐 Fetching geofences from API...");
       final result = await _repository.fetchGeofences();
+      
+      if (_isClosed) return;
+      
       if (result is Success<List<GpsGeofenceModel>>) {
         debugPrint("✅ Fetched from API: ${result.value.length}");
-        emit(GpsGeofenceLoaded(result.value));
+        if (!_isClosed) {
+          emit(GpsGeofenceLoaded(result.value));
+        }
         _hasLoadedData = true;
       } else if (result is Error<List<GpsGeofenceModel>>) {
         debugPrint("❌ API fetch failed");
-        emit(GpsGeofenceError(result.type.toString()));
+        if (!_isClosed) {
+          emit(GpsGeofenceError(result.type.toString()));
+        }
       }
     } catch (e) {
       debugPrint("❌ Error in loadGeofences: $e");
-      emit(GpsGeofenceError(e.toString()));
+      if (!_isClosed) {
+        emit(GpsGeofenceError(e.toString()));
+      }
     }
   }
-
 
   Future<void> loadVehicleGeofences({
     required String deviceId,
     required String vehicleId,
   }) async {
+    if (_isClosed) return;
+    
     try {
       final result = await _repository.fetchGeofencesForVehicle(
         deviceId
       );
+      
+      if (_isClosed) return;
+      
       if (result is Success<List<GpsGeofenceModel>>) {
         final activeGeofenceIds = result.value.map((g) => g.id).toSet();
 
@@ -72,7 +105,9 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
             currentState.vehicleGeofenceMap,
           )..[vehicleId] = activeGeofenceIds;
 
-          emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+          if (!_isClosed) {
+            emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+          }
         }
       } else if (result is Error) {
         CustomLog.error(
@@ -86,16 +121,27 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     }
   }
 
-
   Future<void> submitGeofence(GpsGeofenceModel model) async {
-    emit(GpsGeofenceLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(GpsGeofenceLoading());
+    }
+    
     final result = await _repository.addOrUpdateGeofence(model);
+    
+    if (_isClosed) return;
+    
     if (result is Success<void>) {
-      emit(GpsGeofenceSubmitSuccess()); // ✅ Emit submit success
+      if (!_isClosed) {
+        emit(GpsGeofenceSubmitSuccess()); // ✅ Emit submit success
+      }
       _hasLoadedData = false; // Reset flag to allow refresh
       await loadGeofences(forceRefresh: true); // ✅ Refresh list
     } else if (result is Error<void>) {
-      emit(GpsGeofenceError(result.type.toString()));
+      if (!_isClosed) {
+        emit(GpsGeofenceError(result.type.toString()));
+      }
     }
   }
 
@@ -132,10 +178,14 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         updatedMap[vehicleId] = updatedGeofenceIds;
 
         // ✅ Emit loaded state again with updated map
-        emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+        if (!_isClosed) {
+          emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+        }
       }
     } else if (result is Error) {
-      emit(GpsGeofenceError(result.type.toString()));
+      if (!_isClosed) {
+        emit(GpsGeofenceError(result.type.toString()));
+      }
     }
   }
 

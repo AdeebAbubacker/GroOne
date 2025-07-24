@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -184,13 +186,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // Submit Settlement Api Call
-  void _setSettlementUIState(UIState<DamageModel>? uiState){
+  void _setSettlementUIState(UIState<SettlementApiResponse>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
-    if (result is Success<DamageModel>) {
+    if (result is Success<SettlementApiResponse>) {
       _setSettlementUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -272,6 +274,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
     if (result is Success<UploadDamageFileModel>) {
+      /// We need to call here
+      /// create document
+      // createDocument(title, documentTypeId, uploadImage);
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -312,6 +317,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
             uploadLoadingStatus(index, null);
           }
         },);
+
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);
@@ -346,7 +352,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
     List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
-
     final updatedDocument = currentDocument.copyWith(
       loadDocument: currentDocument.loadDocument ?? loadDocument,
       isLoading: !(currentDocument.isLoading ?? false),
@@ -436,6 +441,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           loadId: loadId
       ).then((value) {
         if (value is Success<LoadDocument>) {
+
           return value.value;
         }
         return null;
@@ -448,10 +454,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
+
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
+
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
@@ -483,7 +491,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   void resetSettlementUIState() {
-    emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
+    emit(state.copyWith(settlementUIState: resetUIState<SettlementApiResponse>(
         state.settlementUIState)));
   }
 
@@ -533,7 +541,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     try {
       DocumentEntity? document = documentEntity.firstWhere((element) =>
       element.loadDocument == null && element.visible==true);
-      return document == null;
+      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
     } catch (e) {
       return true;
     }
@@ -541,16 +549,63 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
  bool isNextProcessButtonEnabled({required List<
      DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
-
     switch(loadStatus){
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return driverConsent==1 &&   checkIsDocumentUploaded(documentEntity);
+      return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }
   }
+
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+
+      case LoadStatus.loading:
+      return  checkLoadingDocumentAddedOrNot(documentList,true);
+
+      case LoadStatus.unloading:
+        bool isPodAdded=checkLoadingDocumentAddedOrNot(documentList,false);
+        print("isPodAdded $isPodAdded");
+        return checkLoadingDocumentAddedOrNot(documentList,false);
+      default:
+        return true;
+    }
+
+
+  }
+  bool checkLoadingDocumentAddedOrNot(List<LoadDocument> loadDocumentList,bool? checkPod){
+    List<String> requiredDocument= (checkPod??false)   ?  [
+      navigatorKey.currentState?.context.appText.lorryReceipt??"",
+      navigatorKey.currentState?.context.appText.ewayBill??"",
+      navigatorKey.currentState?.context.appText.materialInvoice??"",
+
+    ]:[
+      navigatorKey.currentState?.context.appText.pod??""
+    ];
+
+    bool isAdded=false;
+    for(var item in requiredDocument){
+      print("item is ${item}");
+      try{
+        loadDocumentList.firstWhere((element) => element.documentDetails?.documentType==item);
+        isAdded=true;
+        print("added");
+      }catch(e){
+        print("not added");
+        return false;
+      }
+    }
+    return isAdded;
+
+  }
+
+
+
+
+
+
 }

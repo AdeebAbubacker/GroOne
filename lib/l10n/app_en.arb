@@ -124,7 +124,7 @@
   "models": "Models",
   "excludingGST": "*Excluding GST",
   "pinCode": "Pincode",
-  "accountCreatedSuccessfully": "Account created Successfully",
+  "accountCreatedSuccessfully": "Account Created Successfully",
   "accountCreatedSuccessfullySubHeading": "Now you can explore the rates\nand post loads",
   "createYourAccount": "Create your account",
   "companyType": "Company Type",
@@ -506,7 +506,7 @@
   "enterBranchName": "Enter Branch Name",
   "enterIFSCCode": "Enter IFSC code",
   "verified": "Verified",
-  "unVerified": "Un-Verified",
+  "unVerified": "Unverified",
   "pleaseEnterGSTINNumber": "Please enter GSTIN number",
   "pleaseEnterAValidGSTINNumber": "Please enter a valid GSTIN number",
   "pleaseEnterGSTINAndUploadDocument": "Please enter GSTIN and upload document",
@@ -826,7 +826,7 @@
   "noStateFound" : "No state found",
   "noCityFound" : "No city found",
   "responseStatusFail" : "Response Status Fail",
-  "genericError" : "Something went wrong!!",
+  "genericError" : "Server is temporarily down. Please try again.",
   "networkError" : "Your internet not working,\n Please try again later.",
   "tokenExpireError" : "Authentication Failed, Login Session Expired.",
   "invalidTokenError" : "Authentication Failed, Invalid Token.",
@@ -960,7 +960,6 @@
   "drop":"drop",
   "driver":"driver",
   "driverLocation":"Driver Location",
-  "route":"route",
   "paymentInformation":"Payment Information",
   "tripCost":"Trip Cost",
   "advancedPayment":"Advance payment",
@@ -972,5 +971,24 @@
   "receivedOn":"Received on",
   "balancePayout":"Balance payout",
   "pending":"Pending",
-  "completed":"Completed"
+  "completed":"Completed",
+  "loadOnHold":"loadOnHold",
+  "profOfDelivery":"Proof of delivery",
+
+
+
+
+  "failedToDownloadDocuments":"Failed to download the document"
+
+
+
+
+
+
+
+
+
+
+
+
 }

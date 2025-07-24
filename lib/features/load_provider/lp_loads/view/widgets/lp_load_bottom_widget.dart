@@ -184,6 +184,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
       final String paymentPayableBalance = payments?.last.payableBalance ?? '';
      final action = (payments != null && payments.isNotEmpty ) ? 'clear_balance' : 'pay_advance';   
+     final isButtonShow = payments?.last.action ?? '';
     // final action = 'clear_balance';
     return Positioned(
       bottom: 0,
@@ -363,8 +364,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   if(widget.loadStatus.index >= LoadStatus.loading.index)
                     ...[
                       
-                      if (LpHomeHelper.getPaymentState(widget.loadStatus) >= 1 &&
-                      LpHomeHelper.getPaymentState(widget.loadStatus) <= 5)
+                      // if (LpHomeHelper.getPaymentState(widget.loadStatus) >= 1 &&
+                      // LpHomeHelper.getPaymentState(widget.loadStatus) <= 5)
                     _buildAdvancePaymentCard(
                       context: context,
                       paymentState: LpHomeHelper.getPaymentState(widget.loadStatus),
@@ -382,6 +383,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                      lpLoadCubit: lpLoadLocator,
                      action: action,
+                      isButtonShow: isButtonShow,
                   ),
                       16.height,
                     ],
@@ -484,7 +486,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                   }
                                 }
                                 if (isUpdateConsignee) {
-                                  final existingConsignee = consignees[0];
+                                  // final existingConsignee = consignees[0];
                                       lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
                               
                                  } else {
@@ -497,6 +499,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 final String? validation = Validator.email(email);
                                 if (validation != null) {
                                   ToastMessages.alert(message: validation);
+                                  return;
+                                }
+                                final String? phoneValidation = Validator.phone(phone);
+                                if (phoneValidation != null) {
+                                  ToastMessages.alert(message: phoneValidation);
                                   return;
                                 }
                                  lpLoadLocator.addConsignee(addConsigneeReq: AddConsigneeApiRequest(email: email,name: name,loadId: loadId,mobileNumber: phone,));                              
@@ -606,6 +613,7 @@ Widget _buildAdvancePaymentCard({
   required String advancePaid,
   required String action,
   required bool isAdancePaid,
+  required String isButtonShow,
   required LpLoadCubit lpLoadCubit,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
@@ -634,7 +642,54 @@ final double payableAdvanceValue =
         8.height,
         if (isAdancePaid)
         // Advance paid 
-        _buildPriceRow(context.appText.advancePaid, advancePaid, context),
+        // _buildPriceRow(context.appText.advancePaid, advancePaid, context),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  context.appText.advancePaid,
+                  style: AppTextStyle.body2.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textBlackColor,
+                  ),
+                ),
+                8.width,
+                if(isButtonShow != 'clear_balance')
+                Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.boxGreen,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      context.appText.paid,
+                      style: AppTextStyle.body.copyWith(
+                        fontSize: 12,
+                        color: AppColors.greenColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            Flexible(
+              child: Text(
+                PriceHelper.formatINR(payableAdvance),
+                style: AppTextStyle.body1GreyColor.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textGreyDetailColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+
         8.height,
 
         if (!isAdancePaid)
@@ -704,15 +759,56 @@ final double payableAdvanceValue =
 
         // Payable Balance 
         if (isAdancePaid)
-          _buildPriceRow(
-            context.appText.payableBalance,
-            payableBalance,
-            context,
-            highlight: true,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    context.appText.payableBalance,
+                    style: AppTextStyle.body2.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
+                  8.width,
+                  if(isButtonShow == 'clear_balance')
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.boxGreen,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        context.appText.paid,
+                        style: AppTextStyle.body.copyWith(
+                          fontSize: 12,
+                          color: AppColors.greenColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              Flexible(
+                child: Text(
+                  PriceHelper.formatINR(payableBalance),
+                  style: AppTextStyle.body1GreyColor.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textGreyDetailColor,
+                  ),
+                ),
+              ),
+            ],
           ),
 
          12.height,
 
+       if(isButtonShow != 'clear_balance')
         // Action Button
           AppButton(
             title: context.appText.payAdvance,
@@ -928,6 +1024,9 @@ Widget _buildConsigneeDetail({
               labelText: context.appText.name,
               hintText: context.appText.fullNameHint,
               mandatoryStar:  isUpdateConsignee ? false : true,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              ],
             ),
             20.height,
             AppTextField(
