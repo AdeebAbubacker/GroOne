@@ -18,9 +18,15 @@ class DriverLoadRepository {
     String search = "",
     bool forceRefresh = false
   }) async {
+    try{
     final customerId = await userRepo.getUserID() ?? '';
     return service.fetchDriverLoads(driverId: customerId,status: loadStatus ?? 3, search: search,laneId: laneId, forceRefresh: forceRefresh);
-  }
+ 
+    }catch (e) {
+      CustomLog.error(this, "Failed to fetch loads by ID data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+ }
 
    Future<Result<VpLoadAcceptModel>> changeLoadStatus({
     required String customerId,required String loadId,required int? loadStatus}) async {

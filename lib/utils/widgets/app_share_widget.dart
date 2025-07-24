@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../app_colors.dart';
 import '../app_text_style.dart';
 
@@ -13,8 +14,16 @@ class AppShareWidget extends StatefulWidget {
   final DateTime? lastUpdate;
   final int? deviceId;
   final String? token;
-  final Function(String token, int deviceId, String vehicleNumber, bool isLiveLocation, int hours)? onLiveLocationShare;
-  final Function(String vehicleNumber, String location, DateTime? lastUpdate)? onCurrentLocationShare;
+  final Function(
+    String token,
+    int deviceId,
+    String vehicleNumber,
+    bool isLiveLocation,
+    int hours,
+  )?
+  onLiveLocationShare;
+  final Function(String vehicleNumber, String location, DateTime? lastUpdate)?
+  onCurrentLocationShare;
   final String? customShareText;
   final String? customShareSubject;
   final bool showLiveLocationOption;
@@ -83,109 +92,135 @@ class _AppShareWidgetState extends State<AppShareWidget> {
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            Text(
-              widget.title,
-              style: AppTextStyle.h4.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            
-            // Toggle buttons (only if both options are available)
-            if (widget.showLiveLocationOption && widget.showCurrentLocationOption) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildToggleButton(context, true, 'Live'),
-                  const SizedBox(width: 8),
-                  _buildToggleButton(context, false, 'Current'),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Title
+              Text(
+                widget.title,
+                style: AppTextStyle.h4.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-            ],
-            
-            // Hours input (only for live location)
-            if (isLiveLocation && widget.showLiveLocationOption) ...[
-              Text(
-                'Hours',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _hoursController,
-                keyboardType: TextInputType.number,
-                enabled: !_isLoading,
-                decoration: InputDecoration(
-                  hintText: 'Enter Hours (1-${widget.maxHours})',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                  errorText: _errorText,
+
+              // Toggle buttons (only if both options are available)
+              if (widget.showLiveLocationOption &&
+                  widget.showCurrentLocationOption) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildToggleButton(context, true, 'Live'),
+                    const SizedBox(width: 8),
+                    _buildToggleButton(context, false, 'Current'),
+                  ],
                 ),
-                onChanged: (_) {
-                  if (_errorText != null) {
-                    setState(() {
-                      _errorText = null;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 32),
-            ],
-            
-            // Action buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.primaryColor,
-                      side: BorderSide(color: AppColors.primaryColor, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => _handleShare(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Text(
-                            'Share',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                          ),
-                  ),
-                ),
+                const SizedBox(height: 24),
               ],
-            ),
-          ],
+
+              // Hours input (only for live location)
+              if (isLiveLocation && widget.showLiveLocationOption) ...[
+                Text(
+                  'Hours',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _hoursController,
+                  keyboardType: TextInputType.number,
+                  enabled: !_isLoading,
+                  decoration: InputDecoration(
+                    hintText: 'Enter Hours (1-${widget.maxHours})',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                    errorText: _errorText,
+                  ),
+                  onChanged: (_) {
+                    if (_errorText != null) {
+                      setState(() {
+                        _errorText = null;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 32),
+              ],
+
+              // Action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          _isLoading ? null : () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primaryColor,
+                        side: BorderSide(
+                          color: AppColors.primaryColor,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed:
+                          _isLoading ? null : () => _handleShare(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child:
+                          _isLoading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                              : const Text(
+                                'Share',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -210,7 +245,12 @@ class _AppShareWidgetState extends State<AppShareWidget> {
         ),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12, top: 6, bottom: 6),
+            padding: const EdgeInsets.only(
+              left: 12,
+              right: 12,
+              top: 6,
+              bottom: 6,
+            ),
             child: Text(
               label,
               style: TextStyle(
@@ -271,7 +311,9 @@ class _AppShareWidgetState extends State<AppShareWidget> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Live location shared successfully for $hours hours'),
+              content: Text(
+                'Live location shared successfully for $hours hours',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -367,7 +409,7 @@ class _AppShareWidgetState extends State<AppShareWidget> {
     final String location = widget.location ?? 'Location not available';
     final String formattedDate = _formatDateTime(widget.lastUpdate);
     final String cleanLocation = location.replaceAll(' ', '');
-    
+
     return '''
 Vehicle Name - $vehicleNumber
 Location - $location
@@ -392,8 +434,16 @@ extension AppShareWidgetExtension on BuildContext {
     DateTime? lastUpdate,
     int? deviceId,
     String? token,
-    Function(String token, int deviceId, String vehicleNumber, bool isLiveLocation, int hours)? onLiveLocationShare,
-    Function(String vehicleNumber, String location, DateTime? lastUpdate)? onCurrentLocationShare,
+    Function(
+      String token,
+      int deviceId,
+      String vehicleNumber,
+      bool isLiveLocation,
+      int hours,
+    )?
+    onLiveLocationShare,
+    Function(String vehicleNumber, String location, DateTime? lastUpdate)?
+    onCurrentLocationShare,
     String? customShareText,
     String? customShareSubject,
     bool showLiveLocationOption = true,
@@ -406,23 +456,28 @@ extension AppShareWidgetExtension on BuildContext {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return AppShareWidget(
-          title: title,
-          vehicleNumber: vehicleNumber,
-          location: location,
-          lastUpdate: lastUpdate,
-          deviceId: deviceId,
-          token: token,
-          onLiveLocationShare: onLiveLocationShare,
-          onCurrentLocationShare: onCurrentLocationShare,
-          customShareText: customShareText,
-          customShareSubject: customShareSubject,
-          showLiveLocationOption: showLiveLocationOption,
-          showCurrentLocationOption: showCurrentLocationOption,
-          maxHours: maxHours,
-          whiteLabelUrl: whiteLabelUrl,
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: AppShareWidget(
+            title: title,
+            vehicleNumber: vehicleNumber,
+            location: location,
+            lastUpdate: lastUpdate,
+            deviceId: deviceId,
+            token: token,
+            onLiveLocationShare: onLiveLocationShare,
+            onCurrentLocationShare: onCurrentLocationShare,
+            customShareText: customShareText,
+            customShareSubject: customShareSubject,
+            showLiveLocationOption: showLiveLocationOption,
+            showCurrentLocationOption: showCurrentLocationOption,
+            maxHours: maxHours,
+            whiteLabelUrl: whiteLabelUrl,
+          ),
         );
       },
     );
   }
-} 
+}

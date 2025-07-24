@@ -54,6 +54,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
   if (result is Success<DriverLoadDetailsModel>) {
     _setLoadByIdUIState(UIState.success(result.value)); 
+    setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
   }
@@ -349,7 +350,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, int? loadStatus}) {
     switch(loadStatus){
       case LoadStatus.assigned:
         return memo!=null;
@@ -361,18 +362,50 @@ Future<void> getDriverLoadsById({required String loadId}) async {
         return true;
     }
   }
+    // POD Doc File upload field
+      void updatePODVisibilityBasedOnStatus(int? status) {
+      final currentList = state.tripDocumentList ?? [];
 
-  void updatePODVisibilityBasedOnStatus(int? status) {
-  final currentList = state.tripDocumentList ?? [];
+      // Check if POD (TypeId = 8) exists
+      final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 8);
+      if (podIndex != -1 && status != null && status > 6) {
+        final updatedDoc = currentList[podIndex].copyWith(visible: true);
+        currentList[podIndex] = updatedDoc;
+        emit(state.copyWith(tripDocumentList: currentList));
+      }
+    }
 
-  // Check if POD (TypeId = 8) exists
-  final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 8);
-  if (podIndex != -1 && status != null && status > 5) {
-    final updatedDoc = currentList[podIndex].copyWith(visible: true);
-    currentList[podIndex] = updatedDoc;
-    print("POD doc found? index = $podIndex, status = $status, list length = ${currentList.length}");
-    emit(state.copyWith(tripDocumentList: currentList));
+    //Lorry Receipt, E-way Bill , Material invoice file status check
+    bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+      final requiredTypeIds = [5, 6, 7]; 
+
+      final presentTypeIds = tripDocumentList
+        .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
+        .map((doc) => doc.documentTypeId)
+        .toSet();
+
+      return requiredTypeIds.every(presentTypeIds.contains);
+    }
+
+  bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
+  // Just check if the POD document (TypeId 8) is uploaded successfully
+  const podTypeId = 8;
+
+  final presentTypeIds = tripDocumentList
+      .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
+      .map((doc) => doc.documentTypeId)
+      .toSet();
+
+  return presentTypeIds.contains(podTypeId);
+}
+
+
+bool isMemoUploaded(DriverLoadDetailsModel? load) {
+  final currentStatus = load?.data?.loadStatusId ?? 0;
+  if (currentStatus == 4) {
+    return load?.data?.loadMemo != null;
   }
+  return true; 
 }
 
   String? _userId;

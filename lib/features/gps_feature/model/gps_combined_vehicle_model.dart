@@ -1,5 +1,7 @@
 import 'dart:convert'; // Added for jsonDecode
 
+import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_realm_model.dart';
+
 import '../model/gps_devices_expiry_model.dart';
 import '../model/gps_devices_positions_model.dart';
 
@@ -301,7 +303,7 @@ class GpsCombinedVehicleData {
       phone: phone ?? this.phone,
       positionId: positionId ?? this.positionId,
       statusCode: statusCode ?? this.statusCode,
-      attributes: attributes ?? this.attributes,
+      attributes: this.attributes,
     );
   }
 
