@@ -974,11 +974,21 @@
   "completed":"Completed",
   "loadOnHold":"loadOnHold",
   "profOfDelivery":"Proof of delivery",
-
-
-
-
-  "failedToDownloadDocuments":"Failed to download the document"
+  "failedToDownloadDocuments":"Failed to download the document",
+  "appSettings": "App Settings",
+  "typesOfNotifications": "Types of Notifications",
+  "notificationTone": "Notification Tone",
+  "notificationToneDefault": "Default",
+  "notificationToneUpdated": "Notification tone updated",
+  "notificationTonePermissionAlert": "Please enable notification permission to change tone",
+  "onlineVehicleColor": "Online Vehicle Color",
+  "testNotification": "Test Notification",
+  "send": "SEND",
+  "showHideGeofence": "Show/Hide Geofence",
+  "showMarkerLabel": "Show Marker Label",
+  "showMarkerCluster": "Show Marker Cluster",
+  "vehicleListSort": "Vehicle List Sort",
+  "vehicleIconSize": "Vehicle Icon Size"
 
 
 

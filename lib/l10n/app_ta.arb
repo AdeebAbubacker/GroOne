@@ -968,5 +968,19 @@
   "refresh": "புதுப்பி",
   "searchVehicle": "வாகனத்தை தேடுக",
   "notificationTypesTitle": "அறிவிப்புகள் வகைகள்",
-  "notificationToggleError": "அறிவிப்பு வகைகளை ஏற்ற முடியவில்லை"
+  "notificationToggleError": "அறிவிப்பு வகைகளை ஏற்ற முடியவில்லை",
+  "appSettings": "அப்ப் அமைப்புகள்",
+  "typesOfNotifications": "அறிவிப்புகள் வகைகள்",
+  "notificationTone": "அறிவிப்பு சத்தம்",
+  "notificationToneDefault": "இயல்புநிலை",
+  "notificationToneUpdated": "அறிவிப்பு சத்தம் புதுப்பிக்கப்பட்டது",
+  "notificationTonePermissionAlert": "சத்தத்தை மாற்ற அறிவிப்பு அனுமதியை இயக்கவும்",
+  "onlineVehicleColor": "நிகழ்நிலை வாகன நிறம்",
+  "testNotification": "சோதனை அறிவிப்பு",
+  "send": "அனுப்பு",
+  "showHideGeofence": "Geofence ஐ காட்ட/மறை",
+  "showMarkerLabel": "மார்கர் லேபிள் காட்டுக",
+  "showMarkerCluster": "மார்கர் கிளஸ்டர் காட்டுக",
+  "vehicleListSort": "வாகன பட்டியலை வரிசைப்படுத்து",
+  "vehicleIconSize": "வாகன ஐகான் அளவு"
 }

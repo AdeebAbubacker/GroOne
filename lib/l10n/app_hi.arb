@@ -931,5 +931,19 @@
   "refresh": "रीफ़्रेश करें",
   "searchVehicle": "वाहन खोजें",
   "notificationTypesTitle": "सूचनाओं के प्रकार",
-  "notificationToggleError": "सूचनाओं के प्रकार लोड करने में विफल"
+  "notificationToggleError": "सूचनाओं के प्रकार लोड करने में विफल",
+  "appSettings": "ऐप सेटिंग्स",
+  "typesOfNotifications": "सूचनाओं के प्रकार",
+  "notificationTone": "सूचना ध्वनि",
+  "notificationToneDefault": "डिफ़ॉल्ट",
+  "notificationToneUpdated": "सूचना ध्वनि अपडेट की गई",
+  "notificationTonePermissionAlert": "ध्वनि बदलने के लिए कृपया अधिसूचना अनुमति सक्षम करें",
+  "onlineVehicleColor": "ऑनलाइन वाहन रंग",
+  "testNotification": "परीक्षण सूचना",
+  "send": "भेजें",
+  "showHideGeofence": "जियोफेंस दिखाएं/छिपाएं",
+  "showMarkerLabel": "मार्कर लेबल दिखाएं",
+  "showMarkerCluster": "मार्कर क्लस्टर दिखाएं",
+  "vehicleListSort": "वाहन सूची क्रमबद्ध करें",
+  "vehicleIconSize": "वाहन आइकन आकार"
 }

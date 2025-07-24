@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_show_hide_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/widgets/gps_notification_type_sheet.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
@@ -13,37 +16,31 @@ import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
+import '../cubit/gps_settings_cubit/gps_settings_state.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../helper/gps_helper.dart';
+import '../helper/gps_session_manager.dart';
 import '../service/notification_settings_service.dart';
 import 'gps_notification_screen.dart';
 
-class GpsSettingsScreen extends StatelessWidget {
+class GpsSettingsScreen extends StatefulWidget {
   const GpsSettingsScreen({super.key});
 
+  @override
+  State<GpsSettingsScreen> createState() => _GpsSettingsScreenState();
+}
 
-  void showAlertVolumeSheet(BuildContext context, String selectedVolume, Function(String) onSelected) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ['Low', 'Medium', 'High'].map((volume) {
-            return ListTile(
-              title: Text(volume),
-              trailing: selectedVolume == volume
-                  ? Icon(Icons.check, color: AppColors.primaryColor)
-                  : null,
-              onTap: () {
-                Navigator.pop(context);
-                onSelected(volume);
-              },
-            );
-          }).toList(),
-        );
-      },
-    );
+class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
+  bool _showMarkerLabel = GpsSessionManager.isShowMarkerLabelEnabled();
+  bool _showMarkerCluster = GpsSessionManager.isShowMarkerClusterEnabled();
+  final uri = GpsSessionManager.getNotificationToneUri();
+  String? _notificationToneUri;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationToneUri = GpsSessionManager.getNotificationToneUri();
   }
 
   void showGpsNotificationSheet(BuildContext context) {
@@ -62,13 +59,17 @@ class GpsSettingsScreen extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final toneTitle =
+        _notificationToneUri != null
+            ? GpsHelper.extractRingtoneTitle(_notificationToneUri!)
+            : context.appText.notificationToneDefault;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
-        title: "App Settings",
+        title: context.appText.appSettings,
         centreTile: false,
         actions: [
           AppIconButton(
@@ -110,63 +111,99 @@ class GpsSettingsScreen extends StatelessWidget {
             decoration: commonContainerDecoration(),
             child: Column(
               children: [
-                SwitchListTile(
-                  title: Text("Notification",style: AppTextStyle.h5,),
-                  value: true,
-                  onChanged: (val) {},
+                BlocBuilder<GpsSettingsCubit, GpsSettingsState>(
+                  builder: (context, state) {
+                    final isEnabled =
+                        state is GpsSettingsSuccess
+                            ? state.isEnabled
+                            : GpsSessionManager.isNotificationEnabled();
+
+                    return SwitchListTile(
+                      title: Text(
+                        context.appText.notification,
+                        style: AppTextStyle.h5,
+                      ),
+                      value: isEnabled,
+                      onChanged: (val) {
+                        context.read<GpsSettingsCubit>().toggleNotification(
+                          val,
+                        );
+                      },
+                    );
+                  },
                 ),
                 ListTile(
-                  title: Text("Types of Notifications",style: AppTextStyle.h5,),
+                  title: Text(
+                    context.appText.typesOfNotifications,
+                    style: AppTextStyle.h5,
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     showGpsNotificationSheet(context);
                   },
                 ),
-                ListTile(
-                  title: Row(
-                    children: [
-                      Expanded(child: Text("Notification Tone",style: AppTextStyle.h5,)),
-                      Expanded(child: Text("Sprinkle Theme",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
-                      5.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
-                    ],
+                Visibility(
+                  visible: Platform.isAndroid,
+                  child: ListTile(
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            context.appText.notificationTone,
+                            style: AppTextStyle.h5,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            toneTitle ??
+                                context.appText.notificationToneDefault,
+                            style: AppTextStyle.h5GreyColor,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
+                        5.width,
+                        Icon(Icons.arrow_forward_ios, size: 16),
+                      ],
+                    ),
+                    onTap: () async {
+                      if (Platform.isAndroid) {
+                        final hasPermission =
+                            await GpsHelper.checkNotificationPermission();
+                        if (!hasPermission) {
+                          ToastMessages.alert(
+                            message:
+                                context.appText.notificationTonePermissionAlert,
+                          );
+                          return;
+                        }
+                        final uri = await RingtonePicker.pickRingtone();
+                        if (uri != null) {
+                          await GpsSessionManager.setNotificationToneUri(uri);
+                          setState(() => _notificationToneUri = uri);
+                          ToastMessages.success(
+                            message: context.appText.notificationToneUpdated,
+                          );
+                        }
+                      }
+                    },
                   ),
-                  onTap: () async {
-                    if (Theme.of(context).platform == TargetPlatform.android) {
-                      final hasPermission = await GpsHelper.checkNotificationPermission();
-                      if (!hasPermission) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Please enable notification permission to change tone")),
-                        );
-                        return;
-                      }
-
-                      final uri = await RingtonePicker.pickRingtone();
-                      if (uri != null) {
-                        print("Selected ringtone URI: $uri");
-                        // Save or use the URI
-                      }
-
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Notification tone can only be changed on Android')),
-                      );
-                    }
-                  },
                 ),
                 ListTile(
                   title: Row(
                     children: [
-                      Expanded(child: Text("Online Vehicle Color",style: AppTextStyle.h5,)),
+                      Expanded(
+                        child: Text(
+                          context.appText.onlineVehicleColor,
+                          style: AppTextStyle.h5,
+                        ),
+                      ),
                       Container(
                         width: 20,
                         height: 20,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                        ),
+                        decoration: const BoxDecoration(color: Colors.green),
                       ),
                       10.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
+                      Icon(Icons.arrow_forward_ios, size: 16),
                     ],
                   ),
                   onTap: () {},
@@ -174,8 +211,16 @@ class GpsSettingsScreen extends StatelessWidget {
                 ListTile(
                   title: Row(
                     children: [
-                      Expanded(child: Text("Test Notification",style: AppTextStyle.h5,)),
-                      Text("SEND",style: AppTextStyle.h5PrimaryColor,),
+                      Expanded(
+                        child: Text(
+                          context.appText.testNotification,
+                          style: AppTextStyle.h5,
+                        ),
+                      ),
+                      Text(
+                        context.appText.send,
+                        style: AppTextStyle.h5PrimaryColor,
+                      ),
                     ],
                   ),
                   onTap: () {},
@@ -189,21 +234,39 @@ class GpsSettingsScreen extends StatelessWidget {
             child: Column(
               children: [
                 ListTile(
-                  title: Text("Show/Hide Geofence",style: AppTextStyle.h5,),
+                  title: Text(
+                    context.appText.showHideGeofence,
+                    style: AppTextStyle.h5,
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    Navigator.push(context, commonRoute(GpsShowHideGeofenceScreen()));
+                    Navigator.push(
+                      context,
+                      commonRoute(GpsShowHideGeofenceScreen()),
+                    );
                   },
                 ),
                 SwitchListTile(
-                  title: Text("Show Market Label",style: AppTextStyle.h5,),
-                  value: true,
-                  onChanged: (val) {},
+                  title: Text(
+                    context.appText.showMarkerLabel,
+                    style: AppTextStyle.h5,
+                  ),
+                  value: _showMarkerLabel,
+                  onChanged: (val) async {
+                    setState(() => _showMarkerLabel = val);
+                    await GpsSessionManager.setShowMarkerLabel(val);
+                  },
                 ),
                 SwitchListTile(
-                  title: Text("Show Marker Cluster",style: AppTextStyle.h5,),
-                  value: true,
-                  onChanged: (val) {},
+                  title: Text(
+                    context.appText.showMarkerCluster,
+                    style: AppTextStyle.h5,
+                  ),
+                  value: _showMarkerCluster,
+                  onChanged: (val) async {
+                    setState(() => _showMarkerCluster = val);
+                    await GpsSessionManager.setShowMarkerCluster(val);
+                  },
                 ),
                 // ListTile(
                 //   title: Row(
@@ -245,10 +308,21 @@ class GpsSettingsScreen extends StatelessWidget {
                 ListTile(
                   title: Row(
                     children: [
-                      Expanded(child: Text("Vehicle List Sort",style: AppTextStyle.h5,)),
-                      Expanded(child: Text("Default",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
+                      Expanded(
+                        child: Text(
+                          context.appText.vehicleListSort,
+                          style: AppTextStyle.h5,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Default",
+                          style: AppTextStyle.h5GreyColor,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
                       5.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
+                      Icon(Icons.arrow_forward_ios, size: 16),
                     ],
                   ),
                   onTap: () {},
@@ -256,10 +330,21 @@ class GpsSettingsScreen extends StatelessWidget {
                 ListTile(
                   title: Row(
                     children: [
-                      Expanded(child: Text("Vehicle Icon Size",style: AppTextStyle.h5,)),
-                      Expanded(child: Text("Default",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
+                      Expanded(
+                        child: Text(
+                          context.appText.vehicleIconSize,
+                          style: AppTextStyle.h5,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Default",
+                          style: AppTextStyle.h5GreyColor,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
                       5.width,
-                      Icon(Icons.arrow_forward_ios, size: 16)
+                      Icon(Icons.arrow_forward_ios, size: 16),
                     ],
                   ),
                   onTap: () {},

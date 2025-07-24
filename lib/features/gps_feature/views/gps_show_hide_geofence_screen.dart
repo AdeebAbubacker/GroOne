@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
@@ -55,7 +56,7 @@ class _GpsShowHideGeofenceScreenState extends State<GpsShowHideGeofenceScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
-        title: "Show/Hide Geofences",
+        title: context.appText.showHideGeofence,
         isLeading: true,
         actions: [
           AppIconButton(

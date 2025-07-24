@@ -22,7 +22,9 @@ import 'package:gro_one_app/utils/app_route.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
+import '../repository/gps_repository.dart';
 import 'gps_notification_screen.dart';
 
 class GpsHomeScreen extends StatefulWidget {
@@ -361,7 +363,9 @@ class _GpsHomeScreenState extends State<GpsHomeScreen> with GpsRefreshMixin {
         () {
           Navigator.push(
             context,
-            commonRoute(GpsSettingsScreen()),
+            commonRoute(BlocProvider(
+                create: (_) => GpsSettingsCubit(locator<GpsRepository>()),
+                child: GpsSettingsScreen())),
           );
         },
       ),

@@ -15,4 +15,10 @@ class GpsHelper {
 
     return false;
   }
+
+  static String? extractRingtoneTitle(String uri) {
+    final uriObj = Uri.parse(uri);
+    return uriObj.queryParameters['title'] ?? "Unknown";
+  }
+
 }

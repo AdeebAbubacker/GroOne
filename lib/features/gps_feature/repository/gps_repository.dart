@@ -3,6 +3,7 @@ import '../../../utils/custom_log.dart';
 import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../../load_provider/lp_home/model/auto_complete_model.dart';
 import '../../load_provider/lp_home/model/verify_location.dart';
+import '../model/gps_user_config_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
 import '../models/gps_parking_model.dart';
@@ -18,6 +19,27 @@ class GpsRepository {
   Future<String?> _getToken() async {
     final loginResponse = await _loginRepository.getStoredLoginResponse();
     return loginResponse?.token;
+  }
+
+  Future<int?> getUserConfigIdByUserId(int userId) async {
+    try {
+      final config = await _loginRepository.getStoredUserConfig();
+      if (config?.data == null) return null;
+
+      for (var user in config!.data!) {
+        print(user.userId);
+      }
+      final matchedData = config!.data!.firstWhere(
+        (element) => element.userId == userId,
+        orElse: () => GpsUserConfigData(), // Empty instance if not found
+      );
+      print('Harsh Id 2 ${matchedData.id}');
+
+      return matchedData.id;
+    } catch (e) {
+      CustomLog.error(this, "Error in getUserConfigIdByUserId", e);
+      return null;
+    }
   }
 
   Future<Result<List<GpsGeofenceModel>>> fetchGeofences() async {
@@ -42,7 +64,9 @@ class GpsRepository {
     }
   }
 
-  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(String deviceId) async {
+  Future<Result<List<GpsGeofenceModel>>> fetchGeofencesForVehicle(
+    String deviceId,
+  ) async {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
@@ -57,8 +81,16 @@ class GpsRepository {
     }
   }
 
-  Future<Result<void>> linkUnlinkGeofenceDevice(String deviceId, String geofenceId, bool link) async {
+  Future<Result<void>> linkUnlinkGeofenceDevice(
+    String deviceId,
+    String geofenceId,
+    bool link,
+  ) async {
     try {
+      final id = await getUserConfigIdByUserId(163);
+      if (id != null) {
+        print('Harsh Id $id');
+      }
       final token = await _getToken();
       if (token == null) return Error(GenericError());
       return await _service.linkUnlinkGeofenceDevice(
@@ -83,7 +115,9 @@ class GpsRepository {
   }
 
   /// Get Verify Location data from repository
-  Future<Result<VerifyLocationModel>> getVerifyLocationData(VerifyLocationApiRequest request) async {
+  Future<Result<VerifyLocationModel>> getVerifyLocationData(
+    VerifyLocationApiRequest request,
+  ) async {
     try {
       return await _service.fetchVerifyLocationData(request);
     } catch (e) {
@@ -96,10 +130,7 @@ class GpsRepository {
     try {
       final token = await _getToken();
       if (token == null) return Error(GenericError());
-      return await _service.fetchNotifications(
-        token: token,
-        userId: '163',
-      );
+      return await _service.fetchNotifications(token: token, userId: '163');
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -172,36 +203,40 @@ class GpsRepository {
     );
   }
 
-  Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus() async {
+  Future<Result<Map<String, dynamic>>>
+  fetchDeprecatedNotificationStatus() async {
     final token = await _getToken();
     if (token == null) return Error(GenericError());
     return await _service.fetchDeprecatedNotificationStatus(token);
   }
 
-  Future<Result<void>> updateDeprecatedNotificationStatus(Map<String, dynamic> payload) async {
+  Future<Result<void>> updateDeprecatedNotificationStatus(
+    Map<String, dynamic> payload,
+  ) async {
     final token = await _getToken();
     if (token == null) return Error(GenericError());
     return await _service.updateDeprecatedNotificationStatus(payload, token);
   }
 
-
   Future<Result<void>> updateNotificationToggle({
     required String deviceToken,
-    required Map<String, dynamic> deviceDetails,
-    required String deviceType,
+    Map<String, dynamic>? deviceDetails,
+    String? deviceType,
   }) async {
     final token = await _getToken();
     if (token == null) return Error(GenericError());
 
-    final payload = {
-      "device_token": deviceToken,
-      "device_details": deviceDetails,
-      "device_type": deviceType,
-    };
+    final Map<String, dynamic> payload = {"device_token": deviceToken};
 
-    return await _service.updateNotificationToggle(payload, token);
+    // Include only if deviceDetails is not null
+    if (deviceDetails != null) {
+      payload["device_details"] = deviceDetails;
+    }
+
+    if (deviceType != null) {
+      payload["device_type"] = deviceType;
+    }
+
+    return await _service.updateNotificationToggle(payload, token, 41065);
   }
-
-
-
 }

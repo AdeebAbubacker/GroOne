@@ -465,10 +465,11 @@ class GpsService {
   Future<Result<void>> updateNotificationToggle(
       Map<String, dynamic> payload,
       String token,
+      int userConfigurationId
       ) async {
     try {
-      final response = await _apiService.post(
-        ApiUrls.gpsUpdateNotificationToggle(163), // replace with user-specific ID if needed
+      final response = await _apiService.patch(
+        ApiUrls.gpsUpdateNotificationToggle(userConfigurationId), // replace with user-specific ID if needed
         body: payload,
         customHeaders: {'Authorization': token},
       );

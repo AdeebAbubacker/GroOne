@@ -87,12 +87,16 @@ dependencies:
   cloud_firestore: ^5.6.11
   firebase_storage: ^12.4.9
 
+  # Notification
+  flutter_local_notifications: ^19.2.0
+
   # Environment
   flutter_dotenv: ^5.2.1
 
   # Local Storage
   flutter_secure_storage: ^9.2.4
   realm: ^20.0.1
+  shared_preferences: ^2.5.3
 
   # State Management
   flutter_bloc: ^9.1.1
