@@ -10,6 +10,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/helpers/gps_map_helper.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
@@ -80,7 +81,8 @@ class _VehicleMapContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Completer<GoogleMapController> mapController = Completer();
+    final Completer<GoogleMapController> mapController =
+        GpsMapHelper.createMapController();
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: locator<VehicleListCubit>()),
@@ -100,15 +102,10 @@ class _VehicleMapContent extends StatelessWidget {
               final lng = double.tryParse(parts[1].trim());
               if (lat != null && lng != null) {
                 markers.add(
-                  Marker(
-                    markerId: MarkerId(vehicle.vehicleNumber ?? 'unknown'),
+                  GpsMapHelper.createVehicleMarker(
+                    vehicleId: vehicle.vehicleNumber ?? 'unknown',
                     position: LatLng(lat, lng),
-                    infoWindow: InfoWindow(
-                      title: vehicle.address ?? vehicle.vehicleNumber,
-                    ),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueYellow,
-                    ),
+                    title: vehicle.address ?? vehicle.vehicleNumber,
                     onTap:
                         isSingleVehicle
                             ? null
@@ -124,20 +121,23 @@ class _VehicleMapContent extends StatelessWidget {
           }
           final initialCameraPosition = () {
             if (isSingleVehicle && markers.isNotEmpty) {
-              return CameraPosition(target: markers.first.position, zoom: 14);
-            } else if (markers.isNotEmpty) {
-              return CameraPosition(target: markers.first.position, zoom: 12);
-            } else {
-              return const CameraPosition(
-                target: LatLng(20.5937, 78.9629),
-                zoom: 4,
+              return GpsMapHelper.createCameraPosition(
+                target: markers.first.position,
+                zoom: 14,
               );
+            } else if (markers.isNotEmpty) {
+              return GpsMapHelper.createCameraPosition(
+                target: markers.first.position,
+                zoom: 12,
+              );
+            } else {
+              return GpsMapHelper.getDefaultCameraPosition();
             }
           }();
           return Scaffold(
             body: Stack(
               children: [
-                GoogleMap(
+                GpsMapHelper.createGpsMap(
                   initialCameraPosition: initialCameraPosition,
                   markers: markers,
                   myLocationButtonEnabled: false,
@@ -146,9 +146,11 @@ class _VehicleMapContent extends StatelessWidget {
                   trafficEnabled:
                       context.watch<VehicleListCubit>().state.trafficEnabled,
                   onMapCreated: (controller) {
-                    if (!mapController.isCompleted) {
-                      mapController.complete(controller);
-                    }
+                    GpsMapHelper.handleMapCreated(
+                      controller,
+                      mapController,
+                      null,
+                    );
                   },
                 ),
                 if (!isSingleVehicle && selectedVehicle == null) ...[
@@ -237,11 +239,9 @@ class _VehicleMapContent extends StatelessWidget {
                 Positioned(
                   right: 16,
                   bottom: 180,
-                  child: FloatingActionButton(
+                  child: GpsMapHelper.createMapFloatingButton(
+                    icon: Icons.my_location,
                     heroTag: "currentLocation",
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue,
-                    elevation: 4,
                     onPressed: () async {
                       try {
                         final locationService = LocationService();
@@ -250,11 +250,10 @@ class _VehicleMapContent extends StatelessWidget {
                         if (result is Success<geo.Position>) {
                           final position = result.value;
                           final controller = await mapController.future;
-                          await controller.animateCamera(
-                            CameraUpdate.newLatLngZoom(
-                              LatLng(position.latitude, position.longitude),
-                              15,
-                            ),
+                          await GpsMapHelper.animateToLocation(
+                            controller,
+                            LatLng(position.latitude, position.longitude),
+                            zoom: 15,
                           );
                         } else if (result is Error<geo.Position>) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -273,7 +272,6 @@ class _VehicleMapContent extends StatelessWidget {
                         );
                       }
                     },
-                    child: const Icon(Icons.my_location),
                   ),
                 ),
                 Positioned(
