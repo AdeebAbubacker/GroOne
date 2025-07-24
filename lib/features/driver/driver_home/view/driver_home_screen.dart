@@ -62,6 +62,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int? selectedFromLocation;
   int? selectedToLocation;
   
+  
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int selectedTabIndex = 0;
@@ -354,6 +355,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       case 0: 
                     return DriverLoadWidget(
                         driverLoadDetails: state.loads[index],
+                        
                    onClickAssignDriver: () {
                   final currentStatus = state.loads[index].loadStatusId;
                   if (currentStatus == 8) {
@@ -429,5 +431,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           ),
         );
       }    
+
+
+
 }
 

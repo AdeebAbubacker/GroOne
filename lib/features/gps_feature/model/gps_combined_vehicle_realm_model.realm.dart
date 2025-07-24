@@ -69,6 +69,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
     int? statusCode,
     String? batteryPercent,
     String? idleTime,
+    GpsDeviceAttributesRealm? attributes,
   }) {
     RealmObjectBase.set(this, 'deviceId', deviceId);
     RealmObjectBase.set(this, 'vehicleNumber', vehicleNumber);
@@ -127,6 +128,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
     RealmObjectBase.set(this, 'statusCode', statusCode);
     RealmObjectBase.set(this, 'batteryPercent', batteryPercent);
     RealmObjectBase.set(this, 'idleTime', idleTime);
+    RealmObjectBase.set(this, 'attributes', attributes);
   }
 
   GpsCombinedVehicleRealmData._();
@@ -487,6 +489,14 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
   set idleTime(String? value) => RealmObjectBase.set(this, 'idleTime', value);
 
   @override
+  GpsDeviceAttributesRealm? get attributes =>
+      RealmObjectBase.get<GpsDeviceAttributesRealm>(this, 'attributes')
+          as GpsDeviceAttributesRealm?;
+  @override
+  set attributes(covariant GpsDeviceAttributesRealm? value) =>
+      RealmObjectBase.set(this, 'attributes', value);
+
+  @override
   Stream<RealmObjectChanges<GpsCombinedVehicleRealmData>> get changes =>
       RealmObjectBase.getChanges<GpsCombinedVehicleRealmData>(this);
 
@@ -561,6 +571,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
       'statusCode': statusCode.toEJson(),
       'batteryPercent': batteryPercent.toEJson(),
       'idleTime': idleTime.toEJson(),
+      'attributes': attributes.toEJson(),
     };
   }
 
@@ -627,6 +638,7 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
         statusCode: fromEJson(ejson['statusCode']),
         batteryPercent: fromEJson(ejson['batteryPercent']),
         idleTime: fromEJson(ejson['idleTime']),
+        attributes: fromEJson(ejson['attributes']),
       ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -778,6 +790,110 @@ class GpsCombinedVehicleRealmData extends _GpsCombinedVehicleRealmData
           optional: true,
         ),
         SchemaProperty('idleTime', RealmPropertyType.string, optional: true),
+        SchemaProperty(
+          'attributes',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'GpsDeviceAttributesRealm',
+        ),
+      ],
+    );
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class GpsDeviceAttributesRealm extends _GpsDeviceAttributesRealm
+    with RealmEntity, RealmObjectBase, RealmObject {
+  GpsDeviceAttributesRealm({
+    int? prevHours,
+    double? prevOdometer,
+    String? resetDate,
+    String? speedLimit,
+  }) {
+    RealmObjectBase.set(this, 'prevHours', prevHours);
+    RealmObjectBase.set(this, 'prevOdometer', prevOdometer);
+    RealmObjectBase.set(this, 'resetDate', resetDate);
+    RealmObjectBase.set(this, 'speedLimit', speedLimit);
+  }
+
+  GpsDeviceAttributesRealm._();
+
+  @override
+  int? get prevHours => RealmObjectBase.get<int>(this, 'prevHours') as int?;
+  @override
+  set prevHours(int? value) => RealmObjectBase.set(this, 'prevHours', value);
+
+  @override
+  double? get prevOdometer =>
+      RealmObjectBase.get<double>(this, 'prevOdometer') as double?;
+  @override
+  set prevOdometer(double? value) =>
+      RealmObjectBase.set(this, 'prevOdometer', value);
+
+  @override
+  String? get resetDate =>
+      RealmObjectBase.get<String>(this, 'resetDate') as String?;
+  @override
+  set resetDate(String? value) => RealmObjectBase.set(this, 'resetDate', value);
+
+  @override
+  String? get speedLimit =>
+      RealmObjectBase.get<String>(this, 'speedLimit') as String?;
+  @override
+  set speedLimit(String? value) =>
+      RealmObjectBase.set(this, 'speedLimit', value);
+
+  @override
+  Stream<RealmObjectChanges<GpsDeviceAttributesRealm>> get changes =>
+      RealmObjectBase.getChanges<GpsDeviceAttributesRealm>(this);
+
+  @override
+  Stream<RealmObjectChanges<GpsDeviceAttributesRealm>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<GpsDeviceAttributesRealm>(this, keyPaths);
+
+  @override
+  GpsDeviceAttributesRealm freeze() =>
+      RealmObjectBase.freezeObject<GpsDeviceAttributesRealm>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'prevHours': prevHours.toEJson(),
+      'prevOdometer': prevOdometer.toEJson(),
+      'resetDate': resetDate.toEJson(),
+      'speedLimit': speedLimit.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(GpsDeviceAttributesRealm value) => value.toEJson();
+  static GpsDeviceAttributesRealm _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return GpsDeviceAttributesRealm(
+      prevHours: fromEJson(ejson['prevHours']),
+      prevOdometer: fromEJson(ejson['prevOdometer']),
+      resetDate: fromEJson(ejson['resetDate']),
+      speedLimit: fromEJson(ejson['speedLimit']),
+    );
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(GpsDeviceAttributesRealm._);
+    register(_toEJson, _fromEJson);
+    return const SchemaObject(
+      ObjectType.realmObject,
+      GpsDeviceAttributesRealm,
+      'GpsDeviceAttributesRealm',
+      [
+        SchemaProperty('prevHours', RealmPropertyType.int, optional: true),
+        SchemaProperty(
+          'prevOdometer',
+          RealmPropertyType.double,
+          optional: true,
+        ),
+        SchemaProperty('resetDate', RealmPropertyType.string, optional: true),
+        SchemaProperty('speedLimit', RealmPropertyType.string, optional: true),
       ],
     );
   }();
