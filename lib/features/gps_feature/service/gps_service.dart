@@ -182,25 +182,6 @@ class GpsService {
     }
   }
 
-  // String generateArea(GpsGeofenceModel model) {
-  //   if (model.shapeType == "circle" &&
-  //       model.center != null &&
-  //       model.radius != null) {
-  //     return "CIRCLE (${model.center!.latitude} ${model.center!.longitude}, ${model.radius})";
-  //   }
-  //
-  //   if ((model.shapeType == "polygon" || model.shapeType == "polyline") &&
-  //       model.polygonPoints != null &&
-  //       model.polygonPoints!.isNotEmpty) {
-  //     final coords = model.polygonPoints!
-  //         .map((point) => "${point.latitude} ${point.longitude}")
-  //         .join(", ");
-  //     final shape = model.shapeType.toUpperCase(); // "POLYGON" or "POLYLINE"
-  //     return "$shape (($coords))";
-  //   }
-  //
-  //   throw Exception("Invalid geofence data for area generation");
-  // }
 
   Future<Result<List<GpsNotificationModel>>> fetchNotifications({
     required String token,
@@ -373,26 +354,7 @@ class GpsService {
     }
   }
 
-  // Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus(String token) async {
-  //   try {
-  //     final response = await _apiService.get(
-  //       ApiUrls.getDeprecatedNotificationStatus,
-  //       customHeaders: {'Authorization': token},
-  //     );
-  //
-  //     if (response is Success) {
-  //       return await _apiService.getResponseStatus(
-  //         response.value,
-  //             (data) => data as Map<String, dynamic>,
-  //       );
-  //     } else {
-  //       return Error(GenericError());
-  //     }
-  //   } catch (e) {
-  //     CustomLog.error(this, "fetchDeprecatedNotificationStatus failed", e);
-  //     return Error(ErrorWithMessage(message: e.toString()));
-  //   }
-  // }
+
   Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus(String token) async {
     try {
       final response = await _apiService.get(
@@ -412,27 +374,6 @@ class GpsService {
   }
 
 
-  // Future<Result<void>> updateDeprecatedNotificationStatus(
-  //     Map<String, dynamic> payload,
-  //     String token,
-  //     ) async {
-  //   try {
-  //     final response = await _apiService.post(
-  //       ApiUrls.updateDeprecatedNotificationStatus,
-  //       body: payload,
-  //       customHeaders: {'Authorization': token},
-  //     );
-  //
-  //     if (response is Success) {
-  //       return await _apiService.getResponseStatus(response.value, (_) => null);
-  //     } else {
-  //       return Error(GenericError());
-  //     }
-  //   } catch (e) {
-  //     CustomLog.error(this, "updateDeprecatedNotificationStatus failed", e);
-  //     return Error(ErrorWithMessage(message: e.toString()));
-  //   }
-  // }
   Future<Result<void>> updateDeprecatedNotificationStatus(
       Map<String, dynamic> payload,
       String token,

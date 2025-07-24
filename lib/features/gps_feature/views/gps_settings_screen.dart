@@ -268,38 +268,9 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                     await GpsSessionManager.setShowMarkerCluster(val);
                   },
                 ),
-                // ListTile(
-                //   title: Row(
-                //     children: [
-                //       Expanded(child: Text("Stop Duration Report",style: AppTextStyle.h5,)),
-                //       Expanded(child: Text("5 Mins",style: AppTextStyle.h5GreyColor,textAlign: TextAlign.right,)),
-                //       5.width,
-                //       Icon(Icons.arrow_forward_ios, size: 16)
-                //     ],
-                //   ),
-                //   onTap: () {},
-                // ),
               ],
             ),
           ),
-          // Container(
-          //   margin: EdgeInsets.symmetric(vertical: 10),
-          //   decoration: commonContainerDecoration(),
-          //   child: Column(
-          //     children: [
-          //       SwitchListTile(
-          //         title: Text("Require Password For Immobilization",style: AppTextStyle.h5,),
-          //         value: true,
-          //         onChanged: (val) {},
-          //       ),
-          //       SwitchListTile(
-          //         title: Text("Show Selected Vehicle On App Restart",style: AppTextStyle.h5),
-          //         value: true,
-          //         onChanged: (val) {},
-          //       ),
-          //     ],
-          //   ),
-          // ),
           Container(
             margin: EdgeInsets.symmetric(vertical: 10),
             decoration: commonContainerDecoration(),
