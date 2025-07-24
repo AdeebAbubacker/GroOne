@@ -123,13 +123,15 @@ Future<void> getLoadDetails() async {
         
             return Stack(
               children: [
-                GoogleMapWidget(
-                  pickupLocation: loadItem?.data?.loadRoute?.pickUpLocation,
-                  dropLocation: loadItem?.data?.loadRoute?.dropLocation,
-                  pickUpLatLong: loadItem?.data?.loadRoute?.pickUpLatlon,
-                  dropLatLong: loadItem?.data?.loadRoute?.dropLatlon,
-                  driverLat: 3,
-                  driverLong: 23,
+               Positioned.fill(
+                  child: GoogleMapWidget(
+                    pickupLocation: loadItem?.data?.loadRoute?.pickUpLocation,
+                    dropLocation: loadItem?.data?.loadRoute?.dropLocation,
+                    pickUpLatLong: loadItem?.data?.loadRoute?.pickUpLatlon,
+                    dropLatLong: loadItem?.data?.loadRoute?.dropLatlon,
+                    driverLat: 3,
+                    driverLong: 23,
+                  ),
                 ),
                 buildTopLocationWidget(loadItem!),
                 DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: driverLoadDetailsCubit,),

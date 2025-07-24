@@ -9,13 +9,6 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 part 'driver_home_event.dart';
 part 'driver_home_state.dart';
 
-// class DriverHomeBloc extends Bloc<DriverHomeEvent, DriverHomeState> {
-//   DriverHomeBloc() : super(DriverHomeInitial()) {
-//     on<DriverHomeEvent>((event, emit) {
-//       // TODO: implement event handler
-//     });
-//   }
-// }
 
 
 class DriverHomeBloc extends Bloc<DriverHomeEvent, DriverHomeState> {
