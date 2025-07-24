@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:intl/intl.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_device_fuel_model.dart';
@@ -14,9 +15,8 @@ import '../model/gps_mobile_config_model.dart';
 import '../model/gps_user_config_model.dart';
 import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_details_model.dart';
-import '../models/gps_geofence_model.dart';
-import 'package:intl/intl.dart';
 import '../models/gps_device_distance_model.dart';
+import '../models/gps_geofence_model.dart';
 
 class GpsLoginService {
   final ApiService _apiService;
@@ -72,7 +72,7 @@ class GpsLoginService {
         "Getting user details with token: ${token.substring(0, 10)}...",
       );
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/tc_users/163?__include=name&__include=attributes',
+        'https://api.letsgro.co/api/v1/auth/tc_users',
         'GET',
         token: token,
       );
@@ -95,6 +95,31 @@ class GpsLoginService {
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
+    }
+  }
+
+  // Helper method to get user ID from user details
+  Future<Result<int?>> getUserId(String token) async {
+    try {
+      final userDetailsResult = await getUserDetails(token);
+      if (userDetailsResult is Success<GpsUserDetailsModel>) {
+        final userDetails = userDetailsResult.value;
+        final userId = userDetails.firstUser?.id;
+        if (userId != null) {
+          CustomLog.info(this, "Retrieved user ID: $userId");
+          return Success(userId);
+        } else {
+          CustomLog.error(this, "No user ID found in response", null);
+          return Error(GenericError());
+        }
+      } else if (userDetailsResult is Error) {
+        return Error((userDetailsResult as Error).type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error getting user ID", e);
+      return Error(GenericError());
     }
   }
 
@@ -230,7 +255,7 @@ class GpsLoginService {
     int userId,
   ) async {
     try {
-      CustomLog.info(this, "Getting mobile config...");
+      CustomLog.info(this, "Getting mobile config for user ID: $userId");
       final result = await _makeAuthenticatedRequest(
         'https://api.letsgro.co/api/v1/auth/get_user_mobile_app_settings?user_id=$userId',
         'GET',
@@ -263,7 +288,7 @@ class GpsLoginService {
     int userId,
   ) async {
     try {
-      CustomLog.info(this, "Getting user configuration...");
+      CustomLog.info(this, "Getting user configuration for user ID: $userId");
       final result = await _makeAuthenticatedRequest(
         'https://api.letsgro.co/api/v1/auth/user_configuration?__id__equal=$userId',
         'GET',
@@ -330,28 +355,34 @@ class GpsLoginService {
   ) async {
     try {
       CustomLog.info(this, "Getting distance data for all vehicles...");
-      
+
       // Get device IDs from vehicles
-      final deviceIds = vehicles
-          .where((v) => v.deviceId != null)
-          .map((v) => v.deviceId.toString())
-          .toList();
-      
+      final deviceIds =
+          vehicles
+              .where((v) => v.deviceId != null)
+              .map((v) => v.deviceId.toString())
+              .toList();
+
       if (deviceIds.isEmpty) {
         CustomLog.info(this, "No device IDs found, skipping distance API call");
         return Success([]);
       }
-      
+
       final deviceIdString = deviceIds.join(',');
-      
+
       // Calculate date range
       final now = DateTime.now();
-      final from = (now.day < 7) 
-          ? now.subtract(const Duration(days: 8)) 
-          : DateTime(now.year, now.month, 1);
-      final dateFrom = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(from.toUtc());
-      final dateTo = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(now.toUtc());
-      
+      final from =
+          (now.day < 7)
+              ? now.subtract(const Duration(days: 8))
+              : DateTime(now.year, now.month, 1);
+      final dateFrom = DateFormat(
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      ).format(from.toUtc());
+      final dateTo = DateFormat(
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      ).format(now.toUtc());
+
       final result = await _makeAuthenticatedRequest(
         'https://api.letsgro.co/api/v1/auth/reports/monthly_distance',
         'GET',
@@ -369,11 +400,13 @@ class GpsLoginService {
         CustomLog.info(this, "Distance API call successful");
         try {
           final List rawData = result.value['data'];
-          final distanceList = rawData
-              .map((e) => DeviceDistancePojo.fromJson(e))
-              .toList();
-          
-          CustomLog.info(this, "Distance data parsed: ${distanceList.length} devices");
+          final distanceList =
+              rawData.map((e) => DeviceDistancePojo.fromJson(e)).toList();
+
+          CustomLog.info(
+            this,
+            "Distance data parsed: ${distanceList.length} devices",
+          );
           return Success(distanceList);
         } catch (e) {
           CustomLog.error(this, "Error parsing distance response", e);
@@ -475,14 +508,23 @@ class GpsLoginService {
         CustomLog.info(this, "Using provided token, skipping login");
       }
 
-      // Step 2: Get user details
+      // Step 2: Get user details and extract user ID
       CustomLog.info(this, "Step 2: Getting user details...");
       final userDetailsResult = await getUserDetails(authToken);
+      int? userId;
       if (userDetailsResult is Error) {
         CustomLog.error(this, "Failed to get user details", null);
         // Continue anyway as this is not critical
       } else {
         CustomLog.info(this, "User details retrieved successfully");
+        userId =
+            (userDetailsResult as Success<GpsUserDetailsModel>)
+                .value
+                .firstUser
+                ?.id;
+        if (userId != null) {
+          CustomLog.info(this, "Extracted user ID: $userId");
+        }
       }
 
       // Step 2.5: Get user config

@@ -16,6 +16,7 @@ import '../../load_provider/lp_home/api_request/verify_location_api_request.dart
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import '../cubit/gps_geofence_map_cubit/gps_geofence_map_state.dart';
+import '../helpers/gps_map_helper.dart';
 import '../models/gps_geofence_model.dart';
 
 class GeofenceMapViewScreen extends StatefulWidget {
@@ -147,14 +148,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setCircle(LatLng center, double radius) {
     setState(() {
       _circles = {
-        Circle(
-          circleId: const CircleId("geofence_circle"),
-          center: center,
-          radius: radius,
-          fillColor: Colors.blue.withValues(alpha: 0.2),
-          strokeColor: Colors.blue,
-          strokeWidth: 2,
-        ),
+        GpsMapHelper.createGeofenceCircle(center: center, radius: radius),
       };
       _polygons = {}; // Clear other shapes
       _polylines = {};
@@ -174,14 +168,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   void _setPolyline(List<LatLng> points) {
     setState(() {
-      _polylines = {
-        Polyline(
-          polylineId: const PolylineId("geofence_polyline"),
-          points: points,
-          color: Colors.red,
-          width: 3,
-        ),
-      };
+      _polylines = {GpsMapHelper.createGeofencePolyline(points: points)};
       _circles = {};
       _polygons = {};
     });
@@ -212,15 +199,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setPolygon(List<LatLng> points) {
     if (points.length >= 3) {
       setState(() {
-        _polygons = {
-          Polygon(
-            polygonId: const PolygonId("geofence_polygon"),
-            points: points,
-            fillColor: Colors.green.withValues(alpha: 0.2),
-            strokeColor: Colors.green,
-            strokeWidth: 2,
-          ),
-        };
+        _polygons = {GpsMapHelper.createGeofencePolygon(points: points)};
         _circles = {};
         _polylines = {};
       });
@@ -269,8 +248,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setMarker(LatLng position, {bool isDraggable = false}) {
     setState(() {
       _markers = {
-        Marker(
-          markerId: const MarkerId("geofence_marker"),
+        GpsMapHelper.createGeofenceCircleMarker(
           position: position,
           draggable: isDraggable,
           onDragEnd: (newPosition) {
@@ -279,9 +257,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
               _setCircle(_currentCenter!, _currentRadius);
             });
           },
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueAzure,
-          ),
         ),
       };
     });
@@ -292,8 +267,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       _markers.clear();
       for (int i = 0; i < points.length; i++) {
         _markers.add(
-          Marker(
-            markerId: MarkerId("polygon_point_$i"),
+          GpsMapHelper.createPolygonPointMarker(
+            index: i,
             position: points[i],
             draggable: isDraggable,
             onDragEnd: (newPosition) {
@@ -302,9 +277,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolygon(_currentPolygonPoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen,
-            ),
           ),
         );
       }
@@ -316,8 +288,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       _markers.clear();
       for (int i = 0; i < points.length; i++) {
         _markers.add(
-          Marker(
-            markerId: MarkerId("polyline_point_$i"),
+          GpsMapHelper.createPolylinePointMarker(
+            index: i,
             position: points[i],
             draggable: isDraggable,
             onDragEnd: (newPosition) {
@@ -326,9 +298,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolyline(_currentPolylinePoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed,
-            ),
           ),
         );
       }
@@ -570,9 +539,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
         body: SafeArea(
           child: Stack(
             children: [
-              GoogleMap(
+              GpsMapHelper.createGpsMap(
                 onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
+                initialCameraPosition: GpsMapHelper.createCameraPosition(
                   target: _currentCenter ?? const LatLng(28.6139, 77.2090),
                   zoom: _currentCenter != null ? 12 : 5,
                 ),
@@ -792,7 +761,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           ),
                         )
                       else
-                         Text(
+                        Text(
                           context.appText.selectGeofenceTypeHint,
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
@@ -850,18 +819,11 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     Color color = Colors.white,
     bool isActive = false, // New parameter to indicate active state
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive ? Colors.blue.withValues(alpha: 0.8) : color,
-        shape: BoxShape.circle,
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: isActive ? Colors.white : Colors.black),
-        onPressed: onPressed,
-      ),
+    return GpsMapHelper.createCustomFloatingButton(
+      icon: icon,
+      onPressed: onPressed,
+      color: color,
+      isActive: isActive,
     );
   }
 }
