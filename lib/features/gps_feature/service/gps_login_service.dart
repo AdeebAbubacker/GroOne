@@ -15,6 +15,8 @@ import '../model/gps_user_config_model.dart';
 import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../models/gps_geofence_model.dart';
+import 'package:intl/intl.dart';
+import '../models/gps_device_distance_model.dart';
 
 class GpsLoginService {
   final ApiService _apiService;
@@ -318,6 +320,74 @@ class GpsLoginService {
     } catch (e) {
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
+    }
+  }
+
+  /// Get distance data for all vehicles
+  Future<Result<List<DeviceDistancePojo>>> getDistanceAllVehicles(
+    String token,
+    List<GpsCombinedVehicleData> vehicles,
+  ) async {
+    try {
+      CustomLog.info(this, "Getting distance data for all vehicles...");
+      
+      // Get device IDs from vehicles
+      final deviceIds = vehicles
+          .where((v) => v.deviceId != null)
+          .map((v) => v.deviceId.toString())
+          .toList();
+      
+      if (deviceIds.isEmpty) {
+        CustomLog.info(this, "No device IDs found, skipping distance API call");
+        return Success([]);
+      }
+      
+      final deviceIdString = deviceIds.join(',');
+      
+      // Calculate date range
+      final now = DateTime.now();
+      final from = (now.day < 7) 
+          ? now.subtract(const Duration(days: 8)) 
+          : DateTime(now.year, now.month, 1);
+      final dateFrom = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(from.toUtc());
+      final dateTo = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(now.toUtc());
+      
+      final result = await _makeAuthenticatedRequest(
+        'https://api.letsgro.co/api/v1/auth/reports/monthly_distance',
+        'GET',
+        queryParams: {
+          'start': dateFrom,
+          'end': dateTo,
+          'device_ids': deviceIdString,
+          'timezone_offset': -330,
+          'inputs': '{}',
+        },
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "Distance API call successful");
+        try {
+          final List rawData = result.value['data'];
+          final distanceList = rawData
+              .map((e) => DeviceDistancePojo.fromJson(e))
+              .toList();
+          
+          CustomLog.info(this, "Distance data parsed: ${distanceList.length} devices");
+          return Success(distanceList);
+        } catch (e) {
+          CustomLog.error(this, "Error parsing distance response", e);
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        CustomLog.error(this, "Distance API call failed", null);
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error getting distance data", e);
+      return Error(GenericError());
     }
   }
 
