@@ -17,7 +17,7 @@ import '../../dependency_injection/locator.dart';
 import '../../routing/app_route_name.dart';
 import '../../utils/app_route.dart';
 import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
-import '../fastag/views/fastag_new_user_and_list_screen.dart';
+import '../fastag/views/fastag_new_user_screen.dart';
 import '../gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import '../gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import '../gps_feature/views/gps_home_screen.dart';
@@ -176,7 +176,7 @@ class _OurValueAddedServicesWidgetState
                       imageString: AppImage.png.buyFastTag,
                       onClick: () {
                        // context.push(AppRouteName.buyFastag);
-                        Navigator.push(context, commonRoute(FastagNewUserAndListScreen()));
+                        Navigator.push(context, commonRoute(FastagNewUserScreen()));
                       },
                     ),
                     15.width,

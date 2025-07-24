@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_cre
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
 import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
@@ -31,7 +30,7 @@ import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../dependency_injection/locator.dart';
 import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
-import '../features/fastag/views/fastag_new_user_and_list_screen.dart';
+import '../features/fastag/views/fastag_new_user_screen.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
@@ -54,7 +53,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.buyFastag,
         builder: (BuildContext context, GoRouterState state) {
-          return FastagNewUserAndListScreen();
+          return FastagNewUserScreen();
         },
       ),
 

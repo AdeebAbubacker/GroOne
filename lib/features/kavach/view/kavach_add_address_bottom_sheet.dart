@@ -180,10 +180,10 @@ class _KavachAddAddressBottomSheetState
                   if (value == null || value.trim().isEmpty) {
                     return null;
                   }
-                  final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-                  if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                    return  context.appText.enterValidGstin;
-                  }
+                  // final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+                  // if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
+                  //   return  context.appText.enterValidGstin;
+                  // }
 
                   return null;
                 },
