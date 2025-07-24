@@ -466,7 +466,7 @@ if (loadStatus == 4) {
                               ),
                               text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId), 
                               onSubmit: () {
-                           //Check for sim consent and trip doc
+                              //Check for sim consent and trip doc
                                     if (loads.data?.loadStatusId == 5) {
                                       final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
