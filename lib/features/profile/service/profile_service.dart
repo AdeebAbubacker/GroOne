@@ -178,12 +178,12 @@ class ProfileService {
   }
 
   /// fetch address
-  Future<Result<AddressResponse>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
     try {
       final url = ApiUrls.getAddress+userId;
       final response = await _apiService.get(url);
       if (response is Success) {
-        final loads = AddressResponse.fromJson(response.value);
+        final loads = PaginatedAddressList.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -214,12 +214,12 @@ class ProfileService {
   }
 
   /// create address
-  Future<Result<ProfileAddress>> createAddress({required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> createAddress({required AddressRequest request}) async {
     try {
       final url = ApiUrls.createAddress;
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
-        final loads = ProfileAddress.fromJson(response.value);
+        final loads = CustomerAddress.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -232,12 +232,12 @@ class ProfileService {
   }
 
   /// update address
-  Future<Result<ProfileAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
     try {
       final url = ApiUrls.updateAddress+addressId;
       final response = await _apiService.put(url, body: request.toJson());
       if (response is Success) {
-        final loads = ProfileAddress.fromJson(response.value);
+        final loads = CustomerAddress.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

@@ -144,7 +144,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setFetchAddressUIState(UIState<AddressResponse>? uiState){
+  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState){
     emit(state.copyWith(addressState: uiState));
   }
 
@@ -153,7 +153,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     userId = await _repo.getUserId();
 
     dynamic result = await _repo.fetchAddress(userId: userId ?? '');
-    if (result is Success<AddressResponse>) {
+    if (result is Success<PaginatedAddressList>) {
       _setFetchAddressUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -178,7 +178,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setCreateAddressUIState(UIState<ProfileAddress>? uiState){
+  void _setCreateAddressUIState(UIState<CustomerAddress>? uiState){
     emit(state.copyWith(createAddressState: uiState));
   }
 
@@ -186,7 +186,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     userId = await _repo.getUserId();
 
     dynamic result = await _repo.createAddress(request: request.copyWith(customerId: userId));
-    if (result is Success<ProfileAddress>) {
+    if (result is Success<CustomerAddress>) {
       _setCreateAddressUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -198,7 +198,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     userId = await _repo.getUserId();
 
     dynamic result = await _repo.updateAddress(addressId: addressId,request: request.copyWith(customerId: userId));
-    if (result is Success<ProfileAddress>) {
+    if (result is Success<CustomerAddress>) {
       _setCreateAddressUIState(UIState.success(result.value));
     }
     if (result is Error) {

@@ -5,11 +5,11 @@ class BlueMemberShipResponse {
   });
 
   final String message;
-  final List<Datum> data;
+  final List<BlueMemberShip> data;
 
   BlueMemberShipResponse copyWith({
     String? message,
-    List<Datum>? data,
+    List<BlueMemberShip>? data,
   }) {
     return BlueMemberShipResponse(
       message: message ?? this.message,
@@ -20,7 +20,7 @@ class BlueMemberShipResponse {
   factory BlueMemberShipResponse.fromJson(Map<String, dynamic> json){
     return BlueMemberShipResponse(
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      data: json["data"] == null ? [] : List<BlueMemberShip>.from(json["data"]!.map((x) => BlueMemberShip.fromJson(x))),
     );
   }
 
@@ -31,8 +31,8 @@ class BlueMemberShipResponse {
 
 }
 
-class Datum {
-  Datum({
+class BlueMemberShip {
+  BlueMemberShip({
     required this.id,
     required this.title,
     required this.description,
@@ -54,7 +54,7 @@ class Datum {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  Datum copyWith({
+  BlueMemberShip copyWith({
     int? id,
     String? title,
     String? description,
@@ -65,7 +65,7 @@ class Datum {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return Datum(
+    return BlueMemberShip(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -78,8 +78,8 @@ class Datum {
     );
   }
 
-  factory Datum.fromJson(Map<String, dynamic> json){
-    return Datum(
+  factory BlueMemberShip.fromJson(Map<String, dynamic> json){
+    return BlueMemberShip(
       id: json["id"] ?? 0,
       title: json["title"] ?? "",
       description: json["description"] ?? "",

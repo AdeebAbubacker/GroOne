@@ -87,7 +87,7 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<AddressResponse>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
     try {
       return await _profileService.fetchAddress(userId: userId);
     } catch (e) {
@@ -105,7 +105,7 @@ class ProfileRepository {
   }
 
   /// create new address
-  Future<Result<ProfileAddress>> createAddress({required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> createAddress({required AddressRequest request}) async {
     try {
       return await _profileService.createAddress(request: request);
     } catch (e) {
@@ -114,7 +114,7 @@ class ProfileRepository {
   }
 
   /// update address
-  Future<Result<ProfileAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
     try {
       return await _profileService.updateAddress(addressId: addressId, request: request);
     } catch (e) {

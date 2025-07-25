@@ -1,22 +1,22 @@
-class AddressResponse {
-  final List<ProfileAddress> addresses;
+class PaginatedAddressList {
+  final List<CustomerAddress> addresses;
   final int total;
-  final PageMeta? pageMeta;
+  final PaginationInfo? pageMeta;
 
-  AddressResponse({
+  PaginatedAddressList({
     required this.addresses,
     required this.total,
     required this.pageMeta,
   });
 
-  factory AddressResponse.fromJson(Map<String, dynamic> json) {
-    return AddressResponse(
+  factory PaginatedAddressList.fromJson(Map<String, dynamic> json) {
+    return PaginatedAddressList(
       addresses: json["data"] == null
           ? []
-          : List<ProfileAddress>.from(
-          json["data"].map((x) => ProfileAddress.fromJson(x))),
+          : List<CustomerAddress>.from(
+          json["data"].map((x) => CustomerAddress.fromJson(x))),
       total: json["total"] ?? 0,
-      pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+      pageMeta: json["pageMeta"] == null ? null : PaginationInfo.fromJson(json["pageMeta"]),
     );
   }
 
@@ -27,8 +27,7 @@ class AddressResponse {
   };
 }
 
-
-class ProfileAddress {
+class CustomerAddress {
   final String preferedAddressId;
   final String customerId;
   final String addrName;
@@ -45,7 +44,7 @@ class ProfileAddress {
   final DateTime? updatedAt;
   final dynamic deletedAt;
 
-  ProfileAddress({
+  CustomerAddress({
     required this.preferedAddressId,
     required this.customerId,
     required this.addrName,
@@ -63,8 +62,8 @@ class ProfileAddress {
     required this.deletedAt,
   });
 
-  factory ProfileAddress.fromJson(Map<String, dynamic> json) {
-    return ProfileAddress(
+  factory CustomerAddress.fromJson(Map<String, dynamic> json) {
+    return CustomerAddress(
       preferedAddressId: json["preferedAddressId"] ?? "",
       customerId: json["customerId"] ?? "",
       addrName: json["addrName"] ?? "",
@@ -102,8 +101,8 @@ class ProfileAddress {
   };
 }
 
-class PageMeta {
-  PageMeta({
+class PaginationInfo {
+  PaginationInfo({
     required this.page,
     required this.pageCount,
     required this.nextPage,
@@ -117,14 +116,14 @@ class PageMeta {
   final int pageSize;
   final int total;
 
-  PageMeta copyWith({
+  PaginationInfo copyWith({
     int? page,
     int? pageCount,
     dynamic? nextPage,
     int? pageSize,
     int? total,
   }) {
-    return PageMeta(
+    return PaginationInfo(
       page: page ?? this.page,
       pageCount: pageCount ?? this.pageCount,
       nextPage: nextPage ?? this.nextPage,
@@ -133,8 +132,8 @@ class PageMeta {
     );
   }
 
-  factory PageMeta.fromJson(Map<String, dynamic> json){
-    return PageMeta(
+  factory PaginationInfo.fromJson(Map<String, dynamic> json){
+    return PaginationInfo(
       page: json["page"] ?? 0,
       pageCount: json["pageCount"] ?? 0,
       nextPage: json["nextPage"],

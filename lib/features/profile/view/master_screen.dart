@@ -300,7 +300,7 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
     );
   }
 
-  void showAddAddressPopup(BuildContext context, {ProfileAddress? address}) {
+  void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = address != null;
 

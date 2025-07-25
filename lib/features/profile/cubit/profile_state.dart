@@ -4,10 +4,10 @@ class ProfileState extends Equatable {
   final UIState<ProfileDetailModel>? profileDetailUIState;
   final UIState<LogOutModel>? logoutUIState;
   final UIState<KycDocumentResponse>? documentState;
-  final UIState<AddressResponse>? addressState;
+  final UIState<PaginatedAddressList>? addressState;
   final UIState<SetPrimaryAddressResponse>? primaryAddressState;
   final UIState<BlueMemberShipResponse>? memberShipState;
-  final UIState<ProfileAddress>? createAddressState;
+  final UIState<CustomerAddress>? createAddressState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
   final bool showSuccessKyc;
   final String? blueId;
@@ -28,11 +28,11 @@ class ProfileState extends Equatable {
     UIState<ProfileDetailModel>? profileDetailUIState,
     UIState<LogOutModel>? logoutUIState,
     UIState<KycDocumentResponse>? documentState,
-    UIState<AddressResponse>? addressState,
+    UIState<PaginatedAddressList>? addressState,
     UIState<SetPrimaryAddressResponse>? primaryAddressState,
     UIState<CustomerSettingsResponse>? customerSettingsState,
     UIState<BlueMemberShipResponse>? memberShipState,
-    UIState<ProfileAddress>? createAddressState,
+    UIState<CustomerAddress>? createAddressState,
     bool? showSuccessKyc,
     String? blueId,
 

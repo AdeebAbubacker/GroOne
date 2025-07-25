@@ -6,12 +6,12 @@ class KycDocumentResponse {
   });
 
   final String customerId;
-  final Documents? documents;
+  final KycDocuments? documents;
   final int isKyc;
 
   KycDocumentResponse copyWith({
     String? customerId,
-    Documents? documents,
+    KycDocuments? documents,
     int? isKyc,
   }) {
     return KycDocumentResponse(
@@ -24,7 +24,7 @@ class KycDocumentResponse {
   factory KycDocumentResponse.fromJson(Map<String, dynamic> json){
     return KycDocumentResponse(
       customerId: json["customerId"] ?? "",
-      documents: json["documents"] == null ? null : Documents.fromJson(json["documents"]),
+      documents: json["documents"] == null ? null : KycDocuments.fromJson(json["documents"]),
       isKyc: json["isKyc"] ?? 0,
     );
   }
@@ -37,8 +37,8 @@ class KycDocumentResponse {
 
 }
 
-class Documents {
-  Documents({
+class KycDocuments {
+  KycDocuments({
     required this.aadhar,
     required this.isAadhar,
     required this.pan,
@@ -68,7 +68,7 @@ class Documents {
   final String chequeDocLink;
   final String tdsDocLink;
 
-  Documents copyWith({
+  KycDocuments copyWith({
     String? aadhar,
     bool? isAadhar,
     String? pan,
@@ -83,7 +83,7 @@ class Documents {
     String? chequeDocLink,
     String? tdsDocLink,
   }) {
-    return Documents(
+    return KycDocuments(
       aadhar: aadhar ?? this.aadhar,
       isAadhar: isAadhar ?? this.isAadhar,
       pan: pan ?? this.pan,
@@ -100,8 +100,8 @@ class Documents {
     );
   }
 
-  factory Documents.fromJson(Map<String, dynamic> json){
-    return Documents(
+  factory KycDocuments.fromJson(Map<String, dynamic> json){
+    return KycDocuments(
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",
