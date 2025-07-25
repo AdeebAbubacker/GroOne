@@ -495,10 +495,6 @@ if (loadStatus == 4) {
                                       ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                                       return;
                                     }
-                                  //  if (!isConsentGiven) {
-                                  //     ToastMessages.error(message: 'Please ensure SIM consent is given');   
-                                  //     return;
-                                  //   }
                                   }
                     
                                 // Check for Pod Doc
@@ -548,7 +544,6 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     final isConsentGiven =load.data?.driverConsent == 1;
 
     final nestedDocuments = load.data?.loadDocument ?? [];
-    //final documents = nestedDocuments.expand((list) => list).toList();
 
     const requiredDocs = [
       'lorry receipt',
@@ -569,7 +564,6 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
   // For status 7: POD document uploaded
   if (currentStatus == 7) {
     final nestedDocuments = load.data?.loadDocument ?? [];
-    //final documents = nestedDocuments.expand((list) => list).toList();
 
     final podDocExists = nestedDocuments.any((doc) =>
         (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
