@@ -1014,11 +1014,7 @@
   "english": "English",
   "hindi": "Hindi",
   "tamil": "Tamil",
-  "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent"
-
-
-
-
+  "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent",
   "failedToDownloadDocuments":"Failed to download the document",
   "notVerified" : "not verified"
 
