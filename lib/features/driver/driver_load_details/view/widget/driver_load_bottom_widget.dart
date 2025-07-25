@@ -273,6 +273,8 @@ if (loadStatus == 4) {
                           20.height,
                           Divider(color: Color(0xffE1E1E1), thickness: 3),
                           20.height,
+                            if(((state.loadStatusId??0) >4))
+                            ...[
                            Builder(
                                 builder: (context) {
                                   final trackingData = state.trackingDistance?.data;
@@ -288,6 +290,7 @@ if (loadStatus == 4) {
                                 },
                               ),
                              20.height, 
+                            ], 
                           DriverSourceDestinationWidget(
                             pickUpLocation:
                                 loads!.data!.loadRoute?.pickUpLocation,

@@ -310,48 +310,7 @@
 
 // }
 
-// class Consignee {
-//     Consignee({
-//         required this.id,
-//         required this.name,
-//         required this.email,
-//         required this.mobileNumber,
-//         required this.loadId,
-//     });
 
-//     final String id;
-//     final String name;
-//     final String email;
-//     final String mobileNumber;
-//     final String loadId;
-
-//     Consignee copyWith({
-//         String? id,
-//         String? name,
-//         String? email,
-//         String? mobileNumber,
-//         String? loadId,
-//     }) {
-//         return Consignee(
-//             id: id ?? this.id,
-//             name: name ?? this.name,
-//             email: email ?? this.email,
-//             mobileNumber: mobileNumber ?? this.mobileNumber,
-//             loadId: loadId ?? this.loadId,
-//         );
-//     }
-
-//     factory Consignee.fromJson(Map<String, dynamic> json){ 
-//         return Consignee(
-//             id: json["id"] ?? "",
-//             name: json["name"] ?? "",
-//             email: json["email"] ?? "",
-//             mobileNumber: json["mobileNumber"] ?? "",
-//             loadId: json["loadId"] ?? "",
-//         );
-//     }
-
-// }
 
 // class Customer {
 //     Customer({
@@ -1811,7 +1770,7 @@ class DamageShortage {
 // }
 
 
-
+//----------------------------------------------------------------------------------
 
 
 class DriverLoadDetailsModel {
@@ -1928,7 +1887,7 @@ class DriverLoadDetailsModelData {
     final Customer? customer;
     final Customer? vpCustomer;
     final Weight? weight;
-    final List<dynamic> consignees;
+      final List<DriverConsignee> consignees;
     final List<Timeline> timeline;
 
     DriverLoadDetailsModelData copyWith({
@@ -1972,7 +1931,7 @@ class DriverLoadDetailsModelData {
         Customer? customer,
         Customer? vpCustomer,
         Weight? weight,
-        List<dynamic>? consignees,
+        List<DriverConsignee>? consignees,
         List<Timeline>? timeline,
     }) {
         return DriverLoadDetailsModelData(
@@ -2063,7 +2022,7 @@ class DriverLoadDetailsModelData {
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
             vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
-            consignees: json["consignees"] == null ? [] : List<dynamic>.from(json["consignees"]!.map((x) => x)),
+            consignees: json["consignees"] == null ? [] : List<DriverConsignee>.from(json["consignees"]!.map((x) => DriverConsignee.fromJson(x))),
             timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
         );
     }
@@ -3433,6 +3392,54 @@ class Weight {
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+//-----------------------------------------------------------------
+
+
+
+
+class DriverConsignee {
+    DriverConsignee({
+        required this.id,
+        required this.name,
+        required this.email,
+        required this.mobileNumber,
+        required this.loadId,
+    });
+
+    final String id;
+    final String name;
+    final String email;
+    final String mobileNumber;
+    final String loadId;
+
+    DriverConsignee copyWith({
+        String? id,
+        String? name,
+        String? email,
+        String? mobileNumber,
+        String? loadId,
+    }) {
+        return DriverConsignee(
+            id: id ?? this.id,
+            name: name ?? this.name,
+            email: email ?? this.email,
+            mobileNumber: mobileNumber ?? this.mobileNumber,
+            loadId: loadId ?? this.loadId,
+        );
+    }
+
+    factory DriverConsignee.fromJson(Map<String, dynamic> json){ 
+        return DriverConsignee(
+            id: json["id"] ?? "",
+            name: json["name"] ?? "",
+            email: json["email"] ?? "",
+            mobileNumber: json["mobileNumber"] ?? "",
+            loadId: json["loadId"] ?? "",
         );
     }
 
