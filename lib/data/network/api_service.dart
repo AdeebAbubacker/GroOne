@@ -32,15 +32,15 @@ class ApiService {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
     };
-
-    // Add authentication header if token exists
     try {
-      String? refreshToken = await _secureSharedPrefs.get(
-        AppString.sessionKey.refreshToken,
-      );
+     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
+      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
-      } else {}
+      } else {
+        CustomLog.debug(this, "Authorization token : $refreshToken");
+      }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
     }
@@ -55,10 +55,10 @@ class ApiService {
     CustomLog.info(this, "Cache cleared successfully");
     // await _cacheManager.clearAll();
   }
-
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
       await clearCache();
 
@@ -90,7 +90,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
-    Map<String, String>? customHeaders,
+        Map<String, String>? customHeaders
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -100,9 +100,12 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    final headers = customHeaders ?? await _getHeaders();
+
     CustomLog.debug(
       this,
-      "\nMethod: Post \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
     );
     try {
       if (!HasInternetConnection.isInternet) {
@@ -134,7 +137,7 @@ class ApiService {
     String url, {
     dynamic body,
     Map<String, dynamic>? queryParams,
-    Map<String, String>? customHeaders,
+        Map<String, String>? customHeaders
   }) async {
     Object prettyBodyString;
     if (queryParams != null) {
@@ -144,10 +147,13 @@ class ApiService {
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
+    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+
     CustomLog.debug(
       this,
-      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString",
+      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader",
     );
+    final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -173,9 +179,54 @@ class ApiService {
     }
   }
 
+
+  /// Patch
+  Future<Result<dynamic>> patch(
+    String url, {
+    dynamic body,
+    Map<String, dynamic>? queryParams,
+        Map<String, String>? customHeaders
+  }) async {
+    Object prettyBodyString;
+    if (queryParams != null) {
+      prettyBodyString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(queryParams);
+    } else {
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
+    }
+    CustomLog.debug(
+      this,
+      "\nMethod: patch \nURL: $url \nRequest: $prettyBodyString",
+    );
+    final headers = customHeaders ?? await _getHeaders();
+    try {
+      if (!HasInternetConnection.isInternet) {
+        return Error(InternetNetworkError());
+      }
+      await clearCache();
+      final response = await _dio.patch(
+        url,
+        data: body,
+        queryParameters: queryParams,
+        options: Options(
+          headers: headers,
+          sendTimeout: _timeout,
+          receiveTimeout: _timeout,
+        ),
+      );
+      return await _handleBodyResponse(response);
+    } on DioError catch (dioError) {
+      return await _handleDioError(dioError);
+    } catch (exception) {
+      CustomLog.error(this, "Generic HTTP call error", exception);
+      return Error(GenericError());
+    }
+  }
+
   // Delete
   Future<Result<dynamic>> delete(String url, {Map<String, String>? customHeaders}) async {
-    CustomLog.debug(this, "Method: Delete, URL: $url");
+    CustomLog.debug(this, "Method: Delete, \nURL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -302,17 +353,19 @@ class ApiService {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        // Clear invalid token and log the issue
         await _handleUnauthorizedError();
         return Error(UnauthenticatedError.fromApiResponse(response?.data));
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
-        return Error(ConflictError());
+        final msg = response?.data?['message'];
+        return Error(ConflictError(message: msg));
       case 498:
-        return Error(InvalidTokenError());
+        final msg = response?.data?['message'];
+        return Error(InvalidTokenError(message: msg));
       case 500:
-        return Error(InternalServerError());
+        final msg = response?.data?['message'];
+        return Error(InternalServerError(message: msg));
       default:
         log("Unexpected status code: ${response?.statusCode}");
         return Error(GenericError());
@@ -322,7 +375,7 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
       CustomLog.debug(
         this,
         "Cleared invalid token due to 401 Unauthorized error",
@@ -400,4 +453,6 @@ class ApiService {
       return Error(ResponseStatusFailed());
     }
   }
+
+
 }

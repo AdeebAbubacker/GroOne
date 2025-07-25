@@ -29,10 +29,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(showSuccessKyc: value));
   }
 
-
-
   // Get Blue Id
-  Future<String?> getBlueId() async {
+  Future<String?> fetchBlueId() async {
     Result<String> getBlueId = await _repo.getBlueId();
     if (getBlueId is Success<String>) {
       emit(state.copyWith(blueId: getBlueId.value));
@@ -42,7 +40,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-
   // fetch company Type Id
   String? companyTypeId;
   Future<String?> fetchCompanyTypeId() async {
@@ -51,12 +48,33 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return companyTypeId;
   }
 
+  // Get User Role
+  int? userRole;
+  Future<int?> fetchUserRole() async {
+    userRole = await _repo.getUserRole();
+    CustomLog.debug(this, "User Role Type : $userRole");
+    return userRole;
+  }
+
+  // Get User Id
+  String? userId;
+  Future<String?> fetchUserId() async {
+    userId = await _repo.getUserId();
+    CustomLog.debug(this, "User Id : $userId");
+    return userId;
+  }
+
 
   // Fetch Profile Detail Api Call
   void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
     emit(state.copyWith(profileDetailUIState: uiState));
   }
-  Future<void> fetchProfileDetail() async {
+  Future<void> fetchProfileDetail({Object? instance}) async {
+    userId = await _repo.getUserId();
+    CustomLog.debug(instance ?? this, "Profile Detail Api Call : UserId $userId");
+    if (userId == null) {
+      return;
+    }
     _setProfileDetailUIState(UIState.loading());
     dynamic result = await _repo.getUserDetails();
     if (result is Success<ProfileDetailModel>) {
@@ -83,5 +101,23 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setLogoutUIState(UIState.error(result.type));
     }
   }
+
+
+  // Reset State
+  void resetState(){
+    emit(state.copyWith(
+      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+      profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
+    ));
+  }
+
+  void resetLogoutUIState(){
+    emit(state.copyWith(
+      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+    ));
+  }
+
+
+
 
 }

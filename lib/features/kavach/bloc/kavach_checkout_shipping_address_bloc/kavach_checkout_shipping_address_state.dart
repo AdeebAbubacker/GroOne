@@ -7,6 +7,11 @@ class KavachCheckoutShippingAddressLoading extends KavachCheckoutShippingAddress
 
 class KavachCheckoutShippingAddressEmpty extends KavachCheckoutShippingAddressState {}
 
+class KavachCheckoutShippingAddressAvailable extends KavachCheckoutShippingAddressState {
+  final List<KavachAddressModel> addresses;
+  KavachCheckoutShippingAddressAvailable({required this.addresses});
+}
+
 class KavachCheckoutShippingAddressError extends KavachCheckoutShippingAddressState {
   final ErrorType error;
   KavachCheckoutShippingAddressError(this.error);

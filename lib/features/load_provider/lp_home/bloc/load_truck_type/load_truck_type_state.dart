@@ -9,7 +9,7 @@ class LoadTruckTypeInitial extends LoadTruckTypeState {}
 class LoadTruckTypeLoading extends LoadTruckTypeState {}
 
 class LoadTruckTypeSuccess extends LoadTruckTypeState {
-  final LoadTruckTypeListModel loadTruckTypeListModel;
+  final List<LoadTruckTypeListModel> loadTruckTypeListModel;
   LoadTruckTypeSuccess(this.loadTruckTypeListModel);
 }
 

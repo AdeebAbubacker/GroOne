@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -41,6 +43,12 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
   @override
   Widget build(BuildContext context) {
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+
+
+
     return GestureDetector(
       onTap: (){
         /// TODO:
@@ -60,6 +68,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   decoration: commonContainerDecoration(
@@ -68,32 +77,34 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                   ),
                   child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
                 ),
-                15.width,
+                10.width,
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(widget.data.loadId, style: AppTextStyle.h5),
+                   Text(
+                     formatDateTimeKavach(widget.data.createdAt?.toString()??DateTime.now().toString()),
+                     style: AppTextStyle.primaryColor12w400,
+                   ),
+                 ],
+               ).expand(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
                       children: [
-                        Text(
-                          widget.data.pickUpWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 1,
-                        ).expand(),
+                        _buildLocationInfoWidget( widget.data.pickUpWholeAddr.capitalize),
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5).expand(),
-                        Text(
-                          widget.data.dropWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 1,
-                        ).expand(),
+                        ).paddingSymmetric(horizontal: 5),
+
+                        _buildLocationInfoWidget(widget.data.dropWholeAddr.capitalize),
+                        // widget.data.dropWholeAddr.capitalize
                       ],
                     ),
-                    Text(
-                      formatDateTimeKavach(widget.data.dueDate!.toString()),
-                      style: AppTextStyle.primaryColor12w400,
-                    ),
+
                   ],
                 ).expand(),
               ],
@@ -120,7 +131,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                       iconSvg: AppIcons.svg.deliveryTruckSpeed,
                     ),
                     detailWidget(
-                      text: "${widget.data.consignmentWeight} Tonn",
+                      text: "${widget.data.consignmentWeight} ${context.appText.tonn}",
                       iconSvg: AppIcons.svg.weight,
                     ),
                   ],
@@ -142,19 +153,22 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 color: AppColors.primaryLightColor,
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(
-                    "Quoted Price",
-                    style: AppTextStyle.textBlackColor18w400,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                  Text(
-                    (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"")!="0"?
-                    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-                    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}",
-                    style: AppTextStyle.h4PrimaryColor,
-                    textAlign: TextAlign.center,
-                  ).expand(),
+                  FittedBox(
+                    child: Text(
+                      context.appText.quotedPrice,
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  FittedBox( 
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -199,7 +213,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                             screen: KycPendingDialogue(
                               onPressed: () {
                                 context.pop();
-                                CustomLog.debug(this, 'Recent Load Company Id : ${widget.companyTypeId}');
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {
@@ -211,7 +224,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title: 'Accept Load',
+                      title: context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );
@@ -235,6 +248,15 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
         10.width,
         Text(text, style: AppTextStyle.body),
       ],
+    );
+  }
+
+  Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 1,
     );
   }
 }

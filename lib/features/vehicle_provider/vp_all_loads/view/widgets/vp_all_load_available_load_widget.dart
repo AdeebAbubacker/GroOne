@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -25,10 +27,12 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
 class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
+  final Function() onBack;
 
   const VpAllLoadAvailableLoadWidget({
     super.key,
     required this.data,
+    required this.onBack,
   });
 
   @override
@@ -42,15 +46,18 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
 
   @override
   Widget build(BuildContext context) {
-    String amount=(widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
-    "$indianCurrencySymbol${widget.data.vpRate} - $indianCurrencySymbol${widget.data.vpMaxRate}":
-    "$indianCurrencySymbol${(widget.data.vpRate??"").isNotEmpty ? widget.data.vpRate : "0000 - 0000"}";
+    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+
     return GestureDetector(
-      onTap: () {
-        context.push(AppRouteName.loadDetailsScreen,extra: {
+      onTap: () async {
+       await context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
-        });
-      },
+        }).then((value) {
+         widget.onBack();
+       },);
+        },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         decoration: commonContainerDecoration(
@@ -61,7 +68,9 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   decoration: commonContainerDecoration(
@@ -70,32 +79,38 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                   ),
                   child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
                 ),
-                15.width,
+
+                10.width,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.data.loadId, style: AppTextStyle.h5),
+                    Text(
+                      formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
+                      style: AppTextStyle.primaryColor12w400,
+                    ),
+                  ],
+                ).expand(),
+                5.width,
+
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Wrap(
                       children: [
-                        Text(
-                          widget.data.pickUpWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+
+                        _buildLocationInfoWidget(    widget.data.pickUpLocation.capitalize),
+
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
                         ).paddingSymmetric(horizontal: 5),
-                        Text(
-                          widget.data.dropWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 2,
-                        ),
+
+                        _buildLocationInfoWidget(   widget.data.dropLocation.capitalize,),
+
                       ],
                     ),
-                    Text(
-                      formatDateTimeKavach(widget.data.dueDate!.toString()),
-                      style: AppTextStyle.primaryColor12w400,
-                    ),
+
                   ],
                 ).expand(),
               ],
@@ -122,7 +137,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                       iconSvg: AppIcons.svg.deliveryTruckSpeed,
                     ),
                     detailWidget(
-                      text: "${widget.data.consignmentWeight} Tonn",
+                      text: "${widget.data.consignmentWeight} ${context.appText.tonn}",
                       iconSvg: AppIcons.svg.weight,
                     ),
                   ],
@@ -138,23 +153,30 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
             ),
             15.height,
             Container(
+              alignment: Alignment.centerRight,
               padding: EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.primaryLightColor,
               ),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(
-                    "Quoted Price",
-                    style: AppTextStyle.textBlackColor18w400,
-                    textAlign: TextAlign.center,
-                  ).expand(),
-                  Text(
-                    amount,
-                    style: AppTextStyle.h4PrimaryColor,
-                    textAlign: TextAlign.center,
-                  ).expand(),
+                  FittedBox(
+                    child: Text(
+                     context.appText.quotedPrice,
+                      style: AppTextStyle.textBlackColor18w400,
+                      textAlign: TextAlign.center,
+                    )
+                  ),
+
+                  FittedBox(
+                    child: Text(
+                      amount,
+                      style: AppTextStyle.h4PrimaryColor,
+                      textAlign: TextAlign.center,
+                    )
+                  ),
                 ],
               ),
             ),
@@ -215,7 +237,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title: 'Accept Load',
+                      title:  context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );
@@ -239,6 +261,15 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
         10.width,
         Text(text, style: AppTextStyle.body),
       ],
+    );
+  }
+
+  Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 1,
     );
   }
 }

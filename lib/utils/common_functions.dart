@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
@@ -227,27 +228,25 @@ class ImagePickerFrom {
   static ImagePicker picker = ImagePicker();
 
   // From Camera
-  static Future<T?> fromCamera<T>() async {
+  static Future<T?> fromCamera<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromCamera = await picker.pickImage(
       source: ImageSource.camera,
       imageQuality: 100,
     );
     if (pickedFromCamera == null) {
-      ToastMessages.alert(message: AppString.label.noImageSelected);
+      ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
       final File fileImage = File(pickedFromCamera.path);
       final File fileName = File(pickedFromCamera.name);
-      final String fileExtension = path
-          .extension(pickedFromCamera.path)
-          .replaceFirst('.', '');
+      final String fileExtension = path.extension(pickedFromCamera.path).replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(fileImage)) {
+      if (_imageConstraint(fileImage, allowedExtensions: allowedExtensions)) {
         imageFile = data;
       }
     }
@@ -255,27 +254,25 @@ class ImagePickerFrom {
   }
 
   // From Gallery
-  static Future<T?> fromGallery<T>() async {
+  static Future<T?> fromGallery<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromGallery = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 100,
     );
     if (pickedFromGallery == null) {
-      ToastMessages.alert(message: AppString.label.noImageSelected);
+      ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
       final File fileImage = File(pickedFromGallery.path);
       final File fileName = File(pickedFromGallery.name);
-      final String fileExtension = path
-          .extension(pickedFromGallery.path)
-          .replaceFirst('.', '');
+      final String fileExtension = path.extension(pickedFromGallery.path).replaceFirst('.', '');
       dynamic data = {
         "fileName": fileName.path,
         "path": fileImage.path,
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(fileImage)) {
+      if (_imageConstraint(fileImage, allowedExtensions: allowedExtensions)) {
         imageFile = data;
       }
     }
@@ -283,21 +280,24 @@ class ImagePickerFrom {
   }
 
   // Image Constraint
-  static bool _imageConstraint(File image) {
-    if (![
+  static bool _imageConstraint(File image, {List? allowedExtensions}) {
+    final extension = image.path.split('.').last.toLowerCase();
+
+    final defaultAllowed = [
       'jpg',
       'jpeg',
       'png',
-      'PNG',
       'heif',
-      'HEIF',
+      'heic',
       'pdf',
-    ].contains(image.path.split('.').last.toString())) {
-      ToastMessages.alert(message: AppString.label.imageSupport);
+    ];
+
+    if (!(allowedExtensions ?? defaultAllowed).contains(extension)) {
+      ToastMessages.alert(message: appContext.appText.imageSupport);
       return false;
     }
     if (image.lengthSync() > 5000000) {
-      ToastMessages.alert(message: AppString.label.imageSize);
+      ToastMessages.alert(message: appContext.appText.imageSize);
       return false;
     }
     return true;
@@ -305,7 +305,7 @@ class ImagePickerFrom {
 }
 
 /// Multiple File Picker
-Future<Map?> pickMultipleFiles<T>() async {
+Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
   try {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -318,7 +318,7 @@ Future<Map?> pickMultipleFiles<T>() async {
       return null;
     }
 
-    final allowedExtensions = <String>{
+    final defaultAllowedExtensions = <String>{
       "jpg",
       "jpeg",
       "gif",
@@ -342,13 +342,17 @@ Future<Map?> pickMultipleFiles<T>() async {
       "mp3",
     };
 
+    final extensionSet = allowedExtensions != null
+        ? allowedExtensions.map((e) => e.toLowerCase()).toSet()
+        : defaultAllowedExtensions;
+
     var validFiles = {};
 
     for (final file in result.files) {
       final extension = file.extension?.toLowerCase() ?? '';
       final path = file.path;
 
-      if (!allowedExtensions.contains(extension)) {
+      if (!extensionSet.contains(extension)) {
         ToastMessages.alert(message: "Invalid file format: ${file.name}");
         return null;
       }
@@ -365,8 +369,8 @@ Future<Map?> pickMultipleFiles<T>() async {
         "dateTime": DateTime.now().toString(),
       };
 
-      if (file.size > 8000000) {
-        ToastMessages.alert(message: AppString.label.imageSize);
+      if (file.size > 5000000) {
+        ToastMessages.alert(message: appContext.appText.imageSize);
         return null;
       } else {
         return validFiles;
@@ -406,39 +410,40 @@ Future<Map?> pickMultipleFiles<T>() async {
 
 /// Get Error Msg
 String getErrorMsg({required ErrorType errorType}) {
+  final context = appContext;
   switch (errorType) {
     case NotFoundError _:
       return errorType.getText(appContext);
     case GenericError _:
-      return AppString.errorType.genericError;
+      return context.appText.genericError;
     case InternetNetworkError _:
-      return AppString.errorType.networkError;
-    case BadRequestError _:
+      return context.appText.networkError;
+    case BadRequestError _://
       return errorType.getText(appContext);
     case TokenExpiredError _:
-      return AppString.errorType.tokenExpireError;
+      return context.appText.tokenExpireError;
     case InvalidTokenError _:
-      return AppString.errorType.invalidTokenError;
-    case ConflictError _:
-      return AppString.errorType.conflictError;
+      return context.appText.invalidTokenError;
+    case ConflictError _://
+      return errorType.message ?? '';
     case DeserializationError _:
-      return AppString.errorType.deserializationError;
+      return context.appText.deserializationError;
     case RequestCancelledError _:
-      return AppString.errorType.requestCancelledError;
+      return context.appText.requestCancelledError;
     case UnauthenticatedError _:
       return errorType.getText(appContext);
     case NetworkTimeoutError _:
-      return AppString.errorType.timeOutError;
+      return context.appText.timeOutError;
     case ResponseStatusFailed _:
-      return AppString.errorType.responseStatusFail;
+      return errorType.getText();
     case SerializationError _:
-      return AppString.errorType.serializationError;
+      return context.appText.serializationError;
     case LoginAttemptError _:
-      return AppString.errorType.loginAttemptError;
+      return context.appText.loginAttemptError;
     case InvalidInputError _:
-      return AppString.errorType.invalidInput;
+      return context.appText.invalidInput;
     case InternalServerError _:
-      return AppString.errorType.internalServerError;
+      return errorType.message ?? '';
     case ErrorWithMessage _:
       return errorType.message;
     default:
@@ -550,22 +555,7 @@ String formatDateTimeKavach(String dateTimeString) {
   return formatted;
 }
 
-Color getKavachOrderStatusColor(String status) {
-  switch (status) {
-    case 'Order Placed':
-      return AppColors.primaryColor;
-    case 'Dispatched':
-      return Colors.orange;
-    case 'Delivered':
-      return AppColors.greenColor;
-    case 'Failed':
-      return AppColors.activeRedColor;
-    case 'Installed':
-      return Colors.teal;
-    default:
-      return AppColors.primaryColor;
-  }
-}
+
 
 /// Common Support Dialog
 void commonSupportDialog(BuildContext context) {
@@ -576,7 +566,7 @@ void commonSupportDialog(BuildContext context) {
       message: "Contact our Customer support agent",
       onSingleButtonText: "Call",
       onTapSingleButton: () async {
-        await callRedirect("180012304567");
+        await callRedirect("1800 208 8800");
       },
       child: SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
     ),

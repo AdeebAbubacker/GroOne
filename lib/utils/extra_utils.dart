@@ -202,7 +202,10 @@ showCustomDialogue({
   GestureTapCallback? onClickButton,
   required String buttonText,
   bool disableButton = false,
+  bool hideButton = false,
 }) {
+  print("hideButton is $hideButton");
+
   return Dialog(
     backgroundColor: AppColors.white,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -213,15 +216,18 @@ showCustomDialogue({
         children: [
           child,
           30.height,
-          AppButton(
-            style: !disableButton?AppButtonStyle.primary:AppButtonStyle.disableButton,
-            title: buttonText,
-            onPressed:!disableButton?
-                onClickButton ??
-                () {
-                  // Handle verify action here
-                  Navigator.pop(context);
-                }: (){},
+          Visibility(
+          visible: hideButton,
+            child: AppButton(
+              style: !disableButton?AppButtonStyle.primary:AppButtonStyle.disableButton,
+              title: buttonText,
+              onPressed:!disableButton?
+                  onClickButton ??
+                  () {
+                    // Handle verify action here
+                    Navigator.pop(context);
+                  }: (){},
+            ),
           ),
           child2 ?? const SizedBox(),
         ],

@@ -4,16 +4,19 @@ class ScheduleTripRequest {
     required this.driverId,
     required this.acceptedBy,
     required this.etaForPickUp,
-    required this.expectedDeliveryDate,
+    required this.possibleDeliveryDate,
     required this.loadId,
+    required this.expectedDeliveryDate,
   });
 
-  final int vehicleId;
-  final int loadId;
-  final int driverId;
-  final int acceptedBy;
+  final String? vehicleId;
+  final String? loadId;
+  final String? driverId;
+  final String? acceptedBy;
   final String? etaForPickUp;
+  final String? possibleDeliveryDate;
   final String? expectedDeliveryDate;
+
 
 
 
@@ -23,7 +26,8 @@ class ScheduleTripRequest {
     "driverId": driverId,
     "acceptedBy": acceptedBy,
     "etaForPickUp": etaForPickUp,
-    "possibleDeliveryDate": expectedDeliveryDate,
+    "possibleDeliveryDate": possibleDeliveryDate,
+    "expectedDeliveryDate":expectedDeliveryDate
   };
 
 }

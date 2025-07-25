@@ -19,24 +19,22 @@ class _GpsUserDetailsRealmModel {
 
 extension GpsUserDetailsRealmModelMapper on GpsUserDetailsRealmModel {
   GpsUserDetailsModel toDomain() => GpsUserDetailsModel(
-    id: userId,
-    name: name,
-    email: email,
-    disabled: disabled,
-    attributes:
-        attributesEmail != null
-            ? GpsUserAttributes(email: attributesEmail)
-            : null,
+    data: [
+      GpsUserData(id: userId, name: name, email: email, disabled: disabled),
+    ],
+    success: true,
+    total: 1,
   );
 
   static GpsUserDetailsRealmModel fromDomain(GpsUserDetailsModel data) {
+    final firstUser = data.firstUser;
     final obj = GpsUserDetailsRealmModel(
       ObjectId(),
-      userId: data.id,
-      name: data.name ?? '',
-      email: data.email ?? '',
-      disabled: data.disabled,
-      attributesEmail: data.attributes?.email,
+      userId: firstUser?.id,
+      name: firstUser?.name ?? '',
+      email: firstUser?.email ?? '',
+      disabled: firstUser?.disabled,
+      attributesEmail: null, // No longer used in new structure
       DateTime.now(),
     );
     return obj;

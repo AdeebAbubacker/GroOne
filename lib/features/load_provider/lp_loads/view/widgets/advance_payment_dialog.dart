@@ -24,7 +24,7 @@ class AdvancePaymentDialog extends StatelessWidget {
 
   final String loadId;
   final String creditLimit;
-  final LpLoadAgreeData lpLoadAgreeData;
+  final LpLoadAgreeResponse lpLoadAgreeData;
   final lpLoadLocator = locator<LpLoadCubit>();
 
 
@@ -67,7 +67,6 @@ class AdvancePaymentDialog extends StatelessWidget {
           onPressed: ()async{
             final selectedAdvanceId = cubit.state.selectedAdvance?.percentageId;
 
-            // lpLoadLocator.updateCreditCheck(creditLimit: creditLimit, creditUsed: '$percentAmount');
             await lpLoadLocator.verifyAdvance(loadId: loadId, percentageId: selectedAdvanceId.toString());
 
             final uiState = lpLoadLocator.state.lpLoadVerifyAdvance;

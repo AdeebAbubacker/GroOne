@@ -11,23 +11,51 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
   KavachCheckoutShippingAddressBloc(this.repository) : super(KavachCheckoutShippingAddressLoading()) {
     on<FetchKavachShippingAddresses>(_onFetchAddresses);
     on<SelectKavachShippingAddress>(_onSelectAddress);
+    on<RestoreKavachShippingAddress>(_onRestoreShippingAddress);
     on<ClearKavachShippingAddress>((event, emit) {
       emit(KavachCheckoutShippingAddressEmpty());
     });
   }
 
   Future<void> _onFetchAddresses(FetchKavachShippingAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
+    // Store the currently selected address before fetching
+    KavachAddressModel? currentlySelectedAddress;
+    if (state is KavachCheckoutShippingAddressSelected) {
+      currentlySelectedAddress = (state as KavachCheckoutShippingAddressSelected).selectedAddress;
+    }
+    
     emit(KavachCheckoutShippingAddressLoading());
-    final result = await repository.fetchAddresses(addrType: 1);
+    final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
+        print('KavachCheckoutShippingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutShippingAddressEmpty());
       } else {
-        final firstAddress = result.value.first;
-        emit(KavachCheckoutShippingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        // Check if the previously selected address still exists in the new list
+        if (currentlySelectedAddress != null) {
+          final addressExists = result.value.any((address) => address.uniqueId == currentlySelectedAddress!.uniqueId);
+          if (addressExists) {
+            // Restore the previously selected address
+            print('KavachCheckoutShippingAddressBloc: Restoring previously selected address');
+            emit(KavachCheckoutShippingAddressSelected(
+              selectedAddress: currentlySelectedAddress,
+              addresses: result.value,
+            ));
+          } else {
+            // Previously selected address no longer exists, show available state
+            print('KavachCheckoutShippingAddressBloc: Previously selected address no longer exists, emitting available state');
+            emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
+          }
+        } else {
+          // No previously selected address, show available state without auto-selection
+          print('KavachCheckoutShippingAddressBloc: No previously selected address, showing available state without auto-selection');
+          emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
+        }
       }
     } else if (result is Error<List<KavachAddressModel>>) {
+      print('KavachCheckoutShippingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutShippingAddressError(result.type));
     }
   }
@@ -40,8 +68,12 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
         selectedAddress: event.address,
         addresses: currentState.addresses,
       ));
-    } else {
-      // When there was no prior selected state (e.g., after Clear)
+    } else if (currentState is KavachCheckoutShippingAddressAvailable) {
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else if (currentState is KavachCheckoutShippingAddressEmpty) {
       emit(KavachCheckoutShippingAddressSelected(
         selectedAddress: event.address,
         addresses: [event.address],
@@ -49,4 +81,10 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     }
   }
 
+  void _onRestoreShippingAddress(RestoreKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
+    emit(KavachCheckoutShippingAddressSelected(
+      selectedAddress: event.address,
+      addresses: event.addresses,
+    ));
+  }
 }

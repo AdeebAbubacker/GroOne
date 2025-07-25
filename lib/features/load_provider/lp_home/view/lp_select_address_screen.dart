@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.d
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -58,25 +59,31 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   String latLngData = '';
   Set<Marker> _markers = {};
 
-  final String _apiKey = "AIzaSyBZMCgOTw0CKqgLRahtLjOGBml0fmhQQtY";
-
   String laneId = '0';
-
-
-  Future<void> _setMapStyle(GoogleMapController controller) async {
-    String style = await rootBundle.loadString(AppJSON.mapStyle);
-    controller.setMapStyle(style);
-  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (widget.address != null) {
-        addressTextController.text = widget.address!;
-        searchTextController.text = widget.location!;
+      // if (widget.address != null) {
+      //   addressTextController.text = widget.address!;
+      //   searchTextController.text = widget.location!;
+      // }
+      // await _handleCurrentLocation();
+      if (widget.location != null && widget.location!.isNotEmpty) {
+        final LatLng? fromAddress = await MapHelper.getLatLngFromAddress(widget.location!);
+        if (fromAddress != null) {
+          _updateMapToLocation(fromAddress);
+        } else {
+          await _handleCurrentLocation();
+        }
+      } else {
+        await _handleCurrentLocation();
       }
-      await _handleCurrentLocation();
+
+      searchTextController.text = widget.location ?? '';
+      addressTextController.text = widget.address ?? '';
+
     });
   }
 
@@ -87,25 +94,34 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   }
 
 
-  void printPrettyJson(dynamic data) {
-    const encoder = JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(data);
-    log('Data:\n$prettyJson');
-  }
-
 
   Future<void> _handleCurrentLocation() async {
-    final pos = await MapHelper.getCurrentLocation();
-    if (pos != null) {
-      setState(() {
-        _centerLatLng = pos;
-        latLngData = "${pos.latitude},${pos.longitude}";
-      });
-      _setMarker(pos);
-      if (_mapController != null) {
-        await MapHelper.animateTo(_mapController!, pos);
+    try {
+      // Use cached last known location first if available
+      final cachedPos = await MapHelper.getLastKnownLocation();
+      if (cachedPos != null) {
+        _updateMapToLocation(cachedPos);
       }
+
+      // Fetch fresh GPS location in background
+      final currentPos = await MapHelper.getCurrentLocation();
+      if (currentPos != null) {
+        _updateMapToLocation(currentPos);
+      }
+    } catch (e) {
+      CustomLog.error(this, "", e);
     }
+  }
+
+// Helper method to update map camera and marker
+  void _updateMapToLocation(LatLng pos) {
+    _centerLatLng ??= pos;
+    latLngData = "${pos.latitude},${pos.longitude}";
+    _setMarker(pos);
+    if (_mapController != null) {
+      MapHelper.animateTo(_mapController!, pos);
+    }
+    setState(() {});
   }
 
 
@@ -128,15 +144,6 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   });
 
 
-  void _onCameraMove(CameraPosition position) {
-    setState(() {
-      _centerLatLng = position.target;
-      latLngData = "${position.target.latitude},${position.target.longitude}";
-    });
-    _updateAddress(position.target);
-  }
-
-
 
 
   LatLng? getLatLngFromGMapResponse(dynamic data) {
@@ -149,17 +156,17 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required LocationDetails locationDetails}) async {
+  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required int locationId, required String selectedLocation}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
-        locationdetails: locationDetails,
+        locationId: locationId,
         type: type
     );
     await lpHomeCubit.verifyLocation(apiRequest);
     Status? status = lpHomeCubit.state.verifyLocationUIState?.status;
     if (status != null) {
       if(status == Status.SUCCESS){
-        final data = lpHomeCubit.state.verifyLocationUIState?.data?.data;
+        final data = lpHomeCubit.state.verifyLocationUIState?.data;
         if(data != null && data.locationdetails != null){
           LatLng? latLng = getLatLngFromGMapResponse(data);
           if (latLng != null) {
@@ -168,15 +175,15 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
             }
             _setMarker(latLng);
           }
-          searchTextController.text = locationDetails.name;
-          if(widget.title == 'Pickup Point') {
+          // searchTextController.text = data.locationdetails?.wholeAddr ?? '';
+          searchTextController.text = selectedLocation;
+          if(widget.title == context.appText.pickupPoint) {
             lpHomeCubit.setPickupLocationDetailId(data.locationdetails!.id);
           } else {
             lpHomeCubit.setDestinationLocationDetailId(data.locationdetails!.id);
           }
           if(data.lane != null){
-            lpHomeCubit.setLaneId(data.lane?.id);
-            CustomLog.debug(this, "Save data on verify: Location - ${searchTextController.text},  Location Id - ${data.locationdetails!.id}, Lane Id - ${data.lane?.id}");
+            lpHomeCubit.setLaneId(data.lane?.masterLaneId);
           }
           lpHomeCubit.resetAutoCompleteState();
         }
@@ -202,10 +209,10 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     AppDialog.show(
         context,
         child: CommonDialogView(
-          heading: "This area is not serviceable now",
+          heading: context.appText.areaIsNotServiceable,
           headingColor: AppColors.orangeTextColor,
-          message: "We will let you know once we start operating here",
-          onSingleButtonText: "Change Location",
+          message: context.appText.weWillLetYouKnowOnceWeStartOperatingHere,
+          onSingleButtonText: context.appText.changeLocation,
           hideCloseButton: true,
           onTapSingleButton: (){
             searchTextController.clear();
@@ -253,8 +260,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                           // Address Text Field
                           AppTextField(
                             controller: addressTextController,
-                            hintText: "Enter your address...",
-                            labelText: "Address",
+                            hintText: context.appText.enterYourAddress,
+                            labelText: context.appText.address,
                             maxLines: 2,
                           ),
 
@@ -284,30 +291,30 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     return Positioned.fill(
       top: 0,
       bottom: 320,
-      child: Builder(
-        builder: (context) {
-          if (_centerLatLng == null) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: _centerLatLng!,
-                zoom: 10,
-              ),
-              onMapCreated: (controller) async {
-                _mapController = controller;
-                await _setMapStyle(controller);
-              },
-              zoomGesturesEnabled: true,
-              scrollGesturesEnabled: true,
-              myLocationButtonEnabled: false,
-              onCameraMove: _onCameraMove,
-              markers: _markers,
-              zoomControlsEnabled: false,
-            );
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _centerLatLng ?? LatLng(0.0, 0.0), // default Chennai center
+          zoom: 10,
+        ),
+        onMapCreated: (controller) async {
+          _mapController = controller;
+          // await _setMapStyle(controller);
+        },
+        zoomGesturesEnabled: true,
+        scrollGesturesEnabled: true,
+        myLocationButtonEnabled: false,
+        onCameraMove: (CameraPosition position) {
+          _centerLatLng = position.target;
+          latLngData = "${position.target.latitude},${position.target.longitude}";
+        },
+        onCameraIdle: () {
+          if (_centerLatLng != null) {
+            _updateAddress(_centerLatLng!);
           }
         },
-      )
+        markers: _markers,
+        zoomControlsEnabled: false,
+      ),
     );
   }
 
@@ -315,10 +322,10 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   Widget buildLocationTextFieldWidget(BuildContext context){
     return AppTextField(
       controller: searchTextController,
-      labelText: "Location",
+      labelText: context.appText.location,
       decoration: commonInputDecoration(
           suffixIcon: Icon(Icons.clear, size: 20),
-          hintText: "Search location...",
+          hintText: context.appText.searchLocation,
           suffixOnTap: (){
             searchTextController.clear();
             lpHomeCubit.resetAutoCompleteState();
@@ -349,26 +356,27 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       builder: (context, state){
 
         if(state.autoCompleteUIState != null && state.autoCompleteUIState!.status == Status.SUCCESS){
-          if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.data!.predictions.isNotEmpty){
+          if(state.autoCompleteUIState?.data != null && state.autoCompleteUIState!.data!.predictions.isNotEmpty){
             return  ConstrainedBox(
               constraints: BoxConstraints(maxHeight: 150),
               child: Container(
                 decoration: commonContainerDecoration(shadow: true),
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount:  state.autoCompleteUIState!.data!.data!.predictions.length,
+                  itemCount:  state.autoCompleteUIState!.data!.predictions.length,
                   itemBuilder: (context, index) {
-                    final item =  state.autoCompleteUIState!.data!.data!.predictions[index];
+                    final item =  state.autoCompleteUIState!.data!.predictions[index];
                     return ListTile(
                       title: Text(item.description, style: AppTextStyle.body),
                       onTap: () async {
-                        final locationDetails = LocationDetails(
-                            id : widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId,
-                            name: item.description,
-                            slug: item.description.toLowerCase(),
-                        );
-                        final type = widget.title == "Pickup Point" ? 2 : 1;
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationDetails: locationDetails);
+                        // final locationDetails = LocationDetails(
+                        //     id : widget.title == "Pickup Point" ? state.destinationLocationId : state.pickupLocationId,
+                        //     name: item.description,
+                        //     slug: item.description.toLowerCase(),
+                        // );
+                        final locationId = widget.title == context.appText.pickupPoint ? state.destinationLocationId : state.pickupLocationId;
+                        final type = widget.title == context.appText.pickupPoint ? 1 : 2;
+                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0, selectedLocation: item.description);
 
                       },
                     );
@@ -386,18 +394,16 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
   Widget buildSelectLocationButton(BuildContext context){
     return AppButton(
-      title: "Continue",
+      title: context.appText.continueText,
       onPressed: () {
 
-        debugPrint("title ${widget.title}");
-
-        if (lpHomeCubit.state.laneId == null && widget.title != "Pickup Point") {
-          _showError("Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
+        if (searchTextController.text.isEmpty){
+          ToastMessages.error(message: widget.title == context.appText.pickupPoint ? context.appText.selectPickupLocation : context.appText.selectDestinationLocation);
           return;
         }
 
-        if (searchTextController.text.isEmpty){
-          _showError("Please select location address.");
+        if (lpHomeCubit.state.laneId == null && widget.title != context.appText.pickupPoint) {
+          ToastMessages.error(message:"Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
           return;
         }
 
@@ -418,7 +424,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         );
 
 
-        if(widget.title == "Pickup Point"){
+        if(widget.title == context.appText.pickupPoint){
           lpHomeCubit.setPickup(pickupData);
           Navigator.of(context).pop(true);
         } else {
@@ -456,11 +462,5 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       ),
       child: IconButton(icon: Icon(icon), onPressed: onTap),
     );
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

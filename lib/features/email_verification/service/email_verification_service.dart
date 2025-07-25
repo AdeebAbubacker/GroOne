@@ -13,37 +13,19 @@ class EmailVerificationService {
   EmailVerificationService(this._apiService);
 
   /// Send Otp
-  Future<Result<SendEmailOtpModel>> fetchSendOtp(String email) async {
+  Future<Result<SendEmailOtpModel>> fetchSendOtp(String email, String customerId) async {
     try {
       final url = ApiUrls.sendEmailOtp;
-      final result = await _apiService.post(url, body: {"email": email});
+      final result = await _apiService.post(url, body: {"customerId": customerId, "emailId": email});
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> SendEmailOtpModel.fromJson(data));
+       final sendEmailOtpResponse=  SendEmailOtpModel.fromJson(result.value);
+        return  Success(sendEmailOtpResponse) ;
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
-      return Error(DeserializationError());
-    }
-  }
-
-  /// Resend OTP
-  Future<Result<ResendEmailOtpModel>> fetchResendOtpData(String email) async {
-    try {
-      final url = ApiUrls.resendEmailOtp;
-      final result = await _apiService.post(url, body: {"email": email});
-      if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> ResendEmailOtpModel.fromJson(data));
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -54,14 +36,14 @@ class EmailVerificationService {
       final url = ApiUrls.emailOTPCodeVerification;
       final result = await _apiService.post(url, body: request.toJson());
       if (result is Success) {
-        return  await _apiService.getResponseStatus(result.value, (data)=> VerifyEmailOtpModel.fromJson(data));
+        final verifyOtpModel=VerifyEmailOtpModel.fromJson(result.value);
+        return Success(verifyOtpModel);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }

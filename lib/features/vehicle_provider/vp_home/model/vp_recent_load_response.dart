@@ -1,3 +1,6 @@
+import '../../vp-helper/vp_helper.dart';
+import '../../vp_details/model/load_details_response_model.dart';
+
 class VpRecentLoadResponse {
   VpRecentLoadResponse({
     required this.success,
@@ -25,7 +28,7 @@ class VpRecentLoadResponse {
     return VpRecentLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VpRecentLoadData>.from(json["data"]!.map((x) => VpRecentLoadData.fromJson(x))),
+      data: json["data"]['data'] == null ? [] : List<VpRecentLoadData>.from(json["data"]['data']!.map((x) => VpRecentLoadData.fromJson(x))),
     );
   }
 
@@ -34,6 +37,7 @@ class VpRecentLoadResponse {
 class VpRecentLoadData {
   VpRecentLoadData({
     required this.id,
+    required this.loadDocument,
     required this.loadId,
     required this.laneId,
     required this.rateId,
@@ -71,6 +75,10 @@ class VpRecentLoadData {
     required this.pickUpWholeAddr,
     required this.vpRate,
     required this.vpMaxRate,
+    required this.loadStatusDetails,
+    required this.loadStatusValues,
+    required this.driverConsent,
+    required this.loadUnHold,
 
   });
 
@@ -82,11 +90,13 @@ class VpRecentLoadData {
 
 
 
-  final int id;
+
+
+  final String id;
   final String loadId;
   final num laneId;
   final num rateId;
-  final num customerId;
+  final dynamic customerId;
   final num commodityId;
   final num truckTypeId;
   final String pickUpAddr;
@@ -102,6 +112,7 @@ class VpRecentLoadData {
   final String rate;
   final num status;
   final num loadStatus;
+  final LoadStatus? loadStatusValues;
   final String vehicleLength;
   final DateTime? pickUpDateTime;
   final DateTime? expectedDeliveryDateTime;
@@ -116,9 +127,14 @@ class VpRecentLoadData {
   final TruckType? truckType;
   final Customer? customer;
   final CustomerDetail? customerDetail;
+  final int? driverConsent;
+  final bool? loadUnHold;
+  final List<LoadDocument>? loadDocument;
+
+  final LoadStatusDetailsResponse? loadStatusDetails;
 
   VpRecentLoadData copyWith({
-    int? id,
+    String? id,
     String? loadId,
     num? laneId,
     num? rateId,
@@ -130,6 +146,7 @@ class VpRecentLoadData {
     num? assignStatus,
     String? pickUpLatlon,
     String? dropAddr,
+    LoadStatusDetailsResponse? loadStatusDetails,
     String? dropLocation,
     String? dropLatlon,
     DateTime? dueDate,
@@ -155,10 +172,19 @@ class VpRecentLoadData {
      String? pickUpWholeAddr,
      String? dropWholeAddr,
      String? vpRate,
-    String? vpMaxRate,
+     String? vpMaxRate,
+    LoadStatus? loadStatusValues,
+    bool? loadUnHold,
+    List<LoadDocument>? loadDocument,
+
+
   }) {
     return VpRecentLoadData(
-
+      loadDocument: loadDocument??this.loadDocument,
+      loadUnHold: loadUnHold ?? this.loadUnHold,
+      driverConsent:  driverConsent??this.driverConsent,
+      loadStatusValues: loadStatusValues??this.loadStatusValues,
+      loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
       id: id ?? this.id,
       vpMaxRate: vpMaxRate ?? this.vpMaxRate,
       pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
@@ -201,31 +227,39 @@ class VpRecentLoadData {
   }
 
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
+    /// TODO:
+    /// change get loadStatusValues dynamically once ui work has been done
+    ///
     return VpRecentLoadData(
-      vpMaxRate: json['vpMaxRate']?.toString()??"" ,
-      vpRate:json['vpRate']?.toString()??"" ,
-      dropWholeAddr: json['dropWholeAddr']?.toString()??"",
-      pickUpWholeAddr: json['pickUpWholeAddr']?.toString()??"",
-      id: json["id"] ?? 0,
-      loadId: json["loadId"] ?? "",
+      loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
+      loadUnHold: json['loadOnhold'],
+      driverConsent: json['driverConsent'],
+      loadStatusValues: getLoadStatus(json['loadStatusId']),
+      loadStatusDetails:LoadStatusDetailsResponse.fromJson(json['loadStatusDetails']) ,
+      vpMaxRate:  json['loadPrice']!=null ?  json['loadPrice']['vpMaxRate']?.toString()??"" :"",
+      vpRate:  json['loadPrice']!=null ?  json['loadPrice']['vpRate']?.toString()??"":"" ,
+      dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
+      pickUpWholeAddr: json['loadRoute']!=null ? json['loadRoute']['pickUpWholeAddr']?.toString()??"":"",
+      id: json["loadId"] ?? "0",
+      loadId: json["loadSeriesId"].toString() ?? "",
       laneId: json["laneId"] ?? 0,
       rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
       commodityId: json["commodityId"] ?? 0,
       truckTypeId: json["truckTypeId"] ?? 0,
-      pickUpAddr: json["pickUpAddr"] ?? "",
-      pickUpLocation: json["pickUpLocation"] ?? "",
+      pickUpAddr:   json['loadRoute']!=null  ?  json['loadRoute']["pickUpAddr"] ?? "":"",
+      pickUpLocation: json['loadRoute']!=null ? json['loadRoute']["pickUpLocation"] ?? "":"",
       assignStatus: json["assignStatus"] ?? 0,
-      pickUpLatlon: json["pickUpLatlon"] ?? "",
-      dropAddr: json["dropAddr"] ?? "",
-      dropLocation: json["dropLocation"] ?? "",
-      dropLatlon: json["dropLatlon"] ?? "",
+      pickUpLatlon:  json['loadRoute']!=null ? json['loadRoute']["pickUpLatlon"] ?? "":"",
+      dropAddr: json['loadRoute']!=null ? json['loadRoute']["dropAddr"] ?? "":"",
+      dropLocation: json['loadRoute']!=null ? json['loadRoute']["dropLocation"] ?? "":"",
+      dropLatlon: json['loadRoute']!=null ? json['loadRoute']["dropLatlon"] ?? "":"",
       dueDate: DateTime.tryParse(json["dueDate"] ?? ""),
       consignmentWeight: json['weightage']!=null ?json['weightage']['value'] :0,
       notes: json["notes"] ?? "",
       rate: json["rate"] ?? "",
       status: json["status"] ?? 0,
-      loadStatus: json["loadStatus"] ?? 0,
+      loadStatus: json["loadStatusId"] ?? 0,
       vehicleLength: json["vehicleLength"] ?? "",
       pickUpDateTime: DateTime.tryParse(json["pickUpDateTime"] ?? ""),
       expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
@@ -381,3 +415,5 @@ class TruckType {
   }
 
 }
+
+

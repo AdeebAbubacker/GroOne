@@ -72,6 +72,7 @@ class PngImages {
   final String kavachNewProduct = "${_pngImageBasePath}kavach_new_product.png";
   final String kavachModel = "${_pngImageBasePath}kavach_model.png";
   final String groBanner = "${_pngImageBasePath}gro_banner.png";
+  
 
   /// assign driver vp
   final String dummyTruckLoad = "${_pngImageBasePath}dummy_truck_load.png";
@@ -80,6 +81,9 @@ class PngImages {
   //en-dhan
   final String endhanCard = "${_pngImageBasePath}endhan_card.png";
 
+  // gps Order
+  final String gpsBenefitTruck = "${_pngImageBasePath}benefitsOfGps.png";
+  final String gpsNewProduct = "${_pngImageBasePath}gps_product_image.png";
 }
 
 class SvgImages {
@@ -108,9 +112,12 @@ class SvgImages {
 
 
   final String blueTick = "${_svgImageBasePath}blue_tick.svg";
+  final String switchLp = "${_svgImageBasePath}switch_lp.svg";
+  final String switchVp= "${_svgImageBasePath}switch_vp.svg";
 }
 
 class JpgImage {
   static const String _jpgImageBasePath = "assets/images/jpg/";
   final String noticeBoardBgImage = "${_jpgImageBasePath}noticeBoardBgImage.jpg";
+  final String driverImaged = "${_jpgImageBasePath}driver_vehicle.jpg";
 }

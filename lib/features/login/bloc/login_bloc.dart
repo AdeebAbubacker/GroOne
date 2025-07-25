@@ -14,6 +14,7 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginInRepository _repository;
 
+
   LoginBloc(this._repository) : super(const LoginState()) {
     on<LoginInRequested>((event, emit) async {
       emit(LogInLoading());
@@ -21,6 +22,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       if (result is Success<LoginApiResponseModel>) {
         emit(LogInSuccess(result.value));
+
       } else if (result is Error) {
         emit(LogInError(result.type));
       } else {

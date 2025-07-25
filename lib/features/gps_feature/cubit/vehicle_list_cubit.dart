@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
+import '../model/gps_distance_data_model.dart';
 import '../repository/gps_login_repository.dart';
 
 part 'vehicle_list_state.dart';
@@ -13,6 +14,7 @@ part 'vehicle_list_state.dart';
 class VehicleListCubit extends BaseCubit<VehicleListState> {
   final GpsLoginRepository _repository;
   List<GpsCombinedVehicleData> _allVehicles = [];
+  bool _hasLoadedData = false; // Guard against repeated API calls
 
   VehicleListCubit({GpsLoginRepository? repository})
     : _repository = repository ?? locator<GpsLoginRepository>(),
@@ -101,13 +103,27 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       _setVehicleDataUIState(UIState.success(sampleVehicles));
       _updateStatusCounts();
       _filterVehicles();
+      
+      // Initialize dashboard with sample data
+      await _initializeDashboardAfterDataLoad();
     } catch (e) {
       // Handle error silently in production
     }
   }
 
   /// Load vehicle data from APIs and combine them
-  Future<void> loadVehicleData() async {
+  /// Only calls APIs if data hasn't been loaded yet
+  Future<void> loadVehicleData({bool isLoadAgain = false}) async {
+    // Guard against repeated API calls
+    if(!isLoadAgain){
+      if (_hasLoadedData && state.vehicleDataState?.status == Status.SUCCESS) {
+        print(
+          "📱 VehicleListCubit.loadVehicleData() - Data already loaded, skipping API calls",
+        );
+        return;
+      }
+    }
+
     _setVehicleDataUIState(UIState.loading());
 
     try {
@@ -125,7 +141,30 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         return;
       }
 
-      // Call the repository method that handles both APIs and combines data
+      // First try to load from Realm (offline data)
+      if (await _repository.hasOfflineData()) {
+        print("📱 Loading vehicle data from Realm (offline)...");
+        final offlineData = await _repository.getOfflineVehicleData();
+        if (offlineData.isNotEmpty) {
+          _allVehicles = offlineData;
+          _setVehicleDataUIState(UIState.success(offlineData));
+          _updateStatusCounts();
+          _filterVehicles();
+          _hasLoadedData = true;
+          _fetchDistanceDataInBackground(loginResponse!.token!,_allVehicles);
+          
+          // Initialize dashboard after loading vehicles
+          await _initializeDashboardAfterDataLoad();
+          
+          print(
+            "✅ Vehicle data loaded from Realm: ${offlineData.length} vehicles",
+          );
+          return;
+        }
+      }
+
+      // If no offline data, fetch from API
+      print("🌐 No offline data found, fetching from API...");
       final result = await _repository.getAllVehicleData(loginResponse!.token);
 
       if (result is Success<List<GpsCombinedVehicleData>>) {
@@ -133,19 +172,37 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         _setVehicleDataUIState(UIState.success(result.value));
         _updateStatusCounts();
         _filterVehicles();
+        _hasLoadedData = true; // Mark as loaded to prevent future API calls
 
         // Fetch addresses in background for vehicles that don't have them
         _fetchAddressesInBackground(result.value);
+        _fetchDistanceDataInBackground(loginResponse.token!,_allVehicles);
+
+        // Initialize dashboard after loading vehicles
+        await _initializeDashboardAfterDataLoad();
+
+        print(
+          "✅ Vehicle data fetched from API: ${result.value.length} vehicles",
+        );
       } else if (result is Error) {
         _setVehicleDataUIState(UIState.error((result as Error).type));
+        print("❌ Failed to fetch vehicle data from API");
 
         // Create sample data for testing when API fails
         await createSampleOfflineData();
+        
+        // Initialize dashboard after creating sample data
+        await _initializeDashboardAfterDataLoad();
       }
     } catch (e) {
       _setVehicleDataUIState(UIState.error(GenericError()));
+      print("❌ Error in loadVehicleData: $e");
     }
   }
+
+
+
+
 
   /// Load vehicle data from offline storage only
   Future<void> loadOfflineData() async {
@@ -174,10 +231,15 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
     _filterVehicles();
   }
 
-  /// Refresh data
+  /// Refresh data - resets the guard flag and reloads
   Future<void> refreshData() async {
+    print("🔄 VehicleListCubit.refreshData() called");
+    _hasLoadedData = false; // Reset the guard flag
     await loadVehicleData();
   }
+
+  /// Check if data has been loaded
+  bool get hasLoadedData => _hasLoadedData;
 
   /// Toggle between map and list view
   void toggleMapView(bool showMap) {
@@ -197,6 +259,73 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
                 : MapType.normal),
       ),
     );
+  }
+
+  // ==================== DASHBOARD METHODS ====================
+
+  /// Set selected vehicle for dashboard
+  void setSelectedVehicle(String vehicleNumber) {
+    emit(state.copyWith(selectedVehicleNumber: vehicleNumber));
+    _loadDistanceDataForSelectedVehicle();
+  }
+
+  /// Load distance data for the selected vehicle
+  Future<void> _loadDistanceDataForSelectedVehicle() async {
+    if (state.selectedVehicleNumber == null || _allVehicles.isEmpty) return;
+
+    emit(state.copyWith(isWeeklyDistanceLoading: true));
+
+    try {
+      final distanceData = await getDistanceDataForDashboard(
+        selectedVehicleNumber: state.selectedVehicleNumber,
+      );
+
+      final selectedVehicleData = distanceData['selectedVehicleData'] as Map<String, dynamic>;
+      
+      emit(state.copyWith(
+        selectedVehicleDistanceData: selectedVehicleData,
+        weeklyDistance: selectedVehicleData['weekList'] ?? [],
+        isWeeklyDistanceLoading: false,
+      ));
+    } catch (e) {
+      print('Error loading distance data: $e');
+      emit(state.copyWith(isWeeklyDistanceLoading: false));
+    }
+  }
+
+  /// Refresh dashboard data
+  Future<void> refreshDashboardData() async {
+    print("🔄 VehicleListCubit.refreshDashboardData() called");
+    await refreshData();
+    if (state.selectedVehicleNumber != null) {
+      await _loadDistanceDataForSelectedVehicle();
+    }
+  }
+
+  /// Initialize dashboard with first vehicle
+  void initializeDashboard() {
+    if (_allVehicles.isNotEmpty && state.selectedVehicleNumber == null) {
+      final firstVehicle = _allVehicles.first;
+      setSelectedVehicle(firstVehicle.vehicleNumber ?? '');
+    }
+  }
+
+  /// Initialize dashboard after vehicle data is loaded
+  Future<void> _initializeDashboardAfterDataLoad() async {
+    if (_allVehicles.isNotEmpty && state.selectedVehicleNumber == null) {
+      final activeVehicles = _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+      if (activeVehicles.isNotEmpty) {
+        final firstVehicle = activeVehicles.first;
+        final vehicleNumber = firstVehicle.vehicleNumber ?? '';
+        if (vehicleNumber.isNotEmpty) {
+          print("🚗 Initializing dashboard with first vehicle: $vehicleNumber");
+          // Set the selected vehicle
+          emit(state.copyWith(selectedVehicleNumber: vehicleNumber));
+          // Load distance data immediately for the selected vehicle
+          await _loadDistanceDataForSelectedVehicle();
+        }
+      }
+    }
   }
 
   void _setVehicleDataUIState(UIState<List<GpsCombinedVehicleData>>? uiState) {
@@ -319,6 +448,83 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         print("Background address fetch error: $e");
       }
     });
+  }
+
+  /// Fetch distance data in background
+  void _fetchDistanceDataInBackground(String token, List<GpsCombinedVehicleData> vehicles) {
+    // Run in background without blocking the UI
+    Future.microtask(() async {
+      try {
+        await _repository.fetchAndStoreDistanceData(token, vehicles);
+        print("✅ Distance data fetched and stored successfully");
+      } catch (e) {
+        // Silently handle errors in background
+        print("Background distance fetch error: $e");
+      }
+    });
+  }
+
+  /// Get distance data for dashboard for a specific vehicle
+  Future<Map<String, dynamic>> getDistanceDataForDashboard({String? selectedVehicleNumber}) async {
+    try {
+      final distanceData = await _repository.getAllDistanceReportData();
+      final deviceDistances = <String, Map<String, dynamic>>{};
+      
+      for (final data in distanceData) {
+        final deviceId = data.deviceId;
+        
+        if (!deviceDistances.containsKey(deviceId)) {
+          final monthlyDistance = _repository.getMonthlyDistance(deviceId);
+          final weeklyDistance = _repository.getWeeklyDistance(deviceId);
+          final weekList = _repository.getWeekDistanceList(deviceId, data.deviceName);
+          
+          deviceDistances[deviceId] = {
+            'deviceName': data.deviceName,
+            'monthlyDistance': monthlyDistance,
+            'weeklyDistance': weeklyDistance,
+            'weekList': weekList,
+          };
+        }
+      }
+      
+      // Get data for selected vehicle if provided
+      Map<String, dynamic> selectedVehicleData = {};
+      if (selectedVehicleNumber != null) {
+        // Find the vehicle in the current list
+        final selectedVehicle = _allVehicles.firstWhere(
+          (v) => v.vehicleNumber == selectedVehicleNumber,
+          orElse: () => _allVehicles.first,
+        );
+        
+        if (selectedVehicle.deviceId != null) {
+          final deviceId = selectedVehicle.deviceId.toString();
+          final monthlyDistance = _repository.getMonthlyDistance(deviceId);
+          final weeklyDistance = _repository.getWeeklyDistance(deviceId);
+          final weekList = _repository.getWeekDistanceList(deviceId, selectedVehicle.vehicleNumber);
+          
+          selectedVehicleData = {
+            'deviceId': deviceId,
+            'vehicleNumber': selectedVehicle.vehicleNumber,
+            'monthlyDistance': monthlyDistance,
+            'weeklyDistance': weeklyDistance,
+            'weekList': weekList,
+          };
+        }
+      }
+      
+      return {
+        'deviceDistances': deviceDistances,
+        'distanceData': distanceData,
+        'selectedVehicleData': selectedVehicleData,
+      };
+    } catch (e) {
+      print("❌ Error getting distance data for dashboard: $e");
+      return {
+        'deviceDistances': {},
+        'distanceData': [],
+        'selectedVehicleData': {},
+      };
+    }
   }
 }
 

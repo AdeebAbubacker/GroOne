@@ -5,7 +5,9 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
@@ -72,41 +74,56 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
-  void disposeFunction() => frameCallback(() {});
+  void disposeFunction() => frameCallback(() {
+    profileCubit.resetLogoutUIState();
+  });
 
 
-  void logoutDialogPopUp(BuildContext context, bool isLoading) {
+  void logoutDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
-      child: CommonDialogView(
-        yesButtonText: context.appText.logOut,
-        noButtonText: context.appText.cancel,
-        showYesNoButtonButtons: true,
-        hideCloseButton: true,
-        onClickYesButton: ()=> profileCubit.logout(),
-        yesButtonLoading: isLoading,
-        child: LogOutDialogueUi(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        bloc: profileCubit,
+        builder: (context, state) {
+          final isLoading = state.logoutUIState?.status == Status.LOADING;
+          return CommonDialogView(
+            yesButtonText: context.appText.logOut,
+            noButtonText: context.appText.cancel,
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            onClickYesButton: ()=> !isLoading ? profileCubit.logout() : (){},
+            yesButtonLoading: isLoading,
+            child: LogOutDialogueUi(),
+          );
+        }
       ),
     );
   }
+
+
+  void closeBloc(){}
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: context.appText.profile),
-      body: SafeArea(
-        minimum: EdgeInsets.all(commonSafeAreaPadding),
-        child: Column(
-          spacing: 15,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            buildProfileDetailWidget(),
-            profileOptionWidget(context),
-            buildProfileVersionWidget(),
-          ],
-        ),
-      ).withScroll(),
+      body: RefreshIndicator(
+        onRefresh: () async => initFunction(),
+        child: SafeArea(
+          minimum: EdgeInsets.all(commonSafeAreaPadding),
+          child: Column(
+            spacing: 15,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              buildProfileDetailWidget(),
+              5.height,
+              profileOptionWidget(context),
+              buildProfileVersionWidget(),
+            ],
+          ),
+        ).withScroll(),
+      ),
     );
   }
 
@@ -129,29 +146,29 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           spacing: 10,
           children:  [
 
-            if(state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.data != null)...[
+            if(state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null)...[
 
               // Company Name
-              if (state.profileDetailUIState?.data?.data?.details?.companyName != null && state.profileDetailUIState?.data?.data?.details?.companyName != "")...[
+              if (state.profileDetailUIState?.data?.customer?.companyName != null && state.profileDetailUIState?.data?.customer?.companyName != "")...[
                 Container(
                   height: profileSize,
                   width: profileSize,
                   decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
                   alignment: Alignment.center,
-                  child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.data!.details!.companyName),
+                  child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
                   ),
-                ),
+                ).isAnimate(),
 
-                Text(state.profileDetailUIState!.data!.data!.details!.companyName, style: AppTextStyle.h5),
+                Text(state.profileDetailUIState!.data!.customer!.companyName, style: AppTextStyle.h5).isAnimate(),
               ],
 
               // Customer Name
-              if(state.profileDetailUIState?.data?.data?.customer?.customerName != null && state.profileDetailUIState?.data?.data?.customer?.customerName != "")
-              Text(state.profileDetailUIState!.data!.data!.customer!.customerName, style: AppTextStyle.body),
+              if(state.profileDetailUIState?.data?.customer?.customerName != null && state.profileDetailUIState?.data?.customer?.customerName != "")
+              Text(state.profileDetailUIState!.data!.customer!.customerName, style: AppTextStyle.body).isAnimate(),
 
               // Blue Id
-              if(state.profileDetailUIState?.data?.data?.customer?.blueId != null && state.profileDetailUIState?.data?.data?.customer?.blueId != "")
+              if(state.profileDetailUIState?.data?.customer?.blueId != null && state.profileDetailUIState?.data?.customer?.blueId != "")
               InkWell(
                 onTap: () {
                   Navigator.push(context, commonRoute(BenefitsOfMembershipScreen()));
@@ -162,9 +179,9 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                     borderRadius: BorderRadius.circular(10),
                     color: AppColors.primaryColor,
                   ),
-                  child: Text("${context.appText.blueMembershipId} : ${state.profileDetailUIState!.data!.data!.customer!.blueId}", style: AppTextStyle.h5WhiteColor),
+                  child: Text("${context.appText.blueMembershipId} : ${state.profileDetailUIState!.data!.customer!.blueId}", style: AppTextStyle.h5WhiteColor),
                 ),
-              ),
+              ).isAnimate(),
             ],
 
           ],
@@ -189,7 +206,12 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 imageString: AppImage.svg.user,
                 text: context.appText.myAccount,
                 onTap: () {
-                  Navigator.push(context, commonRoute(LpMyAccount(profileData: state.profileDetailUIState!.data!.data!), isForward: true));
+                  Navigator.push(context, commonRoute(LpMyAccount(
+                    customerDetail: state.profileDetailUIState!.data!.customer!,
+                    bankDetails : state.profileDetailUIState!.data!.bankDetails!,
+                    address: state.profileDetailUIState!.data!.address!,
+                    kycDoc: state.profileDetailUIState!.data!.kycDocs[0],
+                  ), isForward: true));
                 },
               );
             },
@@ -253,13 +275,14 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           // Logout
           BlocConsumer<ProfileCubit, ProfileState>(
             bloc: profileCubit,
-            listenWhen: (previous, current) =>
-            previous.logoutUIState?.status != current.logoutUIState?.status,
+            listenWhen: (previous, current) => previous.logoutUIState?.status != current.logoutUIState?.status,
             listener: (context, state) {
               final status = state.logoutUIState?.status;
 
               if (status == Status.SUCCESS) {
-                context.push(AppRouteName.chooseLanguage);
+                LpBottomNavigation.selectedIndexNotifier.value = 0;
+                disposeFunction();
+                context.pushReplacement(AppRouteName.chooseLanguage);
               }
 
               if (status == Status.ERROR) {
@@ -268,10 +291,11 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               }
             },
             builder: (context, state) {
+              final status = state.logoutUIState?.status;
               return ProfileMyAccountTile(
                 imageString: AppImage.svg.logOut,
                 text: context.appText.logOut,
-                onTap: () => logoutDialogPopUp(context, state.logoutUIState?.status == Status.LOADING),
+                onTap: () => logoutDialogPopUp(context),
                 showArrow: false,
               );
             },

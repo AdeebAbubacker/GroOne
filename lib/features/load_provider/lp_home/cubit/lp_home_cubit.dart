@@ -61,24 +61,21 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Set Location Id
   void setPickupLocationDetailId(int? id){
     emit(state.copyWith(pickupLocationId: id));
-    CustomLog.debug(this, "Set Pickup Location Id : $id");
   }
 
 
   // Set Location Id
   void setDestinationLocationDetailId(int? id){
     emit(state.copyWith(destinationLocationId: id));
-    CustomLog.debug(this, "Set Destination Location Id : $id");
   }
 
   // Set Lane Id
   void setLaneId(num? id){
     emit(state.copyWith(laneId: id ?? 0));
-    CustomLog.debug(this, "Set Lane Id : $id");
   }
 
   // Select Weight
-  void selectWeight(LoadWeightData weight) {
+  void selectWeight(LoadWeightModel weight) {
     emit(state.copyWith(selectedWeight: weight));
   }
 
@@ -187,13 +184,13 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Fetch Weight Api Call
-  void _setLoadWeightUIState(UIState<LoadWeightModel>? uiState){
+  void _setLoadWeightUIState(UIState<List<LoadWeightModel>>? uiState){
     emit(state.copyWith(loadWeightUIState: uiState));
   }
   Future<void> fetchLoadWeight() async {
     _setLoadWeightUIState(UIState.loading());
     dynamic result = await _repo.getLoadWeightData();
-    if (result is Success<LoadWeightModel>) {
+    if (result is Success<List<LoadWeightModel>>) {
       _setLoadWeightUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -217,6 +214,21 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     }
   }
 
+  // setBluId
+  void _setBluIDFlagState(UIState uiState){
+    emit(state.copyWith(isBluIdShown: uiState));
+  }
+  Future<void> setBluIDFlag() async {
+    _setBluIDFlagState(UIState.loading());
+    dynamic result = await _repo.setBluIDFlag();
+    if (result is Success) {
+      _setBluIDFlagState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setBluIDFlagState(UIState.error(result.type));
+    }
+  }
+
 
   // Reset Auto Complete UI State
   void resetAutoCompleteState(){
@@ -231,7 +243,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
       recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteUIState),
       autoCompleteUIState: resetUIState<AutoCompleteModel>(state.autoCompleteUIState),
       verifyLocationUIState: resetUIState<VerifyLocationModel>(state.verifyLocationUIState),
-      loadWeightUIState: resetUIState<LoadWeightModel>(state.loadWeightUIState),
+      loadWeightUIState: resetUIState<List<LoadWeightModel>>(state.loadWeightUIState),
       rateDiscoveryUIState: resetUIState<RateDiscoveryModel>(state.rateDiscoveryUIState),
       truckTypeState: resetUIState<LoadTruckTypeListModel>(state.truckTypeUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),

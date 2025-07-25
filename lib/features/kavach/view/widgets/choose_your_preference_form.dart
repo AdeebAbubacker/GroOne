@@ -14,17 +14,17 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../utils/app_image.dart';
-import '../../model/masters_model.dart';
-import '../../model/choose_preference_model.dart';
+import '../../model/kavach_masters_model.dart';
+import '../../model/kavach_choose_preference_model.dart';
 
 class ChooseYourPreferenceForm extends StatefulWidget {
-  final Function(ChoosePreferenceModel) onPreferenceChanged;
+  final Function(KavachChoosePreferenceModel) onPreferenceChanged;
   final Function() onApply;
   final Function() onCancel;
   final Function()? onSupport;
   final bool showTitle;
-  final Map<String, VehicleFilter> vehicleFilters;
-  final ChoosePreferenceModel? initialValues;
+  final Map<String, KavachVehicleFilter> vehicleFilters;
+  final KavachChoosePreferenceModel? initialValues;
 
   const ChooseYourPreferenceForm({
     super.key,
@@ -64,7 +64,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Updates the preferences and notifies the parent widget
   void _updatePreferences() {
-    final preferences = ChoosePreferenceModel(
+    final preferences = KavachChoosePreferenceModel(
       make: selectedMake,
       model: selectedModel,
       engine: selectedEngine,
@@ -210,7 +210,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ),
         ...engines.map((engine) => DropdownMenuItem(
           value: engine,
-          child: Text(engine.capitalize),
+          child: Text(engine.toUpperCase()),
         )),
       ],
       onChanged: (val) {
@@ -289,7 +289,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
          selectedEngine!.toUpperCase().contains('BS 4'));
     
     // Debug print to see what engine is selected
-    print('Selected engine: "$selectedEngine", isBS4Selected: $isBS4Selected');
+            // Engine selection updated
     
     return Row(
       children: [

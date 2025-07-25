@@ -11,7 +11,7 @@ class LanguageService {
   Future<Result<List<LanguageModel>>> fetchLanguages() async {
     try {
       final url = ApiUrls.language;
-      final response = await _apiService.get(url, forceRefresh: true,);
+      final response = await _apiService.get(url, forceRefresh: true);
       if (response is Success) {
         final data = response.value['data'] as List;
         final languages = data.map((e) => LanguageModel.fromJson(e)).toList();

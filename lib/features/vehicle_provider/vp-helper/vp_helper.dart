@@ -1,31 +1,116 @@
+
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 class VpHelper{
 
 
  static String getLoadStatusButtonTitle(int loadStatus){
+   BuildContext context=navigatorKey.currentState!.context;
     switch(loadStatus){
       case 3:
-        return "Assign Driver";
+        return context.appText.assignDriver;
       default:
-        return "Accept Load";
+        return context.appText.acceptLoad;
     }
+ }
 
+ /// Refresh Indicator
+ static Widget withRefreshIndicator(Future<void> Function() onRefresh,{Widget? child}) {
+   return RefreshIndicator(
+     onRefresh: onRefresh,
+     child: child??SizedBox(),
+   );
+ }
 
-  }
-
- static String getLoadStatus(LoadStatus loadStatus){
-   switch(loadStatus){
-     case LoadStatus.assigned:
-       return "Assigned";
-     default:
-       return "confirmed";
-   }
+ /// Refresh Indicator
+ static Widget withSliverRefresh(Future<void> Function() onRefresh,{Widget? child}) {
+   return RefreshIndicator(
+     onRefresh: onRefresh,
+     child: CustomScrollView(
+       slivers: [
+         SliverFillRemaining(
+           child:   child??SizedBox(),
+         )
+       ],
+     ),
+   );
  }
 }
 
 
 
 enum LoadStatus {
-  accepted,
   matching,
-  assigned
+  accepted,
+  assigned,
+  loading,
+  inTransit,
+  unloading,
+  completed
 }
+
+
+
+String getBottomButtonTitle(LoadStatus status){
+  BuildContext context=navigatorKey.currentState!.context;
+  switch(status){
+    case LoadStatus.loading:
+      return context.appText.swipeToCompleteLoading;
+      case LoadStatus.inTransit:
+      return context.appText.swipeToStartUnLoading;
+      case LoadStatus.unloading:
+      return context.appText.swipeToCompleteUnLoading;
+    default:
+      return context.appText.swipeToStart;
+  }
+}
+
+Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
+  try {
+    final fileName = path.basename(url);
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = path.join(directory.path, originalFileName);
+
+    final dio = Dio();
+    await dio.download(url, filePath);
+
+    await OpenFilex.open(filePath);
+  } catch (e) {
+    debugPrint("Error downloading/opening file: $e");
+  }
+}
+
+LoadStatus getLoadStatus(int? status){
+  return switch(status){
+    3 => LoadStatus.accepted,
+    4 => LoadStatus.assigned,
+    5 => LoadStatus.loading,
+    6 => LoadStatus.inTransit,
+    7 => LoadStatus.unloading,
+    8 => LoadStatus.completed,
+    null || int() => LoadStatus.matching
+  };
+}
+
+
+enum DocumentFileType {
+
+  lorryReceipt('lorry_receipt'),
+  ewayBill('eway_bill'),
+  materialInvoice('material_invoice'),
+  proofOfDocument('Proof_of_document'),
+  uploadOtherDocument('upload_other_document');
+
+
+  final String value;
+
+  const DocumentFileType(this.value);
+}
+
+

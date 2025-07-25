@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
-
+import 'package:gro_one_app/features/gps_feature/helper/gps_session_manager.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
+
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'l10n/app_localizations.dart';
@@ -16,6 +16,7 @@ import 'multi_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GpsSessionManager.init();
   await initializeApp();
   runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
 }
@@ -47,7 +48,6 @@ class _MyAppState extends State<MyApp> {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-    appContext = context;
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return BlocBuilder<LocaleBloc, LocaleState>(
       builder: (context, state) {
@@ -60,6 +60,7 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: L10n.all,
             theme: AppThemeStyle.appTheme,
             routerConfig: AppRoutes.router,
+
           ),
         );
       },

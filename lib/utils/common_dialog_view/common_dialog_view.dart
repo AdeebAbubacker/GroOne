@@ -21,15 +21,19 @@ class CommonDialogView extends StatefulWidget {
   final String? yesButtonText;
   final String? noButtonText;
   final String? onSingleButtonText;
+  final TextStyle? headingTextStyle;
+  final TextStyle? messageTextStyle;
   final Widget? child;
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
   final GestureTapCallback? onClickYesButton;
+  final GestureTapCallback? onClickNoButton;
   final CrossAxisAlignment? crossAxisAlignment;
   const CommonDialogView({
     super.key,
     this.child,
     this.onClickYesButton,
+    this.onClickNoButton,
     this.showYesNoButtonButtons = false,
     this.yesButtonText,
     this.noButtonText,
@@ -41,7 +45,9 @@ class CommonDialogView extends StatefulWidget {
     this.headingColor,
     this.hideCloseButton = false,
     this.yesButtonLoading = false,
-    this.crossAxisAlignment
+    this.crossAxisAlignment,
+    this.headingTextStyle,
+    this.messageTextStyle,
   });
 
   @override
@@ -75,6 +81,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,
       children: [
 
@@ -97,7 +104,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
         ],
 
         if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
+          Text(widget.message!, textAlign: TextAlign.center, style:  widget.messageTextStyle ??  AppTextStyle.bodyGreyColor),
           20.height,
         ],
 
@@ -122,7 +129,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
               buttonHeight: commonButtonHeight2,
               style: AppButtonStyle.outline,
               title: widget.noButtonText ?? context.appText.no,
-              onPressed: () {
+              onPressed:  widget.onClickNoButton ?? () {
                 Navigator.pop(context);
               },
             ).expand(),
@@ -139,6 +146,6 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           ],
         ),
       ],
-    );
+    ).paddingOnly(bottom: 5, left: 5, right: 5);
   }
 }

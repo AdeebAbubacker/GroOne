@@ -1,116 +1,94 @@
 class MobileOtpVerificationModel {
-  MobileOtpVerificationModel({
-    required this.success,
-    required this.message,
-    required this.data,
-  });
+    MobileOtpVerificationModel({
+        required this.mobile,
+        required this.customerId,
+        required this.roleId,
+        required this.driver,
+        required this.tempFlg,
+        required this.kongToken,
+    });
 
-  final bool success;
-  final String message;
-  final Data? data;
+    final String mobile;
+    final String customerId;
+    final int roleId;
+    final bool driver;
+    final bool tempFlg;
+    final KongToken? kongToken;
 
-  MobileOtpVerificationModel copyWith({
-    bool? success,
-    String? message,
-    Data? data,
-  }) {
-    return MobileOtpVerificationModel(
-      success: success ?? this.success,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
+    MobileOtpVerificationModel copyWith({
+        String? mobile,
+        String? customerId,
+        int? roleId,
+        bool? driver,
+        bool? tempFlg,
+        KongToken? kongToken,
+    }) {
+        return MobileOtpVerificationModel(
+            mobile: mobile ?? this.mobile,
+            customerId: customerId ?? this.customerId,
+            roleId: roleId ?? this.roleId,
+            driver: driver ?? this.driver,
+            tempFlg: tempFlg ?? this.tempFlg,
+            kongToken: kongToken ?? this.kongToken,
+        );
+    }
 
-  factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){
-    return MobileOtpVerificationModel(
-      success: json["success"] ?? false,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : Data.fromJson(json["data"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "success": success,
-    "message": message,
-    "data": data?.toJson(),
-  };
-
-}
-
-class Data {
-  Data({
-    required this.token,
-    required this.user,
-  });
-
-  final String token;
-  final User? user;
-
-  Data copyWith({
-    String? token,
-    User? user,
-  }) {
-    return Data(
-      token: token ?? this.token,
-      user: user ?? this.user,
-    );
-  }
-
-  factory Data.fromJson(Map<String, dynamic> json){
-    return Data(
-      token: json["token"] ?? "",
-      user: json["user"] == null ? null : User.fromJson(json["user"]),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "token": token,
-    "user": user?.toJson(),
-  };
+    factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){ 
+        return MobileOtpVerificationModel(
+            mobile: json["mobile"] ?? "",
+            customerId: json["customerId"] ?? "",
+            roleId: json["roleId"] ?? 0,
+            driver: json["driver"] ?? false,
+            tempFlg: json["tempFlg"] ?? false,
+            kongToken: json["kongToken"] == null ? null : KongToken.fromJson(json["kongToken"]),
+        );
+    }
 
 }
 
-class User {
-  User({
-    required this.id,
-    required this.mobile,
-    required this.role,
-    required this.tempflg,
-  });
+class KongToken {
+    KongToken({
+        required this.expiresIn,
+        required this.tokenType,
+        required this.refreshToken,
+        required this.accessToken,
+    });
 
-  final int id;
-  final String mobile;
-  final num role;
-  final bool tempflg;
+    final int expiresIn;
+    final String tokenType;
+    final String refreshToken;
+    final String accessToken;
 
-  User copyWith({
-    int? id,
-    String? mobile,
-    num? role,
-    bool? tempflg,
-  }) {
-    return User(
-      id: id ?? this.id,
-      mobile: mobile ?? this.mobile,
-      role: role ?? this.role,
-      tempflg: tempflg ?? this.tempflg,
-    );
-  }
+    KongToken copyWith({
+        int? expiresIn,
+        String? tokenType,
+        String? refreshToken,
+        String? accessToken,
+    }) {
+        return KongToken(
+            expiresIn: expiresIn ?? this.expiresIn,
+            tokenType: tokenType ?? this.tokenType,
+            refreshToken: refreshToken ?? this.refreshToken,
+            accessToken: accessToken ?? this.accessToken,
+        );
+    }
 
-  factory User.fromJson(Map<String, dynamic> json){
-    return User(
-      id: json["id"] ?? 0,
-      mobile: json["mobile"] ?? "",
-      role: json["role"] ?? 0,
-      tempflg: json["tempflg"] ?? false,
-    );
-  }
+    factory KongToken.fromJson(Map<String, dynamic> json){ 
+        return KongToken(
+            expiresIn: json["expiresIn"] ?? 0,
+            tokenType: json["tokenType"] ?? "",
+            refreshToken: json["refreshToken"] ?? "",
+            accessToken: json["accessToken"] ?? "",
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "mobile": mobile,
-    "role": role,
-    "tempflg": tempflg,
-  };
+    Map<String, dynamic> toJson() {
+        return {
+            "expiresIn": expiresIn,
+            "tokenType": tokenType,
+            "refreshToken": refreshToken,
+            "accessToken": accessToken,
+        };
+    }
 
 }

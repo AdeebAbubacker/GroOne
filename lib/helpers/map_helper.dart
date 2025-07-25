@@ -60,6 +60,19 @@ class MapHelper {
     }
   }
 
+  static Future<LatLng?> getLatLngFromAddress(String address) async {
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        return LatLng(locations.first.latitude, locations.first.longitude);
+      }
+    } catch (e) {
+      // debugPrint("Error fetching LatLng from address: $e");
+    }
+    return null;
+  }
+
+
   // Reusable: Get address from latitude and longitude
   static Future<String> getAddressFromLatLngDoubles(
     double lat,
@@ -72,4 +85,19 @@ class MapHelper {
   static void _commonHapticFeedback() {
     HapticFeedback.mediumImpact();
   }
+
+  static Future<LatLng?> getLastKnownLocation() async {
+    try {
+      final pos = await Geolocator.getLastKnownPosition();
+      if (pos != null) {
+        return LatLng(pos.latitude, pos.longitude);
+      }
+    } catch (e) {
+      // log("Failed to get last known position: $e");
+    }
+    return null;
+  }
+
+
+
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 import 'app_colors.dart';
 import 'app_text_style.dart';
 
 class AppProgressBar extends StatelessWidget {
   final double progress; // value between 0.0 to 1.0
-
   const AppProgressBar({super.key, required this.progress});
 
   @override
@@ -18,7 +18,7 @@ class AppProgressBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Progress", style:AppTextStyle.textBlackColor12w400),
+            Text(context.appText.progress, style:AppTextStyle.textBlackColor12w400),
             Text("$percentage%", style:AppTextStyle.textBlackColor12w400),
           ],
         ),

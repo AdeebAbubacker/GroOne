@@ -3,6 +3,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
@@ -17,19 +19,18 @@ import 'package:gro_one_app/utils/custom_log.dart';
 
 class VpHomeService {
   final ApiService _apiService;
-
-
   VpHomeService(this._apiService);
 
   Future<Result<VpMyLoadResponse>> getVpMyLoad({required String userID}) async {
     try {
-      final result = await _apiService.get(ApiUrls.vpLoadList,queryParams: {'customerId':userID},forceRefresh: true);
+      final result = await _apiService.get(
+
+          "${ApiUrls.getAllVpLoads}/vp/load",queryParams: {
+            'customerId':userID},forceRefresh: true);
 
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => VpMyLoadResponse.fromJson(data),
-        );
+        final vpMyLoads=VpMyLoadResponse.fromJson(result.value);
+        return Success(vpMyLoads);
 
       } else if (result is Error) {
         return Error(result.type);
@@ -37,7 +38,7 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+
       return Error(DeserializationError());
     }
   }
@@ -47,18 +48,17 @@ class VpHomeService {
   }) async {
     try {
       final result = await _apiService.get(ApiUrls.vehicleDetails + userId);
+
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => VehicleListResponse.fromJson(data),
-        );
+        final vehicleListResponse= VehicleListResponse.fromJson(result.value);
+        return Success(vehicleListResponse);
+
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -67,19 +67,21 @@ class VpHomeService {
     required String userId,
   }) async {
     try {
-      final result = await _apiService.get(ApiUrls.driverDetails + userId);
+      final result = await _apiService.get(
+          ApiUrls.driverDetails,
+            queryParams: {
+            "customerId":userId
+      }
+      );
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => DriverListResponse.fromJson(data),
-        );
+        final driverResponse=DriverListResponse.fromJson(result.value);
+        return  Success(driverResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -91,36 +93,38 @@ class VpHomeService {
       final result = await _apiService.post(ApiUrls.scheduleTrip,body: apiRequest);
 
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => ScheduleTripResponse.fromJson(data),
-        );
+        final scheduleTripResponse= ScheduleTripResponse.fromJson(result.value);
+        return Success(scheduleTripResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
   Future<Result<VpRecentLoadResponse>> getVpRecentLoads(String customerId) async {
     try {
-      final result = await _apiService.get('${ApiUrls.vpRecentLoads}?customerId=$customerId',forceRefresh: true);
+      final result = await _apiService.get(
+
+          '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId',forceRefresh: true,
+      queryParams: {
+            "type":1
+      }
+      );
+
       if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-              (data) => VpRecentLoadResponse.fromJson(data),
-        );
+       final recentLoads= VpRecentLoadResponse.fromJson(result.value);
+        return Success(recentLoads);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+
       return Error(DeserializationError());
     }
   }
@@ -130,28 +134,28 @@ class VpHomeService {
       final result = await _apiService.put(
           '${ApiUrls.vpAcceptLoad}$userId/$loadId');
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => VpLoadAcceptModel.fromJson(data));
+       final vpLoadAccepted= VpLoadAcceptModel.fromJson(result.value);
+        return Success(vpLoadAccepted);
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
   Future<DirectionResponse?>  getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
      Dio _dio=locator<Dio>();
+
      try {
       return await _dio.get(
           ApiUrls.googleDirectionApi,
-
           queryParameters: {
             "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
             "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
-            "key":"AIzaSyAQW_V1fIJSXzYD5gjAh9wnztxLnE_pJ7E"
+            "key":ApiUrls.fetchedMapKEY
           }
       ).then((result) {
         if(result.statusCode==200){
@@ -161,12 +165,9 @@ class VpHomeService {
       },);
 
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return  null;
     }
   }
-
-
 
 
 

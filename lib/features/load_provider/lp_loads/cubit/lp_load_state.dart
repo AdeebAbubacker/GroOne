@@ -2,21 +2,32 @@ part of 'lp_load_cubit.dart';
 
 class LpLoadState extends Equatable {
   final UIState<LpLoadResponse>? lpLoadResponse;
-  final UIState<LpLoadGetByIdResponse>? lpLoadById;
-  final UIState<LoadMemoData>? lpLoadMemoDetails;
+  final UIState<LoadGetByIdResponse>? lpLoadById;
+  final UIState<LpLoadMemoResponse>? lpLoadMemoDetails;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp;
-  final UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp;
-  final UIState<LoadTruckTypeListModel>? lpLoadTruckTypes;
+  final UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp;
+  final UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes;
   final UIState<LpLoadRouteResponse>? lpLoadRouteDetails;
   final UIState<CreditCheckApiResponse>? lpCreditCheck;
   final UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate;
   final UIState<LpLoadAgreeResponse>? lpLoadAgree;
   final UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance;
+  final UIState<LpLoadFeedbackResponse>? lpLoadFeedback;
+  final UIState<DocumentDetails>? lpDocumentById;
+  final UIState<TrackingDistanceResponse>? trackingDistance;
+  final UIState<ConsigneAddedSuccessModel>? lpAddConsignee;
+  final UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee;
+  final UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption;
+  final UIState<LpCreateOrderResponse>? lpCreateOrder;
   final int selectedTabIndex;
   final String? matchingText;
   final Advance? selectedAdvance;
   final int? selectedPercentageId;
   final String? locationDistance;
+  final String? downloadingKey;
+  final bool? isFeedbackAdded;
+  final Map<String, bool> downloadedFiles;
+
 
 
   const LpLoadState({
@@ -32,29 +43,50 @@ class LpLoadState extends Equatable {
     this.lpCreditUpdate,
     this.lpLoadAgree,
     this.lpLoadVerifyAdvance,
+    this.lpLoadFeedback,
+    this.lpDocumentById,
+    this.trackingDistance,
+    this.lpAddCustomerPaymentOption,
+    this.lpCreateOrder,
+    this.lpAddConsignee,
+    this.lpUpdateConsignee,
     this.matchingText,
     this.selectedAdvance,
     this.selectedPercentageId,
     this.locationDistance,
+    this.downloadingKey,
+    this.isFeedbackAdded = false,
+    this.downloadedFiles = const {},
+
   });
 
   LpLoadState copyWith({
     UIState<LpLoadResponse>? lpLoadResponse,
-    UIState<LpLoadGetByIdResponse>? lpLoadById,
-    UIState<LoadMemoData>? lpLoadMemoDetails,
+    UIState<LoadGetByIdResponse>? lpLoadById,
+    UIState<LpLoadMemoResponse>? lpLoadMemoDetails,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp,
-    UIState<LpLoadMemoOtpResponse>? lpLoadMemoVerifyOtp,
-    UIState<LoadTruckTypeListModel>? lpLoadTruckTypes,
+    UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp,
+    UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes,
     UIState<LpLoadRouteResponse>? lpLoadRouteDetails,
     UIState<CreditCheckApiResponse>? lpCreditCheck,
     UIState<LpLoadCreditUpdateResponse>? lpCreditUpdate,
     UIState<LpLoadAgreeResponse>? lpLoadAgree,
     UIState<LpLoadVerifyAdvanceResponse>? lpLoadVerifyAdvance,
+    UIState<LpLoadFeedbackResponse>? lpLoadFeedback,
+    UIState<DocumentDetails>? lpDocumentById,
+    UIState<TrackingDistanceResponse>? trackingDistance,
+    UIState<ConsigneAddedSuccessModel>? lpAddConsignee,
+    UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee,
+    UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption,
+    UIState<LpCreateOrderResponse>? lpCreateOrder,
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
     int? selectedPercentageId,
     String? locationDistance,
+    String? downloadingKey,
+    bool? isFeedbackAdded,
+    Map<String, bool>? downloadedFiles,
   }) {
     return LpLoadState(
       lpLoadResponse: lpLoadResponse ?? this.lpLoadResponse,
@@ -69,10 +101,20 @@ class LpLoadState extends Equatable {
       lpCreditUpdate: lpCreditUpdate ?? this.lpCreditUpdate,
       lpLoadAgree: lpLoadAgree ?? this.lpLoadAgree,
       lpLoadVerifyAdvance: lpLoadVerifyAdvance ?? this.lpLoadVerifyAdvance,
+      lpLoadFeedback: lpLoadFeedback ?? this.lpLoadFeedback,
+      lpDocumentById: lpDocumentById ?? this.lpDocumentById,
+      trackingDistance: trackingDistance ?? this.trackingDistance,
+      lpAddConsignee: lpAddConsignee ?? this.lpAddConsignee,
+      lpUpdateConsignee: lpUpdateConsignee ?? this.lpUpdateConsignee,
       matchingText: matchingText ?? this.matchingText,
       selectedAdvance: selectedAdvance ?? this.selectedAdvance,
       selectedPercentageId: selectedPercentageId ?? this.selectedPercentageId,
       locationDistance: locationDistance ?? this.locationDistance,
+      downloadingKey: downloadingKey ?? this.downloadingKey,
+      lpAddCustomerPaymentOption: lpAddCustomerPaymentOption ?? this.lpAddCustomerPaymentOption,
+      lpCreateOrder: lpCreateOrder ?? this.lpCreateOrder,
+      isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
+      downloadedFiles: downloadedFiles ?? this.downloadedFiles,
     );
   }
 
@@ -90,9 +132,19 @@ class LpLoadState extends Equatable {
     lpCreditUpdate,
     lpLoadAgree,
     lpLoadVerifyAdvance,
+    lpLoadFeedback,
+    lpDocumentById,
+    trackingDistance,
+    lpAddConsignee,
+    lpUpdateConsignee,
     matchingText,
     selectedPercentageId,
     selectedAdvance,
-    locationDistance
+    locationDistance,
+    downloadingKey,
+    lpAddCustomerPaymentOption,
+    lpCreateOrder,
+    isFeedbackAdded,
+    downloadedFiles
   ];
 }

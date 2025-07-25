@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import '../../../../data/model/result.dart';
 import '../../model/kavach_product_model.dart';
-import '../../model/masters_model.dart';
-import '../../model/choose_preference_model.dart';
+import '../../model/kavach_masters_model.dart';
+import '../../model/kavach_choose_preference_model.dart';
 import 'package:collection/collection.dart';
 
 class KavachProductsListState extends Equatable {
@@ -15,12 +15,12 @@ class KavachProductsListState extends Equatable {
   final ErrorType? error;
   
   // Masters data for preferences
-  final MastersModel? mastersData;
+  final KavachMastersModel? mastersData;
   final bool mastersLoading;
   final ErrorType? mastersError;
   
   // User preferences
-  final ChoosePreferenceModel userPreferences;
+  final KavachChoosePreferenceModel userPreferences;
 
   const KavachProductsListState({
     required this.products,
@@ -33,7 +33,7 @@ class KavachProductsListState extends Equatable {
     this.mastersData,
     this.mastersLoading = false,
     this.mastersError,
-    this.userPreferences = const ChoosePreferenceModel(),
+    this.userPreferences = const KavachChoosePreferenceModel(),
   });
 
   factory KavachProductsListState.initial() {
@@ -48,7 +48,7 @@ class KavachProductsListState extends Equatable {
       mastersData: null,
       mastersLoading: false,
       mastersError: null,
-      userPreferences: ChoosePreferenceModel(),
+      userPreferences: KavachChoosePreferenceModel(),
     );
   }
 
@@ -60,10 +60,10 @@ class KavachProductsListState extends Equatable {
     bool? hasMore,
     int? currentPage,
     ErrorType? error,
-    MastersModel? mastersData,
+    KavachMastersModel? mastersData,
     bool? mastersLoading,
     ErrorType? mastersError,
-    ChoosePreferenceModel? userPreferences,
+    KavachChoosePreferenceModel? userPreferences,
   }) {
     return KavachProductsListState(
       products: products ?? this.products,

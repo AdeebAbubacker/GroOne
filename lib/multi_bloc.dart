@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/widgets/gps_notification_type_sheet.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
@@ -14,25 +20,31 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/load_posting_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/rate_discovery/rate_discovery_bloc.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/bloc/select_address/lp_select_address_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/upload_rc_truck_file/upload_rc_truck_file_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/bloc/vp_creation_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
 import 'dependency_injection/locator.dart';
 import 'features/choose_role_screen/bloc/role_bloc.dart';
+import 'features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
+import 'features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
+import 'features/gps_feature/cubit/path_replay_cubit.dart';
 import 'features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
-import 'features/load_provider/lp_create_account/bloc/lp_create_bloc.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import 'features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
+import 'features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 import 'features/login/bloc/login_bloc.dart';
 import 'features/otp_verification/bloc/otp_bloc.dart';
+import 'features/privacy_policy/bloc/privacy_policy_bloc.dart';
+import 'features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
+import 'features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 
 class MultiBlocWrapper extends StatelessWidget {
@@ -47,16 +59,11 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<RoleBloc>(create: (_) => locator<RoleBloc>()),
         BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
-        BlocProvider<VpCreationBloc>(create: (_) => locator<VpCreationBloc>()),
-        BlocProvider<LpCreateBloc>(create: (_) => locator<LpCreateBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
-        BlocProvider<UploadRcTruckFileBloc>(create: (_) => locator<UploadRcTruckFileBloc>()),
         BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
-        BlocProvider<LpMapSelectPickPointBloc>(create: (_) => locator<LpMapSelectPickPointBloc>()),
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
         BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
         BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
-        BlocProvider<RateDiscoveryBloc>(create: (_) => locator<RateDiscoveryBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
         BlocProvider<VpHomeBloc>(create: (_) => locator<VpHomeBloc>()),
@@ -70,6 +77,9 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<KavachOrderBloc>(create: (_) => locator<KavachOrderBloc>()),
         BlocProvider<KavachOrderListBloc>(create: (_) => locator<KavachOrderListBloc>()),
         BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
+        BlocProvider<TermsAndConditionsBloc>(create: (_) => locator<TermsAndConditionsBloc>()),
+        BlocProvider<PrivacyPolicyBloc>(create: (_) => locator<PrivacyPolicyBloc>()),
+        BlocProvider<DriverLoadsBloc>(create: (_) => locator<DriverLoadsBloc>()),
         BlocProvider<EmailVerificationCubit>(create: (_) => locator<EmailVerificationCubit>()),
         BlocProvider<LpLoadCubit>(create: (_) => locator<LpLoadCubit>()),
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
@@ -77,8 +87,21 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LoadDetailsCubit>(create: (_) => locator<LoadDetailsCubit>()),
         BlocProvider<KavachAddVehicleFormCubit>(create: (_) => locator<KavachAddVehicleFormCubit>()),
         // EnDhanCubit removed from MultiBlocWrapper to control lifecycle manually
+        BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
         BlocProvider<ProfileCubit>(create: (_) => locator<ProfileCubit>()),
+        BlocProvider<LpCreateAccountCubit>(create: (_) => locator<LpCreateAccountCubit>()),
+        BlocProvider<VpCreateAccountCubit>(create: (_) => locator<VpCreateAccountCubit>()),
+        BlocProvider<KavachTransactionsCubit>(create: (_) => locator<KavachTransactionsCubit>()),
+        BlocProvider<PodDispatchCubit>(create: (_) => locator<PodDispatchCubit>()),
         BlocProvider<GpsGeofenceCubit>(create: (_) => locator<GpsGeofenceCubit>()),
+        BlocProvider<PathReplayCubit>(create: (_) => locator<PathReplayCubit>()),
+        BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
+        BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
+        BlocProvider<GpsGeofenceMapCubit>(create: (_) => locator<GpsGeofenceMapCubit>()),
+        BlocProvider<GpsParkingModeCubit>(create: (_) => locator<GpsParkingModeCubit>()),
+        BlocProvider<GpsNotificationTypesSheetCubit>(create: (_) => locator<GpsNotificationTypesSheetCubit>()),
+        BlocProvider<DriverProfileCubit>(create: (_) => locator<DriverProfileCubit>()),
+        BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
       ],
       child: child,
     );

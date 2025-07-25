@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_order_details_screen.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -29,19 +30,19 @@ class KavachOrderCardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Order ID: ${order.orderUniqueId}',
-                    style: AppTextStyle.h4PrimaryColor,
+                    style: AppTextStyle.h5PrimaryColor,
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
+                    color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     order.statusHistory.first.statusLabel,
                     style: TextStyle(
-                      color: getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
+                      color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -64,7 +65,7 @@ class KavachOrderCardWidget extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
                     },
-                    child: Text("View Detail", style: AppTextStyle.primaryColor16w400)),
+                    child: Text("View Detail", style: AppTextStyle.primaryColor14w700)),
                 15.width,
                 Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
               ],

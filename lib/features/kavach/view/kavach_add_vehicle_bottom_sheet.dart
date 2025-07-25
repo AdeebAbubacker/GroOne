@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/kavach/cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_cubit.dart';
-import 'package:gro_one_app/features/kavach/view/widgets/kavach_multiselection_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -18,15 +17,18 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
+import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
+import '../../../utils/common_widgets.dart';
 import '../../../utils/toast_messages.dart';
 import '../../../utils/upload_attachment_files.dart';
 import '../../../utils/validator.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_state.dart';
 import '../model/kavach_truck_length_model.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 
 class KavachAddVehicleBottomSheet extends StatefulWidget {
   const KavachAddVehicleBottomSheet({super.key});
@@ -43,6 +45,8 @@ class _KavachAddVehicleBottomSheetState
   final truckMakeModelController = TextEditingController();
   final licenseNumberController = TextEditingController();
   final capacityController = TextEditingController();
+  bool isVerified = false;
+  bool showValidationErrors = false;
 
   List<Map<String, dynamic>> vehicleDocList = []; // Add this at state level
 
@@ -58,6 +62,7 @@ class _KavachAddVehicleBottomSheetState
 
   @override
   void initState() {
+    kavachAddNewVehicleCubit.resetVehicleVerification();
     kavachAddNewVehicleCubit.fetchCommodities();
     kavachAddNewVehicleCubit.fetchTruckTypes();
     super.initState();
@@ -89,7 +94,8 @@ class _KavachAddVehicleBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
+    return SafeArea(
+      child: AppBottomSheetBody(
       title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
@@ -99,19 +105,69 @@ class _KavachAddVehicleBottomSheetState
             key: formKey,
             child: Column(
               children: [
-                AppTextField(
-                  controller: truckNumberController,
-                  mandatoryStar: true,
-                  maxLength: 20,
-                  labelText: context.appText.truckNumber,
-                  validator:
-                      (value) => Validator.noSpecialCharacters(
+                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
+                  buildWhen: (previous, current) =>
+                  previous.vehicleVerification != current.vehicleVerification,
+                  builder: (context, state) {
+                    final verificationState = state.vehicleVerification;
+
+                    if(verificationState.status == Status.SUCCESS){
+                      isVerified = true;
+                    }
+
+                    return AppTextField(
+                      controller: truckNumberController,
+                      mandatoryStar: true,
+                      maxLength: 15,
+                      labelText: context.appText.truckNumber,
+                      textCapitalization: TextCapitalization.characters,
+                      validator: (value) => Validator.validateVehicleNumber(
                         value,
                         fieldName: context.appText.truckNumber,
                       ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
-                  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
+                      ],
+                      readOnly: verificationState.status == Status.SUCCESS,
+                      decoration: commonInputDecoration(
+                        suffixIcon: verificationState.status == Status.LOADING
+                            ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                            : verificationState.status == Status.SUCCESS
+                            ? const Icon(Icons.verified, color: Colors.green)
+                            :  InkWell(
+                          onTap: () {
+                            final vehicleNumber = truckNumberController.text.trim().toUpperCase();
+
+                            // Run validation directly
+                            final validationMessage = Validator.validateVehicleNumber(
+                              vehicleNumber,
+                              fieldName: context.appText.truckNumber,
+                            );
+
+                            if (validationMessage != null) {
+                              ToastMessages.alert(message: validationMessage);
+                              return;
+                            }
+
+                            // If valid, call API to verify
+                            context.read<KavachAddVehicleFormCubit>().verifyVehicle(vehicleNumber);
+                          },
+                          child: Text(
+                            "Verify",
+                            style: AppTextStyle.body3.copyWith(
+                              color: AppColors.primaryColor,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 10.height,
                 AppTextField(
@@ -119,13 +175,14 @@ class _KavachAddVehicleBottomSheetState
                   mandatoryStar: true,
                   maxLength: 20,
                   labelText: context.appText.truckMakeModel,
+                  textCapitalization: TextCapitalization.characters,
                   validator:
                       (value) => Validator.noSpecialCharacters(
                         value,
                         fieldName: context.appText.truckMakeModel,
                       ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                    FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
                   ],
                 ),
                 10.height,
@@ -133,10 +190,9 @@ class _KavachAddVehicleBottomSheetState
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
+                  textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9 -]'), // <-- Hyphen works now
-                    ),
+                    FilteringTextInputFormatter.allow(licenseAlphaNumHyphenRegex),
                   ],
                   mandatoryStar: true,
                   validator:
@@ -180,8 +236,7 @@ class _KavachAddVehicleBottomSheetState
                 10.height,
                 BlocBuilder<
                   KavachAddVehicleFormCubit,
-                  KavachAddVehicleFormState
-                >(
+                  KavachAddVehicleFormState >(
                   builder: (context, state) {
                     final cubit = context.read<KavachAddVehicleFormCubit>();
 
@@ -282,14 +337,19 @@ class _KavachAddVehicleBottomSheetState
                         value,
                         fieldName: context.appText.capacity,
                       ),
+                  decoration: commonInputDecoration(
+                    suffixIcon: Text(
+                        'Metric Tons',
+                        style: AppTextStyle.body3.copyWith(
+                          color: AppColors.textGreyColor,
+                        ),
+                      ),
+                  ),
                 ),
                 10.height,
 
                 /// Acceptable Commodities Dropdown
-                BlocBuilder<
-                  KavachAddVehicleFormCubit,
-                  KavachAddVehicleFormState
-                >(
+                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
                   builder: (context, state) {
                     if (state.commodities.status == Status.LOADING) {
                       return const SizedBox.shrink(); // or CircularProgressIndicator()
@@ -309,19 +369,21 @@ class _KavachAddVehicleBottomSheetState
                         controller: acceptableCommoditiesController,
                         items: items,
                         onSelectionChange: (selected) {
-                          print('Selected Commodities: $selected');
+                          // Selected commodities handled
                         },
                         validator:
                             (value) =>
                                 value == null || value.isEmpty
                                     ? context.appText.pleaseSelectCommodity
                                     : null,
+                        showValidationError: showValidationErrors,
                       );
 
 
 
                     } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}');
+                      return Text('Error: ${state.commodities.errorType}',
+                      style: AppTextStyle.body3.copyWith(color: Colors.red));
                     }
 
                     return const SizedBox.shrink();
@@ -356,6 +418,9 @@ class _KavachAddVehicleBottomSheetState
                     20.width,
                     AppButton(
                       onPressed: () async {
+                        setState(() {
+                          showValidationErrors = true;
+                        });
                         if (!formKey.currentState!.validate()) return;
                         if (vehicleDocList.isEmpty) {
                           ToastMessages.alert(
@@ -363,17 +428,13 @@ class _KavachAddVehicleBottomSheetState
                           );
                           return;
                         }
+                        if(isVerified==false){
+                          ToastMessages.alert(
+                            message: 'Please verify your Vehicle Number',
+                          );
+                          return;
+                        }
 
-                        final userId =
-                            int.tryParse(
-                              await context
-                                      .read<KavachAddVehicleFormCubit>()
-                                      .repository
-                                      .userInfoRepo
-                                      .getUserID() ??
-                                  '',
-                            ) ??
-                            0;
                         final selectedCommoditiesIds =
                             acceptableCommoditiesController.selectedItems
                                 .map((idStr) => int.tryParse(idStr.value))
@@ -382,7 +443,7 @@ class _KavachAddVehicleBottomSheetState
                         final rcDocLink = vehicleDocList.first['path'];
 
                         final request = KavachAddVehicleRequest(
-                          customerId: userId,
+                          customerId: '', // Will be set by repository
                           vehicleNumber: truckNumberController.text.trim(),
                           vehicleTypeId: 1,
                           rcNumber: licenseNumberController.text.trim(),
@@ -397,7 +458,6 @@ class _KavachAddVehicleBottomSheetState
                           vehicleStatus: isActive ? 1 : 0,
                         );
 
-                        print(jsonEncode(request));
                         final result = await kavachAddNewVehicleCubit
                             .addVehicle(request);
 
@@ -423,6 +483,7 @@ class _KavachAddVehicleBottomSheetState
           ),
         ),
       ),
-    );
+    ));
   }
 }
+

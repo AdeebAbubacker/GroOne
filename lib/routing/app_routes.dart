@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
+import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
-import 'package:gro_one_app/features/gps_feature/views/dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_track_load_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_validate_memo.dart';
-import 'package:gro_one_app/features/load_provider/lp_pay_now_screen/view/lp_pay_now_screen.dart';
 import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/buy_fastag/view/buy_fastag_screen.dart';
-import 'package:gro_one_app/features/our_value_added_service/view/en_dhan_card/view/en_dhan_card.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
@@ -28,6 +30,9 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../features/gps_feature/views/report_screen.dart';
+import '../dependency_injection/locator.dart';
+import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
+import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
 class AppRoutes {
@@ -56,7 +61,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.enDhanCard,
         builder: (BuildContext context, GoRouterState state) {
-          return EnDhanCard();
+          return EndhanNewUserAndCardScreen();
         },
       ),
 
@@ -70,14 +75,47 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.gpsDashboard,
         builder: (BuildContext context, GoRouterState state) {
-          return const DashboardScreen();
+          return const GpsDashboardScreen();
         },
       ),
 
       GoRoute(
         path: AppRouteName.gpsGeofence,
         builder: (BuildContext context, GoRouterState state) {
-          return const GpsGeofenceScreen();
+          return BlocProvider.value(
+            value: locator<VehicleListCubit>(),
+            child: GpsGeofenceScreen(),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsOrderBenefits,
+        builder: (BuildContext context, GoRouterState state) {
+          return GpsOrderBenefitsAndOrderListScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsVehicleShareAndUpdate,
+        builder: (BuildContext context, GoRouterState state) {
+          return const VehicleShareUpdateScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsEditVehicleInfo,
+        builder: (BuildContext context, GoRouterState state) {
+          final vehicleData = state.extra as Map<String, dynamic>?;
+          return EditVehicleInfoScreen(vehicleData: vehicleData);
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsVehicleSelectScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          final isFromId = "${state.extra}";
+          return VehicleSelectScreen(isFromId: int.parse(isFromId),);
         },
       ),
 
@@ -88,12 +126,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpValidateMemo,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpValidateMemo();
-        },
-      ),
 
       GoRoute(
         path: AppRouteName.insurance,
@@ -102,12 +134,6 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
-        path: AppRouteName.lpPayNowScreen,
-        builder: (BuildContext context, GoRouterState state) {
-          return LpPayNowScreen();
-        },
-      ),
 
       // VP Bottom Navigation bar
       GoRoute(
@@ -134,8 +160,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          final role = "${state.extra}";
-          return LoginScreen(roleId: int.parse(role!));
+          return LoginScreen();
         },
       ),
 
@@ -146,10 +171,17 @@ class AppRoutes {
         },
       ),
 
-      GoRoute(
+        GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          return ChooseRoleScreen();
+          final data = state.extra! as Map<String, dynamic>;
+          final String id = data["userId"];
+          final String mobileNumber = data["mobileNumber"];
+          return ChooseRoleScreen(
+            userId: id,
+            mobileNumber: mobileNumber,
+
+          );
         },
       ),
 
@@ -187,11 +219,11 @@ class AppRoutes {
           final data = state.extra! as Map<String, dynamic>;
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
-          final String roleId = data["roleId"];
+          final bool isDriver = data["driver"];
           return MobileOtpVerificationScreen(
             otp: otp,
             mobileNumber: mobileNumber,
-            roleId: roleId,
+            isDriver: isDriver,
           );
         },
       ),
@@ -207,7 +239,7 @@ class AppRoutes {
         path: AppRouteName.loadDetailsScreen,
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
-          final int loadId = data["loadId"];
+          final String loadId = data["loadId"].toString();
           return VpLoadDetailsScreen(loadId: loadId);
         },
       ),
@@ -234,6 +266,12 @@ class AppRoutes {
             vehicles: vehicles,
             initialSelectedVehicle: initialSelectedVehicle,
           );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverHome,
+        builder: (BuildContext context, GoRouterState state) {
+          return DriverHomeScreen();
         },
       ),
     ],

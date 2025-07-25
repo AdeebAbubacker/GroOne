@@ -14,6 +14,14 @@ class UserInformationRepository {
     return  await _securedSharedPref.get(AppString.sessionKey.userFullName);
   }
 
+  Future<String?> getUserMobileNumber() async {
+    return  await _securedSharedPref.get(AppString.sessionKey.userMobileNumber);
+  }
+
+  Future<String?> getUserEmail() async {
+    return  await _securedSharedPref.get(AppString.sessionKey.userEmail);
+  }
+
   Future<String?> getAddress() async {
     return  await _securedSharedPref.get(AppString.sessionKey.userAddress);
   }
@@ -23,8 +31,8 @@ class UserInformationRepository {
     return  await _securedSharedPref.get(AppString.sessionKey.fcmToken);
   }
 
-  Future<String?> getUserRole() async {
-    return  await _securedSharedPref.get(AppString.sessionKey.userRole);
+  Future<int?> getUserRole() async {
+    return  await _securedSharedPref.getInt(AppString.sessionKey.userRole);
   }
 
   Future<String?> getCustomerTypeID() async {
@@ -35,7 +43,6 @@ class UserInformationRepository {
   Future<String?> getBlueID() async {
     return  await _securedSharedPref.get(AppString.sessionKey.blueId);
   }
-
 
 
 }

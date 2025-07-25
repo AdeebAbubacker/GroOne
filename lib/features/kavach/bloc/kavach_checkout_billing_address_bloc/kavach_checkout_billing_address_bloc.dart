@@ -11,6 +11,7 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   KavachCheckoutBillingAddressBloc(this.repository) : super(KavachCheckoutBillingAddressLoading()) {
     on<FetchKavachBillingAddresses>(_onFetchBillingAddresses);
     on<SelectKavachBillingAddress>(_onSelectBillingAddress);
+    on<RestoreKavachBillingAddress>(_onRestoreBillingAddress);
     on<ClearKavachBillingAddress>((event, emit) {
       emit(KavachCheckoutBillingAddressEmpty());
     });
@@ -18,17 +19,44 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   }
 
   Future<void> _onFetchBillingAddresses(FetchKavachBillingAddresses event, Emitter<KavachCheckoutBillingAddressState> emit) async {
+    // Store the currently selected address before fetching
+    KavachAddressModel? currentlySelectedAddress;
+    if (state is KavachCheckoutBillingAddressSelected) {
+      currentlySelectedAddress = (state as KavachCheckoutBillingAddressSelected).selectedAddress;
+    }
+    
     emit(KavachCheckoutBillingAddressLoading());
-    final result = await repository.fetchAddresses(addrType: 2);
+    final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
+      print('KavachCheckoutBillingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
+        print('KavachCheckoutBillingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutBillingAddressEmpty());
       } else {
-        final firstAddress = result.value.first;
-        emit(KavachCheckoutBillingAddressSelected(selectedAddress: firstAddress, addresses: result.value));
+        // Check if the previously selected address still exists in the new list
+        if (currentlySelectedAddress != null) {
+          final addressExists = result.value.any((address) => address.uniqueId == currentlySelectedAddress!.uniqueId);
+          if (addressExists) {
+            // Restore the previously selected address
+            print('KavachCheckoutBillingAddressBloc: Restoring previously selected address');
+            emit(KavachCheckoutBillingAddressSelected(
+              selectedAddress: currentlySelectedAddress,
+              addresses: result.value,
+            ));
+          } else {
+            // Previously selected address no longer exists, show available state
+            print('KavachCheckoutBillingAddressBloc: Previously selected address no longer exists, emitting available state');
+            emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
+          }
+        } else {
+          // No previously selected address, show available state without auto-selection
+          print('KavachCheckoutBillingAddressBloc: No previously selected address, showing available state without auto-selection');
+          emit(KavachCheckoutBillingAddressAvailable(addresses: result.value));
+        }
       }
     } else if (result is Error<List<KavachAddressModel>>) {
+      print('KavachCheckoutBillingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutBillingAddressError(result.type));
     }
   }
@@ -44,8 +72,13 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   // }
   void _onSelectBillingAddress(SelectKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
     final currentState = state;
+
     if (currentState is KavachCheckoutBillingAddressSelected) {
-      emit(KavachCheckoutBillingAddressLoading()); // <--- Force refresh by emitting Loading first
+      emit(KavachCheckoutBillingAddressSelected(
+        selectedAddress: event.address,
+        addresses: currentState.addresses,
+      ));
+    } else if (currentState is KavachCheckoutBillingAddressAvailable) {
       emit(KavachCheckoutBillingAddressSelected(
         selectedAddress: event.address,
         addresses: currentState.addresses,
@@ -56,6 +89,13 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
         addresses: [event.address],
       ));
     }
+  }
+
+  void _onRestoreBillingAddress(RestoreKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
+    emit(KavachCheckoutBillingAddressSelected(
+      selectedAddress: event.address,
+      addresses: event.addresses,
+    ));
   }
 
 }
