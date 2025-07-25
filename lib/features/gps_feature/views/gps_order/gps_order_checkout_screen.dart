@@ -30,8 +30,8 @@ import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billin
 import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
 import '../../models/gps_document_models.dart';
 import '../../gps_order_repo/gps_order_api_repository.dart';
-import 'gps_billing_address_list_screen.dart';
-import 'gps_shipping_address_list_screen.dart';
+import '../../../kavach/view/kavach_billing_address_list_screen.dart' as kavach_billing;
+import '../../../kavach/view/kavach_shipping_address_list_screen.dart' as kavach_shipping;
 import 'gps_order_summary_screen.dart';
 import '../../../../features/kavach/view/widgets/product_counter.dart';
 import '../widgets/referral_autocomplete_textfield.dart';
@@ -681,8 +681,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                 onChangeTap: () {
                                   commonBottomSheetWithBGBlur(
                                     context: context,
-                                    screen: GpsBillingAddressListScreen(
-                                      billingAddressCubit: gpsBillingAddressCubit,
+                                    screen: kavach_billing.KavachBillingAddressListScreen(
+                                      feature: kavach_billing.AddressListFeature.gps,
+                                      gpsBillingAddressCubit: gpsBillingAddressCubit, gpsShippingAddressCubit: gpsShippingAddressCubit,
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   ).then((_) {
@@ -707,8 +708,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                 onTextFieldTap: () {
                                   commonBottomSheetWithBGBlur(
                                     context: context,
-                                    screen: GpsBillingAddressListScreen(
-                                      billingAddressCubit: gpsBillingAddressCubit,
+                                    screen: kavach_billing.KavachBillingAddressListScreen(feature: kavach_billing.AddressListFeature.gps,
+                                      gpsBillingAddressCubit: gpsBillingAddressCubit, gpsShippingAddressCubit: gpsShippingAddressCubit,
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   ).then((result) {
@@ -737,8 +738,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                 onTextFieldTap: () {
                                   commonBottomSheetWithBGBlur(
                                     context: context,
-                                    screen: GpsBillingAddressListScreen(
-                                      billingAddressCubit: gpsBillingAddressCubit,
+                                    screen: kavach_billing.KavachBillingAddressListScreen(feature: kavach_billing.AddressListFeature.gps,
+                                      gpsBillingAddressCubit: gpsBillingAddressCubit, gpsShippingAddressCubit: gpsShippingAddressCubit,
                                       selectedShippingAddress: _getCurrentShippingAddress(),
                                     ),
                                   ).then((result) {
@@ -798,8 +799,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     onTextFieldTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen: GpsBillingAddressListScreen(
-                                          billingAddressCubit: gpsBillingAddressCubit,
+                                        screen: kavach_billing.KavachBillingAddressListScreen(feature: kavach_billing.AddressListFeature.gps,
+                                          gpsBillingAddressCubit: gpsBillingAddressCubit, gpsShippingAddressCubit: gpsShippingAddressCubit,
                                           selectedShippingAddress: _getCurrentShippingAddress(),
                                         ),
                                       ).then((result) {
@@ -835,8 +836,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                   onTextFieldTap: () {
                                     commonBottomSheetWithBGBlur(
                                       context: context,
-                                      screen: GpsBillingAddressListScreen(
-                                        billingAddressCubit: gpsBillingAddressCubit,
+                                      screen: kavach_billing.KavachBillingAddressListScreen(feature: kavach_billing.AddressListFeature.gps,
+                                        gpsBillingAddressCubit: gpsBillingAddressCubit, gpsShippingAddressCubit: gpsShippingAddressCubit,
                                         selectedShippingAddress: _getCurrentShippingAddress(),
                                       ),
                                     ).then((result) {
@@ -889,8 +890,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                                                           onChangeTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen: GpsShippingAddressListScreen(
-                                          shippingAddressCubit: gpsShippingAddressCubit,
+                                        screen: kavach_shipping.KavachShippingAddressListScreen(feature: kavach_shipping.AddressListFeature.gps,
+                                          gpsShippingAddressCubit: gpsShippingAddressCubit, gpsBillingAddressCubit: gpsBillingAddressCubit,
                                           selectedBillingAddress: _getCurrentBillingAddress(),
                                         ),
                                       ).then((result) {
@@ -943,8 +944,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       onTextFieldTap: () {
                                         commonBottomSheetWithBGBlur(
                                           context: context,
-                                          screen: GpsShippingAddressListScreen(
-                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          screen: kavach_shipping.KavachShippingAddressListScreen(feature: kavach_shipping.AddressListFeature.gps,
+                                            gpsShippingAddressCubit: gpsShippingAddressCubit, gpsBillingAddressCubit: gpsBillingAddressCubit,
                                             selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         ).then((result) {
@@ -994,8 +995,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       onTextFieldTap: () {
                                         commonBottomSheetWithBGBlur(
                                           context: context,
-                                          screen: GpsShippingAddressListScreen(
-                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          screen: kavach_shipping.KavachShippingAddressListScreen(feature: kavach_shipping.AddressListFeature.gps,
+                                            gpsShippingAddressCubit: gpsShippingAddressCubit, gpsBillingAddressCubit: gpsBillingAddressCubit,
                                             selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         ).then((result) {
@@ -1085,8 +1086,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                       onTextFieldTap: () {
                                         commonBottomSheetWithBGBlur(
                                           context: context,
-                                          screen: GpsShippingAddressListScreen(
-                                            shippingAddressCubit: gpsShippingAddressCubit,
+                                          screen: kavach_shipping.KavachShippingAddressListScreen(feature: kavach_shipping.AddressListFeature.gps,
+                                            gpsShippingAddressCubit: gpsShippingAddressCubit, gpsBillingAddressCubit: gpsBillingAddressCubit,
                                             selectedBillingAddress: _getCurrentBillingAddress(),
                                           ),
                                         ).then((result) {
@@ -1138,8 +1139,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
                                     onTextFieldTap: () {
                                       commonBottomSheetWithBGBlur(
                                         context: context,
-                                        screen: GpsShippingAddressListScreen(
-                                          shippingAddressCubit: gpsShippingAddressCubit,
+                                        screen: kavach_shipping.KavachShippingAddressListScreen(feature: kavach_shipping.AddressListFeature.gps,
+                                          gpsShippingAddressCubit: gpsShippingAddressCubit, gpsBillingAddressCubit: gpsBillingAddressCubit,
                                           selectedBillingAddress: _getCurrentBillingAddress(),
                                         ),
                                       ).then((result) {
@@ -1393,6 +1394,31 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
           return;
         }
 
+        // Validate that all vehicle numbers are unique across all products
+        final allVehicleNumbers = <String>[];
+        final duplicateVehicles = <String>[];
+        
+        vehicleControllersPerProduct.forEach((productId, controllers) {
+          for (var controller in controllers) {
+            final vehicleNumber = controller.text.trim();
+            if (vehicleNumber.isNotEmpty) {
+              if (allVehicleNumbers.contains(vehicleNumber)) {
+                duplicateVehicles.add(vehicleNumber);
+              } else {
+                allVehicleNumbers.add(vehicleNumber);
+              }
+            }
+          }
+        });
+        
+        if (duplicateVehicles.isNotEmpty) {
+          final uniqueDuplicates = duplicateVehicles.toSet().toList();
+          ToastMessages.alert(
+            message: 'Duplicate vehicle numbers found: ${uniqueDuplicates.join(', ')}. Please use unique vehicle numbers for each product.',
+          );
+          return;
+        }
+
         // If all validations pass, create order
         if (shippingState is GpsShippingAddressSelected &&
             billingState is GpsBillingAddressSelected) {
@@ -1411,11 +1437,16 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
 
           // Determine if referral code is provided and extract employee details
           String? createdEmpId;
-          int createdEmpUserId = 1234; // Default value
+          int createdEmpUserId = 1234; // Default value for direct orders
           
           if (referralCodeController.text.trim().isNotEmpty) {
             createdEmpId = referralCodeController.text.trim();
-            createdEmpUserId = 52864; // This should be fetched based on referral code
+            // For referral orders, use the employee ID as per documentation
+            // In a real implementation, this should be fetched from an API based on the referral code
+            createdEmpUserId = 52864; // Employee ID for referral code GDP00584
+            print("GPS Order: Referral order detected - createdEmpId: $createdEmpId, createdEmpUserId: $createdEmpUserId");
+          } else {
+            print("GPS Order: Direct order detected - createdEmpId: null, createdEmpUserId: $createdEmpUserId");
           }
 
           // Create billing address

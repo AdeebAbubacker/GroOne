@@ -119,7 +119,7 @@ class KavachService {
       }) async {
     try {
       final response = await _apiService.get(
-        '${ApiUrls.kavachAddressList}/$customerId?limit=10&page=1',
+        '${ApiUrls.kavachAddressList}/$customerId?limit=20&page=1',
         forceRefresh: true,
       );
 

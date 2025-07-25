@@ -65,8 +65,9 @@ class GpsOrderDetailScreen extends StatelessWidget {
               12.height,
               _orderTimeline(context),
               12.height,
+               _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
-              _addressSection(order.billingAddress, context),
+             
               12.height,
               _paymentSummary(context),
               12.height,

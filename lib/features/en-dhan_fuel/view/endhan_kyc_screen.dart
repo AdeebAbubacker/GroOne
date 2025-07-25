@@ -168,16 +168,37 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                  // Handle bar and close button row
+                  Row(
+                    children: [
+                      // Handle bar
+                      Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ).expand(),
+                      // Close button
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   20.height,
                   // Title
@@ -264,7 +285,30 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       );
                     },
                   ),
-                  40.height,
+                  20.height,
+                  // Resend code option
+                  BlocBuilder<EnDhanCubit, EnDhanState>(
+                    bloc: cubit,
+                    builder: (context, state) {
+                      final bool isResendLoading = state.aadhaarSendOtpState?.status == Status.LOADING;
+                      return Center(
+                        child: GestureDetector(
+                          onTap: isResendLoading ? null : () {
+                            cubit.sendAadhaarOtp();
+                          },
+                          child: Text(
+                            context.appText.resendOtp,
+                            style: AppTextStyle.body3.copyWith(
+                              color: isResendLoading ? Colors.grey : AppColors.primaryColor,
+                              decoration: isResendLoading ? TextDecoration.none : TextDecoration.underline,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  20.height,
                 ],
               ),
             ),
