@@ -10,12 +10,9 @@ import 'address_skeleton.dart';
 class TripReportCard extends StatelessWidget {
   final TripReport report;
   final AddressResponse? addressResponse;
-  
-  const TripReportCard({
-    Key? key, 
-    required this.report,
-    this.addressResponse,
-  }) : super(key: key);
+
+  const TripReportCard({Key? key, required this.report, this.addressResponse})
+    : super(key: key);
 
   String _formatDateTime(String dateTimeString) {
     try {
@@ -26,7 +23,7 @@ class TripReportCard extends StatelessWidget {
     }
   }
 
-    String _formatDate(String dateTimeString) {
+  String _formatDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString);
       return DateFormat('MMM dd, yyyy').format(dateTime);
@@ -43,7 +40,11 @@ class TripReportCard extends StatelessWidget {
 
   String _calculateTotalViolations() {
     // Sum of all safety violations similar to native code
-    int sum = report.harshBraking + report.harshCornering + report.harshAcceleration + report.overSpeed;
+    int sum =
+        report.harshBraking +
+        report.harshCornering +
+        report.harshAcceleration +
+        report.overSpeed;
     return sum.toString();
   }
 
@@ -55,18 +56,12 @@ class TripReportCard extends StatelessWidget {
   /// - else: White
   Color _getSafetyScoreColor() {
     final safetyScore = report.safetyScore;
-    
-    // Debug logging to verify color logic
-    print("🎨 Safety Score: $safetyScore");
-    
+
     if (safetyScore <= 7.5) {
-      print("🎨 Color: RED (score <= 7.5)");
       return AppColors.appRedColor; // Red
     } else if (safetyScore >= 8.75) {
-      print("🎨 Color: GREEN (score >= 8.75)");
       return const Color(0xFF4CAF50); // Light Green
     } else if (safetyScore > 7.5 && safetyScore < 8.75) {
-      print("🎨 Color: YELLOW (7.5 < score < 8.75)");
       return const Color(0xFFFFC107); // Yellow
     } else {
       return Colors.white; // White
@@ -76,30 +71,31 @@ class TripReportCard extends StatelessWidget {
   String _getDisplayAddress({required bool isStart}) {
     // If we have real addresses from reverse geocoding, use them
     if (addressResponse != null) {
-      final realAddress = isStart ? addressResponse!.startAddress : addressResponse!.endAddress;
+      final realAddress =
+          isStart ? addressResponse!.startAddress : addressResponse!.endAddress;
       if (realAddress != "No Address") {
         return realAddress;
       }
     }
-    
+
     // Fallback to formatted coordinates from the report
     final rawAddress = isStart ? report.startAddress : report.endAddress;
-    
+
     if (rawAddress.contains(',')) {
       final parts = rawAddress.split(',');
       if (parts.length == 2) {
         final lat = double.tryParse(parts[0].trim()) ?? 0.0;
         final lng = double.tryParse(parts[1].trim()) ?? 0.0;
-        
+
         // If coordinates are 0,0 (invalid GPS), show dash
         if (lat == 0.0 && lng == 0.0) {
           return "-";
         }
-        
+
         return "Lat: ${lat.toStringAsFixed(6)}\nLng: ${lng.toStringAsFixed(6)}";
       }
     }
-    
+
     return rawAddress;
   }
 
@@ -126,11 +122,11 @@ class TripReportCard extends StatelessWidget {
           // Header Section
           _buildHeaderSection(),
           const SizedBox(height: 20),
-          
+
           // Location Timeline Section
           _buildLocationTimelineSection(),
           const SizedBox(height: 20),
-          
+
           // Metrics Grid Section
           _buildMetricsGridSection(),
         ],
@@ -166,7 +162,7 @@ class TripReportCard extends StatelessWidget {
             ),
           ],
         ),
-        
+
         // Right side - Color Code
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -246,7 +242,7 @@ class TripReportCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        
+
         // Address and time
         Expanded(
           child: Column(
@@ -303,7 +299,7 @@ class TripReportCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Second row - Engine ON and Idle Time
         Row(
           children: [
@@ -347,7 +343,7 @@ class TripReportCard extends StatelessWidget {
           // Icon
           Icon(icon, color: iconColor, size: 18),
           const SizedBox(width: 12),
-          
+
           // Value and Label
           Expanded(
             child: Column(
