@@ -87,7 +87,7 @@ class _VehicleMapContent extends StatelessWidget {
       providers: [
         BlocProvider.value(value: locator<VehicleListCubit>()),
         BlocProvider<SelectedVehicleCubit>(
-          create: (_) => SelectedVehicleCubit()..select(initialSelectedVehicle),
+          create: (_) => SelectedVehicleCubit(),
         ),
       ],
       child: BlocBuilder<SelectedVehicleCubit, GpsCombinedVehicleData?>(
@@ -106,20 +106,35 @@ class _VehicleMapContent extends StatelessWidget {
                     vehicleId: vehicle.vehicleNumber ?? 'unknown',
                     position: LatLng(lat, lng),
                     title: vehicle.address ?? vehicle.vehicleNumber,
-                    onTap:
-                        isSingleVehicle
-                            ? null
-                            : () {
-                              context.read<SelectedVehicleCubit>().select(
-                                vehicle,
-                              );
-                            },
+                    onTap: () {
+                      context.read<SelectedVehicleCubit>().select(vehicle);
+                    },
                   ),
                 );
               }
             }
           }
           final initialCameraPosition = () {
+            // If there's an initial selected vehicle, focus on it
+            if (initialSelectedVehicle != null) {
+              final initialVehicle = vehicles.firstWhere(
+                (v) => v.vehicleNumber == initialSelectedVehicle!.vehicleNumber,
+                orElse: () => vehicles.first,
+              );
+              final loc = initialVehicle.location;
+              if (loc != null && loc.contains(',')) {
+                final parts = loc.split(',');
+                final lat = double.tryParse(parts[0].trim());
+                final lng = double.tryParse(parts[1].trim());
+                if (lat != null && lng != null) {
+                  return GpsMapHelper.createCameraPosition(
+                    target: LatLng(lat, lng),
+                    zoom: 14,
+                  );
+                }
+              }
+            }
+
             if (isSingleVehicle && markers.isNotEmpty) {
               return GpsMapHelper.createCameraPosition(
                 target: markers.first.position,
@@ -153,7 +168,7 @@ class _VehicleMapContent extends StatelessWidget {
                     );
                   },
                 ),
-                if (!isSingleVehicle && selectedVehicle == null) ...[
+                if (selectedVehicle == null) ...[
                   Positioned(
                     top: 0,
                     left: 0,
@@ -689,7 +704,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.25),
+        color: color.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -883,12 +898,6 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                         _showPlayRouteBottomSheet(context, widget.vehicle);
                       },
                     ),
-                    // const SizedBox(width: 12),
-                    // _ActionButton(
-                    //   label: 'Capture',
-                    //   icon: Icons.camera_alt,
-                    //   onTap: () {},
-                    // ),
                     const SizedBox(width: 12),
                     _ActionButton(
                       label: 'Share',
@@ -1868,88 +1877,6 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _StatIconItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final String sublabel;
-  final Color color;
-  const _StatIconItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.sublabel,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: color,
-            ),
-          ),
-          if (sublabel.isNotEmpty)
-            Text(
-              sublabel,
-              style: const TextStyle(fontSize: 11, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusChipWithIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  const _StatusChipWithIcon({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.black87)),
-          const SizedBox(width: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -2093,36 +2020,6 @@ String formatDuration(dynamic rawIdleTime) {
   } else {
     return '0m';
   }
-}
-
-String _formatVoltage(double? v) {
-  if (v == null) return '-';
-  return v.toStringAsFixed(2) + 'V';
-}
-
-String _formatOdoMeters(int? meters) {
-  if (meters == null) return '-';
-  return (meters / 1000).toStringAsFixed(0) + ' km';
-}
-
-String _formatTripDistance(double? km) {
-  if (km == null) return '-';
-  return km.toStringAsFixed(2) + ' km';
-}
-
-String _formatSignal(int? rssi) {
-  if (rssi == null) return '-';
-  return '$rssi/5';
-}
-
-String _formatSat(int? sat) {
-  if (sat == null) return '-';
-  return sat.toString();
-}
-
-String _formatMotion(bool? motion) {
-  if (motion == null) return '-';
-  return motion ? 'Moving' : 'Stopped';
 }
 
 class PlayRouteBottomSheet extends StatelessWidget {
@@ -2269,6 +2166,9 @@ class PlayRouteBottomSheet extends StatelessWidget {
       "fwd_variable": 0.0,
     };
 
+    // Determine if bottom sheet should be shown based on route type
+    final showBottomSheet = routeType == 'replay';
+
     // Navigate to path replay screen
     Navigator.push(
       context,
@@ -2279,6 +2179,7 @@ class PlayRouteBottomSheet extends StatelessWidget {
               queryParams: queryParams,
               vehicleNumber: vehicle.vehicleNumber,
               routeType: routeType,
+              showBottomSheet: showBottomSheet,
             ),
       ),
     );

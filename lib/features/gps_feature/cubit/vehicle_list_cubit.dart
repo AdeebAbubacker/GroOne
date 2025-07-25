@@ -103,7 +103,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       _setVehicleDataUIState(UIState.success(sampleVehicles));
       _updateStatusCounts();
       _filterVehicles();
-      
+
       // Initialize dashboard with sample data
       await _initializeDashboardAfterDataLoad();
     } catch (e) {
@@ -115,11 +115,8 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   /// Only calls APIs if data hasn't been loaded yet
   Future<void> loadVehicleData({bool isLoadAgain = false}) async {
     // Guard against repeated API calls
-    if(!isLoadAgain){
+    if (!isLoadAgain) {
       if (_hasLoadedData && state.vehicleDataState?.status == Status.SUCCESS) {
-        print(
-          "📱 VehicleListCubit.loadVehicleData() - Data already loaded, skipping API calls",
-        );
         return;
       }
     }
@@ -143,7 +140,6 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
       // First try to load from Realm (offline data)
       if (await _repository.hasOfflineData()) {
-        print("📱 Loading vehicle data from Realm (offline)...");
         final offlineData = await _repository.getOfflineVehicleData();
         if (offlineData.isNotEmpty) {
           _allVehicles = offlineData;
@@ -151,20 +147,16 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
           _updateStatusCounts();
           _filterVehicles();
           _hasLoadedData = true;
-          _fetchDistanceDataInBackground(loginResponse!.token!,_allVehicles);
-          
+          _fetchDistanceDataInBackground(loginResponse!.token!, _allVehicles);
+
           // Initialize dashboard after loading vehicles
           await _initializeDashboardAfterDataLoad();
-          
-          print(
-            "✅ Vehicle data loaded from Realm: ${offlineData.length} vehicles",
-          );
+
           return;
         }
       }
 
       // If no offline data, fetch from API
-      print("🌐 No offline data found, fetching from API...");
       final result = await _repository.getAllVehicleData(loginResponse!.token);
 
       if (result is Success<List<GpsCombinedVehicleData>>) {
@@ -176,33 +168,23 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
         // Fetch addresses in background for vehicles that don't have them
         _fetchAddressesInBackground(result.value);
-        _fetchDistanceDataInBackground(loginResponse.token!,_allVehicles);
+        _fetchDistanceDataInBackground(loginResponse.token!, _allVehicles);
 
         // Initialize dashboard after loading vehicles
         await _initializeDashboardAfterDataLoad();
-
-        print(
-          "✅ Vehicle data fetched from API: ${result.value.length} vehicles",
-        );
       } else if (result is Error) {
         _setVehicleDataUIState(UIState.error((result as Error).type));
-        print("❌ Failed to fetch vehicle data from API");
 
         // Create sample data for testing when API fails
         await createSampleOfflineData();
-        
+
         // Initialize dashboard after creating sample data
         await _initializeDashboardAfterDataLoad();
       }
     } catch (e) {
       _setVehicleDataUIState(UIState.error(GenericError()));
-      print("❌ Error in loadVehicleData: $e");
     }
   }
-
-
-
-
 
   /// Load vehicle data from offline storage only
   Future<void> loadOfflineData() async {
@@ -233,7 +215,6 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
   /// Refresh data - resets the guard flag and reloads
   Future<void> refreshData() async {
-    print("🔄 VehicleListCubit.refreshData() called");
     _hasLoadedData = false; // Reset the guard flag
     await loadVehicleData();
   }
@@ -280,22 +261,23 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         selectedVehicleNumber: state.selectedVehicleNumber,
       );
 
-      final selectedVehicleData = distanceData['selectedVehicleData'] as Map<String, dynamic>;
-      
-      emit(state.copyWith(
-        selectedVehicleDistanceData: selectedVehicleData,
-        weeklyDistance: selectedVehicleData['weekList'] ?? [],
-        isWeeklyDistanceLoading: false,
-      ));
+      final selectedVehicleData =
+          distanceData['selectedVehicleData'] as Map<String, dynamic>;
+
+      emit(
+        state.copyWith(
+          selectedVehicleDistanceData: selectedVehicleData,
+          weeklyDistance: selectedVehicleData['weekList'] ?? [],
+          isWeeklyDistanceLoading: false,
+        ),
+      );
     } catch (e) {
-      print('Error loading distance data: $e');
       emit(state.copyWith(isWeeklyDistanceLoading: false));
     }
   }
 
   /// Refresh dashboard data
   Future<void> refreshDashboardData() async {
-    print("🔄 VehicleListCubit.refreshDashboardData() called");
     await refreshData();
     if (state.selectedVehicleNumber != null) {
       await _loadDistanceDataForSelectedVehicle();
@@ -313,12 +295,12 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   /// Initialize dashboard after vehicle data is loaded
   Future<void> _initializeDashboardAfterDataLoad() async {
     if (_allVehicles.isNotEmpty && state.selectedVehicleNumber == null) {
-      final activeVehicles = _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+      final activeVehicles =
+          _allVehicles.where((vehicle) => vehicle.expired != true).toList();
       if (activeVehicles.isNotEmpty) {
         final firstVehicle = activeVehicles.first;
         final vehicleNumber = firstVehicle.vehicleNumber ?? '';
         if (vehicleNumber.isNotEmpty) {
-          print("🚗 Initializing dashboard with first vehicle: $vehicleNumber");
           // Set the selected vehicle
           emit(state.copyWith(selectedVehicleNumber: vehicleNumber));
           // Load distance data immediately for the selected vehicle
@@ -333,8 +315,13 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   }
 
   void _updateStatusCounts() {
-    if (_allVehicles.isNotEmpty && _allVehicles.first.apiCounts != null) {
-      final apiCounts = _allVehicles.first.apiCounts!;
+    // Filter out expired vehicles first
+    final nonExpiredVehicles =
+        _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+
+    if (nonExpiredVehicles.isNotEmpty &&
+        nonExpiredVehicles.first.apiCounts != null) {
+      final apiCounts = nonExpiredVehicles.first.apiCounts!;
       emit(
         state.copyWith(
           statusCount: StatusCount(
@@ -352,7 +339,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       int idleCount = 0;
       int inactiveCount = 0;
 
-      for (final vehicle in _allVehicles) {
+      for (final vehicle in nonExpiredVehicles) {
         final status = vehicle.status?.toUpperCase();
         if (status == 'IGNITION_ON') {
           ignitionOnCount++;
@@ -368,7 +355,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       emit(
         state.copyWith(
           statusCount: StatusCount(
-            total: _allVehicles.length,
+            total: nonExpiredVehicles.length,
             ignitionOn: ignitionOnCount,
             ignitionOff: ignitionOffCount,
             idle: idleCount,
@@ -381,6 +368,9 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
   void _filterVehicles() {
     List<GpsCombinedVehicleData> filtered = _allVehicles;
+
+    // First, filter out expired vehicles
+    filtered = filtered.where((vehicle) => vehicle.expired != true).toList();
 
     // Apply search filter
     if (state.searchQuery.isNotEmpty) {
@@ -445,39 +435,44 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
         }
       } catch (e) {
         // Silently handle errors in background
-        print("Background address fetch error: $e");
       }
     });
   }
 
   /// Fetch distance data in background
-  void _fetchDistanceDataInBackground(String token, List<GpsCombinedVehicleData> vehicles) {
+  void _fetchDistanceDataInBackground(
+    String token,
+    List<GpsCombinedVehicleData> vehicles,
+  ) {
     // Run in background without blocking the UI
     Future.microtask(() async {
       try {
         await _repository.fetchAndStoreDistanceData(token, vehicles);
-        print("✅ Distance data fetched and stored successfully");
       } catch (e) {
         // Silently handle errors in background
-        print("Background distance fetch error: $e");
       }
     });
   }
 
   /// Get distance data for dashboard for a specific vehicle
-  Future<Map<String, dynamic>> getDistanceDataForDashboard({String? selectedVehicleNumber}) async {
+  Future<Map<String, dynamic>> getDistanceDataForDashboard({
+    String? selectedVehicleNumber,
+  }) async {
     try {
       final distanceData = await _repository.getAllDistanceReportData();
       final deviceDistances = <String, Map<String, dynamic>>{};
-      
+
       for (final data in distanceData) {
         final deviceId = data.deviceId;
-        
+
         if (!deviceDistances.containsKey(deviceId)) {
           final monthlyDistance = _repository.getMonthlyDistance(deviceId);
           final weeklyDistance = _repository.getWeeklyDistance(deviceId);
-          final weekList = _repository.getWeekDistanceList(deviceId, data.deviceName);
-          
+          final weekList = _repository.getWeekDistanceList(
+            deviceId,
+            data.deviceName,
+          );
+
           deviceDistances[deviceId] = {
             'deviceName': data.deviceName,
             'monthlyDistance': monthlyDistance,
@@ -486,7 +481,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
           };
         }
       }
-      
+
       // Get data for selected vehicle if provided
       Map<String, dynamic> selectedVehicleData = {};
       if (selectedVehicleNumber != null) {
@@ -495,13 +490,16 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
           (v) => v.vehicleNumber == selectedVehicleNumber,
           orElse: () => _allVehicles.first,
         );
-        
+
         if (selectedVehicle.deviceId != null) {
           final deviceId = selectedVehicle.deviceId.toString();
           final monthlyDistance = _repository.getMonthlyDistance(deviceId);
           final weeklyDistance = _repository.getWeeklyDistance(deviceId);
-          final weekList = _repository.getWeekDistanceList(deviceId, selectedVehicle.vehicleNumber);
-          
+          final weekList = _repository.getWeekDistanceList(
+            deviceId,
+            selectedVehicle.vehicleNumber,
+          );
+
           selectedVehicleData = {
             'deviceId': deviceId,
             'vehicleNumber': selectedVehicle.vehicleNumber,
@@ -511,14 +509,13 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
           };
         }
       }
-      
+
       return {
         'deviceDistances': deviceDistances,
         'distanceData': distanceData,
         'selectedVehicleData': selectedVehicleData,
       };
     } catch (e) {
-      print("❌ Error getting distance data for dashboard: $e");
       return {
         'deviceDistances': {},
         'distanceData': [],

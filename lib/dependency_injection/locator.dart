@@ -38,6 +38,7 @@ import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/report_service.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -114,16 +115,18 @@ import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import '../features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import '../features/gps_feature/cubit/path_replay_cubit.dart';
+import '../features/gps_feature/cubit/report_cubit.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/repository/gps_login_repository.dart';
-import '../features/gps_feature/repository/path_replay_repository.dart';
 import '../features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
+import '../features/gps_feature/repository/path_replay_repository.dart';
+import '../features/gps_feature/repository/report_repository.dart';
 import '../features/gps_feature/service/gps_data_refresh_service.dart';
 import '../features/gps_feature/service/gps_login_service.dart';
 import '../features/gps_feature/service/gps_realm_service.dart';
-import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/gps_feature/service/gps_screen_manager.dart';
 import '../features/gps_feature/service/gps_vehicle_extra_info_service.dart';
+import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
 
 var locator = GetIt.instance;
@@ -369,8 +372,6 @@ void initLocator() {
       ),
     );
 
-
-
     // ViewModels
     locator.registerLazySingleton(
       () => SplashViewModel(
@@ -392,6 +393,16 @@ void initLocator() {
         locator<GpsRealmService>(),
         locator<HasInternetConnection>(),
       ),
+    );
+    locator.registerLazySingleton(
+      () => GpsReportService(
+        locator<ApiService>(),
+        locator<GpsLoginRepository>(),
+      ),
+    );
+
+    locator.registerLazySingleton(
+      () => GpsReportRepository(service: locator<GpsReportService>()),
     );
 
     locator.registerLazySingleton(
@@ -613,16 +624,20 @@ void initLocator() {
       () => GpsGeofenceMapCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
-          () => GpsParkingModeCubit(locator<GpsRepository>()),
+      () => GpsParkingModeCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
-          () => GpsNotificationTypesSheetCubit(locator<GpsRepository>()),
+      () => GpsNotificationTypesSheetCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsLoginCubit(locator<GpsLoginRepository>()),
     );
     locator.registerLazySingleton(
       () => VehicleListCubit(repository: locator<GpsLoginRepository>()),
+    );
+
+    locator.registerLazySingleton(
+      () => GpsReportCubit(repository: locator<GpsReportRepository>()),
     );
     locator.registerLazySingleton(() => VehicleDetailCubit());
     locator.registerLazySingleton(
@@ -639,10 +654,15 @@ void initLocator() {
     } catch (e) {
       CustomLog.error(locator, "ERROR: GPS services initialization failed", e);
     }
-    locator.registerLazySingleton(() => PathReplayService(locator<ApiService>()));
-    locator.registerLazySingleton(() => PathReplayRepository(locator<PathReplayService>()));
-    locator.registerLazySingleton(() => PathReplayCubit(locator<PathReplayRepository>()));
-
+    locator.registerLazySingleton(
+      () => PathReplayService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => PathReplayRepository(locator<PathReplayService>()),
+    );
+    locator.registerLazySingleton(
+      () => PathReplayCubit(locator<PathReplayRepository>()),
+    );
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

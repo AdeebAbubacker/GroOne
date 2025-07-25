@@ -49,6 +49,8 @@ class ApiService {
     return headers;
   }
 
+
+
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
@@ -59,9 +61,6 @@ class ApiService {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
-      if (HasInternetConnection.isInternet != true) {
-        return Error(InternetNetworkError());
-      }
       await clearCache();
 
       final headers = customHeaders ?? await _getHeaders();
@@ -114,6 +113,7 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.post(
         url,
         data: body,
@@ -160,6 +160,7 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.put(
         url,
         data: body,
@@ -225,16 +226,17 @@ class ApiService {
   }
 
   // Delete
-  Future<Result<dynamic>> delete(String url) async {
+  Future<Result<dynamic>> delete(String url, {Map<String, String>? customHeaders}) async {
     CustomLog.debug(this, "Method: Delete, \nURL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.delete(
         url,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -254,6 +256,7 @@ class ApiService {
     dynamic files, {
     Map<String, String>? fields,
     String? pathName,
+    Map<String, String>? customHeaders,
   }) async {
     try {
       if (!HasInternetConnection.isInternet) {
@@ -305,11 +308,12 @@ class ApiService {
       if (fields != null && fields.isNotEmpty) {
         formData.fields.addAll(fields.entries);
       }
+      final headers = customHeaders ?? await _getHeaders(isMultipart: true);
       final response = await _dio.post(
         url,
         data: formData,
         options: Options(
-          headers: await _getHeaders(isMultipart: true),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
