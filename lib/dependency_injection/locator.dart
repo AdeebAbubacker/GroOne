@@ -582,6 +582,7 @@ void initLocator() {
       () => DriverLoadDetailsCubit(
         locator<LoadDetailsRepository>(),
         locator<DriverLoadsDetailsRepository>(),
+        locator<LpLoadRepository>(),
         locator<UserInformationRepository>(),
       ),
     );
