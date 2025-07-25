@@ -84,7 +84,6 @@ List<DocumentEntity> documentTypeList=[
   ),
 
   DocumentEntity(
-
     documentTypeId: 309,
     fileType: DocumentFileType.uploadOtherDocument.name,
     title:navigatorKey.currentState?.context.appText.uploadOtherDocuments,

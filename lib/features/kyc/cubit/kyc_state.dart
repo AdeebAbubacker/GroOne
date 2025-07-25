@@ -16,6 +16,8 @@ class KycState extends Equatable {
   final UIState<bool>? panState;
   final UIState<UploadFileModel>? fileUploadState;
   final UIState<SubmitKycModel>? submitKycState;
+  final UIState<CreateDocumentModel>? createDocumentUIState;
+  final UIState<DeleteDocumentModel>? deleteDocumentUIState;
   final bool? verifiedPan;
   final bool? verifiedGst;
   final bool? verifiedTan;
@@ -36,6 +38,8 @@ class KycState extends Equatable {
     this.panState,
     this.fileUploadState,
     this.submitKycState,
+    this.createDocumentUIState,
+    this.deleteDocumentUIState,
     this.verifiedPan,
     this.verifiedGst,
     this.verifiedTan,
@@ -57,6 +61,8 @@ class KycState extends Equatable {
     UIState<bool>? panState,
     UIState<UploadFileModel>? fileUploadState,
     UIState<SubmitKycModel>? submitKycState,
+    UIState<CreateDocumentModel>? createDocumentUIState,
+    UIState<DeleteDocumentModel>? deleteDocumentUIState,
     bool? verifiedPan,
     bool? verifiedGst,
     bool? verifiedTan,
@@ -77,6 +83,8 @@ class KycState extends Equatable {
       panState: panState ?? this.panState,
       fileUploadState: fileUploadState ?? this.fileUploadState,
       submitKycState: submitKycState ?? this.submitKycState,
+      createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
+      deleteDocumentUIState: deleteDocumentUIState ?? this.deleteDocumentUIState,
       verifiedPan: verifiedPan ?? this.verifiedPan,
       verifiedGst: verifiedGst ?? this.verifiedGst,
       verifiedTan: verifiedTan ?? this.verifiedTan,
@@ -100,6 +108,8 @@ class KycState extends Equatable {
     panState,
     fileUploadState,
     submitKycState,
+    createDocumentUIState,
+    deleteDocumentUIState,
     verifiedPan,
     verifiedGst,
     verifiedTan,
