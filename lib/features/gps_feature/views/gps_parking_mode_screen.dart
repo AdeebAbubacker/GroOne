@@ -49,7 +49,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
         centreTile: false,
         actions: [
           TextButton.icon(
-            onPressed: () => context.read<VehicleListCubit>().refreshData(),
+            onPressed: () => context.read<GpsParkingModeCubit>().loadParkingModes(),
             icon: const Icon(Icons.refresh, color: Colors.blue),
             label: Text(context.appText.refresh, style: AppTextStyle.primaryColor12w400),
           ),

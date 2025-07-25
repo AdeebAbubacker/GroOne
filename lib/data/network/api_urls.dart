@@ -217,4 +217,5 @@ class ApiUrls {
   static const String getDeprecatedNotificationStatus = "$_gpsBase/get_deprecated_notification_status";
   static const String updateDeprecatedNotificationStatus = "$_gpsBase/update_deprecated_notification_status";
   static String gpsUpdateNotificationToggle(int id) => "$_gpsBase/user_config/$id";
+  static const String gpsGetUserId = "$_gpsBase/tc_users";
 }

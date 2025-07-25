@@ -988,8 +988,12 @@
   "showMarkerLabel": "Show Marker Label",
   "showMarkerCluster": "Show Marker Cluster",
   "vehicleListSort": "Vehicle List Sort",
-  "vehicleIconSize": "Vehicle Icon Size"
-
+  "vehicleIconSize": "Vehicle Icon Size",
+  "mySubscriptions": "My Subscriptions",
+  "renewDescription": "Renew Your Subscription & Enjoy Uninterrupted service for the next 365 days",
+  "contactCustomerSupport": "Contact Customer Support",
+  "expired": "Expired",
+  "daysLeft": "days left"
 
 
 

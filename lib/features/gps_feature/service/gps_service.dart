@@ -18,7 +18,7 @@ class GpsService {
   Future<Result<int?>> getUserId(String token) async {
     try {
       final response = await _apiService.get(
-        'https://api.letsgro.co/api/v1/auth/tc_users',
+        ApiUrls.gpsGetUserId,
         customHeaders: {'Authorization': token},
       );
 
@@ -409,8 +409,6 @@ class GpsService {
 
       if (response is Success) {
         final value = response.value;
-
-        // 👇 Inline fix for string status
         if (value is Map<String, dynamic> && value['status'] == 'success') {
           value['status'] = true;
         }

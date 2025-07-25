@@ -945,5 +945,10 @@
   "showMarkerLabel": "मार्कर लेबल दिखाएं",
   "showMarkerCluster": "मार्कर क्लस्टर दिखाएं",
   "vehicleListSort": "वाहन सूची क्रमबद्ध करें",
-  "vehicleIconSize": "वाहन आइकन आकार"
+  "vehicleIconSize": "वाहन आइकन आकार",
+  "mySubscriptions": "मेरी सदस्यताएँ",
+  "renewDescription": "अपनी सदस्यता नवीनीकृत करें और अगले 365 दिनों के लिए निर्बाध सेवा का आनंद लें",
+  "contactCustomerSupport": "ग्राहक सहायता से संपर्क करें",
+  "expired": "समाप्त हो गई",
+  "daysLeft": "दिन शेष"
 }

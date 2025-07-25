@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,10 +14,12 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/common_widgets.dart';
 import '../constants/app_constants.dart';
 
 class GpsDashboardScreen extends StatelessWidget {
@@ -418,34 +421,7 @@ class _GpsDashboardContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppDropdown(
-              dropdownValue: validSelectedVehicle,
-              dropDownList:
-                  vehicleNumbers.map((number) {
-                    return DropdownMenuItem<String>(
-                      value: number,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundColor: AppColors.primaryLightColor,
-                            child: SvgPicture.asset(
-                              AppIcons.svg.truck,
-                              width: 20,
-                            ),
-                          ),
-                          10.width,
-                          Text(number),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  context.read<VehicleListCubit>().setSelectedVehicle(newValue);
-                }
-              },
-            ),
+            _vehicleDropdown(context, validSelectedVehicle, vehicleNumbers),
             25.height,
             const Center(child: CircularProgressIndicator()),
           ],
@@ -469,34 +445,7 @@ class _GpsDashboardContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppDropdown(
-              dropdownValue: validSelectedVehicle,
-              dropDownList:
-                  vehicleNumbers.map((number) {
-                    return DropdownMenuItem<String>(
-                      value: number,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundColor: AppColors.primaryLightColor,
-                            child: SvgPicture.asset(
-                              AppIcons.svg.truck,
-                              width: 20,
-                            ),
-                          ),
-                          10.width,
-                          Text(number),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  context.read<VehicleListCubit>().setSelectedVehicle(newValue);
-                }
-              },
-            ),
+            _vehicleDropdown(context, validSelectedVehicle, vehicleNumbers),
             25.height,
             Center(
               child: Text(
@@ -543,34 +492,7 @@ class _GpsDashboardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppDropdown(
-            dropdownValue: validSelectedVehicle,
-            dropDownList:
-                vehicleNumbers.map((number) {
-                  return DropdownMenuItem<String>(
-                    value: number,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 15,
-                          backgroundColor: AppColors.primaryLightColor,
-                          child: SvgPicture.asset(
-                            AppIcons.svg.truck,
-                            width: 20,
-                          ),
-                        ),
-                        10.width,
-                        Text(number),
-                      ],
-                    ),
-                  );
-                }).toList(),
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                context.read<VehicleListCubit>().setSelectedVehicle(newValue);
-              }
-            },
-          ),
+          _vehicleDropdown(context, validSelectedVehicle, vehicleNumbers),
           25.height,
           SizedBox(
             height: 220,
@@ -633,7 +555,8 @@ class _GpsDashboardContent extends StatelessWidget {
                 lineBarsData: [
                   LineChartBarData(
                     spots: graphPoints,
-                    isCurved: true, // smooth curves
+                    isCurved: true,
+                    // smooth curves
                     color: Colors.blue,
                     barWidth: 3,
                     dotData: FlDotData(
@@ -798,5 +721,98 @@ class _GpsDashboardContent extends StatelessWidget {
         return false;
       }
     }).length;
+  }
+
+  static Widget _vehicleDropdown(
+    BuildContext context,
+    String? selected,
+    List<String> vehicleNumbers,
+  ) {
+    return DropdownSearch<String>(
+      selectedItem: selected,
+      items: (String filter, _) async {
+        return vehicleNumbers
+            .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
+            .toList();
+      },
+      popupProps: PopupProps.menu(
+        // fit: FlexFit.loose,
+        showSearchBox: true,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.3,
+        ),
+        emptyBuilder:
+            (context, searchEntry) => Center(
+              child: Text(context.appText.noVehiclesFound),
+            ).withHeight(MediaQuery.of(context).size.height * 0.3),
+        loadingBuilder:
+            (context, searchEntry) =>
+                const Center(child: CircularProgressIndicator()),
+      ),
+      decoratorProps: DropDownDecoratorProps(
+        decoration: commonInputDecoration(
+          hintText: context.appText.selectState,
+        ),
+      ),
+      itemAsString: (String? item) => item ?? "",
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return Row(
+            children: [
+              CircleAvatar(
+                radius: 15,
+                backgroundColor: AppColors.primaryLightColor,
+                child: SvgPicture.asset(AppIcons.svg.truck, width: 20),
+              ),
+              10.width,
+              Text(
+                context.appText.selectVehicle,
+                style: AppTextStyle.h6GreyColor,
+              ),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            CircleAvatar(
+              radius: 15,
+              backgroundColor: AppColors.primaryLightColor,
+              child: SvgPicture.asset(AppIcons.svg.truck, width: 20),
+            ),
+            10.width,
+            Text(selectedItem, style: AppTextStyle.h6),
+          ],
+        );
+      },
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          context.read<VehicleListCubit>().setSelectedVehicle(newValue);
+        }
+      },
+    );
+    // return AppDropdown(
+    //   dropdownValue: selected,
+    //   dropDownList: vehicleNumbers.map((number) {
+    //     return DropdownMenuItem<String>(
+    //       value: number,
+    //       child: Row(
+    //         children: [
+    //           CircleAvatar(
+    //             radius: 15,
+    //             backgroundColor: AppColors.primaryLightColor,
+    //             child: SvgPicture.asset(AppIcons.svg.truck, width: 20),
+    //           ),
+    //           10.width,
+    //           Text(number),
+    //         ],
+    //       ),
+    //     );
+    //   }).toList(),
+    //   onChanged: (String? newValue) {
+    //     if (newValue != null) {
+    //       context.read<VehicleListCubit>().setSelectedVehicle(newValue);
+    //     }
+    //   },
+    // );
   }
 }

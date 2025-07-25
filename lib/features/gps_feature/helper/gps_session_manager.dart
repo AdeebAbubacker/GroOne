@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GpsSessionManager {
@@ -5,6 +7,8 @@ class GpsSessionManager {
   static const String _notificationEnabledKey = 'gps_notification_enabled';
   static const String _showMarkerLabelKey = 'gps_show_marker_label';
   static const String _showMarkerClusterKey = 'gps_show_marker_cluster';
+  static const String _geofenceToggleKey = 'gps_geofence_toggle_map';
+
 
 
   static SharedPreferences? _prefs;
@@ -64,4 +68,21 @@ class GpsSessionManager {
   static Future<void> clearAll() async {
     await _prefs?.clear();
   }
+
+  // Save toggle state map
+  static Future<void> setGeofenceToggleMap(Map<String, bool> map) async {
+    final prefs = _prefs ??= await SharedPreferences.getInstance();
+    final jsonString = jsonEncode(map);
+    await prefs.setString(_geofenceToggleKey, jsonString);
+  }
+
+  // Load toggle state map
+  static Future<Map<String, bool>> getGeofenceToggleMap() async {
+    final prefs = _prefs ??= await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_geofenceToggleKey);
+    if (jsonString == null) return {};
+    final decoded = jsonDecode(jsonString);
+    return Map<String, bool>.from(decoded);
+  }
+
 }

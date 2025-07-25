@@ -982,5 +982,10 @@
   "showMarkerLabel": "மார்கர் லேபிள் காட்டுக",
   "showMarkerCluster": "மார்கர் கிளஸ்டர் காட்டுக",
   "vehicleListSort": "வாகன பட்டியலை வரிசைப்படுத்து",
-  "vehicleIconSize": "வாகன ஐகான் அளவு"
+  "vehicleIconSize": "வாகன ஐகான் அளவு",
+  "mySubscriptions": "என் சந்தாக்கள்",
+  "renewDescription": "உங்கள் சந்தாவை புதுப்பித்து, அடுத்த 365 நாட்களுக்கு இடையற்ற சேவையை அனுபவிக்கவும்",
+  "contactCustomerSupport": "வாடிக்கையாளர் சேவையை தொடர்பு கொள்ளுங்கள்",
+  "expired": "முடிவடைந்தது",
+  "daysLeft": "நாட்கள் மீதம்"
 }
