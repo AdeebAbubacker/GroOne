@@ -1,4 +1,6 @@
-class SubmitKycApiRequest {
+import 'package:gro_one_app/data/model/serializable.dart';
+
+class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
   SubmitKycApiRequest({
      this.aadhar,
      this.isAadhar,
@@ -11,8 +13,8 @@ class SubmitKycApiRequest {
      this.tan,
      this.tanDocLink,
      this.isTan,
-    this.chequeDocLink,
-    this.tdsDocLink,
+     this.chequeDocLink,
+     this.tdsDocLink,
      this.addressName,
      this.fullAddress,
      this.pincode,
@@ -47,6 +49,7 @@ class SubmitKycApiRequest {
   final String? branchName;
   final String? ifscCode;
 
+  @override
   Map<String, dynamic> toJson() => {
     "aadhar": aadhar ?? "",
     "isAadhar": isAadhar ?? false,
