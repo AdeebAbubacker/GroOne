@@ -32,10 +32,6 @@ class VehicleListScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!vehicleListCubit.hasLoadedData) {
         vehicleListCubit.loadVehicleData();
-      } else {
-        print(
-          "📱 VehicleListScreen - Data already loaded, skipping loadVehicleData call",
-        );
       }
     });
 
@@ -72,7 +68,6 @@ class VehicleListView extends StatelessWidget {
               Column(
                 children: [
                   _buildAppBar(context),
-                  // _buildExpiryAlert(context, 5),
                   BlocBuilder<VehicleListCubit, VehicleListState>(
                     builder: (context, state) {
                       if (state.expiringSoonCount > 0) {
@@ -101,7 +96,6 @@ class VehicleListView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Remove the floating map/list toggle button and map view logic
               // Add a button to navigate to VehicleMapScreen
               Positioned(
                 right: 16,
@@ -228,7 +222,6 @@ class VehicleListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh, color: AppConstants.primaryColor),
             onPressed: () {
-              print("🔄 VehicleListScreen - Refresh button pressed");
               context.read<VehicleListCubit>().refreshData();
             },
           ),

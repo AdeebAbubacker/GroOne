@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -436,5 +438,222 @@ class GpsMapHelper {
       completer.complete(controller);
     }
     onMapCreated?.call();
+  }
+
+  /// Creates direction arrows along a polyline using small arrow icons
+  static Future<Set<Marker>> createDirectionArrows({
+    required List<LatLng> points,
+    required String polylineId,
+    Color arrowColor = Colors.blue,
+    double arrowSize = 24.0, // Larger size for better visibility
+    int arrowSpacing = 3, // Show arrow every N points
+  }) async {
+    final Set<Marker> arrows = {};
+
+    if (points.length < 2) return arrows;
+
+    // Create small arrow icon
+    final arrowIcon = await createSmallArrowIcon(
+      arrowColor: arrowColor,
+      size: arrowSize,
+    );
+
+    // Calculate arrow positions along the polyline
+    for (int i = 0; i < points.length - 1; i += arrowSpacing) {
+      final start = points[i];
+      final end = points[i + 1];
+
+      // Calculate midpoint for arrow position
+      final midLat = (start.latitude + end.latitude) / 2;
+      final midLng = (start.longitude + end.longitude) / 2;
+      final arrowPosition = LatLng(midLat, midLng);
+
+      // Calculate bearing for arrow rotation
+      final bearing = _calculateBearing(start, end);
+
+      // Create small arrow marker with correct rotation
+      arrows.add(
+        Marker(
+          markerId: MarkerId('${polylineId}_arrow_$i'),
+          position: arrowPosition,
+          icon: arrowIcon,
+          rotation: bearing,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          infoWindow: InfoWindow(
+            title: 'Direction',
+            snippet: 'Bearing: ${bearing.toStringAsFixed(1)}°',
+          ),
+        ),
+      );
+    }
+
+    return arrows;
+  }
+
+  /// Creates a small arrow icon for direction indicators
+  static Future<BitmapDescriptor> createSmallArrowIcon({
+    Color arrowColor = Colors.blue,
+    double size = 16.0,
+  }) async {
+    try {
+      final pictureRecorder = ui.PictureRecorder();
+      final canvas = Canvas(pictureRecorder);
+      final paint =
+          Paint()
+            ..color = arrowColor
+            ..style = PaintingStyle.fill;
+
+      final path = Path();
+
+      // Arrow head pointing up (will be rotated based on bearing)
+      path.moveTo(size / 2, 0);
+      path.lineTo(size * 0.2, size * 0.6);
+      path.lineTo(size * 0.4, size * 0.6);
+      path.lineTo(size * 0.4, size);
+      path.lineTo(size * 0.6, size);
+      path.lineTo(size * 0.6, size * 0.6);
+      path.lineTo(size * 0.8, size * 0.6);
+      path.close();
+
+      canvas.drawPath(path, paint);
+
+      final picture = pictureRecorder.endRecording();
+      final image = await picture.toImage(size.toInt(), size.toInt());
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final bytes = byteData!.buffer.asUint8List();
+
+      return BitmapDescriptor.bytes(bytes);
+    } catch (e) {
+      return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure);
+    }
+  }
+
+  /// Creates stop markers for positions with stop time using different icons based on stop type
+  static Set<Marker> createStopMarkers({required List<dynamic> pathPositions}) {
+    final Set<Marker> stopMarkers = {};
+
+    for (int i = 0; i < pathPositions.length; i++) {
+      final position = pathPositions[i];
+
+      final hasStopTime =
+          position.stopTime != null &&
+          position.stopTime!.isNotEmpty &&
+          position.stopTime != 'null';
+
+      if (hasStopTime &&
+          position.latitude != null &&
+          position.longitude != null) {
+        // Determine stop type based on available data
+        final stopType = _determineStopType(position);
+        final stopIcon = _getStopTypeIcon(stopType);
+        final stopTitle = _getStopTypeTitle(stopType);
+        final stopSnippet = _getStopTypeSnippet(stopType, position);
+
+        stopMarkers.add(
+          Marker(
+            markerId: MarkerId('stop_$i'),
+            position: LatLng(position.latitude!, position.longitude!),
+            icon: stopIcon,
+            flat: true,
+            anchor: const Offset(0.5, 0.5),
+            infoWindow: InfoWindow(title: stopTitle, snippet: stopSnippet),
+          ),
+        );
+      }
+    }
+    return stopMarkers;
+  }
+
+  /// Determines the type of stop based on position data
+  static String _determineStopType(dynamic position) {
+    // Check if ignition is off during stop
+    final isIgnitionOff =
+        position.ignition == 'off' || position.ignition == 'false';
+
+    // Check if vehicle is stationary
+    final isStationary = position.motion == 'false' || position.motion == '0';
+
+    // Check speed (if available)
+    final speed = position.speed ?? 0.0;
+    final isLowSpeed = speed < 5.0; // Consider stops below 5 km/h
+
+    // Determine stop type
+    if (isIgnitionOff) {
+      return 'ignition_off';
+    } else if (isStationary && isLowSpeed) {
+      return 'traffic_stop';
+    } else if (isLowSpeed) {
+      return 'slow_movement';
+    } else {
+      return 'general_stop';
+    }
+  }
+
+  /// Gets the appropriate icon for the stop type
+  static BitmapDescriptor _getStopTypeIcon(String stopType) {
+    switch (stopType) {
+      case 'ignition_off':
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+      case 'traffic_stop':
+        return BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueYellow,
+        );
+      case 'slow_movement':
+        return BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueOrange,
+        );
+      case 'general_stop':
+      default:
+        return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+    }
+  }
+
+  /// Gets the title for the stop type
+  static String _getStopTypeTitle(String stopType) {
+    switch (stopType) {
+      case 'ignition_off':
+        return 'Engine Off Stop';
+      case 'traffic_stop':
+        return 'Traffic Stop';
+      case 'slow_movement':
+        return 'Slow Movement';
+      case 'general_stop':
+      default:
+        return 'Stop Point';
+    }
+  }
+
+  /// Gets the snippet (description) for the stop type
+  static String _getStopTypeSnippet(String stopType, dynamic position) {
+    final stopTime = position.stopTime ?? 'Unknown';
+
+    switch (stopType) {
+      case 'ignition_off':
+        return 'Engine stopped • Stop Time: $stopTime';
+      case 'traffic_stop':
+        return 'Traffic signal/light • Stop Time: $stopTime';
+      case 'slow_movement':
+        return 'Slow speed movement • Stop Time: $stopTime';
+      case 'general_stop':
+      default:
+        return 'Vehicle stopped • Stop Time: $stopTime';
+    }
+  }
+
+  /// Calculates bearing between two points
+  static double _calculateBearing(LatLng start, LatLng end) {
+    final lat1 = start.latitude * 3.14159 / 180.0;
+    final lon1 = start.longitude * 3.14159 / 180.0;
+    final lat2 = end.latitude * 3.14159 / 180.0;
+    final lon2 = end.longitude * 3.14159 / 180.0;
+
+    final dLon = lon2 - lon1;
+    final y = math.sin(dLon) * math.cos(lat2);
+    final x =
+        math.cos(lat1) * math.sin(lat2) -
+        math.sin(lat1) * math.cos(lat2) * math.cos(dLon);
+
+    return (math.atan2(y, x) * 180.0 / 3.14159 + 360.0) % 360.0;
   }
 }

@@ -11,7 +11,6 @@ import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -281,21 +280,18 @@ class _GpsHomeContent extends StatelessWidget {
         () {},
       ),
       _MenuItem(
-        context.appText.faq,
-        Icons.help_outline,
-        AppConstants.primaryColor,
-        () {},
-      ),
-      _MenuItem(
         context.appText.settings,
         Icons.settings_outlined,
         AppConstants.primaryColor,
         () {
           Navigator.push(
             context,
-            commonRoute(BlocProvider(
+            commonRoute(
+              BlocProvider(
                 create: (_) => GpsSettingsCubit(locator<GpsRepository>()),
-                child: GpsSettingsScreen())),
+                child: GpsSettingsScreen(),
+              ),
+            ),
           );
         },
       ),
@@ -304,7 +300,7 @@ class _GpsHomeContent extends StatelessWidget {
         Icons.assessment_outlined,
         AppConstants.primaryColor,
         () {
-          context.push(AppRouteName.gpsReports,);
+          context.push(AppRouteName.gpsReports);
         },
       ),
       _MenuItem(
@@ -322,12 +318,17 @@ class _GpsHomeContent extends StatelessWidget {
         context.appText.parking,
         Icons.local_parking,
         AppConstants.primaryColor,
-            () {
-          Navigator.push(context, commonRoute( BlocProvider.value(
-            value: locator<VehicleListCubit>()..loadVehicleData(),
-            child: GpsParkingModeScreen(),
-          ),));
-            },
+        () {
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsParkingModeScreen(),
+              ),
+            ),
+          );
+        },
       ),
     ];
     return GridView.builder(
