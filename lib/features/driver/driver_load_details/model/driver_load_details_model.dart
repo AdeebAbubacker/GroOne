@@ -7,7 +7,7 @@
 //     });
 
 //     final String message;
-//     final Data? data;
+//     final DriverLoadDetailsModelData? data;
 
 //     DriverLoadDetailsModel copyWith({
 //         String? message,
@@ -1821,11 +1821,11 @@ class DriverLoadDetailsModel {
     });
 
     final String message;
-    final Data? data;
+    final DriverLoadDetailsModelData? data;
 
     DriverLoadDetailsModel copyWith({
         String? message,
-        Data? data,
+        DriverLoadDetailsModelData? data,
     }) {
         return DriverLoadDetailsModel(
             message: message ?? this.message,
@@ -1836,14 +1836,14 @@ class DriverLoadDetailsModel {
     factory DriverLoadDetailsModel.fromJson(Map<String, dynamic> json){ 
         return DriverLoadDetailsModel(
             message: json["message"] ?? "",
-            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            data: json["data"] == null ? null : DriverLoadDetailsModelData.fromJson(json["data"]),
         );
     }
 
 }
 
-class Data {
-    Data({
+class DriverLoadDetailsModelData {
+    DriverLoadDetailsModelData({
         required this.loadId,
         required this.loadSeriesId,
         required this.laneId,
@@ -1931,7 +1931,7 @@ class Data {
     final List<dynamic> consignees;
     final List<Timeline> timeline;
 
-    Data copyWith({
+    DriverLoadDetailsModelData copyWith({
         String? loadId,
         String? loadSeriesId,
         int? laneId,
@@ -1975,7 +1975,7 @@ class Data {
         List<dynamic>? consignees,
         List<Timeline>? timeline,
     }) {
-        return Data(
+        return DriverLoadDetailsModelData(
             loadId: loadId ?? this.loadId,
             loadSeriesId: loadSeriesId ?? this.loadSeriesId,
             laneId: laneId ?? this.laneId,
@@ -2021,8 +2021,8 @@ class Data {
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
-        return Data(
+    factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){ 
+        return DriverLoadDetailsModelData(
             loadId: json["loadId"] ?? "",
             loadSeriesId: json["loadSeriesId"] ?? "",
             laneId: json["laneId"] ?? 0,

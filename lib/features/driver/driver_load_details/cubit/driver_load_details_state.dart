@@ -12,8 +12,12 @@ class DriverLoadDetailsState extends Equatable {
   final UIState<DamageModel>? createDamageUIState;
   final UIState<DamageModel>? settlementUIState;
   final UIState<UpdateDamageModel>? updateDamageUIState;
+  final UIState<TrackingDistanceResponse>? trackingDistance;
+  final String? locationDistance;
+  final int? loadStatusId;
 
   const DriverLoadDetailsState({
+    this.trackingDistance,
     this.lpLoadById,
     this.uploadDamageUIState,
     this.damageListUIState,
@@ -24,9 +28,12 @@ class DriverLoadDetailsState extends Equatable {
      this.createDamageUIState,
      this.settlementUIState,
      this.updateDamageUIState,
+     this.locationDistance,
+     this.loadStatusId,
   });
 
   DriverLoadDetailsState copyWith({
+     UIState<TrackingDistanceResponse>? trackingDistance,
     UIState<DriverLoadDetailsModel>? lpLoadById,
     UIState<UploadDamageFileModel>? uploadDamageUIState,
     UIState<GetDamageListModel>? damageListUIState,
@@ -37,8 +44,11 @@ class DriverLoadDetailsState extends Equatable {
      UIState<DamageModel>? settlementUIState,
      UIState<UpdateDamageModel>? updateDamageUIState,
     bool? isUpdateDamage,
+     String? locationDistance,
+     int? loadStatusId,
   }) {
     return DriverLoadDetailsState(
+       trackingDistance: trackingDistance ?? this.trackingDistance,
       lpLoadById: lpLoadById ?? this.lpLoadById,
       uploadDamageUIState: uploadDamageUIState ?? this.uploadDamageUIState,
       damageListUIState: damageListUIState ?? this.damageListUIState,
@@ -49,7 +59,9 @@ class DriverLoadDetailsState extends Equatable {
        createDamageUIState: createDamageUIState ?? this.createDamageUIState,
        settlementUIState : settlementUIState ?? this.settlementUIState,
        updateDamageUIState: updateDamageUIState ?? this.updateDamageUIState,
-    );
+       locationDistance: locationDistance ?? this.locationDistance,
+        loadStatusId: loadStatusId?? this.loadStatusId, 
+     );
   }
 
   @override
@@ -64,5 +76,8 @@ class DriverLoadDetailsState extends Equatable {
         createDamageUIState,
         settlementUIState,
         updateDamageUIState,
+         trackingDistance,
+          locationDistance,
+         loadStatusId,  
       ];
 }

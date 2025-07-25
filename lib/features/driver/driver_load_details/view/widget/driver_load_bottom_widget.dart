@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driv
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
@@ -272,6 +273,21 @@ if (loadStatus == 4) {
                           20.height,
                           Divider(color: Color(0xffE1E1E1), thickness: 3),
                           20.height,
+                           Builder(
+                                builder: (context) {
+                                  final trackingData = state.trackingDistance?.data;
+                                  if (trackingData == null) {
+                                    return SizedBox();
+                                  }
+                                  return TrackingProgress(
+                                    progressPercentage: trackingData.coverPercentage??0,
+                                    remainingDistance: trackingData.currentdistance ?? '--',
+                                    totalDistance: trackingData.overalldistance ?? '--',
+                                    eta: trackingData.durationValue,
+                                  ).paddingSymmetric(horizontal: 15);
+                                },
+                              ),
+                             20.height, 
                           DriverSourceDestinationWidget(
                             pickUpLocation:
                                 loads!.data!.loadRoute?.pickUpLocation,
@@ -287,6 +303,8 @@ if (loadStatus == 4) {
                             weight:
                                 loads!.data!.weight!.value.toString() ??
                                 '',
+                            locationDistance: state.locationDistance,
+                                context: context
                           ),
                            if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
@@ -736,6 +754,8 @@ Widget _buildHeading({required String text}) {
 Widget _buildLoadEntityWidget({
   required String commodities,
   required String weight,
+  String? locationDistance,
+ required BuildContext context,
 }) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -792,7 +812,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "23 KM",
+           "$locationDistance ${context.appText.km}",
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,
