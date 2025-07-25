@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -54,6 +55,26 @@ class DriverLoadHelper {
   }
 
   
+
+static  String getBottomButtonTitle(int statusId){
+  BuildContext context=navigatorKey.currentState!.context;
+  switch(statusId){
+    case 4:
+      return context.appText.swipeToStart; 
+      case 5:
+      
+     return context.appText.swipeToCompleteLoading;
+      
+      case 6:
+      return  context.appText.swipeToStartUnLoading;
+       case 7:
+      return context.appText.swipeToCompleteUnLoading;
+    default:
+      return context.appText.swipeToStart;
+  }
+}
+
+
   static Widget loadStatusButtonWidget({
     required int statusId,
     bool isLoading = false,
@@ -71,7 +92,9 @@ class DriverLoadHelper {
      
 
      case 5:
-        return SlideAction(
+        return 
+        
+        SlideAction(
           enabled: enable??true,
           borderRadius: commonButtonRadius,
           elevation: 0,
@@ -151,6 +174,132 @@ class DriverLoadHelper {
         return Container();
     }
   }
+
+    static Widget homeloadStatusButtonWidget({
+    required int statusId,
+    bool isLoading = false,
+    required VoidCallback onPressed,
+    bool? enable=true,
+    bool isMemoSigned = false,
+  }) {
+    switch (statusId) {
+      case 4:
+      if (!isMemoSigned) {
+        // 🟡 Memo not signed → Show View Detail button
+        return AppButton(
+          buttonHeight: commonButtonHeight2,
+          onPressed: isLoading ? () {} : onPressed,
+          isLoading: isLoading,
+          title: "Start Trip",
+        );
+      } else{
+            
+      return SlideAction(
+          enabled: true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+           text: "Swipe to Start Trip",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
+        );
+  }
+     
+
+     case 5:
+        return SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+           text: "Swipe to Complete Loading",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
+        );
+
+        case 6:
+        return SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text:  "Swipe to Unload",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+
+        );
+      case 7:
+        return SlideAction(
+          enabled: enable??true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+
+          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: "Swipe to complete unloading",
+          textStyle: AppTextStyle.button.copyWith(
+         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+         onSubmit: isLoading
+    ? () async {}
+    : () async {
+        onPressed();
+      },
+        );
+      case 8:
+        return AppButton(
+          buttonHeight: commonButtonHeight2,
+          onPressed: isLoading ? () {} : onPressed,
+          isLoading: isLoading,
+          title: "View Detail",
+        );
+      default:
+        return Container();
+    }
+  }
+
 
    static Widget driverStatusWidget(String? status) {
     Widget buildUI({

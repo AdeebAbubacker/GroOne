@@ -54,7 +54,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
   if (result is Success<DriverLoadDetailsModel>) {
     _setLoadByIdUIState(UIState.success(result.value)); 
-    setTripDocuments(result.value.data!.loadDocument!.first);
+    setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
   }
@@ -368,7 +368,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
       // Check if POD (TypeId = 8) exists
       final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 8);
-      if (podIndex != -1 && status != null && status > 5) {
+      if (podIndex != -1 && status != null && status > 6) {
         final updatedDoc = currentList[podIndex].copyWith(visible: true);
         currentList[podIndex] = updatedDoc;
         emit(state.copyWith(tripDocumentList: currentList));
@@ -400,7 +400,13 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 }
 
 
-
+bool isMemoUploaded(DriverLoadDetailsModel? load) {
+  final currentStatus = load?.data?.loadStatusId ?? 0;
+  if (currentStatus == 4) {
+    return load?.data?.loadMemo != null;
+  }
+  return true; 
+}
 
   String? _userId;
 

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/path_replay_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/path_replay_state.dart';
+import 'package:gro_one_app/features/gps_feature/helpers/gps_map_helper.dart';
 
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
-import '../cubit/path_replay_cubit.dart';
-import '../cubit/path_replay_state.dart';
 import '../repository/path_replay_repository.dart';
 import '../service/path_replay_service.dart';
 
@@ -649,7 +650,8 @@ class PathReplayMapWidget extends StatefulWidget {
 }
 
 class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
-  final Completer<GoogleMapController> _mapController = Completer();
+  final Completer<GoogleMapController> _mapController =
+      GpsMapHelper.createMapController();
 
   @override
   Widget build(BuildContext context) {
@@ -723,23 +725,19 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
       }
     }
 
-    final polyline = Polyline(
-      polylineId: const PolylineId('pathReplay'),
-      color: Colors.blueAccent,
-      width: 5,
-      points: pathPoints,
-    );
+    final polyline = GpsMapHelper.createPathPolyline(points: pathPoints);
 
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
+    return GpsMapHelper.createGpsMap(
+      initialCameraPosition: GpsMapHelper.createCameraPosition(
         target: currentPosition ?? const LatLng(20.5937, 78.9629),
         zoom: 14.0,
       ),
       polylines: {polyline},
       markers: markers,
       onMapCreated: (controller) {
-        _mapController.complete(controller);
-        _handleMapCreated(controller);
+        GpsMapHelper.handleMapCreated(controller, _mapController, () {
+          _handleMapCreated(controller);
+        });
       },
     );
   }
