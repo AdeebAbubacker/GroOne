@@ -5,6 +5,7 @@ import '../../../utils/custom_log.dart';
 import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../../load_provider/lp_home/model/auto_complete_model.dart';
 import '../../load_provider/lp_home/model/verify_location.dart';
+import '../model/gps_user_details_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
 import '../models/gps_parking_model.dart';
@@ -13,6 +14,27 @@ class GpsService {
   final ApiService _apiService;
 
   GpsService(this._apiService);
+
+  Future<Result<int?>> getUserId(String token) async {
+    try {
+      final response = await _apiService.get(
+        'https://api.letsgro.co/api/v1/auth/tc_users',
+        customHeaders: {'Authorization': token},
+      );
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(response.value, (data) {
+          final userDetails = GpsUserDetailsModel.fromJson(data);
+          return userDetails.firstUser?.id;
+        });
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to get user ID", e);
+      return Error(DeserializationError());
+    }
+  }
 
   Future<Result<List<GpsGeofenceModel>>> fetchGeofences(String token) async {
     try {
