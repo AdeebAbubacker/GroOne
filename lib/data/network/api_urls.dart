@@ -36,6 +36,7 @@ class ApiUrls {
   static String get _loadTracking => "/load-tracking";
   static String get _tracking => "/tracking";
   static String get _paymentBroker => "/payment-broker";
+  static String get _loadSettlement => "/load-settlement";
 
   /// Base URL
   static String get _baseUrl => _fetchUrl;
@@ -128,9 +129,9 @@ class ApiUrls {
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
-  static final String  damage = "$_loadBaseUrl/damage";
-  static final String  updateDamage = "$_loadBaseUrl/damage/";
-  static final String  deleteDamage = "$_loadBaseUrl/damage/";
+  static final String  damage = "$_baseUrl$_loadSettlement$_path$_v1/damage";
+  static final String  updateDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
+  static final String  deleteDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  submitPod = "$_loadBaseUrl/pod";
 
   /// Settlement

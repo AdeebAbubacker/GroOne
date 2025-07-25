@@ -63,7 +63,7 @@ class _DriverDamagesListViewState extends State<DriverDamagesListView> {
                             bottomLeft: Radius.circular(8),
                           ),
                           child: CachedNetworkImage(
-                            imageUrl: item.image.first ?? '',
+                            imageUrl: item.image?.first ?? '',
                             width: 100,
                             height: 100,
                           ),

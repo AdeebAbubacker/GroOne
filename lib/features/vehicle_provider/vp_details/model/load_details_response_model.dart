@@ -74,6 +74,7 @@ class LoadDetailModelData {
     required this.trackingDetails,
     required this.loadOnHold,
     required this.loadStatusValue,
+    required this.loadSettlement,
 
   });
 
@@ -119,6 +120,7 @@ class LoadDetailModelData {
   final TrackingDetails? trackingDetails;
   final bool? loadOnHold;
   final LoadStatus? loadStatusValue;
+  final LoadSettlement? loadSettlement;
 
 
   LoadDetailModelData copyWith({
@@ -164,10 +166,11 @@ class LoadDetailModelData {
     dynamic loadMemo,
     TrackingDetails? trackingDetails,
     LoadStatus? loadStatusValue,
+    LoadSettlement? loadSettlement
 
   }) {
     return LoadDetailModelData(
-
+loadSettlement: loadSettlement ?? this.loadSettlement,
 loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadOnHold: loadOnHold??this.loadOnHold,
       trackingDetails: trackingDetails?? this.trackingDetails,
@@ -221,7 +224,8 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       consigneeDetails=json["consignees"];
     }
     return LoadDetailModelData(
-     loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
+      loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
+      loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],
       loadMemo:json['loadMemo'],
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
@@ -1452,6 +1456,64 @@ class DamageReport {
 
 
 }
+class LoadSettlement {
+  final String? settlementId;
+  final String? vehicleId;
+  final String? loadId;
+  final int? noOfDays;
+  final int? amountPerDay;
+  final int? loadingCharge;
+  final int? unLoadingCharge;
+  final int? debitDamages;
+  final int? debitShortages;
+  final int? debitPenalities;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+
+  LoadSettlement({
+    this.settlementId,
+    this.vehicleId,
+    this.loadId,
+    this.noOfDays,
+    this.amountPerDay,
+    this.loadingCharge,
+    this.unLoadingCharge,
+    this.debitDamages,
+    this.debitShortages,
+    this.debitPenalities,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory LoadSettlement.fromJson(Map<String, dynamic> json) {
+    return LoadSettlement(
+      settlementId: json['settlementId'] as String?,
+      vehicleId: json['vehicleId'] as String?,
+      loadId: json['loadId'] as String?,
+      noOfDays: json['noOfDays'] as int?,
+      amountPerDay: json['amountPerDay'] as int?,
+      loadingCharge: json['loadingCharge'] as int?,
+      unLoadingCharge: json['unLoadingCharge'] as int?,
+      debitDamages: json['debitDamages'] as int?,
+      debitShortages: json['debitShortages'] as int?,
+      debitPenalities: json['debitPenalities'] as int?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      deletedAt: json['deletedAt'] != null
+          ? DateTime.tryParse(json['deletedAt'])
+          : null,
+    );
+  }
+}
+
+
+
 
 
 

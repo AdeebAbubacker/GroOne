@@ -34,6 +34,7 @@ class LoadDetailsState extends Equatable {
   final List<DocumentEntity>? tripDocumentList ;
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
+  final List<String>? allDamageImageList;
 
   const LoadDetailsState({
     this.trackingDistance,
@@ -53,7 +54,8 @@ class LoadDetailsState extends Equatable {
     this.damageListUIState,
     this.isUpdateDamage,
     this.damageId,
-    this.tripDocumentList
+    this.tripDocumentList,
+    this.allDamageImageList
   });
 
   LoadDetailsState copyWith({
@@ -75,11 +77,12 @@ class LoadDetailsState extends Equatable {
     UIState<GetDamageListModel>? damageListUIState,
     bool? isUpdateDamage,
     String? damageId,
-    List<DocumentEntity>? tripDocumentList
-
+    List<DocumentEntity>? tripDocumentList,
+    List<String>? allDamageImageList
   }) {
     return LoadDetailsState(
       trackingDistance: trackingDistance ?? this.trackingDistance,
+        allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       tripDocumentList:tripDocumentList?? this.tripDocumentList ,
       loadStatusId: loadStatusId?? this.loadStatusId,
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
@@ -119,7 +122,8 @@ class LoadDetailsState extends Equatable {
     isUpdateDamage,
     damageId,
     tripDocumentList,
-    trackingDistance
+    trackingDistance,
+    allDamageImageList
   ];
 
 }

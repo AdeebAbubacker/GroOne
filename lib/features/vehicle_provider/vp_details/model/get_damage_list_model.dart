@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+
 class GetDamageListModel {
   GetDamageListModel({
     required this.data,
@@ -5,61 +7,38 @@ class GetDamageListModel {
     required this.pageMeta,
   });
 
-  final List<GetDamageData> data;
+  final List<DamageReport> data;
   final int total;
   final PageMeta? pageMeta;
 
-  factory GetDamageListModel.fromJson(Map<String, dynamic> json){
+  factory GetDamageListModel.fromJson(Map<String, dynamic> json) {
     return GetDamageListModel(
-      data: json["data"] == null ? [] : List<GetDamageData>.from(json["data"]!.map((x) => GetDamageData.fromJson(x))),
+      data: json["data"] == null
+          ? []
+          : List<DamageReport>.from(
+          json["data"]['data']!.map((x) => DamageReport.fromJson(x))),
       total: json["total"] ?? 0,
-      pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+      pageMeta:
+      json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
     );
   }
 
-}
-
-class GetDamageData {
-  GetDamageData({
-    required this.damageId,
-    required this.vehicleId,
-    required this.loadId,
-    required this.itemName,
-    required this.quantity,
-    required this.image,
-    required this.description,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-  });
-
-  final String damageId;
-  final String vehicleId;
-  final String loadId;
-  final String itemName;
-  final int quantity;
-  final List<String> image;
-  final String description;
-  final DateTime? createdAt;
-  final dynamic updatedAt;
-  final dynamic deletedAt;
-
-  factory GetDamageData.fromJson(Map<String, dynamic> json){
-    return GetDamageData(
-      damageId: json["damageId"] ?? "",
-      vehicleId: json["vehicleId"] ?? "",
-      loadId: json["loadId"] ?? "",
-      itemName: json["itemName"] ?? "",
-      quantity: json["quantity"] ?? 0,
-      image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
-      description: json["description"] ?? "",
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      updatedAt: json["updatedAt"],
-      deletedAt: json["deletedAt"],
+  GetDamageListModel copyWith({
+    List<DamageReport>? data,
+    int? total,
+    PageMeta? pageMeta,
+  }) {
+    return GetDamageListModel(
+      data: data ?? this.data,
+      total: total ?? this.total,
+      pageMeta: pageMeta ?? this.pageMeta,
     );
   }
-
 }
+
+
+
+
 
 class PageMeta {
   PageMeta({
@@ -87,3 +66,22 @@ class PageMeta {
   }
 
 }
+
+class DamageImageModel {
+  String? documentTypeId;
+  String? url;
+
+  DamageImageModel({this.documentTypeId, this.url});
+
+  DamageImageModel copyWith({
+    String? documentTypeId,
+    String? url,
+  }) {
+    return DamageImageModel(
+      documentTypeId: documentTypeId ?? this.documentTypeId,
+      url:url ?? this.url,
+
+    );
+  }
+}
+
