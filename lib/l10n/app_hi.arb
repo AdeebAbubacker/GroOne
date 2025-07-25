@@ -945,5 +945,8 @@
   "showMarkerLabel": "मार्कर लेबल दिखाएं",
   "showMarkerCluster": "मार्कर क्लस्टर दिखाएं",
   "vehicleListSort": "वाहन सूची क्रमबद्ध करें",
-  "vehicleIconSize": "वाहन आइकन आकार"
+  "vehicleIconSize": "वाहन आइकन आकार",
+  "editVehicleInfo": "वाहन जानकारी संपादित करें",
+  "notVerified" : "सत्यापित नहीं है"
+
 }
