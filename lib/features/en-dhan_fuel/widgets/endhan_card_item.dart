@@ -78,7 +78,7 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
                             : (widget.card['cardNumber'] ?? ''),
                         style: AppTextStyle.body.copyWith(fontWeight: FontWeight.w600),
                       ),
-                      6.width,
+                    
                       IconButton(
                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
                         icon: Icon(_obscureCardNumber ? Icons.visibility_off : Icons.visibility, size: 20),
@@ -104,7 +104,7 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: commonContainerDecoration(
                       color: AppColors.boxGreen,
                       borderRadius: BorderRadius.circular(12),
