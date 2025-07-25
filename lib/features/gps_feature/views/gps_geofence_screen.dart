@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
+import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -21,6 +22,8 @@ import '../../../utils/app_icons.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
+import '../repository/gps_login_repository.dart';
+import '../service/gps_service.dart';
 
 class GpsGeofenceScreen extends StatefulWidget {
   const GpsGeofenceScreen({super.key});
@@ -92,6 +95,31 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     }
   }
 
+  // Helper method to get user ID dynamically
+  Future<String> _getUserIdFromService() async {
+    try {
+      final gpsService = locator<GpsService>();
+      final loginRepository = locator<GpsLoginRepository>();
+
+      // Get stored token
+      final loginResponse = await loginRepository.getStoredLoginResponse();
+      if (loginResponse?.token == null) {
+        return "163"; // Fallback to default if no token
+      }
+
+      // Get user ID from service
+      final userIdResult = await gpsService.getUserId(loginResponse!.token!);
+      if (userIdResult is Success<int?>) {
+        final userId = userIdResult.value?.toString();
+        return userId ?? "163"; // Fallback to default if no user ID
+      } else {
+        return "163"; // Fallback to default on error
+      }
+    } catch (e) {
+      return "163"; // Fallback to default on exception
+    }
+  }
+
   Future<bool?> _showConfirmationDialog(
     BuildContext context,
     bool enable,
@@ -106,7 +134,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             children: [
               10.height,
               Text(
-                enable ? context.appText.addGeofence : context.appText.removeGeofence,
+                enable
+                    ? context.appText.addGeofence
+                    : context.appText.removeGeofence,
                 style: AppTextStyle.h5,
               ),
               10.height,
@@ -262,7 +292,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             },
           );
         } else if (state is GpsGeofenceError) {
-          return Center(child: Text('${context.appText.error}: ${state.message}'));
+          return Center(
+            child: Text('${context.appText.error}: ${state.message}'),
+          );
         }
         return const SizedBox();
       },
@@ -403,9 +435,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                                       (v) => v.vehicleNumber == selectedVehicle,
                                     );
 
+                                // Get user ID dynamically from the cubit or service
+                                final userId = await _getUserIdFromService();
                                 gpsGeofenceCubit.toggleGeofenceForVehicle(
-                                  userId: "163",
-                                  // Get this dynamically
+                                  userId: userId,
                                   deviceId:
                                       selectedVehicleData.deviceId.toString(),
                                   vehicleId: selectedVehicle,

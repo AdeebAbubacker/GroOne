@@ -212,4 +212,9 @@ class ApiUrls {
       "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000&user_id=$userId&device_id=$deviceId";
   static String gpsFetchNotifications(String userId, int days, int limit) =>
       "$_gpsBase/last_500_user_events?days=$days&limit=$limit&user_id=$userId";
+  static const String gpsFetchParkingMode = "$_gpsBase/parking_mode";
+  static String gpsUpdateParkingMode(int id) => "$_gpsBase/parking_mode/$id";
+  static const String getDeprecatedNotificationStatus = "$_gpsBase/get_deprecated_notification_status";
+  static const String updateDeprecatedNotificationStatus = "$_gpsBase/update_deprecated_notification_status";
+  static String gpsUpdateNotificationToggle(int id) => "$_gpsBase/user_config/$id";
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:realm/realm.dart';
 
+import '../model/distance_report_realm_model.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_combined_vehicle_realm_model.dart';
 import '../model/gps_device_fuel_model.dart';
@@ -20,10 +21,9 @@ import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_configuration_realm_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../model/gps_user_details_realm_model.dart';
-import '../models/gps_device_distance_model.dart';
 import '../model/gps_vehicle_extra_info_realm_model.dart';
+import '../models/gps_device_distance_model.dart';
 import '../models/gps_geofence_model.dart';
-import '../model/distance_report_realm_model.dart';
 
 class GpsRealmService {
   static const String _realmName = 'gps_vehicle_data.realm';
@@ -451,12 +451,16 @@ class GpsRealmService {
 
         if (existingUser != null) {
           // Update existing user details
-          existingUser.userId = userDetails.id;
-          existingUser.name = userDetails.name ?? '';
-          existingUser.email = userDetails.email ?? '';
-          existingUser.disabled = userDetails.disabled;
-          existingUser.attributesEmail = userDetails.attributes?.email;
-          existingUser.createdAt = DateTime.now();
+          final firstUser = userDetails.firstUser;
+          if (firstUser != null) {
+            existingUser.userId = firstUser.id;
+            existingUser.name = firstUser.name ?? '';
+            existingUser.email = firstUser.email ?? '';
+            existingUser.disabled = firstUser.disabled;
+            existingUser.attributesEmail =
+                null; // No longer used in new structure
+            existingUser.createdAt = DateTime.now();
+          }
         } else {
           // Add new user details
           final realmData = GpsUserDetailsRealmModelMapper.fromDomain(
@@ -763,7 +767,9 @@ class GpsRealmService {
   // ==================== DISTANCE REPORT OPERATIONS ====================
 
   /// Save distance report data to Realm
-  Future<void> saveDistanceReportData(List<DeviceDistancePojo> distanceData) async {
+  Future<void> saveDistanceReportData(
+    List<DeviceDistancePojo> distanceData,
+  ) async {
     await _ensureInitialized();
     try {
       _realm!.write(() {
@@ -776,7 +782,10 @@ class GpsRealmService {
 
           // Get device name from vehicle data
           String? deviceName;
-          final vehicleData = _vehicleData!.query('deviceId == \$0', [pojo.deviceId as Object]).firstOrNull;
+          final vehicleData =
+              _vehicleData!.query('deviceId == \$0', [
+                pojo.deviceId as Object,
+              ]).firstOrNull;
           if (vehicleData != null) {
             deviceName = vehicleData.vehicleNumber ?? 'Unknown Device';
           } else {
@@ -801,7 +810,9 @@ class GpsRealmService {
           }
         }
       });
-      print("💾 Distance report data saved to Realm: ${distanceData.length} devices");
+      print(
+        "💾 Distance report data saved to Realm: ${distanceData.length} devices",
+      );
     } catch (e) {
       print("❌ Failed to save distance report data to Realm: $e");
       throw Exception('Failed to save distance report data to Realm: $e');
@@ -820,16 +831,21 @@ class GpsRealmService {
   }
 
   /// Get distance report data by device ID
-  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(String deviceId) async {
+  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(
+    String deviceId,
+  ) async {
     await _ensureInitialized();
     try {
-      return _realm!.query<DistanceReportRealmModel>(
-        'deviceId == \$0',
-        [deviceId],
-      ).toList();
+      return _realm!.query<DistanceReportRealmModel>('deviceId == \$0', [
+        deviceId,
+      ]).toList();
     } catch (e) {
-      print("❌ Failed to read distance report data by device ID from Realm: $e");
-      throw Exception('Failed to read distance report data by device ID from Realm: $e');
+      print(
+        "❌ Failed to read distance report data by device ID from Realm: $e",
+      );
+      throw Exception(
+        'Failed to read distance report data by device ID from Realm: $e',
+      );
     }
   }
 
@@ -856,9 +872,10 @@ class GpsRealmService {
   /// Get weekly distance for a device
   String getWeeklyDistance(String deviceId) {
     try {
-      final fromMillis = DateTime.now()
-          .subtract(const Duration(days: 8))
-          .millisecondsSinceEpoch;
+      final fromMillis =
+          DateTime.now()
+              .subtract(const Duration(days: 8))
+              .millisecondsSinceEpoch;
 
       final results = _realm!.query<DistanceReportRealmModel>(
         'deviceId == \$0 AND dateTime >= \$1',
@@ -866,7 +883,8 @@ class GpsRealmService {
       );
 
       double total = results.fold(0.0, (sum, e) => sum + (e.distance ?? 0));
-      return '${total.toStringAsFixed(2)} Km';    } catch (e) {
+      return '${total.toStringAsFixed(2)} Km';
+    } catch (e) {
       print("❌ Failed to get weekly distance: $e");
       return '0.0';
     }
@@ -896,10 +914,7 @@ class GpsRealmService {
       final fullWeek = List.generate(7, (i) {
         final date = startDate.add(Duration(days: i));
         final key = '${date.day}/${date.month}';
-        return DistanceData(
-          startTime: key,
-          distance: distanceMap[key] ?? 0.0,
-        );
+        return DistanceData(startTime: key, distance: distanceMap[key] ?? 0.0);
       });
 
       return fullWeek;
@@ -1000,31 +1015,41 @@ class GpsRealmService {
     }
   }
 
-  Future<void> saveDistanceForToday(int deviceId, String vehicleNumber, double distance) async {
+  Future<void> saveDistanceForToday(
+    int deviceId,
+    String vehicleNumber,
+    double distance,
+  ) async {
     await _ensureInitialized();
 
-    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
 
-    final existing = _realm!.query<GpsDistanceHistoryRealmModel>(
-      r'deviceId == $0 AND date == $1',
-      [deviceId, today],
-    ).firstOrNull;
+    final existing =
+        _realm!.query<GpsDistanceHistoryRealmModel>(
+          r'deviceId == $0 AND date == $1',
+          [deviceId, today],
+        ).firstOrNull;
 
     _realm!.write(() {
       if (existing != null) {
         existing.distance = distance;
       } else {
-        _realm!.add(GpsDistanceHistoryRealmModel(
-          ObjectId(),
-          deviceId,
-          vehicleNumber,
-          distance,
-          today,
-        ));
+        _realm!.add(
+          GpsDistanceHistoryRealmModel(
+            ObjectId(),
+            deviceId,
+            vehicleNumber,
+            distance,
+            today,
+          ),
+        );
       }
     });
   }
-
 
   Future<List<DistanceData>> getLast7DaysDistance(int deviceId) async {
     await _ensureInitialized();
@@ -1049,7 +1074,11 @@ class GpsRealmService {
     await _ensureInitialized();
 
     final now = DateTime.now();
-    final fromDate = DateTime(now.year, now.month, now.day).subtract(Duration(days: 6));
+    final fromDate = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: 6));
 
     final results = _realm!.query<GpsDistanceHistoryRealmModel>(
       r'deviceId == $0 AND date >= $1',
@@ -1067,21 +1096,11 @@ class GpsRealmService {
     final fullWeek = List.generate(7, (i) {
       final date = fromDate.add(Duration(days: i));
       final key = '${date.day}/${date.month}';
-      return DistanceData(
-        startTime: key,
-        distance: distanceMap[key] ?? 0.0,
-      );
+      return DistanceData(startTime: key, distance: distanceMap[key] ?? 0.0);
     });
 
     return fullWeek;
   }
-
-
-
-
-
-
-
 
   /// Close the Realm instance
   void close() {
