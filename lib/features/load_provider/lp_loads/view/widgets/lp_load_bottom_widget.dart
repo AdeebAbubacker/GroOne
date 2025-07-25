@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -232,7 +233,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               5.height,
                               Row(
                                 children: [
-                                  Text("${context.appText.driver}: ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
+                                  Text("${context.appText.driver.capitalizeFirst} - ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
                                   Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                 ],
                               ),
@@ -411,7 +412,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                         children: [
                           SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
                           8.width,
-                          Text("${lpLoadLocator.state.locationDistance ?? ''} KM", style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+                          Text(lpLoadLocator.state.locationDistance ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                         ],
                       ),
                     ],

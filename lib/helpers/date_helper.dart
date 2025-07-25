@@ -73,11 +73,22 @@ class DateTimeHelper {
   }
 
   /// convert to IST format
-  static String formatCustomDateIST(DateTime? date) {
+  static String formatCustomDateTimeIST(DateTime? date) {
     try {
       if (date == null) return "Invalid Date";
       final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
       return DateFormat("d MMM y, h.mm a").format(istDate);
+    } catch (e) {
+      return "Invalid Date";
+    }
+  }
+
+  /// convert to IST format
+  static String formatCustomDateIST(DateTime? date) {
+    try {
+      if (date == null) return "Invalid Date";
+      final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
+      return DateFormat("d MMM y").format(istDate);
     } catch (e) {
       return "Invalid Date";
     }
@@ -158,7 +169,7 @@ class DateTimeHelper {
   static String getCurrentDateTimeWithAddedDuration(int durationInSeconds) {
     try {
       final dateTime = DateTime.now().add(Duration(seconds: durationInSeconds));
-      return DateFormat("dd-MM-yyyy, hh:mm a").format(dateTime);
+      return DateFormat("d MMM y, h.mm a").format(dateTime);
     } catch (e) {
       return "Invalid Date";
     }

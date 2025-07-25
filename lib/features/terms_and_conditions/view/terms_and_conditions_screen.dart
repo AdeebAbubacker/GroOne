@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 class TermsAndConditionsScreen extends StatefulWidget {
@@ -91,7 +92,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          context.appText.termsAndConditions,
+          context.appText.termsAndConditions.capitalizeFirst,
           style: AppTextStyle.textBlackColor30w500,
         ),
         const SizedBox(height: 20),

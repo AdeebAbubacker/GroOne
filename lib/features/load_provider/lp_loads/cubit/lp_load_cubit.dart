@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
@@ -105,12 +106,51 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.fetchLoadById(loadId: loadId);
 
     if (result is Success<LoadGetByIdResponse>) {
-      emit(state.copyWith(locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"), isFeedbackAdded: result.value.data?.notes.isNotEmpty));
       _setLoadByIdUIState(UIState.success(result.value));
+      await _handleTrackingBasedOnStatus(result.value);
+
     } else if (result is Error) {
       _setLoadByIdUIState(UIState.error(result.type));
     }
   }
+
+  Future<void> _handleTrackingBasedOnStatus(LoadGetByIdResponse data) async {
+    final status = LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
+    final route = data.data?.loadRoute;
+
+    if (status != null && route != null) {
+      late final TrackingDistanceApiRequest request;
+
+      if (status.index <= LoadStatus.assigned.index) {
+        // Use pickup & drop coordinates
+        final pickup = route.pickUpLatlon.split(',');
+        final drop = route.dropLatlon.split(',');
+
+        request = TrackingDistanceApiRequest(
+          originLat: double.tryParse(pickup.first) ?? 0.0,
+          originLong: double.tryParse(pickup.last) ?? 0.0,
+          currentLat: double.tryParse(pickup.first) ?? 0.0,
+          currentLong: double.tryParse(pickup.last) ?? 0.0,
+          destLat: double.tryParse(drop.first) ?? 0.0,
+          destLong: double.tryParse(drop.last) ?? 0.0,
+        );
+      } else {
+        // Use trackingDetails
+        final tracking = data.data?.trackingDetails;
+        request = TrackingDistanceApiRequest(
+          originLat: tracking?.originLat ?? 0.0,
+          originLong: tracking?.originLong ?? 0.0,
+          currentLat: tracking?.currentLat ?? 0.0,
+          currentLong: tracking?.currentLong ?? 0.0,
+          destLat: tracking?.destinationLat ?? 0.0,
+          destLong: tracking?.destinationLong ?? 0.0,
+        );
+      }
+
+      await getTrackingDistance(request: request);
+    }
+  }
+
 
   String getDistance(String pickUpLatLong,dropLatLong){
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
@@ -378,6 +418,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
+      emit(state.copyWith(locationDistance: result.value.overalldistance));
       _setTrackingDistanceState(UIState.success(result.value));
     } else if (result is Error) {
       _setTrackingDistanceState(UIState.error(result.type));

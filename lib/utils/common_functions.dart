@@ -558,12 +558,12 @@ String formatDateTimeKavach(String dateTimeString) {
 
 
 /// Common Support Dialog
-void commonSupportDialog(BuildContext context) {
+void commonSupportDialog(BuildContext context, {String? message}) {
   AppDialog.show(
     context,
     child: CommonDialogView(
       heading: "Call Customer Support",
-      message: "Contact our Customer support agent",
+      message: message ?? "Contact our Customer support agent",
       onSingleButtonText: "Call",
       onTapSingleButton: () async {
         await callRedirect("1800 208 8800");

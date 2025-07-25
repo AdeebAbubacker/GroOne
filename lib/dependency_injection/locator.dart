@@ -77,7 +77,6 @@ import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verific
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/repository/privacy_repository.dart';
 import 'package:gro_one_app/features/privacy_policy/service/privacy_policy_service.dart';
-import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
@@ -418,12 +417,6 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => OtpBloc(locator<MobileOtpVerificationRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => ProfileBloc(
-        locator<ProfileRepository>(),
-        locator<UserInformationRepository>(),
-      ),
     );
     locator.registerLazySingleton(
       () => LpHomeBloc(

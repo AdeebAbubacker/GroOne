@@ -2,7 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
+import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
+import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -100,6 +107,145 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
     }
+  }
+
+  // Fetch Document from api call
+  void _setFetchDocumentUIState(UIState<KycDocumentResponse>? uiState){
+    emit(state.copyWith(documentState: uiState));
+  }
+  Future<void> fetchDocuments() async {
+    _setFetchDocumentUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+
+    dynamic result = await _repo.fetchDocuments(userId: userId ?? '');
+    if (result is Success<KycDocumentResponse>) {
+      _setFetchDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchDocumentUIState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch Membership Benefit from api call
+  void _setMembershipBenefitUIState(UIState<BlueMemberShipResponse>? uiState){
+    emit(state.copyWith(memberShipState: uiState));
+  }
+  Future<void> fetchMembershipBenefit() async {
+    _setMembershipBenefitUIState(UIState.loading());
+
+    dynamic result = await _repo.fetchMembershipBenefit();
+    if (result is Success<BlueMemberShipResponse>) {
+      _setMembershipBenefitUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setMembershipBenefitUIState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch address from api call
+  void _setFetchAddressUIState(UIState<AddressResponse>? uiState){
+    emit(state.copyWith(addressState: uiState));
+  }
+
+  Future<void> fetchAddress({bool isLoading = true}) async {
+    if(isLoading) _setFetchAddressUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchAddress(userId: userId ?? '');
+    if (result is Success<AddressResponse>) {
+      _setFetchAddressUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchAddressUIState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch address from api call
+  void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState){
+    emit(state.copyWith(primaryAddressState: uiState));
+  }
+
+  Future<void> setPrimaryAddress({required String addressId}) async {
+
+    dynamic result = await _repo.setPrimaryAddress(addressId: addressId ?? '');
+    if (result is Success<SetPrimaryAddressResponse>) {
+      _setPrimaryAddressUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setPrimaryAddressUIState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch address from api call
+  void _setCreateAddressUIState(UIState<ProfileAddress>? uiState){
+    emit(state.copyWith(createAddressState: uiState));
+  }
+
+  Future<void> createAddress({required AddressRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.createAddress(request: request.copyWith(customerId: userId));
+    if (result is Success<ProfileAddress>) {
+      _setCreateAddressUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateAddressUIState(UIState.error(result.type));
+    }
+  }
+
+  Future<void> updateAddress({required String addressId, required AddressRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.updateAddress(addressId: addressId,request: request.copyWith(customerId: userId));
+    if (result is Success<ProfileAddress>) {
+      _setCreateAddressUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateAddressUIState(UIState.error(result.type));
+    }
+  }
+
+  Future<Result<void>> deleteAddress({required String addressId}) async {
+
+    Result<void> result = await _repo.deleteAddress(addressId: addressId);
+
+    if (result is Success) {
+      fetchAddress(isLoading: false);
+    } else if (result is Error) {
+      _setFetchAddressUIState(UIState.error(result.type));
+    }
+     return result;
+  }
+
+  // Fetch address from api call
+  void _setCustomerSettingsUIState(UIState<CustomerSettingsResponse>? uiState){
+    emit(state.copyWith(customerSettingsState: uiState));
+  }
+
+  Future<void> fetchCustomerSettings() async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchCustomerSettings(userId: userId ?? '');
+    if (result is Success<CustomerSettingsResponse>) {
+      _setCustomerSettingsUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCustomerSettingsUIState(UIState.error(result.type));
+    }
+  }
+
+  Future<Result<void>> updateCustomerSettings({required UpdateSettingsRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.updateCustomerSettings(userId: userId ?? '', request: request);
+
+    if (result is Success) {
+      fetchCustomerSettings();
+    } else if (result is Error) {
+      _setFetchAddressUIState(UIState.error(result.type));
+    }
+     return result;
   }
 
 

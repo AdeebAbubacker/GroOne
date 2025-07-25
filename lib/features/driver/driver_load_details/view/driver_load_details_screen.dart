@@ -168,7 +168,7 @@ Future<void> getLoadDetails() async {
                 const Spacer(),
                 Text(
                   loadItem.data?.createdAt != null
-                      ? DateTimeHelper.formatCustomDateIST( loadItem.data?.createdAt)
+                      ? DateTimeHelper.formatCustomDateTimeIST( loadItem.data?.createdAt)
                       : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
