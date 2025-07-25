@@ -916,5 +916,7 @@
   "geofenceLocationSetSuccessfully": "जियोफेंस स्थान सफलतापूर्वक सेट किया गया है।",
   "overSpeedCalibration": "ओवरस्पीड कैलिब्रेशन",
   "connectAndShare": "कनेक्ट और शेयर करें",
-  "editVehicleInfo": "वाहन जानकारी संपादित करें"
+  "editVehicleInfo": "वाहन जानकारी संपादित करें",
+  "notVerified" : "सत्यापित नहीं है"
+
 }

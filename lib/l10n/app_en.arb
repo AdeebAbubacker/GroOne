@@ -962,7 +962,8 @@
 
 
 
-  "failedToDownloadDocuments":"Failed to download the document"
+  "failedToDownloadDocuments":"Failed to download the document",
+  "notVerified" : "not verified"
 
 
 

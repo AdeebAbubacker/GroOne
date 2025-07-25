@@ -953,5 +953,7 @@
   "polylineGeofence": "பாலிலைன் ஜியோஃபென்ஸ்",
   "points": "புள்ளிகள்",
   "notifications": "அறிவிப்புகள்",
-  "noNotificationsAvailable": "அறிவிப்புகள் எதுவும் இல்லை"
+  "noNotificationsAvailable": "அறிவிப்புகள் எதுவும் இல்லை",
+  "notVerified" : "சரிபார்க்கப்படவில்லை"
+
 }
