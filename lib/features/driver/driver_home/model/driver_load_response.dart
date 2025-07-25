@@ -2091,7 +2091,7 @@ class DriverLoadDetails {
       damageShortage: json["damageShortage"] == null ? [] : List<DriverDamageReport>.from(json["damageShortage"]!.map((x) => DriverDamageReport.fromJson(x))),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
-      weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
+      weight: json["weightage"] == null ? null : Weight.fromJson(json["weightage"]),
       lpPaymentsData: json["paymentDetails"] == null ? null : LpPaymentsData.fromJson(json["paymentDetails"]),
       consignees: json["consignees"] == null
           ? []
