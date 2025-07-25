@@ -103,6 +103,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     if (!_tabController!.indexIsChanging) return;
 
     paginationController.reset();
+    clearAllFilterValues();
 
     final selectedType = _tabController!.index;
     lpLoadLocator.updateSelectedTabIndex(selectedType);

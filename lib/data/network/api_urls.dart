@@ -59,6 +59,7 @@ class ApiUrls {
   static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/verify";
   static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
   static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
+  static final String refreshToken = "$_fetchUrl$_customer$_path$_v1$_auth/refresh-token";
 
 
   /// VP Endpoints
@@ -218,4 +219,16 @@ class ApiUrls {
   static const String getDeprecatedNotificationStatus = "$_gpsBase/get_deprecated_notification_status";
   static const String updateDeprecatedNotificationStatus = "$_gpsBase/update_deprecated_notification_status";
   static String gpsUpdateNotificationToggle(int id) => "$_gpsBase/user_config/$id";
+
+
+  /// profile
+  static final String getMembershipBenefit = "$_baseUrl$_customer$_path$_v1/metadata/membership-benefit";
+  static final String createAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String updateAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String deleteAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String getAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String setPrimaryAddress = "$_baseUrl$_customer$_path$_v1/address/is-default/";
+  static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
+  static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
+  static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
 }

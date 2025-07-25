@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -371,13 +372,33 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-      CustomLog.debug(
-        this,
-        "Cleared invalid token due to 401 Unauthorized error",
+      final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        return;
+      }
+
+      final response = await Dio().post(
+        ApiUrls.refreshToken,
+        data: {
+          "refresh_token": refreshToken,
+        },
       );
+
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
+        final newAccessToken = data['access_token'];
+        final newRefreshToken = data['refresh_token'];
+
+        await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
+        await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
+      } else {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      }
     } catch (e) {
-      CustomLog.error(this, "Error clearing invalid token", e);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
     }
   }
 

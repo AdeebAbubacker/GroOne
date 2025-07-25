@@ -5,10 +5,17 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
+import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
+import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
@@ -126,6 +133,166 @@ class ProfileService {
         return await _apiService.getResponseStatus(result.value, (data) => MasterResponse.fromJson(data));
       } else if (result is Error) {
         return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch documents
+  Future<Result<KycDocumentResponse>> fetchDocuments({required String userId}) async {
+    try {
+      final url = ApiUrls.getKycDocuments+userId;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = KycDocumentResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch membership benefits
+  Future<Result<BlueMemberShipResponse>> fetchMembershipBenefit() async {
+    try {
+      final url = ApiUrls.getMembershipBenefit;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = BlueMemberShipResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch address
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+    try {
+      final url = ApiUrls.getAddress+userId;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = PaginatedAddressList.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// set primary address
+  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId}) async {
+    try {
+      final url = ApiUrls.setPrimaryAddress+addressId;
+      final response = await _apiService.put(url, body: {"isDefault":true});
+      if (response is Success) {
+        final loads = SetPrimaryAddressResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// create address
+  Future<Result<CustomerAddress>> createAddress({required AddressRequest request}) async {
+    try {
+      final url = ApiUrls.createAddress;
+      final response = await _apiService.post(url, body: request.toJson());
+      if (response is Success) {
+        final loads = CustomerAddress.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// update address
+  Future<Result<CustomerAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
+    try {
+      final url = ApiUrls.updateAddress+addressId;
+      final response = await _apiService.put(url, body: request.toJson());
+      if (response is Success) {
+        final loads = CustomerAddress.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// delete address
+  Future<Result<void>> deleteAddress({required String addressId}) async {
+    try {
+      final url = ApiUrls.deleteAddress+addressId;
+      final response = await _apiService.delete(url);
+      if (response is Success) {
+        return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch customer settings
+  Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
+    try {
+      final url = ApiUrls.getCustomerSettings+userId;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = CustomerSettingsResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// update customer settings
+  Future<Result<void>> updateCustomerSettings({required String userId, required UpdateSettingsRequest request}) async {
+    try {
+      final url = ApiUrls.updateCustomerSettings+userId;
+      final response = await _apiService.patch(url, body: request.toJson());
+      if (response is Success) {
+        return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
       } else {
         return Error(GenericError());
       }
