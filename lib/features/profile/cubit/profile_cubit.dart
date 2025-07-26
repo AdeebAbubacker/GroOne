@@ -7,10 +7,12 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
@@ -234,6 +236,43 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCustomerSettingsUIState(UIState.error(result.type));
     }
   }
+
+   // Fetch vehicle from api call
+  void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState){
+    emit(state.copyWith(vehicleState: uiState));
+  }
+
+  Future<void> fetchVehicle({bool isLoading = true}) async {
+    if(isLoading) _setFetchVehicleUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchVehicle(userId: userId ?? '');
+    if (result is Success<PaginatedVehicleList>) {
+      _setFetchVehicleUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchVehicleUIState(UIState.error(result.type));
+    }
+  }
+
+  // Fetch deriver from api call
+  void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState){
+    emit(state.copyWith(driverState: uiState));
+  }
+
+  Future<void> fetchDriver({bool isLoading = true}) async {
+    if(isLoading) _setFetchDriverUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchDriver(userId: userId ?? '');
+    if (result is Success<PaginatedDriverList>) {
+      _setFetchDriverUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchDriverUIState(UIState.error(result.type));
+    }
+  }
+
 
   Future<Result<void>> updateCustomerSettings({required UpdateSettingsRequest request}) async {
     userId = await _repo.getUserId();

@@ -64,6 +64,8 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
   void initFunction() {
     _tabController = TabController(length: 3, vsync: this);
     profileCubit.fetchAddress();
+    profileCubit.fetchVehicle();
+    profileCubit.fetchDriver();
     profileCubit.fetchUserRole();
   }
 
@@ -144,8 +146,8 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
               controller: _tabController,
               children: [
                 buildAddressTab(role ?? 0),
-                Center(child: Text("")),
-                Center(child: Text("")),
+                buildVehicleTab(role ??0),
+                buildDriverTab(role ??0),
               ],
             ),
           ),
@@ -240,6 +242,143 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
     );
     });
   }
+ 
+  Widget buildVehicleTab(int role) {
+  return BlocBuilder<ProfileCubit, ProfileState>(
+    builder: (context, state) {
+      final uiState = state.vehicleState;
+
+      if (uiState == null || uiState.status == Status.LOADING) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (uiState.status == Status.ERROR) {
+        return genericErrorWidget(error: uiState.errorType);
+      }
+
+      final vehicleList = uiState.data?.data ?? [];
+
+      if (vehicleList.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+              20.height,
+              Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
+              10.height,
+              Text(context.appText.startByAddingANewAddress, style: AppTextStyle.body3),
+              20.height,
+              AppButton(
+                title: context.appText.addNewVehicle,
+                onPressed: () {}, 
+              ),
+            ],
+          ),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            20.height,
+            if (role == 2) AppSearchBar(searchController: searchController),
+            20.height,
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: vehicleList.length,
+              itemBuilder: (context, index) {
+                final vehicle = vehicleList[index];
+                return masterInfoWidget(
+                  title: vehicle.ownerName,
+                  address: vehicle.ownerName,
+                  isPrimary: false,
+                  onEdit: () {},
+                  onDelete: () {},
+                  onSetPrimary: () {},
+                );
+              },
+            ).expand(),
+            AppButton(
+              title: context.appText.addNewVehicle,
+              onPressed: () {}, 
+            ).paddingSymmetric(vertical: 10),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+  Widget buildDriverTab(int role) {
+  return BlocBuilder<ProfileCubit, ProfileState>(
+    builder: (context, state) {
+      final uiState = state.driverState;
+
+      if (uiState == null || uiState.status == Status.LOADING) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (uiState.status == Status.ERROR) {
+        return genericErrorWidget(error: uiState.errorType);
+      }
+
+      final driverList = uiState.data?.data ?? [];
+
+      if (driverList.isEmpty) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+              20.height,
+              Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
+              10.height,
+              Text(context.appText.startByAddingANewAddress, style: AppTextStyle.body3),
+              20.height,
+              AppButton(
+                title: context.appText.addNewVehicle,
+                onPressed: () {}, 
+              ),
+            ],
+          ),
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            20.height,
+            if (role == 2) AppSearchBar(searchController: searchController),
+            20.height,
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: driverList.length,
+              itemBuilder: (context, index) {
+                final vehicle = driverList[index];
+                return masterInfoWidget(
+                  title: vehicle.name,
+                  address: vehicle.name,
+                  isPrimary: false,
+                  onEdit: () {},
+                  onDelete: () {},
+                  onSetPrimary: () {},
+                );
+              },
+            ).expand(),
+            AppButton(
+              title: context.appText.addNewVehicle,
+              onPressed: () {}, 
+            ).paddingSymmetric(vertical: 10),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Widget masterInfoWidget({
     required String title,

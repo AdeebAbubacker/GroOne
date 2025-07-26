@@ -6,6 +6,8 @@ class ProfileState extends Equatable {
   final UIState<KycDocumentResponse>? documentState;
   final UIState<PaginatedAddressList>? addressState;
   final UIState<SetPrimaryAddressResponse>? primaryAddressState;
+  final UIState<PaginatedVehicleList>? vehicleState;
+  final UIState<PaginatedDriverList>? driverState;
   final UIState<BlueMemberShipResponse>? memberShipState;
   final UIState<CustomerAddress>? createAddressState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
@@ -17,10 +19,12 @@ class ProfileState extends Equatable {
     this.showSuccessKyc = false,
     this.blueId,
     this.documentState,
-    this.addressState,
+    this.addressState,  
     this.primaryAddressState,
     this.memberShipState,
     this.createAddressState,
+    this.vehicleState,
+    this.driverState,
     this.customerSettingsState,
   });
 
@@ -33,6 +37,8 @@ class ProfileState extends Equatable {
     UIState<CustomerSettingsResponse>? customerSettingsState,
     UIState<BlueMemberShipResponse>? memberShipState,
     UIState<CustomerAddress>? createAddressState,
+    UIState<PaginatedVehicleList>? vehicleState,
+    UIState<PaginatedDriverList>? driverState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -47,6 +53,8 @@ class ProfileState extends Equatable {
       primaryAddressState: primaryAddressState ?? this.primaryAddressState,
       memberShipState: memberShipState ?? this.memberShipState,
       createAddressState: createAddressState ?? this.createAddressState,
+      vehicleState: vehicleState ?? this.vehicleState,
+      driverState: driverState ?? this.driverState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
     );
   }
@@ -62,6 +70,8 @@ class ProfileState extends Equatable {
     showSuccessKyc,
     blueId,
     createAddressState,
+    vehicleState,
+    driverState,
     customerSettingsState
   ];
 }

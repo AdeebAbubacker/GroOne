@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -300,6 +302,44 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+
+//-----------------------------
+
+  /// fetch vehicle
+  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId}) async {
+    try {
+      final url = ApiUrls.getVehicleList+userId;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = PaginatedVehicleList.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+   /// fetch Driver
+ Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {
+  try {
+    final url = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+    final response = await _apiService.get(url);
+    if (response is Success) {
+      final loads = PaginatedDriverList.fromJson(response.value);
+      return Success(loads);
+    } else if (response is Error) {
+      return Error(response.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (e) {
+    return Error(DeserializationError());
+  }
+}
 
 
   /// Log out repo

@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -16,6 +17,7 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -131,6 +133,23 @@ class ProfileRepository {
     }
   }
 
+  /// Get Vehicle
+  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId}) async {
+    try {
+      return await _profileService.fetchVehicle(userId: userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Driver
+  Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {
+    try {
+      return await _profileService.fetchDriver(customerId: userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }  
   /// fetch customer settings
   Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
     try {
