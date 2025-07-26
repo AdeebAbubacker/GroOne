@@ -39,6 +39,7 @@ class ProfileState extends Equatable {
     UIState<CustomerAddress>? createAddressState,
     UIState<PaginatedVehicleList>? vehicleState,
     UIState<PaginatedDriverList>? driverState,
+    UIState<bool>? deleteVehicleState,
     bool? showSuccessKyc,
     String? blueId,
 

@@ -142,6 +142,19 @@ class ProfileRepository {
     }
   }
 
+  /// Delete Vehicle
+Future<Result<bool>> deleteVehicle({
+  required String vehicleId,
+}) async {
+  try {
+    return await _profileService.deleteVehicle(
+      vehicleId: vehicleId,
+    );
+  } catch (e) {
+    return Error(ErrorWithMessage(message: e.toString()));
+  }
+}
+
   /// Get Driver
   Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {
     try {
@@ -150,6 +163,15 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }  
+
+  /// delete driver
+  Future<Result<void>> deleteDriver({required String driverId}) async {
+    try {
+      return await _profileService.deleteDriver(driverId: driverId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  } 
   /// fetch customer settings
   Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
     try {

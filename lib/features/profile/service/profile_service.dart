@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
@@ -323,6 +325,40 @@ class ProfileService {
     }
   }
 
+  /// Delete vehicle
+  Future<Result<bool>> deleteVehicle({
+  required String vehicleId,
+}) async {
+  try {
+    final url = ApiUrls.deleteVehicle + vehicleId;
+   // final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/status/${vehicleId}";
+
+    final body = jsonEncode({
+  "status": 3
+});
+
+    final result = await _apiService.put(
+      url,
+      body: body,
+    );
+
+    if (result is Success) {
+      print("delete success ${result.value.toString()}");
+      return Success(true);
+    } else if (result is Error) {
+       print("delete error ${result.type.toString()}");
+      return Error(result.type);
+    } else {
+       print("delete error GenericError");
+      return Error(GenericError());
+    }
+  } catch (e) {
+     print("delete error e");
+    return Error(DeserializationError());
+  }
+}
+
+
    /// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {
   try {
@@ -341,6 +377,24 @@ class ProfileService {
   }
 }
 
+  /// delete Driver
+  Future<Result<void>> deleteDriver({required String driverId}) async {
+    try {
+      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers/${driverId}";
+      final response = await _apiService.delete(url);
+      if (response is Success) {
+        return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+ 
 
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {

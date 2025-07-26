@@ -255,11 +255,31 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+
+// Delete Vehicle
+
+
+  Future<Result<void>> deleteVehicle({required String vehicleId}) async {
+
+    Result<void> result = await _repo.deleteVehicle(vehicleId: vehicleId);
+
+    if (result is Success) {
+      fetchVehicle(isLoading: false);
+    } else if (result is Error) {
+      _setFetchVehicleUIState(UIState.error(result.type));
+    }
+     return result;
+  }
+
+
+
+
   // Fetch deriver from api call
   void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState){
     emit(state.copyWith(driverState: uiState));
   }
 
+ 
   Future<void> fetchDriver({bool isLoading = true}) async {
     if(isLoading) _setFetchDriverUIState(UIState.loading());
     userId = await _repo.getUserId();
@@ -273,6 +293,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+
+  Future<Result<void>> deleteDriver({required String driverId}) async {
+
+    Result<void> result = await _repo.deleteDriver(driverId: driverId);
+
+    if (result is Success) {
+      fetchDriver(isLoading: false);
+    } else if (result is Error) {
+      _setFetchDriverUIState(UIState.error(result.type));
+    }
+     return result;
+  }
 
   Future<Result<void>> updateCustomerSettings({required UpdateSettingsRequest request}) async {
     userId = await _repo.getUserId();

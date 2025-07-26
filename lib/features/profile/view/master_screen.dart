@@ -102,6 +102,63 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
   }
 
 
+ void deletePopUpForVehicle(BuildContext context, String vehicleId) {
+  return AppDialog.show(context,dismissible: true, child: CommonDialogView(
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.delete,
+      yesButtonTextStyle: AppButtonStyle.deleteTextButton,
+      child: Column(
+        children: [
+          Lottie.asset(AppJSON.alertRed, repeat: true, frameRate: FrameRate(200)),
+          Text(context.appText.areYouSureToDeleteThisAddress).center(),
+        ],
+      ),
+      onClickYesButton: () async {
+        final result = await profileCubit.deleteVehicle(vehicleId: vehicleId);
+
+        if (result is Success) {
+          if(context.mounted) {
+            Navigator.of(context).pop(); // close dialog
+            ToastMessages.success(message: context.appText.addressDeletedSuccessfully);
+          }
+        } else if (result is Error) {
+          ToastMessages.error(message: getErrorMsg(errorType: result.type));
+        }
+      },
+    ));
+}
+
+  void deletePopUpForDriver(BuildContext context, String addressId) {
+    return AppDialog.show(context,dismissible: true, child: CommonDialogView(
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.delete,
+      yesButtonTextStyle: AppButtonStyle.deleteTextButton,
+      child: Column(
+        children: [
+          Lottie.asset(AppJSON.alertRed, repeat: true, frameRate: FrameRate(200)),
+          Text(context.appText.areYouSureToDeleteThisAddress).center(),
+        ],
+      ),
+      onClickYesButton: () async {
+        final result = await profileCubit.deleteDriver(driverId: addressId);
+
+        if (result is Success) {
+          if(context.mounted) {
+            Navigator.of(context).pop(); // close dialog
+            ToastMessages.success(message: context.appText.addressDeletedSuccessfully);
+          }
+        } else if (result is Error) {
+          ToastMessages.error(message: getErrorMsg(errorType: result.type));
+        }
+      },
+    ));
+  }
+
+
   @override
   Widget build(BuildContext context) {
     int? role = profileCubit.userRole;
@@ -290,12 +347,13 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
               itemCount: vehicleList.length,
               itemBuilder: (context, index) {
                 final vehicle = vehicleList[index];
+                print("Vehicle id ${vehicle.vehicleId}");
                 return masterInfoWidget(
                   title: vehicle.ownerName,
                   address: vehicle.ownerName,
                   isPrimary: false,
                   onEdit: () {},
-                  onDelete: () {},
+                 onDelete: () => deletePopUpForVehicle(context, vehicle.vehicleId),
                   onSetPrimary: () {},
                 );
               },
@@ -363,7 +421,7 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
                   address: vehicle.name,
                   isPrimary: false,
                   onEdit: () {},
-                  onDelete: () {},
+                   onDelete: () => deletePopUpForDriver(context, vehicle.driverId),
                   onSetPrimary: () {},
                 );
               },
