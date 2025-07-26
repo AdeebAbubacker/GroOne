@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -291,6 +292,24 @@ class ProfileService {
       final response = await _apiService.patch(url, body: request.toJson());
       if (response is Success) {
         return Success(null);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch FAQ
+  Future<Result<FaqResponse>> fetchFaq() async {
+    try {
+      final url = ApiUrls.getFaq;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = FaqResponse.fromJson(response.value);
+        return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
       } else {

@@ -231,4 +231,5 @@ class ApiUrls {
   static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
+  static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
 }
