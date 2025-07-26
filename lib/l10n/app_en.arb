@@ -1016,9 +1016,16 @@
   "tamil": "Tamil",
   "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent",
   "failedToDownloadDocuments":"Failed to download the document",
-  "notVerified" : "not verified"
-
-
+  "notVerified" : "not verified",
+  "uploadedOn" : "Uploaded on",
+  "contactCustomerSupport" : "Contact our Customer support agent",
+  "tripSettlement" : "Trip Settlement",
+  "tickets" : "Tickets",
+  "faqs" : "FAQ's",
+  "createNewTicket" : "Create New Ticket",
+  "addNewTicket" : "add New Ticket",
+  "issueCategory" : "Issue Category",
+  "title" : "Title"
 
 
 

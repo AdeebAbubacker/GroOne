@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -144,6 +145,15 @@ class ProfileRepository {
   Future<Result<void>> updateCustomerSettings({required String userId, required UpdateSettingsRequest request}) async {
     try {
       return await _profileService.updateCustomerSettings(userId: userId, request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Address
+  Future<Result<FaqResponse>> fetchFaq() async {
+    try {
+      return await _profileService.fetchFaq();
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

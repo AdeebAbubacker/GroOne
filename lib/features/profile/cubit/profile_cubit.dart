@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/profile/api_request/update_settings_request
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
@@ -246,6 +247,25 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchAddressUIState(UIState.error(result.type));
     }
      return result;
+  }
+
+
+  // Fetch address from api call
+  void _setFetchFaqUIState(UIState<FaqResponse>? uiState){
+    emit(state.copyWith(faqUIState: uiState));
+  }
+
+  Future<void> fetchFaq() async {
+    _setFetchFaqUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchFaq();
+    if (result is Success<FaqResponse>) {
+      _setFetchFaqUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchFaqUIState(UIState.error(result.type));
+    }
   }
 
 

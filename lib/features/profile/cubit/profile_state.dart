@@ -9,6 +9,7 @@ class ProfileState extends Equatable {
   final UIState<BlueMemberShipResponse>? memberShipState;
   final UIState<CustomerAddress>? createAddressState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
+  final UIState<FaqResponse>? faqUIState;
   final bool showSuccessKyc;
   final String? blueId;
   const ProfileState({
@@ -22,6 +23,7 @@ class ProfileState extends Equatable {
     this.memberShipState,
     this.createAddressState,
     this.customerSettingsState,
+    this.faqUIState
   });
 
   ProfileState copyWith({
@@ -33,6 +35,7 @@ class ProfileState extends Equatable {
     UIState<CustomerSettingsResponse>? customerSettingsState,
     UIState<BlueMemberShipResponse>? memberShipState,
     UIState<CustomerAddress>? createAddressState,
+    UIState<FaqResponse>? faqUIState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -48,6 +51,7 @@ class ProfileState extends Equatable {
       memberShipState: memberShipState ?? this.memberShipState,
       createAddressState: createAddressState ?? this.createAddressState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
+      faqUIState: faqUIState ?? this.faqUIState,
     );
   }
 
@@ -62,6 +66,7 @@ class ProfileState extends Equatable {
     showSuccessKyc,
     blueId,
     createAddressState,
-    customerSettingsState
+    customerSettingsState,
+    faqUIState
   ];
 }
