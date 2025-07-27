@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
@@ -11,6 +12,7 @@ import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -165,6 +167,16 @@ Future<Result<bool>> deleteVehicle({
     return Error(ErrorWithMessage(message: e.toString()));
   }
 }
+
+  /// create new vehicle
+  Future<Result<DriverNewModel>> createDriver({required DriverRequest request}) async {
+    try {
+      return await _profileService.createDriver(request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
   /// Get Driver
   Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {

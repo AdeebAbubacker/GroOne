@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_state.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
@@ -55,10 +56,11 @@ class _MasterScreenState extends State<MasterScreen>
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final gpsVehicleCubit = locator<GpsVehicleCubit>();
   final MultiSelectController<String> acceptableCommoditiesController = MultiSelectController<String>();
-
+  List<String> selectedCommodities = [];
   late TabController _tabController;
   final searchController = TextEditingController();
-  String? truckTypeDropDownValue;
+  String? selectedTruckType;
+  String? selectedTruckLength;
   String? truckLengthDropdownValue;
    bool showValidationErrors = false;
 
@@ -441,7 +443,7 @@ class _MasterScreenState extends State<MasterScreen>
                   onEdit: () {
                   },
                     onDelete:
-                        () => deletePopUpForVehicle(context, vehicle.customerId),
+                        () => deletePopUpForVehicle(context, vehicle.vehicleId),
                   
                   );
                 },
@@ -456,7 +458,12 @@ class _MasterScreenState extends State<MasterScreen>
       },
     );
   }
-
+ String formatMobileNumber(String number) {
+  if (!number.startsWith("+91") && number.length == 10) {
+    return "+91$number";
+  }
+  return number;
+}
    Widget buildDriverTab(int role) {
   return BlocBuilder<ProfileCubit, ProfileState>(
     builder: (context, state) {
@@ -990,24 +997,14 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   void showAddVehiclePopup(BuildContext context, {VehicleData? vehcile}) {
+   
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
 
-    final addressNameController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
-    final addressController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
-    final cityController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
-    final stateController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
-    final pinCodeController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
+    final truckNumberController = TextEditingController(text: vehcile?.truckNo ?? '');
+    final truckMakeModelController = TextEditingController();
+    final rcNumberController = TextEditingController();
+    final capacityController = TextEditingController(text: vehcile?.tonnage ?? '');
 
     AppDialog.show(
       context,
@@ -1030,21 +1027,21 @@ class _MasterScreenState extends State<MasterScreen>
                 20.height,
                 _buildTextField(
                   context,
-                  addressNameController,
+                  truckNumberController,
                   "Truck Number",
                   alphanumericWithSpaceRegex,
                 ),
                 16.height,
                 _buildTextField(
                   context,
-                  addressController,
+                  truckMakeModelController,
                   "Truck Make and model",
                   alphanumericWithSpaceRegex,
                 ),
                 16.height,
                 _buildTextField(
                   context,
-                  stateController,
+                  rcNumberController,
                   "RC Book Number",
                   alphabetWithSpaceRegex,
                 ),
@@ -1068,14 +1065,14 @@ class _MasterScreenState extends State<MasterScreen>
                   children: [
                     AppDropdown(
                       labelText: "Truck Type",
-                      dropdownValue: truckTypeDropDownValue,
+                      dropdownValue: selectedTruckType,
                       dropDownList: truckTypes.map((e) => DropdownMenuItem(
                             value: e,
                             child: Text(e),
                           )).toList(),
                       onChanged: (val) {
                         setState(() {
-                          truckTypeDropDownValue = val;
+                          selectedTruckType = val;
                           truckLengthDropdownValue = null; // reset truck length on type change
                         });
                         context.read<GpsVehicleCubit>().fetchTruckLengths(val!);
@@ -1140,7 +1137,9 @@ class _MasterScreenState extends State<MasterScreen>
                         mandatoryStar: true,
                         controller: acceptableCommoditiesController,
                         items: items,
-                        onSelectionChange: (selected) {},
+                        onSelectionChange: (selected) {
+                           selectedCommodities = selected;
+                        },
                         validator: (value) => value == null || value.isEmpty
                             ? context.appText.pleaseSelectCommodity
                             : null,
@@ -1156,7 +1155,7 @@ class _MasterScreenState extends State<MasterScreen>
         16.height,
                 _buildTextField(
                   context,
-                  stateController,
+                  capacityController,
                   "Capacity",
                   alphabetWithSpaceRegex,
                 ),
@@ -1170,16 +1169,16 @@ class _MasterScreenState extends State<MasterScreen>
         onClickYesButton: () async {
           if (formKey.currentState!.validate()) {
             final request = VehicleRequest(
-              customerId: '2e4d8086-5e8c-40b4-b316-ec6e6ede3473',
-              truckNo: 'TN01DB1235',
-              rcNumber: 'JTN7D5432168',
-              rcDocLink: 'https://example.com/rc-book.pdf',
-              tonnage: '12T',
-              truckTypeId: 1,
-              truckMakeAndModel: 'TN05 D6544',
-              acceptableCommodities: [0],
-              truckLength: 30,
-              vehicleStatus: 1,
+              customerId: profileCubit.userId ?? "", // fallback if null
+                truckNo: truckNumberController.text.trim(),
+                rcNumber: rcNumberController.text.trim(),
+                rcDocLink: "https://example.com/rc-book.pdf",
+                tonnage: capacityController.text.trim(),
+                truckTypeId: int.tryParse(selectedTruckType ?? '') ?? 0,
+                truckMakeAndModel: truckMakeModelController.text.trim(),
+                acceptableCommodities: selectedCommodities.map(int.parse).toList(),
+                truckLength: int.tryParse(selectedTruckLength ?? '') ?? 0,
+                vehicleStatus: 1,
             );
 
             if (isEdit) {
@@ -1215,9 +1214,10 @@ class _MasterScreenState extends State<MasterScreen>
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
 
-    final addressNameController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
-    );
+    final nameController = TextEditingController();
+    final licenseNumberController = TextEditingController();
+    final mobileController = TextEditingController();
+    final emailController = TextEditingController();
     final addressController = TextEditingController(
       text: vehcile?.vehicleId ?? '',
     );
@@ -1251,14 +1251,14 @@ class _MasterScreenState extends State<MasterScreen>
               20.height,
               _buildTextField(
                 context,
-                addressNameController,
+                nameController,
                 "Driver Name",
                 alphanumericWithSpaceRegex,
               ),
               16.height,
               _buildTextField(
                 context,
-                addressController,
+                licenseNumberController,
                 "License Number",
                 alphanumericWithSpaceRegex,
               ),
@@ -1314,8 +1314,8 @@ class _MasterScreenState extends State<MasterScreen>
               ),
               16.height,
               AppTextField(
-                validator: Validator.pincode,
-                controller: pinCodeController,
+                validator: Validator.phone,
+                controller: mobileController,
                 labelText: "Mobile Number",
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -1324,42 +1324,55 @@ class _MasterScreenState extends State<MasterScreen>
                 keyboardType: iosNumberKeyboard,
               ),
               16.height,
-              _buildTextField(
-                context,
-                addressController,
-                "Email ID (optional)",
-                alphanumericWithSpaceRegex,
-              ),
-
+              AppTextField(
+                            labelText: '"Email ID (optional)',
+                            hintText: 'example@email.com',
+                           controller: emailController,
+                            readOnly: false,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return context.appText.emailAddressRequired;
+                              }
+                              // Email validation
+                              final emailRegex = emailValidationRegex;
+                              if (!emailRegex.hasMatch(value.trim())) {
+                                return context.appText.validEmailAddress;
+                              }
+                              return null;
+                            },
+                            decoration: commonInputDecoration(
+                              hintText: 'example@email.com',
+                              fillColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor: AppColors.disabledFieldBackgroundColor,
+                            ),
+                          ),
+              
               20.height,
             ],
           ),
         ),
         onClickYesButton: () async {
           if (formKey.currentState!.validate()) {
-            final request = VehicleRequest(
-              customerId: '2e4d8086-5e8c-40b4-b316-ec6e6ede3473',
-              truckNo: 'TN01DB1235',
-              rcNumber: 'JTN7D5432168',
-              rcDocLink: 'https://example.com/rc-book.pdf',
-              tonnage: '12T',
-              truckTypeId: 1,
-              truckMakeAndModel: 'TN05 D6544',
-              acceptableCommodities: [0],
-              truckLength: 30,
-              vehicleStatus: 1,
-            );
-
+            final request = DriverRequest(
+            customerId: profileCubit.userId ?? "",
+            name: nameController.text,
+            mobile: formatMobileNumber(mobileController.text.trim()),
+            email: emailController.text,
+            licenseNumber: licenseNumberController.text,
+            licenseDocLink: "https://cdn.example.com/licenses/123.pdf",
+            licenseExpiryDate:"2025-12-31T18:30:00.000Z",
+            dateOfBirth:"1990-01-01T00:00:00.000Z",
+          );
             if (isEdit) {
               // await profileCubit.updateAddress(addressId: address.preferedAddressId, request: request);
             } else {
-              await profileCubit.createVehicle(request: request);
+              await profileCubit.createDriver(request: request);
             }
 
-            final state = profileCubit.state.createVehicleState;
+            final state = profileCubit.state.createDriverState;
             if (state?.status == Status.SUCCESS) {
               if (context.mounted) Navigator.pop(context);
-              profileCubit.fetchVehicle(isLoading: false);
+              profileCubit.fetchDriver(isLoading: false);
               ToastMessages.success(
                 message:
                     isEdit
@@ -1377,6 +1390,7 @@ class _MasterScreenState extends State<MasterScreen>
         },
       ),
     );
+
   }
 
   Widget _buildTextField(

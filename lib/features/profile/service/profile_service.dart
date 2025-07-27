@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
@@ -16,6 +17,7 @@ import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -379,6 +381,28 @@ class ProfileService {
   }
 }
 
+ 
+  /// create Driver
+  Future<Result<DriverNewModel>> createDriver({required DriverRequest request}) async {
+    try {
+      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers";
+      final response = await _apiService.post(url, body: request.toJson());
+      if (response is Success) {
+        print("driver ${response.value.toString()}");
+        final loads = DriverNewModel.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        print("driver ${response.toString()}");
+        return Error(response.type);
+      } else {
+        print("driver GenericError");
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print("driver e");
+      return Error(DeserializationError());
+    }
+  }
 
    /// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {

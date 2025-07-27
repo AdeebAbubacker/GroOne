@@ -5,12 +5,14 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
@@ -245,7 +247,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
  
-    // Fetch address from api call
+    // Create New vehicle from api call
   void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState){
     emit(state.copyWith(createVehicleState: uiState));
   }
@@ -326,7 +328,22 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
 
+    // Create New vehicle from api call
+  void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){
+    emit(state.copyWith(createDriverState: uiState));
+  }
 
+  Future<void> createDriver({required DriverRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.createDriver(request: request);
+    if (result is Success<DriverNewModel>) {
+      _setCreateDriverUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateDriverUIState(UIState.error(result.type));
+    }
+  }
 
   // Fetch deriver from api call
   void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState){

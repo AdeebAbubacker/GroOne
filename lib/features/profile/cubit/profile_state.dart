@@ -11,6 +11,7 @@ class ProfileState extends Equatable {
   final UIState<BlueMemberShipResponse>? memberShipState;
   final UIState<CustomerAddress>? createAddressState;
   final UIState<VehicleNewModel>? createVehicleState;
+  final UIState<DriverNewModel>? createDriverState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
   final bool showSuccessKyc;
   final String? blueId;
@@ -29,6 +30,7 @@ class ProfileState extends Equatable {
     this.vehicleState,
      this.createVehicleState,
     this.driverState,
+    this.createDriverState,
     this.customerSettingsState,
     this.truckTypeUIState,
     this.truckLengths,
@@ -44,6 +46,7 @@ class ProfileState extends Equatable {
     UIState<BlueMemberShipResponse>? memberShipState,
     UIState<CustomerAddress>? createAddressState,
     UIState<VehicleNewModel>? createVehicleState,
+    UIState<DriverNewModel>? createDriverState,
     UIState<PaginatedVehicleList>? vehicleState,
     UIState<PaginatedDriverList>? driverState,
     UIState<bool>? deleteVehicleState,
@@ -64,6 +67,7 @@ class ProfileState extends Equatable {
       memberShipState: memberShipState ?? this.memberShipState,
       createAddressState: createAddressState ?? this.createAddressState,
       createVehicleState: createVehicleState ?? this.createVehicleState,
+      createDriverState: createDriverState ?? this.createDriverState,
       vehicleState: vehicleState ?? this.vehicleState,
       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
       truckLengths: truckLengths ?? this.truckLengths,
@@ -86,6 +90,7 @@ class ProfileState extends Equatable {
     truckTypeUIState,
     truckLengths,
     createVehicleState,
+    createDriverState,
     vehicleState,
     driverState,
     customerSettingsState
