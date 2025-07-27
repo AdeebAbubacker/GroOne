@@ -152,7 +152,7 @@ class _MasterScreenState extends State<MasterScreen>
               repeat: true,
               frameRate: FrameRate(200),
             ),
-            Text(context.appText.areYouSureToDeleteThisAddress).center(),
+            Text(context.appText.areYouSureToDeleteThisVehicle).center(),
           ],
         ),
         onClickYesButton: () async {
@@ -190,7 +190,7 @@ class _MasterScreenState extends State<MasterScreen>
               repeat: true,
               frameRate: FrameRate(200),
             ),
-            Text(context.appText.areYouSureToDeleteThisAddress).center(),
+            Text(context.appText.areYouSureToDeleteThisDriver).center(),
           ],
         ),
         onClickYesButton: () async {
@@ -1021,7 +1021,7 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
-
+ 
   void showAddVehiclePopup(BuildContext context, {VehicleDetailsData? vehcile}) {
    
     final formKey = GlobalKey<FormState>();
