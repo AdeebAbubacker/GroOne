@@ -92,7 +92,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -130,7 +130,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -168,7 +168,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -880,7 +880,7 @@ class _MasterScreenState extends State<MasterScreen>
 
     AppDialog.show(
       context,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         yesButtonText: isEdit ? context.appText.update : context.appText.save,
@@ -1007,7 +1007,7 @@ class _MasterScreenState extends State<MasterScreen>
 
     AppDialog.show(
       context,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         yesButtonText: isEdit ? context.appText.update : context.appText.save,
@@ -1229,7 +1229,7 @@ class _MasterScreenState extends State<MasterScreen>
 
     AppDialog.show(
       context,
-      child: CommonDialogView(
+      child: MasterCommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         yesButtonText: isEdit ? context.appText.update : context.appText.save,
