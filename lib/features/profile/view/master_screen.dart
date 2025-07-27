@@ -193,7 +193,7 @@ class _MasterScreenState extends State<MasterScreen>
 
           if (result is Success) {
             if (context.mounted) {
-              Navigator.of(context).pop(); // close dialog
+              Navigator.of(context).pop();
               ToastMessages.success(
                 message: context.appText.addressDeletedSuccessfully,
               );
@@ -657,7 +657,7 @@ class _MasterScreenState extends State<MasterScreen>
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blue.shade50,
-              child: Icon(Icons.drive_eta, color: Colors.blue, size: 20),
+              child: SvgPicture.asset( AppIcons.svg.truckSteering)
             ),
             const SizedBox(width: 10),
 
@@ -676,11 +676,7 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(
-                        Icons.verified,
-                        color: Colors.green,
-                        size: 18,
-                      ),
+                     SvgPicture.asset( AppIcons.svg.tick)
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -782,7 +778,7 @@ class _MasterScreenState extends State<MasterScreen>
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blue.shade50,
-              child: Icon(Icons.drive_eta, color: Colors.blue, size: 20),
+              child: SvgPicture.asset( AppIcons.svg.truck,color: AppColors.primaryColor)
             ),
             const SizedBox(width: 10),
 
@@ -801,11 +797,7 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(
-                        Icons.verified,
-                        color: Colors.green,
-                        size: 18,
-                      ),
+                      SvgPicture.asset( AppIcons.svg.tick)
                     ],
                   ),
                   const SizedBox(height: 4),
