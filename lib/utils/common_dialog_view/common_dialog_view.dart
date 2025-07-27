@@ -284,7 +284,7 @@ class _MasterCommonDialogViewState extends State<MasterCommonDialogView> {
               ],
             ),
           ],
-          10.height,
+          30.height,
         ],
       ).paddingOnly(bottom: 5, left: 5, right: 5),
     );

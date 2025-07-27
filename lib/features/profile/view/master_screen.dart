@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +15,7 @@ import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -39,6 +42,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -206,7 +210,30 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
+  
+   Future<Result<bool>> _uploadGSTDocumentApiCall(
+    BuildContext context,
+    List<Map<String, dynamic>> multiFilesList,
+  ) async {
+    final cubit = context.read<ProfileCubit>();
+    await cubit.uploadVehicleDoc(File(multiFilesList.first['path']));
+    final status = cubit.state.vehicleDocUpload!.status;
 
+    if (status == Status.SUCCESS) {
+      final url = cubit.state.vehicleDocUpload!.data?.data?.url ?? '';
+      if (url.isNotEmpty) {
+        multiFilesList.first['path'] = url;
+        ToastMessages.success(message: 'File uploaded successfully');
+        return Success(true);
+      }
+    } else if (status == Status.ERROR) {
+      final errorType = cubit.state.vehicleDocUpload!.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: errorType ?? GenericError()),
+      );
+    }
+    return Error(GenericError());
+  }
   @override
   Widget build(BuildContext context) {
     int? role = profileCubit.userRole;
@@ -1234,11 +1261,16 @@ String? selectedDoB = driver?.dateOfBirth != null
     final pinCodeController = TextEditingController(
       text: driver?.companyDetails?.companyName?? '',
     );
-
-    AppDialog.show(
+   List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
+    MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
        builder: (BuildContext context, void Function(void Function()) setState) {
+        List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
+        
+
+      final vehicleDocUpload = context.watch<ProfileCubit>().state.vehicleDocUpload;
+      final isUploading = vehicleDocUpload?.status == Status.LOADING;
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1319,8 +1351,24 @@ String? selectedDoB = driver?.dateOfBirth != null
                       mandatoryStar: true,
                     ),
                   ),
+                  
                   16.height,
-                  AppTextField(
+                  UploadAttachmentFiles(
+                  multiFilesList: localVehicleDocList,
+                  isSingleFile: true,
+                  isLoading: isUploading,
+                  thenUploadFileToSever: () async {
+                    final result = await _uploadGSTDocumentApiCall(context, localVehicleDocList);
+                    if (result is Success) {
+                      setState(() {
+                        // Update the persistent vehicleDocList field in State class as well if needed
+                        vehicleDocList.clear();
+                        vehicleDocList.addAll(localVehicleDocList);
+                      });
+                    }
+                  },
+                ),
+                    AppTextField(
                     validator: Validator.phone,
                     controller: mobileController,
                     labelText: "Mobile Number",
@@ -1367,15 +1415,16 @@ String? selectedDoB = driver?.dateOfBirth != null
                   ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                       .format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
                   : null;
+                final rcDocLink = vehicleDocList.first['path'];  
                 final request = DriverRequest(
                 customerId: profileCubit.userId ?? "",
                 name: nameController.text,
                 mobile: formatMobileNumber(mobileController.text.trim()),
                 email: emailController.text,
                 licenseNumber: licenseNumberController.text,
-                licenseDocLink: "https://cdn.example.com/licenses/123.pdf",
+                licenseDocLink: rcDocLink,
                 licenseExpiryDate: licenseExpiryIso ?? '',
-                dateOfBirth: dateOfBirthIso ?? '',
+               dateOfBirth: dateOfBirthIso ?? '',
               
               );
                 if (isEdit) {
