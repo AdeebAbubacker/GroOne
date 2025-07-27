@@ -1211,12 +1211,17 @@ class _MasterScreenState extends State<MasterScreen>
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = driver != null;
-   String? selectedDate;
-   String? selectedDoB;
+   String? selectedDate = driver?.licenseExpiryDate != null
+    ? DateFormat('dd/MM/yyyy').format(driver!.licenseExpiryDate!)
+    : null;
+
+String? selectedDoB = driver?.dateOfBirth != null
+    ? DateFormat('dd/MM/yyyy').format(driver!.dateOfBirth!)
+    : null;
     final nameController = TextEditingController(text: driver?.name ?? "");
-    final licenseNumberController = TextEditingController();
-    final mobileController = TextEditingController();
-    final emailController = TextEditingController();
+    final licenseNumberController = TextEditingController(text: driver?.licenseNumber ?? "");
+    final mobileController = TextEditingController(text: driver?.mobile ?? "");
+    final emailController = TextEditingController(text: driver?.email ?? "");
     final addressController = TextEditingController(
       text: driver?.companyDetails?.companyName ?? '',
     );
@@ -1283,7 +1288,7 @@ class _MasterScreenState extends State<MasterScreen>
                     },
                     child: buildReadOnlyField(
           
-                      context.appText.possibleDeliveryDate,
+                      "License Expry Date",
                       selectedDate ?? 'Select date',
                       fillColor: Colors.white,
                       mandatoryStar: true,
@@ -1308,8 +1313,8 @@ class _MasterScreenState extends State<MasterScreen>
                 }
                     },
                     child: buildReadOnlyField(
-                      context.appText.possibleDeliveryDate,
-                      selectedDoB ?? 'Select DOB',
+                      "Date of birth",
+                      selectedDoB ?? 'DOB',
                       fillColor: Colors.white,
                       mandatoryStar: true,
                     ),
@@ -1353,6 +1358,15 @@ class _MasterScreenState extends State<MasterScreen>
             ),
             onClickYesButton: () async {
               if (formKey.currentState!.validate()) {
+                final licenseExpiryIso = selectedDate != null
+                  ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                      .format(DateFormat('dd/MM/yyyy').parse(selectedDate!))
+                  : null;
+
+              final dateOfBirthIso = selectedDoB != null
+                  ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                      .format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
+                  : null;
                 final request = DriverRequest(
                 customerId: profileCubit.userId ?? "",
                 name: nameController.text,
@@ -1360,8 +1374,8 @@ class _MasterScreenState extends State<MasterScreen>
                 email: emailController.text,
                 licenseNumber: licenseNumberController.text,
                 licenseDocLink: "https://cdn.example.com/licenses/123.pdf",
-                licenseExpiryDate:"2025-12-31T18:30:00.000Z",
-                dateOfBirth:"1990-01-01T00:00:00.000Z",
+                licenseExpiryDate: licenseExpiryIso ?? '',
+                dateOfBirth: dateOfBirthIso ?? '',
               
               );
                 if (isEdit) {
