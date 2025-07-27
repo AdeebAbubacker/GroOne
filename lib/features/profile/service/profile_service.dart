@@ -334,7 +334,7 @@ class ProfileService {
    /// create Vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
-      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/vehicle/add";
+      final url = ApiUrls.getVehicleList + "add";
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
         final loads = VehicleNewModel.fromJson(response.value);
@@ -352,7 +352,7 @@ class ProfileService {
    /// update vehicle
   Future<Result<VehicleNewModel>> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
     try {
-      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/vehicle/${vehicleId}";
+      final url = ApiUrls.getVehicleList + vehicleId;
       final response = await _apiService.put(url, body: request.toJson());
       if (response is Success) {
         final loads = VehicleNewModel.fromJson(response.value);
@@ -373,11 +373,9 @@ class ProfileService {
 }) async {
   try {
     final url = ApiUrls.deleteVehicle + vehicleId;
-   // final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/status/${vehicleId}";
-
     final body = jsonEncode({
-  "status": 3
-});
+    "status": 3
+   });
 
     final result = await _apiService.put(
       url,
@@ -404,7 +402,7 @@ class ProfileService {
   /// create Driver
   Future<Result<DriverNewModel>> createDriver({required DriverRequest request}) async {
     try {
-      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers";
+      final url = ApiUrls.driverListUrl;
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
         print("driver ${response.value.toString()}");
@@ -426,7 +424,7 @@ class ProfileService {
   /// update driver
   Future<Result<DriverNewModel>> updateDriver({required String driverId, required DriverRequest request}) async {
     try {
-      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers/${driverId}";
+       final url = '${ApiUrls.driverListUrl}/$driverId';
       final response = await _apiService.patch(url, body: request.toJson());
       if (response is Success) {
         final loads = DriverNewModel.fromJson(response.value);
@@ -462,7 +460,7 @@ class ProfileService {
   /// delete Driver
   Future<Result<void>> deleteDriver({required String driverId}) async {
     try {
-      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers/${driverId}";
+        final url = '${ApiUrls.driverListUrl}/$driverId';
       final response = await _apiService.delete(url);
       if (response is Success) {
         return Success(null);
