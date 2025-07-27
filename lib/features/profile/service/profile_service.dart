@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
@@ -370,16 +371,15 @@ class ProfileService {
   /// Delete vehicle
   Future<Result<bool>> deleteVehicle({
   required String vehicleId,
+  required DeleteVehicleRequest request,
 }) async {
   try {
     final url = ApiUrls.deleteVehicle + vehicleId;
-    final body = jsonEncode({
-    "status": 3
-   });
+
 
     final result = await _apiService.put(
       url,
-      body: body,
+      body: request.toJson(),
     );
 
     if (result is Success) {

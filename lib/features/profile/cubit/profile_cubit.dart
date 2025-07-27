@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
@@ -332,9 +333,9 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 // Delete Vehicle
 
 
-  Future<Result<void>> deleteVehicle({required String vehicleId}) async {
+  Future<Result<void>> deleteVehicle({required String vehicleId, required DeleteVehicleRequest request}) async {
 
-    Result<void> result = await _repo.deleteVehicle(vehicleId: vehicleId);
+    Result<void> result = await _repo.deleteVehicle(vehicleId: vehicleId,request: request);
 
     if (result is Success) {
       fetchVehicle(isLoading: false);

@@ -9,6 +9,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_state.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
@@ -156,7 +157,7 @@ class _MasterScreenState extends State<MasterScreen>
           ],
         ),
         onClickYesButton: () async {
-          final result = await profileCubit.deleteVehicle(vehicleId: vehicleId);
+          final result = await profileCubit.deleteVehicle(vehicleId: vehicleId,request: DeleteVehicleRequest(status: 3));
 
           if (result is Success) {
             if (context.mounted) {
