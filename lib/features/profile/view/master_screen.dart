@@ -1217,7 +1217,7 @@ class _MasterScreenState extends State<MasterScreen>
             ),
             onClickYesButton: () async {
               if (formKey.currentState!.validate()) {
-                final rcDocLink = vehicleDocList.first['path'];
+                final rcDocLink = vehicleDocList.isNotEmpty ? vehicleDocList.first['path'] : '';
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "", 
                     truckNo: truckNumberController.text.trim(),
@@ -1274,7 +1274,7 @@ String? selectedDoB = driver?.dateOfBirth != null
     : null;
     final nameController = TextEditingController(text: driver?.name ?? "");
     final licenseNumberController = TextEditingController(text: driver?.licenseNumber ?? "");
-    final mobileController = TextEditingController(text: driver?.mobile ?? "");
+    final mobileController = TextEditingController(text: driver?.mobile?.replaceFirst('+91', '') ?? "",);
     final emailController = TextEditingController(text: driver?.email ?? "");
     final addressController = TextEditingController(
       text: driver?.companyDetails?.companyName ?? '',
@@ -1441,7 +1441,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                   ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                       .format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
                   : null;
-                final rcDocLink = vehicleDocList.first['path'];  
+                 final rcDocLink = vehicleDocList.isNotEmpty ? vehicleDocList.first['path'] : ''; 
                 final request = DriverRequest(
                 customerId: profileCubit.userId ?? "",
                 name: nameController.text,
