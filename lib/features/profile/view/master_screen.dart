@@ -558,6 +558,7 @@ class _MasterScreenState extends State<MasterScreen>
                   onEdit: () {
                     showAddDriverPopup(context,driver: driver);
                   },
+                  
                   onDelete: () => deletePopUpForDriver(context, driver.driverId),
                 );
               },
@@ -1029,208 +1030,232 @@ class _MasterScreenState extends State<MasterScreen>
     final rcNumberController = TextEditingController();
     final capacityController = TextEditingController(text: vehcile?.tonnage ?? '');
 
-    AppDialog.show(
+    MasterDialogueWidget.show(
       context,
-      child: MasterCommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        yesButtonText: isEdit ? context.appText.update : context.appText.save,
-        noButtonText: context.appText.cancel,
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEdit ? context.appText.editAddress : "Add New Vehicle",
-                  style: AppTextStyle.h4,
-                ),
-                20.height,
-                _buildTextField(
-                  context,
-                  truckNumberController,
-                  "Truck Number",
-                  alphanumericWithSpaceRegex,
-                ),
-                16.height,
-                _buildTextField(
-                  context,
-                  truckMakeModelController,
-                  "Truck Make and model",
-                  alphanumericWithSpaceRegex,
-                ),
-                16.height,
-                _buildTextField(
-                  context,
-                  rcNumberController,
-                  "RC Book Number",
-                  alphabetWithSpaceRegex,
-                ),
-                16.height,
-                
-                // TrucK Type
-             BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
-              builder: (context, state) {
-                final truckTypesUI = state.truckTypes;
-                final truckLengthsUI = state.truckLengths;
-
-                if (truckTypesUI == null || truckTypesUI.status == Status.LOADING) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (truckTypesUI.status == Status.ERROR) {
-                  return Text("Error loading truck types");
-                }
-                final truckTypes = truckTypesUI.data ?? [];
-
-                return Column(
+      child: StatefulBuilder(
+        builder: (context, asyncSnapshot) {
+          List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
+      final vehicleDocUpload = context.watch<ProfileCubit>().state.vehicleDocUpload;
+      final isUploading = vehicleDocUpload?.status == Status.LOADING;
+          return MasterCommonDialogView(
+            hideCloseButton: true,
+            showYesNoButtonButtons: true,
+            yesButtonText: isEdit ? context.appText.update : context.appText.save,
+            noButtonText: context.appText.cancel,
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppDropdown(
-                      labelText: "Truck Type",
-                      dropdownValue: selectedTruckType,
-                      dropDownList: truckTypes.map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(e),
-                          )).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          selectedTruckType = val;
-                          truckLengthDropdownValue = null; // reset truck length on type change
-                        });
-                        context.read<GpsVehicleCubit>().fetchTruckLengths(val!);
-                      },
-                      validator: (val) => val == null ? "Select Truck Type" : null,
+                    Text(
+                      isEdit ? context.appText.editAddress : "Add New Vehicle",
+                      style: AppTextStyle.h4,
                     ),
-                 const SizedBox(height: 16),
-                AppDropdown(
-                  labelText: "Truck Length",
-                  dropdownValue: truckLengthDropdownValue,
-                  dropDownList: (truckLengthsUI != null &&
-                          truckLengthsUI.status == Status.SUCCESS &&
-                          truckLengthsUI.data != null)
-                      ? truckLengthsUI.data!.map((e) => DropdownMenuItem(
-                            value: e.subType,
-                            child: Text(e.subType),
-                          )).toList()
-                      : [],
-                  hintText: "Select Truck Length",
-                  mandatoryStar: true,
-                
-                  onChanged: (val) {
-                    if (truckLengthsUI != null && truckLengthsUI.status == Status.SUCCESS) {
-                      setState(() {
-                        truckLengthDropdownValue = val;
-                      });
-                    }
-                  },
-                  validator: (val) =>
-                      val == null || val.isEmpty ? "Select Truck Length" : null,
-                ),
-                if (truckLengthsUI != null && truckLengthsUI.status == Status.LOADING)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: CircularProgressIndicator(),
-                  ),
-                if (truckLengthsUI != null && truckLengthsUI.status == Status.ERROR)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text("Error loading truck lengths"),
-                  ),
-              ],
-            );
-          },
-        ),
-          16.height,
-                _buildTextField(
-                  context,
-                  capacityController,
-                  "Capacity",
-                  alphabetWithSpaceRegex,
-                ),
-               16.height,   
-             Builder(
-                  builder: (context) {
-                    final state = gpsVehicleCubit.state;
+                    20.height,
+                    _buildTextField(
+                      context,
+                      truckNumberController,
+                      "Truck Number",
+                      alphanumericWithSpaceRegex,
+                    ),
+                    16.height,
+                    _buildTextField(
+                      context,
+                      truckMakeModelController,
+                      "Truck Make and model",
+                      alphanumericWithSpaceRegex,
+                    ),
+                    16.height,
+                    _buildTextField(
+                      context,
+                      rcNumberController,
+                      "RC Book Number",
+                      alphabetWithSpaceRegex,
+                    ),
+                    16.height,
+                    // Upload RC Book
+                      UploadAttachmentFiles(
+                      multiFilesList: localVehicleDocList,
+                      isSingleFile: true,
+                      isLoading: isUploading,
+                      thenUploadFileToSever: () async {
+                        final result = await _uploadGSTDocumentApiCall(context, localVehicleDocList);
+                        if (result is Success) {
+                          setState(() {
+                            // Update the persistent vehicleDocList field in State class as well if needed
+                            vehicleDocList.clear();
+                            vehicleDocList.addAll(localVehicleDocList);
+                          });
+                        }
+                      },
+                    ),
                     
-                    if (state.commodities.status == Status.LOADING) {
-                      return const SizedBox.shrink();
-                    } else if (state.commodities.status == Status.SUCCESS) {
-                      final items = state.commodities.data!.map((commodity) {
-                        return DropdownItem<String>(
-                          label: commodity.name,
-                          value: commodity.id.toString(),
-                        );
-                      }).toList();
-                      return AppMultiSelectionDropdown<String>(
-                        labelText: context.appText.acceptableCommodities,
-                        hintText: context.appText.select,
-                        mandatoryStar: true,
-                        controller: acceptableCommoditiesController,
-                        items: items,
-                        onSelectionChange: (selected) {
-                           selectedCommodities = selected;
-                        },
-                        validator: (value) => value == null || value.isEmpty
-                            ? context.appText.pleaseSelectCommodity
-                            : null,
-                        showValidationError: showValidationErrors,
-                      );
-                    } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}');
+                    // TrucK Type
+                 BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
+                  builder: (context, state) {
+                    final truckTypesUI = state.truckTypes;
+                    final truckLengthsUI = state.truckLengths;
+          
+                    if (truckTypesUI == null || truckTypesUI.status == Status.LOADING) {
+                      return const Center(child: CircularProgressIndicator());
                     }
-                    return const SizedBox.shrink();
-                  },
-                ),
-               
-             
-                16.height,
-               
-                20.height,
-              ],
+                    if (truckTypesUI.status == Status.ERROR) {
+                      return Text("Error loading truck types");
+                    }
+                    final truckTypes = truckTypesUI.data ?? [];
+          
+                    return Column(
+                      children: [
+                        AppDropdown(
+                          labelText: "Truck Type",
+                          dropdownValue: selectedTruckType,
+                          dropDownList: truckTypes.map((e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(e),
+                              )).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              selectedTruckType = val;
+                              truckLengthDropdownValue = null; // reset truck length on type change
+                            });
+                            context.read<GpsVehicleCubit>().fetchTruckLengths(val!);
+                          },
+                          validator: (val) => val == null ? "Select Truck Type" : null,
+                        ),
+                     const SizedBox(height: 16),
+                    AppDropdown(
+                      labelText: "Truck Length",
+                      dropdownValue: truckLengthDropdownValue,
+                      dropDownList: (truckLengthsUI != null &&
+                              truckLengthsUI.status == Status.SUCCESS &&
+                              truckLengthsUI.data != null)
+                          ? truckLengthsUI.data!.map((e) => DropdownMenuItem(
+                                value: e.subType,
+                                child: Text(e.subType),
+                              )).toList()
+                          : [],
+                      hintText: "Select Truck Length",
+                      mandatoryStar: true,
+                    
+                      onChanged: (val) {
+                        if (truckLengthsUI != null && truckLengthsUI.status == Status.SUCCESS) {
+                          setState(() {
+                            truckLengthDropdownValue = val;
+                          });
+                        }
+                      },
+                      validator: (val) =>
+                          val == null || val.isEmpty ? "Select Truck Length" : null,
+                    ),
+                    if (truckLengthsUI != null && truckLengthsUI.status == Status.LOADING)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    if (truckLengthsUI != null && truckLengthsUI.status == Status.ERROR)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text("Error loading truck lengths"),
+                      ),
+                  ],
+                );
+              },
             ),
-          ),
-        ),
-        onClickYesButton: () async {
-          if (formKey.currentState!.validate()) {
-            final request = VehicleRequest(
-              customerId: profileCubit.userId ?? "", // fallback if null
-                truckNo: truckNumberController.text.trim(),
-                rcNumber: rcNumberController.text.trim(),
-                rcDocLink: "https://example.com/rc-book.pdf",
-                tonnage: capacityController.text.trim(),
-                truckTypeId: int.tryParse(selectedTruckType ?? '') ?? 0,
-                truckMakeAndModel: truckMakeModelController.text.trim(),
-                acceptableCommodities: selectedCommodities.map(int.parse).toList(),
-                truckLength: int.tryParse(selectedTruckLength ?? '') ?? 0,
-                vehicleStatus: 1,
-            );
-
-            if (isEdit) {
-             await profileCubit.updateVehicle(vehicleId: vehcile.vehicleId, request: request);
-            } else {
-              await profileCubit.createVehicle(request: request);
-            }
-
-            final state = profileCubit.state.createVehicleState;
-            if (state?.status == Status.SUCCESS) {
-              if (context.mounted) Navigator.pop(context);
-              profileCubit.fetchVehicle(isLoading: false);
-              ToastMessages.success(
-                message:
-                    isEdit
-                        ? context.appText.addressUpdatedSuccessfully
-                        : context.appText.addressAddedSuccess,
-              );
-            } else {
-              ToastMessages.error(
-                message: getErrorMsg(
-                  errorType: state?.errorType ?? GenericError(),
+              16.height,
+                    _buildTextField(
+                      context,
+                      capacityController,
+                      "Capacity",
+                      alphabetWithSpaceRegex,
+                    ),
+                   16.height,   
+                 Builder(
+                      builder: (context) {
+                        final state = gpsVehicleCubit.state;
+                        
+                        if (state.commodities.status == Status.LOADING) {
+                          return const SizedBox.shrink();
+                        } else if (state.commodities.status == Status.SUCCESS) {
+                          final items = state.commodities.data!.map((commodity) {
+                            return DropdownItem<String>(
+                              label: commodity.name,
+                              value: commodity.id.toString(),
+                            );
+                          }).toList();
+                          return AppMultiSelectionDropdown<String>(
+                            labelText: context.appText.acceptableCommodities,
+                            hintText: context.appText.select,
+                            mandatoryStar: true,
+                            controller: acceptableCommoditiesController,
+                            items: items,
+                            onSelectionChange: (selected) {
+                               selectedCommodities = selected;
+                            },
+                            validator: (value) => value == null || value.isEmpty
+                                ? context.appText.pleaseSelectCommodity
+                                : null,
+                            showValidationError: showValidationErrors,
+                          );
+                        } else if (state.commodities.status == Status.ERROR) {
+                          return Text('Error: ${state.commodities.errorType}');
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                   
+                 
+                    16.height,
+                   
+                    20.height,
+                  ],
                 ),
-              );
-            }
-          }
-        },
+              ),
+            ),
+            onClickYesButton: () async {
+              if (formKey.currentState!.validate()) {
+                final rcDocLink = vehicleDocList.first['path'];
+                final request = VehicleRequest(
+                  customerId: profileCubit.userId ?? "", 
+                    truckNo: truckNumberController.text.trim(),
+                    rcNumber: rcNumberController.text.trim(),
+                    rcDocLink: rcDocLink,
+                    tonnage: capacityController.text.trim(),
+                    truckTypeId: int.tryParse(selectedTruckType ?? '') ?? 0,
+                    truckMakeAndModel: truckMakeModelController.text.trim(),
+                    acceptableCommodities: selectedCommodities.map(int.parse).toList(),
+                    truckLength: int.tryParse(selectedTruckLength ?? '') ?? 0,
+                    vehicleStatus: 1,
+                );
+          
+                if (isEdit) {
+                 await profileCubit.updateVehicle(vehicleId: vehcile.vehicleId, request: request);
+                } else {
+                  await profileCubit.createVehicle(request: request);
+                }
+          
+                final state = profileCubit.state.createVehicleState;
+                if (state?.status == Status.SUCCESS) {
+                  if (context.mounted) Navigator.pop(context);
+                  profileCubit.fetchVehicle(isLoading: false);
+                  ToastMessages.success(
+                    message:
+                        isEdit
+                            ? context.appText.addressUpdatedSuccessfully
+                            : context.appText.addressAddedSuccess,
+                  );
+                } else {
+                  ToastMessages.error(
+                    message: getErrorMsg(
+                      errorType: state?.errorType ?? GenericError(),
+                    ),
+                  );
+                }
+              }
+            },
+          );
+        }
       ),
     );
   }
@@ -1261,7 +1286,6 @@ String? selectedDoB = driver?.dateOfBirth != null
     final pinCodeController = TextEditingController(
       text: driver?.companyDetails?.companyName?? '',
     );
-   List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
