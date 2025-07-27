@@ -435,14 +435,14 @@ class _MasterScreenState extends State<MasterScreen>
                 itemBuilder: (context, index) {
                   final vehicle = vehicleList[index];
                   print("Vehicle id ${vehicle.vehicleId}");
-                  return masterInfoWidget(
-                    title: vehicle.ownerName,
-                    address: vehicle.ownerName,
-                    isPrimary: false,
-                    onEdit: () {},
+                  return masterVehicleInfoWidget(
+                     name: vehicle.truckNo,
+                  phone:  vehicle.ownerName,
+                  onEdit: () {
+                  },
                     onDelete:
-                        () => deletePopUpForVehicle(context, vehicle.vehicleId),
-                    onSetPrimary: () {},
+                        () => deletePopUpForVehicle(context, vehicle.customerId),
+                  
                   );
                 },
               ).expand(),
@@ -508,20 +508,20 @@ class _MasterScreenState extends State<MasterScreen>
                 shrinkWrap: true,
                 itemCount: driverList.length,
                 itemBuilder: (context, index) {
-                  final vehicle = driverList[index];
-                  return masterInfoWidget(
-                    title: vehicle.name,
-                    address: vehicle.name,
-                    isPrimary: false,
-                    onEdit: () {},
+                  final driver = driverList[index];
+                  return masterDriverInfoWidget(
+                    name: driver.name,
+                  phone:  driver.mobile,
+                  onEdit: () {
+                  },
                     onDelete:
-                        () => deletePopUpForDriver(context, vehicle.driverId),
-                    onSetPrimary: () {},
+                        () => deletePopUpForDriver(context, driver.driverId),
+                  
                   );
                 },
               ).expand(),
               AppButton(
-                title: context.appText.addNewVehicle,
+                title: "Add New Driver",
                 onPressed: () {
                   showAddDriverPopup(context);
                 },
@@ -613,6 +613,256 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
+  
+  Widget masterDriverInfoWidget({
+  required String name,
+  required String phone,
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          spreadRadius: 1,
+          blurRadius: 5,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Profile Icon
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.blue.shade50,
+              child: Icon(Icons.drive_eta, color: Colors.blue, size: 20),
+            ),
+            const SizedBox(width: 10),
+
+            // Name, Verified and Phone Number
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.verified,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    phone,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Active Tag
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                "Active",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Action Buttons
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onDelete,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.red),
+                  foregroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("Delete"),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onEdit,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.blue),
+                  foregroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("Edit"),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+ Widget masterVehicleInfoWidget({
+  required String name,
+  required String phone,
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(bottom: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          spreadRadius: 1,
+          blurRadius: 5,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Profile Icon
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.blue.shade50,
+              child: Icon(Icons.drive_eta, color: Colors.blue, size: 20),
+            ),
+            const SizedBox(width: 10),
+
+            // Name, Verified and Phone Number
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.verified,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    phone,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Active Tag
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                "Active",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Action Buttons
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onDelete,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.red),
+                  foregroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("Delete"),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: onEdit,
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.blue),
+                  foregroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("Edit"),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
     final formKey = GlobalKey<FormState>();
