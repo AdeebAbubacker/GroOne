@@ -92,7 +92,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: MasterCommonDialogView(
+      child: CommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -130,7 +130,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: MasterCommonDialogView(
+      child: CommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -168,7 +168,7 @@ class _MasterScreenState extends State<MasterScreen>
     return AppDialog.show(
       context,
       dismissible: true,
-      child: MasterCommonDialogView(
+      child: CommonDialogView(
         hideCloseButton: true,
         showYesNoButtonButtons: true,
         noButtonText: context.appText.cancel,
@@ -457,81 +457,85 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  Widget buildDriverTab(int role) {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        final uiState = state.driverState;
+   Widget buildDriverTab(int role) {
+  return BlocBuilder<ProfileCubit, ProfileState>(
+    builder: (context, state) {
+      final uiState = state.driverState;
 
-        if (uiState == null || uiState.status == Status.LOADING) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      if (uiState == null || uiState.status == Status.LOADING) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        if (uiState.status == Status.ERROR) {
-          return genericErrorWidget(error: uiState.errorType);
-        }
+      if (uiState.status == Status.ERROR) {
+        return genericErrorWidget(error: uiState.errorType);
+      }
 
-        final driverList = uiState.data?.data ?? [];
+      final driverList = uiState.data?.data ?? [];
 
-        if (driverList.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
-                20.height,
-                Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
-                10.height,
-                Text(
-                  context.appText.startByAddingANewAddress,
-                  style: AppTextStyle.body3,
-                ),
-                20.height,
-                AppButton(
-                  title: context.appText.addNewVehicle,
-                  onPressed: () async {
+      if (driverList.isEmpty) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+                  20.height,
+                  Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
+                  10.height,
+                  Text(
+                    context.appText.startByAddingANewAddress,
+                    style: AppTextStyle.body3,
+                  ),
+                ],
+              ),
+            ).expand(),
+            AppButton(
+              title: "Add New Driver",
+              onPressed: () async {
+                showAddDriverPopup(context);
+              },
+            ).paddingSymmetric(horizontal: 20, vertical: 10),
+          ],
+        );
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            20.height,
+            if (role == 2) ...[
+              AppSearchBar(searchController: searchController),
+              20.height,
+            ],
+            ListView.builder(
+              itemCount: driverList.length,
+              itemBuilder: (context, index) {
+                final driver = driverList[index];
+                return masterDriverInfoWidget(
+                  name: driver.name,
+                  phone: driver.mobile,
+                  onEdit: () {
                     showAddDriverPopup(context);
                   },
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              20.height,
-              if (role == 2) AppSearchBar(searchController: searchController),
-              20.height,
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: driverList.length,
-                itemBuilder: (context, index) {
-                  final driver = driverList[index];
-                  return masterDriverInfoWidget(
-                    name: driver.name,
-                  phone:  driver.mobile,
-                  onEdit: () {
-                  },
-                    onDelete:
-                        () => deletePopUpForDriver(context, driver.driverId),
-                  
-                  );
-                },
-              ).expand(),
-              AppButton(
-                title: "Add New Driver",
-                onPressed: () {
-                  showAddDriverPopup(context);
-                },
-              ).paddingSymmetric(vertical: 10),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                  onDelete: () => deletePopUpForDriver(context, driver.driverId),
+                );
+              },
+            ).expand(),
+            AppButton(
+              title: "Add New Driver",
+              onPressed: () {
+                showAddDriverPopup(context);
+              },
+            ).paddingSymmetric(vertical: 10),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   Widget masterInfoWidget({
     required String title,
