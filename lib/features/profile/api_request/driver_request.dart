@@ -8,7 +8,7 @@ class DriverRequest {
     required this.licenseDocLink,
     required this.licenseExpiryDate,
     required this.dateOfBirth,
-
+    required this.driverStatus,
   });
 
   final String customerId;
@@ -19,7 +19,7 @@ class DriverRequest {
   final String licenseDocLink;
   final String licenseExpiryDate; // ISO string format
   final String dateOfBirth; // ISO string format
-
+  final int driverStatus;
 
   DriverRequest copyWith({
     String? customerId,
@@ -46,7 +46,7 @@ class DriverRequest {
       licenseDocLink: licenseDocLink ?? this.licenseDocLink,
       licenseExpiryDate: licenseExpiryDate ?? this.licenseExpiryDate,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-     
+      driverStatus: driverStatus ?? this.driverStatus
     );
   }
 
@@ -60,7 +60,7 @@ class DriverRequest {
       licenseDocLink: json["licenseDocLink"] ?? "",
       licenseExpiryDate: json["licenseExpiryDate"] ?? "",
       dateOfBirth: json["dateOfBirth"] ?? "",
-    
+      driverStatus: json['driverStatus'] ?? 1,
     );
   }
 
@@ -74,7 +74,7 @@ class DriverRequest {
       "licenseDocLink": licenseDocLink,
       "licenseExpiryDate": licenseExpiryDate,
       "dateOfBirth": dateOfBirth,
-     
+      "driverStatus": driverStatus,
     };
   }
 }

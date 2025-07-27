@@ -556,6 +556,7 @@ class _MasterScreenState extends State<MasterScreen>
                 return masterDriverInfoWidget(
                   name: driver.name,
                   phone: driver.mobile,
+                  driverStatus: driver.driverStatus,
                   onEdit: () {
                     showAddDriverPopup(context,driver: driver);
                   },
@@ -661,6 +662,7 @@ class _MasterScreenState extends State<MasterScreen>
   Widget masterDriverInfoWidget({
   required String name,
   required String phone,
+  required int driverStatus,
   required VoidCallback onEdit,
   required VoidCallback onDelete,
   required BuildContext context,
@@ -727,13 +729,13 @@ class _MasterScreenState extends State<MasterScreen>
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.green.shade100,
+                color:  driverStatus == 1 ? Colors.green.shade100 : Colors.red.shade100,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                context.appText.active,
+                driverStatus == 1 ?context.appText.active : context.appText.inactive,
                 style: TextStyle(
-                  color: Colors.green,
+                  color:driverStatus==1? Colors.green: Colors.red,
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -742,7 +744,7 @@ class _MasterScreenState extends State<MasterScreen>
           ],
         ),
         const SizedBox(height: 16),
-
+        
         // Action Buttons
         Row(
           children: [
@@ -1289,6 +1291,7 @@ String? selectedDoB = driver?.dateOfBirth != null
     final pinCodeController = TextEditingController(
       text: driver?.companyDetails?.companyName?? '',
     );
+    bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
@@ -1428,6 +1431,21 @@ String? selectedDoB = driver?.dateOfBirth != null
                               ),
                   
                   20.height,
+                   /// Active Switch
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(context.appText.active),
+                    Switch(
+                      value: isActive,
+                      onChanged: (val) {
+                        setState(() {
+                         isActive = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
                 ],
               ),
             ),
@@ -1452,7 +1470,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                 licenseDocLink: rcDocLink,
                 licenseExpiryDate: licenseExpiryIso ?? '',
                dateOfBirth: dateOfBirthIso ?? '',
-              
+                driverStatus: isActive ? 1 : 2
               );
                 if (isEdit) {
                    await profileCubit.updateDriver(driverId: driver.driverId, request: request);
