@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
@@ -13,13 +14,17 @@ import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
 
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
-  ProfileCubit(this._repo): super(ProfileState());
+  final VpCreationRepository _vprepository;
+  ProfileCubit(this._repo,this._vprepository): super(ProfileState());
 
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
@@ -236,6 +241,23 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCustomerSettingsUIState(UIState.error(result.type));
     }
   }
+ 
+    // Fetch address from api call
+  void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState){
+    emit(state.copyWith(createVehicleState: uiState));
+  }
+
+  Future<void> createVehicle({required VehicleRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.createVehicle(request: request.copyWith(customerId: userId));
+    if (result is Success<VehicleNewModel>) {
+      _setCreateVehicleUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateVehicleUIState(UIState.error(result.type));
+    }
+  }
 
    // Fetch vehicle from api call
   void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState){
@@ -254,6 +276,22 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchVehicleUIState(UIState.error(result.type));
     }
   }
+
+   // Fetch Truck type Api Call
+  void _setTruckTypeUIState(UIState<List<TruckTypeModel>>? uiState){
+    emit(state.copyWith(truckTypeUIState: uiState));
+  }
+  Future<void> fetchTruckType() async {
+    _setTruckTypeUIState(UIState.loading());
+    Result result = await _vprepository.getTruckTypeData();
+    if (result is Success<List<TruckTypeModel>>) {
+      _setTruckTypeUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setTruckTypeUIState(UIState.error(result.type));
+    }
+  }
+
 
 
 // Delete Vehicle

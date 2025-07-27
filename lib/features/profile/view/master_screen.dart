@@ -5,17 +5,23 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
+import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -45,9 +51,10 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
 
 
   final profileCubit = locator<ProfileCubit>();
+  final vpCreationCubit = locator<VpCreateAccountCubit>();
   late TabController _tabController;
   final searchController = TextEditingController();
-
+  String? companyTypeDropDownValue;
 
   @override
   void initState() {
@@ -61,12 +68,13 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  void initFunction() {
+  void initFunction(){
     _tabController = TabController(length: 3, vsync: this);
     profileCubit.fetchAddress();
     profileCubit.fetchVehicle();
     profileCubit.fetchDriver();
     profileCubit.fetchUserRole();
+    vpCreationCubit.fetchTruckType();
   }
 
   void disposeFunction() => frameCallback(() {
@@ -328,7 +336,9 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
               20.height,
               AppButton(
                 title: context.appText.addNewVehicle,
-                onPressed: () {}, 
+              onPressed: () async{
+              showAddVehiclePopup(context);
+               },
               ),
             ],
           ),
@@ -360,7 +370,7 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
             ).expand(),
             AppButton(
               title: context.appText.addNewVehicle,
-              onPressed: () {}, 
+               onPressed: () async => showAddVehiclePopup(context),
             ).paddingSymmetric(vertical: 10),
           ],
         ),
@@ -397,7 +407,9 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
               20.height,
               AppButton(
                 title: context.appText.addNewVehicle,
-                onPressed: () {}, 
+                onPressed: () async{
+                  showAddDriverPopup(context);
+                }, 
               ),
             ],
           ),
@@ -428,7 +440,9 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
             ).expand(),
             AppButton(
               title: context.appText.addNewVehicle,
-              onPressed: () {}, 
+              onPressed: () {
+                 showAddDriverPopup(context);
+              }, 
             ).paddingSymmetric(vertical: 10),
           ],
         ),
@@ -577,6 +591,268 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
     );
   }
 
+  void showAddVehiclePopup(BuildContext context, {VehicleData? vehcile}) {
+    final formKey = GlobalKey<FormState>();
+    final isEdit = vehcile != null;
+
+    final addressNameController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final addressController = TextEditingController(text:vehcile?.vehicleId ?? '');
+    final cityController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final stateController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final pinCodeController = TextEditingController(text: vehcile?.vehicleId ?? '');
+
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        yesButtonText: isEdit ? context.appText.update : context.appText.save,
+        noButtonText: context.appText.cancel,
+        child: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(isEdit ? context.appText.editAddress : "Add New Vehicle", style: AppTextStyle.h4),
+                20.height,
+                _buildTextField(context, addressNameController, "Truck Number", alphanumericWithSpaceRegex),
+                16.height,
+                _buildTextField(context, addressController, "Truck Make and model", alphanumericWithSpaceRegex),
+                16.height,
+                _buildTextField(context, stateController, "RC Book Number", alphabetWithSpaceRegex),
+                16.height,                
+                // TrucK Type
+        BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
+          bloc: vpCreationCubit,
+          listenWhen: (previous, current) =>  previous.truckTypeUIState?.status != current.truckTypeUIState?.status,
+          buildWhen: (previous, current) => previous.truckTypeUIState?.status == Status.SUCCESS,
+          listener: (context, state) {
+            final status = state.truckTypeUIState?.status;
+
+            if (status == Status.ERROR) {
+              final error = state.truckTypeUIState?.errorType;
+              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+            }
+
+          },
+          builder: (context, state) {
+            final data = state.truckTypeUIState?.data;
+            if(data != null){
+              return Column(
+                children: [
+                  AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value),
+                    labelText: "Truck Type",
+                    hintText: "Selected Truck type",
+                    mandatoryStar: true,
+                    dropdownValue: companyTypeDropDownValue,
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: data.map((e) => DropdownMenuItem(
+                      value: e.id.toString(),
+                      child: Text(e.type, style: AppTextStyle.body),
+                    )).toList(),
+                    onChanged: (onChangeValue) {
+                      companyTypeDropDownValue = onChangeValue;
+                      setState(() {});
+                    },
+                  ),
+                ],
+              );
+            }
+            return const SizedBox();
+          },
+        ),
+               16.height,                
+                AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value),
+                    labelText: "Truck Length",
+                    hintText: "Truck Length",
+                    mandatoryStar: true,
+                    dropdownValue: 'd',
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: [],
+                    onChanged: (onChangeValue) {
+                     
+                      setState(() {});
+                    },
+                  ),
+                  16.height,
+                   _buildTextField(context, stateController, "Capacity", alphabetWithSpaceRegex),
+                  16.height,                
+                AppDropdown(
+                    validator: (value) => Validator.fieldRequired(value),
+                    labelText: "Truck Length",
+                    hintText:"Accepatble commodities",
+                    mandatoryStar: true,
+                    dropdownValue: 'd',
+                    decoration: commonInputDecoration(fillColor: Colors.white),
+                    dropDownList: [],
+                    onChanged: (onChangeValue) {
+                     
+                      setState(() {});
+                    },
+                  ), 
+                20.height,
+              ],
+            ),
+          ),
+        ),
+        onClickYesButton: () async {
+          if (formKey.currentState!.validate()) {
+          final request = VehicleRequest(
+          customerId: '2e4d8086-5e8c-40b4-b316-ec6e6ede3473',
+          truckNo: 'TN01DB1235',
+          rcNumber: 'JTN7D5432168',
+          rcDocLink: 'https://example.com/rc-book.pdf',
+          tonnage: '12T',
+          truckTypeId: 1,
+          truckMakeAndModel: 'TN05 D6544',
+          acceptableCommodities: [0],
+          truckLength: 30,
+          vehicleStatus: 1,
+        );
+
+            if (isEdit) {
+             // await profileCubit.updateAddress(addressId: address.preferedAddressId, request: request);
+            } else {
+              await profileCubit.createVehicle(request: request);
+            }
+
+            final state = profileCubit.state.createVehicleState;
+            if (state?.status == Status.SUCCESS) {
+              if (context.mounted) Navigator.pop(context);
+              profileCubit.fetchVehicle(isLoading: false);
+              ToastMessages.success(message: isEdit ? context.appText.addressUpdatedSuccessfully : context.appText.addressAddedSuccess);
+            } else {
+              ToastMessages.error(message: getErrorMsg(errorType: state?.errorType ?? GenericError()));
+            }
+          }
+        },
+      ),
+    );
+  }
+ 
+  void showAddDriverPopup(BuildContext context, {VehicleData? vehcile}) {
+    final formKey = GlobalKey<FormState>();
+    final isEdit = vehcile != null;
+
+    final addressNameController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final addressController = TextEditingController(text:vehcile?.vehicleId ?? '');
+    final cityController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final stateController = TextEditingController(text: vehcile?.vehicleId ?? '');
+    final pinCodeController = TextEditingController(text: vehcile?.vehicleId ?? '');
+
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        yesButtonText: isEdit ? context.appText.update : context.appText.save,
+        noButtonText: context.appText.cancel,
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(isEdit ? context.appText.editAddress : "Add New Driver", style: AppTextStyle.h4),
+              20.height,
+              _buildTextField(context, addressNameController, "Driver Name", alphanumericWithSpaceRegex),
+              16.height,
+              _buildTextField(context, addressController, "License Number", alphanumericWithSpaceRegex),
+              16.height,
+               ///Possible Delivery date
+                    InkWell(
+                        onTap: () async {
+                          final String? date = await commonDatePicker(
+                            context,
+                            firstDate: DateTime.now(),
+                            initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
+                          );
+                          if(!context.mounted) return;
+                          final String? time = await commonTimePicker(context);
+                  
+                          if (date != null && time != null) {
+                          
+                          }
+                          },
+                        child: buildReadOnlyField(context.appText.possibleDeliveryDate, "Licensne", fillColor: Colors.white,mandatoryStar: true)
+                    ),
+               16.height,
+               ///Possible Delivery date
+                    InkWell(
+                        onTap: () async {
+                          final String? date = await commonDatePicker(
+                            context,
+                            firstDate: DateTime.now(),
+                            initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
+                          );
+                          if(!context.mounted) return;
+                          final String? time = await commonTimePicker(context);
+                  
+                          if (date != null && time != null) {
+                          
+                          }
+                          },
+                        child: buildReadOnlyField(context.appText.possibleDeliveryDate, "Licensne", fillColor: Colors.white,mandatoryStar: true)
+                    ),
+             16.height,
+                   AppTextField(
+                validator: Validator.pincode,
+                controller: pinCodeController,
+                labelText: "Mobile Number",
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                keyboardType: iosNumberKeyboard,
+              ),
+              16.height,
+              _buildTextField(context, addressController, "Email ID (optional)", alphanumericWithSpaceRegex),
+                   
+              20.height,
+            ],
+          ),
+        ),
+        onClickYesButton: () async {
+          if (formKey.currentState!.validate()) {
+          final request = VehicleRequest(
+          customerId: '2e4d8086-5e8c-40b4-b316-ec6e6ede3473',
+          truckNo: 'TN01DB1235',
+          rcNumber: 'JTN7D5432168',
+          rcDocLink: 'https://example.com/rc-book.pdf',
+          tonnage: '12T',
+          truckTypeId: 1,
+          truckMakeAndModel: 'TN05 D6544',
+          acceptableCommodities: [0],
+          truckLength: 30,
+          vehicleStatus: 1,
+        );
+
+            if (isEdit) {
+             // await profileCubit.updateAddress(addressId: address.preferedAddressId, request: request);
+            } else {
+              await profileCubit.createVehicle(request: request);
+            }
+
+            final state = profileCubit.state.createVehicleState;
+            if (state?.status == Status.SUCCESS) {
+              if (context.mounted) Navigator.pop(context);
+              profileCubit.fetchVehicle(isLoading: false);
+              ToastMessages.success(message: isEdit ? context.appText.addressUpdatedSuccessfully : context.appText.addressAddedSuccess);
+            } else {
+              ToastMessages.error(message: getErrorMsg(errorType: state?.errorType ?? GenericError()));
+            }
+          }
+        },
+      ),
+    );
+  }
+
+ 
+ 
   Widget _buildTextField(BuildContext context, TextEditingController controller, String label, RegExp pattern) {
     return AppTextField(
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
@@ -586,3 +862,32 @@ class _MasterScreenState extends State<MasterScreen> with SingleTickerProviderSt
     );
   }
 }
+
+
+  Widget buildReadOnlyField(String label, String value,{Color? fillColor, bool mandatoryStar = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label, style: AppTextStyle.textFiled),
+            if(mandatoryStar)
+              Text(" *",
+                  style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        6.height,
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: commonContainerDecoration(
+              color: fillColor ?? AppColors.lightGreyBackgroundColor,
+              borderRadius: BorderRadius.circular(commonTexFieldRadius),
+              borderColor: AppColors.borderDisableColor),
+          child: Text(value, style: AppTextStyle.textFiled),
+        ),
+      ],
+    );
+  }
+
+  

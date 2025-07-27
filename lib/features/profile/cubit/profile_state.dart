@@ -10,9 +10,11 @@ class ProfileState extends Equatable {
   final UIState<PaginatedDriverList>? driverState;
   final UIState<BlueMemberShipResponse>? memberShipState;
   final UIState<CustomerAddress>? createAddressState;
+  final UIState<VehicleNewModel>? createVehicleState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
   final bool showSuccessKyc;
   final String? blueId;
+  final UIState<List<TruckTypeModel>>? truckTypeUIState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -24,8 +26,10 @@ class ProfileState extends Equatable {
     this.memberShipState,
     this.createAddressState,
     this.vehicleState,
+     this.createVehicleState,
     this.driverState,
     this.customerSettingsState,
+    this.truckTypeUIState,
   });
 
   ProfileState copyWith({
@@ -37,9 +41,11 @@ class ProfileState extends Equatable {
     UIState<CustomerSettingsResponse>? customerSettingsState,
     UIState<BlueMemberShipResponse>? memberShipState,
     UIState<CustomerAddress>? createAddressState,
+    UIState<VehicleNewModel>? createVehicleState,
     UIState<PaginatedVehicleList>? vehicleState,
     UIState<PaginatedDriverList>? driverState,
     UIState<bool>? deleteVehicleState,
+    UIState<List<TruckTypeModel>>? truckTypeUIState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -54,7 +60,9 @@ class ProfileState extends Equatable {
       primaryAddressState: primaryAddressState ?? this.primaryAddressState,
       memberShipState: memberShipState ?? this.memberShipState,
       createAddressState: createAddressState ?? this.createAddressState,
+      createVehicleState: createVehicleState ?? this.createVehicleState,
       vehicleState: vehicleState ?? this.vehicleState,
+      truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
       driverState: driverState ?? this.driverState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
     );
@@ -71,6 +79,8 @@ class ProfileState extends Equatable {
     showSuccessKyc,
     blueId,
     createAddressState,
+    truckTypeUIState,
+    createVehicleState,
     vehicleState,
     driverState,
     customerSettingsState
