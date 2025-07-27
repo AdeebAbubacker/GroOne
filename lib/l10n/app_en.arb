@@ -1016,10 +1016,14 @@
   "tamil": "Tamil",
   "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent",
   "failedToDownloadDocuments":"Failed to download the document",
-  "notVerified" : "not verified"
-
-
-
+  "notVerified" : "not verified",
+  "addNewDriver": "Add New Driver",
+  "editVehicle" : "Edit Vehicle",
+  "addNewVehicle": "Add New Vehicle",
+  "editDriver" : "Edit Driver",
+  "driverName" : "Driver Name",
+  "licenseExpiryDate" : "License Expry Date",
+  "dateOdBirth" : "Date of birth"
 
 
 

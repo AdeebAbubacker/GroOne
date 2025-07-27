@@ -122,7 +122,7 @@ class _MasterScreenState extends State<MasterScreen>
 
           if (result is Success) {
             if (context.mounted) {
-              Navigator.of(context).pop(); // close dialog
+              Navigator.of(context).pop(); 
               ToastMessages.success(
                 message: context.appText.addressDeletedSuccessfully,
               );
@@ -476,7 +476,7 @@ class _MasterScreenState extends State<MasterScreen>
                     onDelete:
                         () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
                   
-                  );
+                  context: context);
                 },
               ).expand(),
               AppButton(
@@ -530,7 +530,7 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ).expand(),
             AppButton(
-              title: "Add New Driver",
+              title: context.appText.addNewDriver,
               onPressed: () async {
                 showAddDriverPopup(context);
               },
@@ -560,11 +560,11 @@ class _MasterScreenState extends State<MasterScreen>
                   },
                   
                   onDelete: () => deletePopUpForDriver(context, driver.driverId),
-                );
+                context: context);
               },
             ).expand(),
             AppButton(
-              title: "Add New Driver",
+              title: context.appText.addNewDriver,
               onPressed: () {
                 showAddDriverPopup(context);
               },
@@ -662,6 +662,7 @@ class _MasterScreenState extends State<MasterScreen>
   required String phone,
   required VoidCallback onEdit,
   required VoidCallback onDelete,
+  required BuildContext context,
 }) {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -728,8 +729,8 @@ class _MasterScreenState extends State<MasterScreen>
                 color: Colors.green.shade100,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                "Active",
+              child: Text(
+                context.appText.active,
                 style: TextStyle(
                   color: Colors.green,
                   fontWeight: FontWeight.w600,
@@ -783,6 +784,7 @@ class _MasterScreenState extends State<MasterScreen>
   required String phone,
   required VoidCallback onEdit,
   required VoidCallback onDelete,
+  required BuildContext context,
 }) {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -849,8 +851,8 @@ class _MasterScreenState extends State<MasterScreen>
                 color: Colors.green.shade100,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                "Active",
+              child: Text(
+                context.appText.active,
                 style: TextStyle(
                   color: Colors.green,
                   fontWeight: FontWeight.w600,
@@ -875,7 +877,7 @@ class _MasterScreenState extends State<MasterScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("Delete"),
+                child: Text(context.appText.delete),
               ),
             ),
             const SizedBox(width: 12),
@@ -889,7 +891,7 @@ class _MasterScreenState extends State<MasterScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("Edit"),
+                child: Text(context.appText.edit),
               ),
             ),
           ],
@@ -1050,28 +1052,28 @@ class _MasterScreenState extends State<MasterScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isEdit ? context.appText.editAddress : "Add New Vehicle",
+                      isEdit ? context.appText.editVehicle :context.appText.addNewVehicle ,
                       style: AppTextStyle.h4,
                     ),
                     20.height,
                     _buildTextField(
                       context,
                       truckNumberController,
-                      "Truck Number",
+                      context.appText.truckNumber,
                       alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     _buildTextField(
                       context,
                       truckMakeModelController,
-                      "Truck Make and model",
+                      context.appText.truckMakeAndModel,
                       alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     _buildTextField(
                       context,
                       rcNumberController,
-                      "RC Book Number",
+                      context.appText.rcBook,
                       alphabetWithSpaceRegex,
                     ),
                     16.height,
@@ -1109,7 +1111,7 @@ class _MasterScreenState extends State<MasterScreen>
                     return Column(
                       children: [
                         AppDropdown(
-                          labelText: "Truck Type",
+                          labelText: context.appText.truckType,
                           dropdownValue: selectedTruckType,
                           dropDownList: truckTypes.map((e) => DropdownMenuItem(
                                 value: e,
@@ -1126,7 +1128,7 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                      const SizedBox(height: 16),
                     AppDropdown(
-                      labelText: "Truck Length",
+                      labelText: context.appText.truckLength,
                       dropdownValue: truckLengthDropdownValue,
                       dropDownList: (truckLengthsUI != null &&
                               truckLengthsUI.status == Status.SUCCESS &&
@@ -1136,7 +1138,7 @@ class _MasterScreenState extends State<MasterScreen>
                                 child: Text(e.subType),
                               )).toList()
                           : [],
-                      hintText: "Select Truck Length",
+                      hintText: context.appText.pleaseSelectTruckLength,
                       mandatoryStar: true,
                     
                       onChanged: (val) {
@@ -1167,7 +1169,7 @@ class _MasterScreenState extends State<MasterScreen>
                     _buildTextField(
                       context,
                       capacityController,
-                      "Capacity",
+                      context.appText.capacity,
                       alphabetWithSpaceRegex,
                     ),
                    16.height,   
@@ -1307,21 +1309,21 @@ String? selectedDoB = driver?.dateOfBirth != null
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isEdit ? context.appText.editAddress : "Add New Driver",
+                    isEdit ? context.appText.editDriver : context.appText.addNewDriver,
                     style: AppTextStyle.h4,
                   ),
                   20.height,
                   _buildTextField(
                     context,
                     nameController,
-                    "Driver Name",
+                    context.appText.driverName,
                     alphanumericWithSpaceRegex,
                   ),
                   16.height,
                   _buildTextField(
                     context,
                     licenseNumberController,
-                    "License Number",
+                    context.appText.licenseNumber,
                     alphanumericWithSpaceRegex,
                   ),
                   16.height,
@@ -1344,7 +1346,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                     },
                     child: buildReadOnlyField(
           
-                      "License Expry Date",
+                      context.appText.licenseExpiryDate,
                       selectedDate ?? 'Select date',
                       fillColor: Colors.white,
                       mandatoryStar: true,
@@ -1369,7 +1371,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                 }
                     },
                     child: buildReadOnlyField(
-                      "Date of birth",
+                    context.appText.dateOdBirth,
                       selectedDoB ?? 'DOB',
                       fillColor: Colors.white,
                       mandatoryStar: true,
@@ -1395,7 +1397,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                     AppTextField(
                     validator: Validator.phone,
                     controller: mobileController,
-                    labelText: "Mobile Number",
+                    labelText: context.appText.mobileNumber,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(10),
@@ -1404,7 +1406,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                   ),
                   16.height,
                   AppTextField(
-                                labelText: 'Email ID (optional)',
+                  labelText: '${context.appText.emailId}(optional)',
                                 hintText: 'example@email.com',
                                controller: emailController,
                               
