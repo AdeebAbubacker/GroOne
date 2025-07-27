@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
@@ -416,7 +419,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
      return result;
   }
-
+ 
+  Future<void> uploadVehicleDoc(File file) async {
+    emit(state.copyWith(vehicleDocUpload: UIState.loading()));
+    final result = await kavachRepository.getUploadGstData(file);
+    if (result is Success<KavachVehicleDocumentUploadModel>) {
+      emit(state.copyWith(vehicleDocUpload: UIState.success(result.value)));
+    } else if (result is Error<KavachVehicleDocumentUploadModel>) {
+      emit(state.copyWith(vehicleDocUpload: UIState.error(result.type)));
+    } else {
+      emit(state.copyWith(vehicleDocUpload: UIState.error(GenericError())));
+    }
+  }
 
   // Reset State
   void resetState(){

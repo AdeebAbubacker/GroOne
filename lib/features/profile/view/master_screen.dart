@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
@@ -64,8 +65,8 @@ class _MasterScreenState extends State<MasterScreen>
   String? selectedTruckType;
   String? selectedTruckLength;
   String? truckLengthDropdownValue;
-   bool showValidationErrors = false;
-
+  bool showValidationErrors = false;
+  List<Map<String, dynamic>> vehicleDocList = [];
   @override
   void initState() {
     initFunction();
@@ -1113,7 +1114,15 @@ class _MasterScreenState extends State<MasterScreen>
             );
           },
         ),
-        Builder(
+          16.height,
+                _buildTextField(
+                  context,
+                  capacityController,
+                  "Capacity",
+                  alphabetWithSpaceRegex,
+                ),
+               16.height,   
+             Builder(
                   builder: (context) {
                     final state = gpsVehicleCubit.state;
                     
@@ -1147,13 +1156,7 @@ class _MasterScreenState extends State<MasterScreen>
                   },
                 ),
                
-        16.height,
-                _buildTextField(
-                  context,
-                  capacityController,
-                  "Capacity",
-                  alphabetWithSpaceRegex,
-                ),
+             
                 16.height,
                
                 20.height,
@@ -1208,7 +1211,8 @@ class _MasterScreenState extends State<MasterScreen>
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = driver != null;
-
+   String? selectedDate;
+   String? selectedDoB;
     final nameController = TextEditingController(text: driver?.name ?? "");
     final licenseNumberController = TextEditingController();
     final mobileController = TextEditingController();
@@ -1228,161 +1232,165 @@ class _MasterScreenState extends State<MasterScreen>
 
     AppDialog.show(
       context,
-      child: MasterCommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        yesButtonText: isEdit ? context.appText.update : context.appText.save,
-        noButtonText: context.appText.cancel,
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isEdit ? context.appText.editAddress : "Add New Driver",
-                style: AppTextStyle.h4,
-              ),
-              20.height,
-              _buildTextField(
-                context,
-                nameController,
-                "Driver Name",
-                alphanumericWithSpaceRegex,
-              ),
-              16.height,
-              _buildTextField(
-                context,
-                licenseNumberController,
-                "License Number",
-                alphanumericWithSpaceRegex,
-              ),
-              16.height,
-
-              ///Possible Delivery date
-              InkWell(
-                onTap: () async {
-                  final String? date = await commonDatePicker(
+      child: StatefulBuilder(
+       builder: (BuildContext context, void Function(void Function()) setState) {
+          return MasterCommonDialogView(
+            hideCloseButton: true,
+            showYesNoButtonButtons: true,
+            yesButtonText: isEdit ? context.appText.update : context.appText.save,
+            noButtonText: context.appText.cancel,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isEdit ? context.appText.editAddress : "Add New Driver",
+                    style: AppTextStyle.h4,
+                  ),
+                  20.height,
+                  _buildTextField(
                     context,
-                    firstDate: DateTime.now(),
-                    initialDate:
-                        DateTimeHelper.convertToDateTimeWithCurrentTime(
-                          DateTime.now().toString(),
-                        ),
-                  );
-                  if (!context.mounted) return;
-                  final String? time = await commonTimePicker(context);
-
-                  if (date != null && time != null) {}
-                },
-                child: buildReadOnlyField(
-                  context.appText.possibleDeliveryDate,
-                  "Licensne",
-                  fillColor: Colors.white,
-                  mandatoryStar: true,
-                ),
-              ),
-              16.height,
-
-              ///Possible Delivery date
-              InkWell(
-                onTap: () async {
-                  final String? date = await commonDatePicker(
+                    nameController,
+                    "Driver Name",
+                    alphanumericWithSpaceRegex,
+                  ),
+                  16.height,
+                  _buildTextField(
                     context,
-                    firstDate: DateTime.now(),
-                    initialDate:
-                        DateTimeHelper.convertToDateTimeWithCurrentTime(
-                          DateTime.now().toString(),
-                        ),
-                  );
-                  if (!context.mounted) return;
-                  final String? time = await commonTimePicker(context);
-
-                  if (date != null && time != null) {}
-                },
-                child: buildReadOnlyField(
-                  context.appText.possibleDeliveryDate,
-                  "Licensne",
-                  fillColor: Colors.white,
-                  mandatoryStar: true,
-                ),
-              ),
-              16.height,
-              AppTextField(
-                validator: Validator.phone,
-                controller: mobileController,
-                labelText: "Mobile Number",
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(10),
+                    licenseNumberController,
+                    "License Number",
+                    alphanumericWithSpaceRegex,
+                  ),
+                  16.height,
+          
+                  ///License Expiry date
+                  InkWell(
+                    onTap: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  final formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+                  setState(() {
+                    selectedDate = formattedDate;
+                  });
+                }
+                    },
+                    child: buildReadOnlyField(
+          
+                      context.appText.possibleDeliveryDate,
+                      selectedDate ?? 'Select date',
+                      fillColor: Colors.white,
+                      mandatoryStar: true,
+                    ),
+                  ),
+                  16.height,
+          
+                  ///Date of Birth
+                  InkWell(
+                    onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  final formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+                  setState(() {
+                    selectedDoB = formattedDate;
+                  });
+                }
+                    },
+                    child: buildReadOnlyField(
+                      context.appText.possibleDeliveryDate,
+                      selectedDoB ?? 'Select DOB',
+                      fillColor: Colors.white,
+                      mandatoryStar: true,
+                    ),
+                  ),
+                  16.height,
+                  AppTextField(
+                    validator: Validator.phone,
+                    controller: mobileController,
+                    labelText: "Mobile Number",
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    keyboardType: iosNumberKeyboard,
+                  ),
+                  16.height,
+                  AppTextField(
+                                labelText: 'Email ID (optional)',
+                                hintText: 'example@email.com',
+                               controller: emailController,
+                              
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.emailAddressRequired;
+                                  }
+                                  // Email validation
+                                  final emailRegex = emailValidationRegex;
+                                  if (!emailRegex.hasMatch(value.trim())) {
+                                    return context.appText.validEmailAddress;
+                                  }
+                                  return null;
+                                },
+                                decoration: commonInputDecoration(
+                                  hintText: 'example@email.com',                         
+                                ),
+                              ),
+                  
+                  20.height,
                 ],
-                keyboardType: iosNumberKeyboard,
               ),
-              16.height,
-              AppTextField(
-                            labelText: '"Email ID (optional)',
-                            hintText: 'example@email.com',
-                           controller: emailController,
-                            readOnly: false,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return context.appText.emailAddressRequired;
-                              }
-                              // Email validation
-                              final emailRegex = emailValidationRegex;
-                              if (!emailRegex.hasMatch(value.trim())) {
-                                return context.appText.validEmailAddress;
-                              }
-                              return null;
-                            },
-                            decoration: commonInputDecoration(
-                              hintText: 'example@email.com',
-                              fillColor: AppColors.disabledFieldBackgroundColor,
-                              focusColor: AppColors.disabledFieldBackgroundColor,
-                            ),
-                          ),
+            ),
+            onClickYesButton: () async {
+              if (formKey.currentState!.validate()) {
+                final request = DriverRequest(
+                customerId: profileCubit.userId ?? "",
+                name: nameController.text,
+                mobile: formatMobileNumber(mobileController.text.trim()),
+                email: emailController.text,
+                licenseNumber: licenseNumberController.text,
+                licenseDocLink: "https://cdn.example.com/licenses/123.pdf",
+                licenseExpiryDate:"2025-12-31T18:30:00.000Z",
+                dateOfBirth:"1990-01-01T00:00:00.000Z",
               
-              20.height,
-            ],
-          ),
-        ),
-        onClickYesButton: () async {
-          if (formKey.currentState!.validate()) {
-            final request = DriverRequest(
-            customerId: profileCubit.userId ?? "",
-            name: nameController.text,
-            mobile: formatMobileNumber(mobileController.text.trim()),
-            email: emailController.text,
-            licenseNumber: licenseNumberController.text,
-            licenseDocLink: "https://cdn.example.com/licenses/123.pdf",
-            licenseExpiryDate:"2025-12-31T18:30:00.000Z",
-            dateOfBirth:"1990-01-01T00:00:00.000Z",
+              );
+                if (isEdit) {
+                   await profileCubit.updateDriver(driverId: driver.driverId, request: request);
+                } else {
+                  await profileCubit.createDriver(request: request);
+                }
+          
+                final state = profileCubit.state.createDriverState;
+                if (state?.status == Status.SUCCESS) {
+                  if (context.mounted) Navigator.pop(context);
+                  profileCubit.fetchDriver(isLoading: false);
+                  ToastMessages.success(
+                    message:
+                        isEdit
+                            ? context.appText.addressUpdatedSuccessfully
+                            : context.appText.addressAddedSuccess,
+                  );
+                } else {
+                  ToastMessages.error(
+                    message: getErrorMsg(
+                      errorType: state?.errorType ?? GenericError(),
+                    ),
+                  );
+                }
+              }
+            },
           );
-            if (isEdit) {
-               await profileCubit.updateDriver(driverId: driver.driverId, request: request);
-            } else {
-              await profileCubit.createDriver(request: request);
-            }
-
-            final state = profileCubit.state.createDriverState;
-            if (state?.status == Status.SUCCESS) {
-              if (context.mounted) Navigator.pop(context);
-              profileCubit.fetchDriver(isLoading: false);
-              ToastMessages.success(
-                message:
-                    isEdit
-                        ? context.appText.addressUpdatedSuccessfully
-                        : context.appText.addressAddedSuccess,
-              );
-            } else {
-              ToastMessages.error(
-                message: getErrorMsg(
-                  errorType: state?.errorType ?? GenericError(),
-                ),
-              );
-            }
-          }
-        },
+        }
       ),
     );
 
